@@ -8,6 +8,7 @@ from __future__ import print_function
 
 import sys, os.path, xlrd
 
+from ..add import accelerator as accel
 
 class AccelFactory(object):
 
@@ -51,18 +52,18 @@ class AccelFactory(object):
 
         for ridx in xrange(ridx, sheet.nrows):
             row = _LayoutRow(sheet.row(ridx))
-
+            print("**", ridx+1, row)
             if row.elementLength == None:
                 continue
 
             if subseqname == None:
                 if row.subsystem != None:
-                    subsysname = row.subsystem
+                    subseqname = row.subsystem
                 else:
-                    raise Exception()
+                    raise Exception("Init layout data must specify subsystem (Row: {}): {}".format(ridx+1,row))
 
             elif (row.subsystem != None) and (row.subsystem != subseqname):
-                subsequences.append(SeqElement(elements, name=subseqname))
+                subsequences.append(accel.SeqElement(elements, name=subseqname))
                 elements = []
 
 
@@ -70,30 +71,76 @@ class AccelFactory(object):
                 if row.system != None:
                     seqname = row.system
                 else:
-                    raise Exception()
+                    raise Exception("Initial layout row must specifiy system (Row: {}): {}".format(ridx+1,row))
 
             elif (row.system != None) and (row.system != seqname):
-                sequences.append(SeqElement(subsequences, name=seqname))
+                sequences.append(accel.SeqElement(subsequences, name=seqname))
                 subsequences = []
 
-            if row.system == None:
-                if row.elementName in [ "bellow", "bellows" ]:
-                    elements.append(DriftElement(row.elementLength))
+
+            if row.device != None:
+                if row.device in [ "GV", "FVS", "FAV" ]:
+                    elements.append(accel.ValveElement(row.elementLength))
+
+                elif row.device.startswith("CAV"):
+                    elements.append(accel.CavityElement(row.elementLength))
+
+                elif row.device.startswith("SOL"):
+                    elements.append(accel.SolenoidElement(row.elementLength))
+
+                elif row.device == "BLM":
+                    elements.append(accel.BeamLossElement(row.elementLength))
+
+                elif row.device == "BPM":
+                    elements.append(accel.BeamPositionElement(row.elementLength))
+
+                elif row.device == "BL":
+                    elements.append(accel.BunchLengthElement(row.elementLength))
+
+                elif row.device == "PM":
+                    elements.append(accel.DriftElement(row.elementLength))
+
+                elif row.device == "BCM":
+                    elements.append(accel.DriftElement(row.elementLength))
+
+                elif row.device == "PORT":
+                    elements.append(accel.DriftElement(row.elementLength))
+
+                elif row.device in [ "DC", "DH", "DC0", "CH" ]:
+                    elements.append(accel.DipoleElement(row.elementLength))
+
+                elif row.device in [ "QH", "QV" ]:
+                    elements.append(accel.QuadrupoleElement(row.elementLength))
+
+                elif row.device == "SLH":
+                    elements.append(accel.DriftElement(row.elementLength))
+
+                elif row.device == "S":
+                    elements.append(accel.DriftElement(row.elementLength))
+
+                elif row.device == "dump":
+                    elements.append(accel.DriftElement(row.elementLength))
+
                 else:
                     raise Exception("Unsupported layout data (Row: {}): {}".format(ridx+1,row))
 
+            elif row.elementName != None:
 
-                elements.append()
-
-            else:
-                if row.device == "GV":
-                    elements.append(ValveElement(row.elementLength))
-
+                if row.elementName in [ "bellow", "bellows", "BPM-box", "solenoid-entry", "solenoid-exit",
+                                             "bellow+tube", "2 bellows + tube", "diagnostic box", "vacuum box",
+                                              "stripper module", "lithium film stripper" ]:
+                    elements.append(accel.DriftElement(row.elementLength))
                 else:
                     raise Exception("Unsupported layout data (Row: {}): {}".format(ridx+1,row))
 
+            elif row.elementLength != 0.0:
+                #raise Exception("Unsupported layout data (Row: {}): {}".format(ridx+1,row))
+                elements.append(accel.DriftElement(row.elementLength))
+               
+               
 
-        return Accelerator(sequences)
+
+        return accel.Accelerator(sequences)
 
 
 class _LayoutRow(object):
@@ -130,7 +177,11 @@ class _LayoutRow(object):
 
     def _read_string(self, cell):
         if cell.ctype == xlrd.XL_CELL_TEXT:
-            return cell.value
+            value = cell.value.strip()
+            if len(value) > 0:
+                return value
+            else:
+                return None
         else:
             return None
 
@@ -147,4 +198,4 @@ class _LayoutRow(object):
             return None
 
     def __str__(self):
-        return "{{ system:'{}', subsystem:'{}', elementName:'{}'".format(self.system, self.subsystem, self.elementName)
+        return "{{ system:'{}', subsystem:'{}', elementName:'{}' }}".format(self.system, self.subsystem, self.elementName)

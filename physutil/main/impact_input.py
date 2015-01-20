@@ -32,4 +32,7 @@ def main():
     #    print(e, file=sys.stderr)
     #    return 1
 
+    for elm in accel:
+        print(elm)
+
     return 0
