@@ -12,6 +12,8 @@ from argparse import ArgumentParser
 
 from physutil import frib
 
+from physutil.impact import lattice
+
 
 parser = ArgumentParser(description="Generate input files for IMPACT simulation.")
 parser.add_argument("--xlf", required=True)
@@ -32,7 +34,11 @@ def main():
     #    print(e, file=sys.stderr)
     #    return 1
 
-    for elm in accel:
-        print(elm)
+    #for elm in accel:
+    #    print(elm)
+
+    lattice.write_lattice(accel)
+
+
 
     return 0

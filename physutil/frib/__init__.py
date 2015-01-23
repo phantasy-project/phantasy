@@ -8,7 +8,4 @@ def read_xlf(xlfpath):
     """
     Convenience method for reading FRIB Expanded Lattice File.
     """
-
-    factory = xlf.AccelFactory(xlfpath)
-
-    return factory.create()
+    return xlf.read_add(xlfpath)

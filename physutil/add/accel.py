@@ -6,6 +6,7 @@ Implement physutil command 'impact-input'.
 
 from __future__ import print_function
 
+from .seq import SeqElement
 
 
 class Accelerator(SeqElement):

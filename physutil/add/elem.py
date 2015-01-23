@@ -50,8 +50,8 @@ class BaseElement(object):
 
 
     def __str__(self):
-        s = "{0}{{ desc:'{1.desc}', length:{1.length} }}"
-        return s.format(type(self).__name__, self.__dict__)
+        s = "{0}{{ desc:'{1.desc}', length:{1.length}, diamter:{1.diamter} }}"
+        return s.format(type(self).__name__, self)
 
 
 class NamedElement(BaseElement):
@@ -73,6 +73,12 @@ class NamedElement(BaseElement):
         if len(name) == 0:
             raise ValueError("NamedElement: 'name' property must not be empty")
         self._name = name
+
+
+    def __str__(self):
+        s = "{0}{{ name:'{1.name}', desc:'{1.desc}', length:{1.length}, diamter:{1.diameter} }}"
+        return s.format(type(self).__name__, self)
+
 
 
 class Element(NamedElement):
@@ -129,3 +135,9 @@ class Element(NamedElement):
         if not isinstance(dtype, basestring):
             raise TypeError("Element: 'dtype' property must be a string")
         self._dtype = dtype
+
+
+    def __str__(self):
+        s = "{0}{{ name:'{1.name}', desc:'{1.desc}', length:{1.length}, diamter:{1.diameter}, " +  \
+                "system:'{1.system}', subsystem:'{1.subsystem}', device:'{1.device}', dtype:'{1.dtype}' }}"
+        return s.format(type(self).__name__, self)

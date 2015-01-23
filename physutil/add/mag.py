@@ -13,18 +13,37 @@ class SolElement(Element):
     """
     def __init__(self, length, diameter, name, desc="solenoid", system="", subsystem="", device="", dtype=""):
         super(SolElement, self).__init__(length, diameter, name, desc=desc, system=system,
-        										subsystem=subsystem, device=device, dtype=dtype)
+                                                subsystem=subsystem, device=device, dtype=dtype)
 
 
-# class DipolElement(Element):
-#     """
-#     """
-#     def __init__(self, length, name="", system="", subsystem="", device="", dtype=""):
-#         super(DipoleElement,self).__init__(length, diameter, name, system, subsystem, device, dtype)
+
+class BendElement(Element):
+    """
+    """
+    def __init__(self, length, diameter, name, desc="bend magnet", system="", subsystem="", device="", dtype=""):
+        super(BendElement, self).__init__(length, diameter, name, desc=desc, system=system,
+                                                subsystem=subsystem, device=device, dtype=dtype)
 
 
-# class QuadElement(Element):
-#     """
-#     """
-#     def __init__(self, length, name="", system="", subsystem="", device="", dtype=""):
-#         super(QuadrupoleElement,self).__init__(length, diameter, name, system, subsystem, device, dtype)
+class CorrElement(Element):
+    """
+    """
+    def __init__(self, length, diameter, name, desc="corrector magnet", system="", subsystem="", device="", dtype=""):
+        super(CorrElement, self).__init__(length, diameter, name, desc=desc, system=system,
+                                                subsystem=subsystem, device=device, dtype=dtype)
+
+
+class QuadElement(Element):
+    """
+    """
+    def __init__(self, length, diameter, name, desc="quadrupole magnet", system="", subsystem="", device="", dtype=""):
+        super(QuadElement, self).__init__(length, diameter, name, desc=desc, system=system,
+                                                subsystem=subsystem, device=device, dtype=dtype)
+
+
+class HexElement(Element):
+    """
+    """
+    def __init__(self, length, diameter, name, desc="hexapole magnet", system="", subsystem="", device="", dtype=""):
+        super(HexElement, self).__init__(length, diameter, name, desc=desc, system=system,
+                                                subsystem=subsystem, device=device, dtype=dtype)

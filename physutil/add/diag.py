@@ -25,6 +25,15 @@ class BPMElement(Element):
                                             subsystem=subsystem, device=device, dtype=dtype)
 
 
+class BCMElement(Element):
+    """
+    BCMElement represents Beam Current Monitor diagnostic device.
+    """
+    def __init__(self, length, diameter, name, desc="beam current monitor", system="", subsystem="", device="", dtype=""):
+        super(BCMElement,self).__init__(length, diameter, name, desc=desc, system=system,
+                                            subsystem=subsystem, device=device, dtype=dtype)
+
+
 class BLElement(Element):
     """
     BLElement represents Bunch Length Monitor diagnostic device.

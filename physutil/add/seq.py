@@ -75,7 +75,7 @@ class _SeqElementIterator(object):
             it = self._iterators[-1]
             try:
                 elem = it.next()
-                if isintance(elem, SeqElement):
+                if isinstance(elem, SeqElement):
                     self._iterators.append(iter(elem))
                     continue
             

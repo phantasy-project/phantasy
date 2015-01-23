@@ -8,194 +8,299 @@ from __future__ import print_function
 
 import sys, os.path, xlrd
 
-from ..add import accelerator as accel
+#from ..add import accelerator as accel
 
-class AccelFactory(object):
-
-    XLF_LAYOUT_SHEET_START = 8
-
-    XLF_LAYOUT_SHEET_NAME = "LatticeLayout"
-
-    def __init__(self, xlfpath):
-        self.xlfpath = xlfpath
-
-    def create(self):
-
-        if not os.path.isfile(self.xlfpath):
-            raise Exception("XLF: not found: {}".format(self.xlfpath))
-
-        wkbk = xlrd.open_workbook(self.xlfpath)
-
-        return self._read_layout(wkbk)
+from ..add import pasv, diag, mag, cs, rf, seq, accel
+#from ..add import 
 
 
-    def _read_layout(self, wkbk):
+XLF_LAYOUT_SHEET_START = 8
 
-        if self.XLF_LAYOUT_SHEET_NAME not in wkbk.sheet_names():
-            raise Exception("Expanded Lattice File layout sheet not found: {}".format(self.XLF_LAYOUT_SHEET_NAME))
+XLF_LAYOUT_SHEET_NAME = "LatticeLayout"
 
-        sheet = wkbk.sheet_by_name(self.XLF_LAYOUT_SHEET_NAME)
+XLF_LAYOUT_SYSTEM_IDX = 0
 
-        # skip front-end, perhaps this should be read too?
-        for ridx in xrange(self.XLF_LAYOUT_SHEET_START, sheet.nrows):
-            row = _LayoutRow(sheet.row(ridx))
-            if row.system == "LS1": break
+XLF_LAYOUT_SUBSYSTEM_IDX = 1
 
-        print(ridx)
-        elements = []
+XLF_LAYOUT_DEVICE_IDX = 2
 
-        seqname = None
-        sequences = []
+XLF_LAYOUT_POSITION_IDX = 3
 
-        subseqname = None
-        subsequences = []
+XLF_LAYOUT_NAME_IDX = 4
 
-        for ridx in xrange(ridx, sheet.nrows):
-            row = _LayoutRow(sheet.row(ridx))
-            print("**", ridx+1, row)
-            if row.elementLength == None:
-                continue
+XLF_LAYOUT_DEVICE_TYPE_IDX = 5
 
-            if subseqname == None:
-                if row.subsystem != None:
-                    subseqname = row.subsystem
-                else:
-                    raise Exception("Init layout data must specify subsystem (Row: {}): {}".format(ridx+1,row))
+XLF_LAYOUT_ELEMENT_NAME_IDX = 6
 
-            elif (row.subsystem != None) and (row.subsystem != subseqname):
-                subsequences.append(accel.SeqElement(elements, name=subseqname))
-                elements = []
+XLF_LAYOUT_DIAMETER_IDX = 7
+
+XLF_LAYOUT_EFFECTIVE_LENGTH_IDX = 10
 
 
-            if seqname == None:
-                if row.system != None:
-                    seqname = row.system
-                else:
-                    raise Exception("Initial layout row must specifiy system (Row: {}): {}".format(ridx+1,row))
 
-            elif (row.system != None) and (row.system != seqname):
-                sequences.append(accel.SeqElement(subsequences, name=seqname))
-                subsequences = []
+def read_add(xlfpath, diameter=None):
+    """
+    Read the Accelerator Design Description from FRIB Expanded Lattice File.
+
+    :param xlfpath: File path to Expanded Lattice File (.xlsx)
+    :type xlfpath: 
+    :rtype Accelerator
+    """
+
+    if not os.path.isfile(xlfpath):
+        raise Exception("Expanded Lattice File not found: '{}'".format(xlfpath))
+
+    wkbk = xlrd.open_workbook(xlfpath)
+
+    if XLF_LAYOUT_SHEET_NAME not in wkbk.sheet_names():
+        raise Exception("Expanded Lattice File layout not found: '{}'".format(XLF_LAYOUT_SHEET_NAME))
+
+    layout = wkbk.sheet_by_name(XLF_LAYOUT_SHEET_NAME)
+
+    # skip front-end, perhaps this should be read too?
+    for ridx in xrange(XLF_LAYOUT_SHEET_START, layout.nrows):
+        row = _LayoutRow(layout.row(ridx))
+        if row.system == "LS1": break
+
+    elements = []
+
+    seqname = None
+    sequences = []
+
+    subseqname = None
+    subsequences = []
+
+    for ridx in xrange(ridx, layout.nrows):
+        row = _LayoutRow(layout.row(ridx))
+
+        # apply default values
+        if row.diameter == None:
+            ##row.diameter = diameter
+            row.diameter = 40
+
+        if row.eff_length == None:
+            continue
+
+        if subseqname == None:
+            if row.subsystem != None:
+                subseqname = row.subsystem
+            else:
+                raise Exception("XLF: Initial layout data must specify subsystem (row:{}): {}".format(ridx+1,row))
+
+        elif (row.subsystem != None) and (row.subsystem != subseqname):
+            subsequences.append(seq.SeqElement(elements, name=subseqname))
+            subseqname = row.subsystem
+            elements = []
 
 
+        if seqname == None:
+            if row.system != None:
+                seqname = row.system
+            else:
+                raise Exception("XLF: Initial layout data must specifiy system (row:{}): {}".format(ridx+1,row))
+
+        elif (row.system != None) and (row.system != seqname):
+            sequences.append(seq.SeqElement(subsequences, name=seqname))
+            seqname = row.system
+            subsequences = []
+
+
+        try:
             if row.device != None:
-                if row.device in [ "GV", "FVS", "FAV" ]:
-                    elements.append(accel.ValveElement(row.elementLength))
+                if row.device in [ "GV", "FVS", "FAV"  ]:
+                    elements.append(pasv.ValveElement(row.eff_length, row.diameter, row.name, desc=row.element_name,
+                                                        system=row.system, subsystem=row.subsystem, device=row.device))
 
-                elif row.device.startswith("CAV"):
-                    elements.append(accel.CavityElement(row.elementLength))
+                elif row.device in [ "CAV1", "CAV2", "CAV3", "CAV4", "CAV5", "CAV6", "CAV7", "CAV8" ]:
+                    elements.append(rf.CavityElement(row.eff_length, row.diameter, row.name, desc=row.element_name,
+                                                    system=row.system, subsystem=row.subsystem, device=row.device))
 
-                elif row.device.startswith("SOL"):
-                    elements.append(accel.SolenoidElement(row.elementLength))
+                elif row.device in [ "SOL1", "SOL2", "SOL3" ]:
+                    elements.append(mag.SolElement(row.eff_length, row.diameter, row.name, desc=row.element_name,
+                                                    system=row.system, subsystem=row.subsystem, device=row.device, dtype=row.device_type))
 
-                elif row.device == "BLM":
-                    elements.append(accel.BeamLossElement(row.elementLength))
+                elif row.device in [ "BLM" ]:
+                    elements.append(diag.BLMElement(row.eff_length, row.diameter, row.name, desc=row.element_name,
+                                                    system=row.system, subsystem=row.subsystem, device=row.device))
 
-                elif row.device == "BPM":
-                    elements.append(accel.BeamPositionElement(row.elementLength))
+                elif row.device in [ "BPM" ]:
+                    elements.append(diag.BPMElement(row.eff_length, row.diameter, row.name, desc=row.element_name,
+                                                    system=row.system, subsystem=row.subsystem, device=row.device, dtype=row.device_type))
 
-                elif row.device == "BL":
-                    elements.append(accel.BunchLengthElement(row.elementLength))
+                elif row.device in [ "BL" ]:
+                    elements.append(diag.BLElement(row.eff_length, row.diameter, row.name, desc=row.element_name,
+                                                    system=row.system, subsystem=row.subsystem, device=row.device, dtype=row.device_type))
 
-                elif row.device == "PM":
-                    elements.append(accel.DriftElement(row.elementLength))
+                elif row.device in [ "PM" ]:
+                    elements.append(diag.PMElement(row.eff_length, row.diameter, row.name, desc=row.element_name,
+                                                    system=row.system, subsystem=row.subsystem, device=row.device, dtype=row.device_type))
 
                 elif row.device == "BCM":
-                    elements.append(accel.DriftElement(row.elementLength))
+                    elements.append(diag.BCMElement(row.eff_length, row.diameter, row.name, desc=row.element_name,
+                                                    system=row.system, subsystem=row.subsystem, device=row.device, dtype=row.device_type))
 
-                elif row.device == "PORT":
-                    elements.append(accel.DriftElement(row.elementLength))
+                elif row.device in [ "PORT" ]:
+                    dtype = "" if row.device_type == None else row.device_type
+                    subsystem = "" if row.subsystem == None else row.subsystem                      
+                    elements.append(pasv.PortElement(row.eff_length, row.diameter, row.name, desc=row.element_name,
+                                                    system=row.system, subsystem=subsystem, device=row.device, dtype=dtype))
 
-                elif row.device in [ "DC", "DH", "DC0", "CH" ]:
-                    elements.append(accel.DipoleElement(row.elementLength))
+                elif row.device in [ "DC", "DH", "DC0", "CH" ]: #  DC0, CH could be typo in lattice file?
+                    elements.append(mag.CorrElement(row.eff_length, row.diameter, row.name, desc=row.element_name,
+                                                    system=row.system, subsystem=row.subsystem, device=row.device, dtype=dtype))
 
-                elif row.device in [ "QH", "QV" ]:
-                    elements.append(accel.QuadrupoleElement(row.elementLength))
+                elif row.device in [ "QH", "QV" ]: # Horizontal VS verticle
+                    elements.append(mag.QuadElement(row.eff_length, row.diameter, row.name, desc=row.element_name,
+                                                    system=row.system, subsystem=row.subsystem, device=row.device, dtype=dtype))
 
-                elif row.device == "SLH":
-                    elements.append(accel.DriftElement(row.elementLength))
+                elif row.device in [ "S" ]:
+                    elements.append(mag.HexElement(row.eff_length, row.diameter, row.name, desc=row.element_name,
+                                                    system=row.system, subsystem=row.subsystem, device=row.device, dtype=dtype))
 
-                elif row.device == "S":
-                    elements.append(accel.DriftElement(row.elementLength))
+                elif row.device in [ "SLH" ]:
+                    # use dift to represent slit for now
+                    elements.append(pasv.DriftElement(row.eff_length, row.diameter, desc=row.element_name))
 
                 elif row.device == "dump":
-                    elements.append(accel.DriftElement(row.elementLength))
+                     # use dift to represent dump for now
+                    elements.append(pasv.DriftElement(row.eff_length, row.diameter, desc=row.element_name))
 
                 else:
-                    raise Exception("Unsupported layout data (Row: {}): {}".format(ridx+1,row))
+                    raise Exception("Unsupported layout with device: '{}'".format(row.device))
 
-            elif row.elementName != None:
+            elif row.element_name != None:
 
-                if row.elementName in [ "bellow", "bellows", "BPM-box", "solenoid-entry", "solenoid-exit",
-                                             "bellow+tube", "2 bellows + tube", "diagnostic box", "vacuum box",
-                                              "stripper module", "lithium film stripper" ]:
-                    elements.append(accel.DriftElement(row.elementLength))
+                if row.element_name in [ "bellow", "bellows", "bellow+tube", "2 bellows + tube" ]:
+                    elements.append(pasv.DriftElement(row.eff_length, row.diameter, desc=row.element_name))
+
+                elif row.element_name in [ "solenoid-entry", "solenoid-exit" ]:
+                    elements.append(pasv.DriftElement(row.eff_length, row.diameter, desc=row.element_name))
+
+                elif row.element_name in [ "coil-out", "coil-out (assumed)", "coil out", "coil out + leads" ]:
+                    elements.append(pasv.DriftElement(row.eff_length, row.diameter, desc=row.element_name))                
+
+                elif row.element_name in [ "BPM-box", "diagnostic box", "vacuum box" ]:
+                    elements.append(pasv.DriftElement(row.eff_length, row.diameter, desc=row.element_name))
+
+                # elif row.element_name == "BPM-box":
+                #     if len(elements) == 0:
+                #         raise Exception("BPM-box: with no preceeding element")
+                #
+                #     elem = elements[-1]
+                #     if not isinstance(elem, diag.BPMElement):
+                #         raise Exception("BPM-box: does not follow BPM element")
+                #
+                #     if elem.length != 0.0:
+                #         raise Exception("BPM-box: diagnostic element has non-zero length")
+                #
+                #     elem.length = row.eff_length
+
+                # elif row.element_name == "diagnostic box":
+                #     if len(elements) == 0:
+                #         raise Exception("diagnostic box: with no preceeding element")
+                #
+                #     elem = elements[-1]
+                #     if not isinstance(elem, (diag.BPMElement, diag.BLElement, diag.PMElement, pasv.PortElement)):
+                #         raise Exception("diagnostic box: does not follow BPM, BL, PM or PORT")
+                #
+                #     if elem.length != 0.0:
+                #         raise Exception("diagnostic box: diagnostic element has non-zero length")
+                #
+                #     elem.length = row.eff_length
+
+                # elif row.element_name == "vacuum box":
+                #     if row.eff_length > 0.0:
+                #         if len(elements) == 0:
+                #             raise Exception("vacuum box: with no preceeding element")
+                #
+                #         elem = elements[-1]
+                #         if not isinstance(elem, pasv.PortElement):
+                #             raise Exception("vacuum box: does not follow PORT")
+                #
+                #         if elem.length != 0.0:
+                #             raise Exception("vacuum box: diagnostic element has non-zero length")
+                #
+                #         elem.length = row.eff_length
+
+                elif row.element_name == "stripper module":
+                    if len(elements) == 0:
+                        elements.append(cs.CSElement(row.eff_length, row.diameter, "CHARGE_STRIPPER", desc=row.element_name))
+
+                    elif not isinstance(elements[-1], (cs.CSElement)):
+                        elements.append(cs.CSElement(row.eff_length, row.diameter, "CHARGE_STRIPPER", desc=row.element_name))
+
+                    else:
+                        elements[-1].length += row.eff_length
+
+                elif row.element_name == "lithium film stripper":
+                    if len(elements) == 0:
+                        raise Exception("lithium film stripper: no preceeding elements")
+
+                    elif not isinstance(elements[-1], (cs.CSElement)):
+                        raise Exception("lithium film stripper: must follow stripper module")
+
+                    else:
+                        elem = elements[-1]
+                        elem.name = row.name
+                        elem.desc = row.element_name
+                        elem.system = row.system
+                        elem.subsystem = row.subsystem
+                        elem.device = "LFS" # NOT OFFICIAL (MISSING IN XLF)
+
                 else:
-                    raise Exception("Unsupported layout data (Row: {}): {}".format(ridx+1,row))
+                    raise Exception("Unsupported layout with name: '{}'".format(row.element_name))
 
-            elif row.elementLength != 0.0:
-                #raise Exception("Unsupported layout data (Row: {}): {}".format(ridx+1,row))
-                elements.append(accel.DriftElement(row.elementLength))
-               
-               
+            elif row.eff_length != 0.0:
+                desc = "drift_{}".format(ridx+1) if row.element_name == None else row.element_name
+                elements.append(pasv.DriftElement(row.eff_length, row.diameter, desc=desc))
 
+        except Exception as e:
+            raise Exception("XLF: {}: row {}: {}".format(str(e), ridx+1, row))
 
-        return accel.Accelerator(sequences)
+    return accel.Accelerator(sequences, xlfpath)
+
 
 
 class _LayoutRow(object):
+    """
+    LayoutRow contains the data from a single row of the layout sheet in the XLF.
+    """
 
-    XLF_LAYOUT_SYSTEM_IDX = 0
-
-    XLF_LAYOUT_SUBSYSTEM_IDX = 1
-
-    XLF_LAYOUT_DEVICE_IDX = 2
-
-    XLF_LAYOUT_POSITION_IDX = 3
-
-    XLF_LAYOUT_NAME_IDX = 4
-
-    XLF_LAYOUT_DEVICE_TYPE_IDX = 5
-
-    XLF_LAYOUT_ELEMENT_NAME_IDX = 6
-
-    XLF_LAYOUT_DIAMETER_IDX = 7
-
-    XLF_LAYOUT_EFFECTIVE_LENGTH = 10
-
-    def __init__(self, row):
-        self.system = self._read_string(row[self.XLF_LAYOUT_SYSTEM_IDX])
-        self.subsystem = self._read_string(row[self.XLF_LAYOUT_SUBSYSTEM_IDX])
-        self.position = self._read_float(row[self.XLF_LAYOUT_POSITION_IDX])
-        self.name = self._read_string(row[self.XLF_LAYOUT_NAME_IDX])
-        self.device = self._read_string(row[self.XLF_LAYOUT_DEVICE_IDX])
-        self.deviceType = self._read_string(row[self.XLF_LAYOUT_DEVICE_TYPE_IDX])
-        self.elementName = self._read_string(row[self.XLF_LAYOUT_ELEMENT_NAME_IDX])
-        self.diameter = self._read_float(row[self.XLF_LAYOUT_DIAMETER_IDX])
-        self.elementLength = self._read_float(row[self.XLF_LAYOUT_EFFECTIVE_LENGTH])
-
-
-    def _read_string(self, cell):
+    @staticmethod
+    def _cell_to_string(cell):
         if cell.ctype == xlrd.XL_CELL_TEXT:
             value = cell.value.strip()
             if len(value) > 0:
                 return value
-            else:
-                return None
-        else:
-            return None
+            
+        return None
 
 
-    def _read_float(self, cell):
+    @staticmethod
+    def _cell_to_float(cell):
         if cell.ctype == xlrd.XL_CELL_TEXT:
             try:
                 return float(cell.value)
             except:
-                return None
+                pass # ignore exception
+
         elif cell.ctype == xlrd.XL_CELL_NUMBER:
             return cell.value
-        else:
-            return None
+
+        return None
+
+
+    def __init__(self, row, diameter=None):
+        self.system = self._cell_to_string(row[XLF_LAYOUT_SYSTEM_IDX])
+        self.subsystem = self._cell_to_string(row[XLF_LAYOUT_SUBSYSTEM_IDX])
+        self.position = self._cell_to_float(row[XLF_LAYOUT_POSITION_IDX])
+        self.name = self._cell_to_string(row[XLF_LAYOUT_NAME_IDX])
+        self.device = self._cell_to_string(row[XLF_LAYOUT_DEVICE_IDX])
+        self.device_type = self._cell_to_string(row[XLF_LAYOUT_DEVICE_TYPE_IDX])
+        self.element_name = self._cell_to_string(row[XLF_LAYOUT_ELEMENT_NAME_IDX])
+        self.diameter = self._cell_to_float(row[XLF_LAYOUT_DIAMETER_IDX])
+        self.eff_length = self._cell_to_float(row[XLF_LAYOUT_EFFECTIVE_LENGTH_IDX])
+
 
     def __str__(self):
-        return "{{ system:'{}', subsystem:'{}', elementName:'{}' }}".format(self.system, self.subsystem, self.elementName)
+        return type(self).__name__+str(self.__dict__)
