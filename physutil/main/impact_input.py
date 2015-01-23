@@ -17,6 +17,7 @@ from physutil.impact import lattice
 
 parser = ArgumentParser(description="Generate input files for IMPACT simulation.")
 parser.add_argument("--xlf", required=True)
+parser.add_argument("--cdf", required=True)
 
 
 help = parser.print_help
@@ -29,7 +30,7 @@ def main():
     args = parser.parse_args(sys.argv[2:])
 
     #try:
-    accel = frib.read_xlf(args.xlf)
+    accel = frib.read_xlf(args.xlf, args.cdf)
     #except Exception as e:
     #    print(e, file=sys.stderr)
     #    return 1

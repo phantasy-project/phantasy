@@ -6,7 +6,7 @@ Implement physutil command 'impact-input'.
 
 from __future__ import print_function
 
-import sys, os.path, xlrd
+import sys, os.path, re, json, xlrd
 
 #from ..add import accelerator as accel
 
@@ -38,18 +38,25 @@ XLF_LAYOUT_EFFECTIVE_LENGTH_IDX = 10
 
 
 
-def read_add(xlfpath, diameter=None):
+def read_add(xlfpath, cdfpath=None, diameter=None):
     """
     Read the Accelerator Design Description from FRIB Expanded Lattice File.
 
     :param xlfpath: File path to Expanded Lattice File (.xlsx)
-    :type xlfpath: 
+    :type xlfpath: string
+    :param diameter: Default diameter to use for elements (mm)
+    :type diameter: number
     :rtype Accelerator
     """
 
     if not os.path.isfile(xlfpath):
         raise Exception("Expanded Lattice File not found: '{}'".format(xlfpath))
 
+    if (cdfpath != None) and not os.path.isfile(cdfpath):
+        raise Exception("Cavity data file not found: '{}'".format(cdfpath))
+
+    with open(cdfpath, "r") as f: cdf = json.load(f)
+    
     wkbk = xlrd.open_workbook(xlfpath)
 
     if XLF_LAYOUT_SHEET_NAME not in wkbk.sheet_names():
@@ -70,6 +77,8 @@ def read_add(xlfpath, diameter=None):
     subseqname = None
     subsequences = []
 
+    drift_delta = 0.0
+
     for ridx in xrange(ridx, layout.nrows):
         row = _LayoutRow(layout.row(ridx))
 
@@ -80,6 +89,10 @@ def read_add(xlfpath, diameter=None):
 
         if row.eff_length == None:
             continue
+
+        # unit conversion
+        row.diameter *= 0.0001
+
 
         if subseqname == None:
             if row.subsystem != None:
@@ -112,11 +125,59 @@ def read_add(xlfpath, diameter=None):
                                                         system=row.system, subsystem=row.subsystem, device=row.device))
 
                 elif row.device in [ "CAV1", "CAV2", "CAV3", "CAV4", "CAV5", "CAV6", "CAV7", "CAV8" ]:
-                    elements.append(rf.CavityElement(row.eff_length, row.diameter, row.name, desc=row.element_name,
-                                                    system=row.system, subsystem=row.subsystem, device=row.device))
+                    m = re.match("(b\\d{2}) cavity", row.element_name)
+                    if not m:
+                        raise Exception("Unrecognized element name for cavity: '{}'".format(row.element_name))
+
+                    dtype = m.group(1).upper()
+
+                    length = row.eff_length
+
+                    if dtype in cdf:
+                        if "length" in cdf[dtype]:
+                            length = cdf[dtype]["length"]
+                            if length != row.eff_length:
+                                delta = (row.eff_length - length) / 2.0
+                                if len(elements) == 0:
+                                    raise Exception("cavity: no preceeding element found")
+                                elif not isinstance(elements[-1], pasv.DriftElement):
+                                    raise Exception("cavity: preceeding element not drift")
+                                else:
+                                    elements[-1].length += delta
+                                    drift_delta = delta
+
+                    cav = rf.CavityElement(length, row.diameter, row.name, desc=row.element_name,
+                                                    system=row.system, subsystem=row.subsystem, device=row.device, dtype=dtype)
+
+                    if dtype in cdf:
+                        if "beta" in cdf[dtype]:
+                            cav.beta = cdf[dtype]["beta"]
+
+                        if "voltage" in cdf[dtype]:
+                            cav.voltage = cdf[dtype]["voltage"]
+
+                        if "frequency" in cdf[dtype]:
+                            cav.frequency = cdf[dtype]["frequency"]
+
+                    elements.append(cav)
 
                 elif row.device in [ "SOL1", "SOL2", "SOL3" ]:
-                    elements.append(mag.SolElement(row.eff_length, row.diameter, row.name, desc=row.element_name,
+                    dtype = row.device_type
+                    length = row.eff_length
+                    if row.device_type in cdf:
+                        if "length" in cdf[dtype]:
+                            length = cdf[dtype]["length"]
+                            if length != row.eff_length:
+                                delta = (row.eff_length - length) / 2.0
+                                if len(elements) == 0:
+                                    raise Exception("solenoid: no preceeding element found")
+                                elif not isinstance(elements[-1], pasv.DriftElement):
+                                    raise Exception("solenoid: preceeding element not drift")
+                                else:
+                                    elements[-1].length += delta
+                                    drift_delta = delta
+
+                    elements.append(mag.SolElement(length, row.diameter, row.name, desc=row.element_name,
                                                     system=row.system, subsystem=row.subsystem, device=row.device, dtype=row.device_type))
 
                 elif row.device in [ "BLM" ]:
@@ -159,10 +220,14 @@ def read_add(xlfpath, diameter=None):
 
                 elif row.device in [ "SLH" ]:
                     # use dift to represent slit for now
+                    if drift_delta != 0.0:
+                        raise Exception("Unsupported drift delta on element: {}".format(row.element_name))
                     elements.append(pasv.DriftElement(row.eff_length, row.diameter, desc=row.element_name))
 
                 elif row.device == "dump":
                      # use dift to represent dump for now
+                    if drift_delta != 0.0:
+                        raise Exception("Unsupported drift delta on element: {}".format(row.element_name))
                     elements.append(pasv.DriftElement(row.eff_length, row.diameter, desc=row.element_name))
 
                 else:
@@ -171,15 +236,25 @@ def read_add(xlfpath, diameter=None):
             elif row.element_name != None:
 
                 if row.element_name in [ "bellow", "bellows", "bellow+tube", "2 bellows + tube" ]:
+                    if drift_delta != 0.0:
+                        row.eff_length += drift_delta
+                        drift_delta = 0.0
                     elements.append(pasv.DriftElement(row.eff_length, row.diameter, desc=row.element_name))
 
                 elif row.element_name in [ "solenoid-entry", "solenoid-exit" ]:
+                    if drift_delta != 0.0:
+                        row.eff_length += drift_delta
+                        drift_delta = 0.0
                     elements.append(pasv.DriftElement(row.eff_length, row.diameter, desc=row.element_name))
 
                 elif row.element_name in [ "coil-out", "coil-out (assumed)", "coil out", "coil out + leads" ]:
+                    if drift_delta != 0.0:
+                        raise Exception("Unsupported drift delta on element: {}".format(row.element_name))
                     elements.append(pasv.DriftElement(row.eff_length, row.diameter, desc=row.element_name))                
 
                 elif row.element_name in [ "BPM-box", "diagnostic box", "vacuum box" ]:
+                    if drift_delta != 0.0:
+                        raise Exception("Unsupported drift delta on element: {}".format(row.element_name))
                     elements.append(pasv.DriftElement(row.eff_length, row.diameter, desc=row.element_name))
 
                 # elif row.element_name == "BPM-box":
@@ -251,6 +326,8 @@ def read_add(xlfpath, diameter=None):
                     raise Exception("Unsupported layout with name: '{}'".format(row.element_name))
 
             elif row.eff_length != 0.0:
+                if drift_delta != 0.0:
+                        raise Exception("Unsupported drift delta on element: {}".format(row.element_name))
                 desc = "drift_{}".format(ridx+1) if row.element_name == None else row.element_name
                 elements.append(pasv.DriftElement(row.eff_length, row.diameter, desc=desc))
 
