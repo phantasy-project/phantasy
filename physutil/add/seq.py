@@ -58,12 +58,19 @@ class SeqElement(NamedElement):
         return _SeqElementIterator(self)
 
 
+    def iter(self, start, end=None):
+        return _SeqElementIterator(self, start, end)
+
+
+
 class _SeqElementIterator(object):
     """
     Deep iterator for SeqElements.
     """
-    def __init__(self, seq):
+    def __init__(self, seq, start=None, end=None):
         self._iterators = [ iter(seq.elements) ]
+        self._start = start
+        self._end = end if end != None else start
 
 
     def __iter__(self):
@@ -75,14 +82,24 @@ class _SeqElementIterator(object):
             it = self._iterators[-1]
             try:
                 elem = it.next()
-                if isinstance(elem, SeqElement):
-                    self._iterators.append(iter(elem))
-                    continue
-            
             except StopIteration:
-                self._iterators.pop()
+                del self._iterators[-1]
                 continue
 
-            return elem
+            if self._start != None:
+                if self._start == elem.name:
+                    self._start = None
+
+            if self._end != None:
+                if self._end == elem.name:
+                    self._iterators = []
+                    self._end = None
+                    
+            if isinstance(elem, SeqElement):
+                self._iterators.append(iter(elem))
+                continue
+
+            if self._start == None:
+                return elem
 
         raise StopIteration()

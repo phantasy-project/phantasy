@@ -50,7 +50,7 @@ class BaseElement(object):
 
 
     def __str__(self):
-        s = "{0}{{ desc:'{1.desc}', length:{1.length}, diamter:{1.diamter} }}"
+        s = "{0}{{ desc:'{1.desc}', length:{1.length}, diameter:{1.diameter} }}"
         return s.format(type(self).__name__, self)
 
 

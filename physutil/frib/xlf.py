@@ -327,7 +327,8 @@ def read_add(xlfpath, cdfpath=None, diameter=None):
 
             elif row.eff_length != 0.0:
                 if drift_delta != 0.0:
-                        raise Exception("Unsupported drift delta on element: {}".format(row.element_name))
+                        row.eff_length += drift_delta
+                        drift_delta = 0.0
                 desc = "drift_{}".format(ridx+1) if row.element_name == None else row.element_name
                 elements.append(pasv.DriftElement(row.eff_length, row.diameter, desc=desc))
 
