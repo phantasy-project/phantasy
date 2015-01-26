@@ -91,7 +91,7 @@ def read_add(xlfpath, cdfpath=None, diameter=None):
             continue
 
         # unit conversion
-        row.diameter *= 0.0001
+        row.diameter *= 0.001
 
 
         if subseqname == None:

@@ -35,6 +35,7 @@ def write_settings(add, latpath, start="LS1", end=None):
             settings[elem.name]["PHA"] = float(latelm[6])
 
         elif isinstance(elem, mag.SolElement):
+            # Solenoid elements are normally split into a number of steps, add these steps to get the total length.
             length = 0.0
             while length < elem.length:
                 (latidx, latelm) = next(lattice_element)
@@ -61,10 +62,10 @@ def write_settings(add, latpath, start="LS1", end=None):
             settings[elem.name]["B"] = float(latelm[4])                
 
         elif isinstance(elem, mag.CorrElement):
-            pass # ignore for now, there is one is LS1
+            settings[elem.name] = {}
 
-        elif isinstance(elem, cs.CSElement):
-            pass # ignore for now, there is one is LS1
+        #elif isinstance(elem, cs.CSElement):
+        #    settings[elem.name] = {}
 
         #elif isinstance(elem, mag.HexElement):
         #    pass

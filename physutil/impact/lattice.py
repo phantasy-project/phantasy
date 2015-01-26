@@ -9,39 +9,16 @@ import sys
 from ..add import pasv, diag, mag, rf, accel
 
 
-def write_lattice(add, steps=20, mapsteps=20):
+def write_lattice(add, settings, start="LS1", steps=20, mapsteps=20):
 
     if not isinstance(add, accel.Accelerator):
         raise TypeError("Expecting type Accelerator")
-
-    for elem in add.elements:
-        if elem.name == "LS1":
-            LS1 = elem
-            break
-    else:
-        raise Exception("Subsequence not found 'LS1'")
-
-    for elem in LS1.elements:
-        if elem.name == "CA01":
-            CA01 = elem
-            break
-    else:
-        raise Exception("Subsequence not found 'CA01'")    
-
-    settings = {
-        "LS1_CA01:CAV1_D1127":{ "voltage":0.6400, "phase":-0.652400000E+01 },
-        "LS1_CA01:SOL1_D1131":{ "field":0.534000E+01 },
-        "LS1_CA01:CAV2_D1135":{ "voltage":0.7000, "phase":+0.329788000E+03 },
-        "LS1_CA01:CAV3_D1143":{ "voltage":0.7600, "phase":0.602740000E+02 },
-        "LS1_CA01:SOL2_D1147":{ "field":0.590000E+01 },
-        "LS1_CA01:CAV4_D1150":{ "voltage":0.82000, "phase":0.258148000E+03 }
-    }
 
     lattice = []
 
     result_map = []
 
-    for elem in CA01:
+    for elem in add.iter(start):
         if isinstance(elem, pasv.DriftElement):
             lattice.append([elem.length, steps, mapsteps, 0, elem.diameter/2.0])
 
@@ -54,22 +31,34 @@ def write_lattice(add, steps=20, mapsteps=20):
         elif isinstance(elem, rf.CavityElement):
             if elem.name not in settings:
                 raise Exception("settings not found for element: {}".format(elem.name))
-            if "voltage" not in settings[elem.name]:
-                raise Exception("setting: 'voltage' not found for element: {}".format(elem.name))
-            vscale =  settings[elem.name]["voltage"] / elem.voltage
-            if "phase" not in settings[elem.name]:
-                raise Exception("setting: 'phase' not found for element: {}".format(elem.name))
-            phase =  settings[elem.name]["phase"]
+            if "AMPL" not in settings[elem.name]:
+                raise Exception("setting: 'AMPL' not found for element: {}".format(elem.name))
+            vscale =  settings[elem.name]["AMPL"] / elem.voltage
+            if "PHA" not in settings[elem.name]:
+                raise Exception("setting: 'PHA' not found for element: {}".format(elem.name))
+            phase =  settings[elem.name]["PHA"]
             radius = elem.diameter / 2.0
-            lattice.append([elem.length, steps, mapsteps, 110, vscale, elem.frequency, phase, _file_id(elem.beta), radius, radius, 0, 0, 0, 0, 0, 1, 2 ])
+            lattice.append([elem.length, 48, 20, 110, vscale, elem.frequency, phase, _file_id(elem.beta), radius, radius, 0, 0, 0, 0, 0, 1, 2 ])
 
         elif isinstance(elem, mag.SolElement):
             if elem.name not in settings:
                 raise Exception("settings not found for element: {}".format(elem.name))
-            if "field" not in settings[elem.name]:
-                raise Exception("setting: 'field' not found for element: {}".format(elem.name))
-            field = settings[elem.name]["field"]
-            lattice.append([elem.length, steps, mapsteps, 3, field, 0.0, elem.diameter/2.0])
+            if "B" not in settings[elem.name]:
+                raise Exception("setting: 'B' not found for element: {}".format(elem.name))
+            field = settings[elem.name]["B"]
+            for i in xrange(4):
+                lattice.append([elem.length/4.0, 1, 20, 3, field, 0.0, elem.diameter/2.0])
+
+        elif isinstance(elem, mag.QuadElement):
+            if elem.name not in settings:
+                raise Exception("settings not found for element: {}".format(elem.name))
+            if "B" not in settings[elem.name]:
+                raise Exception("setting: 'B' not found for element: {}".format(elem.name))
+            field = settings[elem.name]["B"]
+            lattice.append([elem.length, 50, 20, 1, field, 0.0, elem.diameter/2.0])
+
+        elif isinstance(elem, mag.CorrElement):
+            pass # ignore corrector magnet
 
         elif isinstance(elem, diag.BLMElement):
             pass # ignore Beam Loss Monitor
@@ -85,9 +74,7 @@ def write_lattice(add, steps=20, mapsteps=20):
             result_map.append(elem.name)
             
         else:
-            #raise Exception("Unsupport ADD element: {}".format(elem))
-            print("Unsupported ADD element: {}".format(elem), file=sys.stderr)
-            break
+            raise Exception("Unsupport ADD element: {}".format(elem))
             
 
     # compact lattice by merging drifts
@@ -116,8 +103,15 @@ def write_lattice(add, steps=20, mapsteps=20):
 
 
     for line in clattice:
-        line.append("/")
-        print(*line)
+        #line.append("/")
+        for rec in line:
+            if isinstance(rec, int):
+                sys.stdout.write("{:d} ".format(rec))
+            elif isinstance(rec, float):
+                sys.stdout.write("{:.7E} ".format(rec))
+        sys.stdout.write("/\r\n")
+
+        #print(*line)
         #for param in line:
 
         

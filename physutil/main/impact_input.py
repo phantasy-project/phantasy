@@ -6,7 +6,7 @@ Implement physutil command 'impact-input'.
 
 from __future__ import print_function
 
-import sys
+import sys, json
 
 from argparse import ArgumentParser
 
@@ -18,6 +18,7 @@ from physutil.impact import lattice
 parser = ArgumentParser(description="Generate input files for IMPACT simulation.")
 parser.add_argument("--xlf", required=True)
 parser.add_argument("--cdf", required=True)
+parser.add_argument("--settings", required=True)
 
 
 help = parser.print_help
@@ -38,7 +39,11 @@ def main():
     #for elm in accel:
     #    print(elm)
 
-    lattice.write_lattice(accel)
+    with open(args.settings, "r") as f:
+        settings = json.load(f)
+
+
+    lattice.write_lattice(accel, settings)
 
 
 
