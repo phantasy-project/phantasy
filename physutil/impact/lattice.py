@@ -9,7 +9,7 @@ import sys
 from ..add import pasv, diag, mag, rf, accel
 
 
-def write_lattice(add, settings, start="LS1", steps=20, mapsteps=20):
+def write_lattice(add, settings, start="LS1", steps=20, mapsteps=20, lorentz=True, cavity_field_3d=True):
 
     if not isinstance(add, accel.Accelerator):
         raise TypeError("Expecting type Accelerator")
@@ -38,7 +38,10 @@ def write_lattice(add, settings, start="LS1", steps=20, mapsteps=20):
                 raise Exception("setting: 'PHA' not found for element: {}".format(elem.name))
             phase =  settings[elem.name]["PHA"]
             radius = elem.diameter / 2.0
-            lattice.append([elem.length, 48, 20, 110, vscale, elem.frequency, phase, _file_id(elem.beta), radius, radius, 0, 0, 0, 0, 0, 1, 2 ])
+            if cavity_field_3d:
+                lattice.append([elem.length, 48, 20, 110, vscale, elem.frequency, phase, _file_id(elem.beta), radius, radius, 0, 0, 0, 0, 0, 1, 2 ])
+            else:
+                lattice.append([elem.length, 60, 20, 103, vscale, elem.frequency, phase, _file_id(elem.beta), radius])
 
         elif isinstance(elem, mag.SolElement):
             if elem.name not in settings:
@@ -46,8 +49,9 @@ def write_lattice(add, settings, start="LS1", steps=20, mapsteps=20):
             if "B" not in settings[elem.name]:
                 raise Exception("setting: 'B' not found for element: {}".format(elem.name))
             field = settings[elem.name]["B"]
-            for i in xrange(4):
-                lattice.append([elem.length/4.0, 1, 20, 3, field, 0.0, elem.diameter/2.0])
+            lattice.append([elem.length/2.0, 1, 20, 3, field, 0.0, elem.diameter/2.0])
+            lattice.append([0.0, 0, 0, -21, elem.diameter/2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+            lattice.append([elem.length/2.0, 1, 20, 3, field, 0.0, elem.diameter/2.0])
 
         elif isinstance(elem, mag.QuadElement):
             if elem.name not in settings:
@@ -58,20 +62,34 @@ def write_lattice(add, settings, start="LS1", steps=20, mapsteps=20):
             lattice.append([elem.length, 50, 20, 1, field, 0.0, elem.diameter/2.0])
 
         elif isinstance(elem, mag.CorrElement):
-            pass # ignore corrector magnet
+            #if elem.length != 0.0:
+            #    raise Exception("expecting corrector element with length 0.0 for element: {}".format(elem.name))
+            #if elem.name not in settings:
+            #    raise Exception("settings not found for element: {}".format(elem.name))
+            #if "B" not in settings[elem.name]:
+            #    raise Exception("settings: 'B' not found for element: {}".format(elem.name))
+            #field = float(settings[elem.name]["B"])
+            if elem.length != 0.0:
+                lattice.append([elem.length/2.0, steps, mapsteps, 0, elem.diameter/2.0])
 
-        elif isinstance(elem, diag.BLMElement):
-            pass # ignore Beam Loss Monitor
+            lattice.append([0.0, 0, 0, -21, elem.diameter/2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
 
-        elif isinstance(elem, diag.BLElement):
-            pass # ignore Bunch Length Monitor
+            if elem.length != 0.0:
+                lattice.append([elem.length/2.0, steps, mapsteps, 0, elem.diameter/2.0])
 
-        elif isinstance(elem, diag.PMElement):
-            pass # ignore Beam Profile Monitor
+        elif isinstance(elem, (diag.BLMElement, diag.PMElement, diag.BLElement)):
+            if elem.length != 0.0:
+                lattice.append([elem.length, steps, mapsteps, 0, elem.diameter/2.0])
 
         elif isinstance(elem, diag.BPMElement):
-            lattice.append([elem.length, 0, 0, -23])
+            if elem.length != 0.0:
+                lattice.append([elem.length/2.0, steps, mapsteps, 0, elem.diameter/2.0])
+
+            lattice.append([0.0, 0, 0, -23])
             result_map.append(elem.name)
+
+            if elem.length != 0.0:
+                lattice.append([elem.length/2.0, steps, mapsteps, 0, elem.diameter/2.0])
             
         else:
             raise Exception("Unsupport ADD element: {}".format(elem))
