@@ -1,6 +1,14 @@
 # encoding: UTF-8
 
-"""Element"""
+"""
+Element
+-------
+
+The base class is Element
+
+
+
+"""
 
 from __future__ import print_function
 
