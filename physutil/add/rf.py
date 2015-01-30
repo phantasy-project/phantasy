@@ -17,6 +17,8 @@ class CavityElement(Element):
         self.beta = 0.0
         self.voltage = 0.0
         self.frequency = 0.0
+        self.settings.phase = ""
+        self.settings.amplitude = ""
 
 
     @property

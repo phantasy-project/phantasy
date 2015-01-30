@@ -14,14 +14,29 @@ from __future__ import print_function
 
 
 
+
+class Settings(object)
+    """
+    Settings is a simple object to contain setting names.
+    """
+    def __init__(self, **kwargs):
+        for key, value in kwargs.iteritems():
+            setattr(key, value)
+
+
+    def __str__(self):
+        return str(self.__dict__)
+
+
 class BaseElement(object):
     """
     BaseElement is the base for the ADD class heirarchy.
     """
     def __init__(self, length, diameter, desc=""):
+        self.desc = desc
         self.length = length
         self.diameter = diameter
-        self.desc = desc
+        self.settings = Settings()
 
 
     @property
@@ -58,8 +73,8 @@ class BaseElement(object):
 
 
     def __str__(self):
-        s = "{0}{{ desc:'{1.desc}', length:{1.length}, diameter:{1.diameter} }}"
-        return s.format(type(self).__name__, self)
+        s = "{{ desc:'{.desc}', length:{.length}, diameter:{.diameter}, settings:{.settings} }}"
+        return type(self).__name__ + s.format(self)
 
 
 class NamedElement(BaseElement):
@@ -84,8 +99,8 @@ class NamedElement(BaseElement):
 
 
     def __str__(self):
-        s = "{0}{{ name:'{1.name}', desc:'{1.desc}', length:{1.length}, diamter:{1.diameter} }}"
-        return s.format(type(self).__name__, self)
+        s = "{{ name:'{.name}', desc:'{.desc}', length:{.length}, diamter:{.diameter}, settings:{.settings} }}"
+        return type(self).__name__ + s.format(self)
 
 
 
@@ -146,6 +161,6 @@ class Element(NamedElement):
 
 
     def __str__(self):
-        s = "{0}{{ name:'{1.name}', desc:'{1.desc}', length:{1.length}, diamter:{1.diameter}, " +  \
-                "system:'{1.system}', subsystem:'{1.subsystem}', device:'{1.device}', dtype:'{1.dtype}' }}"
-        return s.format(type(self).__name__, self)
+        s = "{{ name:'{.name}', desc:'{.desc}', length:{.length}, diamter:{.diameter}, system:'{.system}', " + \
+                "subsystem:'{.subsystem}', device:'{.device}', dtype:'{.dtype}', settings:{.settings} }}"
+        return type(self).__name__ + s.format(self)

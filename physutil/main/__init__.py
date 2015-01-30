@@ -13,8 +13,8 @@ import sys
 __USAGE__ = """usage: physutil <command> [<args>]
 
 The support commands are:
-   impact-input     generate IMPACT input file (test.in)
-   impact-settings  extract settings from IMPACT input file (test.in)
+   impact-lattice   generate IMPACT lattice file (test.in)
+   impact-settings  read settings from IMPACT lattice file (test.in)
    help             show help information for a specified topic
 """
 
@@ -28,9 +28,9 @@ def main():
 
     cmd = sys.argv[1].strip().lower()
 
-    if cmd == "impact-input":
-        import impact_input
-        return impact_input.main()
+    if cmd == "impact-lattice":
+        import impact_lattice
+        return impact_lattice.main()
 
     if cmd == "impact-settings":
         import impact_settings
@@ -55,8 +55,8 @@ def help():
 
     cmd = sys.argv[2].strip().lower()
 
-    if cmd == "impact-input":
-        import impact_input
+    if cmd == "impact-lattice":
+        import impact_lattice
         impact_input.help()
 
     elif cmd == "impact-settings":
