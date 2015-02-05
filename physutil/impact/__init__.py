@@ -4,10 +4,8 @@
 
 import lattice
 
-def build_lattice(accel, confpath=None, setpath=None, config=None, settings=None):
+def build_lattice(accel, config, settings):
 
-    lat_factory = lattice.LatticeFactory()
+    lattice_factory = lattice.LatticeFactory(accel, config, settings, start="LS1")
 
-
-
-    return lat_factory.build()
+    return lattice_factory.build()

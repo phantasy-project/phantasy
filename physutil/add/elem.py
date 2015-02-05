@@ -15,9 +15,9 @@ from __future__ import print_function
 
 
 
-class Settings(object)
+class Channels(object):
     """
-    Settings is a simple object to contain setting names.
+    Channels is a simple object to contain setting names.
     """
     def __init__(self, **kwargs):
         for key, value in kwargs.iteritems():
@@ -36,7 +36,7 @@ class BaseElement(object):
         self.desc = desc
         self.length = length
         self.diameter = diameter
-        self.settings = Settings()
+        self.channels = Channels()
 
 
     @property
@@ -73,8 +73,8 @@ class BaseElement(object):
 
 
     def __str__(self):
-        s = "{{ desc:'{.desc}', length:{.length}, diameter:{.diameter}, settings:{.settings} }}"
-        return type(self).__name__ + s.format(self)
+        s = "{{ desc:'{elem.desc}', length:{elem.length}, diameter:{elem.diameter}, channels:{elem.channels} }}"
+        return type(self).__name__ + s.format(elem=self)
 
 
 class NamedElement(BaseElement):
@@ -99,8 +99,8 @@ class NamedElement(BaseElement):
 
 
     def __str__(self):
-        s = "{{ name:'{.name}', desc:'{.desc}', length:{.length}, diamter:{.diameter}, settings:{.settings} }}"
-        return type(self).__name__ + s.format(self)
+        s = "{{ name:'{elem.name}', desc:'{elem.desc}', length:{elem.length}, diamter:{elem.diameter}, channels:{elem.channels} }}"
+        return type(self).__name__ + s.format(elem=self)
 
 
 
@@ -109,12 +109,13 @@ class Element(NamedElement):
     Element represents an accelerator component with a standard
     name based on system, subsystem, device and instance.
     """
-    def __init__(self, length, diameter, name, desc="", system="", subsystem="", device="", dtype="",):
+    def __init__(self, length, diameter, name, desc="", system="", subsystem="", device="", dtype="", inst=""):
         super(Element, self).__init__(length, diameter, name, desc=desc)
         self.system = system
         self.subsystem = subsystem
         self.device = device
         self.dtype = dtype
+        self.inst = inst
 
     @property
     def system(self):
@@ -161,6 +162,6 @@ class Element(NamedElement):
 
 
     def __str__(self):
-        s = "{{ name:'{.name}', desc:'{.desc}', length:{.length}, diamter:{.diameter}, system:'{.system}', " + \
-                "subsystem:'{.subsystem}', device:'{.device}', dtype:'{.dtype}', settings:{.settings} }}"
-        return type(self).__name__ + s.format(self)
+        s = "{{ name:'{elem.name}', desc:'{elem.desc}', length:{elem.length}, diamter:{elem.diameter}, system:'{elem.system}', " + \
+                "subsystem:'{elem.subsystem}', device:'{elem.device}', dtype:'{elem.dtype}', channels:{elem.channels} }}"
+        return type(self).__name__ + s.format(elem=self)

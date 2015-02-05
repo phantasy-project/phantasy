@@ -8,12 +8,10 @@ from __future__ import print_function
 
 import sys, os.path, re, json, xlrd
 
-#from ..add import accelerator as accel
-
-from ..data.config import Config
+from ..config import FactoryWithConfig
 
 from ..add import pasv, diag, mag, cs, rf, seq, accel
-#from ..add import 
+
 
 
 XLF_LAYOUT_SHEET_START = 8
@@ -40,7 +38,7 @@ XLF_LAYOUT_EFFECTIVE_LENGTH_IDX = 10
 
 
 
-class AccelFactory(object):
+class AccelFactory(FactoryWithConfig):
     """
     Read the Accelerator Design Description from FRIB Expanded Lattice File.
 
@@ -51,78 +49,35 @@ class AccelFactory(object):
     :rtype Accelerator
     """
 
-    _CONFIG_XLF = "xlf"
+    _CONFIG_OPT_LENGTH = "length"
 
-    _CONFIG_DEVICES = "devices"
+    _CONFIG_OPT_DIAMETER = "diameter"
 
-    _CONFIG_XLF_DEFAULTS = "defaults"
+    _CONFIG_OPT_BETA = "beta"
 
-    _CONFIG_XLF_DIAMETER = "diameter"
+    _CONFIG_OPT_VOLTAGE = "voltage"
+                        
+    _CONFIG_OPT_FREQUENCY = "frequency"
+
+    _CONFIG_OPT_CHAN_PHASE = "channel_phase"
+                        
+    _CONFIG_OPT_CHAN_AMPLITUDE = "channel_amplitude"
+
 
     def __init__(self, xlfpath, config=None):
+        super(AccelFactory, self).__init__(config)
         self.xlfpath = xlfpath
-        if config != None:
-            self.config = config
-        else:
-            self.config = OrderedDict()
-
-    @property
-    def config(self, config):
-        return self._config
-
-    @config.setter
-    def config(self, config):
-        self._config = OrderedDict(config)
-        
-        if self._CONFIG_DEVICES in self._config:
-            if not isinstance(self._config[self._CONFIG_DEVICES], dict):
-                raise TypeError("ADDFactory: '{}' config property not type 'dict'".foramt(self._CONFIG_DEVICES))
-        else:
-            self._config[self._CONFIG_DEVICES] = OrderedDict()
-
-        if self._CONFIG_XLF_DEFAULTS in self._config:
-            if not isinstance(self._config[self._CONFIG_XLF_DEFAULTS], dict):
-                raise TypeError("ADDFactory: '{}' config property not type 'dict'".foramt(self._CONFIG_XLF_DEFAULTS))
-        else:
-            self._config[self._CONFIG_XLF_DEFAULTS] = OrderedDict()
-
-
-    def get_config_prop(self, property, dtype=None):
-        """
-        Get the value of a configuration property.
-        """
-        if dtype != None:
-            if dtype in self.config[self._CONFIG_DEVICES]:
-                if prop in self.config[self._CONFIG_DEVICES][dtype]:
-                    return self.config[self._CONFIG_DEVICES][dtype][prop]
-
-        if prop in self.config[self._CONFIG_XLF_DEFAULTS]
-            return self.config[self._CONFIG_XLF_DEFAULTS][prop]
-            
-        return None
-
-
-    def set_config_prop(self, prop, value, dtype=None):
-        """
-        Set the value of a configuration property.
-        """
-        if dtype != None:
-            if dtype not in self.config[self._CONFIG_DEVICES]:
-                self.config[self._CONFIG_DEVICES][dtype] = OrderedDict()
-            self.config[self._CONFIG_DEVICES][dtype][prop] = value
-        else:
-            self.config[self._CONFIG_XLF_DEFAULTS][prop] = value
 
 
     def build(self):
         
-        if not os.path.isfile(xlfpath):
-            raise Exception("ADDFactory: Expanded Lattice File not found: '{}'".format(xlfpath))
+        if not os.path.isfile(self.xlfpath):
+            raise Exception("AccelFactory: Expanded Lattice File not found: '{}'".format(self.xlfpath))
   
-        wkbk = xlrd.open_workbook(xlfpath)
+        wkbk = xlrd.open_workbook(self.xlfpath)
 
         if XLF_LAYOUT_SHEET_NAME not in wkbk.sheet_names():
-            raise Exception("ADDFactory: Expanded Lattice File layout not found: '{}'".format(XLF_LAYOUT_SHEET_NAME))
+            raise Exception("AccelFactory: Expanded Lattice File layout not found: '{}'".format(XLF_LAYOUT_SHEET_NAME))
 
         layout = wkbk.sheet_by_name(XLF_LAYOUT_SHEET_NAME)
 
@@ -143,17 +98,17 @@ class AccelFactory(object):
 
         def get_prev_element(allow_types=(pasv.DriftElement,)):
             if len(elements) == 0:
-                raise Exception("ADDFactory: previous element not found")
+                raise Exception("AccelFactory: previous element not found")
             elif not isinstance(elements[-1], allow_types):
-                raise Exception("ADDFactory: previous element type invalid")
+                raise Exception("AccelFactory: previous element type invalid")
             return elements[-1]
 
         for ridx in xrange(ridx, layout.nrows):
             row = _LayoutRow(layout.row(ridx))
 
             # apply default values
-            if row.diameter == None:
-                row.diameter = get_config_prop(diameter, row.device, row.device_type)
+            if (row.diameter == None) and self.config.has_default(self._CONFIG_OPT_DIAMETER):
+                row.diameter = self.config.getfloat_default(self._CONFIG_OPT_DIAMETER)
 
             if row.eff_length == None:
                 continue
@@ -189,7 +144,7 @@ class AccelFactory(object):
             try:
                 if row.device != None:
 
-                    if drift_delta != 0.0:
+                    if (drift_delta != 0.0) and (row.eff_length != 0.0):
                         # these 'named' elements do not support non-zero drift delta
                         raise Exception("Unsupported drift delta on element: {}".format(row.element_name))
 
@@ -202,45 +157,53 @@ class AccelFactory(object):
                         if not m:
                             raise Exception("Unrecognized element name for cavity: '{}'".format(row.element_name))
 
+                        dtype = "CAV_" + m.group(1).upper()
+
                         cav = rf.CavityElement(row.eff_length, row.diameter, row.name, desc=row.element_name,
-                                                system=row.system, subsystem=row.subsystem, device=row.device, dtype=m.group(1).upper())
+                                                system=row.system, subsystem=row.subsystem, device=row.device, dtype=dtype)
 
-
-
-                        cav.settings.phase = get_config_prop("setting_phase", ).format(cav)
-                        cav.settings.amplitude = get_config_prop("setting_amplitude").format(cav)
-
-
-
-                        length = get_config_prop("length", device, dtype)
-                        if length != None:    
-                            drift_delta = (cav.length - length) / 2.0
+                        if self.config.has_option(dtype, self._CONFIG_OPT_LENGTH):
+                            drift_delta = (cav.length - self.config.getfloat(dtype, self._CONFIG_OPT_LENGTH)) / 2.0
                             get_prev_element().length += drift_delta
-                            cav.length = length
+                            cav.length -= drift_delta * 2.0
 
-                        beta = get_config_prop("beta", cav.device, cav.dtype)
-                        if beta != None:
-                            cav.beta = beta
+                        if self.config.has_option(dtype, self._CONFIG_OPT_BETA):
+                            cav.beta = self.config.getfloat(dtype, self._CONFIG_OPT_BETA)
+                        else:
+                            raise Exception("Cavity parameter '{}' not found".format(self._CONFIG_OPT_BETA))
 
-                        voltage = get_config_prop("voltage", cav.device, cav.dtype)
-                        if voltage != None:
-                            cav.voltage = voltage
+                        if self.config.has_option(dtype, self._CONFIG_OPT_VOLTAGE):
+                            cav.voltage = self.config.getfloat(dtype, self._CONFIG_OPT_VOLTAGE)
+                        else:
+                            raise Exception("Cavity parameter '{}' not found".format(self._CONFIG_OPT_VOLTAGE))
                         
-                        frequency = get_config_prop("frequency", cav.device, cav.dtype)
-                        if frequency != None:
-                            cav.frequency = frequency
+                        if self.config.has_option(dtype, self._CONFIG_OPT_FREQUENCY):
+                            cav.frequency = self.config.getfloat(dtype, self._CONFIG_OPT_FREQUENCY)
+                        else:
+                            raise Exception("Cavity parameter '{}' not found".format(self._CONFIG_OPT_FREQUENCY))
+
+                        if self.config.has_option(dtype, self._CONFIG_OPT_CHAN_PHASE):
+                            cav.channels.phase = self.config.get(dtype, self._CONFIG_OPT_CHAN_PHASE).format(elem=cav)
+                        else:
+                            raise Exception("Cavity parameter '{}' not found".format(self._CONFIG_OPT_CHAN_PHASE))
+
+                        if self.config.has_option(dtype, self._CONFIG_OPT_CHAN_AMPLITUDE):
+                            cav.channels.amplitude = self.config.get(dtype, self._CONFIG_OPT_CHAN_AMPLITUDE).format(elem=cav)
+                        else:
+                            raise Exception("Cavity parameter '{}' not found".format(self._CONFIG_OPT_CHAN_AMPLITUDE))
 
                         elements.append(cav)
 
                     elif row.device in [ "SOL1", "SOL2", "SOL3" ]:
-                        sol = mag.SolElement(row.eff_length, row.diameter, row.name, desc=row.element_name,
-                                                system=row.system, subsystem=row.subsystem, device=row.device, dtype=row.device_type)
+                        dtype = "SOL_" + row.device_type 
 
-                        length = get_config_prop("length", device, dtype)
-                        if length != None:
-                            drift_delta = (sol.length - length) / 2.0
+                        sol = mag.SolElement(row.eff_length, row.diameter, row.name, desc=row.element_name,
+                                                system=row.system, subsystem=row.subsystem, device=row.device, dtype=dtype)
+
+                        if self.config.has_option(dtype, self._CONFIG_OPT_LENGTH):
+                            drift_delta = (sol.length - self.config.getfloat(dtype, self._CONFIG_OPT_LENGTH)) / 2.0
                             get_prev_element().length += drift_delta
-                            sol.length = length
+                            sol.length -= drift_delta * 2.0
 
                         elements.append(sol)
 
@@ -270,17 +233,17 @@ class AccelFactory(object):
                         elements.append(pasv.PortElement(row.eff_length, row.diameter, row.name, desc=row.element_name,
                                                         system=row.system, subsystem=subsystem, device=row.device, dtype=dtype))
 
-                    elif row.device in [ "DC", "DH" ]:
+                    elif row.device in [ "DC", "DH", "DC0", "CH" ]:
                         elements.append(mag.CorrElement(row.eff_length, row.diameter, row.name, desc=row.element_name,
-                                                        system=row.system, subsystem=row.subsystem, device=row.device, dtype=dtype))
+                                                        system=row.system, subsystem=row.subsystem, device=row.device, dtype=row.device_type))
 
                     elif row.device in [ "QH", "QV" ]:
                         elements.append(mag.QuadElement(row.eff_length, row.diameter, row.name, desc=row.element_name,
-                                                        system=row.system, subsystem=row.subsystem, device=row.device, dtype=dtype))
+                                                        system=row.system, subsystem=row.subsystem, device=row.device, dtype=row.device_type))
 
                     elif row.device in [ "S" ]:
                         elements.append(mag.HexElement(row.eff_length, row.diameter, row.name, desc=row.element_name,
-                                                        system=row.system, subsystem=row.subsystem, device=row.device, dtype=dtype))
+                                                        system=row.system, subsystem=row.subsystem, device=row.device, dtype=row.device_type))
 
                     elif row.device in [ "SLH" ]:
                         # use dift to represent slit for now
@@ -320,8 +283,10 @@ class AccelFactory(object):
                     elif row.element_name == "stripper module":
                         if drift_delta != 0.0:
                             raise Exception("Unsupported drift delta on element: {}".format(row.element_name))
-                        elem = get_prev_element((cs.CSElement))
-                        elem.length += row.eff_length
+                        try:
+                            get_prev_element((cs.CSElement)).length += row.eff_length
+                        except:
+                            elements.append(cs.CSElement(row.eff_length, row.diameter, "CHARGE STRIPPER", desc=row.element_name))
 
                     elif row.element_name == "lithium film stripper":
                         if drift_delta != 0.0:
@@ -344,9 +309,9 @@ class AccelFactory(object):
                     elements.append(pasv.DriftElement(row.eff_length, row.diameter, desc=desc))
 
             except Exception as e:
-                raise Exception("XLF: {}: row {}: {}".format(str(e), ridx+1, row))
+                raise Exception("AccelFactory: {}: row {}: {}".format(str(e), ridx+1, row))
 
-        return accel.Accelerator(sequences, xlfpath)
+        return accel.Accelerator(sequences, self.xlfpath)
 
 
 

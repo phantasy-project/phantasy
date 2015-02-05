@@ -10,9 +10,13 @@ import sys, json
 
 from argparse import ArgumentParser
 
+from physutil.config import Configuration
+
 from physutil import frib
 
-from physutil.impact import lattice
+from physutil import impact
+
+#from physutil.impact import lattice
 
 
 parser = ArgumentParser(description="Generate IMPACT lattice file (test.in).")
@@ -35,16 +39,36 @@ def main():
     args = parser.parse_args(sys.argv[2:])
 
     try:
-        accel = frib.build_accel(args.xlfpath, args.confpath)
+        with open(args.confpath, "r") as fp:
+            config = Configuration()
+            config.readfp(fp)
+    except Exception as e:
+        print(e, file=sys.stderr)
+        return 1
+
+    #try:
+    accel = frib.build_accel(args.xlfpath, config)
+    #except Exception as e:
+    #    print(e, file=sys.stderr)
+    #    return 1
+
+    #accel.print_details()
+
+    try:
+        with open(args.settings, "r") as fp:
+            settings = json.load(fp)
     except Exception as e:
         print(e, file=sys.stderr)
         return 1
 
 
-#    with open(args.settings, "r") as f:
-#        settings = json.load(f)
+    #try:
+    lat = impact.build_lattice(accel, config, settings)
+    #except Exception as e:
+    #    print(e, file=sys.stderr)
+    #    return 1
 
+    lat.write()
 
-    lattice.write_lattice(accel, settings)
 
     return 0

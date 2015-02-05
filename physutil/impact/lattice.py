@@ -6,75 +6,118 @@ from __future__ import print_function
 
 import sys
 
+from ..config import FactoryWithConfig
+
 from ..add import pasv, diag, mag, rf, accel
 
 
-class LatticeFactory(object):
 
-    def __init__(self, accel, config=None):
-        pass
+class LatticeFactory(FactoryWithConfig):
 
+    def __init__(self, accel, config=None, settings=None, start=None, end=None):
+        super(LatticeFactory, self).__init__(config)
+        self.settings = settings
+        self.accel = accel
+        self.start = start
+        self.end = end
+        #def write_lattice(add, settings, start="LS1", steps=20, mapsteps=20, lorentz=True, cavity_field_3d=True):
 
 
     def build(self):
-#def write_lattice(add, settings, start="LS1", steps=20, mapsteps=20, lorentz=True, cavity_field_3d=True):
 
-        if not isinstance(add, accel.Accelerator):
+        if not isinstance(self.accel, accel.Accelerator):
             raise TypeError("Expecting type Accelerator")
 
-        lattice = []
+        lattice = Lattice()
 
-        result_map = []
+        #lattice = []
 
-        for elem in add.iter(start):
+        #result_map = []
+
+        for elem in self.accel.iter(self.start, self.end):
             if isinstance(elem, pasv.DriftElement):
-                lattice.append([elem.length, steps, mapsteps, 0, elem.diameter/2.0])
+                steps = self.config.getint_default("steps")
+                mapsteps = self.config.getint_default("mapsteps")
+                lattice.append(elem.length, steps, mapsteps, 0, elem.diameter/2.0)
 
             elif isinstance(elem, pasv.ValveElement):
-                lattice.append([elem.length, steps, mapsteps, 0, elem.diameter/2.0])
+                steps = self.config.getint(elem.dtype, "steps")
+                mapsteps = self.config.getint(elem.dtype, "mapsteps")
+                lattice.append(elem.length, steps, mapsteps, 0, elem.diameter/2.0)
 
             elif isinstance(elem, pasv.PortElement):
-                lattice.append([elem.length, steps, mapsteps, 0, elem.diameter/2.0])
+                steps = self.config.getint(elem.dtype, "steps")
+                mapsteps = self.config.getint(elem.dtype, "mapsteps")
+                lattice.append(elem.length, steps, mapsteps, 0, elem.diameter/2.0)
 
             elif isinstance(elem, rf.CavityElement):
+                #steps = self.config.getint(elem.dtype, "steps")
+                #mapsteps = self.config.getint(elem.dtype, "mapsteps")
 
+                if elem.channels.phase in self.settings:
+                    phase = self.settings[elem.channels.phase]
+                else:
+                    raise Exception("setting: '{}' not found for element: {}".format(elem.channels.phase, elem.channels.phase))
 
-                get_setting(elem.settings.amplitude)
-
-
-                if elem.name not in settings:
-                    raise Exception("settings not found for element: {}".format(elem.name))
-                if "AMPL" not in settings[elem.name]:
+                if elems.channels.amplitude in self.settings:
+                    amplitude = self.settings[elem.channels.amplitude]
+                else:
                     raise Exception("setting: 'AMPL' not found for element: {}".format(elem.name))
-                vscale =  settings[elem.name]["AMPL"] / elem.voltage
-                if "PHA" not in settings[elem.name]:
-                    raise Exception("setting: 'PHA' not found for element: {}".format(elem.name))
-                phase =  settings[elem.name]["PHA"]
+
+                # if elem.name not in settings:
+                #     raise Exception("settings not found for element: {}".format(elem.name))
+                # if "AMPL" not in settings[elem.name]:
+                #     raise Exception("setting: 'AMPL' not found for element: {}".format(elem.name))
+                # vscale =  settings[elem.name]["AMPL"] / elem.voltage
+                # if "PHA" not in settings[elem.name]:
+                #     raise Exception("setting: 'PHA' not found for element: {}".format(elem.name))
+                
                 radius = elem.diameter / 2.0
                 if cavity_field_3d:
-                    lattice.append([elem.length, 48, 20, 110, vscale, elem.frequency, phase, _file_id(elem.beta), radius, radius, 0, 0, 0, 0, 0, 1, 2 ])
+                    lattice.append([elem.length, 48, 20, 110, amplitude, elem.frequency, phase, _file_id(elem.beta), radius, radius, 0, 0, 0, 0, 0, 1, 2 ])
                 else:
-                    lattice.append([elem.length, 60, 20, 103, vscale, elem.frequency, phase, _file_id(elem.beta), radius])
+                    lattice.append([elem.length, 60, 20, 103, amplitude, elem.frequency, phase, _file_id(elem.beta), radius])
 
             elif isinstance(elem, mag.SolElement):
-                if elem.name not in settings:
-                    raise Exception("settings not found for element: {}".format(elem.name))
-                if "B" not in settings[elem.name]:
+                #steps = self.config.getint(elem.dtype, "steps")
+                #mapsteps = self.config.getint(elem.dtype, "mapsteps")
+
+                if elems.channels.field in self.settings:
+                    field = settings[elems.channels.field]
+                else:
                     raise Exception("setting: 'B' not found for element: {}".format(elem.name))
-                field = settings[elem.name]["B"]
+
+                # if elem.name not in settings:
+                #     raise Exception("settings not found for element: {}".format(elem.name))
+                # if "B" not in settings[elem.name]:
+                #     raise Exception("setting: 'B' not found for element: {}".format(elem.name))
+                # field = settings[elem.name]["B"]
+
                 lattice.append([elem.length/2.0, 1, 20, 3, field, 0.0, elem.diameter/2.0])
                 lattice.append([0.0, 0, 0, -21, elem.diameter/2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
                 lattice.append([elem.length/2.0, 1, 20, 3, field, 0.0, elem.diameter/2.0])
 
             elif isinstance(elem, mag.QuadElement):
-                if elem.name not in settings:
-                    raise Exception("settings not found for element: {}".format(elem.name))
-                if "B" not in settings[elem.name]:
+                #steps = self.config.getint(elem.dtype, "steps")
+                #mapsteps = self.config.getint(elem.dtype, "mapsteps")
+
+                # if elem.name not in settings:
+                #     raise Exception("settings not found for element: {}".format(elem.name))
+                # if "B" not in settings[elem.name]:
+                #     raise Exception("setting: 'B' not found for element: {}".format(elem.name))
+                # field = settings[elem.name]["B"]
+
+                if elems.channels.field in self.settings:
+                    field = settings[elems.channels.field]
+                else:
                     raise Exception("setting: 'B' not found for element: {}".format(elem.name))
-                field = settings[elem.name]["B"]
+
                 lattice.append([elem.length, 50, 20, 1, field, 0.0, elem.diameter/2.0])
 
             elif isinstance(elem, mag.CorrElement):
+                #steps = self.config.getint(elem.dtype, "steps")
+                #mapsteps = self.config.getint(elem.dtype, "mapsteps")
+
                 #if elem.length != 0.0:
                 #    raise Exception("expecting corrector element with length 0.0 for element: {}".format(elem.name))
                 #if elem.name not in settings:
@@ -92,6 +135,8 @@ class LatticeFactory(object):
 
             elif isinstance(elem, (diag.BLMElement, diag.PMElement, diag.BLElement)):
                 if elem.length != 0.0:
+                    #steps = self.config.getint(elem.dtype, "steps")
+                    #mapsteps = self.config.getint(elem.dtype, "mapsteps")
                     lattice.append([elem.length, steps, mapsteps, 0, elem.diameter/2.0])
 
             elif isinstance(elem, diag.BPMElement):
@@ -107,43 +152,8 @@ class LatticeFactory(object):
             else:
                 raise Exception("Unsupport ADD element: {}".format(elem))
                 
+        return lattice
 
-        # compact lattice by merging drifts
-        clattice = []
-        for line in lattice:
-            if (line[3] == 0) and (len(clattice) > 0) and (clattice[-1][3] == 0):
-                clattice[-1][0] += line[0]
-            else:
-                clattice.append(line)
-
-        print("""10 1
-    6 20642 2 0 2
-    65 65 129 4 0.140000 0.140000 0.1025446
-    19 0 0 2
-    10111 10531
-    0.0 0.0
-    1.48852718947e-10 1.533634074e-10
-    0.22734189E-02  0.88312578E-04  0.00000000E+00  1.000  1.000  0.000  0.000
-    0.22734189E-02  0.88312578E-04  0.00000000E+00  1.000  1.000  0.000  0.000
-    0.76704772E-01  0.34741445E-05  0.00000000E+00  1.000  1.000  0.000  0.000
-    0.0 0.5e6 931.49432e6 0.1386554621848 80.50e6 0.0 99.9""")
-
-        with open("result_map.txt", "w") as f:
-            for name in result_map:
-                print(name,file=f)
-
-
-        for line in clattice:
-            #line.append("/")
-            for rec in line:
-                if isinstance(rec, int):
-                    sys.stdout.write("{:d} ".format(rec))
-                elif isinstance(rec, float):
-                    sys.stdout.write("{:.7E} ".format(rec))
-            sys.stdout.write("/\r\n")
-
-            #print(*line)
-            #for param in line:
 
         
 def _file_id(n):
@@ -157,63 +167,73 @@ def _file_id(n):
 
 class Lattice(object):
 
-    _HEADER_OFFSET = 11
+    # _HEADER_OFFSET = 11
 
-    OUTPUT_TYPE_STANDARD
+    # OUTPUT_TYPE_STANDARD
 
-    OUTPUT_TYPE_90_95_99
+    # OUTPUT_TYPE_90_95_99
 
-    INTEGRATOR_LINEAR
+    # INTEGRATOR_LINEAR
 
-    INTEGRATOR_LORENTZ
+    # INTEGRATOR_LORENTZ
+
+    #DISTRIBUTION_
 
     def __init__(self):
         self.nparticles = 1000
-        self.nprocessors = 1
-        self._change_states = []
+        self.nprocessors = 10
+    #    self._change_states = []
         self._elements = []
-
-
-    def integrator
-
-    def add_charge_state(self):
         pass
 
-    def add_lattice_elem(self, *args):
-        pass
 
-    def set_distrobution(self):
-        pass
+    @property
+    def nparticles(self):
+        return self._nparticle
 
-    def output_type(self):
-        pass
-
-    def write(self, fp):
-        if len(self._charge_states) == 0:
-            nparts = self.nparticles
-        else:
-            nparts = 0
-            for cs in self._change_states:
-                nparts += cs[1]
+    @nparticles.setter
+    def nparticles(self, nparticles):
+        self._nparticles = int(nparticles)
 
 
-        fp.write("{nprocessors} {}".format(self))
-        fp.write("6 {0} {1.integrator} 0 {1.output_type}".format(nparts, self))
-        fp.write("65 65 129 4 0.14 0.14 0.1025446")
+    @property
+    def nprocessors(self):
+        return self._nprocessors
+
+    @nprocessors.setter
+    def nprocessors(self, nprocessors):
+        self._nprocessors = int(nprocessors)
 
 
-        for line in clattice:
-            #line.append("/")
+    def append(self, *args):
+        self._elements.append(args)
+
+
+    def write(self, file=sys.stdout):
+        file.write("{lat.nprocessors} 1\r\n".format(lat=self))
+        file.write("6 {lat.nparticles} 2 0 2\r\n".format(lat=self))
+        file.write("3 0 0 1\r\n")
+        file.write("{lat.nparticles}\r\n".format(lat=self))
+        file.write("0.0\r\n")
+        file.write("1.48852718947e-10\r\n")
+        file.write("0.22734189E-02  0.88312578E-04  0.00000000E+00  1.000  1.000  0.000  0.000\r\n")
+        file.write("0.22734189E-02  0.88312578E-04  0.00000000E+00  1.000  1.000  0.000  0.000\r\n")
+        file.write("0.76704772E-01  0.34741445E-05  0.00000000E+00  1.000  1.000  0.000  0.000\r\n")
+        file.write("0.0 0.5e6 931.49432e6 0.1386554621848 80.50e6 0.0 99.9\r\n")
+
+    #     # compact lattice by merging drifts
+    #     clattice = []
+    #     for line in lattice:
+    #         if (line[3] == 0) and (len(clattice) > 0) and (clattice[-1][3] == 0):
+    #             clattice[-1][0] += line[0]
+    #         else:
+    #             clattice.append(line)
+
+
+        for line in self._elements:
             for rec in line:
                 if isinstance(rec, int):
-                    fp.write("{:d} ".format(rec))
+                    file.write("{:d} ".format(rec))
                 elif isinstance(rec, float):
-                    fp.write("{:.7E} ".format(rec))
-            fp.write("/\r\n")
-
-    def __str__(self):
-        self.write(StringIO())
-        return buffer.getvalue()
-
-
-
+                    file.write("{:.7E} ".format(rec))
+            file.write("/\r\n")

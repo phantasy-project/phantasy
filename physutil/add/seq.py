@@ -6,6 +6,7 @@ Implement physutil command 'impact-input'.
 
 from __future__ import print_function
 
+import sys
 
 from .elem import NamedElement
 
@@ -54,12 +55,38 @@ class SeqElement(NamedElement):
             raise NotImplementedError("SeqElement: Setting diameter not implemented")
 
 
+    def print_details(self, indent=2, file=sys.stdout):
+        level = 0
+        iterators = [ iter(self.elements) ]
+
+        while len(iterators) > 0:
+            it = iterators[-1]
+            try:
+                elem = it.next()
+            except StopIteration:
+                del iterators[-1]
+                level -= 1
+                continue
+
+            print(" "*(indent*level) + str(elem), file=file)
+
+            if isinstance(elem, SeqElement):
+                iterators.append(iter(elem.elements))
+                level += 1
+                continue
+
+
     def __iter__(self):
         return _SeqElementIterator(self)
 
 
-    def iter(self, start, end=None):
+    def iter(self, start=None, end=None):
         return _SeqElementIterator(self, start, end)
+
+
+    def __str__(self):
+        s = "{{ name:'{elem.name}', desc:'{elem.desc}', nelements:{nelements} }}"
+        return type(self).__name__ + s.format(elem=self, nelements=len(self.elements))
 
 
 
