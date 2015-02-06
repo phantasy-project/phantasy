@@ -6,16 +6,25 @@ from __future__ import print_function
 
 import sys
 
-from ..config import FactoryWithConfig
+from .. import cfg
 
-from ..add import pasv, diag, mag, rf, accel
+from ..layout import accel
 
 
 
-class LatticeFactory(FactoryWithConfig):
+def build_lattice(accel, config=None, settings=None):
+    """
+    """
+    lat_factory = LatticeFactory(accel, config, settings)
+
+    lat_factory.start = "LS1"
+
+    return lattice_factory.build()
+
+
+class LatticeFactory(object):
 
     def __init__(self, accel, config=None, settings=None, start=None, end=None):
-        super(LatticeFactory, self).__init__(config)
         self.settings = settings
         self.accel = accel
         self.start = start
@@ -23,31 +32,31 @@ class LatticeFactory(FactoryWithConfig):
         #def write_lattice(add, settings, start="LS1", steps=20, mapsteps=20, lorentz=True, cavity_field_3d=True):
 
 
+
+
     def build(self):
 
         if not isinstance(self.accel, accel.Accelerator):
             raise TypeError("Expecting type Accelerator")
 
-        lattice = Lattice()
+        lattice = ImpactLattice()
 
-        #lattice = []
 
-        #result_map = []
 
         for elem in self.accel.iter(self.start, self.end):
             if isinstance(elem, pasv.DriftElement):
-                steps = self.config.getint_default("steps")
-                mapsteps = self.config.getint_default("mapsteps")
+                
+                #mapsteps = self.config.getint_default("mapsteps")
                 lattice.append(elem.length, steps, mapsteps, 0, elem.diameter/2.0)
 
             elif isinstance(elem, pasv.ValveElement):
-                steps = self.config.getint(elem.dtype, "steps")
-                mapsteps = self.config.getint(elem.dtype, "mapsteps")
+                #steps = self.config.getint(elem.dtype, "steps")
+                #mapsteps = self.config.getint(elem.dtype, "mapsteps")
                 lattice.append(elem.length, steps, mapsteps, 0, elem.diameter/2.0)
 
             elif isinstance(elem, pasv.PortElement):
-                steps = self.config.getint(elem.dtype, "steps")
-                mapsteps = self.config.getint(elem.dtype, "mapsteps")
+                #steps = self.config.getint(elem.dtype, "steps")
+                #mapsteps = self.config.getint(elem.dtype, "mapsteps")
                 lattice.append(elem.length, steps, mapsteps, 0, elem.diameter/2.0)
 
             elif isinstance(elem, rf.CavityElement):
@@ -63,14 +72,6 @@ class LatticeFactory(FactoryWithConfig):
                     amplitude = self.settings[elem.channels.amplitude]
                 else:
                     raise Exception("setting: 'AMPL' not found for element: {}".format(elem.name))
-
-                # if elem.name not in settings:
-                #     raise Exception("settings not found for element: {}".format(elem.name))
-                # if "AMPL" not in settings[elem.name]:
-                #     raise Exception("setting: 'AMPL' not found for element: {}".format(elem.name))
-                # vscale =  settings[elem.name]["AMPL"] / elem.voltage
-                # if "PHA" not in settings[elem.name]:
-                #     raise Exception("setting: 'PHA' not found for element: {}".format(elem.name))
                 
                 radius = elem.diameter / 2.0
                 if cavity_field_3d:
@@ -81,17 +82,10 @@ class LatticeFactory(FactoryWithConfig):
             elif isinstance(elem, mag.SolElement):
                 #steps = self.config.getint(elem.dtype, "steps")
                 #mapsteps = self.config.getint(elem.dtype, "mapsteps")
-
                 if elems.channels.field in self.settings:
                     field = settings[elems.channels.field]
                 else:
                     raise Exception("setting: 'B' not found for element: {}".format(elem.name))
-
-                # if elem.name not in settings:
-                #     raise Exception("settings not found for element: {}".format(elem.name))
-                # if "B" not in settings[elem.name]:
-                #     raise Exception("setting: 'B' not found for element: {}".format(elem.name))
-                # field = settings[elem.name]["B"]
 
                 lattice.append([elem.length/2.0, 1, 20, 3, field, 0.0, elem.diameter/2.0])
                 lattice.append([0.0, 0, 0, -21, elem.diameter/2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
@@ -203,6 +197,7 @@ class Lattice(object):
     @nprocessors.setter
     def nprocessors(self, nprocessors):
         self._nprocessors = int(nprocessors)
+
 
 
     def append(self, *args):

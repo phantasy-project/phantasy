@@ -10,11 +10,17 @@ import sys, json
 
 from argparse import ArgumentParser
 
-from physutil.config import Configuration
+from physutil import cfg, layout, lattice
 
-from physutil import frib
+#from physutil.layout import 
 
-from physutil import impact
+#from physutil.lattice import impact 
+
+#impact.build_model
+
+#from physutil import frib
+
+#from physutil import impact
 
 #from physutil.impact import lattice
 
@@ -40,19 +46,19 @@ def main():
 
     try:
         with open(args.confpath, "r") as fp:
-            config = Configuration()
+            config = cfg.Configuration()
             config.readfp(fp)
     except Exception as e:
         print(e, file=sys.stderr)
         return 1
 
     #try:
-    accel = frib.build_accel(args.xlfpath, config)
+    accel = layout.fribxlf.build_accel(args.xlfpath, config)
     #except Exception as e:
     #    print(e, file=sys.stderr)
     #    return 1
 
-    #accel.print_details()
+    accel.write()
 
     try:
         with open(args.settings, "r") as fp:
@@ -63,7 +69,7 @@ def main():
 
 
     #try:
-    lat = impact.build_lattice(accel, config, settings)
+    lat = lattice.impact.build_lattice(accel, config, settings)
     #except Exception as e:
     #    print(e, file=sys.stderr)
     #    return 1
