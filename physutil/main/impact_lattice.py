@@ -6,34 +6,22 @@ Implement physutil command 'impact-lattice'.
 
 from __future__ import print_function
 
-import sys, json
+import sys, os.path, json
 
 from argparse import ArgumentParser
 
 from physutil import cfg, layout, lattice
 
-#from physutil.layout import 
-
-#from physutil.lattice import impact 
-
-#impact.build_model
-
-#from physutil import frib
-
-#from physutil import impact
-
-#from physutil.impact import lattice
-
 
 parser = ArgumentParser(description="Generate IMPACT lattice file (test.in).")
 parser.add_argument("--xlf", dest="xlfpath", required=True, help="Path to FRIB Expanded Lattice File (.xlsx)")
-parser.add_argument("--config", dest="confpath", required=True, help="Path to configuration file (.json)")
+parser.add_argument("--cfg", dest="cfgpath", required=True, help="Path to configuration file (.json)")
 parser.add_argument("--settings", required=True, help="Path to device settings file (.json)")
 parser.add_argument("--fort-map", help="Path to output result data mapping file")
 parser.add_argument("--start", help="Element name to start lattice generation")
 parser.add_argument("--end", help="Element name to end lattice generation")
-parser.add_argument("-f", help="Force overwrite of existing files")
-parser.add_argument("latpath", default="test.in", help="Path to output IMPACT lattice file (default: test.in)")
+#parser.add_argument("-f", help="Force overwrite of existing files")
+parser.add_argument("latpath", nargs="?", default=None, help="Path to output IMPACT lattice file (default: test.in)")
 
 help = parser.print_help
 
@@ -44,21 +32,25 @@ def main():
     """
     args = parser.parse_args(sys.argv[2:])
 
+    if (args.latpath != None) and os.path.exists(args.latpath):
+        print("Destination file already exists: {}".format(args.latpath), file=sys.stderr)
+        return 1
+
     try:
-        with open(args.confpath, "r") as fp:
+        with open(args.cfgpath, "r") as fp:
             config = cfg.Configuration()
             config.readfp(fp)
     except Exception as e:
         print(e, file=sys.stderr)
         return 1
 
-    #try:
-    accel = layout.fribxlf.build_accel(args.xlfpath, config)
-    #except Exception as e:
-    #    print(e, file=sys.stderr)
-    #    return 1
+    try:
+        accel = layout.fribxlf.build_accel(args.xlfpath, config)
+    except Exception as e:
+        print(e, file=sys.stderr)
+        return 1
 
-    accel.write()
+    #accel.write()
 
     try:
         with open(args.settings, "r") as fp:
@@ -67,14 +59,17 @@ def main():
         print(e, file=sys.stderr)
         return 1
 
+    try:
+        lat = lattice.impact.build_lattice(accel, config, settings, start=args.start, end=args.end)
+    except Exception as e:
+        print(e, file=sys.stderr)
+        return 1
 
-    #try:
-    lat = lattice.impact.build_lattice(accel, config, settings)
-    #except Exception as e:
-    #    print(e, file=sys.stderr)
-    #    return 1
 
-    lat.write()
-
+    if args.latpath != None:
+        with open(args.latpath, "w") as fp:
+            lat.write(file=fp)
+    else:
+        lat.write(file=sys.stdout)
 
     return 0

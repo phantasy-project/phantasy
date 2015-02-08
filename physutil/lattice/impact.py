@@ -4,141 +4,182 @@
 
 from __future__ import print_function
 
-import sys
+__copyright__ == "Copyright (c) 2015, Facility for Rare Isotope Beams"
+
+__author__ = "Dylan Maxwell"
+
+
+
+import sys, os.path
+
+from collections import OrderedDict
 
 from .. import cfg
 
-from ..layout import accel
+from ..layout.accel import *
+
+
+INTEGRATOR_LINEAR = 1
+
+INTEGRATOR_LORENTZ = 2
 
 
 
-def build_lattice(accel, config=None, settings=None):
+def build_lattice(accel, config=None, settings=None, start=None, end=None):
     """
     """
-    lat_factory = LatticeFactory(accel, config, settings)
 
-    lat_factory.start = "LS1"
+    # Read config
+
+    lattice_factory = LatticeFactory(accel, config)
+
+    lattice_factory.settings = settings
+
+    lattice_factory.start = start
+
+    lattice_factory.end = end
 
     return lattice_factory.build()
 
 
 class LatticeFactory(object):
 
-    def __init__(self, accel, config=None, settings=None, start=None, end=None):
-        self.settings = settings
-        self.accel = accel
-        self.start = start
-        self.end = end
-        #def write_lattice(add, settings, start="LS1", steps=20, mapsteps=20, lorentz=True, cavity_field_3d=True):
+    def __init__(self, accel, config=None):
+        if not isinstance(accel, SeqElement):
+            raise TypeError()
+        self._accel = accel
+
+        if not isinstance(config, cfg.Configuration):
+            raise TypeError()
+        self._config = config
+
+        self.integrator = INTEGRATOR_LORENTZ
+        self.settings = {}
+        self.start = None
+        self.end = None
 
 
+    @property
+    def nparticles(self):
+        return self._nparticle
+
+    @nparticles.setter
+    def nparticles(self, nparticles):
+        self._nparticles = int(nparticles)
+
+
+    @property
+    def nprocessors(self):
+        return self._nprocessors
+
+    @nprocessors.setter
+    def nprocessors(self, nprocessors):
+        self._nprocessors = int(nprocessors)
+
+
+    @property
+    def integrator(self):
+        return self._integrator
+
+    @integrator.setter
+    def integrator(self, integrator):
+        if integrator not in [ INTEGRATOR_LINEAR, INTEGRATOR_LORENTZ ]:
+            raise ValueError("")
+        self._integrator = integrator
 
 
     def build(self):
 
-        if not isinstance(self.accel, accel.Accelerator):
-            raise TypeError("Expecting type Accelerator")
+        steps = 20
+        mapsteps = 20
 
-        lattice = ImpactLattice()
+        lattice = Lattice(self.integrator)
 
+        for elem in self._accel.iter(self.start, self.end):
+            if isinstance(elem, DriftElement):
+                lattice.append([elem.length, 20, 20, 0, elem.diameter/2.0])
 
+            elif isinstance(elem, ValveElement):
+                lattice.append([elem.length, 20, 20, 0, elem.diameter/2.0])
 
-        for elem in self.accel.iter(self.start, self.end):
-            if isinstance(elem, pasv.DriftElement):
+            elif isinstance(elem, PortElement):
+                lattice.append([elem.length, 20, 20, 0, elem.diameter/2.0])
+
+            elif isinstance(elem, CavityElement):
+
+                if elem.channels.phase_cset in self.settings:
+                    phase = self.settings[elem.channels.phase_cset]["VAL"]
+                else:
+                    raise Exception("LatticeFactory: '{}' channel not found for element: {}".format(elem.channels.phase_cset, elem.name))
+
+                if elem.channels.amplitude_cset in self.settings:
+                    amplitude = self.settings[elem.channels.amplitude_cset]["VAL"]
+                else:
+                    raise Exception("LatticeFactory: '{}' channel not found for element: {}".format(elem.channels.amplitude_cset, elem.name))
                 
-                #mapsteps = self.config.getint_default("mapsteps")
-                lattice.append(elem.length, steps, mapsteps, 0, elem.diameter/2.0)
+                #radius = elem.diameter / 2.0
+                #if cavity_field_3d:
+                #    lattice.append([elem.length, 48, 20, 110, amplitude, elem.frequency, phase, _file_id(elem.beta), radius, radius, 0, 0, 0, 0, 0, 1, 2 ])
+                #else:
+                lattice.append([elem.length, 60, 20, 103, amplitude, elem.frequency, phase, _file_id(elem.beta), elem.diameter/2.0])
 
-            elif isinstance(elem, pasv.ValveElement):
-                #steps = self.config.getint(elem.dtype, "steps")
-                #mapsteps = self.config.getint(elem.dtype, "mapsteps")
-                lattice.append(elem.length, steps, mapsteps, 0, elem.diameter/2.0)
-
-            elif isinstance(elem, pasv.PortElement):
-                #steps = self.config.getint(elem.dtype, "steps")
-                #mapsteps = self.config.getint(elem.dtype, "mapsteps")
-                lattice.append(elem.length, steps, mapsteps, 0, elem.diameter/2.0)
-
-            elif isinstance(elem, rf.CavityElement):
-                #steps = self.config.getint(elem.dtype, "steps")
-                #mapsteps = self.config.getint(elem.dtype, "mapsteps")
-
-                if elem.channels.phase in self.settings:
-                    phase = self.settings[elem.channels.phase]
+            elif isinstance(elem, SolElement):
+                if elem.channels.field_cset in self.settings:
+                    field = self.settings[elem.channels.field_cset]["VAL"]
                 else:
-                    raise Exception("setting: '{}' not found for element: {}".format(elem.channels.phase, elem.channels.phase))
+                    raise Exception("LatticeFactory: '{}' channel not found for element: {}".format(elem.channels.field_cset, elem.name))
 
-                if elems.channels.amplitude in self.settings:
-                    amplitude = self.settings[elem.channels.amplitude]
+                if elem.channels.hkick_cset in self.settings:
+                    hkick = self.settings[elem.channels.hkick_cset]["VAL"]
                 else:
-                    raise Exception("setting: 'AMPL' not found for element: {}".format(elem.name))
-                
-                radius = elem.diameter / 2.0
-                if cavity_field_3d:
-                    lattice.append([elem.length, 48, 20, 110, amplitude, elem.frequency, phase, _file_id(elem.beta), radius, radius, 0, 0, 0, 0, 0, 1, 2 ])
-                else:
-                    lattice.append([elem.length, 60, 20, 103, amplitude, elem.frequency, phase, _file_id(elem.beta), radius])
+                    raise Exception("LatticeFactory: '{}' channel not found for element: {}".format(elem.channels.hkick_cset, elem.name))
 
-            elif isinstance(elem, mag.SolElement):
-                #steps = self.config.getint(elem.dtype, "steps")
-                #mapsteps = self.config.getint(elem.dtype, "mapsteps")
-                if elems.channels.field in self.settings:
-                    field = settings[elems.channels.field]
+                if elem.channels.vkick_cset in self.settings:
+                    vkick = self.settings[elem.channels.vkick_cset]["VAL"]
                 else:
-                    raise Exception("setting: 'B' not found for element: {}".format(elem.name))
+                    raise Exception("LatticeFactory: '{}' channel not found for element: {}".format(elem.channels.vkick_cset, elem.name))
 
                 lattice.append([elem.length/2.0, 1, 20, 3, field, 0.0, elem.diameter/2.0])
-                lattice.append([0.0, 0, 0, -21, elem.diameter/2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+                lattice.append([0.0, 0, 0, -21, elem.diameter/2.0, 0.0, hkick, 0.0, vkick, 0.0, 0.0])
                 lattice.append([elem.length/2.0, 1, 20, 3, field, 0.0, elem.diameter/2.0])
 
-            elif isinstance(elem, mag.QuadElement):
-                #steps = self.config.getint(elem.dtype, "steps")
-                #mapsteps = self.config.getint(elem.dtype, "mapsteps")
-
-                # if elem.name not in settings:
-                #     raise Exception("settings not found for element: {}".format(elem.name))
-                # if "B" not in settings[elem.name]:
-                #     raise Exception("setting: 'B' not found for element: {}".format(elem.name))
-                # field = settings[elem.name]["B"]
-
-                if elems.channels.field in self.settings:
-                    field = settings[elems.channels.field]
+            elif isinstance(elem, QuadElement):
+                if elem.channels.gradient_cset in self.settings:
+                    gradient = self.settings[elem.channels.gradient_cset]["VAL"]
                 else:
-                    raise Exception("setting: 'B' not found for element: {}".format(elem.name))
+                    raise Exception("LatticeFactory: '{}' not found for element: {}".format(elem.channels.gradient_cset, elem.name))
 
-                lattice.append([elem.length, 50, 20, 1, field, 0.0, elem.diameter/2.0])
+                lattice.append([elem.length, 50, 20, 1, gradient, 0.0, elem.diameter/2.0])
 
-            elif isinstance(elem, mag.CorrElement):
-                #steps = self.config.getint(elem.dtype, "steps")
-                #mapsteps = self.config.getint(elem.dtype, "mapsteps")
+            elif isinstance(elem, CorrElement):
 
-                #if elem.length != 0.0:
-                #    raise Exception("expecting corrector element with length 0.0 for element: {}".format(elem.name))
-                #if elem.name not in settings:
-                #    raise Exception("settings not found for element: {}".format(elem.name))
-                #if "B" not in settings[elem.name]:
-                #    raise Exception("settings: 'B' not found for element: {}".format(elem.name))
-                #field = float(settings[elem.name]["B"])
-                if elem.length != 0.0:
-                    lattice.append([elem.length/2.0, steps, mapsteps, 0, elem.diameter/2.0])
+                if elem.channels.hkick_cset in self.settings:
+                    hkick = self.settings[elem.channels.hkick_cset]["VAL"]
+                else:
+                    raise Exception("LatticeFactory: '{}' channel not found for element: {}".format(elem.channels.hkick_cset, elem.name))
 
-                lattice.append([0.0, 0, 0, -21, elem.diameter/2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+                if elem.channels.vkick_cset in self.settings:
+                    vkick = self.settings[elem.channels.vkick_cset]["VAL"]
+                else:
+                    raise Exception("LatticeFactory: '{}' channel not found for element: {}".format(elem.channels.vkick_cset, elem.name))
 
                 if elem.length != 0.0:
                     lattice.append([elem.length/2.0, steps, mapsteps, 0, elem.diameter/2.0])
 
-            elif isinstance(elem, (diag.BLMElement, diag.PMElement, diag.BLElement)):
+                lattice.append([0.0, 0, 0, -21, elem.diameter/2.0, 0.0, hkick, 0.0, vkick, 0.0, 0.0])
+
                 if elem.length != 0.0:
-                    #steps = self.config.getint(elem.dtype, "steps")
-                    #mapsteps = self.config.getint(elem.dtype, "mapsteps")
+                    lattice.append([elem.length/2.0, steps, mapsteps, 0, elem.diameter/2.0])
+
+            elif isinstance(elem, (BLMElement, PMElement, BLElement)):
+                if elem.length != 0.0:
                     lattice.append([elem.length, steps, mapsteps, 0, elem.diameter/2.0])
 
-            elif isinstance(elem, diag.BPMElement):
+            elif isinstance(elem, BPMElement):
                 if elem.length != 0.0:
                     lattice.append([elem.length/2.0, steps, mapsteps, 0, elem.diameter/2.0])
 
-                lattice.append([0.0, 0, 0, -23])
-                result_map.append(elem.name)
+                lattice.append([0.0, 0, 0, -23], output_elem=elem.name)
 
                 if elem.length != 0.0:
                     lattice.append([elem.length/2.0, steps, mapsteps, 0, elem.diameter/2.0])
@@ -161,29 +202,18 @@ def _file_id(n):
 
 class Lattice(object):
 
-    # _HEADER_OFFSET = 11
-
-    # OUTPUT_TYPE_STANDARD
-
-    # OUTPUT_TYPE_90_95_99
-
-    # INTEGRATOR_LINEAR
-
-    # INTEGRATOR_LORENTZ
-
-    #DISTRIBUTION_
-
-    def __init__(self):
-        self.nparticles = 1000
-        self.nprocessors = 10
+    def __init__(self, integrator, nparticles=1000, nprocessors=10):
+        self.nparticles = nparticles
+        self.nprocessors = nprocessors
+        self._integrator = integrator
     #    self._change_states = []
+        self._output_map = []
         self._elements = []
-        pass
 
 
     @property
     def nparticles(self):
-        return self._nparticle
+        return self._nparticles
 
     @nparticles.setter
     def nparticles(self, nparticles):
@@ -199,14 +229,16 @@ class Lattice(object):
         self._nprocessors = int(nprocessors)
 
 
+    def append(self, record, output_elem=None):
+        if output_elem != None:
+            self._output_map.append(output_elem)
 
-    def append(self, *args):
-        self._elements.append(args)
+        self._elements.append(record)
 
 
     def write(self, file=sys.stdout):
         file.write("{lat.nprocessors} 1\r\n".format(lat=self))
-        file.write("6 {lat.nparticles} 2 0 2\r\n".format(lat=self))
+        file.write("6 {lat.nparticles} {lat._integrator} 0 2\r\n".format(lat=self))
         file.write("3 0 0 1\r\n")
         file.write("{lat.nparticles}\r\n".format(lat=self))
         file.write("0.0\r\n")
@@ -224,11 +256,152 @@ class Lattice(object):
     #         else:
     #             clattice.append(line)
 
-
         for line in self._elements:
             for rec in line:
                 if isinstance(rec, int):
                     file.write("{:d} ".format(rec))
                 elif isinstance(rec, float):
                     file.write("{:.7E} ".format(rec))
+                else:
+                    file.write(str(type(rec)))
             file.write("/\r\n")
+
+
+
+def build_settings(accel, latpath, start=None, end=None):
+
+    settings_factory = SettingsFactory(accel, latpath)
+
+    settings_factory.start = start
+
+    settings_factory.end = end
+
+    return settings_factory.build()
+
+
+
+class SettingsFactory(object):
+
+    def __init__(self, accel, latpath):
+        self._accel = accel
+        self._latpath = latpath
+        self.start = None
+        self.end = None
+
+
+    def build(self):
+
+        if not os.path.isfile(self._latpath):
+            raise Exception("SettingsFactory: IMPACT lattice file not found: {}".format(self._latpath))
+
+        with open(self._latpath, "r") as fp:
+            lattice_element = _LatticeIterator(fp.readlines(), start=11)
+
+        settings = OrderedDict()
+
+        for elem in self._accel.iter(self.start, self.end):
+
+            if isinstance(elem, CavityElement):
+                (latidx, latelm) = next(lattice_element)
+
+                if latelm[3] not in [ "103", "110" ]:
+                    raise Exception("SettingsFactory: expecting cavity element at line {}, found element: {}".format(latidx+1, latelm))
+
+                if float(latelm[0]) != elem.length:
+                    raise Exception("SettingsFactory: expecting cavity element at line {} with length {}: expecting length {}".format(latidx+1, latelm[0], elem.length))
+
+                settings[elem.channels.phase_cset] = OrderedDict([ ("VAL", float(latelm[6])) ])
+                settings[elem.channels.phase_rset] = OrderedDict(settings[elem.channels.phase_cset])
+                settings[elem.channels.phase_read] = OrderedDict(settings[elem.channels.phase_cset])
+
+                settings[elem.channels.amplitude_cset] = OrderedDict([ ("VAL", float(latelm[4])) ])
+                settings[elem.channels.amplitude_rset] = OrderedDict(settings[elem.channels.amplitude_cset])
+                settings[elem.channels.amplitude_read] = OrderedDict(settings[elem.channels.amplitude_cset])
+
+            elif isinstance(elem, SolCorrElement):
+                # Solenoid elements are normally split into a number of steps, add these steps to get the total length.
+                length = 0.0
+                while length < elem.length:
+                    (latidx, latelm) = next(lattice_element)
+                    if latelm[3] != "3":
+                        raise Exception("SettingsFactory: expecting solenoid element at line {}, found element: {}".format(latidx+1, latelm))
+                    length += float(latelm[0])
+
+                if length > elem.length:
+                    raise Exception("SettingsFactory: expecting solenoid element at line {} with length {}: expecting length {}".format(latidx+1, latelm[0], elem.length))
+
+                settings[elem.channels.field_cset] = OrderedDict([ ("VAL", float(latelm[4])) ])
+                settings[elem.channels.field_rset] = OrderedDict(settings[elem.channels.field_cset])
+                settings[elem.channels.field_read] = OrderedDict(settings[elem.channels.field_cset])
+                settings[elem.channels.hkick_cset] = OrderedDict([ ("VAL", 0.0) ])
+                settings[elem.channels.hkick_rset] = OrderedDict(settings[elem.channels.hkick_cset])
+                settings[elem.channels.hkick_read] = OrderedDict(settings[elem.channels.hkick_cset])
+                settings[elem.channels.vkick_cset] = OrderedDict([ ("VAL", 0.0) ])
+                settings[elem.channels.vkick_rset] = OrderedDict(settings[elem.channels.hkick_cset])
+                settings[elem.channels.vkick_read] = OrderedDict(settings[elem.channels.hkick_cset])
+
+            elif isinstance(elem, QuadElement):
+                (latidx, latelm) = next(lattice_element)
+
+                if latelm[3] != "1":
+                    raise Exception("SettingsFactory: expecting QuadElement at line {}: found element: {}".format(latidx+1, latelm))
+        
+                if float(latelm[0]) != elem.length:
+                    raise Exception("SettingsFactory: expecting QuadElement at line {} with length {}: expecting length {}".format(latidx+1, latelm[0], elem.length))
+
+                settings[elem.channels.gradient_cset] = OrderedDict([ ("VAL", float(latelm[4])) ])
+                settings[elem.channels.gradient_rset] = OrderedDict(settings[elem.channels.gradient_cset])
+                settings[elem.channels.gradient_read] = OrderedDict(settings[elem.channels.gradient_cset])
+
+            elif isinstance(elem, CorrElement):
+                settings[elem.channels.hkick_cset] = OrderedDict([ ("VAL", 0.0) ])
+                settings[elem.channels.hkick_rset] = OrderedDict(settings[elem.channels.hkick_cset])
+                settings[elem.channels.hkick_read] = OrderedDict(settings[elem.channels.hkick_cset])
+                settings[elem.channels.vkick_cset] = OrderedDict([ ("VAL", 0.0) ])
+                settings[elem.channels.vkick_rset] = OrderedDict(settings[elem.channels.vkick_cset])
+                settings[elem.channels.vkick_read] = OrderedDict(settings[elem.channels.vkick_cset])
+
+            #elif isinstance(elem, cs.CSElement):
+            #    settings[elem.name] = {}
+
+            #elif isinstance(elem, mag.HexElement):
+            #    pass
+
+            elif isinstance(elem, (BLMElement, BCMElement, BPMElement, BLElement, PMElement)):
+                pass # ignore diagnostic elements
+
+            elif isinstance(elem, (DriftElement, ValveElement, PortElement)):
+                pass # ignore passive elements
+            
+            else:
+                raise Exception("SettingsFactory: unsupported accel element: {}".format(elem))
+
+        return settings
+
+
+class _LatticeIterator():
+
+    def __init__(self, seq, start=0):
+        self._idx = -1
+        self._iter = iter(seq)
+        self._start = start
+
+
+    def __iter__(self):
+        return self
+
+
+    def next(self):
+        while self._idx < (self._start-1):
+            self._iter.next()
+            self._idx += 1
+
+        while True:
+            line = self._iter.next()
+            self._idx += 1
+            if line.startswith("!"):
+                continue
+            elm = line.strip().split()
+            if (len(elm) <= 3) or (float(elm[3]) <= 0):
+                continue
+            return (self._idx, elm)

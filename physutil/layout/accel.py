@@ -441,6 +441,10 @@ class SolElement(Element):
     def __init__(self, z, length, diameter, name, desc="solenoid", system="", subsystem="", device="", dtype="", inst=""):
         super(SolElement, self).__init__(z, length, diameter, name, desc=desc, system=system,
                                                 subsystem=subsystem, device=device, dtype=dtype, inst=inst)
+        self.channels.field_cset = "FIELD_CSET"
+        self.channels.field_rset = "FIELD_RSET"
+        self.channels.field_read = "FIELD_READ"
+
 
 
 class SolCorrElement(SolElement):
@@ -450,7 +454,12 @@ class SolCorrElement(SolElement):
     def __init__(self, z, length, diameter, name, desc="solenoid w correctors", system="", subsystem="", device="", dtype="", inst=""):
         super(SolCorrElement, self).__init__(z, length, diameter, name, desc=desc, system=system,
                                                 subsystem=subsystem, device=device, dtype=dtype, inst=inst)
-
+        self.channels.hkick_cset = "HKICK_CSET"
+        self.channels.hkick_rset = "HKICK_RSET"
+        self.channels.hkick_read = "HKICK_READ"
+        self.channels.vkick_cset = "VKICK_CSET"
+        self.channels.vkick_rset = "VKICK_RSET"
+        self.channels.vkick_read = "VKICK_READ"
 
 class BendElement(Element):
     """
@@ -468,6 +477,10 @@ class CorrElement(Element):
     def __init__(self, z, length, diameter, name, desc="corrector magnet", system="", subsystem="", device="", dtype="", inst=""):
         super(CorrElement, self).__init__(z, length, diameter, name, desc=desc, system=system,
                                                 subsystem=subsystem, device=device, dtype=dtype, inst="")
+        self.channels.hkick_read = "HKICK_READ"
+        self.channels.vkick_cset = "VKICK_CSET"
+        self.channels.vkick_rset = "VKICK_RSET"
+        self.channels.vkick_read = "VKICK_READ"
 
 
 class QuadElement(Element):
@@ -477,6 +490,9 @@ class QuadElement(Element):
     def __init__(self, z, length, diameter, name, desc="quadrupole magnet", system="", subsystem="", device="", dtype="", inst=""):
         super(QuadElement, self).__init__(z, length, diameter, name, desc=desc, system=system,
                                                 subsystem=subsystem, device=device, dtype=dtype, inst=inst)
+        self.channels.gradient_cset = "GRADIENT_CSET"
+        self.channels.gradient_rset = "GRADIENT_RSET"
+        self.channels.gradient_read = "GRADIENT_READ"
 
 
 class HexElement(Element):
@@ -500,8 +516,12 @@ class CavityElement(Element):
         self.beta = 0.0
         self.voltage = 0.0
         self.frequency = 0.0
-        self.channels.phase = ""
-        self.channels.amplitude = ""
+        self.channels.phase_cset = "PHASE_CSET"
+        self.channels.phase_rset = "PHASE_RSET"
+        self.channels.phase_read = "PHASE_READ"
+        self.channels.amplitude_cset = "AMPLITUDE_CSET"
+        self.channels.amplitude_rset = "AMPLITUDE_RSET"
+        self.channels.amplitude_read = "AMPLITUDE_READ"
 
 
     @property
