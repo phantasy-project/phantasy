@@ -4,11 +4,9 @@
 
 from __future__ import print_function
 
-__copyright__ == "Copyright (c) 2015, Facility for Rare Isotope Beams"
+__copyright__ = "Copyright (c) 2015, Facility for Rare Isotope Beams"
 
 __author__ = "Dylan Maxwell"
-
-
 
 import sys, os.path
 
@@ -121,7 +119,7 @@ class LatticeFactory(object):
                 #if cavity_field_3d:
                 #    lattice.append([elem.length, 48, 20, 110, amplitude, elem.frequency, phase, _file_id(elem.beta), radius, radius, 0, 0, 0, 0, 0, 1, 2 ])
                 #else:
-                lattice.append([elem.length, 60, 20, 103, amplitude, elem.frequency, phase, _file_id(elem.beta), elem.diameter/2.0])
+                lattice.append([elem.length, 60, 20, 103, amplitude, elem.frequency, phase, _file_id(elem.beta, self.integrator), elem.diameter/2.0])
 
             elif isinstance(elem, SolElement):
                 if elem.channels.field_cset in self.settings:
@@ -191,11 +189,11 @@ class LatticeFactory(object):
 
 
         
-def _file_id(n):
+def _file_id(n, integrator):
     if n > 0.0:
-        while n < 100.0:
+        while n < 1.0:
             n *= 10
-        return int(n)
+        return 100*int(n) + 10*integrator
     else:
         raise Exception("Cannot generate file id from '{}'".format(n))
   
@@ -238,7 +236,8 @@ class Lattice(object):
 
     def write(self, file=sys.stdout):
         file.write("{lat.nprocessors} 1\r\n".format(lat=self))
-        file.write("6 {lat.nparticles} {lat._integrator} 0 2\r\n".format(lat=self))
+        file.write("6 {lat.nparticles} {lat._integrator} 0 4\r\n".format(lat=self))
+        file.write("65 65 129 4 0.140000 0.140000 0.1025446\r\n")
         file.write("3 0 0 1\r\n")
         file.write("{lat.nparticles}\r\n".format(lat=self))
         file.write("0.0\r\n")
@@ -263,7 +262,7 @@ class Lattice(object):
                 elif isinstance(rec, float):
                     file.write("{:.7E} ".format(rec))
                 else:
-                    file.write(str(type(rec)))
+                    raise RuntimeError(str(rec))
             file.write("/\r\n")
 
 

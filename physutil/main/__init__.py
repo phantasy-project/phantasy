@@ -32,9 +32,13 @@ def main():
         import impact_lattice
         return impact_lattice.main()
 
-    if cmd == "impact-settings":
+    elif cmd == "impact-settings":
         import impact_settings
         return impact_settings.main()
+
+    elif cmd == "impact-model":
+        import impact_model
+        return impact_model.main()
 
     elif cmd == "help":
         return help()
@@ -62,6 +66,10 @@ def help():
     elif cmd == "impact-settings":
         import impact_settings
         impact_settings.help()
+
+    elif cmd == "impact-model":
+        import impact_model
+        impact_model.help()
 
     else:
         print("No help available for command: {}".format(cmd), file=sys.stderr)
