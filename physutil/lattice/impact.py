@@ -88,20 +88,20 @@ class LatticeFactory(object):
 
     def build(self):
 
-        steps = 20
+        steps = 4
         mapsteps = 20
 
         lattice = Lattice(self.integrator)
 
         for elem in self._accel.iter(self.start, self.end):
             if isinstance(elem, DriftElement):
-                lattice.append([elem.length, 20, 20, 0, elem.diameter/2.0])
+                lattice.append([elem.length, steps, mapsteps, 0, elem.diameter/2.0])
 
             elif isinstance(elem, ValveElement):
-                lattice.append([elem.length, 20, 20, 0, elem.diameter/2.0])
+                lattice.append([elem.length, steps, mapsteps, 0, elem.diameter/2.0])
 
             elif isinstance(elem, PortElement):
-                lattice.append([elem.length, 20, 20, 0, elem.diameter/2.0])
+                lattice.append([elem.length, steps, mapsteps, 0, elem.diameter/2.0])
 
             elif isinstance(elem, CavityElement):
 
@@ -119,9 +119,10 @@ class LatticeFactory(object):
                 #if cavity_field_3d:
                 #    lattice.append([elem.length, 48, 20, 110, amplitude, elem.frequency, phase, _file_id(elem.beta), radius, radius, 0, 0, 0, 0, 0, 1, 2 ])
                 #else:
-                lattice.append([elem.length, 60, 20, 103, amplitude, elem.frequency, phase, _file_id(elem.beta, self.integrator), elem.diameter/2.0])
+                idx = lattice.append([elem.length, 60, 20, 103, amplitude, elem.frequency, phase, _file_id(elem.beta, self.integrator), elem.diameter/2.0])
+                lattice.sp_mapping.append((elem.name, {"z":elem.z+elem.length/2.0, "idx":idx}))
 
-            elif isinstance(elem, SolElement):
+            elif isinstance(elem, SolCorrElement):
                 if elem.channels.field_cset in self.settings:
                     field = self.settings[elem.channels.field_cset]["VAL"]
                 else:
@@ -137,9 +138,12 @@ class LatticeFactory(object):
                 else:
                     raise Exception("LatticeFactory: '{}' channel not found for element: {}".format(elem.channels.vkick_cset, elem.name))
 
-                lattice.append([elem.length/2.0, 1, 20, 3, field, 0.0, elem.diameter/2.0])
-                lattice.append([0.0, 0, 0, -21, elem.diameter/2.0, 0.0, hkick, 0.0, vkick, 0.0, 0.0])
-                lattice.append([elem.length/2.0, 1, 20, 3, field, 0.0, elem.diameter/2.0])
+                idx = lattice.append([elem.length/2.0, 1, 20, 3, field, 0.0, elem.diameter/2.0])
+                lattice.sp_mapping.append((elem.name, { "1":{"z":elem.z, "idx":idx} }))
+                idx = lattice.append([0.0, 0, 0, -21, elem.diameter/2.0, 0.0, hkick, 0.0, vkick, 0.0, 0.0])
+                lattice.sp_mapping.append(("{elem.system}_{elem.subsystem}:COR1_{elem.inst}".format(elem=elem), {"z":elem.z, "idx":idx}))
+                idx = lattice.append([elem.length/2.0, 1, 20, 3, field, 0.0, elem.diameter/2.0])
+                lattice.sp_mapping[-2][1]["2"] = {"z":elem.z+elem.length/2.0, "idx":idx}
 
             elif isinstance(elem, QuadElement):
                 if elem.channels.gradient_cset in self.settings:
@@ -147,7 +151,8 @@ class LatticeFactory(object):
                 else:
                     raise Exception("LatticeFactory: '{}' not found for element: {}".format(elem.channels.gradient_cset, elem.name))
 
-                lattice.append([elem.length, 50, 20, 1, gradient, 0.0, elem.diameter/2.0])
+                idx = lattice.append([elem.length, 50, 20, 1, gradient, 0.0, elem.diameter/2.0])
+                lattice.sp_mapping.append((elem.name, {"z":elem.z+elem.length/2.0, "idx":idx}))
 
             elif isinstance(elem, CorrElement):
 
@@ -164,7 +169,8 @@ class LatticeFactory(object):
                 if elem.length != 0.0:
                     lattice.append([elem.length/2.0, steps, mapsteps, 0, elem.diameter/2.0])
 
-                lattice.append([0.0, 0, 0, -21, elem.diameter/2.0, 0.0, hkick, 0.0, vkick, 0.0, 0.0])
+                idx = lattice.append([0.0, 0, 0, -21, elem.diameter/2.0, 0.0, hkick, 0.0, vkick, 0.0, 0.0])
+                lattice.sp_mapping.append((elem.name, { "1":{"z":elem.z+elem.length/2.0, "idx":idx} }))
 
                 if elem.length != 0.0:
                     lattice.append([elem.length/2.0, steps, mapsteps, 0, elem.diameter/2.0])
@@ -177,8 +183,9 @@ class LatticeFactory(object):
                 if elem.length != 0.0:
                     lattice.append([elem.length/2.0, steps, mapsteps, 0, elem.diameter/2.0])
 
-                lattice.append([0.0, 0, 0, -23], output_elem=elem.name)
-
+                idx = lattice.append([0.0, 0, 0, -23], output_elem=elem.name)
+                lattice.rb_mapping.append((elem.name, {"z":elem.z+elem.length/2.0, "idx":idx}))
+                
                 if elem.length != 0.0:
                     lattice.append([elem.length/2.0, steps, mapsteps, 0, elem.diameter/2.0])
                 
@@ -207,6 +214,8 @@ class Lattice(object):
     #    self._change_states = []
         self._output_map = []
         self._elements = []
+        self.sp_mapping = []
+        self.rb_mapping = []
 
 
     @property
@@ -230,11 +239,12 @@ class Lattice(object):
     def append(self, record, output_elem=None):
         if output_elem != None:
             self._output_map.append(output_elem)
-
         self._elements.append(record)
+        return (len(self._elements) + 11)
 
 
     def write(self, file=sys.stdout):
+        file.write("!! Generated by PhysUtil\r\n")
         file.write("{lat.nprocessors} 1\r\n".format(lat=self))
         file.write("6 {lat.nparticles} {lat._integrator} 0 4\r\n".format(lat=self))
         file.write("65 65 129 4 0.140000 0.140000 0.1025446\r\n")

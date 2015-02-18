@@ -14,6 +14,7 @@ __USAGE__ = """usage: physutil <command> [<args>]
 
 The support commands are:
    impact-lattice   generate IMPACT lattice file (test.in)
+   impact-vastart   start IMPACT virtual accelerator
    impact-settings  read settings from IMPACT lattice file (test.in)
    help             show help information for a specified topic
 """
@@ -35,6 +36,10 @@ def main():
     elif cmd == "impact-settings":
         import impact_settings
         return impact_settings.main()
+
+    elif cmd == "impact-vastart":
+        import impact_vastart
+        return impact_vastart.main()
 
     elif cmd == "impact-model":
         import impact_model
@@ -66,6 +71,10 @@ def help():
     elif cmd == "impact-settings":
         import impact_settings
         impact_settings.help()
+
+    elif cmd == "impact-vastart":
+        import impact_vastart
+        impact_vastart.help()
 
     elif cmd == "impact-model":
         import impact_model

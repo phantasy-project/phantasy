@@ -22,6 +22,7 @@ parser.add_argument("--xlf", dest="xlfpath", required=True)
 parser.add_argument("--cfg", dest="cfgpath", required=True)
 parser.add_argument("--start")
 parser.add_argument("--end")
+parser.add_argument("--mach")
 parser.add_argument("latpath")
 parser.add_argument("setpath")
 
@@ -45,7 +46,7 @@ def main():
         return 1
 
     try:
-        accel = layout.fribxlf.build_accel(args.xlfpath, config)
+        accel = layout.fribxlf.build_accel(args.xlfpath, config, prefix=args.mach+":")
     except Exception as e:
         print(e, file=sys.stderr)
         return 1

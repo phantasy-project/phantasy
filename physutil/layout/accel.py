@@ -401,6 +401,9 @@ class BPMElement(Element):
     def __init__(self, z, length, diameter, name, desc="beam positon monitor", system="", subsystem="", device="", dtype="", inst=""):
         super(BPMElement,self).__init__(z, length, diameter, name, desc=desc, system=system,
                                             subsystem=subsystem, device=device, dtype=dtype, inst=inst)
+        self.channels.hposition_read = "HPOSITION_READ"
+        self.channels.vposition_read = "VPOSITION_READ"
+
 
 
 class BCMElement(Element):
@@ -476,7 +479,7 @@ class CorrElement(Element):
     """
     def __init__(self, z, length, diameter, name, desc="corrector magnet", system="", subsystem="", device="", dtype="", inst=""):
         super(CorrElement, self).__init__(z, length, diameter, name, desc=desc, system=system,
-                                                subsystem=subsystem, device=device, dtype=dtype, inst="")
+                                                subsystem=subsystem, device=device, dtype=dtype, inst=inst)
         self.channels.hkick_read = "HKICK_READ"
         self.channels.vkick_cset = "VKICK_CSET"
         self.channels.vkick_rset = "VKICK_RSET"

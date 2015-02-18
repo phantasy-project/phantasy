@@ -39,7 +39,7 @@ _XLF_LAYOUT_CENTER_POSITION_IDX = 14
 
 
 
-def build_accel(xlfpath=None, config=None):
+def build_accel(xlfpath=None, config=None, prefix=""):
     """
     Convenience method for building ADD from Expanded Lattice File.
     """
@@ -49,6 +49,8 @@ def build_accel(xlfpath=None, config=None):
     accel_factory = AccelFactory(config)
 
     accel_factory.xlfpath = xlfpath
+    
+    accel_factory.prefix = prefix
 
     return accel_factory.build()
 
@@ -245,7 +247,7 @@ class AccelFactory(object):
                             raise Exception("Unrecognized element name for cavity: '{}'".format(row.element_name))
 
                         dtype = "CAV_{}".format(m.group(1).upper())
-                        inst = "D{}".format(row.position)
+                        inst = "D{:d}".format(int(row.position))
 
                         elem = accel.CavityElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
                                                     system=row.system, subsystem=row.subsystem, device=row.device, dtype=dtype, inst=inst)
@@ -271,18 +273,18 @@ class AccelFactory(object):
                         else:
                             raise Exception("Cavity parameter 'frequency' not found")
 
-                        elem.channels.phase_cset = "{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:PHA_CSET".format(elem=elem)
-                        elem.channels.phase_rset = "{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:PHA_RSET".format(elem=elem)
-                        elem.channels.phase_read = "{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:PHA_RD".format(elem=elem)
-                        elem.channels.amplitude_cset = "{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:AMPL_CSET".format(elem=elem)
-                        elem.channels.amplitude_rset = "{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:AMPL_RSET".format(elem=elem)
-                        elem.channels.amplitude_read = "{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:AMPL_RD".format(elem=elem)
+                        elem.channels.phase_cset = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:PHA_CSET".format(self.prefix, elem=elem)
+                        elem.channels.phase_rset = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:PHA_RSET".format(self.prefix, elem=elem)
+                        elem.channels.phase_read = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:PHA_RD".format(self.prefix, elem=elem)
+                        elem.channels.amplitude_cset = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:AMPL_CSET".format(self.prefix, elem=elem)
+                        elem.channels.amplitude_rset = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:AMPL_RSET".format(self.prefix, elem=elem)
+                        elem.channels.amplitude_read = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:AMPL_RD".format(self.prefix, elem=elem)
 
                         subsequence.append(elem)
 
                     elif row.device in [ "SOL1", "SOL2", "SOL3" ]:
                         dtype = "SOL_{}".format(row.device_type)
-                        inst = "D{}".format(row.position)
+                        inst = "D{:d}".format(int(row.position))
 
                         elem = accel.SolCorrElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
                                                     system=row.system, subsystem=row.subsystem, device=row.device, dtype=dtype, inst=inst)
@@ -293,15 +295,15 @@ class AccelFactory(object):
                             get_prev_element().z += drift_delta
                             elem.length -= drift_delta * 2.0
 
-                        elem.channels.field_cset = "{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:B_CSET".format(elem=elem)
-                        elem.channels.field_rset = "{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:B_RSET".format(elem=elem)
-                        elem.channels.field_read = "{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:B_RD".format(elem=elem)
-                        elem.channels.hkick_cset = "{elem.system}_{elem.subsystem}:DCH_{elem.inst}:ANG_CSET".format(elem=elem)
-                        elem.channels.hkick_rset = "{elem.system}_{elem.subsystem}:DCH_{elem.inst}:ANG_RSET".format(elem=elem)
-                        elem.channels.hkick_read = "{elem.system}_{elem.subsystem}:DCH_{elem.inst}:ANG_RD".format(elem=elem)
-                        elem.channels.vkick_cset = "{elem.system}_{elem.subsystem}:DCV_{elem.inst}:ANG_CSET".format(elem=elem)
-                        elem.channels.vkick_rset = "{elem.system}_{elem.subsystem}:DCV_{elem.inst}:ANG_RSET".format(elem=elem)
-                        elem.channels.vkick_read = "{elem.system}_{elem.subsystem}:DCV_{elem.inst}:ANG_RD".format(elem=elem)
+                        elem.channels.field_cset = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:B_CSET".format(self.prefix, elem=elem)
+                        elem.channels.field_rset = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:B_RSET".format(self.prefix, elem=elem)
+                        elem.channels.field_read = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:B_RD".format(self.prefix, elem=elem)
+                        elem.channels.hkick_cset = "{}{elem.system}_{elem.subsystem}:DCH_{elem.inst}:ANG_CSET".format(self.prefix, elem=elem)
+                        elem.channels.hkick_rset = "{}{elem.system}_{elem.subsystem}:DCH_{elem.inst}:ANG_RSET".format(self.prefix, elem=elem)
+                        elem.channels.hkick_read = "{}{elem.system}_{elem.subsystem}:DCH_{elem.inst}:ANG_RD".format(self.prefix, elem=elem)
+                        elem.channels.vkick_cset = "{}{elem.system}_{elem.subsystem}:DCV_{elem.inst}:ANG_CSET".format(self.prefix, elem=elem)
+                        elem.channels.vkick_rset = "{}{elem.system}_{elem.subsystem}:DCV_{elem.inst}:ANG_RSET".format(self.prefix, elem=elem)
+                        elem.channels.vkick_read = "{}{elem.system}_{elem.subsystem}:DCV_{elem.inst}:ANG_RD".format(self.prefix, elem=elem)
 
                         subsequence.append(elem)
 
@@ -310,8 +312,16 @@ class AccelFactory(object):
                                                             system=row.system, subsystem=row.subsystem, device=row.device))
 
                     elif row.device in [ "BPM" ]:
-                        subsequence.append(accel.BPMElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
-                                                            system=row.system, subsystem=row.subsystem, device=row.device, dtype=row.device_type))
+                    
+                        inst = "D{:d}".format(int(row.position))
+                    
+                        elem = accel.BPMElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
+                                                            system=row.system, subsystem=row.subsystem, device=row.device, dtype=row.device_type, inst=inst)
+                
+                        elem.channels.hposition_read = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:POSH_RD".format(self.prefix, elem=elem)
+                        elem.channels.vposition_read = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:POSV_RD".format(self.prefix, elem=elem)
+
+                        subsequence.append(elem)
 
                     elif row.device in [ "BL" ]:
                         subsequence.append(accel.BLElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
@@ -333,26 +343,30 @@ class AccelFactory(object):
 
                     elif row.device in [ "DC", "DH", "DC0", "CH" ]:
 
-                        elem = accel.CorrElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
-                                                    system=row.system, subsystem=row.subsystem, device=row.device, dtype=row.device_type)
+                        inst = "D{:d}".format(int(row.position))
 
-                        elem.channels.hkick_cset = "{elem.system}_{elem.subsystem}:DCH_{elem.inst}:ANG_CSET".format(elem=elem)
-                        elem.channels.hkick_rset = "{elem.system}_{elem.subsystem}:DCH_{elem.inst}:ANG_RSET".format(elem=elem)
-                        elem.channels.hkick_read = "{elem.system}_{elem.subsystem}:DCH_{elem.inst}:ANG_RD".format(elem=elem)
-                        elem.channels.vkick_cset = "{elem.system}_{elem.subsystem}:DCV_{elem.inst}:ANG_CSET".format(elem=elem)
-                        elem.channels.vkick_rset = "{elem.system}_{elem.subsystem}:DCV_{elem.inst}:ANG_RSET".format(elem=elem)
-                        elem.channels.vkick_read = "{elem.system}_{elem.subsystem}:DCV_{elem.inst}:ANG_RD".format(elem=elem)
+                        elem = accel.CorrElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
+                                                    system=row.system, subsystem=row.subsystem, device=row.device, dtype=row.device_type, inst=inst)
+
+                        elem.channels.hkick_cset = "{}{elem.system}_{elem.subsystem}:DCH_{elem.inst}:ANG_CSET".format(self.prefix, elem=elem)
+                        elem.channels.hkick_rset = "{}{elem.system}_{elem.subsystem}:DCH_{elem.inst}:ANG_RSET".format(self.prefix, elem=elem)
+                        elem.channels.hkick_read = "{}{elem.system}_{elem.subsystem}:DCH_{elem.inst}:ANG_RD".format(self.prefix, elem=elem)
+                        elem.channels.vkick_cset = "{}{elem.system}_{elem.subsystem}:DCV_{elem.inst}:ANG_CSET".format(self.prefix, elem=elem)
+                        elem.channels.vkick_rset = "{}{elem.system}_{elem.subsystem}:DCV_{elem.inst}:ANG_RSET".format(self.prefix, elem=elem)
+                        elem.channels.vkick_read = "{}{elem.system}_{elem.subsystem}:DCV_{elem.inst}:ANG_RD".format(self.prefix, elem=elem)
 
                         subsequence.append(elem)
 
                     elif row.device in [ "QH", "QV" ]:
                         
+                        inst = "D{:d}".format(int(row.position))
+                        
                         elem = accel.QuadElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
-                                                    system=row.system, subsystem=row.subsystem, device=row.device, dtype=row.device_type)
+                                                    system=row.system, subsystem=row.subsystem, device=row.device, dtype=row.device_type, inst=inst)
 
-                        elem.channels.gradient_cset = "{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:GRAD_CSET".format(elem=elem)
-                        elem.channels.gradient_rset = "{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:GRAD_RSET".format(elem=elem)
-                        elem.channels.gradient_read = "{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:GRAD_RD".format(elem=elem)
+                        elem.channels.gradient_cset = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:GRAD_CSET".format(self.prefix, elem=elem)
+                        elem.channels.gradient_rset = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:GRAD_RSET".format(self.prefix, elem=elem)
+                        elem.channels.gradient_read = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:GRAD_RD".format(self.prefix, elem=elem)
 
                         subsequence.append(elem)
 
