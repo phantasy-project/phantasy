@@ -5,3 +5,5 @@
 # ignore sphinx build
 docs/build/
 
+# ignore crumbs
+*~
