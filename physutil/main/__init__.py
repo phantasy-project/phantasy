@@ -13,6 +13,7 @@ import sys
 __USAGE__ = """usage: physutil <command> [<args>]
 
 The support commands are:
+   cfutil-load      load channel data into Channel Finder
    impact-lattice   generate IMPACT lattice file (test.in)
    impact-vastart   start IMPACT virtual accelerator
    impact-settings  read settings from IMPACT lattice file (test.in)
@@ -44,6 +45,10 @@ def main():
     elif cmd == "impact-model":
         import impact_model
         return impact_model.main()
+
+    elif cmd == "cfutil-load":
+        import cfutil_load
+        return cfutil_load.main()
 
     elif cmd == "help":
         return help()
@@ -79,6 +84,10 @@ def help():
     elif cmd == "impact-model":
         import impact_model
         impact_model.help()
+
+    elif cmd == "cfutil-load":
+        import cfutil_load
+        cfutil_load.help()
 
     else:
         print("No help available for command: {}".format(cmd), file=sys.stderr)
