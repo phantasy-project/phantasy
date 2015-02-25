@@ -108,6 +108,6 @@ class Result(object):
             data[:, 1] = self._fort24[:, 0]
             data[:, 2] = self._fort25[:, 0]
         else:
-            raise RuntimeError("Result: Unkown plane to get beam orbit: {}".format(plane))
+            raise RuntimeError("Result: Unknown plane to get beam orbit: {}".format(plane))
 
         return data

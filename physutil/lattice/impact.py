@@ -93,6 +93,8 @@ class LatticeFactory(object):
 
         lattice = Lattice(self.integrator)
 
+        lattice.nprocessors = self.nprocessors
+
         for elem in self._accel.iter(self.start, self.end):
             if isinstance(elem, DriftElement):
                 lattice.append([elem.length, steps, mapsteps, 0, elem.diameter/2.0])

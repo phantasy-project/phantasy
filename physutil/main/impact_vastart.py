@@ -6,7 +6,7 @@ Implement physutil command 'impact-vastart'.
 
 from __future__ import print_function
 
-import sys, json
+import sys, json, signal, cothread
 
 from argparse import ArgumentParser
 
@@ -56,6 +56,8 @@ def main():
         print(e, file=sys.stderr)
         return 1
 
-    impact.va.start(accel, config=config, settings=settings)
-        
+    impact.va2.start(accel, config=config, settings=settings)
+    cothread.WaitForQuit()
+    impact.va2.stop()
+    
     return 0

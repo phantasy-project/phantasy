@@ -2,5 +2,5 @@
 
 """Utilities for FRIB specific data formats, etc."""
 
-import va
+import va2
 
