@@ -10,6 +10,8 @@ __author__ = "Dylan Maxwell"
 
 import sys, os.path
 
+from datetime import datetime
+
 from collections import OrderedDict
 
 from .. import cfg
@@ -51,6 +53,7 @@ class LatticeFactory(object):
             raise TypeError()
         self._config = config
 
+        self.nprocessors = 1
         self.integrator = INTEGRATOR_LORENTZ
         self.settings = {}
         self.start = None
@@ -96,6 +99,7 @@ class LatticeFactory(object):
         lattice.nprocessors = self.nprocessors
 
         for elem in self._accel.iter(self.start, self.end):
+
             if isinstance(elem, DriftElement):
                 lattice.append([elem.length, steps, mapsteps, 0, elem.diameter/2.0])
 
@@ -110,12 +114,15 @@ class LatticeFactory(object):
                 if elem.channels.phase_cset in self.settings:
                     phase = self.settings[elem.channels.phase_cset]["VAL"]
                 else:
-                    raise Exception("LatticeFactory: '{}' channel not found for element: {}".format(elem.channels.phase_cset, elem.name))
+                    phase = 0.0
+                    print("LatticeFactory: '{}' channel not found for element: {}".format(elem.channels.phase_cset, elem.name))
+
 
                 if elem.channels.amplitude_cset in self.settings:
                     amplitude = self.settings[elem.channels.amplitude_cset]["VAL"]
                 else:
-                    raise Exception("LatticeFactory: '{}' channel not found for element: {}".format(elem.channels.amplitude_cset, elem.name))
+                    amplitude = 0.0
+                    print("LatticeFactory: '{}' channel not found for element: {}".format(elem.channels.amplitude_cset, elem.name))
                 
                 #radius = elem.diameter / 2.0
                 #if cavity_field_3d:
@@ -128,17 +135,20 @@ class LatticeFactory(object):
                 if elem.channels.field_cset in self.settings:
                     field = self.settings[elem.channels.field_cset]["VAL"]
                 else:
-                    raise Exception("LatticeFactory: '{}' channel not found for element: {}".format(elem.channels.field_cset, elem.name))
+                    field = 0.0
+                    print("LatticeFactory: '{}' channel not found for element: {}".format(elem.channels.field_cset, elem.name))
 
                 if elem.channels.hkick_cset in self.settings:
                     hkick = self.settings[elem.channels.hkick_cset]["VAL"]
                 else:
-                    raise Exception("LatticeFactory: '{}' channel not found for element: {}".format(elem.channels.hkick_cset, elem.name))
+                    hkick = 0.0
+                    print("LatticeFactory: '{}' channel not found for element: {}".format(elem.channels.hkick_cset, elem.name))
 
                 if elem.channels.vkick_cset in self.settings:
                     vkick = self.settings[elem.channels.vkick_cset]["VAL"]
                 else:
-                    raise Exception("LatticeFactory: '{}' channel not found for element: {}".format(elem.channels.vkick_cset, elem.name))
+                    vkick = 0.0
+                    print("LatticeFactory: '{}' channel not found for element: {}".format(elem.channels.vkick_cset, elem.name))
 
                 idx = lattice.append([elem.length/2.0, 1, 20, 3, field, 0.0, elem.diameter/2.0])
                 lattice.sp_mapping.append((elem.name, { "1":{"z":elem.z, "idx":idx} }))
@@ -151,7 +161,8 @@ class LatticeFactory(object):
                 if elem.channels.gradient_cset in self.settings:
                     gradient = self.settings[elem.channels.gradient_cset]["VAL"]
                 else:
-                    raise Exception("LatticeFactory: '{}' not found for element: {}".format(elem.channels.gradient_cset, elem.name))
+                    gradient = 0.0
+                    print("LatticeFactory: '{}' not found for element: {}".format(elem.channels.gradient_cset, elem.name))
 
                 idx = lattice.append([elem.length, 50, 20, 1, gradient, 0.0, elem.diameter/2.0])
                 lattice.sp_mapping.append((elem.name, {"z":elem.z+elem.length/2.0, "idx":idx}))
@@ -161,12 +172,14 @@ class LatticeFactory(object):
                 if elem.channels.hkick_cset in self.settings:
                     hkick = self.settings[elem.channels.hkick_cset]["VAL"]
                 else:
-                    raise Exception("LatticeFactory: '{}' channel not found for element: {}".format(elem.channels.hkick_cset, elem.name))
+                    hkick = 0.0
+                    print("LatticeFactory: '{}' channel not found for element: {}".format(elem.channels.hkick_cset, elem.name))
 
                 if elem.channels.vkick_cset in self.settings:
                     vkick = self.settings[elem.channels.vkick_cset]["VAL"]
                 else:
-                    raise Exception("LatticeFactory: '{}' channel not found for element: {}".format(elem.channels.vkick_cset, elem.name))
+                    vkick = 0.0
+                    print("LatticeFactory: '{}' channel not found for element: {}".format(elem.channels.vkick_cset, elem.name))
 
                 if elem.length != 0.0:
                     lattice.append([elem.length/2.0, steps, mapsteps, 0, elem.diameter/2.0])
@@ -177,7 +190,19 @@ class LatticeFactory(object):
                 if elem.length != 0.0:
                     lattice.append([elem.length/2.0, steps, mapsteps, 0, elem.diameter/2.0])
 
-            elif isinstance(elem, (BLMElement, PMElement, BLElement)):
+            elif isinstance(elem, HexElement):
+                # Need to add settings for this element
+                lattice.append([elem.length, steps, mapsteps, 5, elem.diameter/2.0])
+
+            elif isinstance(elem, BendElement):
+                # Need to add settings for this element
+                lattice.append([elem.length, steps, mapsteps, 4, 0.0, 0.0, 0, elem.diameter/2.0])
+
+            elif isinstance(elem, (ChgStripElement)):
+                if elem.length != 0.0:
+                    lattice.append([elem.length, steps, mapsteps, 0, elem.diameter/2.0])
+
+            elif isinstance(elem, (BLMElement, PMElement, BLElement, BCMElement)):
                 if elem.length != 0.0:
                     lattice.append([elem.length, steps, mapsteps, 0, elem.diameter/2.0])
 
@@ -246,7 +271,7 @@ class Lattice(object):
 
 
     def write(self, file=sys.stdout):
-        file.write("!! Generated by PhysUtil\r\n")
+        file.write("!! Generated by PhysUtil - {}\r\n".format(datetime.now()))
         file.write("{lat.nprocessors} 1\r\n".format(lat=self))
         file.write("6 {lat.nparticles} {lat._integrator} 0 4\r\n".format(lat=self))
         file.write("65 65 129 4 0.140000 0.140000 0.1025446\r\n")
@@ -272,7 +297,7 @@ class Lattice(object):
                 if isinstance(rec, int):
                     file.write("{:d} ".format(rec))
                 elif isinstance(rec, float):
-                    file.write("{:.7E} ".format(rec))
+                    file.write("{:g} ".format(rec))
                 else:
                     raise RuntimeError(str(rec))
             file.write("/\r\n")

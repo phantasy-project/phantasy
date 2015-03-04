@@ -341,7 +341,7 @@ class AccelFactory(object):
                         subsequence.append(accel.PortElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
                                                                 system=row.system, subsystem=subsystem, device=row.device, dtype=dtype))
 
-                    elif row.device in [ "DC", "DH", "DC0", "CH" ]:
+                    elif row.device in [ "DC", "DC0" ]:
 
                         inst = "D{:d}".format(int(row.position))
 
@@ -356,6 +356,23 @@ class AccelFactory(object):
                         elem.channels.vkick_read = "{}{elem.system}_{elem.subsystem}:DCV_{elem.inst}:ANG_RD".format(self.prefix, elem=elem)
 
                         subsequence.append(elem)
+
+                    elif row.device in [ "DH", "CH" ]:
+
+                        inst = "D{:d}".format(int(row.position))
+
+                        elem = accel.BendElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
+                                                    system=row.system, subsystem=row.subsystem, device=row.device, dtype=row.device_type, inst=inst)
+
+                        #elem.channels.hkick_cset = "{}{elem.system}_{elem.subsystem}:DCH_{elem.inst}:ANG_CSET".format(self.prefix, elem=elem)
+                        #elem.channels.hkick_rset = "{}{elem.system}_{elem.subsystem}:DCH_{elem.inst}:ANG_RSET".format(self.prefix, elem=elem)
+                        #elem.channels.hkick_read = "{}{elem.system}_{elem.subsystem}:DCH_{elem.inst}:ANG_RD".format(self.prefix, elem=elem)
+                        #elem.channels.vkick_cset = "{}{elem.system}_{elem.subsystem}:DCV_{elem.inst}:ANG_CSET".format(self.prefix, elem=elem)
+                        #elem.channels.vkick_rset = "{}{elem.system}_{elem.subsystem}:DCV_{elem.inst}:ANG_RSET".format(self.prefix, elem=elem)
+                        #elem.channels.vkick_read = "{}{elem.system}_{elem.subsystem}:DCV_{elem.inst}:ANG_RD".format(self.prefix, elem=elem)
+
+                        subsequence.append(elem)
+
 
                     elif row.device in [ "QH", "QV" ]:
                         
@@ -380,6 +397,14 @@ class AccelFactory(object):
 
                     elif row.device in [ "dump" ]:
                         subsequence.append(accel.DriftElement(row.center_position, row.eff_length, row.diameter, desc=row.element_name))
+
+                    elif row.device in [ "STRIP" ]:
+                        elem = get_prev_element((accel.ChgStripElement))
+                        elem.z = row.center_position
+                        elem.name = row.name
+                        elem.desc = row.element_name
+                        elem.system = row.system
+                        elem.subsystem = row.subsystem
 
                     else:
                         raise Exception("Unsupported layout with device: '{}'".format(row.device))
@@ -427,7 +452,7 @@ class AccelFactory(object):
                         elem.desc = row.element_name
                         elem.system = row.system
                         elem.subsystem = row.subsystem
-                        elem.device = "LFS" # NOT OFFICIAL (MISSING IN XLF)
+                        elem.device = "STRIP"
 
                     else:
                         raise Exception("Unsupported layout with name: '{}'".format(row.element_name))

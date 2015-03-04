@@ -16,7 +16,7 @@ from physutil import cfg, layout, lattice
 parser = ArgumentParser(description="Generate IMPACT lattice file (test.in).")
 parser.add_argument("--xlf", dest="xlfpath", required=True, help="Path to FRIB Expanded Lattice File (.xlsx)")
 parser.add_argument("--cfg", dest="cfgpath", required=True, help="Path to configuration file (.json)")
-parser.add_argument("--settings", required=True, help="Path to device settings file (.json)")
+parser.add_argument("--settings", help="Path to device settings file (.json)")
 parser.add_argument("--fort-map", help="Path to output result data mapping file")
 parser.add_argument("--start", help="Element name to start lattice generation")
 parser.add_argument("--end", help="Element name to end lattice generation")
@@ -52,12 +52,16 @@ def main():
 
     #accel.write()
 
-    try:
-        with open(args.settings, "r") as fp:
-            settings = json.load(fp)
-    except Exception as e:
-        print(e, file=sys.stderr)
-        return 1
+    if args.settings == None:
+        settings = {}
+    else:
+        try:
+            with open(args.settings, "r") as fp:
+                settings = json.load(fp)
+        except Exception as e:
+            print(e, file=sys.stderr)
+            return 1
+
 
     try:
         lat = lattice.impact.build_lattice(accel, config, settings, start=args.start, end=args.end)

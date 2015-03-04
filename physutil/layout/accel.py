@@ -334,11 +334,11 @@ class _SeqElementIterator(object):
                 del self._iterators[-1]
                 continue
 
-            if self._start != None:
+            if self._start != None and isinstance(elem, NamedElement):
                 if self._start == elem.name:
                     self._start = None
 
-            if self._end != None:
+            if self._end != None and isinstance(elem, NamedElement):
                 if self._end == elem.name:
                     self._iterators = []
                     self._end = None
