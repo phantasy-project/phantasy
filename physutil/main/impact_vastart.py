@@ -23,6 +23,7 @@ parser.add_argument("--cfg", dest="cfgpath", required=True)
 parser.add_argument("--stg", dest="stgpath", required=True)
 parser.add_argument("--start")
 parser.add_argument("--end")
+parser.add_argument("--mach")
 
 
 help = parser.print_help
@@ -50,8 +51,13 @@ def main():
         print(e, file=sys.stderr)
         return 1   
 
+    if args.mach != None:
+        prefix = args.mach+":"
+    else:
+        prefix = ""
+
     try:
-        accel = layout.fribxlf.build_accel(args.xlfpath, config, prefix="D_M:")
+        accel = layout.fribxlf.build_accel(args.xlfpath, config, prefix=prefix)
     except Exception as e:
         print(e, file=sys.stderr)
         return 1

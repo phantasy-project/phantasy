@@ -45,8 +45,13 @@ def main():
         print(e, file=sys.stderr)
         return 1
 
+    if args.mach != None:
+        prefix = args.mach+":"
+    else:
+        prefix = ""
+
     try:
-        accel = layout.fribxlf.build_accel(args.xlfpath, config, prefix=args.mach+":")
+        accel = layout.fribxlf.build_accel(args.xlfpath, config, prefix=prefix)
     except Exception as e:
         print(e, file=sys.stderr)
         return 1
