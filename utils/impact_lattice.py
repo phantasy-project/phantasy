@@ -10,7 +10,9 @@ import sys, os.path, json
 
 from argparse import ArgumentParser
 
-from phylib import cfg, layout, lattice
+from phylib import cfg
+
+from machine.frib import layout, lattice
 
 
 parser = ArgumentParser(description="Generate IMPACT lattice file (test.in).")

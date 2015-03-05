@@ -14,7 +14,7 @@ from datetime import datetime
 
 from collections import OrderedDict
 
-from .. import cfg
+from phylib import cfg
 
 from ..layout.accel import *
 

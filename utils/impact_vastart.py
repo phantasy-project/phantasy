@@ -12,12 +12,7 @@ from argparse import ArgumentParser
 
 import cothread
 
-#from phylib import frib
-
-from phylib import cfg, layout
-
-#from phylib.lattice import
-
+from machine.frib import layout
 
 parser = ArgumentParser(description="Start the virtual accelerator using IMPACT")
 parser.add_argument("--xlf", dest="xlfpath", required=True)

@@ -9,7 +9,10 @@ from __future__ import print_function
 import sys
 from argparse import ArgumentParser
 
-from phylib import cfg, layout
+from phylib import cfg
+
+from machine.frib import layout
+from machine.frib.utils import cfutil
 
 
 parser = ArgumentParser(description="Load channel data into Channel Finder")
@@ -45,7 +48,8 @@ def main():
         print(e, file=sys.stderr)
         return 1
 
-    phylib.channelfinder.cfutil.load(accel, args.cfurl, username=args.user, password=args.passwd, start=args.start, end=args.end, machine=args.mach)
+    cfutil.load(accel, args.cfurl, username=args.user, password=args.passwd,
+                start=args.start, end=args.end, machine=args.mach)
 
     return 0
 

@@ -2,7 +2,7 @@
 
 """Utilities for FRIB specific data formats, etc."""
 
-import xlf
+import layout.fribxlf as xlf
 
 def build_accel(xlfpath, config):
     """

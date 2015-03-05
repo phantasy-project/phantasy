@@ -10,11 +10,8 @@ import sys, json
 
 from argparse import ArgumentParser
 
-#from phylib import frib
-
-from phylib import cfg, layout, lattice
-
-#from phylib.lattice import
+from phylib import cfg
+from machine.frib import layout, lattice
 
 
 parser = ArgumentParser(description="Generate settings file from IMPACT input file.")

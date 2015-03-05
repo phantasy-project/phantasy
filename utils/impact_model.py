@@ -6,11 +6,13 @@ Implement phylib command 'impact-model'.
 
 from __future__ import print_function
 
-import sys, json, numpy
+import sys, json
 
 from argparse import ArgumentParser
 
-from phylib import cfg, layout, lattice, model
+from phylib import cfg, model
+
+from machine.frib import layout, lattice
 
 
 parser = ArgumentParser(description="Run IMPACT model and produce results")

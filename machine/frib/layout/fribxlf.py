@@ -6,11 +6,12 @@ Implement phylib command 'impact-input'.
 
 from __future__ import print_function
 
-import sys, os.path, re, xlrd, accel
+import os.path, re, xlrd
 
 
-from .. import cfg
+from phylib import cfg
 
+import accel
 
 
 _XLF_LAYOUT_SHEET_START = 8

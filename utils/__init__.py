@@ -8,9 +8,6 @@ from __future__ import print_function
 
 import sys
 
-from utils import impact_settings, impact_model, impact_vastart, impact_lattice, cfutil_load
-
-
 __USAGE__ = """usage: phylib <command> [<args>]
 
 The support commands are:
