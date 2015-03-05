@@ -10,18 +10,18 @@ from cothread import catools
 
 from collections import OrderedDict
 
-from phylib.layout.accel import *
+from machine.frib.layout.accel import *
 
-from phylib.lattice.impact import LatticeFactory
+from machine.frib.lattice.impact import LatticeFactory
 
 
 _VIRTUAL_ACCELERATOR = None
 
 
-def start(accel, config=None, settings=None):
+def start(accel, config=None, settings=None, data_dir=None):
     global _VIRTUAL_ACCELERATOR
     if _VIRTUAL_ACCELERATOR == None:
-        _VIRTUAL_ACCELERATOR = build(accel, config=config, settings=settings)
+        _VIRTUAL_ACCELERATOR = build(accel, config=config, settings=settings, data_dir=data_dir)
 
     if _VIRTUAL_ACCELERATOR.is_started():
         raise RuntimeError("Virtual Accelerator already started")
@@ -38,11 +38,11 @@ def stop():
     _VIRTUAL_ACCELERATOR.stop()
 
 
-def build(accel, config=None, settings=None):
+def build(accel, config=None, settings=None, data_dir=None):
 
     va_factory = VirtualAcceleratorFactory(accel, config=config, settings=settings)
     
-    return va_factory.build()
+    return va_factory.build(data_dir)
 
 
 
@@ -55,9 +55,11 @@ class VirtualAcceleratorFactory(object):
         self.start= "LS1"
         
     
-    def build(self):
+    def build(self, data_dir):
+        if data_dir is None:
+            raise RuntimeError("IMPACT data files are not available for virtual accelerator.")
     
-        va = VirtualAccelerator()
+        va = VirtualAccelerator(data_dir)
         
         va.settings = self.settings
     
@@ -120,8 +122,9 @@ class VirtualAcceleratorFactory(object):
 
 class VirtualAccelerator(object):
 
-    def __init__(self):
+    def __init__(self, data_dir):
         self.work_dir = None
+        self.data_dir = data_dir
         #self.impact_cmd = "impact"
         #self.softioc_cmd = "softIoc"
         self.settings = {}
@@ -214,12 +217,13 @@ class VirtualAccelerator(object):
             self._write_epicsdb(file)
     
         softIocLog = open(os.path.join(self.work_dir, "softIoc.log"), "w")
-        self._proc_ioc = _Cothread_Popen(["softIoc", "-d", "va.db"], stdout=softIocLog, stderr=subprocess.STDOUT, cwd=self.work_dir)
+        self._proc_ioc = _Cothread_Popen(["softIoc", "-d", "va.db"], stdout=softIocLog,
+                                         stderr=subprocess.STDOUT, cwd=self.work_dir)
         
-        for datafile in os.listdir("/mnt/simulations/physapps/impact_data"):
-            if os.path.isfile(os.path.join("/mnt/simulations/physapps/impact_data", datafile)):
-                print("SymLink {} to {}".format(os.path.join("/mnt/simulations/physapps/impact_data", datafile), os.path.join(self.work_dir, datafile)))
-                os.symlink(os.path.join("/mnt/simulations/physapps/impact_data", datafile), os.path.join(self.work_dir, datafile))
+        for datafile in os.listdir(self.data_dir):
+            if os.path.isfile(os.path.join(self.data_dir, datafile)):
+                print("SymLink {} to {}".format(os.path.join(self.data_dir, datafile), os.path.join(self.work_dir, datafile)))
+                os.symlink(os.path.join(self.data_dir, datafile), os.path.join(self.work_dir, datafile))
 
         catools.camonitor(self._csetmap.keys(), self._handle_cset)
 

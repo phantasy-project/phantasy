@@ -2,13 +2,13 @@
 
 from __future__ import print_function
 
-import sys, StringIO
+import StringIO
 
 from collections import OrderedDict
 
-from phylib import lattice
+from machine.frib import lattice
 
-from phylib.layout.accel import *
+from machine.frib.layout.accel import *
 
 
 

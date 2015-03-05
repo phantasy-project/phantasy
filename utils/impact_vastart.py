@@ -12,12 +12,16 @@ from argparse import ArgumentParser
 
 import cothread
 
+from phylib import cfg
+
 from machine.frib import layout
+from machine.virtacc import va2
 
 parser = ArgumentParser(description="Start the virtual accelerator using IMPACT")
 parser.add_argument("--xlf", dest="xlfpath", required=True)
 parser.add_argument("--cfg", dest="cfgpath", required=True)
 parser.add_argument("--stg", dest="stgpath", required=True)
+parser.add_argument("--data", dest="datapath", required=True)
 parser.add_argument("--start")
 parser.add_argument("--end")
 parser.add_argument("--mach")
@@ -59,8 +63,8 @@ def main():
         print(e, file=sys.stderr)
         return 1
 
-    machine.impact.va2.start(accel, config=config, settings=settings)
+    va2.start(accel, config=config, settings=settings, data_dir=args.datapath)
     cothread.WaitForQuit()
-    machine.impact.va2.stop()
+    va2.stop()
     
     return 0
