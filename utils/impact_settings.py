@@ -1,29 +1,30 @@
 # encoding: UTF-8
 
 """
-Implement physutil command 'impact-vastart'.
+Implement phylib command 'impact-settings'.
 """
 
 from __future__ import print_function
 
-import sys, json, signal, cothread
+import sys, json
 
 from argparse import ArgumentParser
 
-#from physutil import frib
+#from phylib import frib
 
-from physutil import cfg, layout, impact
+from phylib import cfg, layout, lattice
 
-#from physutil.lattice import 
+#from phylib.lattice import
 
 
-parser = ArgumentParser(description="Start the virtual accelerator using IMPACT")
+parser = ArgumentParser(description="Generate settings file from IMPACT input file.")
 parser.add_argument("--xlf", dest="xlfpath", required=True)
 parser.add_argument("--cfg", dest="cfgpath", required=True)
-parser.add_argument("--stg", dest="stgpath", required=True)
 parser.add_argument("--start")
 parser.add_argument("--end")
 parser.add_argument("--mach")
+parser.add_argument("latpath")
+parser.add_argument("setpath")
 
 
 help = parser.print_help
@@ -31,7 +32,7 @@ help = parser.print_help
 
 def main():
     """
-    Entry point for command 'impact-vastart'.
+    Entry point for command 'impact-settings'.
     """
     args = parser.parse_args(sys.argv[2:])
 
@@ -44,13 +45,6 @@ def main():
         print(e, file=sys.stderr)
         return 1
 
-    try:
-        with open(args.stgpath, "r") as fp:
-            settings = json.load(fp)
-    except Exception as e:
-        print(e, file=sys.stderr)
-        return 1   
-
     if args.mach != None:
         prefix = args.mach+":"
     else:
@@ -62,8 +56,10 @@ def main():
         print(e, file=sys.stderr)
         return 1
 
-    impact.va2.start(accel, config=config, settings=settings)
-    cothread.WaitForQuit()
-    impact.va2.stop()
+
+    settings = lattice.impact.build_settings(accel, args.latpath, start=args.start, end=args.end)
+
+    with open(args.setpath, "w") as fp:
+        json.dump(settings, fp, indent=2)
     
     return 0

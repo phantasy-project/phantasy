@@ -1,7 +1,7 @@
 # encoding: UTF-8
 
 """
-Implement physutil command 'impact-model'.
+Implement phylib command 'impact-model'.
 """
 
 from __future__ import print_function
@@ -10,12 +10,12 @@ import sys, json, numpy
 
 from argparse import ArgumentParser
 
-from physutil import cfg, layout, lattice, model
+from phylib import cfg, layout, lattice, model
 
 
 parser = ArgumentParser(description="Run IMPACT model and produce results")
 parser.add_argument("--xlf", dest="xlfpath", required=True, help="Path to FRIB Expanded Lattice File (.xlsx)")
-parser.add_argument("--cfg", dest="cfgpath", required=True, help="Path to physutil configuration file (.json)")
+parser.add_argument("--cfg", dest="cfgpath", required=True, help="Path to phylib configuration file (.json)")
 parser.add_argument("--settings", required=True, help="Path to device settings file (.json)")
 
 

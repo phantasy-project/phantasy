@@ -1,7 +1,7 @@
 # encoding: UTF-8
 
 """
-Implement physutil command 'impact-input'.
+Implement phylib command 'impact-input'.
 """
 
 from __future__ import print_function

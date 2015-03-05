@@ -8,5 +8,6 @@
 import sys
 
 if __name__ == '__main__':
-    from physutil import main
-    sys.exit(main.main())
+    import utils
+
+    sys.exit(utils.main())

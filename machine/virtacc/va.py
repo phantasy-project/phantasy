@@ -6,9 +6,9 @@ import sys, StringIO
 
 from collections import OrderedDict
 
-from .. import lattice
+from phylib import lattice
 
-from ..layout.accel import *
+from phylib.layout.accel import *
 
 
 

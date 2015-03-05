@@ -1,16 +1,17 @@
 # encoding: UTF-8
 
 """
-Implement physutil command line application.
+Implement phylib command line application.
 """
 
 from __future__ import print_function
 
 import sys
 
+from utils import impact_settings, impact_model, impact_vastart, impact_lattice, cfutil_load
 
 
-__USAGE__ = """usage: physutil <command> [<args>]
+__USAGE__ = """usage: phylib <command> [<args>]
 
 The support commands are:
    cfutil-load      load channel data into Channel Finder
@@ -31,23 +32,24 @@ def main():
     cmd = sys.argv[1].strip().lower()
 
     if cmd == "impact-lattice":
-        import impact_lattice
+        import utils.impact_lattice
         return impact_lattice.main()
 
     elif cmd == "impact-settings":
-        import impact_settings
+        from utils import impact_settings
+
         return impact_settings.main()
 
     elif cmd == "impact-vastart":
-        import impact_vastart
+        import utils.impact_vastart
         return impact_vastart.main()
 
     elif cmd == "impact-model":
-        import impact_model
+        import utils.impact_model
         return impact_model.main()
 
     elif cmd == "cfutil-load":
-        import cfutil_load
+        import utils.cfutil_load
         return cfutil_load.main()
 
     elif cmd == "help":
@@ -64,29 +66,29 @@ def help():
 
     if len(sys.argv) < 3:
         print(__USAGE__, file=sys.stderr)
-        print("See 'physutil help <command>' for more information on a specific command.", file=sys.stderr)
+        print("See 'phylib help <command>' for more information on a specific command.", file=sys.stderr)
         return 1
 
     cmd = sys.argv[2].strip().lower()
 
     if cmd == "impact-lattice":
-        import impact_lattice
+        import utils.impact_lattice
         impact_input.help()
 
     elif cmd == "impact-settings":
-        import impact_settings
+        import utils.impact_settings
         impact_settings.help()
 
     elif cmd == "impact-vastart":
-        import impact_vastart
+        import utils.impact_vastart
         impact_vastart.help()
 
     elif cmd == "impact-model":
-        import impact_model
+        import utils.impact_model
         impact_model.help()
 
     elif cmd == "cfutil-load":
-        import cfutil_load
+        import utils.cfutil_load
         cfutil_load.help()
 
     else:

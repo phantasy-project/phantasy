@@ -1,6 +1,7 @@
 
 # ignore compiled python
 *.pyc
+.idea/*
 
 # ignore sphinx build
 docs/build/

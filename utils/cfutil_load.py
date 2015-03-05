@@ -1,16 +1,15 @@
 # encoding: UTF-8
 
 """
-Implement physutil command 'cfutil-load'.
+Implement phylib command 'cfutil-load'.
 """
 
 from __future__ import print_function
 
-import sys, os.path, json
-
+import sys
 from argparse import ArgumentParser
 
-from physutil import cfg, layout, lattice
+from phylib import cfg, layout
 
 
 parser = ArgumentParser(description="Load channel data into Channel Finder")
@@ -46,7 +45,7 @@ def main():
         print(e, file=sys.stderr)
         return 1
 
-    layout.cfutil.load(accel, args.cfurl, username=args.user, password=args.passwd, start=args.start, end=args.end, machine=args.mach)     
+    phylib.channelfinder.cfutil.load(accel, args.cfurl, username=args.user, password=args.passwd, start=args.start, end=args.end, machine=args.mach)
 
     return 0
 

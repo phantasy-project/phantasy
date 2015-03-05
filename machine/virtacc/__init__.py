@@ -2,5 +2,5 @@
 
 """Utilities for FRIB specific data formats, etc."""
 
-import va2
+from machine.impact import va2
 

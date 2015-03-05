@@ -1,7 +1,7 @@
 # encoding: UTF-8
 
 """
-Implement physutil command 'impact-lattice'.
+Implement phylib command 'impact-lattice'.
 """
 
 from __future__ import print_function
@@ -10,7 +10,7 @@ import sys, os.path, json
 
 from argparse import ArgumentParser
 
-from physutil import cfg, layout, lattice
+from phylib import cfg, layout, lattice
 
 
 parser = ArgumentParser(description="Generate IMPACT lattice file (test.in).")
