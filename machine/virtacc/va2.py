@@ -10,7 +10,7 @@ from cothread import catools
 
 from collections import OrderedDict
 
-from machine.frib.layout.accel import *
+from phylib.layout.accel import *
 
 from machine.frib.lattice.impact import LatticeFactory
 

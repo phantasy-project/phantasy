@@ -11,6 +11,7 @@ import sys, json
 from argparse import ArgumentParser
 
 from phylib import cfg
+
 from machine.frib import layout, lattice
 
 

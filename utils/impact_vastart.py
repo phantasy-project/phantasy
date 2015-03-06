@@ -6,7 +6,7 @@ Implement phylib command 'impact-vastart'.
 
 from __future__ import print_function
 
-import sys
+import sys, os.path
 import json
 from argparse import ArgumentParser
 
@@ -63,7 +63,7 @@ def main():
         print(e, file=sys.stderr)
         return 1
 
-    va2.start(accel, config=config, settings=settings, data_dir=args.datapath)
+    va2.start(accel, config=config, settings=settings, data_dir=os.path.abspath(args.datapath))
     cothread.WaitForQuit()
     va2.stop()
     

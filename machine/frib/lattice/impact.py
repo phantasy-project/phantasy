@@ -16,7 +16,7 @@ from collections import OrderedDict
 
 from phylib import cfg
 
-from ..layout.accel import *
+from phylib.layout.accel import *
 
 
 INTEGRATOR_LINEAR = 1

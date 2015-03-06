@@ -11,7 +11,7 @@ import os.path, re, xlrd
 
 from phylib import cfg
 
-import accel
+from phylib.layout import accel
 
 
 _XLF_LAYOUT_SHEET_START = 8
