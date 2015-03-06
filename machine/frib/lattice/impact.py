@@ -101,13 +101,13 @@ class LatticeFactory(object):
         for elem in self._accel.iter(self.start, self.end):
 
             if isinstance(elem, DriftElement):
-                lattice.append([elem.length, steps, mapsteps, 0, elem.diameter/2.0])
+                lattice.append([elem.length, steps, mapsteps, 0, elem.aperture/2.0])
 
             elif isinstance(elem, ValveElement):
-                lattice.append([elem.length, steps, mapsteps, 0, elem.diameter/2.0])
+                lattice.append([elem.length, steps, mapsteps, 0, elem.aperture/2.0])
 
             elif isinstance(elem, PortElement):
-                lattice.append([elem.length, steps, mapsteps, 0, elem.diameter/2.0])
+                lattice.append([elem.length, steps, mapsteps, 0, elem.aperture/2.0])
 
             elif isinstance(elem, CavityElement):
 
@@ -128,7 +128,7 @@ class LatticeFactory(object):
                 #if cavity_field_3d:
                 #    lattice.append([elem.length, 48, 20, 110, amplitude, elem.frequency, phase, _file_id(elem.beta), radius, radius, 0, 0, 0, 0, 0, 1, 2 ])
                 #else:
-                idx = lattice.append([elem.length, 60, 20, 103, amplitude, elem.frequency, phase, _file_id(elem.beta, self.integrator), elem.diameter/2.0])
+                idx = lattice.append([elem.length, 60, 20, 103, amplitude, elem.frequency, phase, _file_id(elem.beta, self.integrator), elem.aperture/2.0])
                 lattice.sp_mapping.append((elem.name, {"z":elem.z+elem.length/2.0, "idx":idx}))
 
             elif isinstance(elem, SolCorrElement):
@@ -150,11 +150,11 @@ class LatticeFactory(object):
                     vkick = 0.0
                     print("LatticeFactory: '{}' channel not found for element: {}".format(elem.channels.vkick_cset, elem.name))
 
-                idx = lattice.append([elem.length/2.0, 1, 20, 3, field, 0.0, elem.diameter/2.0])
+                idx = lattice.append([elem.length/2.0, 1, 20, 3, field, 0.0, elem.aperture/2.0])
                 lattice.sp_mapping.append((elem.name, { "1":{"z":elem.z, "idx":idx} }))
-                idx = lattice.append([0.0, 0, 0, -21, elem.diameter/2.0, 0.0, hkick, 0.0, vkick, 0.0, 0.0])
+                idx = lattice.append([0.0, 0, 0, -21, elem.aperture/2.0, 0.0, hkick, 0.0, vkick, 0.0, 0.0])
                 lattice.sp_mapping.append(("{elem.system}_{elem.subsystem}:COR1_{elem.inst}".format(elem=elem), {"z":elem.z, "idx":idx}))
-                idx = lattice.append([elem.length/2.0, 1, 20, 3, field, 0.0, elem.diameter/2.0])
+                idx = lattice.append([elem.length/2.0, 1, 20, 3, field, 0.0, elem.aperture/2.0])
                 lattice.sp_mapping[-2][1]["2"] = {"z":elem.z+elem.length/2.0, "idx":idx}
 
             elif isinstance(elem, QuadElement):
@@ -164,7 +164,7 @@ class LatticeFactory(object):
                     gradient = 0.0
                     print("LatticeFactory: '{}' not found for element: {}".format(elem.channels.gradient_cset, elem.name))
 
-                idx = lattice.append([elem.length, 50, 20, 1, gradient, 0.0, elem.diameter/2.0])
+                idx = lattice.append([elem.length, 50, 20, 1, gradient, 0.0, elem.aperture/2.0])
                 lattice.sp_mapping.append((elem.name, {"z":elem.z+elem.length/2.0, "idx":idx}))
 
             elif isinstance(elem, CorrElement):
@@ -182,39 +182,39 @@ class LatticeFactory(object):
                     print("LatticeFactory: '{}' channel not found for element: {}".format(elem.channels.vkick_cset, elem.name))
 
                 if elem.length != 0.0:
-                    lattice.append([elem.length/2.0, steps, mapsteps, 0, elem.diameter/2.0])
+                    lattice.append([elem.length/2.0, steps, mapsteps, 0, elem.aperture/2.0])
 
-                idx = lattice.append([0.0, 0, 0, -21, elem.diameter/2.0, 0.0, hkick, 0.0, vkick, 0.0, 0.0])
+                idx = lattice.append([0.0, 0, 0, -21, elem.aperture/2.0, 0.0, hkick, 0.0, vkick, 0.0, 0.0])
                 lattice.sp_mapping.append((elem.name, { "1":{"z":elem.z+elem.length/2.0, "idx":idx} }))
 
                 if elem.length != 0.0:
-                    lattice.append([elem.length/2.0, steps, mapsteps, 0, elem.diameter/2.0])
+                    lattice.append([elem.length/2.0, steps, mapsteps, 0, elem.aperture/2.0])
 
             elif isinstance(elem, HexElement):
                 # Need to add settings for this element
-                lattice.append([elem.length, steps, mapsteps, 5, elem.diameter/2.0])
+                lattice.append([elem.length, steps, mapsteps, 5, elem.aperture/2.0])
 
             elif isinstance(elem, BendElement):
                 # Need to add settings for this element
-                lattice.append([elem.length, steps, mapsteps, 4, 0.0, 0.0, 0, elem.diameter/2.0])
+                lattice.append([elem.length, steps, mapsteps, 4, 0.0, 0.0, 0, elem.aperture/2.0])
 
             elif isinstance(elem, (ChgStripElement)):
                 if elem.length != 0.0:
-                    lattice.append([elem.length, steps, mapsteps, 0, elem.diameter/2.0])
+                    lattice.append([elem.length, steps, mapsteps, 0, elem.aperture/2.0])
 
             elif isinstance(elem, (BLMElement, PMElement, BLElement, BCMElement)):
                 if elem.length != 0.0:
-                    lattice.append([elem.length, steps, mapsteps, 0, elem.diameter/2.0])
+                    lattice.append([elem.length, steps, mapsteps, 0, elem.aperture/2.0])
 
             elif isinstance(elem, BPMElement):
                 if elem.length != 0.0:
-                    lattice.append([elem.length/2.0, steps, mapsteps, 0, elem.diameter/2.0])
+                    lattice.append([elem.length/2.0, steps, mapsteps, 0, elem.aperture/2.0])
 
                 idx = lattice.append([0.0, 0, 0, -23], output_elem=elem.name)
                 lattice.rb_mapping.append((elem.name, {"z":elem.z+elem.length/2.0, "idx":idx}))
                 
                 if elem.length != 0.0:
-                    lattice.append([elem.length/2.0, steps, mapsteps, 0, elem.diameter/2.0])
+                    lattice.append([elem.length/2.0, steps, mapsteps, 0, elem.aperture/2.0])
                 
             else:
                 raise Exception("Unsupport ADD element: {}".format(elem))

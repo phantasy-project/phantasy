@@ -50,7 +50,7 @@ class BaseElement(object):
     def __init__(self, z, length, diameter, desc=""):
         self.z = z
         self.length = length
-        self.diameter = diameter
+        self.aperture = diameter
         self.desc = desc
         self.channels = Channels()
 
@@ -76,14 +76,15 @@ class BaseElement(object):
 
 
     @property
-    def diameter(self):
-        return self._diameter
+    def aperture(self):
 
-    @diameter.setter
-    def diameter(self, diameter):
+        return self._aperture
+
+    @aperture.setter
+    def aperture(self, diameter):
         if not isinstance(diameter, (int, float)):
             raise TypeError("BaseElement: 'diameter' property must be a number")    
-        self._diameter = diameter
+        self._aperture = diameter
 
 
     @property
@@ -260,15 +261,15 @@ class SeqElement(NamedElement):
 
 
     @property
-    def diameter(self):
-        diameter = float('inf')
+    def aperture(self):
+        aperture = float('inf')
         for elem in self.elements:
-            diameter = min(diameter, elem.diameter)
-        return diameter
+            aperture = min(aperture, elem.aperture)
+        return aperture
 
-    @diameter.setter
-    def diameter(self, diameter):
-        if diameter != None:
+    @aperture.setter
+    def aperture(self, aperture):
+        if aperture != None:
             raise NotImplementedError("SeqElement: Setting diameter not implemented")
 
 
@@ -401,8 +402,8 @@ class BPMElement(Element):
     def __init__(self, z, length, diameter, name, desc="beam positon monitor", system="", subsystem="", device="", dtype="", inst=""):
         super(BPMElement,self).__init__(z, length, diameter, name, desc=desc, system=system,
                                             subsystem=subsystem, device=device, dtype=dtype, inst=inst)
-        self.channels.hposition_read = "HPOSITION_READ"
-        self.channels.vposition_read = "VPOSITION_READ"
+        self.channels.hposition_read = None
+        self.channels.vposition_read = None
 
 
 
@@ -413,6 +414,7 @@ class BCMElement(Element):
     def __init__(self, z, length, diameter, name, desc="beam current monitor", system="", subsystem="", device="", dtype="", inst=""):
         super(BCMElement,self).__init__(z, length, diameter, name, desc=desc, system=system,
                                             subsystem=subsystem, device=device, dtype=dtype, inst=inst)
+        self.channels.current = None
 
 
 class BLElement(Element):
@@ -431,6 +433,8 @@ class PMElement(Element):
     def __init__(self, z, length, diameter, name, desc="beam profile monitor", system="", subsystem="", device="", dtype="", inst=""):
         super(PMElement, self).__init__(z, length, diameter, name, desc=desc, system=system,
                                              subsystem=subsystem, device=device, dtype=dtype, inst=inst)
+        self.channels.hsize_read = None
+        self.channels.vsize_read = None
 
 
 

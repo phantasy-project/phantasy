@@ -25,7 +25,7 @@ OPTION_SETTINGS_FILE = "settings_file"
 
 OPTION_XLF_FILE = "xlf_file"
 
-OPTION_IMPACT_RFDATA_DIR = "impact_rfdata_dir"
+OPTION_FIELD_DATA_DIR = "impact_rfdata_dir"
 
 
 class Configuration(SafeConfigParser):
