@@ -10,9 +10,11 @@ import sys, os.path, json
 
 from argparse import ArgumentParser
 
-from phylib import cfg
+from ..phylib import cfg
 
-from machine.frib import layout, lattice
+from ..machine.frib.lattice import impact
+
+from ..machine.frib.layout import fribxlf
 
 
 parser = ArgumentParser(description="Generate IMPACT lattice file (test.in).")
@@ -47,7 +49,7 @@ def main():
         return 1
 
     try:
-        accel = layout.fribxlf.build_accel(args.xlfpath, config)
+        accel = fribxlf.build_accel(args.xlfpath, config)
     except Exception as e:
         print(e, file=sys.stderr)
         return 1
@@ -66,7 +68,7 @@ def main():
 
 
     try:
-        lat = lattice.impact.build_lattice(accel, config, settings, start=args.start, end=args.end)
+        lat = impact.build_lattice(accel, config, settings, start=args.start, end=args.end)
     except Exception as e:
         print(e, file=sys.stderr)
         return 1

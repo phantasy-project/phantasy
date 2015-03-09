@@ -29,24 +29,23 @@ def main():
     cmd = sys.argv[1].strip().lower()
 
     if cmd == "impact-lattice":
-        import utils.impact_lattice
+        import impact_lattice
         return impact_lattice.main()
 
     elif cmd == "impact-settings":
-        from utils import impact_settings
-
+        import impact_settings
         return impact_settings.main()
 
     elif cmd == "impact-vastart":
-        import utils.impact_vastart
+        import impact_vastart
         return impact_vastart.main()
 
     elif cmd == "impact-model":
-        import utils.impact_model
+        import impact_model
         return impact_model.main()
 
     elif cmd == "cfutil-load":
-        import utils.cfutil_load
+        import cfutil_load
         return cfutil_load.main()
 
     elif cmd == "help":
@@ -69,23 +68,23 @@ def help():
     cmd = sys.argv[2].strip().lower()
 
     if cmd == "impact-lattice":
-        import utils.impact_lattice
+        import impact_lattice
         impact_input.help()
 
     elif cmd == "impact-settings":
-        import utils.impact_settings
+        import impact_settings
         impact_settings.help()
 
     elif cmd == "impact-vastart":
-        import utils.impact_vastart
+        import impact_vastart
         impact_vastart.help()
 
     elif cmd == "impact-model":
-        import utils.impact_model
+        import impact_model
         impact_model.help()
 
     elif cmd == "cfutil-load":
-        import utils.cfutil_load
+        import cfutil_load
         cfutil_load.help()
 
     else:

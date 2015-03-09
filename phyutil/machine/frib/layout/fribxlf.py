@@ -9,9 +9,9 @@ from __future__ import print_function
 import os.path, re, xlrd
 
 
-from phylib import cfg
+from ....phylib import cfg
 
-from phylib.layout import accel
+from ....phylib.layout import accel
 
 
 _XLF_LAYOUT_SHEET_START = 8

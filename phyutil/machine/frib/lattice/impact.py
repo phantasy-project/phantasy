@@ -14,9 +14,9 @@ from datetime import datetime
 
 from collections import OrderedDict
 
-from phylib import cfg
+from ....phylib import cfg
 
-from phylib.layout.accel import *
+from ....phylib.layout.accel import *
 
 
 INTEGRATOR_LINEAR = 1

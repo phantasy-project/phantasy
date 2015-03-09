@@ -10,9 +10,9 @@ from cothread import catools
 
 from collections import OrderedDict
 
-from phylib.layout.accel import *
+from ....phylib.layout.accel import *
 
-from machine.frib.lattice.impact import LatticeFactory
+from ..lattice.impact import LatticeFactory
 
 
 _VIRTUAL_ACCELERATOR = None

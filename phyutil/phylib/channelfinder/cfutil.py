@@ -15,7 +15,7 @@ from channelfinder import ChannelFinderClient
 
 from channelfinder.CFDataTypes import Property, Channel
 
-from accel import *
+from ..layout.accel import *
 
 
 def load(accel, uri, username=None, password=None, start=None, end=None, machine=""):

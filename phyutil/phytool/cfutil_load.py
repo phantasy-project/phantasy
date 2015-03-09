@@ -9,10 +9,13 @@ from __future__ import print_function
 import sys
 from argparse import ArgumentParser
 
-from phylib import cfg
+from ..phylib import cfg
 
-from machine.frib import layout
-from machine.frib.utils import cfutil
+from ..phylib.channelfinder import cfutil
+
+from ..machine.frib.layout import fribxlf
+
+
 
 
 parser = ArgumentParser(description="Load channel data into Channel Finder")
@@ -42,14 +45,24 @@ def main():
         print(e, file=sys.stderr)
         return 1
 
+    if args.mach != None:
+        prefix = args.mach+":"
+    else:
+        prefix = ""
+
     try:
-        accel = layout.fribxlf.build_accel(args.xlfpath, config, prefix=args.mach+":")
+        accel = fribxlf.build_accel(args.xlfpath, config, prefix=prefix)
     except Exception as e:
         print(e, file=sys.stderr)
         return 1
 
+    if args.mach != None:
+        machine=args.mach
+    else:
+        machine=""
+
     cfutil.load(accel, args.cfurl, username=args.user, password=args.passwd,
-                start=args.start, end=args.end, machine=args.mach)
+                start=args.start, end=args.end, machine=machine)
 
     return 0
 

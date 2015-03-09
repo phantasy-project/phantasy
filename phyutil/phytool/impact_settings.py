@@ -1,7 +1,7 @@
 # encoding: UTF-8
 
 """
-Implement phylib command 'impact-settings'.
+Implement phytool command 'impact-settings'.
 """
 
 from __future__ import print_function
@@ -10,9 +10,11 @@ import sys, json
 
 from argparse import ArgumentParser
 
-from phylib import cfg
+from ..phylib import cfg
 
-from machine.frib import layout, lattice
+from ..machine.frib.lattice import impact
+
+from ..machine.frib.layout import fribxlf
 
 
 parser = ArgumentParser(description="Generate settings file from IMPACT input file.")
@@ -49,13 +51,13 @@ def main():
         prefix = ""
 
     try:
-        accel = layout.fribxlf.build_accel(args.xlfpath, config, prefix=prefix)
+        accel = fribxlf.build_accel(args.xlfpath, config, prefix=prefix)
     except Exception as e:
         print(e, file=sys.stderr)
         return 1
 
 
-    settings = lattice.impact.build_settings(accel, args.latpath, start=args.start, end=args.end)
+    settings = impact.build_settings(accel, args.latpath, start=args.start, end=args.end)
 
     with open(args.setpath, "w") as fp:
         json.dump(settings, fp, indent=2)
