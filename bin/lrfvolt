@@ -1,0 +1,29 @@
+#!/usr/bin/env python
+# encoding: UTF-8
+
+import os.path, sys, argparse, numpy
+
+from phyutil.phylib.fielddata import lrfdata
+
+parser = argparse.ArgumentParser(description="Calculate cavity acceleration voltage from linear RF data.",
+                                 usage="lrfvolt --beta=<beta> --freq=<freq> [--phase=<phase>] lrfpath")
+
+parser.add_argument("lrfpath", help="Path to linear RF data file")
+parser.add_argument("--beta", type=float, required=True, help="cavity beta (required)")
+parser.add_argument("--freq", type=float, required=True, help="cavity frequency (required)" )
+parser.add_argument("--phase", type=float, default=0.0, help="cavity phase (default: 0.0)" )
+
+args = parser.parse_args()
+
+if not os.path.exists(args.lrfpath):
+    sys.stderr.write("Input field data file not found: %s\n" % (args.lrfpath,))
+    sys.exit(-1)
+
+lrffile = open(args.lrfpath, "r")
+
+try:
+    rfdata = lrfdata.readFromImpactFile(lrffile)
+finally:
+    lrffile.close()
+
+sys.stdout.write("%f\r\n" % (rfdata.voltage(args.beta, args.freq, args.phase),))
