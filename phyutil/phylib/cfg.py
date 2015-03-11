@@ -83,24 +83,3 @@ class Configuration(SafeConfigParser):
         return SafeConfigParser.has_option(self, section, option) or (check_default and self.has_default(option))
 
 
-
-class FactoryWithConfig(object):
-    """
-    FactoryWithConfig is base class for building configuration based factories.
-    """
-    def __init__(self, config=None):
-        if config != None:
-            self.config = config
-        else:
-            self.config = Configuration()
-
-
-    @property
-    def config(self):
-        return self._config
-
-    @config.setter
-    def config(self, config):
-        if not isinstance(config, Configuration):
-            raise TypeError("FactoryWithConfig: config must be of type Configuration")
-        self._config = config
