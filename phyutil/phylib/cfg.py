@@ -6,7 +6,7 @@ Utilities for handling configuration file.
 
 from __future__ import print_function
 
-import os.path, json
+import os.path, platform
 
 from ConfigParser import SafeConfigParser, NoSectionError, NoOptionError
 
@@ -28,10 +28,60 @@ OPTION_XLF_FILE = "xlf_file"
 OPTION_FIELD_DATA_DIR = "impact_rfdata_dir"
 
 
-class Configuration(SafeConfigParser):
+DEFAULT_LOCATIONS = [
+        "${PHYUTIL_CFG}",
+        os.path.join(".", "phyutil.cfg"),
+        os.path.join("~", ".phyutil.cfg"),
+        os.path.join("~", "_phyutil.cfg"),
+    ]
+
+if platform.system() == "Linux":
+    DEFAULT_LOCATIONS.append("/etc/phyutil/phyutil.cfg")
+
+
+# glabal configuration
+config = None
+
+
+def load(cfgpath=DEFAULT_LOCATIONS):
+    """Load the global configuration from the specified file path or
+       list of file paths. The existing configuration is always replaced.
+       If a list of paths is provided then an attempt is made to read
+       each file is the order specified and processing stops after a configuration
+       file has been successfully loaded. To load multiple files into the
+       configuration use the Configuration.read() method.
+
+       :params cfgpath: configuration file path or list of file paths
+       :return: the configuration file path that was successfully loaded
     """
-    Configuration wrapps the standand python config parser
-    to provide convenient helper methods.
+    global config
+    c = Configuration()
+
+    if isinstance(cfgpath , (tuple,list)):
+        raise_error = False
+    else:
+        cfgpath = [ cfgpath ]
+        raise_error = True
+
+    for path in cfgpath:
+        try:
+            path = os.path.expanduser(path)
+            path = os.path.expandvars(path)
+            print(path)
+            with open(path, "r") as fp:
+                c.readfp(fp)
+                break
+        except Exception as e:
+            if raise_error:
+                raise e
+
+    config = c
+    return path
+
+
+class Configuration(SafeConfigParser):
+    """Configuration wraps the standand python config
+       parser to provide convenient helper methods.
     """
     
     _DEFAULT_SECTION = "DEFAULT"
@@ -82,4 +132,7 @@ class Configuration(SafeConfigParser):
     def has_option(self, section, option, check_default=True):
         return SafeConfigParser.has_option(self, section, option) or (check_default and self.has_default(option))
 
+
+# initialize the global configuration
+load()
 
