@@ -1,6 +1,15 @@
 # encoding: UTF-8
 
-import os, unittest, numpy, fmdata, lrfdata, nrfdata
+import os, unittest, numpy
+
+from phyutil.phylib.fieldmap import fmdata
+
+from phyutil.phylib.fieldmap.impact import lrfdata, nrfdata
+
+
+DIRNAME = os.path.dirname(__file__)
+
+TESTA_E_DAT = os.path.join(DIRNAME,  "testA_E.dat")
 
 
 class NRFDataTest(unittest.TestCase):
@@ -29,7 +38,7 @@ class NRFDataTest(unittest.TestCase):
                        ])
 
     def setUp(self):
-        efile = open("testA_E.dat", "r")
+        efile = open(TESTA_E_DAT, "r")
         edata = fmdata.readFromDatFile(efile, pscale=0.001, fscale=2.2)
         efile.close()
 
@@ -42,6 +51,3 @@ class NRFDataTest(unittest.TestCase):
             self.assertTrue(numpy.allclose(numpy.real(data.cf[idx]), numpy.real(self.COEFS[idx])), msg = "Incorrect real Fourier coefficient %d: %g: expecting %g" % (idx, numpy.real(data.cf[idx]), numpy.real(self.COEFS[idx])))
             self.assertTrue(numpy.allclose(numpy.imag(data.cf[idx]), numpy.imag(self.COEFS[idx])), msg = "Incorrect imag Fourier coefficient %d: %g: expecting %g" % (idx, numpy.imag(data.cf[idx]), numpy.imag(self.COEFS[idx])))
 
-
-if __name__ == '__main__':
-    unittest.main()

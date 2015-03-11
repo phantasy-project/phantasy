@@ -8,3 +8,7 @@ docs/build/
 
 # ignore crumbs
 *~
+
+# trial temp directory  
+_trial_temp/
+

@@ -2,6 +2,9 @@
 
 import re, numpy
 
+from ..fmdata import FMData
+
+
 class T7Data:
     """
     T7Data contains 3D field data for IMPACT.
@@ -255,3 +258,55 @@ def convertFromFMData(edata, hdata):
                     hz[x,y,zalt2] = hz[x,y,zalt]
 
     return  T7Data(px, py, pz, ex, ey, ez, hx, hy, hz, copy=False)
+
+
+
+
+def convertToFMData(data, eimag=0.0, hreal=0.0):
+    """
+    Convert T7 data to field map data.
+    """
+    nx =  data.nx
+    ny =  data.ny
+    nz = (data.nz + 1) / 2
+
+    epx = numpy.empty(nx)
+    epy = numpy.empty(ny)
+    epz = numpy.empty(nz)
+
+    efx = numpy.empty([nx,ny,nz], dtype=numpy.complex)
+    efy = numpy.empty([nx,ny,nz], dtype=numpy.complex)
+    efz = numpy.empty([nx,ny,nz], dtype=numpy.complex)
+
+    hpx = numpy.empty(nx)
+    hpy = numpy.empty(ny)
+    hpz = numpy.empty(nz)
+
+    hfx = numpy.empty([nx,ny,nz], dtype=numpy.complex)
+    hfy = numpy.empty([nx,ny,nz], dtype=numpy.complex)
+    hfz = numpy.empty([nx,ny,nz], dtype=numpy.complex)
+
+    zmax = numpy.max(data.pz) / 2.0
+
+    efactor = 1.0
+    hfactor = 1.0 / (4.0e-7*numpy.pi*numpy.cos(numpy.pi)) # cos(pi) comes from IMPACT convention
+
+    for x in xrange(nx):
+        epx[x] = data.px[x]
+        hpx[x] = data.px[x]
+        for y in xrange(ny):
+            epy[y] = data.py[y]
+            hpy[y] = data.py[y]
+            for z in xrange(nz):
+                zalt = (nz-1) + z
+                epz[z] = data.pz[zalt] - zmax
+                hpz[z] = data.pz[zalt] - zmax
+                efx[x,y,z] = (efactor * data.ex[x,y,zalt] + 1.0j * eimag)
+                efy[x,y,z] = (efactor * data.ey[x,y,zalt] + 1.0j * eimag)
+                efz[x,y,z] = (efactor * data.ez[x,y,zalt] + 1.0j * eimag)
+                hfx[x,y,z] = (hreal + 1.0j * hfactor * data.hx[x,y,zalt])
+                hfy[x,y,z] = (hreal + 1.0j * hfactor * data.hy[x,y,zalt])
+                hfz[x,y,z] = (hreal + 1.0j * hfactor * data.hz[x,y,zalt])
+
+    return (FMData(epx, epy, epz, efx, efy, efz, copy=False), FMData(hpx, hpy, hpz, hfx, hfy, hfz, copy=False))
+
