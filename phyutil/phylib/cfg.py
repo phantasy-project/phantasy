@@ -6,7 +6,7 @@ Utilities for handling configuration file.
 
 from __future__ import print_function
 
-import os.path, platform
+import os.path, platform, logging
 
 from ConfigParser import SafeConfigParser, NoSectionError, NoOptionError
 
@@ -26,6 +26,9 @@ OPTION_SETTINGS_FILE = "settings_file"
 OPTION_XLF_FILE = "xlf_file"
 
 OPTION_FIELD_DATA_DIR = "impact_rfdata_dir"
+
+
+_LOGGER = logging.getLogger(__name__)
 
 
 DEFAULT_LOCATIONS = [
@@ -67,9 +70,10 @@ def load(cfgpath=DEFAULT_LOCATIONS):
         try:
             path = os.path.expanduser(path)
             path = os.path.expandvars(path)
-            print(path)
+            _LOGGER.debug("Attempting to load configuration file: %s", path)
             with open(path, "r") as fp:
                 c.readfp(fp)
+                _LOGGER.info("Successfully loaded configuration file: %s", path)
                 break
         except Exception as e:
             if raise_error:
