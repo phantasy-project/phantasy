@@ -44,13 +44,13 @@ class BaseElement(object):
 
     :param float z: Position of this accelerator element
     :param float length: Length of this accelerator element
-    :param float diameter: Minimum diameter of this accelerator element
+    :param float aperture: Minimum size of this accelerator element
     :param str desc: Description of this accelerator element
     """
-    def __init__(self, z, length, diameter, desc=""):
+    def __init__(self, z, length, aperture, desc=""):
         self.z = z
         self.length = length
-        self.aperture = diameter
+        self.aperture = aperture
         self.desc = desc
         self.channels = Channels()
 
@@ -77,14 +77,34 @@ class BaseElement(object):
 
     @property
     def aperture(self):
-
-        return self._aperture
+        return min(self.apertureX, self.apertureY)
 
     @aperture.setter
-    def aperture(self, diameter):
-        if not isinstance(diameter, (int, float)):
-            raise TypeError("BaseElement: 'diameter' property must be a number")    
-        self._aperture = diameter
+    def aperture(self, aperture):
+        self.apertureX = aperture
+        self.apertureY = aperture
+
+
+    @property
+    def apertureX(self):
+        return self._apertureX
+
+    @apertureX.setter
+    def apertureX(self, apertureX):
+        if not isinstance(apertureX, (int, float)):
+            raise TypeError("BaseElement: 'apertureX' property must be a number")    
+        self._apertureX = apertureX
+
+
+    @property
+    def apertureY(self):
+        return self._apertureY
+
+    @apertureY.setter
+    def apertureY(self, apertureY):
+        if not isinstance(apertureY, (int, float)):
+            raise TypeError("BaseElement: 'apertureY' property must be a number")    
+        self._apertureY = apertureY
 
 
     @property
@@ -99,7 +119,7 @@ class BaseElement(object):
 
 
     def __str__(self):
-        s = "{{ desc:'{elem.desc}', z:{elem.z}, length:{elem.length}, diameter:{elem.diameter}, channels:{elem.channels} }}"
+        s = "{{ desc:'{elem.desc}', z:{elem.z}, length:{elem.length}, aperture:{elem.aperture}, channels:{elem.channels} }}"
         return type(self).__name__ + s.format(elem=self)
 
 
@@ -110,12 +130,12 @@ class NamedElement(BaseElement):
 
     :param float z: Position of this accelerator element
     :param float length: Length of accelerator element
-    :param float diameter: Minimum diameter of accelerator element
+    :param float aperture: Minimum size of accelerator element
     :param str name: Name of accelerator element
     :param str desc: Description of accelerator element
     """
-    def __init__(self, z, length, diameter, name, desc=""):
-        super(NamedElement, self).__init__(z, length, diameter, desc=desc)
+    def __init__(self, z, length, aperture, name, desc=""):
+        super(NamedElement, self).__init__(z, length, aperture, desc=desc)
         self.name = name
 
     @property
@@ -132,7 +152,7 @@ class NamedElement(BaseElement):
 
 
     def __str__(self):
-        s = "{{ name:'{elem.name}', desc:'{elem.desc}', z:{elem.z}, length:{elem.length}, diamter:{elem.diameter}, channels:{elem.channels} }}"
+        s = "{{ name:'{elem.name}', desc:'{elem.desc}', z:{elem.z}, length:{elem.length}, aperture:{elem.aperture}, channels:{elem.channels} }}"
         return type(self).__name__ + s.format(elem=self)
 
 
@@ -143,7 +163,7 @@ class Element(NamedElement):
 
     :param float z: Position of this accelerator element
     :param float length: Length of this accelerator element
-    :param float diameter: Minimum diameter of this accelerator element
+    :param float aperture: Minimum size of this accelerator element
     :param str name: Name of this accelerator element
     :param str desc: Description of this accelerator element
     :param str system: System of this accelerator element
@@ -151,8 +171,8 @@ class Element(NamedElement):
     :param str device: Device of this accelerator element
     :param str inst: Instance of this accelerator element
     """
-    def __init__(self, z, length, diameter, name, desc="", system="", subsystem="", device="", dtype="", inst=""):
-        super(Element, self).__init__(z, length, diameter, name, desc=desc)
+    def __init__(self, z, length, aperture, name, desc="", system="", subsystem="", device="", dtype="", inst=""):
+        super(Element, self).__init__(z, length, aperture, name, desc=desc)
         self.system = system
         self.subsystem = subsystem
         self.device = device
@@ -204,7 +224,7 @@ class Element(NamedElement):
 
 
     def __str__(self):
-        s = "{{ name:'{elem.name}', desc:'{elem.desc}', z:{elem.z}, length:{elem.length}, diamter:{elem.diameter}, system:'{elem.system}', " + \
+        s = "{{ name:'{elem.name}', desc:'{elem.desc}', z:{elem.z}, length:{elem.length}, aperture:{elem.aperture}, system:'{elem.system}', " + \
                 "subsystem:'{elem.subsystem}', device:'{elem.device}', dtype:'{elem.dtype}', channels:{elem.channels} }}"
         return type(self).__name__ + s.format(elem=self)
 
@@ -261,16 +281,29 @@ class SeqElement(NamedElement):
 
 
     @property
-    def aperture(self):
-        aperture = float('inf')
+    def apertureX(self):
+        apertureX = float('inf')
         for elem in self.elements:
-            aperture = min(aperture, elem.aperture)
-        return aperture
+            apertureX = min(apertureX, elem.apertureX)
+        return apertureX
 
-    @aperture.setter
-    def aperture(self, aperture):
-        if aperture != None:
-            raise NotImplementedError("SeqElement: Setting diameter not implemented")
+    @apertureX.setter
+    def apertureX(self, apertureX):
+        if apertureX != None:
+            raise NotImplementedError("SeqElement: Setting apertureX not implemented")
+
+
+    @property
+    def apertureY(self):
+        apertureY = float('inf')
+        for elem in self.elements:
+            apertureY = min(apertureY, elem.apertureY)
+        return apertureY
+
+    @apertureY.setter
+    def apertureY(self, apertureY):
+        if apertureY != None:
+            raise NotImplementedError("SeqElement: Setting apertureY not implemented")
 
 
     def append(self, elem):
@@ -361,16 +394,16 @@ class DriftElement(BaseElement):
     """
     DriftElement represents a drift tube, drift space, bellows or other passive element.
     """
-    def __init__(self, z, length, diameter, desc="drift"):
-        super(DriftElement, self).__init__(z, length, diameter, desc=desc)
+    def __init__(self, z, length, aperture, desc="drift"):
+        super(DriftElement, self).__init__(z, length, aperture, desc=desc)
 
 
 class ValveElement(Element):
     """
     ValveElement represents a vaccuum valve or other similar valve.
     """
-    def __init__(self, z, length, diameter, name, desc="valve", system="", subsystem="", device="", dtype="", inst=""):
-        super(ValveElement, self).__init__(z, length, diameter, name, desc=desc, system=system,
+    def __init__(self, z, length, aperture, name, desc="valve", system="", subsystem="", device="", dtype="", inst=""):
+        super(ValveElement, self).__init__(z, length, aperture, name, desc=desc, system=system,
                                             subsystem=subsystem, device=device, dtype=dtype, inst=inst)
 
 
@@ -378,8 +411,8 @@ class PortElement(Element):
     """
     PortElement represents a attachment point for pump or other device.
     """
-    def __init__(self, z, length, diameter, name, desc="port", system="", subsystem="", device="", dtype="", inst=""):
-        super(PortElement, self).__init__(z, length, diameter, name, desc=desc, system=system,
+    def __init__(self, z, length, aperture, name, desc="port", system="", subsystem="", device="", dtype="", inst=""):
+        super(PortElement, self).__init__(z, length, aperture, name, desc=desc, system=system,
                                             subsystem=subsystem, device=device, dtype=dtype, inst=inst)
 
 
@@ -390,8 +423,8 @@ class BLMElement(Element):
     """
     BLMElement represents Beam Loss Monitor diagnostic device.
     """
-    def __init__(self, z, length, diameter, name, desc="beam loss monitor", system="", subsystem="", device="", dtype="", inst=""):
-        super(BLMElement, self).__init__(z, length, diameter, name, desc=desc, system=system,
+    def __init__(self, z, length, aperture, name, desc="beam loss monitor", system="", subsystem="", device="", dtype="", inst=""):
+        super(BLMElement, self).__init__(z, length, aperture, name, desc=desc, system=system,
                                             subsystem=subsystem, device=device, dtype=dtype, inst=inst)
 
 
@@ -399,8 +432,8 @@ class BPMElement(Element):
     """
     BPMElement represents Beam Position Monitor diagnostic device.
     """
-    def __init__(self, z, length, diameter, name, desc="beam positon monitor", system="", subsystem="", device="", dtype="", inst=""):
-        super(BPMElement,self).__init__(z, length, diameter, name, desc=desc, system=system,
+    def __init__(self, z, length, aperture, name, desc="beam positon monitor", system="", subsystem="", device="", dtype="", inst=""):
+        super(BPMElement,self).__init__(z, length, aperture, name, desc=desc, system=system,
                                             subsystem=subsystem, device=device, dtype=dtype, inst=inst)
         self.channels.hposition_read = None
         self.channels.vposition_read = None
@@ -411,8 +444,8 @@ class BCMElement(Element):
     """
     BCMElement represents Beam Current Monitor diagnostic device.
     """
-    def __init__(self, z, length, diameter, name, desc="beam current monitor", system="", subsystem="", device="", dtype="", inst=""):
-        super(BCMElement,self).__init__(z, length, diameter, name, desc=desc, system=system,
+    def __init__(self, z, length, aperture, name, desc="beam current monitor", system="", subsystem="", device="", dtype="", inst=""):
+        super(BCMElement,self).__init__(z, length, aperture, name, desc=desc, system=system,
                                             subsystem=subsystem, device=device, dtype=dtype, inst=inst)
         self.channels.current = None
 
@@ -421,8 +454,8 @@ class BLElement(Element):
     """
     BLElement represents Bunch Length Monitor diagnostic device.
     """
-    def __init__(self, z, length, diameter, name, desc="bunch length monitor", system="", subsystem="", device="", dtype="", inst=""):
-        super(BLElement, self).__init__(z, length, diameter, name, desc=desc, system=system,
+    def __init__(self, z, length, aperture, name, desc="bunch length monitor", system="", subsystem="", device="", dtype="", inst=""):
+        super(BLElement, self).__init__(z, length, aperture, name, desc=desc, system=system,
                                              subsystem=subsystem, device=device, dtype=dtype, inst="")
 
 
@@ -430,8 +463,8 @@ class PMElement(Element):
     """
     PMElement represents Beam Profile Monitor diagnostic device.
     """
-    def __init__(self, z, length, diameter, name, desc="beam profile monitor", system="", subsystem="", device="", dtype="", inst=""):
-        super(PMElement, self).__init__(z, length, diameter, name, desc=desc, system=system,
+    def __init__(self, z, length, aperture, name, desc="beam profile monitor", system="", subsystem="", device="", dtype="", inst=""):
+        super(PMElement, self).__init__(z, length, aperture, name, desc=desc, system=system,
                                              subsystem=subsystem, device=device, dtype=dtype, inst=inst)
         self.channels.hsize_read = None
         self.channels.vsize_read = None
@@ -445,8 +478,8 @@ class SolElement(Element):
     """
     SolenoidElement represents a solenoid magnet.
     """
-    def __init__(self, z, length, diameter, name, desc="solenoid", system="", subsystem="", device="", dtype="", inst=""):
-        super(SolElement, self).__init__(z, length, diameter, name, desc=desc, system=system,
+    def __init__(self, z, length, aperture, name, desc="solenoid", system="", subsystem="", device="", dtype="", inst=""):
+        super(SolElement, self).__init__(z, length, aperture, name, desc=desc, system=system,
                                                 subsystem=subsystem, device=device, dtype=dtype, inst=inst)
         self.channels.field_cset = "FIELD_CSET"
         self.channels.field_rset = "FIELD_RSET"
@@ -458,8 +491,8 @@ class SolCorrElement(SolElement):
     """
     SolenoidElement represents a solenoid magnet with correctors
     """
-    def __init__(self, z, length, diameter, name, desc="solenoid w correctors", system="", subsystem="", device="", dtype="", inst=""):
-        super(SolCorrElement, self).__init__(z, length, diameter, name, desc=desc, system=system,
+    def __init__(self, z, length, aperture, name, desc="solenoid w correctors", system="", subsystem="", device="", dtype="", inst=""):
+        super(SolCorrElement, self).__init__(z, length, aperture, name, desc=desc, system=system,
                                                 subsystem=subsystem, device=device, dtype=dtype, inst=inst)
         self.channels.hkick_cset = "HKICK_CSET"
         self.channels.hkick_rset = "HKICK_RSET"
@@ -472,8 +505,8 @@ class BendElement(Element):
     """
     BendElement represents a bending (dipole) magnet.
     """
-    def __init__(self, z, length, diameter, name, desc="bend magnet", system="", subsystem="", device="", dtype="", inst=""):
-        super(BendElement, self).__init__(z, length, diameter, name, desc=desc, system=system,
+    def __init__(self, z, length, aperture, name, desc="bend magnet", system="", subsystem="", device="", dtype="", inst=""):
+        super(BendElement, self).__init__(z, length, aperture, name, desc=desc, system=system,
                                                 subsystem=subsystem, device=device, dtype=dtype, inst=inst)
 
 
@@ -481,8 +514,8 @@ class CorrElement(Element):
     """
     CorrElement represents a corrector (dipole) magnet.
     """
-    def __init__(self, z, length, diameter, name, desc="corrector magnet", system="", subsystem="", device="", dtype="", inst=""):
-        super(CorrElement, self).__init__(z, length, diameter, name, desc=desc, system=system,
+    def __init__(self, z, length, aperture, name, desc="corrector magnet", system="", subsystem="", device="", dtype="", inst=""):
+        super(CorrElement, self).__init__(z, length, aperture, name, desc=desc, system=system,
                                                 subsystem=subsystem, device=device, dtype=dtype, inst=inst)
         self.channels.hkick_read = "HKICK_READ"
         self.channels.vkick_cset = "VKICK_CSET"
@@ -494,8 +527,8 @@ class QuadElement(Element):
     """
     QuadElement represents a quadrupole magnet.
     """
-    def __init__(self, z, length, diameter, name, desc="quadrupole magnet", system="", subsystem="", device="", dtype="", inst=""):
-        super(QuadElement, self).__init__(z, length, diameter, name, desc=desc, system=system,
+    def __init__(self, z, length, aperture, name, desc="quadrupole magnet", system="", subsystem="", device="", dtype="", inst=""):
+        super(QuadElement, self).__init__(z, length, aperture, name, desc=desc, system=system,
                                                 subsystem=subsystem, device=device, dtype=dtype, inst=inst)
         self.channels.gradient_cset = "GRADIENT_CSET"
         self.channels.gradient_rset = "GRADIENT_RSET"
@@ -506,8 +539,8 @@ class HexElement(Element):
     """
     HexElement represents a hexapole magnet.
     """
-    def __init__(self, z, length, diameter, name, desc="hexapole magnet", system="", subsystem="", device="", dtype="", inst=""):
-        super(HexElement, self).__init__(z, length, diameter, name, desc=desc, system=system,
+    def __init__(self, z, length, aperture, name, desc="hexapole magnet", system="", subsystem="", device="", dtype="", inst=""):
+        super(HexElement, self).__init__(z, length, aperture, name, desc=desc, system=system,
                                                 subsystem=subsystem, device=device, dtype=dtype, inst=inst)
 
 
@@ -517,8 +550,8 @@ class CavityElement(Element):
     """
     CavityElement represents a RF cavity.
     """
-    def __init__(self, z, length, diameter, name, desc="cavity", system="", subsystem="", device="", dtype="", inst=""):
-        super(CavityElement, self).__init__(z, length, diameter, name, desc=desc, system=system,
+    def __init__(self, z, length, aperture, name, desc="cavity", system="", subsystem="", device="", dtype="", inst=""):
+        super(CavityElement, self).__init__(z, length, aperture, name, desc=desc, system=system,
                                                 subsystem=subsystem, device=device, dtype=dtype, inst=inst)
         self.beta = 0.0
         self.voltage = 0.0
@@ -570,8 +603,8 @@ class ChgStripElement(Element):
     """
     ChgStripElement represents a charge stripper.
     """
-    def __init__(self, z, length, diameter, name, desc="charge stripper", system="", subsystem="", device="", dtype="", inst=""):
-        super(ChgStripElement, self).__init__(z, length, diameter, name, desc=desc, system=system,
+    def __init__(self, z, length, aperture, name, desc="charge stripper", system="", subsystem="", device="", dtype="", inst=""):
+        super(ChgStripElement, self).__init__(z, length, aperture, name, desc=desc, system=system,
                                                 subsystem=subsystem, device=device, dtype=dtype, inst=inst)
 
 
@@ -583,3 +616,4 @@ class Accelerator(SeqElement):
     """
     def __init__(self, name, desc="accelerator", elements=None):
         super(Accelerator, self).__init__(name, desc=desc, elements=elements)
+
