@@ -1,12 +1,16 @@
 # encoding: UTF-8
 
+"""Physics Applications Utility"""
+
 __copyright__ = "Copyright (c) 2015, Facility for Rare Isotope Beams"
 
 __author__ = "Dylan Maxwell"
 
+__version__ = "0.0.1"
+
+
 import logging
 
+# configure the root logger
 logging.basicConfig(format="%(message)s")
-LOGGER = logging.getLogger(__name__)
-LOGGER.setLevel(logging.INFO)
 

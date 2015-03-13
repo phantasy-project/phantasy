@@ -10,6 +10,8 @@ import os.path, platform, logging
 
 from ConfigParser import SafeConfigParser, NoSectionError, NoOptionError
 
+from .. import phylib
+
 
 OPTION_BETA = "beta"
 
@@ -73,14 +75,27 @@ def load(cfgpath=DEFAULT_LOCATIONS):
             _LOGGER.debug("Attempting to load configuration file: %s", path)
             with open(path, "r") as fp:
                 c.readfp(fp)
-                _LOGGER.info("Successfully loaded configuration file: %s", path)
-                break
+                config = c
+                _LOGGER.debug("Successfully loaded configuration file: %s", path)
+                return path
+
         except Exception as e:
             if raise_error:
                 raise e
 
-    config = c
-    return path
+    return None
+
+
+def _auto_load():
+    """
+    Auto load the configuration file if enabled.
+    """
+    if phylib.AUTO_CONFIG:
+        path = load()
+        if path != None:
+            _LOGGER.info("Auto load configuration file found: %s", path)
+        else:
+            _LOGGER.warning("Auto load configuration file not found: %s", DEFAULT_LOCATIONS)
 
 
 class Configuration(SafeConfigParser):
@@ -138,5 +153,6 @@ class Configuration(SafeConfigParser):
 
 
 # initialize the global configuration
-load()
+_auto_load()
+
 
