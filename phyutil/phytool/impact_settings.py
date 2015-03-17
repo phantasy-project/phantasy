@@ -14,7 +14,6 @@ from .. import phylib
 phylib.AUTO_CONFIG=False
 
 from ..phylib import cfg
-from ..phylib.cfg import config
 
 from ..machine.frib.settings import impact
 
@@ -22,13 +21,13 @@ from ..machine.frib.layout import fribxlf
 
 
 parser = ArgumentParser(description="Extract device settings from IMPACT input file based on accelerator layout.")
-parser.add_argument("--cfg", dest="cfgpath", help="path to alternate configuration file")
-parser.add_argument("--xlf", dest="xlfpath", help="path to FRIB Expanded Lattice File (XLF)")
+parser.add_argument("--cfg", dest="cfgpath", help="path to alternate configuration file (.cfg)")
+parser.add_argument("--xlf", dest="xlfpath", help="path to FRIB Expanded Lattice File (.xlsx)")
 parser.add_argument("--start", help="name of accelerator element to start processing")
 parser.add_argument("--end", help="name of accelerator element to end processing")
 parser.add_argument("--mach", help="name of machine (used to indicate VA)")
 #parser.add_argument("-v", action="store_true", help="increase verbosity")
-parser.add_argument("latpath", help="path of IMPACT input file (normally 'test.in')")
+parser.add_argument("latpath", help="path to input IMPACT lattive file (test.in)")
 parser.add_argument("stgpath", nargs='?', help="path of output file with JSON format")
 
 help = parser.print_help
