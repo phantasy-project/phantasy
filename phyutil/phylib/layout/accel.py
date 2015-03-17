@@ -366,7 +366,7 @@ class _SeqElementIterator(object):
     def __init__(self, seq, start=None, end=None):
         self._iterators = [ iter(seq.elements) ]
         self._start = start
-        self._end = end if end != None else start
+        self._end = end
 
 
     def __iter__(self):
