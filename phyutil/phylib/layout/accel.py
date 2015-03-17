@@ -534,6 +534,8 @@ class CorrElement(Element):
     def __init__(self, z, length, aperture, name, desc="corrector magnet", system="", subsystem="", device="", dtype="", inst=""):
         super(CorrElement, self).__init__(z, length, aperture, name, desc=desc, system=system,
                                                 subsystem=subsystem, device=device, dtype=dtype, inst=inst)
+        self.channels.hkick_cset = "HKICK_CSET"
+        self.channels.hkick_rset = "HKICK_RSET"
         self.channels.hkick_read = "HKICK_READ"
         self.channels.vkick_cset = "VKICK_CSET"
         self.channels.vkick_rset = "VKICK_RSET"
