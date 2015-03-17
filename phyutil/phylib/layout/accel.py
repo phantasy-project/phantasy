@@ -20,6 +20,20 @@ __author__ = "Dylan Maxwell"
 import sys
 
 
+# configuration options
+
+CONFIG_MACHINE = "machine"
+
+CONFIG_LENGTH = "length"
+
+CONFIG_CAV_BETA = "cav_beta"
+
+CONFIG_CAV_VOLTAGE = "cav_voltage"
+
+CONFIG_CAV_FREQUENCY = "cav_frequency"
+
+
+
 # Base Elements
 
 class Channels(object):

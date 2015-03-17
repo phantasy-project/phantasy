@@ -6,26 +6,14 @@ Utilities for handling configuration file.
 
 from __future__ import print_function
 
-import os.path, platform, logging
+import os, os.path, platform, logging
 
 from ConfigParser import SafeConfigParser, NoSectionError, NoOptionError
 
 from .. import phylib
 
 
-OPTION_BETA = "beta"
-
-OPTION_LENGTH = "length"
-
-OPTION_VOLTAGE = "voltage"
-
-OPTION_FREQUENCY = "frequency"
-
-OPTION_DIAMETER = "diameter"
-
 OPTION_SETTINGS_FILE = "settings_file"
-
-OPTION_XLF_FILE = "xlf_file"
 
 OPTION_FIELD_DATA_DIR = "impact_rfdata_dir"
 
@@ -44,11 +32,13 @@ if platform.system() == "Linux":
     DEFAULT_LOCATIONS.append("/etc/phyutil/phyutil.cfg")
 
 
-# glabal configuration
+# global configuration
 config = None
+# global configuration file path
+config_path = None
 
 
-def load(cfgpath=DEFAULT_LOCATIONS):
+def load(cfgpath=None):
     """Load the global configuration from the specified file path or
        list of file paths. The existing configuration is always replaced.
        If a list of paths is provided then an attempt is made to read
@@ -57,10 +47,15 @@ def load(cfgpath=DEFAULT_LOCATIONS):
        configuration use the Configuration.read() method.
 
        :params cfgpath: configuration file path or list of file paths
-       :return: the configuration file path that was successfully loaded
+       :return: True if configuration file loaded successfully, otherwise False
     """
-    global config
-    c = Configuration()
+    global config, config_path
+    config = Configuration()
+    config_path = os.getcwd()
+
+    if cfgpath == None:
+        # simply initialize an empty configuration
+        return True
 
     if isinstance(cfgpath , (tuple,list)):
         raise_error = False
@@ -70,20 +65,23 @@ def load(cfgpath=DEFAULT_LOCATIONS):
 
     for path in cfgpath:
         try:
-            path = os.path.expanduser(path)
-            path = os.path.expandvars(path)
-            _LOGGER.debug("Attempting to load configuration file: %s", path)
-            with open(path, "r") as fp:
-                c.readfp(fp)
-                config = c
-                _LOGGER.debug("Successfully loaded configuration file: %s", path)
-                return path
+            if isinstance(path, basestring):
+                path = os.path.expanduser(path)
+                path = os.path.expandvars(path)
+                _LOGGER.debug("Attempting to load configuration file: %s", path)
+                with open(path, "r") as fp:
+                    config.readfp(fp)
+                    config_path = path
+                    _LOGGER.debug("Successfully loaded configuration file: %s", path)
+                    return True
+            else:
+                TypeError("Configuration file path must have type string")
 
         except Exception as e:
             if raise_error:
                 raise e
 
-    return None
+    return False
 
 
 def _auto_load():
@@ -91,9 +89,8 @@ def _auto_load():
     Auto load the configuration file if enabled.
     """
     if phylib.AUTO_CONFIG:
-        path = load()
-        if path != None:
-            _LOGGER.info("Auto load configuration file found: %s", path)
+        if load(DEFAULT_LOCATIONS):
+            _LOGGER.info("Auto load configuration file found: %s", config_path)
         else:
             _LOGGER.warning("Auto load configuration file not found: %s", DEFAULT_LOCATIONS)
 
@@ -106,16 +103,16 @@ class Configuration(SafeConfigParser):
     _DEFAULT_SECTION = "DEFAULT"
 
     def get_default(self, option):
-        return self.get(self._DEFAULT_SECTION, option)
+        return self.get(self._DEFAULT_SECTION, option, check_default=False)
 
     def getint_default(self, option):
-        return self.getint(self._DEFAULT_SECTION, option)
+        return self.getint(self._DEFAULT_SECTION, option, check_default=False)
 
     def getfloat_default(self, option):
-        return self.getfloat(self._DEFAULT_SECTION, option)
+        return self.getfloat(self._DEFAULT_SECTION, option, check_default=False)
 
     def has_default(self, option):
-        return self.has_option(self._DEFAULT_SECTION, option)
+        return self.has_option(self._DEFAULT_SECTION, option, check_default=False)
 
     def get(self, section, option, check_default=True):
         if self.has_option(section, option, False):
@@ -146,7 +143,6 @@ class Configuration(SafeConfigParser):
             raise NoSectionError("No section found: " + str(section))
         else:
             raise NoOptionError("No option found: " + str(option))
-
 
     def has_option(self, section, option, check_default=True):
         return SafeConfigParser.has_option(self, section, option) or (check_default and self.has_default(option))
