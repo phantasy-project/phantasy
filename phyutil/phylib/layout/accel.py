@@ -522,7 +522,10 @@ class BendElement(Element):
     def __init__(self, z, length, aperture, name, desc="bend magnet", system="", subsystem="", device="", dtype="", inst=""):
         super(BendElement, self).__init__(z, length, aperture, name, desc=desc, system=system,
                                                 subsystem=subsystem, device=device, dtype=dtype, inst=inst)
-
+        self.channels.angle_read = "ANGLE_READ"
+        self.channels.angle_cset = "ANGLE_CSET"
+        self.channels.angle_rset = "ANGLE_RSET"
+    
 
 class CorrElement(Element):
     """

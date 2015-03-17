@@ -369,13 +369,10 @@ class AccelFactory(object):
                         elem = BendElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
                                                     system=row.system, subsystem=row.subsystem, device=row.device, dtype=row.device_type, inst=inst)
 
-                        #elem.channels.hkick_cset = "{}{elem.system}_{elem.subsystem}:DCH_{elem.inst}:ANG_CSET".format(chanprefix, elem=elem)
-                        #elem.channels.hkick_rset = "{}{elem.system}_{elem.subsystem}:DCH_{elem.inst}:ANG_RSET".format(chanprefix, elem=elem)
-                        #elem.channels.hkick_read = "{}{elem.system}_{elem.subsystem}:DCH_{elem.inst}:ANG_RD".format(chanprefix, elem=elem)
-                        #elem.channels.vkick_cset = "{}{elem.system}_{elem.subsystem}:DCV_{elem.inst}:ANG_CSET".format(chanprefix, elem=elem)
-                        #elem.channels.vkick_rset = "{}{elem.system}_{elem.subsystem}:DCV_{elem.inst}:ANG_RSET".format(chanprefix, elem=elem)
-                        #elem.channels.vkick_read = "{}{elem.system}_{elem.subsystem}:DCV_{elem.inst}:ANG_RD".format(chanprefix, elem=elem)
-
+                        elem.channels.angle_cset = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:ANG_CSET".format(chanprefix, elem=elem)
+                        elem.channels.angle_rset = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:ANG_RSET".format(chanprefix, elem=elem)
+                        elem.channels.angle_read = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:ANG_RD".format(chanprefix, elem=elem)
+   
                         subsequence.append(elem)
 
 
