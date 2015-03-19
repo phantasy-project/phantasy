@@ -15,7 +15,7 @@ import cothread
 from ..phylib import cfg
 
 from ..machine.frib.layout import fribxlf
-from ..machine.frib.virtaccel import va2
+from ..machine.frib.virtaccel import impact
 
 parser = ArgumentParser(description="Start the virtual accelerator using IMPACT")
 parser.add_argument("--xlf", dest="xlfpath", required=True)
@@ -63,8 +63,8 @@ def main():
     #    print(e, file=sys.stderr)
     #    return 1
 
-    va2.start(accel, config=config, settings=settings, data_dir=os.path.abspath(args.datapath))
+    impact.start(accel, config=config, settings=settings, data_dir=os.path.abspath(args.datapath))
     cothread.WaitForQuit()
-    va2.stop()
+    impact.stop()
     
     return 0
