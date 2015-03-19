@@ -1,6 +1,6 @@
 # encoding: UTF-8
 
-"""Utilities for FRIB specific data formats, etc."""
+"""Library for generating IMPACT lattice file (test.in) from Accelerator Design Description."""
 
 from __future__ import print_function
 
@@ -8,7 +8,8 @@ __copyright__ = "Copyright (c) 2015, Facility for Rare Isotope Beams"
 
 __author__ = "Dylan Maxwell"
 
-import sys, os.path
+
+import sys, os.path, json
 
 from datetime import datetime
 
@@ -19,54 +20,92 @@ from ....phylib import cfg
 from ....phylib.layout.accel import *
 
 
+CONFIG_IMPACT_NPARTICLES = "impact_nparticles"
+
+CONFIG_IMPACT_NPROCESSORS = "impact_nprocessors"
+
+CONFIG_IMPACT_TYPE = "impact_type"
+
+CONFIG_IMPACT_STEPS = "impact_steps"
+
+CONFIG_IMPACT_MAPSTEPS = "impact_mapsteps"
+
+CONFIG_IMPACT_INTEGRATOR = "impact_integrator"
+
+CONFIG_IMPACT_LINEAR_INPUT_ID = "impact_linear_input_id"
+
+CONFIG_IMPACT_LORENTZ_INPUT_ID = "impact_lorentz_input_id"
+
+CONFIG_IMPACT_FIELD3D_INPUT_ID = "impact_t7data_input_id"
+
+
 INTEGRATOR_LINEAR = 1
 
 INTEGRATOR_LORENTZ = 2
 
+_DEFAULT_NPARTICLES = 1000
+
+_DEFAULT_NPROCESSORS = 1
+
+_DEFAULT_STEPS = 4
+
+_DEFAULT_MAPSTEPS = 20
+
+_DEFAULT_INTEGRATOR = INTEGRATOR_LORENTZ
 
 
-def build_lattice(accel, config=None, settings=None, start=None, end=None):
-    """
-    """
+def build_lattice(accel, settings=None, start=None, end=None):
+    """Convenience method for building the IMPACT lattice."""
 
-    # Read config
+    lattice_factory = LatticeFactory(accel)
 
-    lattice_factory = LatticeFactory(accel, config)
+    if settings != None:
+        lattice_factory.settings = settings
 
-    lattice_factory.settings = settings
+    if start != None:
+        lattice_factory.start = start
 
-    lattice_factory.start = start
-
-    lattice_factory.end = end
+    if end != None:
+        lattice_factory.end = end
 
     return lattice_factory.build()
 
 
 class LatticeFactory(object):
+    """LatticeFactory class builds an IMPACT lattice
+       object from an Accelerator Design Description.
+    """
 
-    def __init__(self, accel, config=None):
-        if not isinstance(accel, SeqElement):
-            raise TypeError()
-        self._accel = accel
-
-        if not isinstance(config, cfg.Configuration):
-            raise TypeError()
-        self._config = config
-
-        self.nprocessors = 1
-        self.integrator = INTEGRATOR_LORENTZ
-        self.settings = {}
+    def __init__(self, accel):
+        self.accel = accel
+        self.nparticles = None
+        self.nprocessors = None
+        self.integrator = None
+        self.settings = None
         self.start = None
         self.end = None
 
 
     @property
+    def accel(self):
+        return self._accel
+
+    @accel.setter
+    def accel(self, accel):
+        if not isinstance(accel, SeqElement):
+            raise TypeError("LatticeFactory: 'accel' property must be type a SeqElement")
+        self._accel = accel
+
+
+    @property
     def nparticles(self):
-        return self._nparticle
+        return self._nparticles
 
     @nparticles.setter
     def nparticles(self, nparticles):
-        self._nparticles = int(nparticles)
+        if (nparticles != None) and not isinstance(nparticles, (int,float)):
+            raise TypeError("LatticeFactory: 'nparticles' property must be number or None")
+        self._nparticles = nparticles if nparticles == None else int(nparticles)
 
 
     @property
@@ -75,7 +114,9 @@ class LatticeFactory(object):
 
     @nprocessors.setter
     def nprocessors(self, nprocessors):
-        self._nprocessors = int(nprocessors)
+        if (nprocessors != None) and not isinstance(nprocessors, (int,float)):
+            raise TypeError("LatticeFactory: 'nprocessors' property must be number or None")
+        self._nprocessors = nprocessors if nprocessors == None else int(nprocessors)
 
 
     @property
@@ -84,21 +125,157 @@ class LatticeFactory(object):
 
     @integrator.setter
     def integrator(self, integrator):
-        if integrator not in [ INTEGRATOR_LINEAR, INTEGRATOR_LORENTZ ]:
-            raise ValueError("")
+        if (integrator != None) and integrator not in [ INTEGRATOR_LINEAR, INTEGRATOR_LORENTZ ]:
+            raise TypeError("LatticeFactory: 'integrator' property must be Enum or None")
         self._integrator = integrator
+
+
+    @property
+    def start(self):
+        return self._start
+
+    @start.setter
+    def start(self, start):
+        if (start != None) and not isinstance(start, basestring):
+            raise TypeError("LatticeFactory: 'start' property much be type string or None")
+        self._start = start
+
+
+    @property
+    def end(self):
+        return self._end
+
+    @end.setter
+    def end(self, end):
+        if (end != None) and not isinstance(end, basestring):
+            raise TypeError("LatticeFactory: 'end' property much be type string or None")
+        self._end = end
+
+    
+    @property
+    def settings(self):
+        return self._settings
+
+    @settings.setter
+    def settings(self, settings):
+        if (settings != None) and not isinstance(settings, (dict)):
+            raise TypeError("LatticeFactory: 'settings' property much be type string or None")
+        self._settings = settings
+
+
+    def _get_config_type(self, dtype, default):
+        if cfg.config.has_option(dtype, CONFIG_IMPACT_TYPE, False):
+            return cfg.config.getint(dtype, CONFIG_IMPACT_TYPE, False)
+
+        return default
+
+
+    def _get_config_integrator_input_id(self, dtype, integrator):
+        if (integrator == INTEGRATOR_LINEAR):
+            if cfg.config.has_option(dtype, CONFIG_IMPACT_LINEAR_INPUT_ID, False):
+                return cfg.config.getint(dtype, CONFIG_IMPACT_LINEAR_INPUT_ID, False)
+        
+        if (integrator == INTEGRATOR_LORENTZ):
+            if cfg.config.has_option(dtype, CONFIG_IMPACT_LORENTZ_INPUT_ID, False):
+                return cfg.config.getint(dtype, CONFIG_IMPACT_LORENTZ_INPUT_ID, False)
+
+        return None
+
+
+    def _get_config_t7data_input_id(self, dtype):
+        if cfg.config.has_option(dtype, CONFIG_IMPACT_T7DATA_INPUT_ID, False):
+            return cfg.config.getint(dtype, CONFIG_IMPACT_T7DATA_INPUT_ID, False)
+        
+        return None
+
+
+    def _get_config_nparticles(self):
+        if cfg.config.has_default(CONFIG_IMPACT_NPARTICLES):
+            return cfg.config.getint_default(CONFIG_IMPACT_NPARTICLES)
+
+        return _DEFAULT_NPARTICLES
+
+
+    def _get_config_nprocessors(self):
+        if cfg.config.has_default(CONFIG_IMPACT_NPROCESSORS):
+            return cfg.config.getint_default(CONFIG_IMPACT_NPROCESSORS)
+
+        return _DEFAULT_NPROCESSORS
+
+
+    def _get_config_integrator(self):
+        if cfg.config.has_default(CONFIG_IMPACT_INTEGRATOR):
+            integrator = cfg.config.getint_default(CONFIG_IMPACT_INTEGRATOR)
+            if integrator in [ INTEGRATOR_LINEAR, INTEGRATOR_LORENTZ ]:
+                return integrator
+
+        return _DEFAULT_INTEGRATOR
+
+
+    def _get_config_settings(self):
+        if cfg.config.has_default("settings_file"):
+            stgpath = cfg.config.get_default("settings_file")
+            if not os.path.isabs(stgpath) and (cfg.config_path != None):
+                stgpath = os.path.abspath(os.path.join(os.path.dirname(cfg.config_path), stgpath))
+            with open(stgpath, "r") as stgfile:
+                return json.load(stgfile)
+
+        return None
+
+
+    def _get_config_steps(self, dtype=None):
+        if (dtype == None) and cfg.config.has_default(CONFIG_IMPACT_STEPS):
+            return cfg.config.getint_default(CONFIG_IMPACT_STEPS)
+
+        if (dtype != None) and cfg.config.has_option(dtype, CONFIG_IMPACT_STEPS):
+            return cfg.config.getint(dtype, CONFIG_IMPACT_STEPS)
+
+        return _DEFAULT_STEPS
+
+
+    def _get_config_mapsteps(self, dtype=None):
+        if (dtype == None) and cfg.config.has_default(CONFIG_IMPACT_MAPSTEPS):
+            return cfg.config.getint_default(CONFIG_IMPACT_MAPSTEPS)
+
+        if (dtype != None) and cfg.config.has_option(dtype, CONFIG_IMPACT_MAPSTEPS):
+            return cfg.config.getint(dtype, CONFIG_IMPACT_MAPSTEPS)
+
+        return _DEFAULT_MAPSTEPS
+
 
 
     def build(self):
 
-        steps = 4
-        mapsteps = 20
+        nparticles = self.nparticles
+        if nparticles == None:
+            nparticles = self._get_config_nparticles()
 
-        lattice = Lattice(self.integrator)
+        nprocessors = self.nprocessors
+        if nprocessors == None:
+            nprocessors = self._get_config_nprocessors()
 
-        lattice.nprocessors = self.nprocessors
+        integrator = self.integrator
+        if integrator == None:
+            integrator = self._get_config_integrator()
+
+        settings = self.settings
+        if settings == None:
+            settings = self._get_config_settings()
+        print(len(settings))
+
+        lattice = Lattice(integrator)
+        lattice.nparticles = nparticles
+        lattice.nprocessors = nprocessors
+        lattice.comment = "Name: {a.name}, Desc: {a.desc}".format(a=self._accel)
 
         for elem in self._accel.iter(self.start, self.end):
+
+            if isinstance(elem, Element):
+                steps = self._get_config_steps(elem.dtype)
+                mapsteps = self._get_config_mapsteps(elem.dtype)
+            else:
+                steps = self._get_config_steps()
+                mapsteps = self._get_config_mapsteps()
 
             if isinstance(elem, DriftElement):
                 lattice.append([elem.length, steps, mapsteps, 0, elem.aperture/2.0])
@@ -110,45 +287,61 @@ class LatticeFactory(object):
                 lattice.append([elem.length, steps, mapsteps, 0, elem.aperture/2.0])
 
             elif isinstance(elem, CavityElement):
+                phase = 0.0
+                if settings != None:
+                    if elem.channels.phase_cset in settings:
+                        phase = settings[elem.channels.phase_cset]["VAL"]
+                    else:
+                        raise RuntimeError("LatticeFactory: '{}' channel not found for element: {}".format(elem.channels.phase_cset, elem.name))
 
-                if elem.channels.phase_cset in self.settings:
-                    phase = self.settings[elem.channels.phase_cset]["VAL"]
+                amplitude = 0.0
+                if settings != None:
+                    if elem.channels.amplitude_cset in settings:
+                        amplitude = settings[elem.channels.amplitude_cset]["VAL"]
+                    else:
+                        raise RuntimeError("LatticeFactory: '{}' channel not found for element: {}".format(elem.channels.amplitude_cset, elem.name))
+
+                itype = self._get_config_type(elem.dtype, 103)
+                if itype == 103:
+                    input_id = self._get_config_integrator_input_id(elem.dtype, integrator)
+                    if input_id == None:
+                        raise RuntimeError("LatticeFactory: IMPACT input id for '{}' not found".format(elem.name))
+
+                    idx = lattice.append([elem.length, steps, mapsteps, 103, amplitude, elem.frequency, phase, input_id, elem.aperture/2.0])
+                    lattice.sp_mapping.append((elem.name, {"z":elem.z+elem.length/2.0, "idx":idx}))
+
+                elif itype == 110:
+                    input_id = self._get_config_t7data_input_id(elem.dtype)
+                    if input_id == None:
+                        raise RuntimeError("LatticeFactory: IMPACT input id for '{}' not found".format(elem.name))
+
+                    idx = lattice.append([elem.length, steps, mapsteps, 110, amplitude, elem.frequency, phase, input_id, elem.aperture/2.0, elem.aperture/2.0, 0, 0, 0, 0, 0, 1, 2 ])
+                    lattice.sp_mapping.append((elem.name, {"z":elem.z+elem.length/2.0, "idx":idx}))
+
                 else:
-                    phase = 0.0
-                    print("LatticeFactory: '{}' channel not found for element: {}".format(elem.channels.phase_cset, elem.name))
-
-
-                if elem.channels.amplitude_cset in self.settings:
-                    amplitude = self.settings[elem.channels.amplitude_cset]["VAL"]
-                else:
-                    amplitude = 0.0
-                    print("LatticeFactory: '{}' channel not found for element: {}".format(elem.channels.amplitude_cset, elem.name))
-                
-                #radius = elem.diameter / 2.0
-                #if cavity_field_3d:
-                #    lattice.append([elem.length, 48, 20, 110, amplitude, elem.frequency, phase, _file_id(elem.beta), radius, radius, 0, 0, 0, 0, 0, 1, 2 ])
-                #else:
-                idx = lattice.append([elem.length, 60, 20, 103, amplitude, elem.frequency, phase, _file_id(elem.beta, self.integrator), elem.aperture/2.0])
-                lattice.sp_mapping.append((elem.name, {"z":elem.z+elem.length/2.0, "idx":idx}))
+                    raise RuntimeError("LatticeFactory: IMPACT element type for '{}' not supported: {}".format(elem.name, itype))
 
             elif isinstance(elem, SolCorrElement):
-                if elem.channels.field_cset in self.settings:
-                    field = self.settings[elem.channels.field_cset]["VAL"]
-                else:
-                    field = 0.0
-                    print("LatticeFactory: '{}' channel not found for element: {}".format(elem.channels.field_cset, elem.name))
+                field = 0.0
+                if settings != None:
+                    if elem.channels.field_cset in settings:
+                        field = settings[elem.channels.field_cset]["VAL"]
+                    else:
+                        raise RuntimeError("LatticeFactory: '{}' channel not found for element: {}".format(elem.channels.field_cset, elem.name))
 
-                if elem.channels.hkick_cset in self.settings:
-                    hkick = self.settings[elem.channels.hkick_cset]["VAL"]
-                else:
-                    hkick = 0.0
-                    print("LatticeFactory: '{}' channel not found for element: {}".format(elem.channels.hkick_cset, elem.name))
+                hkick = 0.0
+                if settings != None:
+                    if elem.channels.hkick_cset in settings:
+                        hkick = settings[elem.channels.hkick_cset]["VAL"]
+                    else:
+                        raise RuntimeError("LatticeFactory: '{}' channel not found for element: {}".format(elem.channels.hkick_cset, elem.name))
 
-                if elem.channels.vkick_cset in self.settings:
-                    vkick = self.settings[elem.channels.vkick_cset]["VAL"]
-                else:
-                    vkick = 0.0
-                    print("LatticeFactory: '{}' channel not found for element: {}".format(elem.channels.vkick_cset, elem.name))
+                vkick = 0.0
+                if settings != None:
+                    if elem.channels.vkick_cset in settings:
+                        vkick = settings[elem.channels.vkick_cset]["VAL"]
+                    else:
+                        raise RuntimeError("LatticeFactory: '{}' channel not found for element: {}".format(elem.channels.vkick_cset, elem.name))
 
                 idx = lattice.append([elem.length/2.0, 1, 20, 3, field, 0.0, elem.aperture/2.0])
                 lattice.sp_mapping.append((elem.name, { "1":{"z":elem.z, "idx":idx} }))
@@ -158,28 +351,30 @@ class LatticeFactory(object):
                 lattice.sp_mapping[-2][1]["2"] = {"z":elem.z+elem.length/2.0, "idx":idx}
 
             elif isinstance(elem, QuadElement):
-                if elem.channels.gradient_cset in self.settings:
-                    gradient = self.settings[elem.channels.gradient_cset]["VAL"]
-                else:
-                    gradient = 0.0
-                    print("LatticeFactory: '{}' not found for element: {}".format(elem.channels.gradient_cset, elem.name))
+                gradient = 0.0
+                if settings != None:
+                    if elem.channels.gradient_cset in settings:
+                        gradient = settings[elem.channels.gradient_cset]["VAL"]
+                    else:
+                        raise RuntimeError("LatticeFactory: '{}' not found for element: {}".format(elem.channels.gradient_cset, elem.name))
 
                 idx = lattice.append([elem.length, 50, 20, 1, gradient, 0.0, elem.aperture/2.0])
                 lattice.sp_mapping.append((elem.name, {"z":elem.z+elem.length/2.0, "idx":idx}))
 
             elif isinstance(elem, CorrElement):
+                hkick = 0.0
+                if settings != None:
+                    if elem.channels.hkick_cset in settings:
+                        hkick = settings[elem.channels.hkick_cset]["VAL"]
+                    else:
+                        raise RuntimeError("LatticeFactory: '{}' channel not found for element: {}".format(elem.channels.hkick_cset, elem.name))
 
-                if elem.channels.hkick_cset in self.settings:
-                    hkick = self.settings[elem.channels.hkick_cset]["VAL"]
-                else:
-                    hkick = 0.0
-                    print("LatticeFactory: '{}' channel not found for element: {}".format(elem.channels.hkick_cset, elem.name))
-
-                if elem.channels.vkick_cset in self.settings:
-                    vkick = self.settings[elem.channels.vkick_cset]["VAL"]
-                else:
-                    vkick = 0.0
-                    print("LatticeFactory: '{}' channel not found for element: {}".format(elem.channels.vkick_cset, elem.name))
+                vkick = 0.0
+                if settings != None:
+                    if elem.channels.vkick_cset in settings:
+                        vkick = settings[elem.channels.vkick_cset]["VAL"]
+                    else:
+                        raise RuntimeError("LatticeFactory: '{}' channel not found for element: {}".format(elem.channels.vkick_cset, elem.name))
 
                 if elem.length != 0.0:
                     lattice.append([elem.length/2.0, steps, mapsteps, 0, elem.aperture/2.0])
@@ -222,23 +417,17 @@ class LatticeFactory(object):
         return lattice
 
 
-        
-def _file_id(n, integrator):
-    if n > 0.0:
-        while n < 1.0:
-            n *= 10
-        return 100*int(n) + 10*integrator
-    else:
-        raise Exception("Cannot generate file id from '{}'".format(n))
-  
 
 class Lattice(object):
 
-    def __init__(self, integrator, nparticles=1000, nprocessors=10):
-        self.nparticles = nparticles
-        self.nprocessors = nprocessors
+    def __init__(self, integrator):
+        if integrator not in [ INTEGRATOR_LINEAR, INTEGRATOR_LORENTZ ]:
+            raise TypeError("Lattice: 'integrator' property must be Enum or None")
         self._integrator = integrator
-    #    self._change_states = []
+        
+        self.comment = None
+        self.nparticles = _DEFAULT_NPARTICLES
+        self.nprocessors = _DEFAULT_NPROCESSORS
         self._output_map = []
         self._elements = []
         self.sp_mapping = []
@@ -272,6 +461,7 @@ class Lattice(object):
 
     def write(self, file=sys.stdout):
         file.write("!! Generated by PhysUtil - {}\r\n".format(datetime.now()))
+        if self.comment != None: file.write("!! {}\r\n".format(self.comment))
         file.write("{lat.nprocessors} 1\r\n".format(lat=self))
         file.write("6 {lat.nparticles} {lat._integrator} 0 4\r\n".format(lat=self))
         file.write("65 65 129 4 0.140000 0.140000 0.1025446\r\n")
