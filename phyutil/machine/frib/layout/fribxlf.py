@@ -70,18 +70,8 @@ class AccelFactory(object):
     """
     def __init__(self):
         self.xlfpath = None
-        if cfg.config.has_default(CONFIG_XLF_DATA_FILE):
-            self.xlfpath = cfg.config.get_default(CONFIG_XLF_DATA_FILE)
-            if not os.path.isabs(self.xlfpath) and cfg.config_path != None:
-                self.xlfpath = os.path.abspath(os.path.join(os.path.dirname(cfg.config_path), self.xlfpath))
-
         self.machine = None
-        if cfg.config.has_default(CONFIG_MACHINE):
-            self.machine = cfg.config.get_default(CONFIG_MACHINE)
-
         self.diameter = None
-        if cfg.config.has_default(CONFIG_XLF_DIAMETER):
-            self.diameter = cfg.config.getfloat_default(CONFIG_XLF_DIAMETER)
 
 
     @property
@@ -147,30 +137,47 @@ class AccelFactory(object):
 
     def build(self):
 
-        if self.xlfpath == None:
+        xlfpath = self.xlfpath
+        if (xlfpath == None) and cfg.config.has_default(CONFIG_XLF_DATA_FILE):
+            xlfpath = cfg.config.get_default(CONFIG_XLF_DATA_FILE)
+            if not os.path.isabs(xlfpath) and cfg.config_path != None:
+                xlfpath = os.path.abspath(os.path.join(os.path.dirname(cfg.config_path), xlfpath))
+
+        if xlfpath == None:
             raise ValueError("AccelFactory: Expanded Lattice File not specified, check the configuration.")
 
-        if not os.path.isfile(self.xlfpath):
-            raise ValueError("AccelFactory: Expanded Lattice File not found: '{}'".format(self.xlfpath))
+        if not os.path.isfile(xlfpath):
+            raise ValueError("AccelFactory: Expanded Lattice File not found: '{}'".format(xlfpath))
+
+
+        machine = self.machine
+        if (machine == None) and cfg.config.has_default(CONFIG_MACHINE):
+            machine = cfg.config.get_default(CONFIG_MACHINE)
+
+
+        diameter = self.diameter
+        if (diameter == None) and cfg.config.has_default(CONFIG_XLF_DIAMETER):
+            diameter = cfg.config.getfloat_default(CONFIG_XLF_DIAMETER)
+
+
+        chanprefix = ""
+        if (machine != None) and (len(machine.strip()) > 0):
+            chanprefix = machine.strip()+":"
+
   
-        wkbk = xlrd.open_workbook(self.xlfpath)
+        wkbk = xlrd.open_workbook(xlfpath)
 
         if _XLF_LAYOUT_SHEET_NAME not in wkbk.sheet_names():
             raise RuntimeError("AccelFactory: Expanded Lattice File layout not found: '{}'".format(_XLF_LAYOUT_SHEET_NAME))
 
         layout = wkbk.sheet_by_name(_XLF_LAYOUT_SHEET_NAME)
 
-        if (self.machine != None) and (len(self.machine.strip()) > 0):
-            chanprefix = self.machine.strip()+":"
-        else:
-            chanprefix = ""
-
         # skip front-end, perhaps this should be read too?
         for ridx in xrange(_XLF_LAYOUT_SHEET_START, layout.nrows):
             row = _LayoutRow(layout.row(ridx))
             if row.system == "LS1": break
 
-        accelerator = Accelerator(self.xlfpath)
+        accelerator = Accelerator(os.path.splitext(os.path.basename(xlfpath))[0], desc="FRIB Linear Accelerator")
 
         sequence = None
 
@@ -202,8 +209,8 @@ class AccelFactory(object):
 
             # apply default values
             if row.diameter == None:
-                if self.diameter != None:
-                    row.diameter = self.diameter
+                if diameter != None:
+                    row.diameter = diameter
                 else:
                     raise RuntimeError("AccelFactory: Layout data missing diameter (row:{}): {}".format(ridx+1,row))
 
