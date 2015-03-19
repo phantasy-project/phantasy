@@ -145,7 +145,15 @@ class Configuration(SafeConfigParser):
             raise NoOptionError("No option found: " + str(option))
 
     def has_option(self, section, option, check_default=True):
-        return SafeConfigParser.has_option(self, section, option) or (check_default and self.has_default(option))
+        # There is an inconsistency in the SafeConfigParser implementations
+        # of the has_option() and get() methods.  The has_option() method
+        # considers any sections which is 'falsy' (ie empty string or list)
+        # as synonymous with the default section. However, the get() method
+        # will raise exception if a 'falsy' section is used.  In this method,
+        # if the provided section is 'falsy' then then it is considered
+        # to not exist in the configuration.
+        return (bool(section) and SafeConfigParser.has_option(self, section, option)) or \
+                    (check_default and self.has_default(option))
 
 
 # initialize the global configuration
