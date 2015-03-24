@@ -6,6 +6,7 @@ Local cache for channel finder service.
 
 import os
 import sqlite3
+from fnmatch import fnmatch
 
 import logging
 _logger = logging.getLogger(__name__)
@@ -127,445 +128,286 @@ class ChannelFinderLocal:
 
         return (properties, cur.fetchall())
 
-#     def findProperty(self, propertyName):
-#         '''
-#         Searches for the _exact_ propertyName and return a single Property object if found
-#         '''
-#         url = self.__baseURL + self.__propertiesResource + '/' + propertyName
-#         r = requests.get(url, headers=copy(self.__jsonheader), verify=False)
-#         try:
-#             r.raise_for_status()
-#             return self.__decodeProperty(r.json())
-#         except:
-#             if r.status_code == 404:
-#                 return None
-#             else:
-#                 r.raise_for_status()
-#
-#     def getAllTags(self):
-#         '''
-#         return a list of all the Tags present - even the ones not associated w/t any channel
-#         '''
-#         url = self.__baseURL + self.__tagsResource
-#         r = requests.get(url, headers=copy(self.__jsonheader), verify=False)
-#         try:
-#             r.raise_for_status()
-#             return self.__decodeTags(r.json())
-#         except:
-#             if r.status_code == 404:
-#                 return None
-#             else:
-#                 r.raise_for_status()
-#
-#     def getAllProperties(self):
-#         '''
-#         return a list of all the Properties present - even the ones not associated w/t any channel
-#         '''
-#         url = self.__baseURL + self.__propertiesResource
-#         r = requests.get(url, headers=copy(self.__jsonheader), verify=False)
-#         try:
-#             r.raise_for_status()
-#             return self.__decodeProperties(r.json())
-#         except:
-#             if r.status_code == 404:
-#                 return None
-#             else:
-#                 r.raise_for_status()
-#
-#     def delete(self, **kwds):
-#         '''
-#         Method to delete a channel, property, tag
-#         delete(channelName = String)
-#         >>> delete(channelName = 'ch1')
-#
-#         delete(tagName = String)
-#         >>> delete(tagName = 'myTag')
-#         # tagName = tag name of the tag to be removed from all channels
-#
-#         delete(propertyName = String)
-#         >>> delete(propertyName = 'position')
-#         # propertyName = property name of property to be removed from all channels
-#
-#         delete(tag = Tag ,channelName = String)
-#         >>> delete(tag=Tag('myTag','tagOwner'), channelName = 'chName')
-#         # delete the tag from the specified channel _chName_
-#
-#         delete(tag = Tag ,channelNames = [String])
-#         >>> delete(tag=Tag('myTag','tagOwner'), channelNames=['ch1','ch2','ch3'])
-#         # delete the tag from all the channels specified in the channelNames list
-#
-#         delete(property = Property ,channelName = String)
-#         >>> delete(property = Property('propName','propOwner') ,channelName = 'chName')
-#         # delete the property from the specified channel
-#
-#         delete(property = Property ,channelNames = [String])
-#         >>> delete(property = Property('propName','propOwner') ,channelNames = ['ch1','ch2','ch3'])
-#         # delete the property from all the channels in the channelNames list
-#         '''
-#         if len(kwds) == 1:
-#             self.__handleSingleDeleteParameter(**kwds)
-#         elif len(kwds) == 2:
-#             self.__handleMultipleDeleteParameters(**kwds)
-#         else:
-#             raise Exception, 'incorrect usage: Delete a single Channel/tag/property'
-#
-#     def __handleSingleDeleteParameter(self, **kwds):
-#         if 'channelName' in kwds:
-#             url = self.__baseURL + self.__channelsResource + '/' + kwds['channelName'].strip()
-#             requests.delete(url, \
-#                             headers=copy(self.__jsonheader), \
-#                             verify=False, \
-#                             auth=self.__auth).raise_for_status()
-#             pass
-#         elif 'tagName' in kwds:
-#             url = self.__baseURL + self.__tagsResource + '/' + kwds['tagName'].strip()
-#             requests.delete(url, \
-#                             verify=False, \
-#                             headers=copy(self.__jsonheader), \
-#                             auth=self.__auth).raise_for_status()
-#             pass
-#         elif 'propertyName' in kwds:
-#             url = self.__baseURL + self.__propertiesResource + '/' + kwds['propertyName'].strip()
-#             requests.delete(url, \
-#                             headers=copy(self.__jsonheader), \
-#                             verify=False, \
-#                             auth=self.__auth).raise_for_status()
-#             pass
-#         else:
-#             raise Exception, ' unkown key use channelName, tagName or proprtyName'
-#
-#     def __handleMultipleDeleteParameters(self, **kwds):
-#         if 'tag' in kwds and 'channelName' in kwds:
-#             requests.delete(self.__baseURL + self.__tagsResource + '/' + kwds['tag'].Name + '/' + kwds['channelName'].strip(), \
-#                             headers=copy(self.__jsonheader), \
-#                             verify=False, \
-#                             auth=self.__auth).raise_for_status()
-#         elif 'tag' in kwds and 'channelNames' in kwds:
-#             # find channels with the tag
-#             channelsWithTag = self.find(tagName=kwds['tag'].Name)
-#             # delete channels from which tag is to be removed
-#             channelNames = [channel.Name for channel in channelsWithTag if channel.Name not in kwds['channelNames']]
-#             self.set(tag=kwds['tag'], channelNames=channelNames)
-#         elif 'property' in kwds and 'channelName' in kwds:
-#             requests.delete(self.__baseURL + self.__propertiesResource + '/' + kwds['property'].Name + '/' + kwds['channelName'], \
-#                             headers=copy(self.__jsonheader), \
-#                             verify=False, \
-#                             auth=self.__auth).raise_for_status()
-#         elif 'property' in kwds and 'channelNames' in kwds:
-#             channelsWithProp = self.find(property=[(kwds['property'].Name, '*')])
-#             channels = [channel for channel in channelsWithProp if channel.Name not in kwds['channelNames']]
-#             self.set(property=kwds['property'], channels=channels)
-#         else:
-#             raise Exception, ' unkown keys'
-#
-# #===============================================================================
-# # Update methods
-# #===============================================================================
-#     def update(self, **kwds):
-#         '''
-#         update(channel = Channel)
-#         >>> update(channel = Channel('existingCh',
-#                                      'chOwner',
-#                                      properties=[
-#                                         Property('newProp','propOwner','Val'),
-#                                         Property('existingProp','propOwner','newVal')],
-#                                      tags=[Tag('mytag','tagOwner')])
-#         # updates the channel 'existingCh' with the new provided properties and tags
-#         # without affecting the other tags and properties of this channel
-#
-#         update(property = Property, channelName = String)
-#         >>> update(property=Property('propName', 'propOwner', 'propValue'),
-#                                     channelName='ch1')
-#         # Add Property to the channel with the name 'ch1'
-#         # without affecting the other channels using this property
-#
-#         >>>update(property=Property('propName', 'propOwner', 'propValue'),
-#                                     channelNames=['ch1','ch2','ch3'])
-#         # Add Property to the channels with the names in the list channelNames
-#         # without affecting the other channels using this property
-#
-#         update(tag = Tag, channelName = String)
-#         >>> update(tag = Tag('myTag','tagOwner'), channelName='chName')
-#         # Add tag to channel with name chName
-#         # without affecting the other channels using this tag
-#
-#         update(tag = Tag, channelNames = [String])
-#         >>> update(tag = Tag('tagName'), channelNames=['ch1','ch2','ch3'])
-#         # Add tag to channels with names in the list channeNames
-#         # without affecting the other channels using this tag
-#         update(property = Property)
-#         update(tag = Tag)
-#
-#         ## RENAME OPERATIONS ##
-#         update(channel = Channel, originalChannelName = String)
-#         >>> update(channel = Channel('newChannelName','channelOwner),
-#                                      originalChannelName = 'oldChannelName')
-#         # rename the channel 'oldChannelName' to 'newChannelName'
-#
-#         update(property = Property, originalPropertyName = String)
-#         >>> update(property = Property('newPropertyName','propOwner'),
-#                                        originalPropertyName = 'oldPropertyName')
-#         # rename the property 'oldPropertyName' to 'newPropertyName'
-#         # the channels with the old property are also updated
-#
-#         update(tab = Tag, originalTagName = String)
-#         >>> update(tab = Tag('newTagName','tagOwner'), originalTagName = 'oldTagName')
-#         # rename the tag 'oldTagName' to 'newTagName'
-#         # the channel with the old tag are also updated
-#         '''
-#
-#         if not self.__baseURL:
-#             raise Exception, 'Olog client not configured correctly'
-#         if len(kwds) == 1:
-#             self.__handleSingleUpdateParameter(**kwds)
-#         elif len(kwds) == 2:
-#             self.__handleMultipleUpdateParameters(**kwds)
-#         else:
-#             raise Exception, 'incorrect usage: '
-#
-#     def __handleSingleUpdateParameter(self, **kwds):
-#         if 'channel' in kwds:
-#             ch = kwds['channel']
-#             requests.post(self.__baseURL + self.__channelsResource + '/' + ch.Name, \
-#                                      data=JSONEncoder().encode(self.__encodeChannel(ch)), \
-#                                      headers=copy(self.__jsonheader), \
-#                                      verify=False, \
-#                                      auth=self.__auth).raise_for_status()
-#         elif 'property' in kwds:
-#             property = kwds['property']
-#             requests.post(self.__baseURL + self.__propertiesResource + '/' + property.Name, \
-#                                      data=JSONEncoder().encode(self.__encodeProperty(property)), \
-#                                      headers=copy(self.__jsonheader), \
-#                                      verify=False, \
-#                                      auth=self.__auth).raise_for_status()
-#         elif 'tag' in kwds:
-#             tag = kwds['tag']
-#             requests.post(self.__baseURL + self.__tagsResource + '/' + tag.Name, \
-#                           data=JSONEncoder().encode(self.__encodeTag(tag)), \
-#                           headers=copy(self.__jsonheader), \
-#                           verify=False, \
-#                           auth=self.__auth).raise_for_status()
-#         else:
-#             raise Exception, ' unkown key '
-#
-#     def __handleMultipleUpdateParameters(self, **kwds):
-#         if 'tag' in kwds and 'channelName' in kwds:
-#             tag = kwds['tag']
-#             channels = [Channel(kwds['channelName'].strip(), self.__userName)]
-#             requests.post(self.__baseURL + self.__tagsResource + '/' + tag.Name, \
-#                           data=JSONEncoder().encode(self.__encodeTag(tag, withChannels=channels)), \
-#                           headers=copy(self.__jsonheader), \
-#                           verify=False, \
-#                           auth=self.__auth).raise_for_status()
-#         elif 'tag' in kwds and 'channelNames' in kwds:
-#             tag = kwds['tag']
-#             channels = []
-#             for eachChannel in kwds['channelNames']:
-#                 channels.append(Channel(eachChannel, self.__userName))
-#             requests.post(self.__baseURL + self.__tagsResource + '/' + tag.Name, \
-#                           data=JSONEncoder().encode(self.__encodeTag(tag, withChannels=channels)), \
-#                           headers=copy(self.__jsonheader), \
-#                           verify=False, \
-#                           auth=self.__auth).raise_for_status()
-#         elif 'property' in kwds and 'channelName' in kwds:
-#             property = kwds['property']
-#             channels = [Channel(kwds['channelName'].strip(), self.__userName, properties=[property])]
-#             requests.post(self.__baseURL + self.__propertiesResource + '/' + property.Name, \
-#                           data=JSONEncoder().encode(self.__encodeProperty(property, withChannels=channels)), \
-#                           headers=copy(self.__jsonheader), \
-#                           verify=False, \
-#                           auth=self.__auth).raise_for_status()
-#         elif 'property' in kwds and 'channelNames' in kwds:
-#             property = kwds['property']
-#             channels = []
-#             for eachChannel in kwds['channelNames']:
-#                 channels.append(Channel(eachChannel, self.__userName, properties=[property]))
-#             requests.post(self.__baseURL + self.__propertiesResource + '/' + property.Name, \
-#                           data=JSONEncoder().encode(self.__encodeProperty(property, withChannels=channels)), \
-#                           headers=copy(self.__jsonheader), \
-#                           verify=False, \
-#                           auth=self.__auth).raise_for_status()
-#         elif 'originalChannelName' in kwds and 'channel' in kwds:
-#             ch = kwds['channel']
-#             channelName = kwds['originalChannelName'].strip()
-#             requests.post(self.__baseURL + self.__channelsResource + '/' + channelName, \
-#                           data=JSONEncoder().encode(self.__encodeChannel(ch)) , \
-#                           headers=copy(self.__jsonheader), \
-#                           verify=False, \
-#                           auth=self.__auth).raise_for_status()
-#         elif 'originalPropertyName' in kwds and 'property' in kwds:
-#             prop = kwds['property']
-#             propName = kwds['originalPropertyName'].strip()
-#             requests.post(self.__baseURL + self.__propertiesResource + '/' + propName, \
-#                           data=JSONEncoder().encode(self.__encodeProperty(prop)), \
-#                           headers=copy(self.__jsonheader), \
-#                           verify=False, \
-#                           auth=self.__auth).raise_for_status()
-#         elif 'originalTagName' in kwds and 'tag' in kwds:
-#             tag = kwds['tag']
-#             tagName = kwds['originalTagName'].strip()
-#             requests.post(self.__baseURL + self.__tagsResource + '/' + tagName, \
-#                           data=JSONEncoder().encode(self.__encodeTag(tag)), \
-#                           headers=copy(self.__jsonheader), \
-#                           verify=False, \
-#                           auth=self.__auth).raise_for_status()
-#         else:
-#             raise Exception, ' unkown keys'
-#
-# #===============================================================================
-# # Methods for encoding decoding will be make private
-# #===============================================================================
-#     @classmethod
-#     def __decodeChannels(cls, body):
-#         '''
-#         decode the representation of a list of channels to a list of Channel objects
-#         '''
-#         if not body[u'channels']:
-#             return None
-#         channels = []
-#         # if List then Multiple channels are present in the body
-#         if isinstance(body[u'channels']['channel'], list):
-#             for channel in body['channels']['channel']:
-#                 channels.append(cls.__decodeChannel(channel))
-#         # if Dict the single channel present in the body
-#         elif isinstance(body[u'channels']['channel'], dict):
-#             channels.append(cls.__decodeChannel(body[u'channels']['channel']))
-#         return channels
-#
-#     @classmethod
-#     def __decodeChannel(self, body):
-#         '''
-#         decode the representation of a channel to the Channel object
-#         '''
-#         return Channel(body[u'@name'], body[u'@owner'], properties=self.__decodeProperties(body), tags=self.__decodeTags(body))
-#
-#     @classmethod
-#     def __decodeProperties(cls, body):
-#         '''
-#         decode the representation of a list of properties to a list of Property object
-#         '''
-#         ## TODO handle the case where there is a single property dict
-#         if body[u'properties'] and body[u'properties']['property']:
-#             properties = []
-#             if isinstance(body[u'properties']['property'], list):
-#                 for validProperty in [ property for property in body[u'properties']['property'] if '@name' in property and '@owner' in property]:
-#                         properties.append(cls.__decodeProperty(validProperty))
-#             elif isinstance(body[u'properties']['property'], dict):
-#                 properties.append(cls.__decodeProperty(body[u'properties']['property']))
-#             return properties
-#         else:
-#             return None
-#
-#     @classmethod
-#     def __decodeProperty(cls, propertyBody):
-#         '''
-#         decode the representation of a property to a Property object
-#         '''
-#         if '@value' in propertyBody:
-#             return Property(propertyBody['@name'], propertyBody['@owner'], propertyBody['@value'])
-#         else:
-#             return Property(propertyBody['@name'], propertyBody['@owner'])
-#
-#     @classmethod
-#     def __decodeTags(cls, body):
-#         '''
-#         decode the representation of a list of tags to a list of Tag objects
-#         '''
-#         ## TODO handle the case where there is a single tag dict
-#         if body[u'tags'] and body[u'tags']['tag']:
-#             tags = []
-#             if isinstance(body[u'tags']['tag'], list):
-#                 for validTag in [ tag for tag in body[u'tags']['tag'] if '@name' in tag and '@owner' in tag]:
-#                     tags.append(cls.__decodeTag(validTag))
-#             elif isinstance(body[u'tags']['tag'], dict):
-#                 tags.append(cls.__decodeTag(body[u'tags']['tag']))
-#             return tags
-#         else:
-#             return None
-#
-#     @classmethod
-#     def __decodeTag(cls, tagBody):
-#         '''
-#         decode a representation of a tag to the Tag object
-#         '''
-#         return Tag(tagBody['@name'], tagBody['@owner'])
-#
-#     @classmethod
-#     def __encodeChannels(cls, channels):
-#         '''
-#         encodes a list of Channels
-#         '''
-#         ret = {u'channels':{}}
-#         if len(channels) == 1:
-#             ret[u'channels'] = {u'channel':cls.__encodeChannel(channels[0])}
-#         elif len (channels) > 1:
-#             ret[u'channels'] = {u'channel':[]}
-#             for channel in channels:
-#                 if issubclass(channel.__class__, Channel):
-#                     ret[u'channels'][u'channel'].append(cls.__encodeChannel(channel))
-#         return ret
-#
-#     @classmethod
-#     def __encodeChannel(cls, channel):
-#         '''
-#         encodes a single channel
-#         '''
-#         d = {}
-#         d['@name'] = channel.Name
-#         d['@owner'] = channel.Owner
-#         if channel.Properties:
-#             d['properties'] = {'property':cls.__encodeProperties(channel.Properties)}
-#         if channel.Tags:
-#             d['tags'] = {'tag':cls.__encodeTags(channel.Tags)}
-#         return d
-#
-#     @classmethod
-#     def __encodeProperties(cls, properties):
-#         '''
-#         encodes a list of properties
-#         '''
-#         d = []
-#         for validProperty in [ property for property in properties if issubclass(property.__class__, Property)]:
-#                 d.append(cls.__encodeProperty(validProperty))
-#         return d
-#
-#     @classmethod
-#     def __encodeProperty(cls, property, withChannels=None):
-#         '''
-#         encodes a single property
-#         '''
-#         if not withChannels:
-#             if property.Value or property.Value is '':
-#                 return {'@name':str(property.Name), '@value':property.Value, '@owner':property.Owner}
-#             else:
-#                 return {'@name':str(property.Name), '@owner':property.Owner}
-#         else:
-#             d = OrderedDict([('@name', str(property.Name)), ('@value', property.Value), ('@owner', property.Owner)])
-#             d.update(cls.__encodeChannels(withChannels))
-#             return d
-#
-#     @classmethod
-#     def __encodeTags(cls, tags):
-#         '''
-#         encodes a list of tags
-#         '''
-#         d = []
-#         for validTag in [ tag for tag in tags if issubclass(tag.__class__, Tag)]:
-#             d.append(cls.__encodeTag(validTag))
-#         return d
-#
-#     @classmethod
-#     def __encodeTag(cls, tag, withChannels=None):
-#         '''
-#         encodes a single tag
-#         '''
-#         if not withChannels:
-#             return {'@name':tag.Name, '@owner':tag.Owner}
-#         else:
-#             d = OrderedDict([('@name', tag.Name), ('@owner', tag.Owner)])
-#             d.update(cls.__encodeChannels(withChannels))
-#             return d
+    def findProperty(self, propertyName):
+        """Searches for the _exact_ propertyName and return a single Property object if found
 
+        :param propertyName:
+        :return:
+        """
+        if propertyName == "*":
+            return self.getAllProperties()
+
+        cur = self.dbconn.cursor()
+        cur.execute("SELECT * from pvs join elements where pvs.elem_id = elements.elem_id limit 1")
+        properties = [prpts[0] for prpts in cur.description if prpts[0] not in ["elem_id", "pv_id", "tags", 'pv']]
+
+        res = None
+        for prpts in properties:
+            if fnmatch(prpts, propertyName):
+                # find the first property name matched
+                res = prpts
+                break
+
+        return res
+
+    def getAllTags(self, delimiter=";"):
+        """
+        return a list of all the Tags present - even the ones not associated w/t any channel
+
+        :param delimiter: delimiter to separate multiple tags for one PV. ";" by default.
+        """
+        cur = self.dbconn.cursor()
+        cur.execute("SELECT tags from pvs")
+        tmp = cur.fetchall()
+
+        results = []
+        for res in tmp:
+            if res is not None:
+                results.extend(res.split(delimiter))
+
+        return results
+
+    def getAllProperties(self):
+        """
+
+        :return:
+        """
+        cur = self.dbconn.cursor()
+        cur.execute("SELECT * from pvs join elements where pvs.elem_id = elements.elem_id limit 1")
+        properties = [prpts[0] for prpts in cur.description if prpts[0] not in ["elem_id", "pv_id", "tags", 'pv']]
+        return properties
+
+    def delete(self, **kwargs):
+        """
+        Method to delete a channel, property, tag
+        delete(channel = string)
+        >>> delete(channel = 'ch1')
+
+        delete(tag = string)
+        >>> delete(tag = 'myTag')
+        # tag = tag name of the tag to be removed from all channels
+
+        delete(property = string)
+        >>> delete(property = 'position')
+        # property = property name of property to be removed from all channels
+
+        delete(tag = string, channel = string)
+        >>> delete(tag='myTag', channel = 'chName')
+        # delete the tag from the specified channel _chName_
+
+        delete(tag = string ,channel = [string])
+        >>> delete(tag='myTag', channel=['ch1','ch2','ch3'])
+        # delete the tag from all the channels specified in the channel list
+
+        delete(property = string ,channel = string)
+        >>> delete(property = 'propName', channel = 'chName')
+        # delete the property from the specified channel
+
+        delete(property = string, channel = [string])
+        >>> delete(property = 'propName', channel = ['ch1','ch2','ch3'])
+        # delete the property from all the channels in the channel list
+        """
+        channels = kwargs.get("channel", None)
+        property = kwargs.get("property", None)
+        tag =  kwargs.get("tag", None)
+
+        if isinstance(property, (list, tuple)) or isinstance(tag, (list, tuple)):
+            raise Exception("Handling multiple properties or tags not support yet.")
+
+        if channels is None:
+            # handle property and tags only
+            if property is not None:
+                # set all value to NULL to delete
+                cur=self.dbconn.cursor()
+                try:
+                    cur.execute("BEGIN")
+                    self.dbconn("UPDATE elements SET {0}=NULL".format(property))
+                    self.dbconn.commit()
+                except self.dbconn.Error:
+                    self.dbconn.rollback()
+                    cur.execute("BEGIN")
+                    self.dbconn("UPDATE pvs SET {0}=NULL".format(property))
+                    self.dbconn.commit()
+                except self.dbconn.Error:
+                    self.dbconn.rollback()
+                    raise
+            if tag is not None:
+                # remove tag from all channel if it has the name
+                cur = self.dbconn.cursor()
+                self._deleteSingleChannelTag(cur, tag)
+        else:
+            if property is None and tag is None:
+                # delete the whole row
+                if isinstance(channels, (list, tuple)):
+                    vals = []
+                    sql = """DELETE FROM pvs WHERE pv IN ( """
+                    for ch in channels:
+                        sql += """?,"""
+                    sql = sql[:-1] + """ )"""
+                    # multiple channels
+                    with self.dbconn:
+                        self.dbconn.executemany(sql, channels)
+                else:
+                    # single channel
+                    with self.dbconn:
+                        self.dbconn.execute("DELETE from pvs where pv = ?", (channels,))
+            else:
+                # delete both property and tags of pv(s)
+                if tag is None:
+                    # delete a property of pv(s)
+                    cur=self.dbconn.cursor()
+                    if isinstance(channels, (list, tuple)):
+                        for chan in channels:
+                            self._deleteSingleChannelProperty(cur, property, chan)
+                    else:
+                        self._deleteSingleChannelProperty(cur, property, channels)
+                if property is None:
+                    # delete a tag of pv(s)
+                    cur=self.dbconn.cursor()
+                    if isinstance(channels, (list, tuple)):
+                        for chan in channels:
+                            self._deleteSingleChannelTag(cur, tag, channel=chan)
+                    else:
+                        # remove tag from all channel if it has the name
+                        self._deleteSingleChannelTag(cur, tag, channel=channels)
+
+    def _deleteSingleChannelTag(self, cur, tag, channel=None):
+        """
+
+        :param cur:      SQLite cursor object of connection
+        :param tag:      tag name
+        :param channel:  channel name
+        :return:
+        """
+        if channel is None:
+            cur.execute("SELECT pv_id, tags FROM pvs WHERE tags like ? ", ("%"+tag+"%",))
+            tmp = cur.fetchall()
+            if len(tmp) == 0:
+                # no tag found
+                return
+            delimiter = ";"
+            new_tags = []
+            for r in tmp:
+                tags = [tmptag.strip() for tmptag in r.split(delimiter)]
+                if tag in tags:
+                    tags.remove(tag)
+                    # only handle those have exact same tag name
+                    new_tags.append([";".join(tags, r[0])])
+            with self.dbconn:
+                cur.executemany("""UPDATE pvs SET tags = ? WHERE pv_id = ? )""", new_tags)
+        else:
+            cur.execute("SELECT pv_id, tags FROM pvs WHERE tags like ? and pv = ?", ("%"+tag+"%", channel))
+            tmp = cur.fetchall()
+            if len(tmp) == 0:
+                # no tag found
+                return
+            delimiter = ";"
+            new_tags = []
+            for r in tmp:
+                tags = [tmptag.strip() for tmptag in r.split(delimiter)]
+                if tag in tags:
+                    tags.remove(tag)
+                    # only handle those have exact same tag name
+                    new_tags.append([";".join(tags, r[0])])
+            with self.dbconn:
+                cur.executemany("""UPDATE pvs SET tags = ? WHERE pv_id = ? )""", new_tags)
+
+    def _deleteSingleChannelProperty(self, cur, property, channel):
+        """Delete property from a channel.
+
+        :param cur:      SQLite cursor object of connection
+        :param property: property name
+        :param channel:  channel name
+        :return:
+        """
+        cur.execute("""SELECT elem_id FROM pvs WHERE pv = ?""", (channel,))
+        tmp = cur.fetchall()
+        if len(tmp) == 0:
+            raise Exception("Channel ({0}) name not found.".format(channel))
+        elem_id = tmp[0][0]
+        try:
+            cur.execute("BEGIN")
+            self.dbconn("UPDATE elements SET {0}=NULL WHERE elem_id = ?".format(property), (elem_id,))
+            self.dbconn.commit()
+        except self.dbconn.Error:
+            self.dbconn.rollback()
+            cur.execute("BEGIN")
+            self.dbconn("UPDATE pvs SET {0}=NULL WHERE elem_id = ?".format(property), (elem_id,))
+            self.dbconn.commit()
+        except self.dbconn.Error:
+            self.dbconn.rollback()
+            raise
+
+    #===============================================================================
+    # Update methods
+    #===============================================================================
+    def update(self, **kwds):
+        """
+        update(channel = Channel)
+        >>> update(channel = Channel('existingCh',
+                                     'chOwner',
+                                     properties=[
+                                        Property('newProp','propOwner','Val'),
+                                        Property('existingProp','propOwner','newVal')],
+                                     tags=[Tag('mytag','tagOwner')])
+        # updates the channel 'existingCh' with the new provided properties and tags
+        # without affecting the other tags and properties of this channel
+
+        update(property = string, channel = string)
+        >>> update(property='propName', channel='ch1')
+        # Add Property to the channel with the name 'ch1'
+        # without affecting the other channels using this property
+
+        update(property = string, channel = [string])
+        >>>update(property='propName', channel=['ch1','ch2','ch3'])
+        # Add Property to the channels with the names in the list channelNames
+        # without affecting the other channels using this property
+
+        update(tag = string, channel = string)
+        >>> update(tag = 'myTag', channel='chName')
+        # Add tag to channel with name chName
+        # without affecting the other channels using this tag
+
+        update(tag = string, channel = [string])
+        >>> update(tag = 'tagName', channel=['ch1','ch2','ch3'])
+        # Add tag to channels with names in the list channel names
+        # without affecting the other channels using this tag
+        update(property = Property)
+        update(tag = Tag)
+
+        ## RENAME OPERATIONS ##
+        update(channel = string, originalChannel = string)
+        >>> update(channel = 'newChannelName', originalChannel = 'oldChannelName')
+        # rename the channel 'oldChannelName' to 'newChannelName'
+
+        update(property = string, originalProperty = string)
+        >>> update(property = 'newPropertyName', originalProperty = 'oldPropertyName')
+        # rename the property 'oldPropertyName' to 'newPropertyName'
+        # the channels with the old property are also updated
+
+        update(tab = string, originalTag = string)
+        >>> update(tag = 'newTagName', originalTag = 'oldTagName')
+        # rename the tag 'oldTagName' to 'newTagName'
+        # the channel with the old tag are also updated
+        """
+
+    def _updateSingleChannelTag(self, cur, tag, channel=None):
+        """update tag of a channel.
+
+        :param cur:      SQLite cursor object of connection
+        :param tag:      tag name
+        :param channel:  channel name
+        :return:
+        """
+
+    def _updateSingleChannelProperty(self, cur, property, channel):
+        """Update property of a channel.
+
+        :param cur:      SQLite cursor object of connection
+        :param property: property name
+        :param channel:  channel name
+        :return:
+        """
 
 def exportCfLocalData(dbname="cf_localdb.sqlite", **kwargs):
     """export channel finder data from local SQLite database
@@ -598,7 +440,7 @@ def exportCfLocalData(dbname="cf_localdb.sqlite", **kwargs):
     if len(allcols) == 0:
         raise RuntimeError("Wrong local channel finder database {0}".format(dbname))
     proplist= kwargs.get('properties', allcols)
-    delimeter = kwargs.get('tag_delimiter', ';')
+    delimiter = kwargs.get('tag_delimiter', ';')
 
     cols_idx = [idx for idx in range(len(cur.description)) if cur.description[idx][0] in proplist]
     pv_idx = allcols.index(pv)
@@ -619,7 +461,7 @@ def exportCfLocalData(dbname="cf_localdb.sqlite", **kwargs):
         if not row[tags_idx]:
             tags = []
         else:
-            tags = [v.strip().encode('ascii') for v in row[tags_idx].split(delimeter)]
+            tags = [v.strip().encode('ascii') for v in row[tags_idx].split(delimiter)]
         results.append([pv, prpts, tags])
 
     cur.close()

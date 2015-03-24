@@ -7,4 +7,8 @@ class ExceptionTemplate(Exception):
     def __str__(self):
         return ': '.join(self.args)
 
-class CSVFormatError(ExceptionTemplate): pass
+class CSVFormatError(ExceptionTemplate):
+    pass
+
+class DataError(ExceptionTemplate):
+    pass
