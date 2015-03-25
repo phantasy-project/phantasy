@@ -261,7 +261,6 @@ class LatticeFactory(object):
         settings = self.settings
         if settings == None:
             settings = self._get_config_settings()
-        print(len(settings))
 
         lattice = Lattice(integrator)
         lattice.nparticles = nparticles
