@@ -341,25 +341,15 @@ class ChannelFinderLocal:
     #===============================================================================
     # Update methods
     #===============================================================================
-    def update(self, **kwds):
+    def update(self, **kwargs):
         """
-        update(channel = Channel)
-        >>> update(channel = Channel('existingCh',
-                                     'chOwner',
-                                     properties=[
-                                        Property('newProp','propOwner','Val'),
-                                        Property('existingProp','propOwner','newVal')],
-                                     tags=[Tag('mytag','tagOwner')])
-        # updates the channel 'existingCh' with the new provided properties and tags
-        # without affecting the other tags and properties of this channel
-
         update(property = string, channel = string)
-        >>> update(property='propName', channel='ch1')
-        # Add Property to the channel with the name 'ch1'
+        >>> update(property='propValue', channel='ch1')
+        # Add property to the channel with the name 'ch1'
         # without affecting the other channels using this property
 
         update(property = string, channel = [string])
-        >>>update(property='propName', channel=['ch1','ch2','ch3'])
+        >>>update(property='propValue', channel=['ch1','ch2','ch3'])
         # Add Property to the channels with the names in the list channelNames
         # without affecting the other channels using this property
 
@@ -372,8 +362,6 @@ class ChannelFinderLocal:
         >>> update(tag = 'tagName', channel=['ch1','ch2','ch3'])
         # Add tag to channels with names in the list channel names
         # without affecting the other channels using this tag
-        update(property = Property)
-        update(tag = Tag)
 
         ## RENAME OPERATIONS ##
         update(channel = string, originalChannel = string)
@@ -381,7 +369,7 @@ class ChannelFinderLocal:
         # rename the channel 'oldChannelName' to 'newChannelName'
 
         update(property = string, originalProperty = string)
-        >>> update(property = 'newPropertyName', originalProperty = 'oldPropertyName')
+        >>> update(property = 'newPropertyValue', originalProperty = 'oldPropertyValue')
         # rename the property 'oldPropertyName' to 'newPropertyName'
         # the channels with the old property are also updated
 
@@ -390,24 +378,186 @@ class ChannelFinderLocal:
         # rename the tag 'oldTagName' to 'newTagName'
         # the channel with the old tag are also updated
         """
+        channels = kwargs.get("channel", None)
+        originalChannel = kwargs.get("originalChannel", None)
+        originalProperty = kwargs.get("originalProperty", None)
+        originalTag = kwargs.get("originalTag", None)
+        tag = kwargs.get("tag", None)
+        prpt_names = [k for k in kwargs.keys() if k not in ['channel', "originalChannel",
+                                                            'originalProperty', 'originalTag',
+                                                            'tag']]
 
-    def _updateSingleChannelTag(self, cur, tag, channel=None):
-        """update tag of a channel.
+        if originalChannel is not None:
+            # update old channel name to new channel name
+            if channels is None or isinstance(channels, (list, tuple)):
+                raise Exception("Invalid new channel name. Cannot update channel name.")
+            with self.dbconn:
+                self.dbconn.execute("""UPDATE pvs SET pv = ? WHERE pv = ?""", (channels, originalChannel))
+        elif originalProperty is not None:
+            # update old property value to new one for all channels
+            if len(prpt_names) != 1:
+                raise Exception("Update multiple property values not supported yet.")
+            new_prpt_value = kwargs.get(prpt_names[0], None)
+            if new_prpt_value is None:
+                raise Exception("Invalid property value. Cannot update property value.")
 
-        :param cur:      SQLite cursor object of connection
-        :param tag:      tag name
-        :param channel:  channel name
-        :return:
-        """
+            cur = self.dbconn.cursor()
+            cur.execute("PRAGMA table_info(elements)")
+            tbl_elements_cols = [v[1] for v in cur.fetchall()]
+            cur.execute("PRAGMA table_info(pvs)")
+            tbl_pvs_cols = [v[1] for v in cur.fetchall()]
 
-    def _updateSingleChannelProperty(self, cur, property, channel):
-        """Update property of a channel.
+            # get all property value
+            delimiter = ";"
+            if prpt_names[0] in tbl_elements_cols:
+                cur.execute("""SELECT {0}, elem_id FROM elements where {1} like ?""".format(prpt_names[0]),
+                            (originalProperty,))
+            elif prpt_names[0] in tbl_pvs_cols:
+                cur.execute("""SELECT {0}, pv_id FROM pvs where {1} like ?""".format(prpt_names[0]),
+                            (originalProperty,))
+            else:
+                raise Exception("Unknown property {}".format(prpt_names[0]))
 
-        :param cur:      SQLite cursor object of connection
-        :param property: property name
-        :param channel:  channel name
-        :return:
-        """
+            # has format like [(id, value)]
+            new_values = []
+            for p in cur.fetchall():
+                if delimiter in p[0]:
+                    if originalProperty in p[0].split(delimiter):
+                        # keep order
+                        xxx = delimiter.join([new_prpt_value if x == originalProperty else x for x in p[0].split(delimiter)])
+                        new_values.append((xxx, p[1]))
+                elif originalProperty == p[0]:
+                    new_values.append((new_prpt_value, p[1]))
+            if prpt_names[0] in tbl_elements_cols:
+                with self.dbconn:
+                    self.dbconn.executemany("""UPDATE elements SET {0} = ? WHERE pv_id = ?""".format(prpt_names[0]),
+                                            new_values)
+            elif prpt_names[0] in tbl_pvs_cols:
+                with self.dbconn:
+                    self.dbconn.executemany("""UPDATE pvs SET {0} = ? WHERE pv_id = ?""".format(prpt_names[0]),
+                                            new_values)
+        elif originalTag is not None:
+            # update old tag to new tag
+            if len(prpt_names) != 1:
+                raise Exception("Update multiple property values not supported yet.")
+            new_prpt_value = kwargs.get(prpt_names[0], None)
+            if new_prpt_value is None:
+                raise Exception("Invalid property value. Cannot update property value.")
+
+            cur = self.dbconn.cursor()
+            # get all property value
+            delimiter = ";"
+            cur.execute("""SELECT tags, pv_id FROM pvs where tags like ?""", (originalTag,))
+
+            # has format like [(id, value)]
+            new_values = []
+            for p in cur.fetchall():
+                if delimiter in p[0]:
+                    if originalProperty in p[0].split(delimiter):
+                        # keep order
+                        xxx = delimiter.join([new_prpt_value if x == originalProperty else x for x in p[0].split(delimiter)])
+                        new_values.append((xxx, p[1]))
+                elif originalProperty == p[0]:
+                    new_values.append((new_prpt_value, p[1]))
+            with self.dbconn:
+                self.dbconn.executemany("""UPDATE pvs SET tags = ? WHERE pv_id = ?""", new_values)
+        else:
+            # update property and tag for given channel(s)
+            # if property or tag does not exist, append as new
+            if "tag" in kwargs:
+                # update old tag to new tag
+                new_tag_value = kwargs.get('tag', None)
+                if new_tag_value is None:
+                    # None tag, do nothing
+                    return
+
+                cur = self.dbconn.cursor()
+                # get all property value
+                delimiter = ";"
+                if isinstance(channels, (list, tuple)):
+                    sql = """SELECT tags, pv_id FROM pvs where pv in ("""
+                    for _ in channels:
+                        sql += "?,"
+                    sql = sql[:-1] + """)"""
+                    cur.execute(sql, channels)
+                else:
+                    cur.execute("""SELECT tags, pv_id FROM pvs where pv like ?""", (channels,))
+
+                # has format like [(id, value)]
+                new_values = []
+                for p in cur.fetchall():
+                    if delimiter in p[0]:
+                        if originalTag in p[0].split(delimiter):
+                            # keep order
+                            xxx = delimiter.join([new_tag_value if x == originalTag else x for x in p[0].split(delimiter)])
+                            new_values.append((xxx, p[1]))
+                    elif originalTag == p[0]:
+                        new_values.append((new_tag_value, p[1]))
+                    else:
+                        new_values.append((delimiter.join((p[0], new_tag_value)), p[1]))
+                with self.dbconn:
+                    self.dbconn.executemany("""UPDATE pvs SET tags = ? WHERE pv_id = ?""", new_values)
+            else:
+                # update old property value to new one for all channels
+                if len(prpt_names) != 1:
+                    raise Exception("Update multiple property values not supported yet.")
+                new_prpt_value = kwargs.get(prpt_names[0], None)
+                if new_prpt_value is None:
+                    # None property value, do nothing
+                    return
+
+                cur = self.dbconn.cursor()
+                cur.execute("PRAGMA table_info(elements)")
+                tbl_elements_cols = [v[1] for v in cur.fetchall()]
+                cur.execute("PRAGMA table_info(pvs)")
+                tbl_pvs_cols = [v[1] for v in cur.fetchall()]
+
+                # get all property value
+                delimiter = ";"
+                if prpt_names[0] in tbl_elements_cols:
+                    if isinstance(channels, (list, tuple)):
+                        sql = """SELECT {0}, elem_id FROM pvs join elements on pvs.elem_id = elements.elem_id
+                                 WHERE pv IN (""".format(prpt_names[0])
+                        for _ in channels:
+                            sql += "?,"
+                        sql = sql[:-1] + """)"""
+                        cur.execute(sql, channels)
+                    else:
+                        cur.execute("""SELECT {0}, elem_id FROM elements where pv like ?""".format(prpt_names[0]),
+                                    (channels,))
+                elif prpt_names[0] in tbl_pvs_cols:
+                    if isinstance(channels, (list, tuple)):
+                        sql = """SELECT {0}, pv_id FROM pvs where pv in (""".format(prpt_names[0])
+                        for _ in channels:
+                            sql += "?,"
+                        sql = sql[:-1] + """)"""
+                        cur.execute(sql, channels)
+                    else:
+                        cur.execute("""SELECT {0}, elem_id FROM elements where pv like ?""".format(prpt_names[0]),
+                                    (channels,))
+                else:
+                    raise Exception("Unknown property {}".format(prpt_names[0]))
+
+                # has format like [(id, value)]
+                new_values = []
+                for p in cur.fetchall():
+                    if delimiter in p[0]:
+                        if originalProperty in p[0].split(delimiter):
+                            # keep order
+                            xxx = delimiter.join([new_prpt_value if x == originalProperty else x for x in p[0].split(delimiter)])
+                            new_values.append((xxx, p[1]))
+                    elif originalProperty == p[0]:
+                        new_values.append((new_prpt_value, p[1]))
+                    else:
+                        new_values.append((delimiter.join((p[0], new_prpt_value)), p[1]))
+                if prpt_names[0] in tbl_elements_cols:
+                    with self.dbconn:
+                        self.dbconn.executemany("""UPDATE elements SET {0} = ? WHERE pv_id = ?""".format(prpt_names[0]),
+                                                new_values)
+                elif prpt_names[0] in tbl_pvs_cols:
+                    with self.dbconn:
+                        self.dbconn.executemany("""UPDATE pvs SET {0} = ? WHERE pv_id = ?""".format(prpt_names[0]),
+                                                new_values)
 
 def exportCfLocalData(dbname="cf_localdb.sqlite", **kwargs):
     """export channel finder data from local SQLite database
