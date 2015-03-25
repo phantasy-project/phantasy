@@ -72,7 +72,7 @@ def load(cfgpath=None):
                 with open(path, "r") as fp:
                     config.readfp(fp)
                     config_path = path
-                    _LOGGER.debug("Successfully loaded configuration file: %s", path)
+                    _LOGGER.info("Successfully loaded configuration file: %s", path)
                     return True
             else:
                 TypeError("Configuration file path must have type string")

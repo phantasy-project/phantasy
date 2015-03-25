@@ -12,5 +12,5 @@ __version__ = "0.0.1"
 import logging
 
 # configure the root logger
-logging.basicConfig(format="%(message)s")
+logging.basicConfig(format="%(levelname)s: %(asctime)s: %(name)s: %(message)s")
 
