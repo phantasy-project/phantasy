@@ -87,7 +87,7 @@ class SettingsFactory(object):
             raise RuntimeError("SettingsFactory: IMPACT lattice file not found: {}".format(self._latpath))
 
         with open(self._latpath, "r") as fp:
-            lattice_element = _LatticeIterator(fp.readlines(), start=11)
+            lattice_element = _LatticeIterator(fp.readlines(), skip=11)
 
         settings = OrderedDict()
 
@@ -173,10 +173,10 @@ class SettingsFactory(object):
 
 class _LatticeIterator():
 
-    def __init__(self, seq, start=0):
+    def __init__(self, seq, skip=0):
         self._idx = -1
         self._iter = iter(seq)
-        self._start = start
+        self._skip = skip
 
 
     def __iter__(self):
@@ -184,9 +184,12 @@ class _LatticeIterator():
 
 
     def next(self):
-        while self._idx < (self._start-1):
-            self._iter.next()
+        while self._skip > 0:
+            line = self._iter.next()
             self._idx += 1
+            if line.startswith("!"):
+                continue
+            self._skip -= 1
 
         while True:
             line = self._iter.next()
@@ -197,3 +200,4 @@ class _LatticeIterator():
             if (len(elm) <= 3) or (float(elm[3]) <= 0):
                 continue
             return (self._idx, elm)
+
