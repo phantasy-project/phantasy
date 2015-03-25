@@ -25,7 +25,7 @@ class ChannelStore(object):
     def set(self, channel, properties={}, tags=[]):
         """
         Set the properties and tags of the specified channel or list of channels.
-        Note that this method is descructive and will remove data associated
+        Note that this method is destructive and will remove data associated
         with the specified channel. To update the channel properties use the
         ChannelStore.update() method.
 
