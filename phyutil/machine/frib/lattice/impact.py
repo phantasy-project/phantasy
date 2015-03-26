@@ -151,7 +151,7 @@ class LatticeFactory(object):
             raise TypeError("LatticeFactory: 'end' property much be type string or None")
         self._end = end
 
-    
+
     @property
     def settings(self):
         return self._settings
@@ -174,7 +174,7 @@ class LatticeFactory(object):
         if (integrator == INTEGRATOR_LINEAR):
             if cfg.config.has_option(dtype, CONFIG_IMPACT_LINEAR_INPUT_ID, False):
                 return cfg.config.getint(dtype, CONFIG_IMPACT_LINEAR_INPUT_ID, False)
-        
+
         if (integrator == INTEGRATOR_LORENTZ):
             if cfg.config.has_option(dtype, CONFIG_IMPACT_LORENTZ_INPUT_ID, False):
                 return cfg.config.getint(dtype, CONFIG_IMPACT_LORENTZ_INPUT_ID, False)
@@ -185,7 +185,7 @@ class LatticeFactory(object):
     def _get_config_t7data_input_id(self, dtype):
         if cfg.config.has_option(dtype, CONFIG_IMPACT_T7DATA_INPUT_ID, False):
             return cfg.config.getint(dtype, CONFIG_IMPACT_T7DATA_INPUT_ID, False)
-        
+
         return None
 
 
@@ -396,23 +396,23 @@ class LatticeFactory(object):
                 if elem.length != 0.0:
                     lattice.append([elem.length, steps, mapsteps, 0, elem.aperture/2.0])
 
-            elif isinstance(elem, (BLMElement, PMElement, BLElement, BCMElement)):
+            elif isinstance(elem, (BLMElement, BLElement, BCMElement)):
                 if elem.length != 0.0:
                     lattice.append([elem.length, steps, mapsteps, 0, elem.aperture/2.0])
 
-            elif isinstance(elem, BPMElement):
+            elif isinstance(elem, (BPMElement, PMElement)):
                 if elem.length != 0.0:
                     lattice.append([elem.length/2.0, steps, mapsteps, 0, elem.aperture/2.0])
 
                 idx = lattice.append([0.0, 0, 0, -28], output_elem=elem.name)
                 lattice.rb_mapping.append((elem.name, {"z":elem.z+elem.length/2.0, "idx":idx}))
-                
+
                 if elem.length != 0.0:
                     lattice.append([elem.length/2.0, steps, mapsteps, 0, elem.aperture/2.0])
-                
+
             else:
                 raise Exception("Unsupport ADD element: {}".format(elem))
-                
+
         return lattice
 
 
@@ -423,7 +423,7 @@ class Lattice(object):
         if integrator not in [ INTEGRATOR_LINEAR, INTEGRATOR_LORENTZ ]:
             raise TypeError("Lattice: 'integrator' property must be Enum or None")
         self._integrator = integrator
-        
+
         self.comment = None
         self.nparticles = _DEFAULT_NPARTICLES
         self.nprocessors = _DEFAULT_NPROCESSORS
