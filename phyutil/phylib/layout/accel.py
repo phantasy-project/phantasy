@@ -561,7 +561,9 @@ class HexElement(Element):
     def __init__(self, z, length, aperture, name, desc="hexapole magnet", system="", subsystem="", device="", dtype="", inst=""):
         super(HexElement, self).__init__(z, length, aperture, name, desc=desc, system=system,
                                                 subsystem=subsystem, device=device, dtype=dtype, inst=inst)
-
+        self.channels.field_read = "FIELD_READ"
+        self.channels.field_cset = "FIELD_CSET"
+        self.channels.field_rset = "FIELD_RSET"
 
 # RF Elements
 

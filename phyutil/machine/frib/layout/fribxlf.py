@@ -397,8 +397,17 @@ class AccelFactory(object):
                         subsequence.append(elem)
 
                     elif row.device in [ "S" ]:
-                        subsequence.append(HexElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
-                                                            system=row.system, subsystem=row.subsystem, device=row.device, dtype=row.device_type))
+
+                        inst = "D{:d}".format(int(row.position))
+
+                        elem = HexElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
+                                                   system=row.system, subsystem=row.subsystem, device=row.device, dtype=row.device_type, inst=inst)
+
+                        elem.channels.field_cset = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:B_CSET".format(chanprefix, elem=elem)
+                        elem.channels.field_rset = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:B_RSET".format(chanprefix, elem=elem)
+                        elem.channels.field_read = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:B_RD".format(chanprefix, elem=elem)
+
+                        subsequence.append(elem)
 
                     elif row.device in [ "SLH" ]:
                         # use dift to represent slit for now
