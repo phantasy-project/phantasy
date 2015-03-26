@@ -289,6 +289,11 @@ class VirtualAcceleratorFactory(object):
                 va.append_rw(chans.gradient_cset, chans.gradient_rset, chans.gradient_read, name="Quadrupole Gradient", egu="T/m", drvrel=0.05)
                 va.append_elem(elem)
 
+            elif isinstance(elem, HexElement):
+                chans = elem.channels
+                va.append_rw(chans.field_cset, chans.field_rset, chans.field_read, name="Hexapole Field", egu="T/m^2", drvrel=0.05)
+                va.append_elem(elem)
+
             elif isinstance(elem, BPMElement):
                 chans = elem.channels
                 va.append_ro(chans.hposition_read, name="Horizontal Position", egu="m")
@@ -305,11 +310,11 @@ class VirtualAcceleratorFactory(object):
                 va.append_ro(chans.vsize_read, name="Vertical Size", egu="m")
                 va.append_elem(elem)
 
-            elif isinstance(elem, (BLMElement, BLElement)):
+            elif isinstance(elem, (BLMElement, BLElement, BCMElement)):
                 # ignore these diagnostic elements for now
                 pass
 
-            elif isinstance(elem, (ValveElement, PortElement)):
+            elif isinstance(elem, (ValveElement, PortElement, ChgStripElement)):
                 # ignore these elements with no relevant channels
                 pass
 
