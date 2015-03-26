@@ -57,7 +57,7 @@ def build_accel(xlfpath=None, machine=None):
 
     if xlfpath != None:
         accel_factory.xlfpath = xlfpath
-    
+
     if machine != None:
         accel_factory.machine = machine
 
@@ -164,7 +164,7 @@ class AccelFactory(object):
         if (machine != None) and (len(machine.strip()) > 0):
             chanprefix = machine.strip()+":"
 
-  
+
         wkbk = xlrd.open_workbook(xlfpath)
 
         if _XLF_LAYOUT_SHEET_NAME not in wkbk.sheet_names():
@@ -279,7 +279,7 @@ class AccelFactory(object):
                             elem.voltage = self._get_config_voltage(dtype)
                         else:
                             raise RuntimeError("Cavity parameter 'voltage' not found")
-                        
+
                         if self._has_config_frequency(dtype):
                             elem.frequency = self._get_config_frequency(dtype)
                         else:
@@ -319,19 +319,31 @@ class AccelFactory(object):
 
                         subsequence.append(elem)
 
-                    elif row.device in [ "BLM" ]:
-                        subsequence.append(BLMElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
-                                                            system=row.system, subsystem=row.subsystem, device=row.device))
-
                     elif row.device in [ "BPM" ]:
-                    
+
                         inst = "D{:d}".format(int(row.position))
-                    
+
                         elem = BPMElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
                                                             system=row.system, subsystem=row.subsystem, device=row.device, dtype=row.device_type, inst=inst)
-                
-                        elem.channels.hposition_read = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:POSH_RD".format(chanprefix, elem=elem)
-                        elem.channels.vposition_read = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:POSV_RD".format(chanprefix, elem=elem)
+
+                        elem.channels.hposition_read = "{}{elem.system}_{elem.subsystem}:BPMH_{elem.inst}:POS_RD".format(chanprefix, elem=elem)
+                        elem.channels.vposition_read = "{}{elem.system}_{elem.subsystem}:BPMV_{elem.inst}:POS_RD".format(chanprefix, elem=elem)
+                        elem.channels.hphase_read = "{}{elem.system}_{elem.subsystem}:BPMH_{elem.inst}:PHA_RD".format(chanprefix, elem=elem)
+                        elem.channels.vphase_read = "{}{elem.system}_{elem.subsystem}:BPMV_{elem.inst}:PHA_RD".format(chanprefix, elem=elem)
+
+                        subsequence.append(elem)
+
+                    elif row.device in [ "PM" ]:
+
+                        inst = "D{:d}".format(int(row.position))
+
+                        elem = PMElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
+                                                           system=row.system, subsystem=row.subsystem, device=row.device, dtype=row.device_type, inst=inst)
+
+                        elem.channels.hposition_read = "{}{elem.system}_{elem.subsystem}:PMH_{elem.inst}:POS_RD".format(chanprefix, elem=elem)
+                        elem.channels.vposition_read = "{}{elem.system}_{elem.subsystem}:PMV_{elem.inst}:POS_RD".format(chanprefix, elem=elem)
+                        elem.channels.hsize_read = "{}{elem.system}_{elem.subsystem}:PMH_{elem.inst}:RMS_RD".format(chanprefix, elem=elem)
+                        elem.channels.vsize_read = "{}{elem.system}_{elem.subsystem}:PMV_{elem.inst}:RMS_RD".format(chanprefix, elem=elem)
 
                         subsequence.append(elem)
 
@@ -339,9 +351,9 @@ class AccelFactory(object):
                         subsequence.append(BLElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
                                                             system=row.system, subsystem=row.subsystem, device=row.device, dtype=row.device_type))
 
-                    elif row.device in [ "PM" ]:
-                        subsequence.append(PMElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
-                                                            system=row.system, subsystem=row.subsystem, device=row.device, dtype=row.device_type))
+                    elif row.device in [ "BLM" ]:
+                        subsequence.append(BLMElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
+                                                            system=row.system, subsystem=row.subsystem, device=row.device))
 
                     elif row.device in [ "BCM" ]:
                         subsequence.append(BCMElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
@@ -349,7 +361,7 @@ class AccelFactory(object):
 
                     elif row.device in [ "PORT" ]:
                         dtype = "" if row.device_type == None else row.device_type
-                        subsystem = "" if row.subsystem == None else row.subsystem                      
+                        subsystem = "" if row.subsystem == None else row.subsystem
                         subsequence.append(PortElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
                                                                 system=row.system, subsystem=subsystem, device=row.device, dtype=dtype))
 
@@ -379,14 +391,14 @@ class AccelFactory(object):
                         elem.channels.angle_cset = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:ANG_CSET".format(chanprefix, elem=elem)
                         elem.channels.angle_rset = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:ANG_RSET".format(chanprefix, elem=elem)
                         elem.channels.angle_read = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:ANG_RD".format(chanprefix, elem=elem)
-   
+
                         subsequence.append(elem)
 
 
                     elif row.device in [ "QH", "QV" ]:
-                        
+
                         inst = "D{:d}".format(int(row.position))
-                        
+
                         elem = QuadElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
                                                     system=row.system, subsystem=row.subsystem, device=row.device, dtype=row.device_type, inst=inst)
 
@@ -446,7 +458,7 @@ class AccelFactory(object):
                     elif row.element_name in [ "coil-out", "coil-out (assumed)", "coil out", "coil out + leads" ]:
                         if drift_delta != 0.0:
                             raise Exception("Unsupported drift delta on element: {}".format(row.element_name))
-                        subsequence.append(DriftElement(row.center_position, row.eff_length, row.diameter, desc=row.element_name))                
+                        subsequence.append(DriftElement(row.center_position, row.eff_length, row.diameter, desc=row.element_name))
 
                     elif row.element_name in [ "BPM-box", "diagnostic box", "vacuum box" ]:
                         if drift_delta != 0.0:
@@ -501,7 +513,7 @@ class _LayoutRow(object):
             value = cell.value.strip()
             if len(value) > 0:
                 return value
-            
+
         return None
 
 

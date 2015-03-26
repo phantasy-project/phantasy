@@ -4,7 +4,7 @@
 Accelerator Design Description
 ==============================
 
-The Accelerator Design Description (ADD) is a data model developed to capture 
+The Accelerator Design Description (ADD) is a data model developed to capture
 the accelerator design independant of file format and/or simulation tool.
 It is used as intermediate data strucuture when converting between formats
 or generating lattice files for use with various simulation tools.
@@ -106,7 +106,7 @@ class BaseElement(object):
     @apertureX.setter
     def apertureX(self, apertureX):
         if not isinstance(apertureX, (int, float)):
-            raise TypeError("BaseElement: 'apertureX' property must be a number")    
+            raise TypeError("BaseElement: 'apertureX' property must be a number")
         self._apertureX = apertureX
 
 
@@ -117,7 +117,7 @@ class BaseElement(object):
     @apertureY.setter
     def apertureY(self, apertureY):
         if not isinstance(apertureY, (int, float)):
-            raise TypeError("BaseElement: 'apertureY' property must be a number")    
+            raise TypeError("BaseElement: 'apertureY' property must be a number")
         self._apertureY = apertureY
 
 
@@ -390,7 +390,7 @@ class _SeqElementIterator(object):
                 if self._end == elem.name:
                     self._iterators = []
                     self._end = None
-                    
+
             if isinstance(elem, SeqElement):
                 self._iterators.append(iter(elem))
                 continue
@@ -451,6 +451,8 @@ class BPMElement(Element):
                                             subsystem=subsystem, device=device, dtype=dtype, inst=inst)
         self.channels.hposition_read = None
         self.channels.vposition_read = None
+        self.channels.hphase_read = None
+        self.channels.vphase_read = None
 
 
 
@@ -480,6 +482,8 @@ class PMElement(Element):
     def __init__(self, z, length, aperture, name, desc="beam profile monitor", system="", subsystem="", device="", dtype="", inst=""):
         super(PMElement, self).__init__(z, length, aperture, name, desc=desc, system=system,
                                              subsystem=subsystem, device=device, dtype=dtype, inst=inst)
+        self.channels.hposition_read = None
+        self.channels.vposition_read = None
         self.channels.hsize_read = None
         self.channels.vsize_read = None
 
@@ -525,7 +529,7 @@ class BendElement(Element):
         self.channels.angle_read = "ANGLE_READ"
         self.channels.angle_cset = "ANGLE_CSET"
         self.channels.angle_rset = "ANGLE_RSET"
-    
+
 
 class CorrElement(Element):
     """
