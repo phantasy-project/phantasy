@@ -404,7 +404,7 @@ class LatticeFactory(object):
                 if elem.length != 0.0:
                     lattice.append([elem.length/2.0, steps, mapsteps, 0, elem.aperture/2.0])
 
-                idx = lattice.append([0.0, 0, 0, -23], output_elem=elem.name)
+                idx = lattice.append([0.0, 0, 0, -28], output_elem=elem.name)
                 lattice.rb_mapping.append((elem.name, {"z":elem.z+elem.length/2.0, "idx":idx}))
                 
                 if elem.length != 0.0:
