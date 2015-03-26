@@ -194,11 +194,13 @@ class SettingsFactory(object):
 
 
             elif isinstance(elem, BendElement):
+                angle = 0.0
                 length = 0.0
                 while length < elem.length:
                     (latidx, latelm) = next(lattice_element)
                     
                     if latelm[3] in [ "4" ]:
+                        angle += float(latelm[4])
                         length += float(latelm[0])
                     else:
                         raise RuntimeError("SettingsFactory: {} at line {}: unexpected element found: {}".format(elem.name, latidx+1, latelm))
@@ -208,7 +210,7 @@ class SettingsFactory(object):
                 if not self._isclose(length, elem.length):
                     raise RuntimeError("SettingsFactory: {} at line {}: unexpected element length: {} ({})".format(elem.name, latidx+1, length, elem.length))
 
-                settings[elem.channels.angle_cset] = OrderedDict([ ("VAL", float(latelm[4])) ])
+                settings[elem.channels.angle_cset] = OrderedDict([ ("VAL", angle) ])
                 settings[elem.channels.angle_rset] = OrderedDict(settings[elem.channels.angle_cset])
                 settings[elem.channels.angle_read] = OrderedDict(settings[elem.channels.angle_cset])
 
