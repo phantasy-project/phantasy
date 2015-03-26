@@ -6,7 +6,7 @@ Implement phytool command 'impact-settings'.
 
 from __future__ import print_function
 
-import os.path, sys, json
+import os.path, sys, json, logging
 
 from argparse import ArgumentParser
 
@@ -21,12 +21,14 @@ from ..machine.frib.layout import fribxlf
 
 
 parser = ArgumentParser(description="Extract device settings from IMPACT input file based on accelerator layout.")
+
+
+parser.add_argument("-v", dest="verbosity", nargs='?', type=int, const=1, default=0, help="set the amount of output")
 parser.add_argument("--cfg", dest="cfgpath", help="path to alternate configuration file (.cfg)")
 parser.add_argument("--xlf", dest="xlfpath", help="path to FRIB Expanded Lattice File (.xlsx)")
 parser.add_argument("--start", help="name of accelerator element to start processing")
 parser.add_argument("--end", help="name of accelerator element to end processing")
 parser.add_argument("--mach", help="name of machine (used to indicate VA)")
-#parser.add_argument("-v", action="store_true", help="increase verbosity")
 parser.add_argument("latpath", help="path to input IMPACT lattive file (test.in)")
 parser.add_argument("stgpath", nargs='?', help="path of output file with JSON format")
 
@@ -38,6 +40,12 @@ def main():
     Entry point for command 'impact-settings'.
     """
     args = parser.parse_args(sys.argv[2:])
+
+    if args.verbosity == 1:
+        logging.getLogger().setLevel(logging.INFO)
+    elif args.verbosity > 1:
+        logging.getLogger().setLevel(logging.DEBUG)
+
 
     if args.cfgpath != None:
         try:
