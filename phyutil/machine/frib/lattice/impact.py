@@ -385,12 +385,25 @@ class LatticeFactory(object):
                     lattice.append([elem.length/2.0, steps, mapsteps, 0, elem.aperture/2.0])
 
             elif isinstance(elem, HexElement):
-                # Need to add settings for this element
-                lattice.append([elem.length, steps, mapsteps, 5, elem.aperture/2.0])
+                field = 0.0
+                if settings != None:
+                    if elem.channels.field_cset in settings:
+                        field = settings[elem.channels.field_cset]["VAL"]
+                    else:
+                        raise RuntimeError("LatticeFactory: '{}' channel not found for element: {}".format(elem.channels.field_cset, elem.name))
+                # IMPACT element 5 is not currently document. Below is provided for reference.
+                # L, ss, ms, 5, Gq(T/m), Gs(T/m^2),Go(T/m^3),Gd(T/m^4),Gdd(T/m^5),G14,G16,R
+                lattice.append([elem.length, steps, mapsteps, 5, 0.0, field, 0.0, 0.0, 0.0, 0.0, 0.0, elem.aperture/2.0])
 
             elif isinstance(elem, BendElement):
-                # Need to add settings for this element
-                lattice.append([elem.length, steps, mapsteps, 4, 0.0, 0.0, 0, elem.aperture/2.0])
+                angle = 0.0
+                if settings != None:
+                    if elem.channels.angle_cset in settings:
+                        angle = settings[elem.channels.angle_cset]["VAL"]
+                    else:
+                        raise RuntimeError("LatticeFactory: '{}' channel not found for element: {}".format(elem.channels.angle_cset, elem.name))
+
+                lattice.append([elem.length, steps, mapsteps, 4, angle, 0.0, 0, elem.aperture/2.0])
 
             elif isinstance(elem, (ChgStripElement)):
                 if elem.length != 0.0:
