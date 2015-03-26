@@ -19,6 +19,7 @@ __author__ = "Dylan Maxwell"
 
 import sys
 
+from collections import OrderedDict
 
 # configuration options
 
@@ -641,4 +642,5 @@ class Accelerator(SeqElement):
     """
     def __init__(self, name, desc="accelerator", elements=None):
         super(Accelerator, self).__init__(name, desc=desc, elements=elements)
+        self.channels  = OrderedDict()
 
