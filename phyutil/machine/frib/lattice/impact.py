@@ -434,7 +434,7 @@ class LatticeFactory(object):
 
             elif isinstance(elem, (ChgStripElement)):
                 if elem.length != 0.0:
-                    lattice.append([elem.length, steps, mapsteps, 0, elem.aperture/2.0])
+                    lattice.append([elem.length/2.0, steps, mapsteps, 0, elem.aperture/2.0])
                     lattice.chanmap.append((len(lattice._elements)-1, 1, elem.z, []))
 
                 # Charge stripper for multi charge state: 885
@@ -443,7 +443,7 @@ class LatticeFactory(object):
                 lattice.chanmap.append((len(lattice._elements)-1, 1, elem.z, []))
 
                 if elem.length != 0.0:
-                    lattice.append([elem.length, steps, mapsteps, 0, elem.aperture/2.0])
+                    lattice.append([elem.length/2.0, steps, mapsteps, 0, elem.aperture/2.0])
                     lattice.chanmap.append((len(lattice._elements)-1, 1, elem.z+(elem.length/2.0), []))
 
             elif isinstance(elem, (BLMElement, BLElement, BCMElement)):
