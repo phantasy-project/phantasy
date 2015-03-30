@@ -394,7 +394,7 @@ class AccelFactory(object):
                         subsequence.append(PortElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
                                                                 system=row.system, subsystem=subsystem, device=row.device, dtype=dtype))
 
-                    elif row.device in [ "DC", "DC0" ]:
+                    elif row.device in [ "DC", "DC0", "CH" ]:
 
                         inst = "D{:d}".format(int(row.position))
 
@@ -417,8 +417,7 @@ class AccelFactory(object):
 
                         subsequence.append(elem)
 
-                    elif row.device in [ "DH", "CH" ]:
-
+                    elif row.device in [ "DH" ]:
                         inst = "D{:d}".format(int(row.position))
 
                         elem = BendElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
