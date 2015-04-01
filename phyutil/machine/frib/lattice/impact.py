@@ -458,7 +458,7 @@ class LatticeFactory(object):
 
                 if isinstance(elem, BPMElement):
                     channels = [ elem.channels.hposition_read, elem.channels.vposition_read,
-                                  elem.channels.hphase_read, elem.channels.vphase_read ]
+                                  elem.channels.phase_read ]
                 else:
                     channels = [ elem.channels.hposition_read, elem.channels.vposition_read,
                                   elem.channels.hsize_read, elem.channels.vsize_read ]

@@ -452,8 +452,7 @@ class BPMElement(Element):
                                             subsystem=subsystem, device=device, dtype=dtype, inst=inst)
         self.channels.hposition_read = None
         self.channels.vposition_read = None
-        self.channels.hphase_read = None
-        self.channels.vphase_read = None
+        self.channels.phase_read = None
 
 
 

@@ -345,15 +345,13 @@ class AccelFactory(object):
                         elem = BPMElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
                                                             system=row.system, subsystem=row.subsystem, device=row.device, dtype=row.device_type, inst=inst)
 
-                        elem.channels.hposition_read = "{}{elem.system}_{elem.subsystem}:BPMH_{elem.inst}:POS_RD".format(chanprefix, elem=elem)
-                        elem.channels.vposition_read = "{}{elem.system}_{elem.subsystem}:BPMV_{elem.inst}:POS_RD".format(chanprefix, elem=elem)
-                        elem.channels.hphase_read = "{}{elem.system}_{elem.subsystem}:BPMH_{elem.inst}:PHA_RD".format(chanprefix, elem=elem)
-                        elem.channels.vphase_read = "{}{elem.system}_{elem.subsystem}:BPMV_{elem.inst}:PHA_RD".format(chanprefix, elem=elem)
+                        elem.channels.hposition_read = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:X_RD".format(chanprefix, elem=elem)
+                        elem.channels.vposition_read = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:Y_RD".format(chanprefix, elem=elem)
+                        elem.channels.phase_read = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:PHA_RD".format(chanprefix, elem=elem)
                         # channel metadata (for channel finder)
-                        accelerator.channels[elem.channels.hposition_read] = self._channel_data(machine, elem.z, elem.name, "readback", "POS", "BPMH")
-                        accelerator.channels[elem.channels.vposition_read] = self._channel_data(machine, elem.z, elem.name, "readback", "POS", "BPMV")
-                        accelerator.channels[elem.channels.hphase_read] = self._channel_data(machine, elem.z, elem.name, "readback", "PHA", "BPMH")
-                        accelerator.channels[elem.channels.vphase_read] = self._channel_data(machine, elem.z, elem.name, "readback", "PHA", "BPMV")
+                        accelerator.channels[elem.channels.hposition_read] = self._channel_data(machine, elem.z, elem.name, "readback", "X", elem.device)
+                        accelerator.channels[elem.channels.vposition_read] = self._channel_data(machine, elem.z, elem.name, "readback", "Y", elem.device)
+                        accelerator.channels[elem.channels.phase_read] = self._channel_data(machine, elem.z, elem.name, "readback", "PHA", elem.device)
 
                         subsequence.append(elem)
 
@@ -364,15 +362,15 @@ class AccelFactory(object):
                         elem = PMElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
                                                            system=row.system, subsystem=row.subsystem, device=row.device, dtype=row.device_type, inst=inst)
 
-                        elem.channels.hposition_read = "{}{elem.system}_{elem.subsystem}:PMH_{elem.inst}:POS_RD".format(chanprefix, elem=elem)
-                        elem.channels.vposition_read = "{}{elem.system}_{elem.subsystem}:PMV_{elem.inst}:POS_RD".format(chanprefix, elem=elem)
-                        elem.channels.hsize_read = "{}{elem.system}_{elem.subsystem}:PMH_{elem.inst}:RMS_RD".format(chanprefix, elem=elem)
-                        elem.channels.vsize_read = "{}{elem.system}_{elem.subsystem}:PMV_{elem.inst}:RMS_RD".format(chanprefix, elem=elem)
+                        elem.channels.hposition_read = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:X_RD".format(chanprefix, elem=elem)
+                        elem.channels.vposition_read = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:Y_RD".format(chanprefix, elem=elem)
+                        elem.channels.hsize_read = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:XRMS_RD".format(chanprefix, elem=elem)
+                        elem.channels.vsize_read = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:YRMS_RD".format(chanprefix, elem=elem)
                         # channel metadata (for channel finder)
-                        accelerator.channels[elem.channels.hposition_read] = self._channel_data(machine, elem.z, elem.name, "readback", "POS", "PMH")
-                        accelerator.channels[elem.channels.vposition_read] = self._channel_data(machine, elem.z, elem.name, "readback", "POS", "PMV")
-                        accelerator.channels[elem.channels.hsize_read] = self._channel_data(machine, elem.z, elem.name, "readback", "RMS", "PMH")
-                        accelerator.channels[elem.channels.vsize_read] = self._channel_data(machine, elem.z, elem.name, "readback", "RMS", "PMV")
+                        accelerator.channels[elem.channels.hposition_read] = self._channel_data(machine, elem.z, elem.name, "readback", "X", elem.device)
+                        accelerator.channels[elem.channels.vposition_read] = self._channel_data(machine, elem.z, elem.name, "readback", "Y", elem.device)
+                        accelerator.channels[elem.channels.hsize_read] = self._channel_data(machine, elem.z, elem.name, "readback", "XRMS", elem.device)
+                        accelerator.channels[elem.channels.vsize_read] = self._channel_data(machine, elem.z, elem.name, "readback", "YRMS", elem.device)
 
                         subsequence.append(elem)
 
