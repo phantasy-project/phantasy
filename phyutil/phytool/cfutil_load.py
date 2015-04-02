@@ -11,7 +11,7 @@ from argparse import ArgumentParser
 
 from ..phylib import cfg
 
-from ..phylib.channelfinder import cfutil
+from phyutil.phylib.chanfinder import cfutil
 
 from ..machine.frib.layout import fribxlf
 

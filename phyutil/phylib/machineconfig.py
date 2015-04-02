@@ -15,14 +15,14 @@ elements, magnet or instrument. The submachines/lattices can share elements.
 
 from ..phylib.model.element import merge
 from ..phylib.model import Lattice
-from ..phylib.channelfinder import ChannelFinderAgent
+from phyutil.phylib.chanfinder import ChannelFinderAgent
 from ..phylib.model.element import CaElement
 
 import os
 import time
 import glob
 import re
-from pkg_resources import resource_string, resource_exists, resource_filename
+from pkg_resources import resource_exists, resource_filename #@UnresolvedImport #pylint: disable=E0611 
 import cPickle as pickle
 import ConfigParser
 import fnmatch
@@ -111,7 +111,7 @@ def load(machine, submachine = "*", **kwargs):
 
     global _lattice_dict, _lat
 
-    lat_dict, lat0 = {}, None
+    lat_dict = {}
 
     use_cache = kwargs.get('use_cache', False)
     save_cache = kwargs.get('save_cache', False)
@@ -623,7 +623,7 @@ def lattices():
 
 def machines():
     """all available machines"""
-    from pkg_resources import resource_listdir, resource_isdir
+    from pkg_resources import resource_listdir, resource_isdir  #@UnresolvedImport #pylint: disable=E0611
     return [d for d in resource_listdir(__name__, ".")
             if resource_isdir(__name__, d)]
 
