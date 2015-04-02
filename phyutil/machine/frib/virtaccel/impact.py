@@ -281,7 +281,7 @@ class VirtualAcceleratorFactory(object):
 
             elif isinstance(elem, BendElement):
                 chans = elem.channels
-                va.append_rw(chans.angle_cset, chans.angle_rset, chans.angle_read, name="Bend Angle", egu="degree", drvabs=0.0001)
+                va.append_rw(chans.field_cset, chans.field_rset, chans.field_read, name="Bend Relative Field", egu="none", drvrel=0.05)
                 va.append_elem(elem)
 
             elif isinstance(elem, QuadElement):
@@ -298,8 +298,7 @@ class VirtualAcceleratorFactory(object):
                 chans = elem.channels
                 va.append_ro(chans.hposition_read, name="Horizontal Position", egu="m")
                 va.append_ro(chans.vposition_read, name="Vertical Position", egu="m")
-                va.append_ro(chans.hphase_read, name="Horizontal Phase", egu="degree")
-                va.append_ro(chans.vphase_read, name="Vertical Phase", egu="degree")
+                va.append_ro(chans.phase_read, name="Beam Phase", egu="degree")
                 va.append_elem(elem)
 
             elif isinstance(elem, PMElement):
@@ -523,7 +522,7 @@ class VirtualAccelerator(object):
         try:
             self._execute()
         finally:
-            _LOGGER.debug("VirtualAccelerator: Cleanup")
+            _LOGGER.info("VirtualAccelerator: Cleanup")
             if self._subscriptions != None:
                 _LOGGER.debug("VirtualAccelerator: Cleanup: close connections")
                 for sub in self._subscriptions:
@@ -583,7 +582,7 @@ class VirtualAccelerator(object):
             self._rm_work_dir = False
         else:
             self.work_dir = tempfile.mkdtemp(_TEMP_DIRECTORY_SUFFIX)
-            self._rm_word_dir = True
+            self._rm_work_dir = True
 
         _LOGGER.info("VirtualAccelerator: Working directory: %s", self._work_dir)
 
@@ -672,18 +671,16 @@ class VirtualAccelerator(object):
                     catools.caput(elem.channels.hposition_read, fort24[idx,0])
                     _LOGGER.debug("VirtualAccelerator: Update read: %s to %s", elem.channels.vposition_read, fort25[idx,0])
                     catools.caput(elem.channels.vposition_read, fort25[idx,0])
-                    _LOGGER.debug("VirtualAccelerator: Update read: %s to %s", elem.channels.hposition_read, fort18[idx,1])
-                    catools.caput(elem.channels.hphase_read, fort18[idx,1])
-                    _LOGGER.debug("VirtualAccelerator: Update read: %s to %s", elem.channels.vposition_read, fort18[idx,1])
-                    catools.caput(elem.channels.vphase_read, fort18[idx,1])
+                    _LOGGER.debug("VirtualAccelerator: Update read: %s to %s", elem.channels.phase_read, fort18[idx,1])
+                    catools.caput(elem.channels.phase_read, fort18[idx,1])
                 elif isinstance(elem, PMElement):
                     _LOGGER.debug("VirtualAccelerator: Update read: %s to %s", elem.channels.hposition_read, fort24[idx,0])
                     catools.caput(elem.channels.hposition_read, fort24[idx,0])
                     _LOGGER.debug("VirtualAccelerator: Update read: %s to %s", elem.channels.vposition_read, fort25[idx,0])
                     catools.caput(elem.channels.vposition_read, fort25[idx,0])
-                    _LOGGER.debug("VirtualAccelerator: Update read: %s to %s", elem.channels.hposition_read, fort24[idx,1])
+                    _LOGGER.debug("VirtualAccelerator: Update read: %s to %s", elem.channels.hsize_read, fort24[idx,1])
                     catools.caput(elem.channels.hsize_read, fort24[idx,1])
-                    _LOGGER.debug("VirtualAccelerator: Update read: %s to %s", elem.channels.vposition_read, fort25[idx,1])
+                    _LOGGER.debug("VirtualAccelerator: Update read: %s to %s", elem.channels.vsize_read, fort25[idx,1])
                     catools.caput(elem.channels.vsize_read, fort25[idx,1])
                 else:
                     _LOGGER.warning("VirtualAccelerator: Output from element type not supported: %s", type(elem).__name__)

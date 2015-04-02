@@ -8,7 +8,7 @@ __copyright__ = "Copyright (c) 2015, Facility for Rare Isotope Beams"
 
 __author__ = "Dylan Maxwell"
 
-import os.path, re, xlrd
+import os.path, re, logging, xlrd
 
 from collections import OrderedDict
 
@@ -51,10 +51,15 @@ _XLF_LAYOUT_EFFECTIVE_LENGTH_IDX = 10
 _XLF_LAYOUT_CENTER_POSITION_IDX = 14
 
 
+_LOGGER = logging.getLogger(__name__)
+
+
+
 def build_accel(xlfpath=None, machine=None):
     """
     Convenience method for building ADD from Expanded Lattice File.
     """
+
     accel_factory = AccelFactory()
 
     if xlfpath != None:
@@ -130,11 +135,92 @@ class AccelFactory(object):
         return cfg.config.has_option(dtype, CONFIG_CAV_FREQUENCY)
 
 
+    def _get_config_bend_angle(self, elem):
+        if cfg.config.has_option(elem.name, CONFIG_BEND_ANGLE, False):
+            return cfg.config.getfloat(elem.name, CONFIG_BEND_ANGLE, False)
+        else:
+            return cfg.config.getfloat(elem.dtype, CONFIG_BEND_ANGLE, False)
+
+    def _has_config_bend_angle(self, elem):
+        return cfg.config.has_option(elem.name, CONFIG_BEND_ANGLE, False) \
+                or cfg.config.has_option(elem.dtype, CONFIG_BEND_ANGLE, False)
+
+
+    def _get_config_bend_entr_angle(self, elem):
+        if cfg.config.has_option(elem.name, CONFIG_BEND_ENTR_ANGLE, False):
+            return cfg.config.getfloat(elem.name, CONFIG_BEND_ENTR_ANGLE, False)
+        else:
+            return cfg.config.getfloat(elem.dtype, CONFIG_BEND_ENTR_ANGLE, False)
+
+    def _has_config_bend_entr_angle(self, elem):
+        return cfg.config.has_option(elem.name, CONFIG_BEND_ENTR_ANGLE, False) \
+                or cfg.config.has_option(elem.dtype, CONFIG_BEND_ENTR_ANGLE, False)
+
+
+    def _get_config_bend_exit_angle(self, elem):
+        if cfg.config.has_option(elem.name, CONFIG_BEND_EXIT_ANGLE, False):
+            return cfg.config.getfloat(elem.name, CONFIG_BEND_EXIT_ANGLE, False)
+        else:
+            return cfg.config.getfloat(elem.dtype, CONFIG_BEND_EXIT_ANGLE, False)
+
+    def _has_config_bend_exit_angle(self, elem):
+        return cfg.config.has_option(elem.name, CONFIG_BEND_EXIT_ANGLE, False) \
+                or cfg.config.has_option(elem.dtype, CONFIG_BEND_EXIT_ANGLE, False)
+
+
     def _get_config_length(self, dtype):
         return cfg.config.getfloat(dtype, CONFIG_LENGTH, False)
 
     def _has_config_length(self, dtype):
         return cfg.config.has_option(dtype, CONFIG_LENGTH, False)
+
+
+    def _get_config_aperture(self, elem):
+        if cfg.config.has_option(elem.name, CONFIG_APERTURE, False):
+            return cfg.config.getfloat(elem.name, CONFIG_APERTURE, False)
+        else:
+            return cfg.config.getfloat(elem.dtype, CONFIG_APERTURE, False)
+
+    def _has_config_aperture(self, elem):
+         return cfg.config.has_option(elem.name, CONFIG_APERTURE, False) \
+                or cfg.config.has_option(elem.dtype, CONFIG_APERTURE, False)
+
+
+    def _get_config_aperture_x(self, elem):
+        if cfg.config.has_option(elem.name, CONFIG_APERTURE_X, False):
+            return cfg.config.getfloat(elem.name, CONFIG_APERTURE_X, False)
+        else:
+            return cfg.config.getfloat(elem.dtype, CONFIG_APERTURE_X, False)
+
+    def _has_config_aperture_x(self, elem):
+         return cfg.config.has_option(elem.name, CONFIG_APERTURE_X, False) \
+                or cfg.config.has_option(elem.dtype, CONFIG_APERTURE_X, False)
+
+
+    def _get_config_aperture_y(self, elem):
+        if cfg.config.has_option(elem.name, CONFIG_APERTURE_Y, False):
+            return cfg.config.getfloat(elem.name, CONFIG_APERTURE_Y, False)
+        else:
+            return cfg.config.getfloat(elem.dtype, CONFIG_APERTURE_Y, False)
+
+    def _has_config_aperture_y(self, elem):
+         return cfg.config.has_option(elem.name, CONFIG_APERTURE_Y, False) \
+                or cfg.config.has_option(elem.dtype, CONFIG_APERTURE_Y, False)
+
+
+    def _apply_config(self, elem):
+        if self._has_config_aperture(elem):
+            elem.aperture = self._get_config_aperture(elem)
+            _LOGGER.info("AccelFactory: %s: aperture found in configuration: %s", elem.name, elem.aperture)
+
+        if self._has_config_aperture_x(elem):
+            elem.apertureX = self._get_config_aperture_x(elem)
+            _LOGGER.info("AccelFactory: %s: aperture X found in configuration: %s", elem.name, elem.apertureX)
+
+        if self._has_config_aperture_y(elem):
+            elem.apertureY = self._get_config_aperture_y(elem)
+            _LOGGER.info("AccelFactory: %s: aperture Y found in configuration: %s", elem.name, elem.apertureY)
+
 
 
     def build(self):
@@ -159,7 +245,7 @@ class AccelFactory(object):
 
         diameter = self.diameter
         if (diameter == None) and cfg.config.has_default(CONFIG_XLF_DIAMETER):
-            diameter = cfg.config.getfloat_default(CONFIG_XLF_DIAMETER)
+            diameter = _parse_diameter(cfg.config.get_default(CONFIG_XLF_DIAMETER))
 
 
         chanprefix = ""
@@ -211,13 +297,19 @@ class AccelFactory(object):
 
             # apply default values
             if row.diameter == None:
-                if diameter != None:
+                if (subsequence != None) and (len(subsequence.elements) > 0):
+                    # diameter from the aperture of the previous element
+                    row.diameter = [subsequence.elements[-1].apertureX * 1000.0,
+                                       subsequence.elements[-1].apertureY * 1000.0]
+                elif diameter != None:
+                    # diameter from the configuration default
                     row.diameter = diameter
                 else:
                     raise RuntimeError("AccelFactory: Layout data missing diameter (row:{}): {}".format(ridx+1,row))
 
             # unit conversion
-            row.diameter *= 0.001
+            row.diameter[0] *= 0.001
+            row.diameter[1] *= 0.001
 
 
             if sequence == None:
@@ -416,18 +508,39 @@ class AccelFactory(object):
                         subsequence.append(elem)
 
                     elif row.device in [ "DH" ]:
+                        m = re.match("dipole\\s*\\(?(.*)deg\\)?", row.element_name)
+                        if not m:
+                            raise RuntimeError("Unrecognized element name for bend magnet: '{}'".format(row.element_name))
+
+                        dtype = "BEND_{}".format(row.device_type)
                         inst = "D{:d}".format(int(row.position))
 
                         elem = BendElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
-                                                    system=row.system, subsystem=row.subsystem, device=row.device, dtype=row.device_type, inst=inst)
+                                                    system=row.system, subsystem=row.subsystem, device=row.device, dtype=dtype, inst=inst)
 
-                        elem.channels.angle_cset = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:ANG_CSET".format(chanprefix, elem=elem)
-                        elem.channels.angle_rset = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:ANG_RSET".format(chanprefix, elem=elem)
-                        elem.channels.angle_read = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:ANG_RD".format(chanprefix, elem=elem)
+                        self._apply_config(elem)
+
+                        elem.angle = float(m.group(1))
+
+                        if self._has_config_bend_angle(elem):
+                            elem.angle = self._get_config_bend_angle(elem)
+                            _LOGGER.info("AccelFactory: %s: angle found in configuration: %s", elem.name, elem.angle)
+
+                        if self._has_config_bend_entr_angle(elem):
+                            elem.entrAngle = self._get_config_bend_entr_angle(elem)
+                            _LOGGER.info("AccelFactory: %s: entrance angle found in configuration: %s", elem.name, elem.entrAngle)
+
+                        if self._has_config_bend_exit_angle(elem):
+                            elem.exitAngle = self._get_config_bend_exit_angle(elem)
+                            _LOGGER.info("AccelFactory: %s: exit angle found in configuration: %s", elem.name, elem.exitAngle)
+
+                        elem.channels.field_cset = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:B_CSET".format(chanprefix, elem=elem)
+                        elem.channels.field_rset = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:B_RSET".format(chanprefix, elem=elem)
+                        elem.channels.field_read = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:B_RD".format(chanprefix, elem=elem)
                         # channel metadata (for channel finder)
-                        accelerator.channels[elem.channels.angle_cset] = self._channel_data(machine, elem.z, elem.name, "setpoint", "ANG", "DH")
-                        accelerator.channels[elem.channels.angle_rset] = self._channel_data(machine, elem.z, elem.name, "readset", "ANG", "DH")
-                        accelerator.channels[elem.channels.angle_read] = self._channel_data(machine, elem.z, elem.name, "readback", "ANG", "DH")
+                        accelerator.channels[elem.channels.field_cset] = self._channel_data(machine, elem.z, elem.name, "setpoint", "B", "DH")
+                        accelerator.channels[elem.channels.field_rset] = self._channel_data(machine, elem.z, elem.name, "readset", "B", "DH")
+                        accelerator.channels[elem.channels.field_read] = self._channel_data(machine, elem.z, elem.name, "readback", "B", "DH")
 
                         subsequence.append(elem)
 
@@ -557,11 +670,40 @@ class AccelFactory(object):
         return d
 
 
+def _parse_diameter(d):
+    s = d.split("x", 2)
+    if len(s) == 1:
+        try:
+            return [float(s[0]), float(s[0])]
+        except:
+            pass # ignore exception
+
+    elif len(s) == 2:
+        try:
+            # Note that the Expanded Lattice File specifies
+            # the diameter as Height (Y) x Width (X)
+            # which means we need to reverse the order.
+            return [float(s[1]), float(s[0])]
+        except:
+            pass # ignore exception
+
+    return None
+
 
 class _LayoutRow(object):
     """
     LayoutRow contains the data from a single row of the layout sheet in the XLF.
     """
+
+    @staticmethod
+    def _cell_to_diameter(cell):
+        if cell.ctype == xlrd.XL_CELL_TEXT:
+            return _parse_diameter(cell.value.strip())
+
+        elif cell.ctype == xlrd.XL_CELL_NUMBER:
+            return [cell.value, cell.value]
+
+        return None
 
     @staticmethod
     def _cell_to_string(cell):
@@ -595,7 +737,7 @@ class _LayoutRow(object):
         self.device = self._cell_to_string(row[_XLF_LAYOUT_DEVICE_IDX])
         self.device_type = self._cell_to_string(row[_XLF_LAYOUT_DEVICE_TYPE_IDX])
         self.element_name = self._cell_to_string(row[_XLF_LAYOUT_ELEMENT_NAME_IDX])
-        self.diameter = self._cell_to_float(row[_XLF_LAYOUT_DIAMETER_IDX])
+        self.diameter = self._cell_to_diameter(row[_XLF_LAYOUT_DIAMETER_IDX])
         self.eff_length = self._cell_to_float(row[_XLF_LAYOUT_EFFECTIVE_LENGTH_IDX])
         self.center_position = self._cell_to_float(row[_XLF_LAYOUT_CENTER_POSITION_IDX])
 

@@ -120,9 +120,9 @@ class Configuration(SafeConfigParser):
         elif check_default and self.has_default(option):
             return self.get_default(option)
         elif not self.has_section(section):
-            raise NoSectionError("No section found: " + str(section))
+            raise NoSectionError(section)
         else:
-            raise NoOptionError("No option found: " + str(option))
+            raise NoOptionError(option, section)
 
     def getint(self, section, option, check_default=True):
         if self.has_option(section, option, False):
@@ -130,9 +130,9 @@ class Configuration(SafeConfigParser):
         elif check_default and self.has_default(option):
             return self.getint_default(option)
         elif not self.has_section(section):
-            raise NoSectionError("No section found: " + str(section))
+            raise NoSectionError(section)
         else:
-            raise NoOptionError("No option found: " + str(option))
+            raise NoOptionError(option, section)
 
     def getfloat(self, section, option, check_default=True):
         if self.has_option(section, option, False):
@@ -140,9 +140,9 @@ class Configuration(SafeConfigParser):
         elif check_default and self.has_default(option):
             return self.getfloat_default(option)
         elif not self.has_section(section):
-            raise NoSectionError("No section found: " + str(section))
+            raise NoSectionError(section)
         else:
-            raise NoOptionError("No option found: " + str(option))
+            raise NoOptionError(option, section)
 
     def has_option(self, section, option, check_default=True):
         # There is an inconsistency in the SafeConfigParser implementations
