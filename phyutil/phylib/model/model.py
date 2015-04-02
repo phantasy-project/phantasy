@@ -18,7 +18,7 @@ import os
 import re
 from fnmatch import fnmatch
 from datetime import datetime
-from .. import machineconfig as machines
+from phyutil.machine import config as machines
 import element
 # import itertools
 

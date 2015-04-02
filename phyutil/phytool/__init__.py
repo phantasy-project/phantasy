@@ -69,7 +69,7 @@ def help():
 
     if cmd == "impact-lattice":
         import impact_lattice
-        impact_input.help()
+        impact_lattice.help()
 
     elif cmd == "impact-settings":
         import impact_settings
