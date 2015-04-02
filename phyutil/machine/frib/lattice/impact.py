@@ -277,15 +277,15 @@ class LatticeFactory(object):
                 mapsteps = self._get_config_mapsteps()
 
             if isinstance(elem, DriftElement):
-                lattice.append([elem.length, steps, mapsteps, 0, elem.aperture/2.0])
+                lattice.append([elem.length, steps, mapsteps, 0, elem.apertureX/2.0])
                 lattice.chanmap.append((len(lattice._elements)-1, 1, elem.z+(elem.length/2.0), []))
 
             elif isinstance(elem, ValveElement):
-                lattice.append([elem.length, steps, mapsteps, 0, elem.aperture/2.0])
+                lattice.append([elem.length, steps, mapsteps, 0, elem.apertureX/2.0])
                 lattice.chanmap.append((len(lattice._elements)-1, 1, elem.z+(elem.length/2.0), []))
 
             elif isinstance(elem, PortElement):
-                lattice.append([elem.length, steps, mapsteps, 0, elem.aperture/2.0])
+                lattice.append([elem.length, steps, mapsteps, 0, elem.apertureX/2.0])
                 lattice.chanmap.append((len(lattice._elements)-1, 1, elem.z+(elem.length/2.0), []))
 
             elif isinstance(elem, CavityElement):
@@ -312,7 +312,7 @@ class LatticeFactory(object):
                     if input_id == None:
                         raise RuntimeError("LatticeFactory: IMPACT input id for '{}' not found".format(elem.name))
 
-                    lattice.append([elem.length, steps, mapsteps, 103, amplitude, elem.frequency, phase, input_id, elem.aperture/2.0])
+                    lattice.append([elem.length, steps, mapsteps, 103, amplitude, elem.frequency, phase, input_id, elem.apertureX/2.0])
                     lattice.chanmap.append((len(lattice._elements)-1, 1, elem.z+(elem.length/2.0), channels))
 
                 elif itype == 110:
@@ -320,7 +320,7 @@ class LatticeFactory(object):
                     if input_id == None:
                         raise RuntimeError("LatticeFactory: IMPACT input id for '{}' not found".format(elem.name))
 
-                    lattice.append([elem.length, steps, mapsteps, 110, amplitude, elem.frequency, phase, input_id, elem.aperture/2.0, elem.aperture/2.0, 0, 0, 0, 0, 0, 1, 2 ])
+                    lattice.append([elem.length, steps, mapsteps, 110, amplitude, elem.frequency, phase, input_id, elem.apertureX/2.0, elem.apertureX/2.0, 0, 0, 0, 0, 0, 1, 2 ])
                     lattice.chanmap.append((len(lattice._elements)-1, 1, elem.z+(elem.length/2.0), channels))
 
                 else:
@@ -353,13 +353,13 @@ class LatticeFactory(object):
                                   elem.channels.vkick_cset, elem.channels.vkick_rset, elem.channels.vkick_read ]
 
 
-                lattice.append([elem.length/2.0, 1, 20, 3, field, 0.0, elem.aperture/2.0])
+                lattice.append([elem.length/2.0, 1, 20, 3, field, 0.0, elem.apertureX/2.0])
                 lattice.chanmap.append((len(lattice._elements)-1, 1, elem.z, sol_channels))
 
-                lattice.append([0.0, 0, 0, -21, elem.aperture/2.0, 0.0, hkick, 0.0, vkick, 0.0, 0.0])
+                lattice.append([0.0, 0, 0, -21, elem.apertureX/2.0, 0.0, hkick, 0.0, vkick, 0.0, 0.0])
                 lattice.chanmap.append((len(lattice._elements)-1, 1, elem.z, cor_channels))
 
-                lattice.append([elem.length/2.0, 1, 20, 3, field, 0.0, elem.aperture/2.0])
+                lattice.append([elem.length/2.0, 1, 20, 3, field, 0.0, elem.apertureX/2.0])
                 lattice.chanmap.append((len(lattice._elements)-1, 1, elem.z+(elem.length/2.0), sol_channels))
 
             elif isinstance(elem, QuadElement):
@@ -372,7 +372,7 @@ class LatticeFactory(object):
 
                 channels = [ elem.channels.gradient_cset, elem.channels.gradient_rset, elem.channels.gradient_read ]
 
-                lattice.append([elem.length, 50, 20, 1, gradient, 0.0, elem.aperture/2.0])
+                lattice.append([elem.length, 50, 20, 1, gradient, 0.0, elem.apertureX/2.0])
                 lattice.chanmap.append((len(lattice._elements)-1, 1, elem.z+(elem.length/2.0), channels))
 
             elif isinstance(elem, CorrElement):
@@ -394,14 +394,14 @@ class LatticeFactory(object):
                               elem.channels.vkick_cset, elem.channels.vkick_rset, elem.channels.vkick_read ]
 
                 if elem.length != 0.0:
-                    lattice.append([elem.length/2.0, steps, mapsteps, 0, elem.aperture/2.0])
+                    lattice.append([elem.length/2.0, steps, mapsteps, 0, elem.apertureX/2.0])
                     lattice.chanmap.append((len(lattice._elements)-1, 1, elem.z, []))
 
-                lattice.append([0.0, 0, 0, -21, elem.aperture/2.0, 0.0, hkick, 0.0, vkick, 0.0, 0.0])
+                lattice.append([0.0, 0, 0, -21, elem.apertureX/2.0, 0.0, hkick, 0.0, vkick, 0.0, 0.0])
                 lattice.chanmap.append((len(lattice._elements)-1, 1, elem.z, channels))
 
                 if elem.length != 0.0:
-                    lattice.append([elem.length/2.0, steps, mapsteps, 0, elem.aperture/2.0])
+                    lattice.append([elem.length/2.0, steps, mapsteps, 0, elem.apertureX/2.0])
                     lattice.chanmap.append((len(lattice._elements)-1, 1, elem.z+(elem.length/2.0), []))
 
             elif isinstance(elem, HexElement):
@@ -416,25 +416,35 @@ class LatticeFactory(object):
 
                 # IMPACT element 5 is not currently document. Below is provided for reference.
                 # L, ss, ms, 5, Gq(T/m), Gs(T/m^2),Go(T/m^3),Gd(T/m^4),Gdd(T/m^5),G14,G16,R
-                lattice.append([elem.length, steps, mapsteps, 5, 0.0, field, 0.0, 0.0, 0.0, 0.0, 0.0, elem.aperture/2.0])
+                lattice.append([elem.length, steps, mapsteps, 5, 0.0, field, 0.0, 0.0, 0.0, 0.0, 0.0, elem.apertureX/2.0])
                 lattice.chanmap.append((len(lattice._elements)-1, 1, elem.z+(elem.length/2.0), channels))
 
             elif isinstance(elem, BendElement):
-                angle = 0.0
+                field = 0.0
                 if settings != None:
-                    if elem.channels.angle_cset in settings:
-                        angle = settings[elem.channels.angle_cset]["VAL"]
+                    if elem.channels.field_cset in settings:
+                        field = settings[elem.channels.field_cset]["VAL"]
                     else:
-                        raise RuntimeError("LatticeFactory: '{}' channel not found for element: {}".format(elem.channels.angle_cset, elem.name))
+                        raise RuntimeError("LatticeFactory: '{}' channel not found for element: {}".format(elem.channels.field_cset, elem.name))
 
-                channels = [ elem.channels.angle_cset, elem.channels.angle_rset, elem.channels.angle_read ]
+                channels = [ elem.channels.field_cset, elem.channels.field_rset, elem.channels.field_read ]
 
-                lattice.append([elem.length, steps, mapsteps, 4, angle, 0.0, 0, elem.aperture/2.0])
+                if steps < 3:
+                    raise RuntimeError("LatticeFactory: '{}' number of steps must be greater than 2.".format(elem.name))
+
+                lattice.append([elem.length/steps, 1, mapsteps, 4, elem.angle/steps, field, 400, elem.apertureX/2.0, elem.entrAngle, elem.exitAngle, 0.0, 0.0, 0.0])
+                lattice.chanmap.append((len(lattice._elements)-1, 1, elem.z-(elem.length/6.0), channels))
+
+                for i in xrange(steps-2):
+                    lattice.append([elem.length/steps, 1, mapsteps, 4, elem.angle/steps, field, 500, elem.apertureX/2.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+                    lattice.chanmap.append((len(lattice._elements)-1, 1, elem.z+(elem.length/6.0), channels))
+
+                lattice.append([elem.length/steps, 1, mapsteps, 4, elem.angle/steps, field, 600, elem.apertureX/2.0, elem.entrAngle, elem.exitAngle, 0.0, 0.0, 0.0])
                 lattice.chanmap.append((len(lattice._elements)-1, 1, elem.z+(elem.length/2.0), channels))
 
             elif isinstance(elem, (ChgStripElement)):
                 if elem.length != 0.0:
-                    lattice.append([elem.length/2.0, steps, mapsteps, 0, elem.aperture/2.0])
+                    lattice.append([elem.length/2.0, steps, mapsteps, 0, elem.apertureX/2.0])
                     lattice.chanmap.append((len(lattice._elements)-1, 1, elem.z, []))
 
                 # Charge stripper for multi charge state: 885
@@ -443,17 +453,17 @@ class LatticeFactory(object):
                 lattice.chanmap.append((len(lattice._elements)-1, 1, elem.z, []))
 
                 if elem.length != 0.0:
-                    lattice.append([elem.length/2.0, steps, mapsteps, 0, elem.aperture/2.0])
+                    lattice.append([elem.length/2.0, steps, mapsteps, 0, elem.apertureX/2.0])
                     lattice.chanmap.append((len(lattice._elements)-1, 1, elem.z+(elem.length/2.0), []))
 
             elif isinstance(elem, (BLMElement, BLElement, BCMElement)):
                 if elem.length != 0.0:
-                    lattice.append([elem.length, steps, mapsteps, 0, elem.aperture/2.0])
+                    lattice.append([elem.length, steps, mapsteps, 0, elem.apertureX/2.0])
                     lattice.chanmap.append((len(lattice._elements)-1, 1, elem.z+(elem.length/2.0), []))
 
             elif isinstance(elem, (BPMElement, PMElement)):
                 if elem.length != 0.0:
-                    lattice.append([elem.length/2.0, steps, mapsteps, 0, elem.aperture/2.0])
+                    lattice.append([elem.length/2.0, steps, mapsteps, 0, elem.apertureX/2.0])
                     lattice.chanmap.append((len(lattice._elements)-1, 1, elem.z, []))
 
                 if isinstance(elem, BPMElement):
@@ -467,7 +477,7 @@ class LatticeFactory(object):
                 lattice.chanmap.append((len(lattice._elements)-1, 1, elem.z, channels))
 
                 if elem.length != 0.0:
-                    lattice.append([elem.length/2.0, steps, mapsteps, 0, elem.aperture/2.0])
+                    lattice.append([elem.length/2.0, steps, mapsteps, 0, elem.apertureX/2.0])
                     lattice.chanmap.append((len(lattice._elements)-1, 1, elem.z+(elem.length/2.0), []))
 
             else:

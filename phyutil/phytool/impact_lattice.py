@@ -6,7 +6,7 @@ Implement phylib command 'impact-lattice'.
 
 from __future__ import print_function
 
-import sys, os.path, json
+import sys, os.path, logging, json
 
 from argparse import ArgumentParser
 
@@ -21,6 +21,7 @@ from ..machine.frib.layout import fribxlf
 
 
 parser = ArgumentParser(description="Generate IMPACT lattice file (test.in).")
+parser.add_argument("-v", dest="verbosity", nargs='?', type=int, const=1, default=0, help="set the amount of output")
 parser.add_argument("--cfg", dest="cfgpath", help="path to alternate configuration file (.cfg)")
 parser.add_argument("--xlf", dest="xlfpath", help="path to FRIB Expanded Lattice File (.xlsx)")
 parser.add_argument("--stg", dest="stgpath", help="path to device settings file (.json)")
@@ -37,6 +38,12 @@ def main():
     Entry point for command 'impact-lattice'.
     """
     args = parser.parse_args(sys.argv[2:])
+
+    if args.verbosity == 1:
+        logging.getLogger().setLevel(logging.INFO)
+    elif args.verbosity > 1:
+        logging.getLogger().setLevel(logging.DEBUG)
+
 
     if args.cfgpath != None:
         try:

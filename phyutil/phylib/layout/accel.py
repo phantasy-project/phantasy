@@ -27,12 +27,23 @@ CONFIG_MACHINE = "machine"
 
 CONFIG_LENGTH = "length"
 
+CONFIG_APERTURE = "aperture"
+
+CONFIG_APERTURE_X = "aperture_x"
+
+CONFIG_APERTURE_Y = "aperture_y"
+
 CONFIG_CAV_BETA = "cav_beta"
 
 CONFIG_CAV_VOLTAGE = "cav_voltage"
 
 CONFIG_CAV_FREQUENCY = "cav_frequency"
 
+CONFIG_BEND_ANGLE = "bend_angle"
+
+CONFIG_BEND_ENTR_ANGLE = "bend_entr_angle"
+
+CONFIG_BEND_EXIT_ANGLE = "bend_exit_angle"
 
 
 # Base Elements
@@ -65,7 +76,11 @@ class BaseElement(object):
     def __init__(self, z, length, aperture, desc=""):
         self.z = z
         self.length = length
-        self.aperture = aperture
+        if isinstance(aperture, (tuple,list)):
+            self.apertureX = aperture[0]
+            self.apertureY = aperture[1]
+        else:
+            self.aperture = aperture
         self.desc = desc
         self.channels = Channels()
 
@@ -526,9 +541,44 @@ class BendElement(Element):
     def __init__(self, z, length, aperture, name, desc="bend magnet", system="", subsystem="", device="", dtype="", inst=""):
         super(BendElement, self).__init__(z, length, aperture, name, desc=desc, system=system,
                                                 subsystem=subsystem, device=device, dtype=dtype, inst=inst)
-        self.channels.angle_read = "ANGLE_READ"
-        self.channels.angle_cset = "ANGLE_CSET"
-        self.channels.angle_rset = "ANGLE_RSET"
+        self.angle = 0.0
+        self.entrAngle = 0.0
+        self.exitAngle = 0.0
+        self.channels.field_cset = "FIELD_CSET"
+        self.channels.field_rset = "FIELD_RSET"
+        self.channels.field_read = "FIELD_READ"
+
+    @property
+    def angle(self):
+        return self._angle
+
+    @angle.setter
+    def angle(self, angle):
+        if not isinstance(angle, (int, float)):
+            raise TypeError("CavityElement: 'angle' property must be type a number")
+        self._angle = angle
+
+
+    @property
+    def entrAngle(self):
+        return self._entrAngle
+
+    @entrAngle.setter
+    def entrAngle(self, entrAngle):
+        if not isinstance(entrAngle, (int, float)):
+            raise TypeError("CavityElement: 'entrAngle' property must be type a number")
+        self._entrAngle = entrAngle
+
+
+    @property
+    def exitAngle(self):
+        return self._exitAngle
+
+    @exitAngle.setter
+    def exitAngle(self, exitAngle):
+        if not isinstance(exitAngle, (int, float)):
+            raise TypeError("CavityElement: 'exitAngle' property must be type a number")
+        self._exitAngle = exitAngle
 
 
 class CorrElement(Element):

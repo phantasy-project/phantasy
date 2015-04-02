@@ -194,25 +194,32 @@ class SettingsFactory(object):
 
 
             elif isinstance(elem, BendElement):
+                field = 0.0
                 angle = 0.0
                 length = 0.0
                 while length < elem.length:
                     (latidx, latelm) = next(lattice_element)
                     
                     if latelm[3] in [ "4" ]:
+                        # Field is not divided by the number of segments,
+                        # therefore it is not required to sum the field.
+                        field = float(latelm[5])
                         angle += float(latelm[4])
                         length += float(latelm[0])
                     else:
                         raise RuntimeError("SettingsFactory: {} at line {}: unexpected element found: {}".format(elem.name, latidx+1, latelm))
 
                     _LOGGER.info("SettingsFactory: %s at line %s: %s", elem.name, latidx+1, latelm)
+
+                if not self._isclose(angle, elem.angle):
+                    raise RuntimeError("SettingsFactory: {} at line {}: unexpected bend angle: {} ({})".format(elem.name, latidx+1, angle, elem.angle))
                    
                 if not self._isclose(length, elem.length):
                     raise RuntimeError("SettingsFactory: {} at line {}: unexpected element length: {} ({})".format(elem.name, latidx+1, length, elem.length))
 
-                settings[elem.channels.angle_cset] = OrderedDict([ ("VAL", angle) ])
-                settings[elem.channels.angle_rset] = OrderedDict(settings[elem.channels.angle_cset])
-                settings[elem.channels.angle_read] = OrderedDict(settings[elem.channels.angle_cset])
+                settings[elem.channels.field_cset] = OrderedDict([ ("VAL", field) ])
+                settings[elem.channels.field_rset] = OrderedDict(settings[elem.channels.field_cset])
+                settings[elem.channels.field_read] = OrderedDict(settings[elem.channels.field_cset])
 
 
             elif isinstance(elem, QuadElement):
