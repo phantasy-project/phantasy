@@ -93,6 +93,9 @@ def main():
 
     try:
         va.wait()
+    except KeyboardInterrupt:
+        va.stop()
+        va.wait()
     except Exception as e:
         print("Error executing virtual accelerator:", e, file=sys.stderr)
         return 1
