@@ -358,13 +358,13 @@ class LatticeFactory(object):
                                   elem.channels.vkick_cset, elem.channels.vkick_rset, elem.channels.vkick_read ]
 
 
-                lattice.append([elem.length/2.0, 1, 20, 3, field, 0.0, elem.apertureX/2.0])
+                lattice.append([elem.length/2.0, steps/2, mapsteps, 3, field, 0.0, elem.apertureX/2.0])
                 lattice.chanmap.append((len(lattice._elements)-1, 1, elem.z-poffset, elem.length/2.0, sol_channels))
 
                 lattice.append([0.0, 0, 0, -21, elem.apertureX/2.0, 0.0, hkick, 0.0, vkick, 0.0, 0.0])
                 lattice.chanmap.append((len(lattice._elements)-1, 1, elem.z-poffset, 0.0, cor_channels))
 
-                lattice.append([elem.length/2.0, 1, 20, 3, field, 0.0, elem.apertureX/2.0])
+                lattice.append([elem.length/2.0, steps/2, mapsteps, 3, field, 0.0, elem.apertureX/2.0])
                 lattice.chanmap.append((len(lattice._elements)-1, 1, elem.z+(elem.length/2.0)-poffset, elem.length/2.0, sol_channels))
 
             elif isinstance(elem, QuadElement):
@@ -377,7 +377,7 @@ class LatticeFactory(object):
 
                 channels = [ elem.channels.gradient_cset, elem.channels.gradient_rset, elem.channels.gradient_read ]
 
-                lattice.append([elem.length, 50, 20, 1, gradient, 0.0, elem.apertureX/2.0])
+                lattice.append([elem.length, steps, mapsteps, 1, gradient, 0.0, elem.apertureX/2.0])
                 lattice.chanmap.append((len(lattice._elements)-1, 1, elem.z+(elem.length/2.0)-poffset, elem.length, channels))
 
             elif isinstance(elem, CorrElement):
