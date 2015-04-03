@@ -479,7 +479,7 @@ class LatticeFactory(object):
                                   elem.channels.hsize_read, elem.channels.vsize_read ]
 
                 lattice.append([0.0, 0, 0, -28], output_elem=elem.name)
-                lattice.chanmap.append((len(lattice._elements)-1, 1, elem.z, 0.0, channels))
+                lattice.chanmap.append((len(lattice._elements)-1, 1, elem.z-poffset, 0.0, channels))
 
                 if elem.length != 0.0:
                     lattice.append([elem.length/2.0, steps, mapsteps, 0, elem.apertureX/2.0])
