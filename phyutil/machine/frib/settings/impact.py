@@ -134,7 +134,7 @@ class SettingsFactory(object):
                 hkick = None
                 vkick = None
                 length = 0.0
-                while length < elem.length:
+                while (length < elem.length) and not self._isclose(length, elem.length):
                     (latidx, latelm) = next(lattice_element)
 
                     if latelm[3] == "3":
@@ -197,7 +197,7 @@ class SettingsFactory(object):
                 field = 0.0
                 angle = 0.0
                 length = 0.0
-                while length < elem.length:
+                while (length < elem.length) and not self._isclose(length, elem.length):
                     (latidx, latelm) = next(lattice_element)
                     
                     if latelm[3] in [ "4" ]:
