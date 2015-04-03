@@ -95,7 +95,7 @@ def main():
     if args.chanmap != None:
         with open(args.chanmap, "w") as fp:
             _write_channel_map(accel, lat, fp)
-    print(len(lat.chanmap))
+
 
     if args.latpath != None:
         with open(args.latpath, "w") as fp:
@@ -116,7 +116,7 @@ def _write_channel_map(accel, lat, file):
        V_1:LS1_CA01:CAV1_D1127:AMPL_CSET,3,0.4470635,0.24,V_1,LS1_CA01:CAV1_D1127,setpoint,AMP,CAV
        [...]
     """
-    props = [ "machine", "elemName", "elemHandle", "elemField", "elemType",  ]
+    props = [ "machine", "elemName", "elemHandle", "elemField", "elemType" ]
 
     file.write("PV,elemIndex,elemPosition,elemLength")
     for p in props:
