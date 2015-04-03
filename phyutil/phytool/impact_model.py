@@ -10,9 +10,9 @@ import sys, json
 
 from argparse import ArgumentParser
 
-from phylib import cfg, model
+from ..phylib import cfg, model
 
-from machine.frib import layout, lattice
+from ..machine.frib import layout, lattice
 
 
 parser = ArgumentParser(description="Run IMPACT model and produce results")
