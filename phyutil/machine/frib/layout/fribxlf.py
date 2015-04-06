@@ -547,10 +547,11 @@ class AccelFactory(object):
 
                     elif row.device in [ "QH", "QV" ]:
 
+                        dtype = "QUAD_{}".format(row.device_type)
                         inst = "D{:d}".format(int(row.position))
 
                         elem = QuadElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
-                                                    system=row.system, subsystem=row.subsystem, device=row.device, dtype=row.device_type, inst=inst)
+                                                    system=row.system, subsystem=row.subsystem, device=row.device, dtype=dtype, inst=inst)
 
                         elem.channels.gradient_cset = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:GRAD_CSET".format(chanprefix, elem=elem)
                         elem.channels.gradient_rset = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:GRAD_RSET".format(chanprefix, elem=elem)
