@@ -6,26 +6,34 @@ Implement phylib command 'cfutil-load'.
 
 from __future__ import print_function
 
-import sys
+import sys, os.path, logging, json, traceback, getpass
+from urlparse import urlparse
 from argparse import ArgumentParser
+from collections import OrderedDict
+
+from channelfinder import ChannelFinderClient
+from channelfinder.CFDataTypes import Property, Channel
 
 from ..phylib import cfg
 
-from phyutil.phylib.chanfinder import cfutil
+from ..phylib.layout.accel import Element
 
 from ..machine.frib.layout import fribxlf
 
 
+_LOGGER = logging.getLogger(__name__)
 
 
-parser = ArgumentParser(description="Load channel data into Channel Finder")
-parser.add_argument("--xlf", dest="xlfpath", required=True, help="Path to FRIB Expanded Lattice File (.xlsx)")
-parser.add_argument("--cfg", dest="cfgpath", required=True, help="Path to configuration file (.json)")
-parser.add_argument("--start", help="Element name to start lattice generation")
-parser.add_argument("--end", help="Element name to end lattice generation")
-parser.add_argument("--mach", help="Specify machine version id")
-parser.add_argument("--user", help="Specify CF username")
-parser.add_argument("--pass", dest="passwd", help="Specify CF password")
+parser = ArgumentParser(description="Export channel data into Channel Finder")
+parser.add_argument("-v", dest="verbosity", nargs='?', type=int, const=1, default=0, help="set the amount of output")
+parser.add_argument("--cfg", dest="cfgpath", help="path to alternate configuration file (.cfg)")
+parser.add_argument("--xlf", dest="xlfpath", help="path to FRIB Expanded Lattice File (.xlsx)")
+parser.add_argument("--stg", dest="stgpath", help="path to device settings file (.json)")
+parser.add_argument("--start", help="name of accelerator element to start processing")
+parser.add_argument("--end", help="name of accelerator element to end processing")
+parser.add_argument("--mach", help="name of machine (used to indicate VA)")
+parser.add_argument("--user", dest="username", help="specify ChannelFinder username")
+parser.add_argument("--pass", dest="password", help="specify ChannelFinder password")
 parser.add_argument("cfurl", help="Channel finder root URL")
 
 help = parser.print_help
@@ -37,32 +45,205 @@ def main():
     """
     args = parser.parse_args(sys.argv[2:])
 
-    try:
-        with open(args.cfgpath, "r") as fp:
-            config = cfg.Configuration()
-            config.readfp(fp)
-    except Exception as e:
-        print(e, file=sys.stderr)
+    if args.verbosity == 1:
+        logging.getLogger().setLevel(logging.INFO)
+    elif args.verbosity > 1:
+        logging.getLogger().setLevel(logging.DEBUG)
+
+
+    if args.cfgpath != None:
+        try:
+            cfg.load(args.cfgpath)
+        except:
+            print("Error: configuration file not found: {}".format(args.cfgpath), file=sys.stderr)
+            return 1
+
+    elif not cfg.load(cfg.DEFAULT_LOCATIONS):
+        print("Warning: no default configuration found: {}".format(cfg.DEFAULT_LOCATIONS), file=sys.stderr)
+
+
+    cfurl = urlparse(args.cfurl, "file")
+    if cfurl.scheme == "file":
+        (_, ext) = os.path.splitext(cfurl.path)
+        if ext in [ ".csv", ".json" ]:
+            if os.path.exists(cfurl.path):
+                print("Destination file already exists: {}".format(args.cfurl), file=sys.stderr)
+                return 1
+        else:
+            print("Destination file format not supported: {}".format(args.cfurl), file=sys.stderr)
+            return 1
+
+    elif cfurl.scheme in [ "http", "https" ]:
+        # TODO: check if server is available?
+        pass
+
+    else:
+        print("Destination URL not supported: {}".format(args.cfurl), file=sys.stderr)
         return 1
 
-    if args.mach != None:
-        prefix = args.mach+":"
-    else:
-        prefix = ""
 
     try:
-        accel = fribxlf.build_accel(args.xlfpath, config, prefix=prefix)
+        accel = fribxlf.build_accel(xlfpath=args.xlfpath, machine=args.mach)
     except Exception as e:
-        print(e, file=sys.stderr)
+        print("Error building accelerator:", e, file=sys.stderr)
         return 1
 
-    if args.mach != None:
-        machine=args.mach
-    else:
-        machine=""
 
-    cfutil.load(accel, args.cfurl, username=args.user, password=args.passwd,
-                start=args.start, end=args.end, machine=machine)
+    if cfurl.scheme == "file":
+        if ext == ".csv":
+            try:
+                _export_to_csv(accel, cfurl.path, args.start, args.end)
+            except Exception as e:
+                print("Error exporting to CSV:", e, file=sys.stderr)
+                return 1
+
+        if ext == ".json":
+            try:
+                _export_to_json(accel, cfurl.path, args.start, args.end)
+            except Exception as e:
+                print("Error exporting to JSON:", e, file=sys.stderr)
+                return 1
+
+    elif cfurl.scheme in [ "http", "https" ]:
+        try:
+            if args.username == None:
+                args.username = raw_input("Enter username: ")
+
+            if args.password == None:
+                args.password = getpass.getpass("Enter password: ")
+
+            _export_to_cfweb(accel, args.cfurl, args.username, args.password, args.start, args.end)
+        except Exception as e:
+            if args.verbosity > 0: traceback.print_exc()
+            print("Error exporting to ChannelFinder:", e, file=sys.stderr)
+            return 1
 
     return 0
+
+
+def _export_to_csv(accel, path, start, end):
+    elements = []
+    for elem in accel.iter(start, end):
+        if isinstance(elem, Element):
+            elements.append(elem.name)
+
+    properties = None
+    with open(path, "w") as fp:
+        for chan, data in accel.channels.iteritems():
+            if properties == None:
+                properties = data.keys()
+                fp.write("channel")
+                for p in properties:
+                    fp.write(",")
+                    fp.write(str(p))
+                fp.write("\r\n")
+
+            if data["elemName"] in elements:
+                fp.write(str(chan))
+                for p in properties:
+                    fp.write(",")
+                    fp.write(str(data[p]))
+                fp.write("\r\n")
+
+
+def _export_to_json(accel, path, start, end):
+    elements = []
+    for elem in accel.iter(start, end):
+        if isinstance(elem, Element):
+            elements.append(elem.name)
+
+    channels = OrderedDict()
+    with open(path, "w") as fp:
+        for chan, data in accel.channels.iteritems():
+            if data["elemName"] in elements:
+                channels[chan] = data
+
+        json.dump(channels, fp, indent=4)
+
+
+def _export_to_cfweb(accel, uri, username, password, start, end):
+    elements = []
+    for elem in accel.iter(start, end):
+        if isinstance(elem, Element):
+            elements.append(elem.name)
+
+    # Improve performance by reducing the number
+    # of HTTP server requests by restructuring
+    # the channel data from channel oriented:
+    #
+    # {
+    #    "CH:NAME1": {
+    #         "system":"SEG1",
+    #         "device":"DEV1"
+    #    },
+    #    "CH:NAME2: {
+    #         "system":"SEG1",
+    #         "device":"DEV2"
+    #    }
+    # }
+    #
+    # To property oriented:
+    #
+    # {
+    #    "system" : {
+    #        "SEG1": [ "CH:NAME1", "CH:NAME2" ]
+    #    },
+    #    "device" : {
+    #        "DEV1" : [ "CH:NAME1" ],
+    #        "DEV2" : [ "CH:NAME2" ]
+    #    }
+    # }
+    #
+
+    properties = {}
+    channelnames = set()
+    for chan, data in accel.channels.iteritems():
+        if data["elemName"] in elements:
+            for prop, value in data.iteritems():
+                if prop not in properties:
+                    properties[prop] = {}
+
+                v = str(value)
+                if v not in properties[prop]:
+                    properties[prop][v] = set()
+
+                properties[prop][v].add(chan)
+                channelnames.add(chan)
+
+    client = ChannelFinderClient(BaseURL=uri, username=username, password=password)
+
+    channels = []
+    for cname in channelnames:
+        c = Channel(cname, username)
+        channels.append(c)
+        _LOGGER.debug("Export to Channel Finder: Set channel: %s", _Chan(c))
+    client.set(channels=channels)
+    _LOGGER.info("Export to ChannelFinder: Set channels: %s", len(channels))
+
+    for prop, values in properties.iteritems():
+        p = Property(prop, username)
+        client.set(property=p)
+        _LOGGER.info("Export to ChannelFinder: Set property: %s", _Prop(p))
+        for propvalue, channelnames in values.iteritems():
+            p.Value = propvalue
+            client.update(property=p, channelNames=channelnames)
+            _LOGGER.debug("Export to ChannelFinder: Update property: %s, for channels: %s", _Prop(p), len(channelnames))
+
+
+class _Prop(object):
+    """Provides pretty printing for CF Property object."""
+    def __init__(self, prop):
+        self._prop = prop
+
+    def __str__(self):
+        return "{{ name:'{prop.Name}', value='{prop.Value}', owner='{prop.Owner}' }}".format(prop=self._prop)
+
+
+class _Chan(object):
+    """Provides pretty printing for CF Channel object."""
+    def __init__(self, chan):
+        self._chan = chan
+
+    def __str__(self):
+        return "{{ name='{chan.Name}', owner='{chan.Owner}' }}".format(chan=self._chan)
 
