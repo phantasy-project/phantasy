@@ -29,7 +29,7 @@ parser.add_argument("--xlf", dest="xlfpath", help="path to FRIB Expanded Lattice
 parser.add_argument("--start", help="name of accelerator element to start processing")
 parser.add_argument("--end", help="name of accelerator element to end processing")
 parser.add_argument("--mach", help="name of machine (used to indicate VA)")
-parser.add_argument("latpath", help="path to input IMPACT lattive file (test.in)")
+parser.add_argument("latpath", help="path to input IMPACT lattice file (test.in)")
 parser.add_argument("stgpath", nargs='?', help="path of output file with JSON format")
 
 help = parser.print_help

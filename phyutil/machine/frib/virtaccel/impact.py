@@ -103,7 +103,7 @@ def build(accel, settings=None, machine=None, start=None, end=None, data_dir=Non
         va_factory.end = end
 
     if data_dir != None:
-        va_factor.data_dir = data_dir
+        va_factory.data_dir = data_dir
 
     if work_dir != None:
         va_factory.work_dir = work_dir
