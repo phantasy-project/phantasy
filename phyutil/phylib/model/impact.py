@@ -15,59 +15,26 @@ import numpy as np
 
 from ..common import DataError
 
-def build_result(lattice, config=None):
-
-    result_factory = ResultFactory(config, lattice)
+def build_result(directory=None):
+    """Convenience method to build IMPACT model result.
+    """
+    result_factory = ResultFactory(directory)
 
     return result_factory.build()
 
 
 class ResultFactory(object):
-    """A factory to get simulation results using IMPACT engine.
+    """A factory to get simulation results from IMPACT working directory.
 
     """
 
-    def __init__(self, config, lattice):
+    def __init__(self, directory=None):
         """Initialize class, give configuration and lattice information.
 
-        :param config:  configuration file name
-        :param lattice: lattice directory
-        :return:
+        :param directory: IMPACT working directory (default is current directory)
         """
-        self._config = config
-        self._lattice = lattice
+        self.directory = directory
 
-        self.directory = None
-
-    def _get_config_data_dir(self):
-        """Get IMPACT data directory from configuration file.
-
-        :return:
-        """
-        return self._config.get_default("impact_data_dir")
-
-    def runimpact(self, wkdir):
-        """Execute impact and output result into given directory
-
-        :param wkdir: working directory
-        :return:
-        :raise: RuntimeError
-        """
-        with open(os.path.join(wkdir, "test.in"), "w") as fp:
-            self._lattice.write(fp)
-
-        datadir = self._get_config_data_dir()
-
-        for datafile in os.listdir(datadir):
-            if os.path.isfile(os.path.join(datadir, datafile)):
-                os.symlink(os.path.join(datadir, datafile), os.path.join(wkdir, datafile))
-
-        with open(os.path.join(wkdir,"impact.log"), "w") as fp:
-            rtn = subprocess.call(["mpirun", "-np", str(self._lattice.nprocessors), "impact"],
-                                  cwd=wkdir, stdout=fp, stderr=subprocess.STDOUT)
-
-        if rtn != 0:
-            raise RuntimeError("ResultFactory: IMPACT exited with error: {}".format(rtn))
 
     def build(self, runimpact=False, **kwargs):
         """ Build result from impact simulation.
@@ -80,20 +47,22 @@ class ResultFactory(object):
         :param fort24:  impact horizontal file name
         :param fort25:  impact vertical file name
         :param fort26:  impact longitudinal file name
-        :param keep:    keep simulation results, False by default.
+        :param keep:    keep simulation results, True by default.
         :return:
         """
-        wkdir = tempfile.mkdtemp("impact")
+
+        if self.directory != None:
+            wkdir = self.directory
+        else:
+            wkdir = os.getcwd()
 
         _IMPACT = kwargs.get("IMPACT", "FRIB")
         _fort18 = kwargs.get("fort18", "fort.18")
         _fort24 = kwargs.get("fort24", "fort.24")
         _fort25 = kwargs.get("fort25", "fort.25")
         _fort26 = kwargs.get("fort26", "fort.26")
-        _keep = kwargs.get("keep", False)
+        _keep = kwargs.get("keep", True)
 
-        if runimpact:
-            self.runimpact(wkdir)
 
         fort18path = os.path.join(wkdir, _fort18)
         if not os.path.isfile(fort18path):
