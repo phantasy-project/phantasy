@@ -417,12 +417,17 @@ class LatticeFactory(object):
                     else:
                         raise RuntimeError("LatticeFactory: '{}' channel not found for element: {}".format(elem.channels.field_cset, elem.name))
 
-                channels = [ elem.channels.field_cset, elem.channels.field_rset, elem.channels.field_read ]
+                #channels = [ elem.channels.field_cset, elem.channels.field_rset, elem.channels.field_read ]
+                #
+                ## IMPACT element 5 is not currently document. Below is provided for reference.
+                ## L, ss, ms, 5, Gq(T/m), Gs(T/m^2),Go(T/m^3),Gd(T/m^4),Gdd(T/m^5),G14,G16,R
+                #lattice.append([elem.length, steps, mapsteps, 5, 0.0, field, 0.0, 0.0, 0.0, 0.0, 0.0, elem.apertureX/2.0])
+                #lattice.chanmap.append((len(lattice._elements)-1, 1, elem.z+(elem.length/2.0)-poffset, elem.length, channels))
 
-                # IMPACT element 5 is not currently document. Below is provided for reference.
-                # L, ss, ms, 5, Gq(T/m), Gs(T/m^2),Go(T/m^3),Gd(T/m^4),Gdd(T/m^5),G14,G16,R
-                lattice.append([elem.length, steps, mapsteps, 5, 0.0, field, 0.0, 0.0, 0.0, 0.0, 0.0, elem.apertureX/2.0])
-                lattice.chanmap.append((len(lattice._elements)-1, 1, elem.z+(elem.length/2.0)-poffset, elem.length, channels))
+                if field != 0.0:
+                    _LOGGER.warning("LatticeFactory: Hexapole magnet element support not implemented. Ignoring field: %s T/m^2", field)
+                lattice.append([elem.length, steps, mapsteps, 0, elem.apertureX/2.0])
+                lattice.chanmap.append((len(lattice._elements)-1, 1, elem.z+(elem.length/2.0)-poffset, elem.length, []))
 
             elif isinstance(elem, BendElement):
                 field = 0.0

@@ -290,9 +290,10 @@ class VirtualAcceleratorFactory(object):
                 va.append_elem(elem)
 
             elif isinstance(elem, HexElement):
-                chans = elem.channels
-                va.append_rw(chans.field_cset, chans.field_rset, chans.field_read, name="Hexapole Field", egu="T/m^2", drvrel=0.05)
-                va.append_elem(elem)
+                _LOGGER.warning("VirtAccelFactory: Hexapole magnet element support not implemented. Ignoring channels.")
+                #chans = elem.channels
+                #va.append_rw(chans.field_cset, chans.field_rset, chans.field_read, name="Hexapole Field", egu="T/m^2", drvrel=0.05)
+                #va.append_elem(elem)
 
             elif isinstance(elem, BPMElement):
                 chans = elem.channels
