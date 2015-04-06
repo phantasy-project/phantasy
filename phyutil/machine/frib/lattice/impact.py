@@ -566,9 +566,9 @@ class Lattice(object):
                 if isinstance(rec, int):
                     file.write("{:d} ".format(rec))
                 elif isinstance(rec, float):
-                    file.write("{:g} ".format(rec))
+                    file.write("{:.9G} ".format(rec))
                 else:
-                    raise RuntimeError(str(rec))
+                    raise RuntimeError("Lattice: Error writing element with field of type: %s", type(rec))
             file.write("/\r\n")
 
 
