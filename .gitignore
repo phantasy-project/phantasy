@@ -1,7 +1,10 @@
 
 # ignore compiled python
 *.pyc
+
+# ignore IDE metadata
 .idea/*
+*.komodoproject
 
 # ignore sphinx build
 docs/build/
