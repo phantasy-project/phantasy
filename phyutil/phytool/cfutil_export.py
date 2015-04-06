@@ -1,7 +1,7 @@
 # encoding: UTF-8
 
 """
-Implement phylib command 'cfutil-load'.
+Implement phylib command 'cfutil-export'.
 """
 
 from __future__ import print_function
@@ -24,7 +24,8 @@ from ..machine.frib.layout import fribxlf
 _LOGGER = logging.getLogger(__name__)
 
 
-parser = ArgumentParser(description="Export channel data into Channel Finder")
+parser = ArgumentParser(prog=os.path.basename(sys.argv[0])+" cfutil-export",
+                        description="Export channel data to file or Channel Finder Service")
 parser.add_argument("-v", dest="verbosity", nargs='?', type=int, const=1, default=0, help="set the amount of output")
 parser.add_argument("--cfg", dest="cfgpath", help="path to alternate configuration file (.cfg)")
 parser.add_argument("--xlf", dest="xlfpath", help="path to FRIB Expanded Lattice File (.xlsx)")
@@ -34,14 +35,14 @@ parser.add_argument("--end", help="name of accelerator element to end processing
 parser.add_argument("--mach", help="name of machine (used to indicate VA)")
 parser.add_argument("--user", dest="username", help="specify ChannelFinder username")
 parser.add_argument("--pass", dest="password", help="specify ChannelFinder password")
-parser.add_argument("cfurl", help="Channel finder root URL")
+parser.add_argument("cfurl", help="path to file (.csv, .json) or Channel Finder Service URL")
 
 help = parser.print_help
 
 
 def main():
     """
-    Entry point for command 'cfutil-load'.
+    Entry point for command 'cfutil-export'.
     """
     args = parser.parse_args(sys.argv[2:])
 

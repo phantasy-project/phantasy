@@ -11,7 +11,7 @@ import sys
 __USAGE__ = """usage: phylib <command> [<args>]
 
 The support commands are:
-   cfutil-load      load channel data into Channel Finder
+   cfutil-export    export channel data to file or Channel Finder Service
    impact-lattice   generate IMPACT lattice file (test.in)
    impact-vastart   start IMPACT virtual accelerator
    impact-settings  read settings from IMPACT lattice file (test.in)
@@ -44,9 +44,9 @@ def main():
         import impact_model
         return impact_model.main()
 
-    elif cmd == "cfutil-load":
-        import cfutil_load
-        return cfutil_load.main()
+    elif cmd == "cfutil-export":
+        import cfutil_export
+        return cfutil_export.main()
 
     elif cmd == "help":
         return help()
@@ -83,9 +83,9 @@ def help():
         import impact_model
         impact_model.help()
 
-    elif cmd == "cfutil-load":
-        import cfutil_load
-        cfutil_load.help()
+    elif cmd == "cfutil-export":
+        import cfutil_export
+        cfutil_export.help()
 
     else:
         print("No help available for command: {}".format(cmd), file=sys.stderr)
