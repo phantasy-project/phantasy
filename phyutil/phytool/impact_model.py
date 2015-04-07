@@ -6,7 +6,7 @@ Implement phylib command 'impact-model'.
 
 from __future__ import print_function
 
-import os, sys, logging, traceback
+import os, sys, json, logging, traceback
 
 from argparse import ArgumentParser
 
@@ -115,13 +115,14 @@ def main():
 
     if args.plot:
         try:
+            plt.figure(figsize=(16,10), dpi=80)
             plt.subplot(221)
             plt.title("Beam Orbit")
             plt.plot(xorbit[:,0], xorbit[:,1], 'r-', label="X")
             plt.plot(yorbit[:,0], yorbit[:,1], 'b-', label="Y")
             plt.xlabel("S [m]")
             plt.ylabel("Beam Position [m]")
-            plt.legend()
+            plt.legend(loc="upper left")
             plt.grid()
 
             plt.subplot(222)
@@ -131,7 +132,7 @@ def main():
             #plt.plot(zrms[:,0], zrms[:,1], 'g-', label="Z")
             plt.xlabel("S [m]")
             plt.ylabel("Beam RMS [m]")
-            plt.legend()
+            plt.legend(loc="upper left")
             plt.grid()
 
             plt.subplot(223)
@@ -148,7 +149,7 @@ def main():
             #plt.plot(zemit[:,0], zemit[:,1], 'g-', label="Z")
             plt.xlabel("S [m]")
             plt.ylabel("Beam Emittance [m-rad]")
-            plt.legend()
+            plt.legend(loc="upper left")
             plt.grid()
 
             if args.resultpath == None:
