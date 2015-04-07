@@ -9,7 +9,7 @@ __copyright__ = "Copyright (c) 2015, Facility for Rare Isotope Beams"
 __author__ = "Dylan Maxwell"
 
 
-import os, os.path, tempfile, subprocess, shutil
+import os, os.path, shutil
 
 import numpy as np
 
@@ -29,7 +29,7 @@ class ResultFactory(object):
     """
 
     def __init__(self, directory=None):
-        """Initialize class, give configuration and lattice information.
+        """Initialize class, give IMPACT working directory.
 
         :param directory: IMPACT working directory (default is current directory)
         """
@@ -62,6 +62,9 @@ class ResultFactory(object):
         _fort25 = kwargs.get("fort25", "fort.25")
         _fort26 = kwargs.get("fort26", "fort.26")
         _keep = kwargs.get("keep", True)
+
+        if runimpact:
+            raise NotImplementedError("ResultFactory: Execution of IMPACT not implemented. See phylib.machine.frib.model.impact.ResultFactory.")
 
 
         fort18path = os.path.join(wkdir, _fort18)

@@ -34,6 +34,8 @@ parser.add_argument("--end", help="name of accelerator element to end processing
 parser.add_argument("--mach", help="name of machine (used to indicate VA)")
 parser.add_argument("--data", dest="datapath", help="path to directory with IMPACT data")
 parser.add_argument("--work", dest="workpath", help="path to directory for executing IMPACT")
+parser.add_argument("--plot", action="store_true", help="generate a plot of the model")
+parser.add_argument("resultpath", nargs='?', help="path to write resulting model data")
 
 help = parser.print_help
 
@@ -49,6 +51,7 @@ def main():
     elif args.verbosity > 1:
         logging.getLogger().setLevel(logging.DEBUG)
 
+
     if args.cfgpath != None:
         try:
             cfg.load(args.cfgpath)
@@ -58,6 +61,11 @@ def main():
 
     elif not cfg.load(cfg.DEFAULT_LOCATIONS):
         print("Warning: no default configuration found: {}".format(cfg.DEFAULT_LOCATIONS), file=sys.stderr)
+
+
+    if (args.resultpath != None) and os.path.exists(args.resultpath):
+        print("Error: destination result path already exists:", args.resultpath, file=sys.stderr)
+        return 1
 
 
     try:
@@ -91,9 +99,81 @@ def main():
         print("Error building result:", e, file=sys.stderr)
         return 1
 
-    orbit = result.get_orbit("XY")
+    energy = result.get_energy()
 
-    for idx in xrange(orbit.shape[0]):
-        sys.stdout.write("{}, {}, {}\r\n".format(orbit[idx,0], orbit[idx,1], orbit[idx,2]))
+    xorbit = result.get_orbit("X")
+    yorbit = result.get_orbit("Y")
+
+    xrms = result.get_beam_rms("X")
+    yrms = result.get_beam_rms("Y")
+    zrms = result.get_beam_rms("Z")
+
+    xemit = result.get_beam_emittance("X")
+    yemit = result.get_beam_emittance("Y")
+    zemit = result.get_beam_emittance("Z")
+
+    if args.plot:
+        try:
+            plt.subplot(221)
+            plt.title("Beam Orbit")
+            plt.plot(xorbit[:,0], xorbit[:,1], 'r-', label="X")
+            plt.plot(yorbit[:,0], yorbit[:,1], 'b-', label="Y")
+            plt.xlabel("S [m]")
+            plt.ylabel("Beam Position [m]")
+            plt.legend()
+            plt.grid()
+
+            plt.subplot(222)
+            plt.title("Beam RMS")
+            plt.plot(xrms[:,0], xrms[:,1], 'r-', label="X")
+            plt.plot(yrms[:,0], yrms[:,1], 'b-', label="Y")
+            #plt.plot(zrms[:,0], zrms[:,1], 'g-', label="Z")
+            plt.xlabel("S [m]")
+            plt.ylabel("Beam RMS [m]")
+            plt.legend()
+            plt.grid()
+
+            plt.subplot(223)
+            plt.title("Beam Energy")
+            plt.plot(energy[:,0], energy[:,1], 'r-')
+            plt.xlabel("S [m]")
+            plt.ylabel("Beam Energy [MeV]")
+            plt.grid()
+
+            plt.subplot(224)
+            plt.title("Beam Emittance")
+            plt.plot(xemit[:,0], xemit[:,1], 'r-', label="X")
+            plt.plot(yemit[:,0], yemit[:,1], 'b-', label="Y")
+            #plt.plot(zemit[:,0], zemit[:,1], 'g-', label="Z")
+            plt.xlabel("S [m]")
+            plt.ylabel("Beam Emittance [m-rad]")
+            plt.legend()
+            plt.grid()
+
+            if args.resultpath == None:
+                plt.show()
+            else:
+                plt.savefig(args.resultpath)
+
+        except Exception as e:
+            print("Error generating plot: ", e, file=sys.stderr)
+
+    else:
+        try:
+            if args.resultpath == None:
+                csvfile = sys.stdout
+            else:
+                csvfile = open(args.resultpath, "w")
+            csvfile.write("S,X,Y,XRMS,YRMS,ZRMS,Energy,XEmit,YEmit,ZEmit\r\n")
+            for idx in xrange(xorbit.shape[0]):
+                csvfile.write("{},{},{},{},{},{},{},{},{},{}\r\n".format(xorbit[idx,0], xorbit[idx,1], yorbit[idx,1],
+                                                             xrms[idx,1], yrms[idx,1], zrms[idx,1], energy[idx,1],
+                                                             xemit[idx,1], yemit[idx,1], zemit[idx,1]))
+        except Exception as e:
+            print("Error writing CSV result: ", e, file=sys.stderr)
+
+        finally:
+            if csvfile != sys.stdout: csvfile.close()
+
 
     return 0
