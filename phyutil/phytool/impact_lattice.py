@@ -20,7 +20,8 @@ from ..machine.frib.lattice import impact
 from ..machine.frib.layout import fribxlf
 
 
-parser = ArgumentParser(description="Generate IMPACT lattice file (test.in).")
+parser = ArgumentParser(prog=os.path.basename(sys.argv[0])+" impact-lattice",
+                        description="Generate IMPACT lattice file (test.in).")
 parser.add_argument("-v", dest="verbosity", nargs='?', type=int, const=1, default=0, help="set the amount of output")
 parser.add_argument("--cfg", dest="cfgpath", help="path to alternate configuration file (.cfg)")
 parser.add_argument("--xlf", dest="xlfpath", help="path to FRIB Expanded Lattice File (.xlsx)")
