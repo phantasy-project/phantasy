@@ -597,10 +597,15 @@ class VirtualAccelerator(object):
         fort25path = os.path.join(self.work_dir, "fort.25")
         epicslogpath = os.path.join(self.work_dir, "softioc.log")
 
-        for datafile in os.listdir(self.data_dir):
-            srcpath = os.path.join(self.data_dir, datafile)
+        if os.path.isabs(self.data_dir):
+            abs_data_dir = self.data_dir
+        else:
+            abs_data_dir = os.path.abspath(self.data_dir)
+
+        for datafile in os.listdir(abs_data_dir):
+            srcpath = os.path.join(abs_data_dir, datafile)
             destpath = os.path.join(self.work_dir, datafile)
-            if os.path.isfile(os.path.join(self.data_dir, datafile)):
+            if os.path.isfile(os.path.join(abs_data_dir, datafile)):
                 os.symlink(srcpath, destpath)
                 _LOGGER.debug("VirtualAccelerator: Link data file %s to %s", srcpath, destpath)
 

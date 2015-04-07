@@ -8,7 +8,7 @@ __copyright__ = "Copyright (c) 2015, Facility for Rare Isotope Beams"
 
 __author__ = "Dylan Maxwell"
 
-import os.path, tempfile, logging, subprocess, shutil
+import sys, os.path, tempfile, logging, subprocess, shutil
 
 from ..lattice.impact import Lattice
 
@@ -136,10 +136,15 @@ class ResultFactory(object):
 
         _LOGGER.info("ResultFactory: Working directory: %s", work_dir)
 
-        for datafile in os.listdir(data_dir):
-            srcpath = os.path.join(data_dir, datafile)
+        if os.path.isabs(data_dir):
+            abs_data_dir = data_dir
+        else:
+            abs_data_dir = os.path.abspath(data_dir)
+
+        for datafile in os.listdir(abs_data_dir):
+            srcpath = os.path.join(abs_data_dir, datafile)
             destpath = os.path.join(work_dir, datafile)
-            if os.path.isfile(os.path.join(data_dir, datafile)):
+            if os.path.isfile(os.path.join(abs_data_dir, datafile)):
                 os.symlink(srcpath, destpath)
                 _LOGGER.debug("ResultFactory: Link data file %s to %s", srcpath, destpath)
 
