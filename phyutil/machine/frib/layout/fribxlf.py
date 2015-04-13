@@ -193,7 +193,7 @@ class AccelFactory(object):
             return cfg.config.getfloat(elem.dtype, CONFIG_APERTURE_X, False)
 
     def _has_config_aperture_x(self, elem):
-         return cfg.config.has_option(elem.name, CONFIG_APERTURE_X, False) \
+        return cfg.config.has_option(elem.name, CONFIG_APERTURE_X, False) \
                 or cfg.config.has_option(elem.dtype, CONFIG_APERTURE_X, False)
 
 
@@ -204,7 +204,7 @@ class AccelFactory(object):
             return cfg.config.getfloat(elem.dtype, CONFIG_APERTURE_Y, False)
 
     def _has_config_aperture_y(self, elem):
-         return cfg.config.has_option(elem.name, CONFIG_APERTURE_Y, False) \
+        return cfg.config.has_option(elem.name, CONFIG_APERTURE_Y, False) \
                 or cfg.config.has_option(elem.dtype, CONFIG_APERTURE_Y, False)
 
 
@@ -538,13 +538,12 @@ class AccelFactory(object):
                         elem.channels.field_rset = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:B_RSET".format(chanprefix, elem=elem)
                         elem.channels.field_read = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:B_RD".format(chanprefix, elem=elem)
                         # channel metadata (for channel finder)
-                        accelerator.channels[elem.channels.field_cset] = self._channel_data(machine, elem, "setpoint", "B", "DH")
-                        accelerator.channels[elem.channels.field_rset] = self._channel_data(machine, elem, "readset", "B", "DH")
-                        accelerator.channels[elem.channels.field_read] = self._channel_data(machine, elem, "readback", "B", "DH")
+                        # rename dtype from DH to BEND
+                        accelerator.channels[elem.channels.field_cset] = self._channel_data(machine, elem, "setpoint", "B", "BEND")
+                        accelerator.channels[elem.channels.field_rset] = self._channel_data(machine, elem, "readset", "B", "BEND")
+                        accelerator.channels[elem.channels.field_read] = self._channel_data(machine, elem, "readback", "B", "BEND")
 
                         subsequence.append(elem)
-
-
                     elif row.device in [ "QH", "QV" ]:
 
                         dtype = "QUAD_{}".format(row.device_type)
@@ -557,9 +556,10 @@ class AccelFactory(object):
                         elem.channels.gradient_rset = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:GRAD_RSET".format(chanprefix, elem=elem)
                         elem.channels.gradient_read = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:GRAD_RD".format(chanprefix, elem=elem)
                         # channel metadata (for channel finder)
-                        accelerator.channels[elem.channels.gradient_cset] = self._channel_data(machine, elem, "setpoint", "GRAD", elem.device)
-                        accelerator.channels[elem.channels.gradient_rset] = self._channel_data(machine, elem, "readset", "GRAD", elem.device)
-                        accelerator.channels[elem.channels.gradient_read] = self._channel_data(machine, elem, "readback", "GRAD", elem.device)
+                        # rename dtype from QH/QV to QUAD
+                        accelerator.channels[elem.channels.gradient_cset] = self._channel_data(machine, elem, "setpoint", "GRAD", "QUAD")
+                        accelerator.channels[elem.channels.gradient_rset] = self._channel_data(machine, elem, "readset", "GRAD", "QUAD")
+                        accelerator.channels[elem.channels.gradient_read] = self._channel_data(machine, elem, "readback", "GRAD", "QUAD")
 
                         subsequence.append(elem)
 
@@ -574,9 +574,10 @@ class AccelFactory(object):
                         elem.channels.field_rset = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:B_RSET".format(chanprefix, elem=elem)
                         elem.channels.field_read = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:B_RD".format(chanprefix, elem=elem)
                         # channel metadata (for channel finder)
-                        accelerator.channels[elem.channels.field_cset] = self._channel_data(machine, elem, "setpoint", "B", elem.device)
-                        accelerator.channels[elem.channels.field_rset] = self._channel_data(machine, elem, "readset", "B", elem.device)
-                        accelerator.channels[elem.channels.field_read] = self._channel_data(machine, elem, "readback", "B", elem.device)
+                        # rename dtype from S to SEXT
+                        accelerator.channels[elem.channels.field_cset] = self._channel_data(machine, elem, "setpoint", "B", "SEXT")
+                        accelerator.channels[elem.channels.field_rset] = self._channel_data(machine, elem, "readset", "B", "SEXT")
+                        accelerator.channels[elem.channels.field_read] = self._channel_data(machine, elem, "readback", "B", "SEXT")
 
                         subsequence.append(elem)
 
