@@ -386,12 +386,12 @@ class AccelFactory(object):
                         elem.channels.amplitude_rset = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:AMPL_RSET".format(chanprefix, elem=elem)
                         elem.channels.amplitude_read = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:AMPL_RD".format(chanprefix, elem=elem)
                         # channel metadata (for channel finder)
-                        accelerator.channels[elem.channels.phase_cset] = self._channel_data(machine, elem, "setpoint", "PHA", "CAV")
-                        accelerator.channels[elem.channels.phase_rset] = self._channel_data(machine, elem, "readset", "PHA", "CAV")
-                        accelerator.channels[elem.channels.phase_read] = self._channel_data(machine, elem, "readback", "PHA", "CAV")
-                        accelerator.channels[elem.channels.amplitude_cset] = self._channel_data(machine, elem, "setpoint", "AMP", "CAV")
-                        accelerator.channels[elem.channels.amplitude_rset] = self._channel_data(machine, elem, "readset", "AMP", "CAV")
-                        accelerator.channels[elem.channels.amplitude_read] = self._channel_data(machine, elem, "readback", "AMP", "CAV")
+                        accelerator.channels[elem.channels.phase_cset] = self._channel_data(machine, elem.name, elem.system, elem.subsystem, elem.device, elem.z, "setpoint", "PHA", "CAV")
+                        accelerator.channels[elem.channels.phase_rset] = self._channel_data(machine, elem.name, elem.system, elem.subsystem, elem.device, elem.z, "readset", "PHA", "CAV")
+                        accelerator.channels[elem.channels.phase_read] = self._channel_data(machine, elem.name, elem.system, elem.subsystem, elem.device, elem.z, "readback", "PHA", "CAV")
+                        accelerator.channels[elem.channels.amplitude_cset] = self._channel_data(machine, elem.name, elem.system, elem.subsystem, elem.device, elem.z, "setpoint", "AMP", "CAV")
+                        accelerator.channels[elem.channels.amplitude_rset] = self._channel_data(machine, elem.name, elem.system, elem.subsystem, elem.device, elem.z, "readset", "AMP", "CAV")
+                        accelerator.channels[elem.channels.amplitude_read] = self._channel_data(machine, elem.name, elem.system, elem.subsystem, elem.device, elem.z, "readback", "AMP", "CAV")
 
                         subsequence.append(elem)
 
@@ -418,15 +418,21 @@ class AccelFactory(object):
                         elem.channels.vkick_rset = "{}{elem.system}_{elem.subsystem}:DCV_{elem.inst}:ANG_RSET".format(chanprefix, elem=elem)
                         elem.channels.vkick_read = "{}{elem.system}_{elem.subsystem}:DCV_{elem.inst}:ANG_RD".format(chanprefix, elem=elem)
                         # channel metadata (for channel finder)
-                        accelerator.channels[elem.channels.field_cset] = self._channel_data(machine, elem, "setpoint", "B", "SOL")
-                        accelerator.channels[elem.channels.field_rset] = self._channel_data(machine, elem, "readset", "B", "SOL")
-                        accelerator.channels[elem.channels.field_read] = self._channel_data(machine, elem, "readback", "B", "SOL")
-                        accelerator.channels[elem.channels.hkick_cset] = self._channel_data(machine, elem, "setpoint", "ANG", "DCH")
-                        accelerator.channels[elem.channels.hkick_rset] = self._channel_data(machine, elem, "readset", "ANG", "DCH")
-                        accelerator.channels[elem.channels.hkick_read] = self._channel_data(machine, elem, "readback", "ANG", "DCH")
-                        accelerator.channels[elem.channels.vkick_cset] = self._channel_data(machine, elem, "setpoint", "ANG", "DCV")
-                        accelerator.channels[elem.channels.vkick_rset] = self._channel_data(machine, elem, "readset", "ANG", "DCV")
-                        accelerator.channels[elem.channels.vkick_read] = self._channel_data(machine, elem, "readback", "ANG", "DCV")
+                        accelerator.channels[elem.channels.field_cset] = self._channel_data(machine, elem.name, elem.system, elem.subsystem, elem.device, elem.z, "setpoint", "B", "SOL")
+                        accelerator.channels[elem.channels.field_rset] = self._channel_data(machine, elem.name, elem.system, elem.subsystem, elem.device, elem.z, "readset", "B", "SOL")
+                        accelerator.channels[elem.channels.field_read] = self._channel_data(machine, elem.name, elem.system, elem.subsystem, elem.device, elem.z, "readback", "B", "SOL")
+                        accelerator.channels[elem.channels.hkick_cset] = self._channel_data(machine, "{elem.system}_{elem.subsystem}:DCH_{elem.inst}".format(elem=elem),
+                                                                                                elem.system, elem.subsystem, "DCH", elem.z, "setpoint", "ANG", "COR")
+                        accelerator.channels[elem.channels.hkick_rset] = self._channel_data(machine, "{elem.system}_{elem.subsystem}:DCH_{elem.inst}".format(elem=elem),
+                                                                                                elem.system, elem.subsystem, "DCH", elem.z, "readset", "ANG", "COR")
+                        accelerator.channels[elem.channels.hkick_read] = self._channel_data(machine, "{elem.system}_{elem.subsystem}:DCH_{elem.inst}".format(elem=elem),
+                                                                                                elem.system, elem.subsystem, "DCH", elem.z, "readback", "ANG", "COR")
+                        accelerator.channels[elem.channels.vkick_cset] = self._channel_data(machine, "{elem.system}_{elem.subsystem}:DCV_{elem.inst}".format(elem=elem),
+                                                                                                elem.system, elem.subsystem, "DCV", elem.z, "setpoint", "ANG", "COR")
+                        accelerator.channels[elem.channels.vkick_rset] = self._channel_data(machine, "{elem.system}_{elem.subsystem}:DCV_{elem.inst}".format(elem=elem),
+                                                                                                elem.system, elem.subsystem, "DCV", elem.z, "readset", "ANG", "COR")
+                        accelerator.channels[elem.channels.vkick_read] = self._channel_data(machine, "{elem.system}_{elem.subsystem}:DCV_{elem.inst}".format(elem=elem),
+                                                                                                elem.system, elem.subsystem, "DCV", elem.z, "readback", "ANG", "COR")
 
                         subsequence.append(elem)
 
@@ -441,9 +447,9 @@ class AccelFactory(object):
                         elem.channels.vposition_read = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:Y_RD".format(chanprefix, elem=elem)
                         elem.channels.phase_read = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:PHA_RD".format(chanprefix, elem=elem)
                         # channel metadata (for channel finder)
-                        accelerator.channels[elem.channels.hposition_read] = self._channel_data(machine, elem, "readback", "X", elem.device)
-                        accelerator.channels[elem.channels.vposition_read] = self._channel_data(machine, elem, "readback", "Y", elem.device)
-                        accelerator.channels[elem.channels.phase_read] = self._channel_data(machine, elem, "readback", "PHA", elem.device)
+                        accelerator.channels[elem.channels.hposition_read] = self._channel_data(machine, elem.name, elem.system, elem.subsystem, elem.device, elem.z, "readback", "X", elem.device)
+                        accelerator.channels[elem.channels.vposition_read] = self._channel_data(machine, elem.name, elem.system, elem.subsystem, elem.device, elem.z, "readback", "Y", elem.device)
+                        accelerator.channels[elem.channels.phase_read] = self._channel_data(machine, elem.name, elem.system, elem.subsystem, elem.device, elem.z, "readback", "PHA", elem.device)
 
                         subsequence.append(elem)
 
@@ -459,10 +465,10 @@ class AccelFactory(object):
                         elem.channels.hsize_read = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:XRMS_RD".format(chanprefix, elem=elem)
                         elem.channels.vsize_read = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:YRMS_RD".format(chanprefix, elem=elem)
                         # channel metadata (for channel finder)
-                        accelerator.channels[elem.channels.hposition_read] = self._channel_data(machine, elem, "readback", "X", elem.device)
-                        accelerator.channels[elem.channels.vposition_read] = self._channel_data(machine, elem, "readback", "Y", elem.device)
-                        accelerator.channels[elem.channels.hsize_read] = self._channel_data(machine, elem, "readback", "XRMS", elem.device)
-                        accelerator.channels[elem.channels.vsize_read] = self._channel_data(machine, elem, "readback", "YRMS", elem.device)
+                        accelerator.channels[elem.channels.hposition_read] = self._channel_data(machine, elem.name, elem.system, elem.subsystem, elem.device, elem.z, "readback", "X", elem.device)
+                        accelerator.channels[elem.channels.vposition_read] = self._channel_data(machine, elem.name, elem.system, elem.subsystem, elem.device, elem.z, "readback", "Y", elem.device)
+                        accelerator.channels[elem.channels.hsize_read] = self._channel_data(machine, elem.name, elem.system, elem.subsystem, elem.device, elem.z, "readback", "XRMS", elem.device)
+                        accelerator.channels[elem.channels.vsize_read] = self._channel_data(machine, elem.name, elem.system, elem.subsystem, elem.device, elem.z, "readback", "YRMS", elem.device)
 
                         subsequence.append(elem)
 
@@ -498,12 +504,18 @@ class AccelFactory(object):
                         elem.channels.vkick_rset = "{}{elem.system}_{elem.subsystem}:DCV_{elem.inst}:ANG_RSET".format(chanprefix, elem=elem)
                         elem.channels.vkick_read = "{}{elem.system}_{elem.subsystem}:DCV_{elem.inst}:ANG_RD".format(chanprefix, elem=elem)
                         # channel metadata (for channel finder)
-                        accelerator.channels[elem.channels.hkick_cset] = self._channel_data(machine, elem, "setpoint", "ANG", "DCH")
-                        accelerator.channels[elem.channels.hkick_rset] = self._channel_data(machine, elem, "readset", "ANG", "DCH")
-                        accelerator.channels[elem.channels.hkick_read] = self._channel_data(machine, elem, "readback", "ANG", "DCH")
-                        accelerator.channels[elem.channels.vkick_cset] = self._channel_data(machine, elem, "setpoint", "ANG", "DCV")
-                        accelerator.channels[elem.channels.vkick_rset] = self._channel_data(machine, elem, "readset", "ANG", "DCV")
-                        accelerator.channels[elem.channels.vkick_read] = self._channel_data(machine, elem, "readback", "ANG", "DCV")
+                        accelerator.channels[elem.channels.hkick_cset] = self._channel_data(machine, "{elem.system}_{elem.subsystem}:DCH_{elem.inst}".format(elem=elem),
+                                                                                                elem.system, elem.subsystem, "DCH", elem.z, "setpoint", "ANG", "COR")
+                        accelerator.channels[elem.channels.hkick_rset] = self._channel_data(machine, "{elem.system}_{elem.subsystem}:DCH_{elem.inst}".format(elem=elem),
+                                                                                                elem.system, elem.subsystem, "DCH", elem.z, "readset", "ANG", "COR")
+                        accelerator.channels[elem.channels.hkick_read] = self._channel_data(machine, "{elem.system}_{elem.subsystem}:DCH_{elem.inst}".format(elem=elem),
+                                                                                                elem.system, elem.subsystem, "DCH", elem.z, "readback", "ANG", "COR")
+                        accelerator.channels[elem.channels.vkick_cset] = self._channel_data(machine, "{elem.system}_{elem.subsystem}:DCV_{elem.inst}".format(elem=elem),
+                                                                                                elem.system, elem.subsystem, "DCV", elem.z, "setpoint", "ANG", "COR")
+                        accelerator.channels[elem.channels.vkick_rset] = self._channel_data(machine, "{elem.system}_{elem.subsystem}:DCV_{elem.inst}".format(elem=elem),
+                                                                                                elem.system, elem.subsystem, "DCV", elem.z, "readset", "ANG", "COR")
+                        accelerator.channels[elem.channels.vkick_read] = self._channel_data(machine, "{elem.system}_{elem.subsystem}:DCV_{elem.inst}".format(elem=elem),
+                                                                                                elem.system, elem.subsystem, "DCV", elem.z, "readback", "ANG", "COR")
 
                         subsequence.append(elem)
 
@@ -538,12 +550,13 @@ class AccelFactory(object):
                         elem.channels.field_rset = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:B_RSET".format(chanprefix, elem=elem)
                         elem.channels.field_read = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:B_RD".format(chanprefix, elem=elem)
                         # channel metadata (for channel finder)
-                        # rename dtype from DH to BEND
-                        accelerator.channels[elem.channels.field_cset] = self._channel_data(machine, elem, "setpoint", "B", "BEND")
-                        accelerator.channels[elem.channels.field_rset] = self._channel_data(machine, elem, "readset", "B", "BEND")
-                        accelerator.channels[elem.channels.field_read] = self._channel_data(machine, elem, "readback", "B", "BEND")
+                        accelerator.channels[elem.channels.field_cset] = self._channel_data(machine, elem.name, elem.system, elem.subsystem, elem.device, elem.z, "setpoint", "B", "BEND")
+                        accelerator.channels[elem.channels.field_rset] = self._channel_data(machine, elem.name, elem.system, elem.subsystem, elem.device, elem.z, "readset", "B", "BEND")
+                        accelerator.channels[elem.channels.field_read] = self._channel_data(machine, elem.name, elem.system, elem.subsystem, elem.device, elem.z, "readback", "B", "BEND")
 
                         subsequence.append(elem)
+
+
                     elif row.device in [ "QH", "QV" ]:
 
                         dtype = "QUAD_{}".format(row.device_type)
@@ -556,10 +569,9 @@ class AccelFactory(object):
                         elem.channels.gradient_rset = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:GRAD_RSET".format(chanprefix, elem=elem)
                         elem.channels.gradient_read = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:GRAD_RD".format(chanprefix, elem=elem)
                         # channel metadata (for channel finder)
-                        # rename dtype from QH/QV to QUAD
-                        accelerator.channels[elem.channels.gradient_cset] = self._channel_data(machine, elem, "setpoint", "GRAD", "QUAD")
-                        accelerator.channels[elem.channels.gradient_rset] = self._channel_data(machine, elem, "readset", "GRAD", "QUAD")
-                        accelerator.channels[elem.channels.gradient_read] = self._channel_data(machine, elem, "readback", "GRAD", "QUAD")
+                        accelerator.channels[elem.channels.gradient_cset] = self._channel_data(machine, elem.name, elem.system, elem.subsystem, elem.device, elem.z, "setpoint", "GRAD", "QUAD")
+                        accelerator.channels[elem.channels.gradient_rset] = self._channel_data(machine, elem.name, elem.system, elem.subsystem, elem.device, elem.z, "readset", "GRAD", "QUAD")
+                        accelerator.channels[elem.channels.gradient_read] = self._channel_data(machine, elem.name, elem.system, elem.subsystem, elem.device, elem.z, "readback", "GRAD", "QUAD")
 
                         subsequence.append(elem)
 
@@ -574,10 +586,9 @@ class AccelFactory(object):
                         elem.channels.field_rset = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:B_RSET".format(chanprefix, elem=elem)
                         elem.channels.field_read = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:B_RD".format(chanprefix, elem=elem)
                         # channel metadata (for channel finder)
-                        # rename dtype from S to SEXT
-                        accelerator.channels[elem.channels.field_cset] = self._channel_data(machine, elem, "setpoint", "B", "SEXT")
-                        accelerator.channels[elem.channels.field_rset] = self._channel_data(machine, elem, "readset", "B", "SEXT")
-                        accelerator.channels[elem.channels.field_read] = self._channel_data(machine, elem, "readback", "B", "SEXT")
+                        accelerator.channels[elem.channels.field_cset] = self._channel_data(machine, elem.name, elem.system, elem.subsystem, elem.device, elem.z, "setpoint", "B", "SEXT")
+                        accelerator.channels[elem.channels.field_rset] = self._channel_data(machine, elem.name, elem.system, elem.subsystem, elem.device, elem.z, "readset", "B", "SEXT")
+                        accelerator.channels[elem.channels.field_read] = self._channel_data(machine, elem.name, elem.system, elem.subsystem, elem.device, elem.z, "readback", "B", "SEXT")
 
                         subsequence.append(elem)
 
@@ -661,15 +672,15 @@ class AccelFactory(object):
         return accelerator
 
     @staticmethod
-    def _channel_data(machine, elem, handle, field, etype):
+    def _channel_data(machine, name, system, subsystem, device, z, handle, field, etype):
         d = OrderedDict()
         d["machine"] = machine
-        d["system"] = elem.system
-        d["subsystem"] = elem.subsystem
-        d["device"] = elem.device
-        d["deviceType"] = elem.dtype
-        d["z"] = elem.z
-        d["elemName"] = elem.name
+        d["system"] = system
+        d["subsystem"] = subsystem
+        d["device"] = device
+        #d["deviceType"] = elem.dtype
+        d["z"] = z
+        d["elemName"] = name
         d["elemHandle"] = handle
         d["elemField"] = field
         d["elemType"] = etype
