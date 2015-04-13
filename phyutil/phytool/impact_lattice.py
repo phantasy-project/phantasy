@@ -129,6 +129,9 @@ def _write_channel_map(accel, lat, file):
             data = accel.channels[chan]
             file.write(chan+","+str(chanmap[0]+1)+","+str(chanmap[2])+","+str(chanmap[3]))
             for p in props:
-                file.write(","+str(data[p]))
+                if p == "elemName" and 'SOL' in data[p] and data['elemType'] in ['DCH', 'DCV']:
+                    file.write(","+str(data[p].replace('SOL', data['elemType'])))
+                else:
+                    file.write(","+str(data[p]))
             file.write("\r\n")
 
