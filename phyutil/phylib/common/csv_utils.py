@@ -147,7 +147,7 @@ def read_csv(csvfile):
 
     return csv_data
 
-def _save_csv_1(data, csvname):
+def _save_csv_table(data, csvname):
     """save the CFS in CSV format (table).
 
     example
@@ -185,7 +185,7 @@ def _save_csv_1(data, csvname):
             writer.writerow([r[0]] + prpt + list(r[2]))
     del writer
 
-def _save_csv_2(data, csvname):
+def _save_csv_explicit(data, csvname):
     """export the CFS in CSV2 format (explicit).
 
     example:
@@ -197,8 +197,7 @@ def _save_csv_2(data, csvname):
             p = ",".join(["%s=%s" % (k,v) for k,v in r[1].items()])
             f.write(",".join([r[0], p, ",".join(r[2])]) + "\n")
 
-
-def write_csv(data, csvname, format="table"):
+def write_csv(data, csvname, frmt="table"):
     """Write data into CSV file.
     Format 1 (table):
         PV, machine, elemIndex, elemPosition, elemName, elemHandle, elemField, elemType, tags
@@ -209,12 +208,14 @@ def write_csv(data, csvname, format="table"):
         PV,machine=xxx,elemIndex=xxx,elemPosition=xxx,elemName=xxx,elemHandle=xxx,elemField=xxx,elemType=xxx,tag1,tag2
 
     :param data:
-    :param csvname:
+    :param csvname: output file name
+    :param frmt:    output file format as described above.
     :return:
     """
-    if format == "table":
-        _save_csv_1(data, csvname)
-    elif format == "explicit":
-        _save_csv_2(data, csvname)
+    if frmt == "table":
+        _save_csv_table(data, csvname)
+    elif frmt == "explicit":
+        _save_csv_explicit(data, csvname)
     else:
         raise CSVFormatError("CSV file format {0} not supported yet.".format(format))
+    

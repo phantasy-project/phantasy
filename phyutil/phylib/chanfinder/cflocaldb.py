@@ -87,7 +87,7 @@ class ChannelFinderLocal:
         properties = kwargs.get("property", None)
         tags = kwargs.get("tagName", None)
         sql = """SELECT * from pvs join elements__pvs on pvs.pv_id = elements__pvs.pv_id 
-                join elements on elementd__pvs.elem_id = elements.elem_id where """
+                join elements on elements__pvs.elem_id = elements.elem_id where """
         querycons = []
         if channames != "*":
             first = True
@@ -681,16 +681,16 @@ def importCfLocalData(data, dbname, overwrite=False, **kwargs):
         # skip if already in the to-be-inserted list
         # deprecated: elemName has to be unique
         # elemIndex has to be unique since one element might be split into many pieces
-        if ukey[0] and ukey[0] not in elem_sets_key:
-            cur.execute("""SELECT EXISTS(SELECT * from elements where elemIndex=? LIMIT 1)""", (ukey[0],))
+        if ukey[0] and (ukey[0], ukey[2]) not in elem_sets_key:
+            cur.execute("""SELECT EXISTS(SELECT * from elements where elemIndex=? and elemName=? LIMIT 1)""", 
+                        (ukey[0], ukey[2],))
             res = cur.fetchone()
             # no need to insert if exists
             if res[0] == 0:
                 # element index does not exist yet.
                 elem_sets.append(ukey)
-                # avoid element index which has been added already
-                elem_sets_key.append(ukey[0])
-        
+                # avoid element index + name, which has been added already
+                elem_sets_key.append((ukey[0], ukey[2]))
         ukey = (pv,
                 prpts.get("elemField", ""), 
                 prpts.get("elemHandle", "")
@@ -713,26 +713,26 @@ def importCfLocalData(data, dbname, overwrite=False, **kwargs):
         conn.executemany("""INSERT INTO pvs (pv, elemField, elemHandle) VALUES (?,?,?)""", pv_sets)
     _logger.debug("added {0} elements".format(len(elem_sets)))
     _logger.debug("added {0} pvs".format(len(pv_sets)))
-    
 
     cur.execute("begin")
     cur.execute("PRAGMA table_info(elements)")
     tbl_elements_cols = [v[1] for v in cur.fetchall()]
     # update the elements table if data has the same column
     for col in tbl_elements_cols:
-        if col in ["elemIndex"]:
+        # element index with element name is unique 
+        if col in ["elemIndex", "elemName"]:
             continue
         vals = []
         for rec in data:
             pv, prpts, tags = rec
             if col not in prpts:
                 continue
-            vals.append((prpts[col], prpts["elemIndex"]))
+            vals.append((prpts[col], prpts["elemIndex"], prpts["elemName"]))
         if len(vals) == 0:
             _logger.debug("elements: no data for column '{0}'".format(col))
             continue
         try:
-            cur.executemany("UPDATE elements set %s=? where elemIndex=?" % col, vals)
+            cur.executemany("UPDATE elements set %s=? where elemIndex=? and elemName=?" % col, vals)
         except:
             raise RuntimeError("Error at updating {0} {1}".format(col, vals))
 
@@ -751,6 +751,7 @@ def importCfLocalData(data, dbname, overwrite=False, **kwargs):
             if col not in prpts:
                 continue
             if not prpts.has_key("elemField") or not prpts.has_key("elemIndex"):
+                # @TODO to be convert to log instead of print to screen
                 print("Incomplete record for pv={0}: {1} {2}".format(
                     pv, prpts, tags))
                 continue
@@ -773,6 +774,7 @@ def importCfLocalData(data, dbname, overwrite=False, **kwargs):
         if tags is None: 
             continue
         if not prpts.has_key("elemField") or not prpts.has_key("elemIndex"):
+            # @TODO to be convert to log instead of print to screen
             print("Incomplete record for pv={0}: {1} {2}. IGNORED".format(
                 pv, prpts, tags))
             continue
@@ -786,19 +788,7 @@ def importCfLocalData(data, dbname, overwrite=False, **kwargs):
         msg = "channel finder local database updated %d records" % (len(data))
         cur.execute("""insert into log(timestamp, message) values (datetime('now'), ? )""", (msg,))
 
-    # now need to build the relationship between elements and pvs
-#     cur.execute("SELECT pv, pv_id from pvs")
-#     pvids = dict(cur.fetchall())
-#     cur.execute("SELECT elemName, elem_id, elemIndex from elements")
-#     elemids = cur.fetchall()
-#     for elemid in cur.fetchall():
-#         if elemid[0] in elemids.keys():
-#             elemids[elemid[0]] = {"id": elemids[elemid[0]]['id'].append(elemid[1]), 
-#                                   "index": elemids[elemid[0]]['index'].append(elemid[1])}
-#         else:
-#             elemids[elemid[0]] = {"id": [elemid[1]], "index": [elemid[2]]}
     cur.execute("DELETE FROM elements__pvs")
-    
     pre_pv = ""
     pre_elem = ""
     pre_elemIdx = 0
@@ -815,7 +805,11 @@ def importCfLocalData(data, dbname, overwrite=False, **kwargs):
             pre_elem = prpts['elemName']
             pre_elemIdx = prpts['elemIndex']
             cur.execute("SELECT elem_id from elements where elemName = ? and elemIndex = ?", (pre_elem, pre_elemIdx))
-            elemid = cur.fetchone()[0]
+            elemid = cur.fetchone()
+            if elemid is None:
+                raise ValueError("Cannot find elem_id for element (name: {0}, index: {1}) in elements table".
+                                 format(pre_elem, pre_elemIdx))
+            elemid = elemid[0]
         values.append([pvid, elemid])
     cur.executemany("INSERT INTO elements__pvs (pv_id, elem_id) VALUES (?, ?)", values)
     try:
@@ -898,7 +892,7 @@ def create_cf_localdb(dbname="cf_localdb.sqlite", overwrite=False, colheads=None
                   {0}
                   fieldPolar    INTEGER,
                   virtual       INTEGER DEFAULT 0,
-                  UNIQUE (elemName, elemIndex) ON CONFLICT REPLACE
+                  UNIQUE (elemName, elemIndex) ON CONFLICT FAIL
                   );
                   
     CREATE TABLE elements__pvs 

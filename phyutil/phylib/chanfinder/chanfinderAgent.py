@@ -75,18 +75,21 @@ class ChannelFinderAgent(object):
 
             >>> prpt_list = ['elemName', 'sEnd']
             >>> conv_dict = {'sEnd', float}
-            >>> downloadCfs(URL, keep = prpt_list, converter = conv_dict)
-            >>> downloadCfs(URL, property=[('hostName', 'virtac2')])
-            >>> downloadCfs(URL, property=[('hostName', 'virtac')], tagName='aphla.*')
+            >>> downloadCfs(source=URL, keep = prpt_list, converter = conv_dict)
+            >>> downloadCfs(source=URL, property=[('hostName', 'virtac2')])
+            >>> downloadCfs(source=URL, property=[('hostName', 'virtac')], tagName='aphla.*')
 
         The channel finder client API provides *property* and *tagName* as
         keywords parameters. 
         """
+        source = kwargs.get("source", None)
+        if source is not None:
+            self.source = source
         if os.path.isfile(self.source) or self.source == ":memoty:":
             # get data from SQLite database file or in memory
-           res = self._downloadCfsSQLite(self.source, **kwargs)
+            res = self._downloadCfsSQLite(self.source, **kwargs)
         else:
-           res = self._downloadCfs(self.source, **kwargs)
+            res = self._downloadCfs(self.source, **kwargs)
 
         return res
 
@@ -105,8 +108,7 @@ class ChannelFinderAgent(object):
 
         cfl = ChannelFinderLocal(dbname)
         cfl.conn()
-
-        properties, results = cfl.find(name="*", property=[("elemName", "LS1_CA01*CAV*,LS1*BPM*D1129")])
+        properties, results = cfl.find(name="*")
         cfl.close()
 
         # if keep_prpts is None:
@@ -320,9 +322,9 @@ class ChannelFinderAgent(object):
         :param delimiter: delimiter, ";" by default
         :return: new results
         """
-        old_results = self.results
+        old_results = self.results[:]
         self.results[:] = []
-        for i, r in enumerate(old_results):
+        for r in old_results:
             prptlst = r[1][prpt].split(delimiter)
             if len(prptlst) == 1:
                 self.results.append(r)
