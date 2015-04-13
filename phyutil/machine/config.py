@@ -3,20 +3,15 @@ Machine Structure Initialization
 --------------------------------
 
 
-In ``aphla`` one machine includes several accelerator structure,
+In ``phyutil`` one machine includes several accelerator structure,
 e.g. "nsls2v2" is a machine with several submachine or lattice V1LTD, V1LTB,
 V2SR.
 
-Submachines are also called lattice in ``aphla``. Each lattice has a list of
+Submachines are also called lattice in ``phyutil``. Each lattice has a list of
 elements, magnet or instrument. The submachines/lattices can share elements.
 """
 
 # :author: Lingyun Yang <lyyang@bnl.gov>
-
-from ..phylib.model.element import merge
-from ..phylib.model import Lattice
-from phyutil.phylib.chanfinder import ChannelFinderAgent
-from ..phylib.model.element import CaElement
 
 import os
 import time
@@ -29,27 +24,35 @@ import fnmatch
 import logging
 import numpy as np
 
+from ..phylib.model.element import merge
+from ..phylib.model import Lattice
+from phyutil.phylib.chanfinder import ChannelFinderAgent
+from ..phylib.model.element import CaElement
+
 _logger = logging.getLogger(__name__)
 
-HLA_TAG_PREFIX = 'aphla'
+HLA_TAG_PREFIX = 'phyutil'
 HLA_TAG_SYS_PREFIX = HLA_TAG_PREFIX + '.sys'
 
 #
 HLA_VFAMILY = 'HLA:VIRTUAL'
 HLA_VBPM   = 'HLA:VBPM'
+HLA_VPM    = 'HLA:VPM'
 HLA_VHCOR  = 'HLA:VHCOR'
 HLA_VVCOR  = 'HLA:VVCOR'
 HLA_VCOR   = 'HLA:VCOR'
 HLA_VQUAD  = 'HLA:VQUAD'
 HLA_VSEXT  = 'HLA:VSEXT'
-
+HLA_VSOL   = 'HLA:VSOL'
+HLA_VCAV   = 'HLA:VCAV'
+HLA_VBEND  = "HLA:VBEND"
 
 # HOME = os.environ['HOME'] will NOT work on Windows,
 # unless %HOME% is set on Windows, which is not the case by default.
-_home_hla = os.path.join(os.path.expanduser('~'), '.aphla')
-HLA_CONFIG_DIR = os.environ.get("APHLA_CONFIG_DIR", _home_hla)
-HLA_DEBUG      = int(os.environ.get('APHLA_DEBUG', 0))
-HLA_ROOT = os.environ.get("APHLA_ROOT", _home_hla)
+_home_hla = os.path.join(os.path.expanduser('~'), '.phyutil')
+HLA_CONFIG_DIR = os.environ.get("PHYUTIL_CONFIG_DIR", _home_hla)
+HLA_DEBUG      = int(os.environ.get('PHYUTIL_DEBUG', 0))
+HLA_ROOT = os.environ.get("PHYUTIL_ROOT", _home_hla)
 
 # the properties used for initializing Element are different than
 # ChannelFinderAgent (CFS or SQlite). This needs a re-map.
@@ -74,12 +77,23 @@ _lattice_dict = {}
 _lat = None
 
 def _findMachinePath(machine):
+    """Try to find a machine configuration path.
+    If parameter, machine, comes with a full path, it assume the configuration file is under the same path.
+    
+    It searches 3 different ways:
+        - a absolute path from parameter
+        - environment variable: PHYUTIL_CONFIG_DIR,
+        - the package directory
+    
+    :param machine: machine name.  
+    
+    """
     # if machine is an abs path
     _logger.info("trying abs path '%s'" % machine)
     if os.path.isabs(machine) and os.path.isdir(machine):
         mname = os.path.basename(os.path.realpath(machine))
         return machine, mname
-    # try "machine" in APHLA_CONFIG_DIR and ~/.aphla/ (default)
+    # try "machine" in PHYUTIL_CONFIG_DIR and ~/.phyutil/ (default)
     _logger.info("trying path '%s' '%s'" % (HLA_CONFIG_DIR, machine))
     home_machine = os.path.join(HLA_CONFIG_DIR, machine)
     if os.path.isdir(home_machine):
@@ -143,44 +157,38 @@ def load(machine, submachine = "*", **kwargs):
 
     cfg = ConfigParser.ConfigParser()
     try:
-        cfg.readfp(open(os.path.join(machdir, "aphla.ini"), 'r'))
-        _logger.info("using config file: 'aphla.ini'")
+        cfg.readfp(open(os.path.join(machdir, "phyutil.ini"), 'r'))
+        _logger.info("using config file: 'phyutil.ini'")
     except:
         raise RuntimeError("can not open '%s' to read configurations" % (
-                os.path.join(machdir, "aphla.ini")))
+                os.path.join(machdir, "phyutil.ini")))
 
-    d = dict(cfg.items("COMMON"))
-    # set proper output directory in the order of env > aphla.ini > $HOME
+    d_common = dict(cfg.items("COMMON"))
+    # set proper output directory in the order of env > phyutil.ini > $HOME
     HLA_OUTPUT_DIR = os.environ.get("HLA_DATA_DIR",
-                                    d.get("output_dir",
-                                          os.path.expanduser('~')))
+                                    d_common.get("output_dir",
+                                    os.path.expanduser('~')))
     # the default submachine
-    accdefault = d.get("default_submachine", "")
+    accdefault = d_common.get("default_submachine", "")
 
-    # print(cfg.sections())
     # for all submachines specified in INI and matches the pattern
-    msects = [subm for subm in re.findall(r'\w+', d.get("submachines", ""))
+    msects = [subm for subm in re.findall(r'\w+', d_common.get("submachines", ""))
              if fnmatch.fnmatch(subm, submachine)]
-    # print(msect)
     for msect in msects:
-        d = dict(cfg.items(msect))
-        accstruct = d.get("cfs_url", None)
+        d_msect = dict(cfg.items(msect))
+        accstruct = d_msect.get("cfs_url", None)
         if accstruct is None:
             raise RuntimeError("No accelerator data source (cfs_url) available "
                                "for '%s'" % msect)
-        #print cfa.rows[:3]
-        acctag = d.get("cfs_tag", "aphla.sys.%s" % msect)
-        cfa = ChannelFinderAgent()
+        acctag = d_msect.get("cfs_tag", "phyutil.sys.%s" % msect)
+        cfa = ChannelFinderAgent(source=accstruct)
         accsqlite = os.path.join(machdir, accstruct)
         if re.match(r"https?://.*", accstruct, re.I):
             _logger.info("using CFS '%s' for '%s'" % (accstruct, msect))
-            #cfa.downloadCfs(accstruct, property=[('elemName', '*'),
-            #                                     ('iocName', '*')],
-            #                tagName=acctag)
-            cfa.downloadCfs(accstruct, property=[('elemName', '*'),], tagName=acctag)
+            cfa.downloadCfs(source=accstruct, property=[('elemName', '*'),], tagName=acctag)
         elif os.path.isfile(accsqlite):
             _logger.info("using SQlite '%s'" % accsqlite)
-            cfa.loadSqlite(accsqlite)
+            cfa.downloadCfs(source=accsqlite)
         else:
             _logger.warn("NOT CFS '%s'" % accstruct)
             _logger.warn("NOT SQlite '%s'" % accsqlite)
@@ -188,28 +196,28 @@ def load(machine, submachine = "*", **kwargs):
 
         cfa.splitPropertyValue('elemGroups')
         cfa.splitChainedElement('elemName')
-        for k,v in _cf_map.iteritems(): cfa.renameProperty(k, v)
-
-        #print "New CFA:", cfa.rows
-
-        lat = createLattice(msect, cfa.rows, acctag, cfa.source)
-        lat.sb = float(d.get("s_begin", 0.0))
-        lat.se = float(d.get("s_end", 0.0))
-        lat.loop = bool(d.get("loop", True))
+        for k,v in _cf_map.iteritems(): 
+            cfa.renameProperty(k, v)
+                
+        lat = createLattice(msect, cfa.results, acctag, cfa.source)
+        lat.sb = float(d_msect.get("s_begin", 0.0))
+        lat.se = float(d_msect.get("s_end", 0.0))
+        lat.loop = bool(d_msect.get("loop", True))
         lat.machine = machname
         lat.machdir = machdir
-        if d.get("archive_pvs", None):
-            lat.arpvs = os.path.join(machdir, d["archive_pvs"])
-        lat.OUTPUT_DIR = d.get("output_dir",
+        if d_msect.get("archive_pvs", None):
+            lat.arpvs = os.path.join(machdir, d_msect["archive_pvs"])
+        lat.OUTPUT_DIR = d_msect.get("output_dir",
                                os.path.join(HLA_OUTPUT_DIR, msect))
 
+        # @TODO add unit conversion information later
         # unit conversion & physics data to be added later
-        # uconvfile = d.get("unit_conversion", None)
+        # uconvfile = d_msect.get("unit_conversion", None)
         # if uconvfile is not None:
         #     _logger.info("loading unit conversion '%s'" % uconvfile)
         #     loadUnitConversion(lat, machdir, uconvfile.split(", "))
         #
-        # physics_data = d.get("physics_data", None)
+        # physics_data = d_msect.get("physics_data", None)
         # if physics_data is not None:
         #     _logger.info("loading physics data '%s'" % physics_data)
         #     phy_fname = os.path.join(machdir, physics_data)
@@ -218,14 +226,19 @@ def load(machine, submachine = "*", **kwargs):
         #     lat._twiss.load(phy_fname, group="Twiss")
         #     setGoldenLattice(lat, phy_fname, "Golden")
 
-        vex = lambda k: re.findall(r"\w+", d.get(k, ""))
+        vex = lambda k: re.findall(r"\w+", d_msect.get(k, ""))
         vfams = { HLA_VBPM:  ('BPM',  vex("virtual_bpm_exclude")),
+                  HLA_VPM:   ('PM',   vex("virtual_pm_exclude")),
                   HLA_VHCOR: ('HCOR', vex("virtual_hcor_exclude")),
                   HLA_VVCOR: ('VCOR', vex("virtual_vcor_exclude")),
                   HLA_VCOR:  ('COR',  vex("virtual_cor_exclude")),
+                  HLA_VBEND: ('BEND', vex("virtual_bend_exclude")),
                   HLA_VQUAD: ('QUAD', vex("virtual_quad_exclude")),
                   HLA_VSEXT: ('SEXT', vex("virtual_sext_exclude")),
+                  HLA_VSOL:  ('SOL',  vex("virtual_sol_exclude")),
+                  HLA_VSOL:  ('CAV',  vex("virtual_cav_exclude")),
         }
+        
         createVirtualElements(lat, vfams)
         lat_dict[msect] = lat
         if verbose:
@@ -234,11 +247,16 @@ def load(machine, submachine = "*", **kwargs):
                 print "%s (*): %d elements" % (msect, nelems)
             else:
                 print "%s: %d elements" % (msect, nelems)
-            print "  BPM: %d, COR: %d, QUAD: %d, SEXT: %d" % (
-                len(lat.getElementList('BPM')), len(lat.getElementList('COR')),
+            print "  BPM: %d, PM: %s, COR: %d, BEND: %d, QUAD: %d, SEXT: %d, SOL: %d, CAV: %d" % (
+                len(lat.getElementList('BPM')), 
+                len(lat.getElementList('PM')), 
+                len(lat.getElementList('COR')),
+                len(lat.getElementList('BEND')),
                 len(lat.getElementList('QUAD')),
-                len(lat.getElementList('SEXT')))
-
+                len(lat.getElementList('SEXT')),
+                len(lat.getElementList('SOL')),
+                len(lat.getElementList('CAV')))
+    
     # set the default submachine, if no, use the first one
     lat0 = lat_dict.get(accdefault, None)
     if lat0 is None and len(lat_dict) > 0:
@@ -290,7 +308,7 @@ def loadfast(machine, submachine = "*"):
             print ('* The lattice cache file for the machine "{0}" is more than '
                    '24 hours old.').format(machine)
 
-        # If any of the aphla database files have a timestamp later
+        # If any of the phyutil database files have a timestamp later
         # than that of the cache file, force cache update
         elif np.any(np.array(mod_timestamps) - cache_file_timestamp > 0.0):
             update_cache = True
@@ -361,15 +379,15 @@ def saveChannelFinderDb(dst, url = None):
 
     Parameters
     -----------
-    url : str. channel finder URL, default use environment *APHLA_CFS_URL*
+    url : str. channel finder URL, default use environment *PHYUTIL_CFS_URL*
     dst : str. destination db filename.
     """
     cfa = ChannelFinderAgent()
-    if url is None: url = os.environ.get('APHLA_CFS_URL', None)
+    if url is None: url = os.environ.get('PHYUTIL_CFS_URL', None)
     if url is None:
         raise RuntimeError("no URL defined for downloading")
     cfa.downloadCfs(url, property=[
-                ('hostName', '*'), ('iocName', '*')], tagName='aphla.sys.*')
+                ('hostName', '*'), ('iocName', '*')], tagName='phyutil.sys.*')
     cfa.exportSqlite(dst)
 
 
@@ -401,9 +419,9 @@ def findCfaConfig(srcname, machine, submachines):
 
     - `${HLA_ROOT}/machine.csv`
     - `${HLA_ROOT}/machine.sqlite`
-    - channel finder in ${APHLA_CFS_URL} with tags `aphla.sys.submachine`
-    - `machine.csv` with aphla package.
-    - `machine.sqlite` with aphla package.
+    - channel finder in ${PHYUTIL_CFS_URL} with tags `phyutil.sys.submachine`
+    - `machine.csv` with phyutil package.
+    - `machine.sqlite` with phyutil package.
 
     Examples
     ---------
@@ -427,7 +445,7 @@ def findCfaConfig(srcname, machine, submachines):
     # if only filename provided, searching known directories in order.
     # matching HLA_ROOT -> CF -> Package
     homesrc = os.path.join(HLA_ROOT, srcname)
-    HLA_CFS_URL = os.environ.get('APHLA_CFS_URL', None)
+    HLA_CFS_URL = os.environ.get('PHYUTIL_CFS_URL', None)
 
     if os.path.exists(homesrc + '.csv'):
         msg = "Creating lattice from '%s.csv'" % homesrc
@@ -437,12 +455,12 @@ def findCfaConfig(srcname, machine, submachines):
         msg = "Creating lattice from '%s.sqlite'" % homesrc
         _logger.info(msg)
         cfa.importSqlite(homesrc + '.sqlite')
-    elif os.environ.get('APHLA_CFS_URL', None):
+    elif os.environ.get('PHYUTIL_CFS_URL', None):
         msg = "Creating lattice from channel finder '%s'" % HLA_CFS_URL
         _logger.info(msg)
         #cfa.downloadCfs(HLA_CFS_URL, property=[
-        #        ('hostName', '*'), ('iocName', '*')], tagName='aphla.sys.*')
-        cfa.downloadCfs(HLA_CFS_URL, tagName='aphla.sys.*')
+        #        ('hostName', '*'), ('iocName', '*')], tagName='phyutil.sys.*')
+        cfa.downloadCfs(HLA_CFS_URL, tagName='phyutil.sys.*')
     elif resource_exists(__name__, os.path.join(machine, srcname + '.csv')):
         name = resource_filename(__name__, os.path.join(machine,
                                                         srcname + '.csv'))
@@ -473,12 +491,12 @@ def createLattice(latname, pvrec, systag, src = 'channelfinder',
     -----------
     name: lattice name, e.g. 'SR', 'LTD'
     pvrec: list of pv records `(pv, property dict, list of tags)`
-    systag: process records which has this systag. e.g. `aphla.sys.SR`
+    systag: process records which has this systag. e.g. `phyutil.sys.SR`
     src: source URL or filename of this lattice
 
     Returns
     ---------
-    lat : the :class:`~aphla.lattice.Lattice` type.
+    lat : the :class:`~phyutil.lattice.Lattice` type.
     """
 
     _logger.debug("creating '%s':%s" % (latname, src))
@@ -488,24 +506,18 @@ def createLattice(latname, pvrec, systag, src = 'channelfinder',
     for rec in pvrec:
         _logger.debug("processing {0}".format(rec))
         # skip if there's no properties.
-        if rec[1] is None: continue
+        if rec[1] is None: 
+            continue
         if rec[0] and systag not in rec[2]:
             _logger.debug("%s is not tagged '%s'" % (rec[0], systag))
             continue
-        #if rec[1].get("system", "") != latname: continue
-        if 'name' not in rec[1]: continue
-        #print "PASSED"
+        if 'name' not in rec[1]: 
+            continue
         prpt = rec[1]
-        #if "hostName" not in prpt:
-        #    _logger.warn("no 'hostName' for {0}".format(rec))
-        #if "iocName" not in prpt:
-        #    _logger.warn("no 'iocName' for {0}".format(rec))
 
         if 'se' in prpt:
             prpt['sb'] = float(prpt['se']) - float(prpt.get('length', 0))
         name = prpt.get('name', None)
-
-        #_logger.debug("{0} {1} {2}".format(rec[0], rec[1], rec[2]))
 
         # find if the element exists.
         elem = lat._find_exact_element(name=name)
@@ -519,20 +531,21 @@ def createLattice(latname, pvrec, systag, src = 'channelfinder',
                 raise
 
             _logger.debug("created new element: '%s'" % name)
-            #print "inserting:", elem
-            #lat.appendElement(elem)
             lat.insertElement(elem)
         else:
             _logger.debug("using existed element %s" % (name,))
-        #
-        if HLA_VFAMILY in prpt.get('group', []): elem.virtual = 1
+        if HLA_VFAMILY in prpt.get('group', []): 
+            elem.virtual = 1
 
         handle = prpt.get('handle', '').lower()
-        if handle == 'get': prpt['handle'] = 'readback'
-        elif handle == 'put': prpt['handle'] = 'setpoint'
+        if handle == 'get': 
+            prpt['handle'] = 'readback'
+        elif handle == 'put': 
+            prpt['handle'] = 'setpoint'
 
         pv = rec[0]
-        if pv: elem.updatePvRecord(pv, prpt, rec[2])
+        if pv: 
+            elem.updatePvRecord(pv, prpt, rec[2])
 
     # group info is a redundant info, needs rebuild based on each element
     lat.buildGroups()
@@ -597,10 +610,10 @@ def getLattice(lat = None):
     """
     return the lattice with given name, if None returns the current lattice.
 
-    a :class:`~aphla.lattice.Lattice` object with given name. return the
+    a :class:`~phyutil.lattice.Lattice` object with given name. return the
     current lattice by default.
 
-    .. seealso:: :func:`~aphla.machines.lattices`
+    .. seealso:: :func:`~phyutil.machines.lattices`
     """
     if lat is None:  return _lat
 

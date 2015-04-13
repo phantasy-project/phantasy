@@ -681,16 +681,17 @@ def importCfLocalData(data, dbname, overwrite=False, **kwargs):
         # skip if already in the to-be-inserted list
         # deprecated: elemName has to be unique
         # elemIndex has to be unique since one element might be split into many pieces
-        if ukey[0] and (ukey[0], ukey[2]) not in elem_sets_key:
-            cur.execute("""SELECT EXISTS(SELECT * from elements where elemIndex=? and elemName=? LIMIT 1)""", 
-                        (ukey[0], ukey[2],))
+        if ukey[0] and ukey not in elem_sets_key:
+            cur.execute("""SELECT EXISTS(SELECT * from elements where elemIndex=? and elemType=? and elemName=? LIMIT 1)""", 
+                        (ukey[0], ukey[1], ukey[2],))
             res = cur.fetchone()
             # no need to insert if exists
             if res[0] == 0:
                 # element index does not exist yet.
                 elem_sets.append(ukey)
                 # avoid element index + name, which has been added already
-                elem_sets_key.append((ukey[0], ukey[2]))
+                #elem_sets_key.append((ukey[0], ukey[1], ukey[2]))
+                elem_sets_key.append(ukey)
         ukey = (pv,
                 prpts.get("elemField", ""), 
                 prpts.get("elemHandle", "")
@@ -720,19 +721,19 @@ def importCfLocalData(data, dbname, overwrite=False, **kwargs):
     # update the elements table if data has the same column
     for col in tbl_elements_cols:
         # element index with element name is unique 
-        if col in ["elemIndex", "elemName"]:
+        if col in ["elemIndex", "elemType", "elemName"]:
             continue
         vals = []
         for rec in data:
             pv, prpts, tags = rec
             if col not in prpts:
                 continue
-            vals.append((prpts[col], prpts["elemIndex"], prpts["elemName"]))
+            vals.append((prpts[col], prpts["elemIndex"], prpts["elemType"], prpts["elemName"]))
         if len(vals) == 0:
             _logger.debug("elements: no data for column '{0}'".format(col))
             continue
         try:
-            cur.executemany("UPDATE elements set %s=? where elemIndex=? and elemName=?" % col, vals)
+            cur.executemany("UPDATE elements set %s=? where elemIndex=? and elemType=? and elemName=?" % col, vals)
         except:
             raise RuntimeError("Error at updating {0} {1}".format(col, vals))
 
@@ -791,6 +792,7 @@ def importCfLocalData(data, dbname, overwrite=False, **kwargs):
     cur.execute("DELETE FROM elements__pvs")
     pre_pv = ""
     pre_elem = ""
+    pre_elem_type=""
     pre_elemIdx = 0
     pvid = 0
     elemid = 0
@@ -801,10 +803,12 @@ def importCfLocalData(data, dbname, overwrite=False, **kwargs):
             cur.execute("SELECT pv_id from pvs where pv = ?", (pv,))
             pvid = cur.fetchone()[0]
             pre_pv = pv
-        if pre_elem != prpts['elemName'] or pre_elemIdx != prpts['elemIndex']:
+        if pre_elem != prpts['elemName'] or pre_elemIdx != prpts['elemIndex'] or pre_elem_type != prpts['elemType']:
             pre_elem = prpts['elemName']
             pre_elemIdx = prpts['elemIndex']
-            cur.execute("SELECT elem_id from elements where elemName = ? and elemIndex = ?", (pre_elem, pre_elemIdx))
+            pre_elem_type = prpts['elemType']
+            cur.execute("SELECT elem_id from elements where elemName = ? and elemType=? and elemIndex = ?", 
+                        (pre_elem, pre_elem_type, pre_elemIdx))
             elemid = cur.fetchone()
             if elemid is None:
                 raise ValueError("Cannot find elem_id for element (name: {0}, index: {1}) in elements table".
@@ -892,7 +896,7 @@ def create_cf_localdb(dbname="cf_localdb.sqlite", overwrite=False, colheads=None
                   {0}
                   fieldPolar    INTEGER,
                   virtual       INTEGER DEFAULT 0,
-                  UNIQUE (elemName, elemIndex) ON CONFLICT FAIL
+                  UNIQUE (elemName, elemType, elemIndex) ON CONFLICT FAIL
                   );
                   
     CREATE TABLE elements__pvs 
