@@ -6,7 +6,7 @@ Utilities for handling configuration file.
 
 from __future__ import print_function
 
-import os, os.path, platform, logging
+import os.path, platform, logging
 
 from ConfigParser import SafeConfigParser, NoSectionError, NoOptionError
 
