@@ -9,11 +9,9 @@ __copyright__ = "Copyright (c) 2015, Facility for Rare Isotope Beams"
 __author__ = "Dylan Maxwell"
 
 
-import sys, os.path, json
+import os.path, logging, json
 
 from datetime import datetime
-
-from collections import OrderedDict
 
 from ....phylib import cfg
 
@@ -36,7 +34,7 @@ CONFIG_IMPACT_LINEAR_INPUT_ID = "impact_linear_input_id"
 
 CONFIG_IMPACT_LORENTZ_INPUT_ID = "impact_lorentz_input_id"
 
-CONFIG_IMPACT_FIELD3D_INPUT_ID = "impact_t7data_input_id"
+CONFIG_IMPACT_T7DATA_INPUT_ID = "impact_t7data_input_id"
 
 
 INTEGRATOR_LINEAR = 1
@@ -52,6 +50,9 @@ _DEFAULT_STEPS = 4
 _DEFAULT_MAPSTEPS = 20
 
 _DEFAULT_INTEGRATOR = INTEGRATOR_LORENTZ
+
+
+_LOGGER = logging.getLogger(__name__)
 
 
 def build_lattice(accel, settings=None, start=None, end=None):

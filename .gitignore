@@ -5,6 +5,11 @@
 # ignore IDE metadata
 .idea/*
 *.komodoproject
+.project
+.pydevproject
+
+# ignore git merge artifacts
+*.orig
 
 # ignore sphinx build
 docs/build/
