@@ -59,7 +59,8 @@ class Lattice:
         self.mode = mode
         self.tune = [ None, None]
         self.chromaticity = [None, None]
-        self.sb, self.se = 0.0, sys.float_info.max
+        self.sb = 0.0
+        self.se = sys.float_info.max
         self.ormdata = None
         self.loop = True
         self.Ek = None

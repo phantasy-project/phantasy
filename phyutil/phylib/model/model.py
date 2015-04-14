@@ -15,12 +15,11 @@ import logging
 import numpy as np
 import time
 import os
-import re
 from fnmatch import fnmatch
 from datetime import datetime
-from phyutil.machine import config as machines
+
+import phyutil.machine as machines
 import element
-# import itertools
 
 _logger = logging.getLogger(__name__)
 
