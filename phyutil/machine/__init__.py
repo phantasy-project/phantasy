@@ -262,10 +262,11 @@ def load(machine, submachine = "*", **kwargs):
                 print "%s (*): %d elements" % (msect, nelems)
             else:
                 print "%s: %d elements" % (msect, nelems)
-            print "  BPM: %d, PM: %s, COR: %d, BEND: %d, QUAD: %d, SEXT: %d, SOL: %d, CAV: %d" % (
+            print "  BPM: %d, PM: %s, HCOR: %d, VCOR: %d, BEND: %d, QUAD: %d, SEXT: %d, SOL: %d, CAV: %d" % (
                 len(lat.getElementList('BPM')), 
                 len(lat.getElementList('PM')), 
-                len(lat.getElementList('COR')),
+                len(lat.getElementList('HCOR')),
+                len(lat.getElementList('VCOR')),
                 len(lat.getElementList('BEND')),
                 len(lat.getElementList('QUAD')),
                 len(lat.getElementList('SEXT')),
