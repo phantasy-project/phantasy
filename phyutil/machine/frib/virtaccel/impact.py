@@ -658,7 +658,10 @@ class VirtualAccelerator(object):
             fort24 = numpy.loadtxt(fort24path, usecols=(1, 2))
             fort25 = numpy.loadtxt(fort25path, usecols=(1, 2))
 
-            output_map = lattice._output_map
+            output_map = []
+            for elem in lattice.elements:
+                if elem.itype in [ -28 ]:
+                    output_map.append(elem.name)
 
             output_length = len(output_map)
 

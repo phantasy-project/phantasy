@@ -103,14 +103,15 @@ class SettingsFactory(object):
             raise RuntimeError("SettingsFactory: IMPACT lattice file not found: {}".format(self._latpath))
 
         with open(self._latpath, "r") as fp:
-            lattice_element = _LatticeIterator(fp.readlines(), skip=11)
+            lattice_elements = list(_LatticeIterator(fp.readlines(), skip=11))
+            lattice_elements.reverse()
 
         settings = OrderedDict()
 
         for elem in self._accel.iter(self.start, self.end):
 
             if isinstance(elem, CavityElement):
-                (latidx, latelm) = next(lattice_element)
+                (latidx, latelm) = lattice_elements.pop()
 
                 if latelm[3] not in [ "103", "110" ]:
                     raise RuntimeError("SettingsFactory: {} at line {}: unexpected element found: {}".format(elem.name, latidx+1, latelm))
@@ -135,14 +136,21 @@ class SettingsFactory(object):
                 vkick = None
                 length = 0.0
                 while (length < elem.length) and not self._isclose(length, elem.length):
-                    (latidx, latelm) = next(lattice_element)
+                    (latidx, latelm) = lattice_elements.pop()
 
                     if latelm[3] == "3":
-                         length += float(latelm[0])
+                        length += float(latelm[0])
 
                     elif latelm[3] == "-21":
-                        hkick = float(latelm[6])
-                        vkick = float(latelm[8])
+                        if hkick == None:
+                            hkick = float(latelm[6])
+                        else:
+                            hkick += float(latelm[6])
+
+                        if vkick == None:
+                            vkick = float(latelm[8])
+                        else:
+                            vkick += float(latelm[8])
 
                     else:
                         raise RuntimeError("SettingsFactory: {} at line {}: unexpected element found: {}".format(elem.name, latidx+1, latelm))
@@ -174,21 +182,51 @@ class SettingsFactory(object):
 
 
             elif isinstance(elem, CorrElement):
-                (latidx, latelm) = next(lattice_element)
+                hkick = None
+                vkick = None
+                count = 0
+                while True:
+                    (latidx, latelm) = lattice_elements.pop()
 
-                if latelm[3] not in [ "-21" ]:
-                    raise RuntimeError("SettingsFactory: {} at line {}: unexpected element found: {}".format(elem.name, latidx+1, latelm))
+                    if latelm[3] == "-21":
+                        count += 1
 
-                _LOGGER.info("SettingsFactory: %s at line %s: %s", elem.name, latidx+1, latelm)
+                        if hkick == None:
+                            hkick = float(latelm[6])
+                        else:
+                            hkick += float(latelm[6])
+
+                        if vkick == None:
+                            vkick = float(latelm[8])
+                        else:
+                            vkick += float(latelm[8])
+
+                    elif count > 0:
+                        lattice_elements.append((latidx, latelm))
+                        break
+
+                    else:
+                        raise RuntimeError("SettingsFactory: {} at line {}: unexpected element found: {}".format(elem.name, latidx+1, latelm))
+
+                    _LOGGER.info("SettingsFactory: %s at line %s: %s", elem.name, latidx+1, latelm)
 
                 # Do not check the element length. Element -21 typically has length 0.0 with drift before and after the element.
                 #if not self._isclose(float(latelm[0]), elem.length):
                 #    raise RuntimeError("SettingsFactory: {} at line {}: unexpected element length: {} ({})".format(elem.name, latidx+1, latelm[0], elem.length))
-
-                settings[elem.channels.hkick_cset] = OrderedDict([ ("VAL", float(latelm[6])) ])
+                
+                if hkick != None:
+                    settings[elem.channels.hkick_cset] = OrderedDict([ ("VAL", hkick ) ])
+                else:
+                    _LOGGER.warning("SettingsFactory: %s: Missing horizontal kick setting, assuming 0.0", elem.name)
+                    settings[elem.channels.hkick_cset] = OrderedDict([ ("VAL", 0.0 ) ])
                 settings[elem.channels.hkick_rset] = OrderedDict(settings[elem.channels.hkick_cset])
                 settings[elem.channels.hkick_read] = OrderedDict(settings[elem.channels.hkick_cset])
-                settings[elem.channels.vkick_cset] = OrderedDict([ ("VAL", float(latelm[8])) ])
+
+                if vkick != None:
+                    settings[elem.channels.vkick_cset] = OrderedDict([ ("VAL", vkick) ])
+                else:
+                    _LOGGER.warning("SettingsFactory: %s: Missing vertical kick setting, assuming 0.0", elem.name)
+                    settings[elem.channels.vkick_cset] = OrderedDict([ ("VAL", 0.0) ])
                 settings[elem.channels.vkick_rset] = OrderedDict(settings[elem.channels.vkick_cset])
                 settings[elem.channels.vkick_read] = OrderedDict(settings[elem.channels.vkick_cset])
 
@@ -198,7 +236,7 @@ class SettingsFactory(object):
                 angle = 0.0
                 length = 0.0
                 while (length < elem.length) and not self._isclose(length, elem.length):
-                    (latidx, latelm) = next(lattice_element)
+                    (latidx, latelm) = lattice_elements.pop()
                     
                     if latelm[3] in [ "4" ]:
                         # Field is not divided by the number of segments,
@@ -223,7 +261,7 @@ class SettingsFactory(object):
 
 
             elif isinstance(elem, QuadElement):
-                (latidx, latelm) = next(lattice_element)
+                (latidx, latelm) = lattice_elements.pop()
 
                 if latelm[3] not in [ "1", "5" ]:
                     raise Exception("SettingsFactory: {} at line {}: unexpected element found: {}".format(elem.name, latidx+1, latelm))
@@ -258,7 +296,7 @@ class SettingsFactory(object):
 
 
             elif isinstance(elem, ChgStripElement):
-                (latidx, latelm) = next(lattice_element)
+                (latidx, latelm) = lattice_elements.pop()
 
                 if latelm[3] != "-11":
                     raise Exception("SettingsFactory: {} at line {}: unexpecting element found: {}".format(elem.name, latidx+1, latelm))
