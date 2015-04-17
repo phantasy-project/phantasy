@@ -8,6 +8,8 @@ from __future__ import print_function
 
 import sys, os.path, logging, json, traceback
 
+from collections import OrderedDict
+
 from argparse import ArgumentParser
 
 from .. import phylib
@@ -125,6 +127,12 @@ def _write_channel_map(accel, lat, fio):
        V_1:LS1_CA01:CAV1_D1127:AMPL_CSET,3,0.4470635,0.24,V_1,LS1_CA01:CAV1_D1127,setpoint,AMP,CAV
        [...]
     """
+
+    chanstore = OrderedDict()
+    for elem in accel:
+        chanstore.update(elem.chanstore)
+
+
     props = [ "machine", "elemName", "elemHandle", "elemField", "elemType" ]
 
     fio.write("PV,elemIndex,elemPosition,elemLength")
@@ -134,7 +142,7 @@ def _write_channel_map(accel, lat, fio):
 
     for idx in xrange(len(lat.elements)):
         elem = lat.elements[idx]
-        for chan, data in accel.channels.iteritems():
+        for chan, data in chanstore.iteritems():
             if elem.name == data['elemName']:
                 fio.write(chan+","+str(idx+1)+","+str(elem.position)+","+str(elem.length))
                 for p in props:

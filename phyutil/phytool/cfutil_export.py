@@ -123,23 +123,19 @@ def main():
 
 
 def _export_to_csv(accel, path, start, end):
-    elements = []
-    for elem in accel.iter(start, end):
-        if isinstance(elem, Element):
-            elements.append(elem.name)
-
     properties = None
     with open(path, "w") as fp:
-        for chan, data in accel.channels.iteritems():
-            if properties == None:
-                properties = data.keys()
-                fp.write("channel")
-                for p in properties:
-                    fp.write(",")
-                    fp.write(str(p))
-                fp.write("\r\n")
-
-            if data["elemName"] in elements:
+        for elem in accel.iter(start, end):
+            for chan, data in elem.chanstore.iteritems():
+                if properties == None:
+                    # write the header
+                    properties = data.keys()
+                    fp.write("channel")
+                    for p in properties:
+                        fp.write(",")
+                        fp.write(str(p))
+                    fp.write("\r\n")
+                # write the data
                 fp.write(str(chan))
                 for p in properties:
                     fp.write(",")
@@ -148,26 +144,16 @@ def _export_to_csv(accel, path, start, end):
 
 
 def _export_to_json(accel, path, start, end):
-    elements = []
-    for elem in accel.iter(start, end):
-        if isinstance(elem, Element):
-            elements.append(elem.name)
-
     channels = OrderedDict()
     with open(path, "w") as fp:
-        for chan, data in accel.channels.iteritems():
-            if data["elemName"] in elements:
+        for elem in accel.iter(start, end):
+            for chan, data in elem.chanstore.iteritems():
                 channels[chan] = data
 
         json.dump(channels, fp, indent=4)
 
 
 def _export_to_cfweb(accel, uri, username, password, start, end):
-    elements = []
-    for elem in accel.iter(start, end):
-        if isinstance(elem, Element):
-            elements.append(elem.name)
-
     # Improve performance by reducing the number
     # of HTTP server requests by restructuring
     # the channel data from channel oriented:
@@ -198,8 +184,8 @@ def _export_to_cfweb(accel, uri, username, password, start, end):
 
     properties = {}
     channelnames = set()
-    for chan, data in accel.channels.iteritems():
-        if data["elemName"] in elements:
+    for elem in accel.iter(start, end):
+        for chan, data in elem.chanstore.iteritems():
             for prop, value in data.iteritems():
                 if prop not in properties:
                     properties[prop] = {}
