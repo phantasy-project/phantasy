@@ -14,24 +14,11 @@ elements, magnet or instrument. The submachines/lattices can share elements.
 # :author: Lingyun Yang <lyyang@bnl.gov>
 __author__ = 'shen'
 
-import frib
-# from config import load, loadCache, loadfast
-# from config import saveCache, saveChannelFinderDb
-# from config import createLattice, createVirtualElements
-# from config import findCfaConfig, setGoldenLattice, use
-# from config import getOutputDir, getLattice, lattices, machines
-
-# __all__ = ['frib', 
-#            'load', 'loadCache', 'loadfast',
-#            'saveCache', 'saveChannelFinderDb',
-#            'createLattice', 'createVirtualElements',
-#            'findCfaConfig', 'setGoldenLattice', 'use',
-#            'getOutputDir', 'getLattice', 'lattices', 'machines']
-
 import os
 import time
 import glob
 import re
+import urlparse
 from pkg_resources import resource_exists, resource_filename #@UnresolvedImport #pylint: disable=E0611 
 import cPickle as pickle
 import ConfigParser
@@ -39,9 +26,11 @@ import fnmatch
 import logging
 import numpy as np
 
+import frib
+
 from ..phylib.model.element import merge
 from ..phylib.model import Lattice
-from phyutil.phylib.chanfinder import ChannelFinderAgent
+from ..phylib.chanfinder import ChannelFinderAgent
 from ..phylib.model.element import CaElement
 
 _logger = logging.getLogger(__name__)
@@ -66,8 +55,10 @@ HLA_VBEND  = "HLA:VBEND"
 # unless %HOME% is set on Windows, which is not the case by default.
 _home_hla = os.path.join(os.path.expanduser('~'), '.phyutil')
 HLA_CONFIG_DIR = os.environ.get("PHYUTIL_CONFIG_DIR", _home_hla)
-HLA_DEBUG      = int(os.environ.get('PHYUTIL_DEBUG', 0))
+# HLA_DEBUG      = int(os.environ.get('PHYUTIL_DEBUG', 0))
 HLA_ROOT = os.environ.get("PHYUTIL_ROOT", _home_hla)
+
+SCAN_SRV_URL = None
 
 # the properties used for initializing Element are different than
 # ChannelFinderAgent (CFS or SQlite). This needs a re-map.
@@ -138,7 +129,7 @@ def load(machine, submachine = "*", **kwargs):
     This machine can be a path to config dir.
     """
 
-    global _lattice_dict, _lat
+    global _lattice_dict, _lat, SCAN_SRV_URL
 
     lat_dict = {}
 
@@ -191,6 +182,8 @@ def load(machine, submachine = "*", **kwargs):
              if fnmatch.fnmatch(subm, submachine)]
     for msect in msects:
         d_msect = dict(cfg.items(msect))
+        SCAN_SRV_URL = d_msect.get("ss_url", None)
+        
         accstruct = d_msect.get("cfs_url", None)
         if accstruct is None:
             raise RuntimeError("No accelerator data source (cfs_url) available "

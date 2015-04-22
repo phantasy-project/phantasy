@@ -7,11 +7,8 @@ Defines the fundamental routines.
 
 # :author: Lingyun Yang
 
-import logging
-import numpy as np
-import time
 import os
-from fnmatch import fnmatch
+import logging
 from datetime import datetime
 
 from model import element
@@ -385,108 +382,6 @@ def getQuads():
     lattice and take a "union".
     """
     return machines._lat.getGroupMembers('QUAD', op='union')
-
-def getOrbit(pat='', spos=False):
-    """
-    Return orbit
-
-    :Example:
-
-      >>> getOrbit()
-      >>> getOrbit('*')
-      >>> getOrbit('*', spos=True)
-      >>> getOrbit(['PL1G6C24B', 'PH2G6C25B'])
-
-    If *pat* is not provided, use the group read of every BPMs, this is
-    faster than read BPM one by one with getOrbit('*').
-
-    The return value is a (n,4) or (n,2) 2D array, where n is the number
-    of matched BPMs. The first two columns are x/y orbit, the last two
-    columns are s location for x and y BPMs. returns (n,3) 2D array if x/y
-    have same *s* position.
-
-    When the element is not found or not a BPM, return NaN in its positon.
-    """
-    if not pat:
-        bpm = machines._lat._find_exact_element(machines.HLA_VBPM)
-        n = len(bpm.sb)
-        if spos:
-            ret = np.zeros((n, 3), 'd')
-            ret[:,2] = bpm.sb
-        else:
-            ret = np.zeros((n,2), 'd')
-        ret[:,0] = bpm.x
-        ret[:,1] = bpm.y
-        return ret
-
-    # need match the element name
-    if isinstance(pat, (unicode, str)):
-        elems = [e for e in getBpms()
-                if fnmatch(e.name, pat) and e.isEnabled()]
-        if not elems: return None
-        ret = [[e.x, e.y, e.sb] for e in elems]
-    elif isinstance(pat, (list,)):
-        elems = machines._lat.getElementList(pat)
-        if not elems: return None
-        bpm = [e.name for e in getBpms() if e.isEnabled()]
-        ret = []
-        for e in elems:
-            if not e.name in bpm: ret.append([None, None, None])
-            else: ret.append([e.x, e.y, e.sb])
-    if not ret: return None
-    obt = np.array(ret, 'd')
-    if not spos: return obt[:,:2]
-    else: return obt
-
-def getAverageOrbit(pat = '', spos=False, nsample = 5, dt = 0.1):
-    t0 = datetime.datetime.now()
-    obt0 = getOrbit(pat=pat, spos=spos)
-    nbpm, ncol = np.shape(obt0)
-    obt = np.zeros((nbpm, ncol, nsample), 'd')
-    obt[:,:,0] = obt0[:,:]
-    for i in range(1, nsample):
-        t1 = datetime.datetime.now()
-        dts = (t1 - t0).total_seconds()
-        if dts < dt * i:
-            time.sleep(dt*i - dts + 0.001)
-        obt[:,:,i] = getOrbit(pat=pat, spos=spos)
-    return np.average(obt, axis=-1), np.std(obt, axis=-1)
-
-def waitStableOrbit(reforbit, **kwargs):
-    """
-    set pv to a value, waiting for timeout or the new orbit is stable around reforbit.
-
-    - *diffstd* = 1e-7, std(obt - reforbit) < diffstd means stable
-    - *minwait* = 2, wait at least *minwait* seconds.
-    - *maxwait* =30, timeout seconds.
-    - *step* = 2, sleep at each step.
-    - *diffstd_list* = False
-    """
-
-    diffstd = kwargs.get('diffstd', 1e-7)
-    minwait = kwargs.get('minwait', 2)
-    maxwait = kwargs.get('maxwait', 30)
-    step    = kwargs.get('step', 2)
-    diffstd_list = kwargs.get('diffstd_list', False)
-    verbose = kwargs.get('verbose', 0)
-
-    t0 = time.time()
-    time.sleep(minwait)
-    dv = getOrbit() - reforbit
-    dvstd = [dv.std()]
-    timeout = False
-
-    while dv.std() < diffstd:
-        time.sleep(step)
-        dt = time.time() - t0
-        if dt  > maxwait:
-            timeout = True
-            break
-        dv = getOrbit() - reforbit
-        dvstd.append(dv.std())
-
-    if diffstd_list:
-        return timeout, dvstd
 
 def outputFileName(group, subgroup, create_path = True):
     """generate the system default output data file name
