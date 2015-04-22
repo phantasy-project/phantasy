@@ -83,6 +83,7 @@ class BaseElement(object):
             self.aperture = aperture
         self.desc = desc
         self.channels = Channels()
+        self.chanstore = OrderedDict()
 
     @property
     def z(self):
@@ -691,5 +692,4 @@ class Accelerator(SeqElement):
     """
     def __init__(self, name, desc="accelerator", elements=None):
         super(Accelerator, self).__init__(name, desc=desc, elements=elements)
-        self.channels  = OrderedDict()
 

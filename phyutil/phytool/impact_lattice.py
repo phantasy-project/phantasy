@@ -6,7 +6,9 @@ Implement phylib command 'impact-lattice'.
 
 from __future__ import print_function
 
-import sys, os.path, logging, json
+import sys, os.path, logging, json, traceback
+
+from collections import OrderedDict
 
 from argparse import ArgumentParser
 
@@ -30,6 +32,7 @@ parser.add_argument("--start", help="name of accelerator element to start proces
 parser.add_argument("--end", help="name of accelerator element to end processing")
 parser.add_argument("--mach", help="name of machine (used to indicate VA)")
 parser.add_argument("--chanmap", help="path of file to write channel map")
+parser.add_argument("--latdata", help="path of file to write lattice data")
 parser.add_argument("latpath", nargs="?", help="path to output IMPACT lattice file (test.in)")
 
 help = parser.print_help
@@ -67,6 +70,9 @@ def main():
         print("Destination file already exists: {}".format(args.chanmap), file=sys.stderr)
         return 1
 
+    if (args.latdata != None) and os.path.exists(args.latdata):
+        print("Destination file already exists: {}".format(args.latdata), file=sys.stderr)
+        return 1
 
     try:
         accel = fribxlf.build_accel(xlfpath=args.xlfpath, machine=args.mach)
@@ -89,7 +95,8 @@ def main():
     try:
         lat = impact.build_lattice(accel, settings=settings, start=args.start, end=args.end)
     except Exception as e:
-        print(e, file=sys.stderr)
+        if args.verbosity > 0: traceback.print_exc()
+        print("Error building lattice:", e, file=sys.stderr)
         return 1
 
 
@@ -97,6 +104,9 @@ def main():
         with open(args.chanmap, "w") as fp:
             _write_channel_map(accel, lat, fp)
 
+    if args.latdata != None:
+        with open(args.latdata, "w") as fp:
+            _write_lattice_data(lat, fp)
 
     if args.latpath != None:
         with open(args.latpath, "w") as fp:
@@ -107,7 +117,7 @@ def main():
     return 0
 
 
-def _write_channel_map(accel, lat, file):
+def _write_channel_map(accel, lat, fio):
     """Write the channel to IMPACT output map to file in CSV format:
 
        PV,elemIndex,elemPosition,elemLength,machine,elemName,elemHandle,elemField,elemType
@@ -117,21 +127,69 @@ def _write_channel_map(accel, lat, file):
        V_1:LS1_CA01:CAV1_D1127:AMPL_CSET,3,0.4470635,0.24,V_1,LS1_CA01:CAV1_D1127,setpoint,AMP,CAV
        [...]
     """
+
+    chanstore = OrderedDict()
+    for elem in accel:
+        chanstore.update(elem.chanstore)
+
+
     props = [ "machine", "elemName", "elemHandle", "elemField", "elemType" ]
 
-    file.write("PV,elemIndex,elemPosition,elemLength")
+    fio.write("PV,elemIndex,elemPosition,elemLength")
     for p in props:
-        file.write(","+p)
-    file.write("\r\n")
+        fio.write(","+p)
+    fio.write("\r\n")
 
-    for chanmap in lat.chanmap:
-        for chan in chanmap[4]:
-            data = accel.channels[chan]
-            file.write(chan+","+str(chanmap[0]+1)+","+str(chanmap[2])+","+str(chanmap[3]))
-            for p in props:
-                if p == "elemName" and 'SOL' in data[p] and data['elemType'] in ['DCH', 'DCV']:
-                    file.write(","+str(data[p].replace('SOL', data['elemType'])))
-                else:
-                    file.write(","+str(data[p]))
-            file.write("\r\n")
+    for idx in xrange(len(lat.elements)):
+        elem = lat.elements[idx]
+        for chan, data in chanstore.iteritems():
+            if elem.name == data['elemName']:
+                fio.write(chan+","+str(idx+1)+","+str(elem.position)+","+str(elem.length))
+                for p in props:
+                    fio.write(","+data[p])
+                fio.write("\r\n")
+
+
+def _write_lattice_data(lat, fio):
+    """Write the element data to space delimited format for use with Lattice Service.
+
+    ElementName  ElementType  L  s  AMP PHA B GRAD ANG
+                              m  m   V  deg T T/m  rad
+    ---------------------------------------------
+    DRIFT  VALVE  0.072  0.072  0.0  0.0  0.0  0.0  0.0
+    DRIFT  DRIFT  0.1350635  0.19094025  0.0  0.0  0.0  0.0  0.0
+    LS1_CA01:CAV1_D1127  CAV  0.24  0.4470635  0.64  -6.524  0.0  0.0  0.0
+    DRIFT  DRIFT  0.06426334  0.52745009  0.0  0.0  0.0  0.0  0.0
+    LS1_CA01:BPM_D1129  BPM  0.0  0.51132684  0.0  0.0  0.0  0.0  0.0
+    [...]
+    """
+    fio.write("ElementName  ElementType  L  s")
+    for prop in lat.properties:
+        fio.write(" ")
+        fio.write(prop.name)
+    fio.write("\r\n")
+
+    fio.write("                          m  m")
+    for prop in lat.properties:
+        fio.write(" ")
+        fio.write(prop.units)
+    fio.write("\r\n")
+
+    fio.write("---------------------------------------------\r\n")
+
+    for elem in lat.elements:
+        fio.write(elem.name)
+        fio.write("  ")
+        fio.write(str(elem.etype))
+        fio.write("  ")
+        fio.write(str(elem.length))
+        fio.write("  ")
+        fio.write(str(elem.position))
+        for prop in lat.properties:
+            fio.write("  ")
+            if prop.name in elem.properties:
+                fio.write(str(elem.properties[prop.name]))
+            else:
+                fio.write("NONE")
+        fio.write("\r\n")
 
