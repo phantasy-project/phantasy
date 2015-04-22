@@ -190,6 +190,6 @@ def _write_lattice_data(lat, fio):
             if prop.name in elem.properties:
                 fio.write(str(elem.properties[prop.name]))
             else:
-                fio.write("0.0")
+                fio.write("NONE")
         fio.write("\r\n")
 
