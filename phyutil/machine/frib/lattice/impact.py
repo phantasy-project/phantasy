@@ -36,6 +36,8 @@ CONFIG_IMPACT_LORENTZ_INPUT_ID = "impact_lorentz_input_id"
 
 CONFIG_IMPACT_T7DATA_INPUT_ID = "impact_t7data_input_id"
 
+CONFIG_IMPACT_STRIP_INPUT_ID = "impact_strip_input_id"
+
 
 INTEGRATOR_LINEAR = 1
 
@@ -60,7 +62,6 @@ _DEFAULT_MAPSTEPS = 20
 _DEFAULT_INTEGRATOR = INTEGRATOR_LORENTZ
 
 _DEFAULT_OUTPUT_MODE = OUTPUT_MODE_DIAG
-
 
 
 
@@ -198,6 +199,16 @@ class LatticeFactory(object):
     def _get_config_t7data_input_id(self, dtype):
         if cfg.config.has_option(dtype, CONFIG_IMPACT_T7DATA_INPUT_ID, False):
             return cfg.config.getint(dtype, CONFIG_IMPACT_T7DATA_INPUT_ID, False)
+
+        return None
+
+
+    def _get_config_strip_input_id(self, elem):
+        if cfg.config.has_option(elem.name, CONFIG_IMPACT_STRIP_INPUT_ID, False):
+            return cfg.config.getint(elem.name, CONFIG_IMPACT_STRIP_INPUT_ID, False)
+
+        if cfg.config.has_option(elem.dtype, CONFIG_IMPACT_STRIP_INPUT_ID, False):
+            return cfg.config.getint(elem.dtype, CONFIG_IMPACT_STRIP_INPUT_ID, False)
 
         return None
 
@@ -497,14 +508,16 @@ class LatticeFactory(object):
                                     name=elem.name, etype="BEND", properties={ "B":field })
 
             elif isinstance(elem, (ChgStripElement)):
+                input_id = self._get_config_strip_input_id(elem)
+                if input_id == None:
+                    raise RuntimeError("LatticeFactory: IMPACT input id for '{}' not found".format(elem.name))
+
                 if elem.length != 0.0:
                     lattice.append("{length} {steps} {mapsteps} {itype} {radius}",
                                     length=elem.length/2.0, steps=steps, mapsteps=mapsteps, itype=0, radius=elem.apertureX/2.0,
                                     position=elem.z-poffset, name="DRIFT", etype="DRIFT")
 
-                # Charge stripper for multi charge state: 885
-                # Charge stripper for single charge state: 781
-                lattice.append("{length} 0 885 {itype} 0 0", length=0.0, itype=-11, position=elem.z-poffset, name=elem.name, etype="STRIP")
+                lattice.append("{length} 0 "+str(input_id)+" {itype} 0 0", length=0.0, itype=-11, position=elem.z-poffset, name=elem.name, etype="STRIP")
 
                 if elem.length != 0.0:
                     lattice.append("{length} {steps} {mapsteps} {itype} {radius}",
