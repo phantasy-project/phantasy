@@ -68,7 +68,7 @@ _DEFAULT_OUTPUT_MODE = OUTPUT_MODE_DIAG
 _LOGGER = logging.getLogger(__name__)
 
 
-def build_lattice(accel, settings=None, start=None, end=None):
+def build_lattice(accel, settings=None, start=None, end=None,  template=False):
     """Convenience method for building the IMPACT lattice."""
 
     lattice_factory = LatticeFactory(accel)
@@ -81,6 +81,9 @@ def build_lattice(accel, settings=None, start=None, end=None):
 
     if end != None:
         lattice_factory.end = end
+
+    if template == True:
+        lattice_factory.template = template
 
     return lattice_factory.build()
 
@@ -98,6 +101,7 @@ class LatticeFactory(object):
         self.settings = None
         self.start = None
         self.end = None
+        self.template = False
 
 
     @property
@@ -140,7 +144,7 @@ class LatticeFactory(object):
     @integrator.setter
     def integrator(self, integrator):
         if (integrator != None) and integrator not in [ INTEGRATOR_LINEAR, INTEGRATOR_LORENTZ ]:
-            raise TypeError("LatticeFactory: 'integrator' property must be Enum or None")
+            raise TypeError("LatticeFactory: 'integrator' property must be a supported integer value or None")
         self._integrator = integrator
 
 
@@ -151,7 +155,7 @@ class LatticeFactory(object):
     @start.setter
     def start(self, start):
         if (start != None) and not isinstance(start, basestring):
-            raise TypeError("LatticeFactory: 'start' property much be type string or None")
+            raise TypeError("LatticeFactory: 'start' property must be type string or None")
         self._start = start
 
 
@@ -162,7 +166,7 @@ class LatticeFactory(object):
     @end.setter
     def end(self, end):
         if (end != None) and not isinstance(end, basestring):
-            raise TypeError("LatticeFactory: 'end' property much be type string or None")
+            raise TypeError("LatticeFactory: 'end' property must be type string or None")
         self._end = end
 
 
@@ -173,8 +177,19 @@ class LatticeFactory(object):
     @settings.setter
     def settings(self, settings):
         if (settings != None) and not isinstance(settings, (dict)):
-            raise TypeError("LatticeFactory: 'settings' property much be type string or None")
+            raise TypeError("LatticeFactory: 'settings' property must be type string or None")
         self._settings = settings
+
+
+    @property
+    def template(self):
+        return self._template
+
+    @template.setter
+    def template(self, template):
+        if not isinstance(template, bool):
+            raise TypeError("LatticeFactory: 'template' property must be type bool")
+        self._template = template
 
 
     def _get_config_type(self, dtype, default):
@@ -282,9 +297,11 @@ class LatticeFactory(object):
         if integrator == None:
             integrator = self._get_config_integrator()
 
-        settings = self.settings
-        if settings == None:
-            settings = self._get_config_settings()
+        settings = None
+        if self.template == False:
+            settings = self.settings
+            if settings == None:
+                settings = self._get_config_settings()
 
         lattice = Lattice(integrator)
         lattice.nparticles = nparticles
