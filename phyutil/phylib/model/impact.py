@@ -9,7 +9,7 @@ __copyright__ = "Copyright (c) 2015, Facility for Rare Isotope Beams"
 __author__ = "Dylan Maxwell"
 
 
-import os, os.path, shutil
+import os.path, shutil
 
 import numpy as np
 
@@ -203,14 +203,7 @@ class Result(object):
 
         return data
 
-        # z, phase (rad), energy (MeV), gamma, beta
-        self._fort18 = fort18
-        # X0, X0', Xrms, X'rms, Ex, Alpha x, Beta x
-        self._fort24 = fort24
-        # Y0, Y0', Yrms, Y'rms, Yp, Alpha y, Beta y
-        self._fort25 = fort25
-        # Z0, Z0', Zrms, Z'rms, Zp, Alpha Z, Beta z
-        self._fort26 - fort26
+
 
     def get_twiss_beta(self, plane="X"):
         """Get beam twiss beta parameters.
@@ -247,14 +240,6 @@ class Result(object):
 
         return data
 
-        # z, phase (rad), energy (MeV), gamma, beta
-        self._fort18 = fort18
-        # X0, X0', Xrms, X'rms, Ex, Alpha x, Beta x
-        self._fort24 = fort24
-        # Y0, Y0', Yrms, Y'rms, Yp, Alpha y, Beta y
-        self._fort25 = fort25
-        # Z0, Z0', Zrms, Z'rms, Zp, Alpha Z, Beta z
-        self._fort26 - fort26
 
     def get_beam_rms(self, plane="X"):
         """Get beam RMS size in X, Y, Z, or XY [meter].
