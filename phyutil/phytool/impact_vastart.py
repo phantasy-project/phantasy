@@ -6,7 +6,7 @@ Implement phylib command 'impact-vastart'.
 
 from __future__ import print_function
 
-import sys, os.path, json, logging
+import sys, json, logging
 
 from argparse import ArgumentParser
 

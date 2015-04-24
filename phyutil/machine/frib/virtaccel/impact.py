@@ -8,8 +8,7 @@ __copyright__ = "Copyright (c) 2015, Facility for Rare Isotope Beams"
 
 __author__ = "Dylan Maxwell"
 
-import sys, os.path, tempfile, random, shutil, numpy
-
+import os.path, tempfile, random, shutil, numpy
 import subprocess, cothread, threading, logging, json, time
 
 from cothread import catools
@@ -18,7 +17,11 @@ from collections import OrderedDict
 
 from ....phylib import cfg
 
-from ....phylib.layout.accel import *
+from ....phylib.layout.accel import SeqElement, CONFIG_MACHINE 
+from ....phylib.layout.accel import CavityElement, SolCorrElement, CorrElement
+from ....phylib.layout.accel import QuadElement, BendElement, HexElement, ChgStripElement
+from ....phylib.layout.accel import BPMElement, PMElement, BLElement, BCMElement, BLMElement 
+from ....phylib.layout.accel import ValveElement, PortElement, DriftElement
 
 from ..lattice.impact import LatticeFactory
 
@@ -261,32 +264,41 @@ class VirtualAcceleratorFactory(object):
         for elem in self.accel.iter(start=self.start, end=self.end):
 
             if isinstance(elem, CavityElement):
-               chans = elem.channels
-               va.append_rw(chans.phase_cset, chans.phase_rset, chans.phase_read, name="Cavity Phase", egu="degree", drvrel=0.05)
-               va.append_rw(chans.amplitude_cset, chans.amplitude_rset, chans.amplitude_read, name="Cavity Amplitude", egu="%", drvrel=0.05)
-               va.append_elem(elem)
+                chans = elem.channels
+                va.append_rw(chans.phase_cset, chans.phase_rset, chans.phase_read, 
+                             name="Cavity Phase", egu="degree", drvabs=180)
+                va.append_rw(chans.amplitude_cset, chans.amplitude_rset, chans.amplitude_read, 
+                             name="Cavity Amplitude", egu="%", drvratio=0.05)
+                va.append_elem(elem)
 
             elif isinstance(elem, SolCorrElement):
                 chans = elem.channels
-                va.append_rw(chans.field_cset, chans.field_rset, chans.field_read, name="Solenoid Field", egu="T", drvrel=0.05)
-                va.append_rw(chans.hkick_cset, chans.hkick_rset, chans.hkick_read, name="Horizontal Corrector", egu="radian", drvabs=0.0001)
-                va.append_rw(chans.vkick_cset, chans.vkick_rset, chans.vkick_read, name="Vertical Corrector", egu="radian", drvabs=0.0001)
+                va.append_rw(chans.field_cset, chans.field_rset, chans.field_read, 
+                             name="Solenoid Field", egu="T", drvratio=0.05)
+                va.append_rw(chans.hkick_cset, chans.hkick_rset, chans.hkick_read, 
+                             name="Horizontal Corrector", egu="radian", drvabs=0.0001)
+                va.append_rw(chans.vkick_cset, chans.vkick_rset, chans.vkick_read, 
+                             name="Vertical Corrector", egu="radian", drvabs=0.0001)
                 va.append_elem(elem)
 
             elif isinstance(elem, CorrElement):
                 chans = elem.channels
-                va.append_rw(chans.hkick_cset, chans.hkick_rset, chans.hkick_read, name="Horizontal Corrector", egu="radian", drvabs=0.0001)
-                va.append_rw(chans.vkick_cset, chans.vkick_rset, chans.vkick_read, name="Vertical Corrector", egu="radian", drvabs=0.0001)
+                va.append_rw(chans.hkick_cset, chans.hkick_rset, chans.hkick_read, 
+                             name="Horizontal Corrector", egu="radian", drvabs=0.0001)
+                va.append_rw(chans.vkick_cset, chans.vkick_rset, chans.vkick_read, 
+                             name="Vertical Corrector", egu="radian", drvabs=0.0001)
                 va.append_elem(elem)
 
             elif isinstance(elem, BendElement):
                 chans = elem.channels
-                va.append_rw(chans.field_cset, chans.field_rset, chans.field_read, name="Bend Relative Field", egu="none", drvrel=0.05)
+                va.append_rw(chans.field_cset, chans.field_rset, chans.field_read, 
+                             name="Bend Relative Field", egu="none", drvratio=0.05)
                 va.append_elem(elem)
 
             elif isinstance(elem, QuadElement):
                 chans = elem.channels
-                va.append_rw(chans.gradient_cset, chans.gradient_rset, chans.gradient_read, name="Quadrupole Gradient", egu="T/m", drvrel=0.05)
+                va.append_rw(chans.gradient_cset, chans.gradient_rset, chans.gradient_read, 
+                             name="Quadrupole Gradient", egu="T/m", drvratio=0.05)
                 va.append_elem(elem)
 
             elif isinstance(elem, HexElement):
@@ -400,8 +412,23 @@ class VirtualAccelerator(object):
         self._work_dir = work_dir
 
 
-    def append_rw(self, cset, rset, read, name="Element", egu="", prec=5, drvabs=None, drvrel=None):
+    def append_rw(self, cset, rset, read, name="Element", egu="", prec=5, drvabs=None, drvrel=None, drvratio=None):
         """Append a set of read/write channels to this virtual accelerator.
+        The algorithm to set EPICS DRVH/DRVK is as:
+            - if absolute limit (drvabs) is given, use absolute
+            - or if relative limit (drvres) is given, use relative
+            - or if a ratio (drvratio) is given, use ratio
+            - otherwise, no limit.
+        
+        :param cset:        pv name of set point
+        :param rset:        pv name of read back for set point
+        :param read:        pv name of read back
+        :param name:        element description
+        :param egu:         EPICS record engineering unit
+        :param prec:        EPICS display precision
+        :param drvabs:      absolute driven limit with +-abs(drvabs)
+        :param drvrel:      relative driven limit, value +- abs(drvabs)
+        :param drvratio:    driven ratio of setting point value * (1 +- ratio) 
         """
         if self.is_started():
             raise RuntimeError("VirtualAccelerator: Cannot append RW channel when started")
@@ -409,12 +436,15 @@ class VirtualAccelerator(object):
         val = self._settings[cset]["VAL"]
         drvh = None
         drvl = None
-        if drvabs != None:
+        if drvabs is not None:
+            drvh = abs(drvabs)
+            drvl = - abs(drvabs)
+        elif drvrel is not None:
             drvh = val + abs(drvabs)
-            drvl = val - abs(drvabs)
-        elif drvrel != None:
-            drvh = val + abs(val*drvrel)
-            drvl = val - abs(val*drvrel)
+            drvl = val - abs(drvabs)            
+        elif drvratio != None:
+            drvh = val + abs(val*drvratio)
+            drvl = val - abs(val*drvratio)
 
         self._epicsdb.append(("ao", cset, OrderedDict([
                 ("DESC", "{} Set Point".format(name)),
@@ -627,15 +657,16 @@ class VirtualAccelerator(object):
             self._latfactory.settings = settings
             lattice = self._latfactory.build()
 
-            with open(latticepath, "w") as file:
-                lattice.write(file)
+            with open(latticepath, "w") as outfile:
+                lattice.write(outfile)
 
             start = time.time()
 
-            impact_process = _Cothread_Popen(["mpirun", "-np", str(lattice.nprocessors), str(self.impact_exe)], cwd=self.work_dir,
+            impact_process = _Cothread_Popen(["mpirun", "-np", str(lattice.nprocessors), 
+                                              str(self.impact_exe)], cwd=self.work_dir,
                                                stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
-            (stdout, stderr, status) = impact_process.communicate()
+            (stdout, _, status) = impact_process.communicate()
 
             _LOGGER.info("VirtualAccelerator: IMPACT execution time: %f s", time.time()-start)
 
@@ -666,33 +697,43 @@ class VirtualAccelerator(object):
             output_length = len(output_map)
 
             if(fort24.shape[0] < output_length):
-                _LOGGER.warning("VirtualAccelerator: IMPACT output length %s, expecting %s", fort24.shape[0], output_length)
+                _LOGGER.warning("VirtualAccelerator: IMPACT output length %s, expecting %s",
+                                 fort24.shape[0], output_length)
 
             if(fort25.shape[0] < output_length):
-                _LOGGER.warning("VirtualAccelerator: IMPACT output length %s, expecting %s", fort25.shape[0], output_length)
+                _LOGGER.warning("VirtualAccelerator: IMPACT output length %s, expecting %s", 
+                                fort25.shape[0], output_length)
 
             for idx in xrange(min(output_length, fort24.shape[0], fort25.shape[0])):
 
                 elem = self._elemmap[output_map[idx]]
 
                 if isinstance(elem, BPMElement):
-                    _LOGGER.debug("VirtualAccelerator: Update read: %s to %s", elem.channels.hposition_read, fort24[idx,0])
+                    _LOGGER.debug("VirtualAccelerator: Update read: %s to %s", elem.channels.hposition_read, 
+                                  fort24[idx,0])
                     catools.caput(elem.channels.hposition_read, fort24[idx,0])
-                    _LOGGER.debug("VirtualAccelerator: Update read: %s to %s", elem.channels.vposition_read, fort25[idx,0])
+                    _LOGGER.debug("VirtualAccelerator: Update read: %s to %s", elem.channels.vposition_read, 
+                                  fort25[idx,0])
                     catools.caput(elem.channels.vposition_read, fort25[idx,0])
-                    _LOGGER.debug("VirtualAccelerator: Update read: %s to %s", elem.channels.phase_read, fort18[idx,1])
+                    _LOGGER.debug("VirtualAccelerator: Update read: %s to %s", elem.channels.phase_read, 
+                                  fort18[idx,1])
                     catools.caput(elem.channels.phase_read, fort18[idx,1])
                 elif isinstance(elem, PMElement):
-                    _LOGGER.debug("VirtualAccelerator: Update read: %s to %s", elem.channels.hposition_read, fort24[idx,0])
+                    _LOGGER.debug("VirtualAccelerator: Update read: %s to %s", elem.channels.hposition_read, 
+                                  fort24[idx,0])
                     catools.caput(elem.channels.hposition_read, fort24[idx,0])
-                    _LOGGER.debug("VirtualAccelerator: Update read: %s to %s", elem.channels.vposition_read, fort25[idx,0])
+                    _LOGGER.debug("VirtualAccelerator: Update read: %s to %s", elem.channels.vposition_read, 
+                                  fort25[idx,0])
                     catools.caput(elem.channels.vposition_read, fort25[idx,0])
-                    _LOGGER.debug("VirtualAccelerator: Update read: %s to %s", elem.channels.hsize_read, fort24[idx,1])
+                    _LOGGER.debug("VirtualAccelerator: Update read: %s to %s", elem.channels.hsize_read, 
+                                  fort24[idx,1])
                     catools.caput(elem.channels.hsize_read, fort24[idx,1])
-                    _LOGGER.debug("VirtualAccelerator: Update read: %s to %s", elem.channels.vsize_read, fort25[idx,1])
+                    _LOGGER.debug("VirtualAccelerator: Update read: %s to %s", elem.channels.vsize_read, 
+                                  fort25[idx,1])
                     catools.caput(elem.channels.vsize_read, fort25[idx,1])
                 else:
-                    _LOGGER.warning("VirtualAccelerator: Output from element type not supported: %s", type(elem).__name__)
+                    _LOGGER.warning("VirtualAccelerator: Output from element type not supported: %s", 
+                                    type(elem).__name__)
 
             for name, value in self._csetmap.iteritems():
                 _LOGGER.debug("VirtualAccelerator: Update rset: %s to %s", value[1], settings[name]["VAL"])
