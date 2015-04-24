@@ -639,8 +639,8 @@ class VirtualAccelerator(object):
                 os.symlink(srcpath, destpath)
                 _LOGGER.debug("VirtualAccelerator: Link data file %s to %s", srcpath, destpath)
 
-        with open(epicsdbpath, "w") as file:
-            self._write_epicsdb(file)
+        with open(epicsdbpath, "w") as outfile:
+            self._write_epicsdb(outfile)
 
         self._ioc_logfile = open(epicslogpath, "w")
         self._ioc_process = _Cothread_Popen(["softIoc", "-d", "va.db"], cwd=self.work_dir,
@@ -800,7 +800,7 @@ class _Cothread_Popen(object):
         self._event = None
 
 
-    def communicate(self, input=None):
+    def communicate(self, input=None): # @ReservedAssignment
         """Start a real OS thread to wait for process communication.
         """
         if self._event == None:
@@ -813,7 +813,7 @@ class _Cothread_Popen(object):
         return (self._output[0], self._output[1], self._process.poll())
 
 
-    def _communicate_thread(self, input):
+    def _communicate_thread(self, input): # @ReservedAssignment
         """Executes in separate OS thread. Wait for communication
            then return the output to the cothread context.
         """
