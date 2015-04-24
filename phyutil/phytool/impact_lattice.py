@@ -33,6 +33,7 @@ parser.add_argument("--end", help="name of accelerator element to end processing
 parser.add_argument("--mach", help="name of machine (used to indicate VA)")
 parser.add_argument("--chanmap", help="path of file to write channel map")
 parser.add_argument("--latdata", help="path of file to write lattice data")
+parser.add_argument("--template", action="store_true", help="ignore settings and generate template")
 parser.add_argument("latpath", nargs="?", help="path to output IMPACT lattice file (test.in)")
 
 help = parser.print_help
@@ -81,19 +82,19 @@ def main():
         return 1
 
 
-    if args.stgpath == None:
+    if (args.stgpath == None) or (args.template == True):
         settings = None
     else:
         try:
             with open(args.stgpath, "r") as fp:
                 settings = json.load(fp)
         except Exception as e:
-            print(e, file=sys.stderr)
+            print("Error reading settings:", e, file=sys.stderr)
             return 1
 
 
     try:
-        lat = impact.build_lattice(accel, settings=settings, start=args.start, end=args.end)
+        lat = impact.build_lattice(accel, settings=settings, start=args.start, end=args.end, template=args.template)
     except Exception as e:
         if args.verbosity > 0: traceback.print_exc()
         print("Error building lattice:", e, file=sys.stderr)

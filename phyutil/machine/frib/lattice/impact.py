@@ -36,10 +36,20 @@ CONFIG_IMPACT_LORENTZ_INPUT_ID = "impact_lorentz_input_id"
 
 CONFIG_IMPACT_T7DATA_INPUT_ID = "impact_t7data_input_id"
 
+CONFIG_IMPACT_STRIP_INPUT_ID = "impact_strip_input_id"
+
 
 INTEGRATOR_LINEAR = 1
 
 INTEGRATOR_LORENTZ = 2
+
+OUTPUT_MODE_NONE = 0
+
+OUTPUT_MODE_STD = 1
+
+OUTPUT_MODE_DIAG = 3
+
+OUTPUT_MODE_END = 5
 
 _DEFAULT_NPARTICLES = 1000
 
@@ -51,11 +61,14 @@ _DEFAULT_MAPSTEPS = 20
 
 _DEFAULT_INTEGRATOR = INTEGRATOR_LORENTZ
 
+_DEFAULT_OUTPUT_MODE = OUTPUT_MODE_DIAG
+
+
 
 _LOGGER = logging.getLogger(__name__)
 
 
-def build_lattice(accel, settings=None, start=None, end=None):
+def build_lattice(accel, settings=None, start=None, end=None,  template=False):
     """Convenience method for building the IMPACT lattice."""
 
     lattice_factory = LatticeFactory(accel)
@@ -68,6 +81,9 @@ def build_lattice(accel, settings=None, start=None, end=None):
 
     if end != None:
         lattice_factory.end = end
+
+    if template == True:
+        lattice_factory.template = template
 
     return lattice_factory.build()
 
@@ -85,6 +101,7 @@ class LatticeFactory(object):
         self.settings = None
         self.start = None
         self.end = None
+        self.template = False
 
 
     @property
@@ -127,7 +144,7 @@ class LatticeFactory(object):
     @integrator.setter
     def integrator(self, integrator):
         if (integrator != None) and integrator not in [ INTEGRATOR_LINEAR, INTEGRATOR_LORENTZ ]:
-            raise TypeError("LatticeFactory: 'integrator' property must be Enum or None")
+            raise TypeError("LatticeFactory: 'integrator' property must be a supported integer value or None")
         self._integrator = integrator
 
 
@@ -138,7 +155,7 @@ class LatticeFactory(object):
     @start.setter
     def start(self, start):
         if (start != None) and not isinstance(start, basestring):
-            raise TypeError("LatticeFactory: 'start' property much be type string or None")
+            raise TypeError("LatticeFactory: 'start' property must be type string or None")
         self._start = start
 
 
@@ -149,7 +166,7 @@ class LatticeFactory(object):
     @end.setter
     def end(self, end):
         if (end != None) and not isinstance(end, basestring):
-            raise TypeError("LatticeFactory: 'end' property much be type string or None")
+            raise TypeError("LatticeFactory: 'end' property must be type string or None")
         self._end = end
 
 
@@ -160,8 +177,19 @@ class LatticeFactory(object):
     @settings.setter
     def settings(self, settings):
         if (settings != None) and not isinstance(settings, (dict)):
-            raise TypeError("LatticeFactory: 'settings' property much be type string or None")
+            raise TypeError("LatticeFactory: 'settings' property must be type string or None")
         self._settings = settings
+
+
+    @property
+    def template(self):
+        return self._template
+
+    @template.setter
+    def template(self, template):
+        if not isinstance(template, bool):
+            raise TypeError("LatticeFactory: 'template' property must be type bool")
+        self._template = template
 
 
     def _get_config_type(self, dtype, default):
@@ -186,6 +214,16 @@ class LatticeFactory(object):
     def _get_config_t7data_input_id(self, dtype):
         if cfg.config.has_option(dtype, CONFIG_IMPACT_T7DATA_INPUT_ID, False):
             return cfg.config.getint(dtype, CONFIG_IMPACT_T7DATA_INPUT_ID, False)
+
+        return None
+
+
+    def _get_config_strip_input_id(self, elem):
+        if cfg.config.has_option(elem.name, CONFIG_IMPACT_STRIP_INPUT_ID, False):
+            return cfg.config.getint(elem.name, CONFIG_IMPACT_STRIP_INPUT_ID, False)
+
+        if cfg.config.has_option(elem.dtype, CONFIG_IMPACT_STRIP_INPUT_ID, False):
+            return cfg.config.getint(elem.dtype, CONFIG_IMPACT_STRIP_INPUT_ID, False)
 
         return None
 
@@ -259,9 +297,11 @@ class LatticeFactory(object):
         if integrator == None:
             integrator = self._get_config_integrator()
 
-        settings = self.settings
-        if settings == None:
-            settings = self._get_config_settings()
+        settings = None
+        if self.template == False:
+            settings = self.settings
+            if settings == None:
+                settings = self._get_config_settings()
 
         lattice = Lattice(integrator)
         lattice.nparticles = nparticles
@@ -485,14 +525,16 @@ class LatticeFactory(object):
                                     name=elem.name, etype="BEND", properties={ "B":field })
 
             elif isinstance(elem, (ChgStripElement)):
+                input_id = self._get_config_strip_input_id(elem)
+                if input_id == None:
+                    raise RuntimeError("LatticeFactory: IMPACT input id for '{}' not found".format(elem.name))
+
                 if elem.length != 0.0:
                     lattice.append("{length} {steps} {mapsteps} {itype} {radius}",
                                     length=elem.length/2.0, steps=steps, mapsteps=mapsteps, itype=0, radius=elem.apertureX/2.0,
                                     position=elem.z-poffset, name="DRIFT", etype="DRIFT")
 
-                # Charge stripper for multi charge state: 885
-                # Charge stripper for single charge state: 781
-                lattice.append("{length} 0 885 {itype} 0 0", length=0.0, itype=-11, position=elem.z-poffset, name=elem.name, etype="STRIP")
+                lattice.append("{length} 0 "+str(input_id)+" {itype} 0 0", length=0.0, itype=-11, position=elem.z-poffset, name=elem.name, etype="STRIP")
 
                 if elem.length != 0.0:
                     lattice.append("{length} {steps} {mapsteps} {itype} {radius}",
@@ -544,6 +586,7 @@ class Lattice(object):
         self.comment = None
         self.nparticles = _DEFAULT_NPARTICLES
         self.nprocessors = _DEFAULT_NPROCESSORS
+        self.outputMode = _DEFAULT_OUTPUT_MODE
         self.elements = []
         self.properties = []
 
@@ -565,6 +608,17 @@ class Lattice(object):
     @nprocessors.setter
     def nprocessors(self, nprocessors):
         self._nprocessors = int(nprocessors)
+
+
+    @property
+    def outputMode(self):
+        return self._outputMode
+
+    @outputMode.setter
+    def outputMode(self, outputMode):
+        if outputMode not in [ OUTPUT_MODE_NONE, OUTPUT_MODE_STD, OUTPUT_MODE_DIAG, OUTPUT_MODE_END ]:
+            raise ValueError("Lattice: 'outputMode' property must be a supported integer value")
+        self._outputMode = outputMode
 
 
     def append(self, elemformat, length=0.0, steps=0, mapsteps=0, itype=0, radius=0.0, position=0.0, name=None, etype=None, properties={}):
@@ -590,7 +644,7 @@ class Lattice(object):
         file.write("!! Generated by PhysUtil - {}\r\n".format(datetime.now()))
         if self.comment != None: file.write("!! {}\r\n".format(self.comment))
         file.write("{lat.nprocessors} 1\r\n".format(lat=self))
-        file.write("6 {lat.nparticles} {lat._integrator} 0 3\r\n".format(lat=self))
+        file.write("6 {lat.nparticles} {lat._integrator} 0 {lat.outputMode}\r\n".format(lat=self))
         file.write("65 65 129 4 0.140000 0.140000 0.1025446\r\n")
         file.write("3 0 0 1\r\n")
         file.write("{lat.nparticles}\r\n".format(lat=self))
