@@ -565,9 +565,9 @@ class CaAction:
                 self.pvsp = [p for p in pv]
             #lim_h = [self._get_sp_lim_h(pvi) for pvi in self.pvsp]
             # None means not checked yet. (None, None) checked but no limit
-            self.pvlim = [None for i in range(len(self.pvsp))]
-            self.pvh = [None for i in range(len(self.pvsp))]
-            self.golden = [None for i in self.pvsp]
+            self.pvlim = [None] * len(self.pvsp)
+            self.pvh = [None] * len(self.pvsp)
+            self.golden = [None] * len(self.pvsp)
         elif not isinstance(pv, (tuple, list)):
             while idx >= len(self.pvsp):
                 self.pvsp.append(None)
@@ -816,7 +816,6 @@ class CaElement(AbstractElement):
         - tags: all tags are met
         - field: return pvrb + pvsp
         """
-        ret = None
         if kwargs.get('tag', None):
             return self._pv_tags([kwargs['tag']])
         elif kwargs.get('tags', None):
@@ -831,10 +830,10 @@ class CaElement(AbstractElement):
         elif kwargs.get('handle', None):
             pvl = []
             if kwargs["handle"] == "setpoint":
-                for fld,act in self._field.items():
+                for _, act in self._field.items():
                     pvl.extend(act.pvsp)
             elif kwargs["handle"] == "readback":
-                for fld,act in self._field.items():
+                for _, act in self._field.items():
                     pvl.extend(act.pvrb)
             return pvl
         return []
@@ -914,7 +913,6 @@ class CaElement(AbstractElement):
     #     self._field['status'].appendReadback(pv)
 
     def addAliasField(self, newfld, fld):
-        import copy
         self._field[newfld] = copy.deepcopy(self._field[fld])
 
     def status(self):
@@ -996,16 +994,20 @@ class CaElement(AbstractElement):
         returns True or False. If no specified handle, returns False.
         """
 
-        if not self._field.has_key(field): return False
+        if not self._field.has_key(field): 
+            return False
 
-        if src is None and dst is None: return True
+        if src is None and dst is None: 
+            return True
 
         unitconv = self._get_unitconv(field, handle)
 
-        if (src, dst) in unitconv: return True
+        if (src, dst) in unitconv: 
+            return True
         
         uc = unitconv.get((dst, src), None)
-        if uc is not None and uc.invertible: return True
+        if uc is not None and uc.invertible: 
+            return True
         return False
 
     def addUnitConversion(self, field, uc, src, dst, handle=None):
@@ -1018,12 +1020,16 @@ class CaElement(AbstractElement):
         # src, dst is unit system name, e.g. None for raw, phy
         if handle is None or handle == "readback":
             self._field[field].ucrb[(src, dst)] = uc
-            if src is None: self._field[field].pvrbunit = uc.srcunit
-            elif dst is None: self._field[field].pvrbunit = uc.dstunit
+            if src is None: 
+                self._field[field].pvrbunit = uc.srcunit
+            elif dst is None: 
+                self._field[field].pvrbunit = uc.dstunit
         if handle is None or handle == "setpoint":
             self._field[field].ucsp[(src, dst)] = uc
-            if src is None: self._field[field].pvspunit = uc.srcunit
-            elif dst is None: self._field[field].pvspunit = uc.dstunit
+            if src is None: 
+                self._field[field].pvspunit = uc.srcunit
+            elif dst is None: 
+                self._field[field].pvspunit = uc.dstunit
 
     def convertUnit(self, field, x, src, dst, handle = "readback"):
         """convert value x between units without setting hardware"""
@@ -1040,7 +1046,8 @@ class CaElement(AbstractElement):
 
         """
         unitconv = self._get_unitconv(field, handle)
-        if not unitconv: return [None]
+        if not unitconv: 
+            return [None]
 
         src, dst = zip(*(unitconv.keys()))
 
@@ -1080,8 +1087,10 @@ class CaElement(AbstractElement):
 
         unitconv = self._get_unitconv(field, handle)
         for k,v in unitconv.iteritems():
-            if k[0] == unitsys: return v.srcunit
-            elif k[1] == unitsys: return v.dstunit
+            if k[0] == unitsys: 
+                return v.srcunit
+            elif k[1] == unitsys: 
+                return v.dstunit
 
         return ""
 
@@ -1092,11 +1101,14 @@ class CaElement(AbstractElement):
             raise RuntimeError("element '%s' has no '%s' field" % \
                                    self.name, field)
 
-        if unitsys is None: self._field[field].pvunit = u
+        if unitsys is None: 
+            self._field[field].pvunit = u
         
         for k,v in self._get_unitconv(field, handle).iteritems():
-            if k[0] == unitsys: v.srcunit = u
-            elif k[1] == unitsys: v.dstunit = u
+            if k[0] == unitsys: 
+                v.srcunit = u
+            elif k[1] == unitsys: 
+                v.dstunit = u
 
     def getEpsilon(self, field):
         return self._field[field].sprb_epsilon
@@ -1209,8 +1221,10 @@ class CaElement(AbstractElement):
         first time putting a value to it. Since putting a value needs to know
         the boundary and check if the value is inside.
         """
-        if field is None: fields = self._field.keys()
-        else: fields = [field]
+        if field is None: 
+            fields = self._field.keys()
+        else: 
+            fields = [field]
 
         kw = {}
         if lowhi is not None: 
@@ -1470,15 +1484,19 @@ def merge(elems, field = None, **kwargs):
                 pvdict.pop(k)
         #print pvdict.keys()
         for fld,pvs in pvdict.iteritems():
-            if len(pvs[0]) > 0: elem.setGetAction(pvs[0], fld, None, '')
-            if len(pvs[1]) > 0: elem.setPutAction(pvs[1], fld, None, '')
+            if len(pvs[0]) > 0: 
+                elem.setGetAction(pvs[0], fld, None, '')
+            if len(pvs[1]) > 0: 
+                elem.setPutAction(pvs[1], fld, None, '')
         elem.sb = [e.sb for e in elems]
         elem.se = [e.se for e in elems]
         elem._name = [e.name for e in elems]
     elif field in pvdict:
         pvrb, pvsp = pvdict[field][0], pvdict[field][1]
-        if len(pvrb) > 0: elem.setGetAction(pvrb, field, None, '')
-        if len(pvsp) > 0: elem.setPutAction(pvsp, field, None, '')
+        if len(pvrb) > 0: 
+            elem.setGetAction(pvrb, field, None, '')
+        if len(pvsp) > 0: 
+            elem.setPutAction(pvsp, field, None, '')
         # count the element who has the field
         elemgrp = [e for e in elems if field in e.fields()]
         elem.sb = [e.sb for e in elemgrp] 
