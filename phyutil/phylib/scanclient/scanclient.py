@@ -50,6 +50,10 @@ def scan1d(device, start, stop, step, meas_dev, **kwds):
                      `True`  to delete the scan from the server.
         - delay:     delay in seconds, 5.0 by default.
         - samples:   how many point taken for each measurement device, 1 by default
+        - compress:  how to compress data if multiple samples are taken, None by default.
+                     Has to be:
+                     `None`: no compress, and keep all data as it is;
+                     `average`: take an average. 
 
     :param device:     Device name
     :param start:      Initial value
@@ -70,13 +74,14 @@ def scan1d(device, start, stop, step, meas_dev, **kwds):
     tolerance = kwds.get("tolerance", 0.0)
     timeout = kwds.get("timeout", 5.0)
     ramping = kwds.get("ramping", False)
-    cleanup = kwds.get("cleanup", False)
+    cleanup = kwds.get("cleanup", True)
     delay = kwds.get("delay", 5.0)
     samples = int(kwds.get("samples", 1))
-    compress = kwds.get("compress", "average")
+    compress = kwds.get("compress", None)
+    if compress is not None:
+        # TODO add support for multiple samples and compress.lower not in ["average"]:
+        raise RuntimeError("Compress algorithm is not support yet.")
     completion = True
-    if readback:
-        completion = False
 
     scan_cmds = []
 
@@ -115,7 +120,7 @@ def scan1d(device, start, stop, step, meas_dev, **kwds):
                                     [Delay(delay), Log([device] + list(meas_dev))])
                                ],
                               completion=completion, 
-                              readback=False, 
+                              readback=readback, tolerance=tolerance, 
                               timeout=timeout, errhandler='OnErrorRetryThenAbort'))
     
     # ramp back to original setting
@@ -185,6 +190,10 @@ def scan2d(device1, device2, meas_dev, **kwds):
                      `True`  to delete the scan from the server.
         - delay:     delay in seconds, 5.0 by default.
         - samples:   how many point taken for each measurement device, 1 by default
+        - compress:  how to compress data if multiple samples are taken, None by default.
+                     Has to be:
+                     `None`: no compress, and keep all data as it is;
+                     `average`: take an average. 
 
     :param device1:    first dimension information with format [Device name, start, stop, step]
     :param device2:    second dimension information with format [Device name, start, stop, step]
@@ -209,16 +218,15 @@ def scan2d(device1, device2, meas_dev, **kwds):
     tolerance2 = kwds.get("tolerance2", 0.0)
     timeout = kwds.get("timeout", 5.0)
     ramping = kwds.get("ramping", False)
-    cleanup = kwds.get("cleanup", False)
+    cleanup = kwds.get("cleanup", True)
     delay = kwds.get("delay", 5.0)
     samples = int(kwds.get("samples", 1))
-    compress = kwds.get("compress", "average")
-    completion1 = True
-    completion2 = True
-    if readback1:
-        completion1 = False
-    if readback2:
-        completion2 = False
+    compress = kwds.get("compress", None)
+    if compress is not None:
+        # TODO add support to compress multiple samples and compress.lower not in ["average"]:
+        raise RuntimeError("Compress algorithm is not support yet.")
+
+    completion = True
 
     scan_cmds = []
 
@@ -230,12 +238,12 @@ def scan2d(device1, device2, meas_dev, **kwds):
         # slow ramping to the start point for scan
         if orig1 < device1[1]:
             scan_cmds.append(Loop(device1[0], orig1, device1[1], abs(device1[3]), [Delay(delay)], 
-                                  completion=completion1, 
+                                  completion=completion, 
                                   readback=readback1, tolerance=tolerance1, 
                                   timeout=timeout, errhandler='OnErrorRetryThenAbort'))
         else:
             scan_cmds.append(Loop(device1[0], orig1, device1[1], -abs(device1[3]), [Delay(delay)],
-                                  completion=completion1, 
+                                  completion=completion, 
                                   readback=readback1, tolerance=tolerance1, 
                                   timeout=timeout, errhandler='OnErrorRetryThenAbort'))
     # ramp to start point if needed
@@ -243,19 +251,19 @@ def scan2d(device1, device2, meas_dev, **kwds):
         # slow ramping to the start point for scan
         if orig2 < device2[1]:
             scan_cmds.append(Loop(device2[0], orig2, device2[1], abs(device2[3]), [Delay(delay)], 
-                                  completion=completion2, 
+                                  completion=completion, 
                                   readback=readback2, tolerance=tolerance2, 
                                   timeout=timeout, errhandler='OnErrorRetryThenAbort'))
         else:
             scan_cmds.append(Loop(device2[0], orig2, device2[1], -abs(device2[3]), [Delay(delay)],
-                                  completion=completion2, 
+                                  completion=completion, 
                                   readback=readback2, tolerance=tolerance2, 
                                   timeout=timeout, errhandler='OnErrorRetryThenAbort'))
     
     # confirm start point
-    scan_cmds.append(Set(device1[0], device1[1], completion=completion1, readback=readback1, tolerance=tolerance1, 
+    scan_cmds.append(Set(device1[0], device1[1], completion=completion, readback=readback1, tolerance=tolerance1, 
                          timeout=timeout, errhandler='OnErrorRetryThenAbort'))
-    scan_cmds.append(Set(device2[0], device2[1], completion=completion2, readback=readback2, tolerance=tolerance2, 
+    scan_cmds.append(Set(device2[0], device2[1], completion=completion, readback=readback2, tolerance=tolerance2, 
                          timeout=timeout, errhandler='OnErrorRetryThenAbort'))
     
     # real scan
@@ -265,11 +273,11 @@ def scan2d(device1, device2, meas_dev, **kwds):
                                     [Delay(delay),
                                      Log([device1[0], device2[0]] + list(meas_dev))
                                      ],
-                                    completion=completion2, 
+                                    completion=completion, 
                                     readback=readback2, tolerance=tolerance2,
                                     ),
                                ], 
-                              completion=completion1, 
+                              completion=completion, 
                               readback=readback1, tolerance=tolerance1, 
                               timeout=timeout, errhandler='OnErrorRetryThenAbort'))
     else:
@@ -278,11 +286,11 @@ def scan2d(device1, device2, meas_dev, **kwds):
                                     [Loop('loc://i(0)', 1, samples, 1, 
                                           [Delay(delay), Log([device1[0], device2[0]] + list(meas_dev))])
                                      ],
-                                    completion=completion2, 
+                                    completion=completion, 
                                     readback=readback2, tolerance=tolerance2,
                                     ),
                                ], 
-                              completion=completion1, 
+                              completion=completion, 
                               readback=readback1, tolerance=tolerance1, 
                               timeout=timeout, errhandler='OnErrorRetryThenAbort'))
     
@@ -291,12 +299,12 @@ def scan2d(device1, device2, meas_dev, **kwds):
         # slow ramping to the start point for scan
         if device1[2] < orig1:
             scan_cmds.append(Loop(device1[0], device1[2], orig1, abs(device1[3]), [Delay(delay)], 
-                                  completion=completion1, 
+                                  completion=completion, 
                                   readback=readback1, tolerance=tolerance1, 
                                   timeout=timeout, errhandler='OnErrorRetryThenAbort'))
         else:
             scan_cmds.append(Loop(device1[0], device1[2], orig1, -abs(device1[3]), [Delay(delay)],
-                                  completion=completion1, 
+                                  completion=completion, 
                                   readback=readback1, tolerance=tolerance1, 
                                   timeout=timeout, errhandler='OnErrorRetryThenAbort'))
     
@@ -305,18 +313,18 @@ def scan2d(device1, device2, meas_dev, **kwds):
         # slow ramping to the start point for scan
         if device2[2] < orig2:
             scan_cmds.append(Loop(device2[0], device2[2], orig2, abs(device2[3]), [Delay(delay)], 
-                                  completion=completion2, 
+                                  completion=completion, 
                                   readback=readback2, tolerance=tolerance2, 
                                   timeout=timeout, errhandler='OnErrorRetryThenAbort'))
         else:
             scan_cmds.append(Loop(device2[0], device2[2], orig2, -abs(device2[3]), [Delay(delay)],
-                                  completion=completion2, 
+                                  completion=completion, 
                                   readback=readback2, tolerance=tolerance2, 
                                   timeout=timeout, errhandler='OnErrorRetryThenAbort'))    
     # confirm original setting
-    scan_cmds.append(Set(device1[0], orig1, completion=completion1, readback=readback1, tolerance=tolerance1, 
+    scan_cmds.append(Set(device1[0], orig1, completion=completion, readback=readback1, tolerance=tolerance1, 
                          timeout=timeout, errhandler='OnErrorRetryThenAbort'))
-    scan_cmds.append(Set(device2[0], orig2, completion=completion2, readback=readback2, tolerance=tolerance2, 
+    scan_cmds.append(Set(device2[0], orig2, completion=completion, readback=readback2, tolerance=tolerance2, 
                          timeout=timeout, errhandler='OnErrorRetryThenAbort'))
 
     ss_host = urlparse(machines.SCAN_SRV_URL)
