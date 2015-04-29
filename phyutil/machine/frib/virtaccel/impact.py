@@ -607,6 +607,15 @@ class VirtualAccelerator(object):
                 ("PREC", 5)
             ])))
 
+        chanstat = chanprefix+"SVR:STATUS"
+
+        self._epicsdb.append(("bi", chanstat, OrderedDict([
+                ("DESC", "Status of Virtual Accelerator"),
+                ("VAL", 0),
+                ("ZNAM", "OK"),
+                ("ONAM", "ERR"),
+                ("PINI", "1")
+            ])))
 
         if self.work_dir != None:
             os.makedirs(self.work_dir)
@@ -672,18 +681,25 @@ class VirtualAccelerator(object):
 
             if status != 0:
                 _LOGGER.warning("VirtualAccelerator: IMPACT exited with non-zero status code: %s\r\n%s", status, stdout)
+                catools.caput(chanstat, 1)
                 continue
 
             if not os.path.isfile(fort18path):
                 _LOGGER.warning("VirtualAccelerator: IMPACT output not found: %s", fort18path)
+                catools.caput(chanstat, 1)
                 continue
 
             if not os.path.isfile(fort24path):
                 _LOGGER.warning("VirtualAccelerator: IMPACT output not found: %s", fort24path)
+                catools.caput(chanstat, 1)
                 continue
 
             if not os.path.isfile(fort25path):
                 _LOGGER.warning("VirtualAccelerator: IMPACT output not found: %s", fort25path)
+                catools.caput(chanstat, 1)
+                continue
+
+            catools.caput(chanstat, 0)
 
             fort18 = numpy.loadtxt(fort18path, usecols=(0, 1))
             fort24 = numpy.loadtxt(fort24path, usecols=(1, 2))
