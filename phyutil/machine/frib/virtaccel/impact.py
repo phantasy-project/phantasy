@@ -266,7 +266,7 @@ class VirtualAcceleratorFactory(object):
             if isinstance(elem, CavityElement):
                 chans = elem.channels
                 va.append_rw(chans.phase_cset, chans.phase_rset, chans.phase_read, 
-                             name="Cavity Phase", egu="degree", drvabs=180)
+                             name="Cavity Phase", egu="degree")
                 va.append_rw(chans.amplitude_cset, chans.amplitude_rset, chans.amplitude_read, 
                              name="Cavity Amplitude", egu="%", drvratio=0.05)
                 va.append_elem(elem)
@@ -361,6 +361,10 @@ class VirtualAccelerator(object):
         self.impact_exe = impact_exe
         self.data_dir = data_dir
         self.work_dir = work_dir
+        
+        # status to identify va simulation results
+        self.va_good = "OK"
+        self.va_bad = "ERR"
 
         self._epicsdb = []
         self._csetmap = OrderedDict()
@@ -611,9 +615,9 @@ class VirtualAccelerator(object):
 
         self._epicsdb.append(("bi", chanstat, OrderedDict([
                 ("DESC", "Status of Virtual Accelerator"),
-                ("VAL", 0),
-                ("ZNAM", "OK"),
-                ("ONAM", "ERR"),
+                ("VAL", 1),
+                ("ZNAM", "ERR"),
+                ("ONAM", "OK"),
                 ("PINI", "1")
             ])))
 
@@ -681,25 +685,25 @@ class VirtualAccelerator(object):
 
             if status != 0:
                 _LOGGER.warning("VirtualAccelerator: IMPACT exited with non-zero status code: %s\r\n%s", status, stdout)
-                catools.caput(chanstat, 1)
+                catools.caput(chanstat, self.va_bad)
                 continue
 
             if not os.path.isfile(fort18path):
                 _LOGGER.warning("VirtualAccelerator: IMPACT output not found: %s", fort18path)
-                catools.caput(chanstat, 1)
+                catools.caput(chanstat, self.va_bad)
                 continue
 
             if not os.path.isfile(fort24path):
                 _LOGGER.warning("VirtualAccelerator: IMPACT output not found: %s", fort24path)
-                catools.caput(chanstat, 1)
+                catools.caput(chanstat, self.va_bad)
                 continue
 
             if not os.path.isfile(fort25path):
                 _LOGGER.warning("VirtualAccelerator: IMPACT output not found: %s", fort25path)
-                catools.caput(chanstat, 1)
+                catools.caput(chanstat, self.va_bad)
                 continue
 
-            catools.caput(chanstat, 0)
+            catools.caput(chanstat, self.va_good)
 
             fort18 = numpy.loadtxt(fort18path, usecols=(0, 1))
             fort24 = numpy.loadtxt(fort24path, usecols=(1, 2))
