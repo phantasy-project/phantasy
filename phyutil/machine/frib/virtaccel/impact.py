@@ -813,12 +813,16 @@ class VirtualAccelerator(object):
                 _LOGGER.debug("VirtualAccelerator: Update rset: %s to %s", value[1], settings[name]["VAL"])
                 catools.caput(value[1], settings[name]["VAL"])
 
-            # Sleep for a fraction (10%) of the total execution time.
+            # Sleep for a fraction (10%) of the total execution time 
+            # when one simulation costs more than 0.50 seconds.
+            # Otherwise, sleep for the rest of 1 second. 
             # If a scan is being done on this virtual accelerator,
             # then the scan server has a period of time to update
             # setpoints before the next run of IMPACT.
-            cothread.Sleep((time.time()-start)*0.1)
-
+            if (time.time()-start) > 0.50:
+                cothread.Sleep((time.time()-start)*0.1)
+            else:
+                cothread.Sleep(1.0 - (time.time()-start))
 
 
     def _handle_cset_monitor(self, value, idx):
