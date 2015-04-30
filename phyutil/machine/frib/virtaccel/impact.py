@@ -270,37 +270,37 @@ class VirtualAcceleratorFactory(object):
                 va.append_rw(chans.phase_cset, chans.phase_rset, chans.phase_read, 
                              name="Cavity Phase", egu="degree")
                 va.append_rw(chans.amplitude_cset, chans.amplitude_rset, chans.amplitude_read, 
-                             name="Cavity Amplitude", egu="%", drvratio=0.05)
+                             name="Cavity Amplitude", egu="%")
                 va.append_elem(elem)
 
             elif isinstance(elem, SolCorrElement):
                 chans = elem.channels
                 va.append_rw(chans.field_cset, chans.field_rset, chans.field_read, 
-                             name="Solenoid Field", egu="T", drvratio=0.05)
+                             name="Solenoid Field", egu="T", drvratio=0.10)
                 va.append_rw(chans.hkick_cset, chans.hkick_rset, chans.hkick_read, 
-                             name="Horizontal Corrector", egu="radian", drvabs=0.0001)
+                             name="Horizontal Corrector", egu="radian", drvabs=0.001)
                 va.append_rw(chans.vkick_cset, chans.vkick_rset, chans.vkick_read, 
-                             name="Vertical Corrector", egu="radian", drvabs=0.0001)
+                             name="Vertical Corrector", egu="radian", drvabs=0.001)
                 va.append_elem(elem)
 
             elif isinstance(elem, CorrElement):
                 chans = elem.channels
                 va.append_rw(chans.hkick_cset, chans.hkick_rset, chans.hkick_read, 
-                             name="Horizontal Corrector", egu="radian", drvabs=0.0001)
+                             name="Horizontal Corrector", egu="radian", drvabs=0.001)
                 va.append_rw(chans.vkick_cset, chans.vkick_rset, chans.vkick_read, 
-                             name="Vertical Corrector", egu="radian", drvabs=0.0001)
+                             name="Vertical Corrector", egu="radian", drvabs=0.001)
                 va.append_elem(elem)
 
             elif isinstance(elem, BendElement):
                 chans = elem.channels
                 va.append_rw(chans.field_cset, chans.field_rset, chans.field_read, 
-                             name="Bend Relative Field", egu="none", drvratio=0.05)
+                             name="Bend Relative Field", egu="none", drvratio=0.10)
                 va.append_elem(elem)
 
             elif isinstance(elem, QuadElement):
                 chans = elem.channels
                 va.append_rw(chans.gradient_cset, chans.gradient_rset, chans.gradient_read, 
-                             name="Quadrupole Gradient", egu="T/m", drvratio=0.05)
+                             name="Quadrupole Gradient", egu="T/m", drvratio=0.10)
                 va.append_elem(elem)
 
             elif isinstance(elem, HexElement):
