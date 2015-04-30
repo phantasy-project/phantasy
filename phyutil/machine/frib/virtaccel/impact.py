@@ -268,7 +268,7 @@ class VirtualAcceleratorFactory(object):
             if isinstance(elem, CavityElement):
                 chans = elem.channels
                 va.append_rw(chans.phase_cset, chans.phase_rset, chans.phase_read, 
-                             name="Cavity Phase", egu="degree", drvabs=180)
+                             name="Cavity Phase", egu="degree")
                 va.append_rw(chans.amplitude_cset, chans.amplitude_rset, chans.amplitude_read, 
                              name="Cavity Amplitude", egu="%", drvratio=0.05)
                 va.append_elem(elem)
@@ -695,17 +695,17 @@ class VirtualAccelerator(object):
             _LOGGER.info("VirtualAccelerator: IMPACT execution time: %f s", time.time()-start)
 
             if status == 0:
-                catools.caput(chanstat, 0)
+                catools.caput(chanstat, self.va_good)
             else:
                 _LOGGER.warning("VirtualAccelerator: IMPACT exited with non-zero status code: %s\r\n%s", status, stdout)
-                catools.caput(chanstat, 1)
+                catools.caput(chanstat, self.va_bad)
 
             if os.path.isfile(fort18path):
                 fort18 = numpy.loadtxt(fort18path, usecols=(0, 1))
                 fort18length = fort18.shape[0]
             else:
                 _LOGGER.warning("VirtualAccelerator: IMPACT output not found: %s", fort18path)
-                catools.caput(chanstat, 1)
+                catools.caput(chanstat, self.va_bad)
                 fort18length = 0
 
             if os.path.isfile(fort24path):
@@ -713,7 +713,7 @@ class VirtualAccelerator(object):
                 fort24length = fort24.shape[0]
             else:
                 _LOGGER.warning("VirtualAccelerator: IMPACT output not found: %s", fort24path)
-                catools.caput(chanstat, 1)
+                catools.caput(chanstat, self.va_bad)
                 fort24length = 0
 
             if os.path.isfile(fort25path):
@@ -721,7 +721,7 @@ class VirtualAccelerator(object):
                 fort25length = fort25.shape[0]
             else:
                 _LOGGER.warning("VirtualAccelerator: IMPACT output not found: %s", fort25path)
-                catools.caput(chanstat, 1)
+                catools.caput(chanstat, self.va_bad)
                 fort25length = 0
 
             output_map = []
@@ -734,17 +734,17 @@ class VirtualAccelerator(object):
             if(fort18length < output_length):
                 _LOGGER.warning("VirtualAccelerator: IMPACT fort.18 length %s, expecting %s",
                                  fort18length, output_length)
-                catools.caput(chanstat, 1)
+                catools.caput(chanstat, self.va_bad)
 
             if(fort24length < output_length):
                 _LOGGER.warning("VirtualAccelerator: IMPACT fort.24 length %s, expecting %s",
                                  fort24length, output_length)
-                catools.caput(chanstat, 1)
+                catools.caput(chanstat, self.va_bad)
 
             if(fort25length < output_length):
                 _LOGGER.warning("VirtualAccelerator: IMPACT fort.25 length %s, expecting %s", 
                                 fort25length, output_length)
-                catools.caput(chanstat, 1)
+                catools.caput(chanstat, self.va_bad)
 
             for idx in xrange(min(fort18length, fort24length, fort25length)):
 
