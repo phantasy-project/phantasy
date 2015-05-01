@@ -9,10 +9,9 @@ V2SR.
 
 Submachines are also called lattice in ``phyutil``. Each lattice has a list of
 elements, magnet or instrument. The submachines/lattices can share elements.
-"""
 
-# :author: Lingyun Yang <lyyang@bnl.gov>
-__author__ = 'shen'
+:author: Lingyun Yang <lyyang@bnl.gov>, Guobao Shen <shen@frib.msu.edu>
+"""
 
 import os
 import time
@@ -59,6 +58,7 @@ HLA_CONFIG_DIR = os.environ.get("PHYUTIL_CONFIG_DIR", _home_hla)
 HLA_ROOT = os.environ.get("PHYUTIL_ROOT", _home_hla)
 
 SCAN_SRV_URL = None
+SIMULATION_CODE = None
 
 # the properties used for initializing Element are different than
 # ChannelFinderAgent (CFS or SQlite). This needs a re-map.
@@ -129,7 +129,7 @@ def load(machine, submachine = "*", **kwargs):
     This machine can be a path to config dir.
     """
 
-    global _lattice_dict, _lat, SCAN_SRV_URL
+    global _lattice_dict, _lat, SCAN_SRV_URL, SIMULATION_CODE
 
     lat_dict = {}
 
@@ -183,8 +183,11 @@ def load(machine, submachine = "*", **kwargs):
     for msect in msects:
         d_msect = dict(cfg.items(msect))
         SCAN_SRV_URL = d_msect.get("ss_url", None)
+        SIMULATION_CODE = d_msect.get("model", None)
         
         accstruct = d_msect.get("cfs_url", None)
+        # get machine type, default is a linear machine
+        machinetype = int(d_msect.get("loop", 0))
         if accstruct is None:
             raise RuntimeError("No accelerator data source (cfs_url) available "
                                "for '%s'" % msect)
@@ -207,7 +210,8 @@ def load(machine, submachine = "*", **kwargs):
         for k,v in _cf_map.iteritems(): 
             cfa.renameProperty(k, v)
                 
-        lat = createLattice(msect, cfa.results, acctag, cfa.source)
+        lat = createLattice(msect, cfa.results, acctag, src=cfa.source, mtype=machinetype)
+
         lat.sb = float(d_msect.get("s_begin", 0.0))
         lat.se = float(d_msect.get("s_end", 0.0))
         lat.loop = bool(d_msect.get("loop", True))
@@ -489,7 +493,7 @@ def findCfaConfig(srcname, machine, submachines):
     return cfa
 
 def createLattice(latname, pvrec, systag, src = 'channelfinder',
-                  vbpm = True, vcor = True):
+                  vbpm = True, vcor = True, mtype=0):
     """
     create a lattice from channel finder data
 
@@ -499,6 +503,7 @@ def createLattice(latname, pvrec, systag, src = 'channelfinder',
     pvrec: list of pv records `(pv, property dict, list of tags)`
     systag: process records which has this systag. e.g. `phyutil.sys.SR`
     src: source URL or filename of this lattice
+    mtype: machine type, 0 by default for linear, 1 for a ring 
 
     Returns
     ---------
@@ -508,7 +513,7 @@ def createLattice(latname, pvrec, systag, src = 'channelfinder',
     _logger.debug("creating '%s':%s" % (latname, src))
     _logger.info("%d pvs found in '%s'" % (len(pvrec), latname))
     # a new lattice
-    lat = Lattice(latname, src)
+    lat = Lattice(latname, source=src, mtype=mtype)
     for rec in pvrec:
         _logger.debug("processing {0}".format(rec))
         # skip if there's no properties.

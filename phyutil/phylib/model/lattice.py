@@ -42,11 +42,11 @@ class Lattice:
     - *tune* [nux, nuy], mainly for circular machine
     - *chromaticity* [cx, cy] mainly for circular machine
     - *ormdata* orbit response matrix data
-    - *loop* as a ring or line
+    - *mtype* as a ring (=1) or line (=0)
     """
     # ignore those "element" when construct the lattice object
 
-    def __init__(self, name, source='undefined', mode=''):
+    def __init__(self, name, source='undefined', mode='', mtype=0):
         self.machine = ''
         self.machdir = ''
         self.name = name
@@ -62,7 +62,7 @@ class Lattice:
         self.sb = 0.0
         self.se = sys.float_info.max
         self.ormdata = None
-        self.loop = True
+        self.isring = bool(mtype)
         self.Ek = None
         self.arpvs = None
         self.OUTPUT_DIR = ''
@@ -375,9 +375,6 @@ class Lattice:
             ret.extend(self._elements[:i1+1])
         return ret
 
-    def getElements(self, group, **kwargs):
-        raise RuntimeError("deprecated, use getElementList")
-
     def getElementList(self, group, **kwargs):
         """
         get a list of element objects.
@@ -409,7 +406,8 @@ class Lattice:
         virtual = kwargs.get('virtual', True)
         # do exact element name match first
         elem = self._find_exact_element(group)
-        if elem is not None: return [elem]
+        if elem is not None: 
+            return [elem]
 
         # do exact group name match
         if group in self._group.keys():
@@ -661,9 +659,6 @@ class Lattice:
         if not groups:
             return None
         ret = {}
-        cell = kwargs.get('cell', '*')
-        girder = kwargs.get('girder', '*')
-        symmetry = kwargs.get('symmetry', '*')
 
         if groups in self._group.keys():
             return self._group[groups]
@@ -698,6 +693,8 @@ class Lattice:
 
         If the input *element* name is also in one of the *groups*, no
         duplicate the result.
+        
+        For a linear machine, it will fill `None` is there is no enough elements in upstream or in downstream. 
 
         :Example:
 
@@ -720,19 +717,31 @@ class Lattice:
 
         if not el:
             raise ValueError("elements/group %s does not exist" % groups)
-        if e0 in el: el.remove(e0)
+        if e0 in el:
+            el.remove(e0)
 
         i0 = len(el)
-        for i,e in enumerate(el):
-            if e.sb < e0.sb: continue
+        for i, e in enumerate(el):
+            if e.sb < e0.sb: 
+                continue
             i0 = i
             break
         ret = [e0] if elemself else []
         for i in range(n):
-            fac, r = divmod(i0 - i - 1, len(el))
-            ret.insert(0, el[r])
-            fac, r = divmod(i0 + i, len(el))
-            ret.append(el[r])
+            _, r = divmod(i0 - i - 1, len(el))
+            if self.isring or el[r].sb < e0.sb:
+                # insert into the front no matter what for a ring  
+                # or when the position is smaller than that of current element for a linear machine
+                ret.insert(0, el[r])
+            else:
+                ret.insert(0, None)
+            _, r = divmod(i0 + i, len(el))
+            if self.isring or el[r].sb > e0.sb:
+                # append into the list no matter what for a ring  
+                # or when the position is larger than that of current element for a linear machine
+                ret.append(el[r])
+            else:
+                ret.append(None)
         return ret
         
     def getClosest(self, elemname, groups):
