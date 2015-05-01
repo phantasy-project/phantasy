@@ -30,38 +30,16 @@ def getTimestamp(t = None, us = True):
 
     return t.strftime(fmt)
 
-def setEnergy(Ek, dev=None):
-    """set energy for current sub-machine.
-    Energy for a storage ring, or energy at given device for accelerating machine.
-    If device is None, then final deliver energy.
-    MeV for electron machine, or MeV/u for a heavy ion machine.
-
-    see also :func:`setEnergy`
-    """
-    # TODO add support to set energy at a device
-    if dev is not None:
-        raise Exception("Set energy at a device is not supported yet.")
-    machines._lat.Ek = Ek
-
-def getEnergy(dev=None):
-    """get current sub-machine beam energy.
-    Energy for a storage ring, or energy at given device for accelerating machine.
-    If device is None, then final deliver energy.
-    MeV for electron machine, or MeV/u for a heavy ion machine.
-
-    see also :func:`setEnergy`
-    """
-    # TODO add support to get energy at a device
-    if dev is not None:
-        raise Exception("Get energy at a device is not supported yet.")
-    return machines._lat.Ek
-
 def getOutputDir():
     """get the output data dir for the current lattice""" 
     return machines._lat.OUTPUT_DIR
 
-def getElements(group, include_virtual=False):
+def getElements(group, include_virtual=False, start=None, end=None):
     """searching for elements.
+    If start is not `None`, get elements from start point.
+    If end is not `None`, get elements before end point.
+    If both are not `None`, get elements in between, otherwise, get all found elements. 
+
 
     this calls :func:`~aphla.lattice.Lattice.getElementList` of the current
     lattice.
@@ -72,6 +50,8 @@ def getElements(group, include_virtual=False):
     -----------
     group : str, list. a list of element name or a name pattern.
     include_virtual : include virtual element or not.
+    start:  start from
+    end:    end before
 
     Returns
     ---------
@@ -107,7 +87,18 @@ def getElements(group, include_virtual=False):
 
         if not include_virtual and e.virtual: 
             continue
-        ret.append(e)
+        if start is None and end is None:
+            # both start and end are None
+            ret.append(e)
+        elif start is None and e.se <= end:
+            # get elements before end
+            ret.append(e)
+        elif end is None  and e.sb >= start:
+            # get elements after start
+            ret.append(e)
+        elif e.se <= end and e.sb >= start:
+            # get elements in between
+            ret.append(e)
     return ret
 
 def getExactElement(elemname):
