@@ -9,7 +9,7 @@ __copyright__ = "Copyright (c) 2015, Facility for Rare Isotope Beams"
 __author__ = "Dylan Maxwell"
 
 
-import os.path, logging, json
+import os.path, logging, json, sys
 
 from datetime import datetime
 

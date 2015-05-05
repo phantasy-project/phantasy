@@ -5,8 +5,8 @@ Accelerator Design Description
 ==============================
 
 The Accelerator Design Description (ADD) is a data model developed to capture
-the accelerator design independant of file format and/or simulation tool.
-It is used as intermediate data strucuture when converting between formats
+the accelerator design independent of file format and/or simulation tool.
+It is used as intermediate data structure when converting between formats
 or generating lattice files for use with various simulation tools.
 """
 
@@ -16,8 +16,6 @@ __copyright__ = "Copyright (c) 2015, Facility for Rare Isotope Beams"
 
 __author__ = "Dylan Maxwell"
 
-
-import sys
 
 from collections import OrderedDict
 
@@ -341,7 +339,7 @@ class SeqElement(NamedElement):
         self.elements.append(elem)
 
 
-    def write(self, indent=2, file=sys.stdout):
+    def write(self, indent=2):
         level = 0
         iterators = [ iter(self.elements) ]
 
@@ -354,7 +352,7 @@ class SeqElement(NamedElement):
                 level -= 1
                 continue
 
-            print(" "*(indent*level) + str(elem), file=file)
+            # print(" "*(indent*level) + str(elem), file=file)
 
             if isinstance(elem, SeqElement):
                 iterators.append(iter(elem.elements))

@@ -18,14 +18,11 @@ from ..common import DataError
 def build_result(directory=None):
     """Convenience method to build IMPACT model result.
     """
-    result_factory = ResultFactory(directory)
-
-    return result_factory.build()
+    return ResultFactory(directory).build()
 
 
 class ResultFactory(object):
     """A factory to get simulation results from IMPACT working directory.
-
     """
 
     def __init__(self, directory=None):
@@ -35,12 +32,9 @@ class ResultFactory(object):
         """
         self.directory = directory
 
-
-    def build(self, runimpact=False, **kwargs):
+    def build(self, **kwargs):
         """ Build result from impact simulation.
         It needs IMPACT fort file, fort.18, fort.24, fort.25, and fort.26
-
-        :param runimpact: flag to identify whether to execute a new run, False by default.
 
         :param IMPACT:  IMPACT-Z version, either "FRIB" or "LBL". "FRIB" by default.
         :param fort18:  impact energy file name
@@ -63,9 +57,72 @@ class ResultFactory(object):
         _fort26 = kwargs.get("fort26", "fort.26")
         _keep = kwargs.get("keep", True)
 
-        if runimpact:
-            raise NotImplementedError("ResultFactory: Execution of IMPACT not implemented. See phylib.machine.frib.model.impact.ResultFactory.")
+        fort18path = os.path.join(wkdir, _fort18)
+        if not os.path.isfile(fort18path):
+            raise RuntimeError("ResultFactory: IMPACT output not found: {}".format(fort18path))
 
+        fort24path = os.path.join(wkdir, _fort24)
+        if not os.path.isfile(fort24path):
+            raise RuntimeError("ResultFactory: IMPACT output not found: {}".format(fort24path))
+
+        fort25path = os.path.join(wkdir, _fort25)
+        if not os.path.isfile(fort25path):
+            raise RuntimeError("ResultFactory: IMPACT output not found: {}".format(fort25path))
+
+        fort26path = os.path.join(wkdir, _fort26)
+        if not os.path.isfile(fort25path):
+            raise RuntimeError("ResultFactory: IMPACT output not found: {}".format(fort25path))
+
+        # read data in if all data files are in place
+        if _IMPACT == "FRIB":
+            # z, phase (rad), energy (MeV), gamma, beta
+            fort18 = np.loadtxt(fort18path, usecols=(0, 1, 3, 2, 4))
+            # X0, X0', Xrms, X'rms, Ex, Alpha x, Beta x
+            fort24 = np.loadtxt(fort24path, usecols=(1, 3, 2, 4, 7, 5, 6))
+            # Y0, Y0', Yrms, Y'rms, Ey, Alpha y, Beta y
+            fort25 = np.loadtxt(fort25path, usecols=(1, 3, 2, 4, 7, 5, 6))
+            # Z0, Z0', Zrms, Z'rms, Ez, Alpha Z, Beta z
+            fort26 = np.loadtxt(fort26path, usecols=(1, 3, 2, 4, 7, 5, 6))
+        elif _IMPACT in ["LBL", "LBNL"]:
+            # z, phase (rad), energy (MeV), gamma, beta
+            fort18 = np.loadtxt(fort18path, usecols=(0, 1, 3, 2, 4))
+            # X0, X0', Xrms, X'rms, Ex, Alpha x, Beta x
+            fort24 = np.loadtxt(fort24path, usecols=(1, 3, 2, 4, 6, 5))
+            # Y0, Y0', Yrms, Y'rms, Ey, Alpha y, Beta y
+            fort25 = np.loadtxt(fort25path, usecols=(1, 3, 2, 4, 6, 5))
+            # Z0, Z0', Zrms, Z'rms, Ez, Alpha Z, Beta z
+            fort26 = np.loadtxt(fort26path, usecols=(1, 3, 2, 4, 6, 5))
+
+        else:
+            raise RuntimeError("Unknown IMPACT version. Cannot parse results.")
+
+        if not _keep:
+            shutil.rmtree(wkdir)
+        
+        return Result(fort18, fort24, fort25, fort26)
+    
+    def update(self, **kwargs):
+        """ Build result from impact simulation.
+        It needs IMPACT fort file, fort.18, fort.24, fort.25, and fort.26
+
+        :param fort18:  impact energy file name
+        :param fort24:  impact horizontal file name
+        :param fort25:  impact vertical file name
+        :param fort26:  impact longitudinal file name
+        :return:
+        """
+
+        if self.directory != None:
+            wkdir = self.directory
+        else:
+            wkdir = os.getcwd()
+
+        _IMPACT = kwargs.get("IMPACT", "FRIB")
+        _fort18 = kwargs.get("fort18", "fort.18")
+        _fort24 = kwargs.get("fort24", "fort.24")
+        _fort25 = kwargs.get("fort25", "fort.25")
+        _fort26 = kwargs.get("fort26", "fort.26")
+        _keep = kwargs.get("keep", True)
 
         fort18path = os.path.join(wkdir, _fort18)
         if not os.path.isfile(fort18path):
@@ -109,7 +166,7 @@ class ResultFactory(object):
         if not _keep:
             shutil.rmtree(wkdir)
 
-        return Result(fort18, fort24, fort25, fort26)
+        self.result = Result(fort18, fort24, fort25, fort26)
 
 class Result(object):
 
@@ -389,3 +446,39 @@ class Result(object):
             return self.__getData(self._fort24, data2=self._fort25, elemIdx=elemIdx, col=3)
         else:
             raise RuntimeError("Result: Unknown plane for beam RMS on: {}".format(plane))
+
+def build_lattice(directory=None):
+    """Convenience method to build IMPACT lattice.
+    """
+    return LatticeFactory(directory).build()
+
+
+class LatticeFactory(object):
+    """A factory to create lattice input file in working directory for IMPACT.
+    """
+
+    def __init__(self, lattice, directory=None):
+        """Initialize class, give IMPACT working directory.
+
+        :param directory: IMPACT working directory (default is current directory)
+        """
+        self.directory = directory
+
+
+    def build(self, **kwargs):
+        """ Build IMPACT input lattice deck.
+
+        :param IMPACT:  IMPACT-Z version, either "FRIB" or "LBL". "FRIB" by default.
+        :return:
+        """
+
+        if self.directory != None:
+            wkdir = self.directory
+        else:
+            wkdir = os.getcwd()
+
+        _IMPACT = kwargs.get("IMPACT", "FRIB")
+        return Lattice()
+
+class Lattice(object):
+    pass
