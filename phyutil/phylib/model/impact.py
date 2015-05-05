@@ -89,18 +89,18 @@ class ResultFactory(object):
             fort18 = np.loadtxt(fort18path, usecols=(0, 1, 3, 2, 4))
             # X0, X0', Xrms, X'rms, Ex, Alpha x, Beta x
             fort24 = np.loadtxt(fort24path, usecols=(1, 3, 2, 4, 7, 5, 6))
-            # Y0, Y0', Yrms, Y'rms, Yp, Alpha y, Beta y
+            # Y0, Y0', Yrms, Y'rms, Ey, Alpha y, Beta y
             fort25 = np.loadtxt(fort25path, usecols=(1, 3, 2, 4, 7, 5, 6))
-            # Z0, Z0', Zrms, Z'rms, Zp, Alpha Z, Beta z
+            # Z0, Z0', Zrms, Z'rms, Ez, Alpha Z, Beta z
             fort26 = np.loadtxt(fort26path, usecols=(1, 3, 2, 4, 7, 5, 6))
         elif _IMPACT in ["LBL", "LBNL"]:
             # z, phase (rad), energy (MeV), gamma, beta
             fort18 = np.loadtxt(fort18path, usecols=(0, 1, 3, 2, 4))
             # X0, X0', Xrms, X'rms, Ex, Alpha x, Beta x
             fort24 = np.loadtxt(fort24path, usecols=(1, 3, 2, 4, 6, 5))
-            # Y0, Y0', Yrms, Y'rms, Yp, Alpha y, Beta y
+            # Y0, Y0', Yrms, Y'rms, Ey, Alpha y, Beta y
             fort25 = np.loadtxt(fort25path, usecols=(1, 3, 2, 4, 6, 5))
-            # Z0, Z0', Zrms, Z'rms, Zp, Alpha Z, Beta z
+            # Z0, Z0', Zrms, Z'rms, Ez, Alpha Z, Beta z
             fort26 = np.loadtxt(fort26path, usecols=(1, 3, 2, 4, 6, 5))
 
         else:
@@ -113,7 +113,7 @@ class ResultFactory(object):
 
 class Result(object):
 
-    def __init__(self, fort18, fort24, fort25, fort26):
+    def __init__(self, fort18, fort24, fort25, fort26, impact="LBL"):
         """
 
         :param fort18: numpy N x 5 array
@@ -130,167 +130,262 @@ class Result(object):
         self._fort25 = fort25
         # Z0, Z0', Zrms, Z'rms, Zp, Alpha Z, Beta z
         self._fort26 = fort26
+        self.elements = len(self._fort18[:, 0])
+        
+        self.impact = impact
 
-    def get_sposition(self):
+    def __checkElements(self, elemIdx):
+        """Check whether required element index is over the range.
+        
+        :param elemIdx: element index
+        
+        :raise: RuntimeError
         """
+        if elemIdx > self.elements:
+            raise RuntimeError("Required element index {0} over maximum {1}.".format(elemIdx, self.elements))
 
-        :return: list of s position for each element
+    def getSPosition(self, elemIdx=None):
+        """Get element s position at the end if elemIdx is given, or list of s position for all elements
+        
+        :param elemIdx: index number of given element
+        
+        :return: s position or list
+        :raise: RuntimeError
         """
-        return self._fort18[:, 0]
-
-    def get_orbit(self, plane="X"):
-        """Get beam orbit
-
-        :param plane:
-        :return:
-        """
-        if plane.upper() in [ "X"]:
-            data = np.empty((self._fort24.shape[0], 2))
-            data[:, 0] = self._fort18[:, 0]
-            data[:, 1] = self._fort24[:, 0]
-        elif plane.upper() in [ "Y"]:
-            data = np.empty((self._fort24.shape[0], 2))
-            data[:, 0] = self._fort18[:, 0]
-            data[:, 1] = self._fort25[:, 0]
-        elif plane.upper() in [ "XY"]:
-            data = np.empty((self._fort24.shape[0], 3))
-            data[:, 0] = self._fort18[:, 0]
-            data[:, 1] = self._fort24[:, 0]
-            data[:, 2] = self._fort25[:, 0]
+        
+        if elemIdx is None:
+            return self._fort18[:, 0]
         else:
-            raise RuntimeError("Result: Unknown plane to get beam orbit: {}".format(plane))
+            self.__checkElements(elemIdx)
+        return self._fort18[:, 0][elemIdx]
 
-        return data
-
-    def get_abs_phase(self):
-        """Get accumulated beam phase in radian.
-
-        :return:
+    def getAbsPhase(self, elemIdx=None):
+        """Get accumulated beam phase in radian at the end if elemIdx is given, 
+        or a list for all elements
+        
+        :param elemIdx: index number of given element
+        
+        :return: accumulated beam phase or list
+        :raise: RuntimeError
         """
-        return self._fort18[:, [0, 1]]
-
-    def get_energy(self):
-        """ Get beam energy in MeV.
-
-        :return:
-        """
-        return self._fort18[:, [0, 2]]
-
-    def get_twiss_alpha(self, plane="X"):
-        """Get beam twiss alpha parameters.
-
-        :return:
-        """
-        if plane.upper() in [ "X"]:
-            data = np.empty((self._fort24.shape[0], 2))
-            data[:, 0] = self._fort18[:, 0]
-            data[:, 1] = self._fort24[:, 5]
-        elif plane.upper() in [ "Y"]:
-            data = np.empty((self._fort24.shape[0], 2))
-            data[:, 0] = self._fort18[:, 0]
-            data[:, 1] = self._fort25[:, 5]
-        elif plane.upper() in [ "XY"]:
-            data = np.empty((self._fort24.shape[0], 3))
-            data[:, 0] = self._fort18[:, 0]
-            data[:, 1] = self._fort24[:, 5]
-            data[:, 2] = self._fort25[:, 5]
-        elif plane.upper() in [ "Z"]:
-            data = np.empty((self._fort24.shape[0], 2))
-            data[:, 0] = self._fort18[:, 0]
-            data[:, 1] = self._fort25[:, 5]
+        
+        if elemIdx is None:
+            return self._fort18[:, 1]
         else:
-            raise RuntimeError("Result: Unknown plane to get Twiss Alpha: {}".format(plane))
+            self.__checkElements(elemIdx)
+        return self._fort18[:, 1][elemIdx]
 
-        return data
-
-
-
-    def get_twiss_beta(self, plane="X"):
-        """Get beam twiss beta parameters.
-
-        :return:
+    def getEnergy(self, elemIdx=None):
+        """Get beam energy in MeV/u at the end if elemIdx is given, 
+        or a list for all elements
+        
+        :param elemIdx: index number of given element
+        
+        :return: beam energy or list
+        :raise: RuntimeError
         """
-        if plane.upper() in [ "X"]:
-            if self._fort18.shape()[1] < 7:
+        
+        if elemIdx is None:
+            return self._fort18[:, 2]
+        else:
+            self.__checkElements(elemIdx)
+        return self._fort18[:, 2][elemIdx]
+    
+    def getBetaGamma(self, elemIdx=None):
+        """Get beam beta*gamma at the end if elemIdx is given, or a list for all elements
+        
+        :param elemIdx: index number of given element
+        
+        :return: beta*gamma or list
+        :raise: RuntimeError
+        """
+        
+        if elemIdx is None:
+            return self._fort18[:, 3]*self._fort18[:, 4]
+        else:
+            self.__checkElements(elemIdx)
+        return self._fort18[:, 3][elemIdx]*self._fort18[:, 4][elemIdx]
+    
+    def __getData(self, data, data2=None, elemIdx=None, col=0):
+        """Common interface to get simulation data.
+        
+        :param elemIdx: element index
+        :param data:    first data set
+        :param data2:   2nd data set 
+        :param col:     column in data/data2
+        
+        :return: value at given location if elemIdx is `None`, or 1D array if data2 is `None`, otherwise 2D array
+        
+        :raise: RuntimeError  
+        """
+        result = None
+        if elemIdx is None:
+            if data2 is None:
+                result = data[:, col]
+            else:
+                result = np.empty((data.shape[0], 2))
+                result[:, 0] = data[:, col]
+                result[:, 1] = data2[:, col]
+        else:
+            self.__checkElements(elemIdx)
+            if data2 is None:
+                result = data[:, col][elemIdx]
+            else:
+                result = [data[:, col][elemIdx], data2[:, col][elemIdx]]
+        return result
+
+    def getOrbit(self, plane="X", elemIdx=None):
+        """Get beam position at the end of an element if elemIdx is given, or beam orbit at all elements.
+        Current implementation returns all position information from simulation, and does not separate BPM 
+        from other devices like magnet and other diagnostic devices like profile monitor.
+
+        :param plane:    beam plane, either "X", "Y", or "XY"
+        :param elemIdx:  element index, `None` by default 
+        
+        :return: beam position at given location, or at all elements
+        """
+        if plane.upper() == "X":
+            return self.__getData(self._fort24, elemIdx=elemIdx, col=0)
+        elif plane.upper() == "Y":
+            return self.__getData(self._fort25, elemIdx=elemIdx, col=0)
+        elif plane.upper() == "XY":
+            return self.__getData(self._fort24, data2=self._fort25, elemIdx=elemIdx, col=0)
+        else:
+            raise RuntimeError("Result: Unknown plane for beam orbit on: {}".format(plane))
+
+    def getTwissAlpha(self, plane="X", elemIdx=None):
+        """Get beam twiss alpha parameters at the end of an element if elemIdx is given, or at all elements.
+        Current implementation returns all position information from simulation, and does not separate BPM 
+        from other devices like magnet and other diagnostic devices like profile monitor.
+
+        :param plane:    beam plane, either "X", "Y", "Z", or "XY"
+        :param elemIdx:  element index, `None` by default 
+        
+        :return: beam twiss alpha at given location, or at all elements
+        """
+        if plane.upper() == "X":
+            return self.__getData(self._fort24, elemIdx=elemIdx, col=5)
+        elif plane.upper() == "Y":
+            return self.__getData(self._fort25, elemIdx=elemIdx, col=5)
+        elif plane.upper() == "Z":
+            return self.__getData(self._fort26, elemIdx=elemIdx, col=5)
+        elif plane.upper() == "XY":
+            return self.__getData(self._fort24, data2=self._fort25, elemIdx=elemIdx, col=5)
+        else:
+            raise RuntimeError("Result: Unknown plane for beam twiss alpha on: {}".format(plane))
+
+    def getTwissBeta(self, plane="X", elemIdx=None):
+        """Get beam twiss beta parameters at the end of an element if elemIdx is given, or at all elements.
+        Current implementation returns all position information from simulation, and does not separate BPM 
+        from other devices like magnet and other diagnostic devices like profile monitor.
+
+        :param plane:    beam plane, either "X", "Y", "Z", or "XY"
+        :param elemIdx:  element index, `None` by default 
+        
+        :return: beam twiss beta at given location, or at all elements
+        """
+        if plane.upper() == "X":
+            if self._fort24.shape()[1] < 7:
                 raise DataError("No Twiss Beta available")
-            data = np.empty((self._fort24.shape[0], 2))
-            data[:, 0] = self._fort18[:, 0]
-            data[:, 1] = self._fort24[:, 6]
-        elif plane.upper() in [ "Y"]:
-            if self._fort18.shape()[1] < 7:
+            return self.__getData(self._fort24, elemIdx=elemIdx, col=6)
+        elif plane.upper() == "Y":
+            if self._fort25.shape()[1] < 7:
                 raise DataError("No Twiss Beta available")
-            data = np.empty((self._fort24.shape[0], 2))
-            data[:, 0] = self._fort18[:, 0]
-            data[:, 1] = self._fort25[:, 6]
-        elif plane.upper() in [ "XY"]:
-            if self._fort18.shape()[1] < 7:
+            return self.__getData(self._fort25, elemIdx=elemIdx, col=6)
+        elif plane.upper() == "Z":
+            if self._fort26.shape()[1] < 7:
                 raise DataError("No Twiss Beta available")
-            data = np.empty((self._fort24.shape[0], 3))
-            data[:, 0] = self._fort18[:, 0]
-            data[:, 1] = self._fort24[:, 6]
-            data[:, 2] = self._fort25[:, 6]
-        elif plane.upper() in [ "Z"]:
-            if self._fort18.shape()[1] < 7:
+            return self.__getData(self._fort26, elemIdx=elemIdx, col=6)
+        elif plane.upper() == "XY":
+            if self._fort24.shape()[1] < 7 or self._fort25.shape()[1] < 7:
                 raise DataError("No Twiss Beta available")
-            data = np.empty((self._fort24.shape[0], 2))
-            data[:, 0] = self._fort18[:, 0]
-            data[:, 1] = self._fort25[:, 6]
+            return self.__getData(self._fort24, data2=self._fort25, elemIdx=elemIdx, col=6)
         else:
-            raise RuntimeError("Result: Unknown plane to get Twiss beta: {}".format(plane))
+            raise RuntimeError("Result: Unknown plane for beam twiss beta on: {}".format(plane))
+        
+    def geBeamRms(self, plane="X", elemIdx=None):
+        """Get beam RMS parameters at the end of an element if elemIdx is given, or at all elements.
+        Current implementation returns all position information from simulation, and does not separate BPM 
+        from other devices like magnet and other diagnostic devices like profile monitor.
 
-        return data
-
-
-    def get_beam_rms(self, plane="X"):
-        """Get beam RMS size in X, Y, Z, or XY [meter].
-
-        :return:
+        :param plane:    beam plane, either "X", "Y", "Z", or "XY"
+        :param elemIdx:  element index, `None` by default 
+        
+        :return: beam twiss beta at given location, or at all elements
         """
-        if plane.upper() in [ "X"]:
-            data = np.empty((self._fort24.shape[0], 2))
-            data[:, 0] = self._fort18[:, 0]
-            data[:, 1] = self._fort24[:, 2]
-        elif plane.upper() in [ "Y"]:
-            data = np.empty((self._fort24.shape[0], 2))
-            data[:, 0] = self._fort18[:, 0]
-            data[:, 1] = self._fort25[:, 2]
-        elif plane.upper() in [ "XY"]:
-            data = np.empty((self._fort24.shape[0], 3))
-            data[:, 0] = self._fort18[:, 0]
-            data[:, 1] = self._fort24[:, 2]
-            data[:, 2] = self._fort25[:, 2]
-        elif plane.upper() in [ "Z"]:
-            data = np.empty((self._fort24.shape[0], 2))
-            data[:, 0] = self._fort18[:, 0]
-            data[:, 1] = self._fort26[:, 2]
+        if plane.upper() == "X":
+            return self.__getData(self._fort24, elemIdx=elemIdx, col=2)
+        elif plane.upper() == "Y":
+            return self.__getData(self._fort25, elemIdx=elemIdx, col=2)
+        elif plane.upper() == "Z":
+            return self.__getData(self._fort26, elemIdx=elemIdx, col=2)
+        elif plane.upper() == "XY":
+            return self.__getData(self._fort24, data2=self._fort25, elemIdx=elemIdx, col=2)
         else:
-            raise RuntimeError("Result: Unknown plane to get beam RMS size: {}".format(plane))
+            raise RuntimeError("Result: Unknown plane for beam RMS on: {}".format(plane))
 
-        return data
+    def getEmittance(self, plane="X", elemIdx=None):
+        """Get beam normalized emittance (m-rad for transverse and degree-MeV for longitudinal)
+        at the end of an element if elemIdx is given, or at all elements.
+        Current implementation returns all position information from simulation, and does not separate BPM 
+        from other devices like magnet and other diagnostic devices like profile monitor.
 
-    def get_beam_emittance(self, plane="X"):
-        """Get beam normalized RMS emittance (m-rad for transverse and degree-MeV for longitudinal).
-
-        :return:
+        :param plane:    beam plane, either "X", "Y", "Z", or "XY"
+        :param elemIdx:  element index, `None` by default 
+        
+        :return: beam emittance at given location, or at all elements
         """
-        if plane.upper() in [ "X"]:
-            data = np.empty((self._fort24.shape[0], 2))
-            data[:, 0] = self._fort18[:, 0]
-            data[:, 1] = self._fort24[:, 4]
-        elif plane.upper() in [ "Y"]:
-            data = np.empty((self._fort24.shape[0], 2))
-            data[:, 0] = self._fort18[:, 0]
-            data[:, 1] = self._fort25[:, 4]
-        elif plane.upper() in [ "XY"]:
-            data = np.empty((self._fort24.shape[0], 3))
-            data[:, 0] = self._fort18[:, 0]
-            data[:, 1] = self._fort24[:, 4]
-            data[:, 2] = self._fort25[:, 4]
-        elif plane.upper() in [ "Z"]:
-            data = np.empty((self._fort24.shape[0], 2))
-            data[:, 0] = self._fort18[:, 0]
-            data[:, 1] = self._fort26[:, 4]
+        if plane.upper() == "X":
+            return self.__getData(self._fort24, elemIdx=elemIdx, col=4)
+        elif plane.upper() == "Y":
+            return self.__getData(self._fort25, elemIdx=elemIdx, col=4)
+        elif plane.upper() == "Z":
+            return self.__getData(self._fort26, elemIdx=elemIdx, col=4)
+        elif plane.upper() == "XY":
+            return self.__getData(self._fort24, data2=self._fort25, elemIdx=elemIdx, col=4)
         else:
-            raise RuntimeError("Result: Unknown plane to get beam normalized RMS Emittance: {}".format(plane))
+            raise RuntimeError("Result: Unknown plane for beam RMS on: {}".format(plane))
+    
+    def getBeamMomentumCentroid(self, plane="X", elemIdx=None):
+        """Get beam centroid momentum (radian for transverse and MeV for longitudinal)
+        at the end of an element if elemIdx is given, or at all elements.
+        Current implementation returns all position information from simulation, and does not separate BPM 
+        from other devices like magnet and other diagnostic devices like profile monitor.
 
-        return data
+        :param plane:    beam plane, either "X", "Y", "Z", or "XY"
+        :param elemIdx:  element index, `None` by default 
+        
+        :return: beam emittance at given location, or at all elements
+        """
+        if plane.upper() == "X":
+            return self.__getData(self._fort24, elemIdx=elemIdx, col=1)
+        elif plane.upper() == "Y":
+            return self.__getData(self._fort25, elemIdx=elemIdx, col=1)
+        elif plane.upper() == "Z":
+            return self.__getData(self._fort26, elemIdx=elemIdx, col=1)
+        elif plane.upper() == "XY":
+            return self.__getData(self._fort24, data2=self._fort25, elemIdx=elemIdx, col=1)
+        else:
+            raise RuntimeError("Result: Unknown plane for beam RMS on: {}".format(plane))
+        
+    def getMomentumRms(self, plane="X", elemIdx=None):
+        """Get beam RMS momentum (radian for transverse and MeV for longitudinal)
+        at the end of an element if elemIdx is given, or at all elements.
+        Current implementation returns all position information from simulation, and does not separate BPM 
+        from other devices like magnet and other diagnostic devices like profile monitor.
+
+        :param plane:    beam plane, either "X", "Y", "Z", or "XY"
+        :param elemIdx:  element index, `None` by default 
+        
+        :return: beam emittance at given location, or at all elements
+        """
+        if plane.upper() == "X":
+            return self.__getData(self._fort24, elemIdx=elemIdx, col=3)
+        elif plane.upper() == "Y":
+            return self.__getData(self._fort25, elemIdx=elemIdx, col=3)
+        elif plane.upper() == "Z":
+            return self.__getData(self._fort26, elemIdx=elemIdx, col=3)
+        elif plane.upper() == "XY":
+            return self.__getData(self._fort24, data2=self._fort25, elemIdx=elemIdx, col=3)
+        else:
+            raise RuntimeError("Result: Unknown plane for beam RMS on: {}".format(plane))
