@@ -23,7 +23,7 @@ from ....phylib.layout.accel import QuadElement, BendElement, HexElement, ChgStr
 from ....phylib.layout.accel import BPMElement, PMElement, BLElement, BCMElement, BLMElement 
 from ....phylib.layout.accel import ValveElement, PortElement, DriftElement
 
-from ....phylib.lattice.impact import LatticeFactory
+from ....phylib.lattice.impact import LatticeFactory, OUTPUT_MODE_DIAG
 
 
 # configuration options
@@ -258,6 +258,7 @@ class VirtualAcceleratorFactory(object):
         impact_exe = self._get_config_impact_exe()
 
         latfactory = LatticeFactory(self.accel)
+        latfactory.outputMode = OUTPUT_MODE_DIAG
         latfactory.start = self.start
         latfactory.end = self.end
 

@@ -53,6 +53,10 @@ CONFIG_IMPACT_PIPE_SIZE = "impact_pipe_size"
 
 CONFIG_IMPACT_PERIOD_SIZE = "impact_period_size"
 
+CONFIG_IMPACT_INPUT_MODE = "impact_input_mode"
+
+CONFIG_IMPACT_OUTPUT_MODE = "impact_output_mode"
+
 # Constants used for IMPACT header parameters
 
 INTEGRATOR_LINEAR = 1
@@ -66,6 +70,22 @@ OUTPUT_MODE_STD = 1
 OUTPUT_MODE_DIAG = 3
 
 OUTPUT_MODE_END = 5
+
+INPUT_MODE_RECTANGLE_SINGLE = 1
+
+INPUT_MODE_GAUSSIAN_SINGLE = 2
+
+INPUT_MODE_WATERBAG_SINGLE = 3
+
+INPUT_MODE_SEMIGAUSSIAN_SINGLE = 4
+
+INPUT_MODE_KV_UNIFORM_SINGLE = 5
+
+INPUT_MODE_WATERBAG_MULTI = 16
+
+INPUT_MODE_GAUSSIAN_MULTI = 17
+
+INPUT_MODE_EXTERNAL_FILE = 19
 
 NDIMENSIONS_6D = 6
 
@@ -99,6 +119,8 @@ _DEFAULT_MAPSTEPS = 20
 _DEFAULT_INTEGRATOR = INTEGRATOR_LORENTZ
 
 _DEFAULT_OUTPUT_MODE = OUTPUT_MODE_DIAG
+
+_DEFAULT_INPUT_MODE = INPUT_MODE_WATERBAG_SINGLE
 
 _DEFAULT_NDIMENSIONS = NDIMENSIONS_6D
 
@@ -151,6 +173,8 @@ class LatticeFactory(object):
         self.meshSize = None
         self.pipeSize = None
         self.periodSize = None
+        self.outputMode = None
+        self.inputMode = None
         self.settings = None
         self.start = None
         self.end = None
@@ -331,9 +355,29 @@ class LatticeFactory(object):
 
     def _get_config_period_size(self):
         if cfg.config.has_default(CONFIG_IMPACT_PERIOD_SIZE):
-            return cfg.config.getfloat_default(CONFIG_IMPACT_PERIOD_SIZE)
+            periodSize = cfg.config.getfloat_default(CONFIG_IMPACT_PERIOD_SIZE)
+            _LOGGER.info("LatticeFactory: %s found in configuration: %s", CONFIG_IMPACT_PERIOD_SIZE, periodSize)
+            return periodSize
 
         return _DEFAULT_PERIOD_SIZE
+
+
+    def _get_config_output_mode(self):
+        if cfg.config.has_default(CONFIG_IMPACT_OUTPUT_MODE):
+            outputMode = cfg.config.getint_default(CONFIG_IMPACT_OUTPUT_MODE)
+            _LOGGER.info("LatticeFactory: %s found in configuration: %s", CONFIG_IMPACT_OUTPUT_MODE, outputMode)
+            return outputMode
+
+        return _DEFAULT_OUTPUT_MODE
+
+
+    def _get_config_input_mode(self):
+        if cfg.config.has_default(CONFIG_IMPACT_INPUT_MODE):
+            inputMode = cfg.config.getint_default(CONFIG_IMPACT_INPUT_MODE)
+            _LOGGER.info("LatticeFactory: %s found in configuration: %s", CONFIG_IMPACT_INPUT_MODE, inputMode)
+            return inputMode
+
+        return _DEFAULT_INPUT_MODE
 
 
     def _get_config_settings(self):
@@ -421,6 +465,16 @@ class LatticeFactory(object):
             lattice.periodSize = self.periodSize
         else:
             lattice.periodSize = self._get_config_period_size()
+
+        if self.outputMode != None:
+            lattice.outputMode = self.outputMode
+        else:
+            lattice.outputMode = self._get_config_output_mode()
+
+        if self.inputMode != None:
+            lattice.inputMode = self.inputMode
+        else:
+            lattice.inputMode = self._get_config_input_mode()
 
         lattice.comment = "Name: {a.name}, Desc: {a.desc}".format(a=self._accel)
 
@@ -827,6 +881,19 @@ class Lattice(object):
         self._outputMode = outputMode
 
 
+    @property
+    def inputMode(self):
+        return self._inputMode
+
+    @inputMode.setter
+    def inputMode(self, inputMode):
+        if inputMode not in [ INPUT_MODE_RECTANGLE_SINGLE, INPUT_MODE_GAUSSIAN_SINGLE, INPUT_MODE_WATERBAG_SINGLE, 
+                              INPUT_MODE_SEMIGAUSSIAN_SINGLE, INPUT_MODE_KV_UNIFORM_SINGLE, INPUT_MODE_EXTERNAL_FILE,
+                              INPUT_MODE_GAUSSIAN_MULTI, INPUT_MODE_WATERBAG_MULTI ]:
+            raise ValueError("Lattice: 'inputMode' property must be a supported integer value")
+        self._inputMode = inputMode
+
+
     def append(self, elemformat, length=0.0, steps=0, mapsteps=0, itype=0, radius=0.0, position=0.0, name=None, etype=None, properties={}):
         self.elements.append(LatticeElement(elemformat, length, steps, mapsteps, itype, radius, position, name, etype, properties))
 
@@ -852,7 +919,7 @@ class Lattice(object):
         file.write("{lat.nprocessors} 1\r\n".format(lat=self))
         file.write("{lat.ndimensions} {lat.nparticles} {lat._integrator} {lat.errorStudy} {lat.outputMode}\r\n".format(lat=self))
         file.write("{lat.meshSize[0]} {lat.meshSize[1]} {lat.meshSize[2]} {lat.meshMode} {lat.pipeSize[0]} {lat.pipeSize[1]} {lat.periodSize}\r\n".format(lat=self))
-        file.write("3 0 0 1\r\n")
+        file.write("{lat.inputMode} 0 0 1\r\n".format(lat=self))
         file.write("{lat.nparticles}\r\n".format(lat=self))
         file.write("0.0\r\n")
         file.write("1.48852718947e-10\r\n")
