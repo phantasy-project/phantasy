@@ -90,8 +90,11 @@ def main():
     try:
         lattice = impact_lattice.build_lattice(accel, settings=settings, start=args.start, end=args.end)
     except Exception as e:
+        if args.verbosity > 0: traceback.print_exc()
         print("Error building lattice:", e, file=sys.stderr)
         return 1
+
+    lattice.outputMode = impact_lattice.OUTPUT_MODE_END
 
     try:
         result = impact_model.build_result(lattice, data_dir=args.datapath, work_dir=args.workpath)
@@ -100,26 +103,31 @@ def main():
         print("Error building result:", e, file=sys.stderr)
         return 1
 
-    energy = result.get_energy()
+    spos = result.getSPosition()
 
-    xorbit = result.get_orbit("X")
-    yorbit = result.get_orbit("Y")
+    energy = result.getEnergy()
 
-    xrms = result.get_beam_rms("X")
-    yrms = result.get_beam_rms("Y")
-    zrms = result.get_beam_rms("Z")
+    xorbit = result.getOrbit("X")
+    yorbit = result.getOrbit("Y")
 
-    xemit = result.get_beam_emittance("X")
-    yemit = result.get_beam_emittance("Y")
-    zemit = result.get_beam_emittance("Z")
+    xrms = result.getBeamRms("X")
+    yrms = result.getBeamRms("Y")
+    zrms = result.getBeamRms("Z")
+
+    xalpha = result.getTwissAlpha("X")
+    yalpha = result.getTwissAlpha("Y")
+
+    xemit = result.getEmittance("X")
+    yemit = result.getEmittance("Y")
+    zemit = result.getEmittance("Z")
 
     if args.plot:
         try:
             plt.figure(figsize=(16,10), dpi=80)
             plt.subplot(221)
             plt.title("Beam Orbit")
-            plt.plot(xorbit[:,0], xorbit[:,1], 'r-', label="X")
-            plt.plot(yorbit[:,0], yorbit[:,1], 'b-', label="Y")
+            plt.plot(spos, xorbit, 'r-', label="X")
+            plt.plot(spos, yorbit, 'b-', label="Y")
             plt.xlabel("S [m]")
             plt.ylabel("Beam Position [m]")
             plt.legend(loc="upper left")
@@ -127,8 +135,8 @@ def main():
 
             plt.subplot(222)
             plt.title("Beam RMS")
-            plt.plot(xrms[:,0], xrms[:,1], 'r-', label="X")
-            plt.plot(yrms[:,0], yrms[:,1], 'b-', label="Y")
+            plt.plot(spos, xrms, 'r-', label="X")
+            plt.plot(spos, yrms, 'b-', label="Y")
             #plt.plot(zrms[:,0], zrms[:,1], 'g-', label="Z")
             plt.xlabel("S [m]")
             plt.ylabel("Beam RMS [m]")
@@ -137,15 +145,15 @@ def main():
 
             plt.subplot(223)
             plt.title("Beam Energy")
-            plt.plot(energy[:,0], energy[:,1], 'r-')
+            plt.plot(spos, energy, 'r-')
             plt.xlabel("S [m]")
             plt.ylabel("Beam Energy [MeV]")
             plt.grid()
 
             plt.subplot(224)
             plt.title("Beam Emittance")
-            plt.plot(xemit[:,0], xemit[:,1], 'r-', label="X")
-            plt.plot(yemit[:,0], yemit[:,1], 'b-', label="Y")
+            plt.plot(spos, xemit, 'r-', label="X")
+            plt.plot(spos, yemit, 'b-', label="Y")
             #plt.plot(zemit[:,0], zemit[:,1], 'g-', label="Z")
             plt.xlabel("S [m]")
             plt.ylabel("Beam Emittance [m-rad]")
@@ -158,6 +166,7 @@ def main():
                 plt.savefig(args.resultpath)
 
         except Exception as e:
+            if args.verbosity > 0: traceback.print_exc()
             print("Error generating plot: ", e, file=sys.stderr)
 
     else:
@@ -166,11 +175,35 @@ def main():
                 csvfile = sys.stdout
             else:
                 csvfile = open(args.resultpath, "w")
-            csvfile.write("S,X,Y,XRMS,YRMS,ZRMS,Energy,XEmit,YEmit,ZEmit\r\n")
-            for idx in xrange(xorbit.shape[0]):
-                csvfile.write("{},{},{},{},{},{},{},{},{},{}\r\n".format(xorbit[idx,0], xorbit[idx,1], yorbit[idx,1],
-                                                             xrms[idx,1], yrms[idx,1], zrms[idx,1], energy[idx,1],
-                                                             xemit[idx,1], yemit[idx,1], zemit[idx,1]))
+            csvfile.write("#  i  name   s   energy   codx   cody  alphax alphay emittancex emittancey emittancez TM\r\n")
+            csvfile.write("#           [m]   [eV]     [m]    [m]                                                    \r\n")
+
+            for idx in xrange(len(lattice.elements)):
+                csvfile.write(str(idx))
+                csvfile.write("  ")
+                csvfile.write(lattice.elements[idx].name)
+                csvfile.write("  ")
+                csvfile.write(str(spos[idx]))
+                csvfile.write("  ")
+                csvfile.write(str(energy[idx]))
+                csvfile.write("  ")
+                csvfile.write(str(xorbit[idx]))
+                csvfile.write("  ")
+                csvfile.write(str(yorbit[idx]))
+                csvfile.write("  ")
+                csvfile.write(str(xalpha[idx]))
+                csvfile.write("  ")
+                csvfile.write(str(yalpha[idx]))
+                csvfile.write("  ")
+                csvfile.write(str(xemit[idx]))
+                csvfile.write("  ")
+                csvfile.write(str(yemit[idx]))
+                csvfile.write("  ")
+                csvfile.write(str(zemit[idx]))
+                csvfile.write("  ")
+                csvfile.write("0.0")
+                csvfile.write("\r\n")
+
         except Exception as e:
             print("Error writing CSV result: ", e, file=sys.stderr)
 
