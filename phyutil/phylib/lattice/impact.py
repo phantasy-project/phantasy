@@ -21,6 +21,8 @@ from ..layout.accel import CorrElement, BendElement, QuadElement, HexElement
 from ..layout.accel import BCMElement, PMElement, BLElement, BLMElement, BPMElement
 
 
+CONFIG_IMPACT_NSTATES = "impact_nstates"
+
 CONFIG_IMPACT_NPARTICLES = "impact_nparticles"
 
 CONFIG_IMPACT_NPROCESSORS = "impact_nprocessors"
@@ -56,6 +58,10 @@ CONFIG_IMPACT_PERIOD_SIZE = "impact_period_size"
 CONFIG_IMPACT_INPUT_MODE = "impact_input_mode"
 
 CONFIG_IMPACT_OUTPUT_MODE = "impact_output_mode"
+
+CONFIG_IMPACT_CURRENT = "impact_current"
+
+CONFIG_IMPACT_CHARGE = "impact_charge"
 
 # Constants used for IMPACT header parameters
 
@@ -108,6 +114,8 @@ MESH_MODE_FINITE_PERIODIC_RECT = 6
 
 # Default values for IMPACT lattice generation
 
+_DEFAULT_NSTATES = 1
+
 _DEFAULT_NPARTICLES = 1000
 
 _DEFAULT_NPROCESSORS = 1
@@ -133,6 +141,10 @@ _DEFAULT_MESH_MODE = MESH_MODE_OPEN_OPEN
 _DEFAULT_PIPE_SIZE = [ 0.01, 0.01 ]
 
 _DEFAULT_PERIOD_SIZE = 0.1
+
+_DEFAULT_CURRENT = 0.0
+
+_DEFAULT_CHARGE = 1.065836735E-9
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -164,6 +176,7 @@ class LatticeFactory(object):
 
     def __init__(self, accel):
         self.accel = accel
+        self.nstates = None
         self.nparticles = None
         self.nprocessors = None
         self.integrator = None
@@ -175,6 +188,8 @@ class LatticeFactory(object):
         self.periodSize = None
         self.outputMode = None
         self.inputMode = None
+        self.current = None
+        self.charge = None
         self.settings = None
         self.start = None
         self.end = None
@@ -272,16 +287,36 @@ class LatticeFactory(object):
         return None
 
 
+    def _get_config_nstates(self):
+        if cfg.config.has_default(CONFIG_IMPACT_NSTATES):
+            nstates = cfg.config.getint_default(CONFIG_IMPACT_NSTATES)
+            _LOGGER.info("LatticeFactory: %s found in configuration: %s", CONFIG_IMPACT_NSTATES, nstates)
+            return nstates
+
+        return _DEFAULT_NSTATES
+
+
     def _get_config_nparticles(self):
         if cfg.config.has_default(CONFIG_IMPACT_NPARTICLES):
-            return cfg.config.getint_default(CONFIG_IMPACT_NPARTICLES)
+            nparticles = cfg.config.get_default(CONFIG_IMPACT_NPARTICLES)
+            splitNParticles = nparticles.split()
+            if len(splitNParticles) > 1:
+                nparticles = []
+                for m in splitNParticles:
+                    nparticles.append(float(m))
+            else:
+                nparticles = float(splitNParticles[0])
+            _LOGGER.info("LatticeFactory: %s found in configuration: %s", CONFIG_IMPACT_NPARTICLES, nparticles)
+            return nparticles
 
         return _DEFAULT_NPARTICLES
 
 
     def _get_config_nprocessors(self):
         if cfg.config.has_default(CONFIG_IMPACT_NPROCESSORS):
-            return cfg.config.getint_default(CONFIG_IMPACT_NPROCESSORS)
+            nprocessors = cfg.config.getint_default(CONFIG_IMPACT_NPROCESSORS)
+            _LOGGER.info("LatticeFactory: %s found in configuration: %s", CONFIG_IMPACT_NPROCESSORS, nprocessors)
+            return nprocessors
 
         return _DEFAULT_NPROCESSORS
 
@@ -380,6 +415,38 @@ class LatticeFactory(object):
         return _DEFAULT_INPUT_MODE
 
 
+    def _get_config_current(self):
+        if cfg.config.has_default(CONFIG_IMPACT_CURRENT):
+            current = cfg.config.get_default(CONFIG_IMPACT_CURRENT)
+            splitCurrent = current.split()
+            if len(splitCurrent) > 1:
+                current = []
+                for m in splitCurrent:
+                    current.append(float(m))
+            else:
+                current = float(splitCurrent[0])
+            _LOGGER.info("LatticeFactory: %s found in configuration: %s", CONFIG_IMPACT_CURRENT, current)
+            return current
+
+        return _DEFAULT_CURRENT
+
+
+    def _get_config_charge(self):
+        if cfg.config.has_default(CONFIG_IMPACT_CHARGE):
+            charge = cfg.config.get_default(CONFIG_IMPACT_CHARGE)
+            splitCharge = charge.split()
+            if len(splitCharge) > 1:
+                charge = []
+                for m in splitCharge:
+                    charge.append(float(m))
+            else:
+                charge = float(splitCharge[0])
+            _LOGGER.info("LatticeFactory: %s found in configuration: %s", CONFIG_IMPACT_CHARGE, charge)
+            return charge
+
+        return _DEFAULT_CHARGE
+
+
     def _get_config_settings(self):
         if cfg.config.has_default("settings_file"):
             stgpath = cfg.config.get_default("settings_file")
@@ -425,6 +492,11 @@ class LatticeFactory(object):
             integrator = self._get_config_integrator()
 
         lattice = Lattice(integrator)
+
+        if self.nstates != None:
+            lattice.nstates = self.nstates
+        else:
+            lattice.nstates = self._get_config_nstates()
 
         if self.nparticles != None:
             lattice.nparticles = self.nparticles
@@ -475,6 +547,16 @@ class LatticeFactory(object):
             lattice.inputMode = self.inputMode
         else:
             lattice.inputMode = self._get_config_input_mode()
+
+        if self.current != None:
+            lattice.current = self.current
+        else:
+            lattice.current = self._get_config_current()
+
+        if self.charge != None:
+            lattice.charge = self.charge
+        else:
+            lattice.charge = self._get_config_charge()
 
         lattice.comment = "Name: {a.name}, Desc: {a.desc}".format(a=self._accel)
 
@@ -754,6 +836,7 @@ class Lattice(object):
         self._integrator = integrator
 
         self.comment = None
+        self.nstates = _DEFAULT_NSTATES
         self.nparticles = _DEFAULT_NPARTICLES
         self.nprocessors = _DEFAULT_NPROCESSORS
         self.outputMode = _DEFAULT_OUTPUT_MODE
@@ -763,9 +846,22 @@ class Lattice(object):
         self._meshMode = _DEFAULT_MESH_MODE
         self._pipeSize = _DEFAULT_PIPE_SIZE
         self._periodSize = _DEFAULT_PERIOD_SIZE
+        self._current = _DEFAULT_CURRENT
+        self._charge = _DEFAULT_CHARGE
         self.elements = []
         self.properties = []
 
+
+
+    @property
+    def nstates(self):
+        return self._nstates
+
+    @nstates.setter
+    def nstates(self, nstates):
+        if not isinstance(nstates, (int,float)):
+            raise TypeError("LatticeFactory: 'nstates' property must be a number")
+        self._nstates = int(nstates)
 
 
     @property
@@ -774,9 +870,16 @@ class Lattice(object):
 
     @nparticles.setter
     def nparticles(self, nparticles):
-        if not isinstance(nparticles, (int,float)):
-            raise TypeError("LatticeFactory: 'nparticles' property must be a number")
-        self._nparticles = int(nparticles)
+        if isinstance(nparticles, (int,float)):
+            self._nparticles = int(nparticles)
+        elif isinstance(nparticles, (list,tuple)):
+            self._nparticles = []
+            for p in nparticles:
+                if not isinstance(p, (int,float)):
+                    raise TypeError("Lattice: 'nparticles' must be a list of numbers")
+                self._nparticles.append(int(p))
+        else:
+            raise TypeError("Lattice: 'nparticles' must be integer or list")
 
 
     @property
@@ -894,6 +997,42 @@ class Lattice(object):
         self._inputMode = inputMode
 
 
+    @property
+    def current(self):
+        return self._current
+
+    @current.setter
+    def current(self, current):
+        if isinstance(current, (int,float)):
+            self._current = float(current)
+        elif isinstance(current, (list,tuple)):
+            self._current = []
+            for p in current:
+                if not isinstance(p, (int,float)):
+                    raise TypeError("Lattice: 'current' must be a list of numbers")
+                self._current.append(float(p))
+        else:
+            raise TypeError("Lattice: 'current' must be number or list")
+
+
+    @property
+    def charge(self):
+        return self._charge
+
+    @charge.setter
+    def charge(self, charge):
+        if isinstance(charge, (int,float)):
+            self._charge = float(charge)
+        elif isinstance(charge, (list,tuple)):
+            self._charge = []
+            for p in charge:
+                if not isinstance(p, (int,float)):
+                    raise TypeError("Lattice: 'charge' must be a list of numbers")
+                self._charge.append(float(p))
+        else:
+            raise TypeError("Lattice: 'charge' must be number or list")
+
+
     def append(self, elemformat, length=0.0, steps=0, mapsteps=0, itype=0, radius=0.0, position=0.0, name=None, etype=None, properties={}):
         self.elements.append(LatticeElement(elemformat, length, steps, mapsteps, itype, radius, position, name, etype, properties))
 
@@ -914,15 +1053,68 @@ class Lattice(object):
 
         :param file: file-like object to write lattice (test.in)
         """
+
+        def write_list(f, a):
+            first = True
+            for i in a:
+                if first:
+                    first = False
+                else:
+                    file.write(" ")
+                file.write(f.format(i))
+            file.write("\r\n")
+
+        if self.nstates == 1:
+            if isinstance(self.nparticles, int):
+                nparticles = self.nparticles
+                ncsparticles = [ self.nparticles ]
+            else:
+                nparticles = self.nparticles[0]
+                ncsparticles = [ self.nparticles[0] ]
+
+            if isinstance(self.current, float):
+                current = [ self.current ]
+            else:
+                current = [ self.current[0] ]
+
+            if isinstance(self.charge, float):
+                charge = [ self.charge ]
+            else:
+                charge = [ self.charge[0] ]
+
+        else:
+            if isinstance(self.nparticles, int):
+                nparticles = self.nparticles * self.nstates
+                ncsparticles = [ self.nparticles ] * self.nstates
+            else:
+                nparticles = sum(self.nparticles[:self.nstates])
+                ncsparticles = list(self.nparticles[:self.nstates])
+
+            if isinstance(self.current, float):
+                current = [ self.current ] * self.nstates
+            else:
+                current = list(self.current[:self.nstates])
+
+            if isinstance(self.charge, float):
+                charge = [ self.charge ] * self.nstates
+            else:
+                charge = list(self.charge[:self.nstates])
+
+
         file.write("!! Generated by PhysUtil - {}\r\n".format(datetime.now()))
-        if self.comment != None: file.write("!! {}\r\n".format(self.comment))
+
+        if self.comment != None:
+            file.write("!! {}\r\n".format(self.comment))
+
         file.write("{lat.nprocessors} 1\r\n".format(lat=self))
-        file.write("{lat.ndimensions} {lat.nparticles} {lat._integrator} {lat.errorStudy} {lat.outputMode}\r\n".format(lat=self))
+        file.write("{lat.ndimensions} {nparticles} {lat._integrator} {lat.errorStudy} {lat.outputMode}\r\n".format(lat=self, nparticles=nparticles))
         file.write("{lat.meshSize[0]} {lat.meshSize[1]} {lat.meshSize[2]} {lat.meshMode} {lat.pipeSize[0]} {lat.pipeSize[1]} {lat.periodSize}\r\n".format(lat=self))
-        file.write("{lat.inputMode} 0 0 1\r\n".format(lat=self))
-        file.write("{lat.nparticles}\r\n".format(lat=self))
-        file.write("0.0\r\n")
-        file.write("1.48852718947e-10\r\n")
+        file.write("{lat.inputMode} 0 0 {lat.nstates}\r\n".format(lat=self))
+
+        write_list("{}", ncsparticles)
+        write_list("{}", current)
+        write_list("{}", charge)
+
         file.write("0.22734189E-02  0.88312578E-04  0.00000000E+00  1.000  1.000  0.000  0.000\r\n")
         file.write("0.22734189E-02  0.88312578E-04  0.00000000E+00  1.000  1.000  0.000  0.000\r\n")
         file.write("0.76704772E-01  0.34741445E-05  0.00000000E+00  1.000  1.000  0.000  0.000\r\n")
