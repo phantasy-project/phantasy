@@ -16,6 +16,7 @@ __copyright__ = "Copyright (c) 2015, Facility for Rare Isotope Beams"
 
 __author__ = "Dylan Maxwell"
 
+import sys
 
 from collections import OrderedDict
 
@@ -339,7 +340,7 @@ class SeqElement(NamedElement):
         self.elements.append(elem)
 
 
-    def write(self, indent=2):
+    def write(self, indent=2, stream=sys.stdout):
         level = 0
         iterators = [ iter(self.elements) ]
 
@@ -352,7 +353,7 @@ class SeqElement(NamedElement):
                 level -= 1
                 continue
 
-            # print(" "*(indent*level) + str(elem), file=file)
+            stream.write(" "*(indent*level) + str(elem) + "\n")
 
             if isinstance(elem, SeqElement):
                 iterators.append(iter(elem.elements))
