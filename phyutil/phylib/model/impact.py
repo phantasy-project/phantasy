@@ -360,7 +360,7 @@ class Result(object):
         else:
             raise RuntimeError("Result: Unknown plane for beam twiss beta on: {}".format(plane))
         
-    def geBeamRms(self, plane="X", elemIdx=None):
+    def getBeamRms(self, plane="X", elemIdx=None):
         """Get beam RMS parameters at the end of an element if elemIdx is given, or at all elements.
         Current implementation returns all position information from simulation, and does not separate BPM 
         from other devices like magnet and other diagnostic devices like profile monitor.
