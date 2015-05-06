@@ -23,7 +23,7 @@ from ....phylib.layout.accel import QuadElement, BendElement, HexElement, ChgStr
 from ....phylib.layout.accel import BPMElement, PMElement, BLElement, BCMElement, BLMElement 
 from ....phylib.layout.accel import ValveElement, PortElement, DriftElement
 
-from ..lattice.impact import LatticeFactory
+from ....phylib.lattice.impact import LatticeFactory
 
 
 # configuration options

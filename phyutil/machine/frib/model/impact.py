@@ -10,7 +10,7 @@ __author__ = "Dylan Maxwell"
 
 import sys, os.path, tempfile, logging, subprocess, shutil
 
-from ..lattice.impact import Lattice
+from ....phylib.lattice.impact import Lattice
 
 from ....phylib import cfg
 

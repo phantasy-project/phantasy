@@ -17,7 +17,7 @@ phylib.AUTO_CONFIG=False
 
 from ..phylib import cfg
 
-from ..machine.frib.lattice import impact
+from ..phylib.lattice import impact
 
 from ..machine.frib.layout import fribxlf
 

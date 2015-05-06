@@ -13,9 +13,12 @@ import os.path, logging, json, sys
 
 from datetime import datetime
 
-from ....phylib import cfg
+from .. import cfg
 
-from ....phylib.layout.accel import *
+from ..layout.accel import Element, DriftElement, ValveElement, PortElement
+from ..layout.accel import SeqElement, CavityElement, SolCorrElement, ChgStripElement
+from ..layout.accel import CorrElement, BendElement, QuadElement, HexElement
+from ..layout.accel import BCMElement, PMElement, BLElement, BLMElement, BPMElement
 
 
 CONFIG_IMPACT_NPARTICLES = "impact_nparticles"
@@ -38,6 +41,19 @@ CONFIG_IMPACT_T7DATA_INPUT_ID = "impact_t7data_input_id"
 
 CONFIG_IMPACT_STRIP_INPUT_ID = "impact_strip_input_id"
 
+CONFIG_IMPACT_NDIMENSIONS = "impact_ndimensions"
+
+CONFIG_IMPACT_ERROR_STUDY = "impact_error_study"
+
+CONFIG_IMPACT_MESH_SIZE = "impact_mesh_size"
+
+CONFIG_IMPACT_MESH_MODE = "impact_mesh_mode"
+
+CONFIG_IMPACT_PIPE_SIZE = "impact_pipe_size"
+
+CONFIG_IMPACT_PERIOD_SIZE = "impact_period_size"
+
+# Constants used for IMPACT header parameters
 
 INTEGRATOR_LINEAR = 1
 
@@ -51,6 +67,27 @@ OUTPUT_MODE_DIAG = 3
 
 OUTPUT_MODE_END = 5
 
+NDIMENSIONS_6D = 6
+
+ERROR_STUDY_DISABLED = 0
+
+ERROR_STUDY_ENABLED = 1
+
+MESH_MODE_OPEN_OPEN = 1
+
+MESH_MODE_OPEN_PERIODIC = 2
+
+MESH_MODE_FINITE_OPEN_ROUND = 3
+
+MESH_MODE_FINITE_PERIODIC_ROUND = 4
+
+MESH_MODE_FINITE_OPEN_RECT = 5
+
+MESH_MODE_FINITE_PERIODIC_RECT = 6
+
+
+# Default values for IMPACT lattice generation
+
 _DEFAULT_NPARTICLES = 1000
 
 _DEFAULT_NPROCESSORS = 1
@@ -63,7 +100,17 @@ _DEFAULT_INTEGRATOR = INTEGRATOR_LORENTZ
 
 _DEFAULT_OUTPUT_MODE = OUTPUT_MODE_DIAG
 
+_DEFAULT_NDIMENSIONS = NDIMENSIONS_6D
 
+_DEFAULT_ERROR_STUDY = ERROR_STUDY_DISABLED
+
+_DEFAULT_MESH_SIZE = [ 64, 64, 64 ]
+
+_DEFAULT_MESH_MODE = MESH_MODE_OPEN_OPEN
+
+_DEFAULT_PIPE_SIZE = [ 0.01, 0.01 ]
+
+_DEFAULT_PERIOD_SIZE = 0.1
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -98,6 +145,12 @@ class LatticeFactory(object):
         self.nparticles = None
         self.nprocessors = None
         self.integrator = None
+        self.ndimensions = None
+        self.errorStudy = None
+        self.meshMode = None
+        self.meshSize = None
+        self.pipeSize = None
+        self.periodSize = None
         self.settings = None
         self.start = None
         self.end = None
@@ -113,39 +166,6 @@ class LatticeFactory(object):
         if not isinstance(accel, SeqElement):
             raise TypeError("LatticeFactory: 'accel' property must be type a SeqElement")
         self._accel = accel
-
-
-    @property
-    def nparticles(self):
-        return self._nparticles
-
-    @nparticles.setter
-    def nparticles(self, nparticles):
-        if (nparticles != None) and not isinstance(nparticles, (int,float)):
-            raise TypeError("LatticeFactory: 'nparticles' property must be number or None")
-        self._nparticles = nparticles if nparticles == None else int(nparticles)
-
-
-    @property
-    def nprocessors(self):
-        return self._nprocessors
-
-    @nprocessors.setter
-    def nprocessors(self, nprocessors):
-        if (nprocessors != None) and not isinstance(nprocessors, (int,float)):
-            raise TypeError("LatticeFactory: 'nprocessors' property must be number or None")
-        self._nprocessors = nprocessors if nprocessors == None else int(nprocessors)
-
-
-    @property
-    def integrator(self):
-        return self._integrator
-
-    @integrator.setter
-    def integrator(self, integrator):
-        if (integrator != None) and integrator not in [ INTEGRATOR_LINEAR, INTEGRATOR_LORENTZ ]:
-            raise TypeError("LatticeFactory: 'integrator' property must be a supported integer value or None")
-        self._integrator = integrator
 
 
     @property
@@ -251,6 +271,71 @@ class LatticeFactory(object):
         return _DEFAULT_INTEGRATOR
 
 
+    def _get_config_ndimensions(self):
+        if cfg.config.has_default(CONFIG_IMPACT_NDIMENSIONS):
+            ndimensions = cfg.config.getint_default(CONFIG_IMPACT_NDIMENSIONS)
+            _LOGGER.info("LatticeFactory: %s found in configuration: %s", CONFIG_IMPACT_NDIMENSIONS, ndimensions)
+            return ndimensions
+
+        return _DEFAULT_NDIMENSIONS
+
+    def _get_config_error_study(self):
+        if cfg.config.has_default(CONFIG_IMPACT_ERROR_STUDY):
+            errorStudy =  cfg.config.getint_default(CONFIG_IMPACT_ERROR_STUDY)
+            _LOGGER.info("LatticeFactory: %s found in configuration: %s", CONFIG_IMPACT_ERROR_STUDY, errorStudy)
+            return errorStudy
+
+        return _DEFAULT_ERROR_STUDY
+
+
+    def _get_config_mesh_mode(self):
+        if cfg.config.has_default(CONFIG_IMPACT_MESH_MODE):
+            meshMode = cfg.config.getint_default(CONFIG_IMPACT_MESH_MODE)
+            _LOGGER.info("LatticeFactory: %s found in configuration: %s", CONFIG_IMPACT_MESH_MODE, meshMode)
+            return meshMode
+
+        return _DEFAULT_MESH_MODE
+
+
+    def _get_config_mesh_size(self):
+        if cfg.config.has_default(CONFIG_IMPACT_MESH_SIZE):
+            meshSize = cfg.config.get_default(CONFIG_IMPACT_MESH_SIZE)
+            splitMeshSize = meshSize.split()
+            if len(splitMeshSize) > 1:
+                meshSize = []
+                for m in splitMeshSize:
+                    meshSize.append(float(m))
+            else:
+                meshSize = float(splitMeshSize[0])
+            _LOGGER.info("LatticeFactory: %s found in configuration: %s", CONFIG_IMPACT_MESH_SIZE, meshSize)
+            return meshSize
+
+        return _DEFAULT_MESH_SIZE
+
+
+    def _get_config_pipe_size(self):
+        if cfg.config.has_default(CONFIG_IMPACT_PIPE_SIZE):
+            pipeSize = cfg.config.get_default(CONFIG_IMPACT_PIPE_SIZE)
+            splitPipeSize = pipeSize.split()
+            if len(splitPipeSize) > 1:
+                pipeSize = []
+                for m in splitPipeSize:
+                    pipeSize.append(float(m))
+            else:
+                pipeSize = float(splitPipeSize[0])
+            _LOGGER.info("LatticeFactory: %s found in configuration: %s", CONFIG_IMPACT_PIPE_SIZE, pipeSize)
+            return pipeSize
+
+        return _DEFAULT_PIPE_SIZE
+
+
+    def _get_config_period_size(self):
+        if cfg.config.has_default(CONFIG_IMPACT_PERIOD_SIZE):
+            return cfg.config.getfloat_default(CONFIG_IMPACT_PERIOD_SIZE)
+
+        return _DEFAULT_PERIOD_SIZE
+
+
     def _get_config_settings(self):
         if cfg.config.has_default("settings_file"):
             stgpath = cfg.config.get_default("settings_file")
@@ -285,27 +370,58 @@ class LatticeFactory(object):
 
     def build(self):
 
-        nparticles = self.nparticles
-        if nparticles == None:
-            nparticles = self._get_config_nparticles()
-
-        nprocessors = self.nprocessors
-        if nprocessors == None:
-            nprocessors = self._get_config_nprocessors()
-
-        integrator = self.integrator
-        if integrator == None:
-            integrator = self._get_config_integrator()
-
         settings = None
         if self.template == False:
             settings = self.settings
             if settings == None:
                 settings = self._get_config_settings()
 
+        integrator = self.integrator
+        if integrator == None:
+            integrator = self._get_config_integrator()
+
         lattice = Lattice(integrator)
-        lattice.nparticles = nparticles
-        lattice.nprocessors = nprocessors
+
+        if self.nparticles != None:
+            lattice.nparticles = self.nparticles
+        else:
+            lattice.nparticles = self._get_config_nparticles()
+
+        if self.nprocessors != None:
+            lattice.nprocessors = self.nprocessors
+        else:
+            lattice.nprocessors = self._get_config_nprocessors()
+
+        if self.ndimensions != None:
+            lattice.ndimensions = self.ndimensions
+        else:
+            lattice.ndimensions = self._get_config_ndimensions()
+
+        if self.errorStudy != None:
+            lattice.errorStudy = self.errorStudy
+        else:
+            lattice.errorStudy = self._get_config_error_study()
+
+        if self.meshMode != None:
+            lattice.meshMode = self.meshMode
+        else:
+            lattice.meshMode = self._get_config_mesh_mode()
+
+        if  self.meshSize != None:
+            lattice.meshSize = self.meshSize
+        else:
+            lattice.meshSize = self._get_config_mesh_size()
+
+        if self.pipeSize != None:
+            lattice.pipeSize = self.pipeSize
+        else:
+            lattice.pipeSize = self._get_config_pipe_size()
+
+        if self.periodSize != None:
+            lattice.periodSize = self.periodSize
+        else:
+            lattice.periodSize = self._get_config_period_size()
+
         lattice.comment = "Name: {a.name}, Desc: {a.desc}".format(a=self._accel)
 
         poffset = None
@@ -580,13 +696,19 @@ class Lattice(object):
     """
     def __init__(self, integrator):
         if integrator not in [ INTEGRATOR_LINEAR, INTEGRATOR_LORENTZ ]:
-            raise TypeError("Lattice: 'integrator' property must be Enum or None")
+            raise ValueError("Lattice: 'integrator' property must be a supported integer value")
         self._integrator = integrator
 
         self.comment = None
         self.nparticles = _DEFAULT_NPARTICLES
         self.nprocessors = _DEFAULT_NPROCESSORS
         self.outputMode = _DEFAULT_OUTPUT_MODE
+        self.ndimensions = _DEFAULT_NDIMENSIONS
+        self.errorStudy = _DEFAULT_ERROR_STUDY
+        self._meshSize = _DEFAULT_MESH_SIZE
+        self._meshMode = _DEFAULT_MESH_MODE
+        self._pipeSize = _DEFAULT_PIPE_SIZE
+        self._periodSize = _DEFAULT_PERIOD_SIZE
         self.elements = []
         self.properties = []
 
@@ -598,6 +720,8 @@ class Lattice(object):
 
     @nparticles.setter
     def nparticles(self, nparticles):
+        if not isinstance(nparticles, (int,float)):
+            raise TypeError("LatticeFactory: 'nparticles' property must be a number")
         self._nparticles = int(nparticles)
 
 
@@ -607,7 +731,89 @@ class Lattice(object):
 
     @nprocessors.setter
     def nprocessors(self, nprocessors):
+        if not isinstance(nprocessors, (int,float)):
+            raise TypeError("LatticeFactory: 'nprocessors' property must be a number")
         self._nprocessors = int(nprocessors)
+
+
+    @property
+    def ndimensions(self):
+        return self._ndimensions
+
+    @ndimensions.setter
+    def ndimensions(self, ndimensions):
+        if  ndimensions not in [ NDIMENSIONS_6D ]:
+            raise ValueError("Lattice: 'ndimensions' property must be a supported integer value")
+        self._ndimensions = ndimensions
+
+
+    @property
+    def errorStudy(self):
+        return self._errorStudy
+
+    @errorStudy.setter
+    def errorStudy(self, errorStudy):
+        if errorStudy not in [ ERROR_STUDY_DISABLED, ERROR_STUDY_ENABLED ]:
+            raise ValueError("Lattice: 'errorStudy' property must be a supported integer value")
+        self._errorStudy = errorStudy
+
+
+    @property
+    def meshSize(self):
+        return self._meshSize
+
+    @meshSize.setter
+    def meshSize(self, meshSize):
+        if not isinstance(meshSize, (list,tuple)):
+            raise TypeError("Lattice: 'meshSize' property must be list or tuple")
+        if len(meshSize) != 3:
+            raise ValueError("Lattice: 'meshSize' property must have length 3")
+        for m in meshSize:
+            if not isinstance(m, (int,float)):
+                raise TypeError("Lattice: 'meshSize' property must be list of numbers")
+        self._meshSize = [ int(meshSize[0]), int(meshSize[1]), int(meshSize[2]) ]
+
+
+    @property
+    def meshMode(self):
+        return self._meshMode
+
+    @meshMode.setter
+    def meshMode(self, meshMode):
+        if meshMode not in [ MESH_MODE_OPEN_OPEN, MESH_MODE_OPEN_PERIODIC,
+                             MESH_MODE_FINITE_OPEN_RECT, MESH_MODE_FINITE_PERIODIC_RECT,
+                             MESH_MODE_FINITE_OPEN_ROUND, MESH_MODE_FINITE_PERIODIC_ROUND ]:
+            raise ValueError("Lattice: 'meshMode' property must be a supported integer value")
+        self._meshMode = meshMode
+
+
+    @property
+    def pipeSize(self):
+        return self._pipeSize
+
+
+    @pipeSize.setter
+    def pipeSize(self, pipeSize):
+        if isinstance(pipeSize, (int,float)):
+            self._pipeSize = [ pipeSize, pipeSize ]
+        elif isinstance(pipeSize, (list,tuple)):
+            if len(pipeSize) != 2:
+                raise ValueError("Lattice: 'pipeSize' property must have length 2")
+            for p in pipeSize:
+                if not isinstance(p, (int,float)):
+                    raise TypeError("Lattice: 'pipeSize' must be a list of numbers")
+            self._pipeSize = [ float(pipeSize[0]), float(pipeSize[1]) ]
+
+
+    @property
+    def periodSize(self):
+        return self._periodSize
+
+    @periodSize.setter
+    def periodSize(self, periodSize):
+        if not isinstance(periodSize, (int,float)):
+            raise TypeError("Lattice: 'periodSize' must be a number")
+        self._periodSize = periodSize
 
 
     @property
@@ -644,8 +850,8 @@ class Lattice(object):
         file.write("!! Generated by PhysUtil - {}\r\n".format(datetime.now()))
         if self.comment != None: file.write("!! {}\r\n".format(self.comment))
         file.write("{lat.nprocessors} 1\r\n".format(lat=self))
-        file.write("6 {lat.nparticles} {lat._integrator} 0 {lat.outputMode}\r\n".format(lat=self))
-        file.write("65 65 129 4 0.140000 0.140000 0.1025446\r\n")
+        file.write("{lat.ndimensions} {lat.nparticles} {lat._integrator} {lat.errorStudy} {lat.outputMode}\r\n".format(lat=self))
+        file.write("{lat.meshSize[0]} {lat.meshSize[1]} {lat.meshSize[2]} {lat.meshMode} {lat.pipeSize[0]} {lat.pipeSize[1]} {lat.periodSize}\r\n".format(lat=self))
         file.write("3 0 0 1\r\n")
         file.write("{lat.nparticles}\r\n".format(lat=self))
         file.write("0.0\r\n")
