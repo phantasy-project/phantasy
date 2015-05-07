@@ -370,204 +370,6 @@ class LatticeFactory(object):
         return None
 
 
-    def _get_config_nstates(self):
-        if cfg.config.has_default(CONFIG_IMPACT_NSTATES):
-            nstates = cfg.config.getint_default(CONFIG_IMPACT_NSTATES)
-            _LOGGER.info("LatticeFactory: %s found in configuration: %s", CONFIG_IMPACT_NSTATES, nstates)
-            return nstates
-
-        return _DEFAULT_NSTATES
-
-
-    def _get_config_nparticles(self):
-        if cfg.config.has_default(CONFIG_IMPACT_NPARTICLES):
-            nparticles = cfg.config.getarray_default(CONFIG_IMPACT_NPARTICLES, conv=float)
-            if len(nparticles) == 1:
-                nparticles = nparticles[0]
-            _LOGGER.info("LatticeFactory: %s found in configuration: %s", CONFIG_IMPACT_NPARTICLES, nparticles)
-            return nparticles
-
-        return _DEFAULT_NPARTICLES
-
-
-    def _get_config_nprocessors(self):
-        if cfg.config.has_default(CONFIG_IMPACT_NPROCESSORS):
-            nprocessors = cfg.config.getint_default(CONFIG_IMPACT_NPROCESSORS)
-            _LOGGER.info("LatticeFactory: %s found in configuration: %s", CONFIG_IMPACT_NPROCESSORS, nprocessors)
-            return nprocessors
-
-        return _DEFAULT_NPROCESSORS
-
-
-    def _get_config_integrator(self):
-        if cfg.config.has_default(CONFIG_IMPACT_INTEGRATOR):
-            integrator = cfg.config.getint_default(CONFIG_IMPACT_INTEGRATOR)
-            if integrator in [ INTEGRATOR_LINEAR, INTEGRATOR_LORENTZ ]:
-                return integrator
-
-        return _DEFAULT_INTEGRATOR
-
-
-    def _get_config_ndimensions(self):
-        if cfg.config.has_default(CONFIG_IMPACT_NDIMENSIONS):
-            ndimensions = cfg.config.getint_default(CONFIG_IMPACT_NDIMENSIONS)
-            _LOGGER.info("LatticeFactory: %s found in configuration: %s", CONFIG_IMPACT_NDIMENSIONS, ndimensions)
-            return ndimensions
-
-        return _DEFAULT_NDIMENSIONS
-
-    def _get_config_error_study(self):
-        if cfg.config.has_default(CONFIG_IMPACT_ERROR_STUDY):
-            errorStudy =  cfg.config.getint_default(CONFIG_IMPACT_ERROR_STUDY)
-            _LOGGER.info("LatticeFactory: %s found in configuration: %s", CONFIG_IMPACT_ERROR_STUDY, errorStudy)
-            return errorStudy
-
-        return _DEFAULT_ERROR_STUDY
-
-
-    def _get_config_mesh_mode(self):
-        if cfg.config.has_default(CONFIG_IMPACT_MESH_MODE):
-            meshMode = cfg.config.getint_default(CONFIG_IMPACT_MESH_MODE)
-            _LOGGER.info("LatticeFactory: %s found in configuration: %s", CONFIG_IMPACT_MESH_MODE, meshMode)
-            return meshMode
-
-        return _DEFAULT_MESH_MODE
-
-
-    def _get_config_mesh_size(self):
-        if cfg.config.has_default(CONFIG_IMPACT_MESH_SIZE):
-            meshSize = cfg.config.getarray_default(CONFIG_IMPACT_MESH_SIZE, conv=float)
-            if len(meshSize) == 1:
-                meshSize = meshSize[0]
-            _LOGGER.info("LatticeFactory: %s found in configuration: %s", CONFIG_IMPACT_MESH_SIZE, meshSize)
-            return meshSize
-
-        return _DEFAULT_MESH_SIZE
-
-
-    def _get_config_pipe_size(self):
-        if cfg.config.has_default(CONFIG_IMPACT_PIPE_SIZE):
-            pipeSize = cfg.config.getarray_default(CONFIG_IMPACT_PIPE_SIZE, conv=float)
-            if len(pipeSize) == 1:
-                pipeSize = pipeSize[0]
-            _LOGGER.info("LatticeFactory: %s found in configuration: %s", CONFIG_IMPACT_PIPE_SIZE, pipeSize)
-            return pipeSize
-
-        return _DEFAULT_PIPE_SIZE
-
-
-    def _get_config_period_size(self):
-        if cfg.config.has_default(CONFIG_IMPACT_PERIOD_SIZE):
-            periodSize = cfg.config.getfloat_default(CONFIG_IMPACT_PERIOD_SIZE)
-            _LOGGER.info("LatticeFactory: %s found in configuration: %s", CONFIG_IMPACT_PERIOD_SIZE, periodSize)
-            return periodSize
-
-        return _DEFAULT_PERIOD_SIZE
-
-
-    def _get_config_output_mode(self):
-        if cfg.config.has_default(CONFIG_IMPACT_OUTPUT_MODE):
-            outputMode = cfg.config.getint_default(CONFIG_IMPACT_OUTPUT_MODE)
-            _LOGGER.info("LatticeFactory: %s found in configuration: %s", CONFIG_IMPACT_OUTPUT_MODE, outputMode)
-            return outputMode
-
-        return _DEFAULT_OUTPUT_MODE
-
-
-    def _get_config_input_mode(self):
-        if cfg.config.has_default(CONFIG_IMPACT_INPUT_MODE):
-            inputMode = cfg.config.getint_default(CONFIG_IMPACT_INPUT_MODE)
-            _LOGGER.info("LatticeFactory: %s found in configuration: %s", CONFIG_IMPACT_INPUT_MODE, inputMode)
-            return inputMode
-
-        return _DEFAULT_INPUT_MODE
-
-
-    def _get_config_current(self):
-        if cfg.config.has_default(CONFIG_IMPACT_CURRENT):
-            current = cfg.config.getarray_default(CONFIG_IMPACT_CURRENT, conv=float)
-            if len(current) == 1:
-                current = current[0]
-            _LOGGER.info("LatticeFactory: %s found in configuration: %s", CONFIG_IMPACT_CURRENT, current)
-            return current
-
-        return _DEFAULT_CURRENT
-
-
-    def _get_config_charge(self):
-        if cfg.config.has_default(CONFIG_IMPACT_CHARGE):
-            charge = cfg.config.getarray_default(CONFIG_IMPACT_CHARGE, conv=float)
-            if len(charge) == 1:
-                charge = charge[0]
-            _LOGGER.info("LatticeFactory: %s found in configuration: %s", CONFIG_IMPACT_CHARGE, charge)
-            return charge
-
-        return _DEFAULT_CHARGE
-
-
-    def _get_config_dist_sigma(self):
-        if cfg.config.has_default(CONFIG_IMPACT_DIST_SIGMA):
-            sigma = cfg.config.getarray_default(CONFIG_IMPACT_DIST_SIGMA, conv=float)
-            _LOGGER.info("LatticeFactory: %s found in configuration: %s", CONFIG_IMPACT_DIST_SIGMA, sigma)
-            return sigma
-
-        return _DEFAULT_DIST_SIGMA
-
-
-    def _get_config_dist_lambda(self):
-        if cfg.config.has_default(CONFIG_IMPACT_DIST_LAMBDA):
-            lambda_ = cfg.config.getarray_default(CONFIG_IMPACT_DIST_LAMBDA, conv=float)
-            _LOGGER.info("LatticeFactory: %s found in configuration: %s", CONFIG_IMPACT_DIST_LAMBDA, lambda_)
-            return lambda_
-
-        return _DEFAULT_DIST_LAMBDA
-
-
-    def _get_config_dist_mu(self):
-        if cfg.config.has_default(CONFIG_IMPACT_DIST_MU):
-            mu = cfg.config.getarray_default(CONFIG_IMPACT_DIST_MU, conv=float)
-            _LOGGER.info("LatticeFactory: %s found in configuration: %s", CONFIG_IMPACT_DIST_MU, mu)
-            return mu
-
-        return _DEFAULT_DIST_MU
-
-
-    def _get_config_dist_mismatch(self):
-        if cfg.config.has_default(CONFIG_IMPACT_MISMATCH):
-            value = cfg.config.getarray_default(CONFIG_IMPACT_MISMATCH, conv=float)
-            _LOGGER.info("LatticeFactory: %s found in configuration: %s", CONFIG_IMPACT_MISMATCH, value)
-            return value
-
-        return _DEFAULT_MISMATCH
-
-
-    def _get_config_dist_emismatch(self):
-        if cfg.config.has_default(CONFIG_IMPACT_EMISMATCH):
-            value = cfg.config.getarray_default(CONFIG_IMPACT_EMISMATCH, conv=float)
-            _LOGGER.info("LatticeFactory: %s found in configuration: %s", CONFIG_IMPACT_EMISMATCH, value)
-            return value
-
-        return _DEFAULT_EMISMATCH
-
-
-    def _get_config_dist_offset(self):
-        if cfg.config.has_default(CONFIG_IMPACT_OFFSET):
-            value = cfg.config.getarray_default(CONFIG_IMPACT_OFFSET, conv=float)
-            _LOGGER.info("LatticeFactory: %s found in configuration: %s", CONFIG_IMPACT_OFFSET, value)
-            return value
-
-        return _DEFAULT_OFFSET
-
-
-    def _get_config_dist_eoffset(self):
-        if cfg.config.has_default(CONFIG_IMPACT_EOFFSET):
-            value = cfg.config.getarray_default(CONFIG_IMPACT_EOFFSET, conv=float)
-            _LOGGER.info("LatticeFactory: %s found in configuration: %s", CONFIG_IMPACT_EOFFSET, value)
-            return value
-
-        return _DEFAULT_EOFFSET
-
-
     def _get_config_int_default(self, option, defvalue):
         if cfg.config.has_default(option):
             value = cfg.config.getint_default(option)
@@ -580,6 +382,17 @@ class LatticeFactory(object):
     def _get_config_float_default(self, option, defvalue):
         if cfg.config.has_default(option):
             value = cfg.config.getfloat_default(option)
+            _LOGGER.info("LatticeFactory: %s found in configuration: %s", option, value)
+            return value
+
+        return defvalue
+
+
+    def _get_config_array_default(self, option, defvalue, conv=None, unpack=True):
+        if cfg.config.has_default(option):
+            value = cfg.config.getarray_default(option, conv=conv)
+            if unpack and (len(value) == 1):
+                value = value[0]
             _LOGGER.info("LatticeFactory: %s found in configuration: %s", option, value)
             return value
 
@@ -628,109 +441,109 @@ class LatticeFactory(object):
 
         integrator = self.integrator
         if integrator == None:
-            integrator = self._get_config_integrator()
+            integrator = self._get_config_int_default(CONFIG_IMPACT_INTEGRATOR, _DEFAULT_INTEGRATOR)
 
         lattice = Lattice(integrator)
 
         if self.nstates != None:
             lattice.nstates = self.nstates
         else:
-            lattice.nstates = self._get_config_nstates()
+            lattice.nstates = self._get_config_int_default(CONFIG_IMPACT_NSTATES, _DEFAULT_NSTATES)
 
         if self.nparticles != None:
             lattice.nparticles = self.nparticles
         else:
-            lattice.nparticles = self._get_config_nparticles()
+            lattice.nparticles = self._get_config_array_default(CONFIG_IMPACT_NPARTICLES, _DEFAULT_NPARTICLES, conv=int)
 
         if self.nprocessors != None:
             lattice.nprocessors = self.nprocessors
         else:
-            lattice.nprocessors = self._get_config_nprocessors()
+            lattice.nprocessors = self._get_config_int_default(CONFIG_IMPACT_NPROCESSORS, _DEFAULT_NPROCESSORS)
 
         if self.ndimensions != None:
             lattice.ndimensions = self.ndimensions
         else:
-            lattice.ndimensions = self._get_config_ndimensions()
+            lattice.ndimensions = self._get_config_int_default(CONFIG_IMPACT_NDIMENSIONS, _DEFAULT_NDIMENSIONS)
 
         if self.errorStudy != None:
             lattice.errorStudy = self.errorStudy
         else:
-            lattice.errorStudy = self._get_config_error_study()
+            lattice.errorStudy = self._get_config_int_default(CONFIG_IMPACT_ERROR_STUDY, _DEFAULT_ERROR_STUDY)
 
         if self.meshMode != None:
             lattice.meshMode = self.meshMode
         else:
-            lattice.meshMode = self._get_config_mesh_mode()
+            lattice.meshMode = self._get_config_int_default(CONFIG_IMPACT_MESH_MODE, _DEFAULT_MESH_MODE)
 
         if  self.meshSize != None:
             lattice.meshSize = self.meshSize
         else:
-            lattice.meshSize = self._get_config_mesh_size()
+            lattice.meshSize = self._get_config_array_default(CONFIG_IMPACT_MESH_SIZE, _DEFAULT_MESH_SIZE, conv=int)
 
         if self.pipeSize != None:
             lattice.pipeSize = self.pipeSize
         else:
-            lattice.pipeSize = self._get_config_pipe_size()
+            lattice.pipeSize = self._get_config_array_default(CONFIG_IMPACT_PIPE_SIZE, _DEFAULT_PIPE_SIZE, conv=float)
 
         if self.periodSize != None:
             lattice.periodSize = self.periodSize
         else:
-            lattice.periodSize = self._get_config_period_size()
+            lattice.periodSize = self._get_config_float_default(CONFIG_IMPACT_PERIOD_SIZE, _DEFAULT_PERIOD_SIZE)
 
         if self.outputMode != None:
             lattice.outputMode = self.outputMode
         else:
-            lattice.outputMode = self._get_config_output_mode()
+            lattice.outputMode = self._get_config_int_default(CONFIG_IMPACT_OUTPUT_MODE, _DEFAULT_OUTPUT_MODE)
 
         if self.inputMode != None:
             lattice.inputMode = self.inputMode
         else:
-            lattice.inputMode = self._get_config_input_mode()
+            lattice.inputMode = self._get_config_int_default(CONFIG_IMPACT_INPUT_MODE, _DEFAULT_INPUT_MODE)
 
         if self.current != None:
             lattice.current = self.current
         else:
-            lattice.current = self._get_config_current()
+            lattice.current = self._get_config_array_default(CONFIG_IMPACT_CURRENT, _DEFAULT_CURRENT, conv=float)
 
         if self.charge != None:
             lattice.charge = self.charge
         else:
-            lattice.charge = self._get_config_charge()
+            lattice.charge = self._get_config_array_default(CONFIG_IMPACT_CHARGE, _DEFAULT_CHARGE, conv=float)
 
         if self.distSigma != None:
             lattice.distSigma = self.distSigma
         else:
-            lattice.distSigma = self._get_config_dist_sigma()
+            lattice.distSigma = self._get_config_array_default(CONFIG_IMPACT_DIST_SIGMA, _DEFAULT_DIST_SIGMA, conv=float)
 
         if self.distLambda != None:
             lattice.distLambda = self.distLambda
         else:
-            lattice.distLambda = self._get_config_dist_lambda()
+            lattice.distLambda = self._get_config_array_default(CONFIG_IMPACT_DIST_LAMBDA, _DEFAULT_DIST_LAMBDA, conv=float)
 
         if self.distMu != None:
             lattice.distMu = self.distMu
         else:
-            lattice.distMu = self._get_config_dist_mu()
+            lattice.distMu = self._get_config_array_default(CONFIG_IMPACT_DIST_MU, _DEFAULT_DIST_MU, conv=float)
 
         if self.mismatch != None:
             lattice.mismatch = self.mismatch
         else:
-            lattice.mismatch = self._get_config_dist_mismatch()
+            lattice.mismatch = self._get_config_array_default(CONFIG_IMPACT_MISMATCH, _DEFAULT_MISMATCH, conv=float)
 
         if self.emismatch != None:
             lattice.emismatch = self.emismatch
         else:
-            lattice.emismatch = self._get_config_dist_emismatch()
+            lattice.emismatch = self._get_config_array_default(CONFIG_IMPACT_EMISMATCH, _DEFAULT_EMISMATCH, conv=float)
 
         if self.offset != None:
             lattice.offset = self.offset
         else:
-            lattice.offset = self._get_config_dist_offset()
+            lattice.offset = self._get_config_array_default(CONFIG_IMPACT_OFFSET, _DEFAULT_OFFSET, conv=float)
 
         if self.eoffset != None:
             lattice.eoffset = self.eoffset
         else:
-            lattice.eoffset = self._get_config_dist_eoffset()
+            lattice.eoffset = self._get_config_array_default(CONFIG_IMPACT_EOFFSET, _DEFAULT_EOFFSET, conv=float)
 
         if self.restart != None:
             lattice.restart = self.restart
