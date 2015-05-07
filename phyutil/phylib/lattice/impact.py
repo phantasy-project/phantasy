@@ -921,7 +921,7 @@ class Lattice(object):
                     raise TypeError("Lattice: 'nparticles' must be a list of numbers")
                 self._nparticles.append(int(p))
         else:
-            raise TypeError("Lattice: 'nparticles' must be integer or list")
+            raise TypeError("Lattice: 'nparticles' must be number or list")
 
 
     @property
@@ -963,14 +963,18 @@ class Lattice(object):
 
     @meshSize.setter
     def meshSize(self, meshSize):
-        if not isinstance(meshSize, (list,tuple)):
-            raise TypeError("Lattice: 'meshSize' property must be list or tuple")
-        if len(meshSize) != 3:
-            raise ValueError("Lattice: 'meshSize' property must have length 3")
-        for m in meshSize:
-            if not isinstance(m, (int,float)):
-                raise TypeError("Lattice: 'meshSize' property must be list of numbers")
-        self._meshSize = [ int(meshSize[0]), int(meshSize[1]), int(meshSize[2]) ]
+        if isinstance(meshSize, (int,float)):
+            self._nparticles = [ int(meshSize) ] * 3
+        if isinstance(meshSize, (list,tuple)):
+            if len(meshSize) != 3:
+                raise ValueError("Lattice: 'meshSize' property must have length 3")
+            self._meshSize = []
+            for m in meshSize:
+                if not isinstance(m, (int,float)):
+                    raise TypeError("Lattice: 'meshSize' property must be list of numbers")
+                self._meshSize.append(int(m))
+        else:
+            raise TypeError("Lattice: 'meshSize' property must be number or list")
 
 
     @property
@@ -994,14 +998,17 @@ class Lattice(object):
     @pipeSize.setter
     def pipeSize(self, pipeSize):
         if isinstance(pipeSize, (int,float)):
-            self._pipeSize = [ pipeSize, pipeSize ]
+            self._pipeSize = [ float(pipeSize) ] * 2
         elif isinstance(pipeSize, (list,tuple)):
             if len(pipeSize) != 2:
                 raise ValueError("Lattice: 'pipeSize' property must have length 2")
+            self._pipeSize = []
             for p in pipeSize:
                 if not isinstance(p, (int,float)):
                     raise TypeError("Lattice: 'pipeSize' must be a list of numbers")
-            self._pipeSize = [ float(pipeSize[0]), float(pipeSize[1]) ]
+                self._pipeSize.append(float(p))
+        else:
+            raise TypeError("Lattice: 'pipeSize' property must be number or list")
 
 
     @property
@@ -1086,10 +1093,11 @@ class Lattice(object):
         elif isinstance(distSigma, (list,tuple)):
             if len(distSigma) != 3:
                 raise ValueError("Lattice: 'distSigma' property must have length 3")
+            self._distSigma = []
             for p in distSigma:
                 if not isinstance(p, (int,float)):
                     raise TypeError("Lattice: 'distSigma' must be a list of numbers")
-            self._distSigma = [ float(distSigma[0]), float(distSigma[1]), float(distSigma[2]) ]
+                self._distSigma.append(float(p))
         else:
             raise TypeError("Lattice: 'distSigma' must be number or list")
 
@@ -1105,10 +1113,11 @@ class Lattice(object):
         elif isinstance(distLambda, (list,tuple)):
             if len(distLambda) != 3:
                 raise ValueError("Lattice: 'distLambda' property must have length 3")
+            self._distLambda = []
             for p in distLambda:
                 if not isinstance(p, (int,float)):
                     raise TypeError("Lattice: 'distLambda' must be a list of numbers")
-            self._distLambda = [ float(distLambda[0]), float(distLambda[1]), float(distLambda[2]) ]
+                self._distLambda.append(float(p))
         else:
             raise TypeError("Lattice: 'distLambda' must be number or list")
 
@@ -1124,10 +1133,11 @@ class Lattice(object):
         elif isinstance(distMu, (list,tuple)):
             if len(distMu) != 3:
                 raise ValueError("Lattice: 'distMu' property must have length 3")
+            self._distMu = []
             for p in distMu:
                 if not isinstance(p, (int,float)):
                     raise TypeError("Lattice: 'distMu' must be a list of numbers")
-            self._distMu = [ float(distMu[0]), float(distMu[1]), float(distMu[2]) ]
+                self._distMu.append(float(p))
         else:
             raise TypeError("Lattice: 'distMu' must be number or list")
 
@@ -1143,10 +1153,11 @@ class Lattice(object):
         elif isinstance(mismatch, (list,tuple)):
             if len(mismatch) != 3:
                 raise ValueError("Lattice: 'mismatch' property must have length 3")
+            self._mismatch = []
             for p in mismatch:
                 if not isinstance(p, (int,float)):
                     raise TypeError("Lattice: 'mismatch' must be a list of numbers")
-            self._mismatch = [ float(mismatch[0]), float(mismatch[1]), float(mismatch[2]) ]
+                self._mismatch.append(float(p))
         else:
             raise TypeError("Lattice: 'mismatch' must be number or list")
 
@@ -1162,10 +1173,11 @@ class Lattice(object):
         elif isinstance(emismatch, (list,tuple)):
             if len(emismatch) != 3:
                 raise ValueError("Lattice: 'emismatch' property must have length 3")
+            self._emismatch = []
             for p in emismatch:
                 if not isinstance(p, (int,float)):
                     raise TypeError("Lattice: 'emismatch' must be a list of numbers")
-            self._emismatch = [ float(emismatch[0]), float(emismatch[1]), float(emismatch[2]) ]
+                self._emismatch.append(float(p))
         else:
             raise TypeError("Lattice: 'emismatch' must be number or list")
 
@@ -1181,10 +1193,11 @@ class Lattice(object):
         elif isinstance(offset, (list,tuple)):
             if len(offset) != 3:
                 raise ValueError("Lattice: 'offset' property must have length 3")
+            self._offset = []
             for p in offset:
                 if not isinstance(p, (int,float)):
                     raise TypeError("Lattice: 'offset' must be a list of numbers")
-            self._offset = [ float(offset[0]), float(offset[1]), float(offset[2]) ]
+                self._offset.append(float(p))
         else:
             raise TypeError("Lattice: 'offset' must be number or list")
 
@@ -1200,10 +1213,11 @@ class Lattice(object):
         elif isinstance(eoffset, (list,tuple)):
             if len(eoffset) != 3:
                 raise ValueError("Lattice: 'eoffset' property must have length 3")
+            self._eoffset = []
             for p in eoffset:
                 if not isinstance(p, (int,float)):
                     raise TypeError("Lattice: 'eoffset' must be a list of numbers")
-            self._eoffset = [ float(eoffset[0]), float(eoffset[1]), float(eoffset[2]) ]
+                self._eoffset.append(float(p))
         else:
             raise TypeError("Lattice: 'eoffset' must be number or list")
 
