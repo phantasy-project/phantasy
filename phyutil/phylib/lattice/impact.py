@@ -93,6 +93,8 @@ CONFIG_IMPACT_PARTICLE_MASS = "impact_particle_mass"
 
 CONFIG_IMPACT_SCALING_FREQ = "impact_scaling_freq"
 
+CONFIG_IMPACT_BEAM_PERCENT = "impact_beam_percent"
+
 # Constants used for IMPACT header parameters
 
 INTEGRATOR_LINEAR = 1
@@ -213,6 +215,7 @@ _DEFAULT_PARTICLE_MASS = 939.294
 
 _DEFAULT_SCALING_FREQ = 100
 
+_DEFAULT_BEAM_PERCENT = 99.9
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -273,6 +276,7 @@ class LatticeFactory(object):
         self.initialCharge = None
         self.particleMass = None
         self.scalingFreq = None
+        self.beamPercent = None
         self.settings = None
         self.start = None
         self.end = None
@@ -585,6 +589,11 @@ class LatticeFactory(object):
         else:
             lattice.scalingFreq = self._get_config_float_default(CONFIG_IMPACT_SCALING_FREQ, _DEFAULT_SCALING_FREQ)
 
+        if self.beamPercent != None:
+            lattice.beamPercent = self.beamPercent
+        else:
+            lattice.beamPercent = self._get_config_float_default(CONFIG_IMPACT_BEAM_PERCENT, _DEFAULT_BEAM_PERCENT)
+
         lattice.comment = "Name: {a.name}, Desc: {a.desc}".format(a=self._accel)
 
         poffset = None
@@ -890,6 +899,7 @@ class Lattice(object):
         self.initialCharge = _DEFAULT_INITIAL_CHARGE
         self.particleMass = _DEFAULT_PARTICLE_MASS
         self.scalingFreq = _DEFAULT_SCALING_FREQ
+        self.beamPercent = _DEFAULT_BEAM_PERCENT
         self.elements = []
         self.properties = []
 
@@ -1309,6 +1319,17 @@ class Lattice(object):
         self._scalingFreq = scalingFreq
 
 
+    @property
+    def beamPercent(self):
+        return self._beamPercent
+
+    @beamPercent.setter
+    def beamPercent(self, beamPercent):
+        if not isinstance(beamPercent, (int,float)):
+            raise TypeError("Lattice: 'beamPercent' must be a number")
+        self._beamPercent = beamPercent
+
+
     def append(self, elemformat, length=0.0, steps=0, mapsteps=0, itype=0, radius=0.0, position=0.0, name=None, etype=None, properties={}):
         self.elements.append(LatticeElement(elemformat, length, steps, mapsteps, itype, radius, position, name, etype, properties))
 
@@ -1395,7 +1416,7 @@ class Lattice(object):
         stream.write("{lat.distSigma[1]} {lat.distLambda[1]} {lat.distMu[1]} {lat.mismatch[1]} {lat.emismatch[1]} {lat.offset[1]} {lat.eoffset[1]}\r\n".format(lat=self))
         stream.write("{lat.distSigma[2]} {lat.distLambda[2]} {lat.distMu[2]} {lat.mismatch[2]} {lat.emismatch[2]} {lat.offset[2]} {lat.eoffset[2]}\r\n".format(lat=self))
 
-        stream.write("{lat.initialCurrent} {lat.initialEnergy} {lat.particleMass} {lat.initialCharge} {lat.scalingFreq} {lat.initialPhase} 99.9\r\n".format(lat=self))
+        stream.write("{lat.initialCurrent} {lat.initialEnergy} {lat.particleMass} {lat.initialCharge} {lat.scalingFreq} {lat.initialPhase} {lat.beamPercent}\r\n".format(lat=self))
 
         # TODO: Option to compact lattice by merging drifts, etc.
 
