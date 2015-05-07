@@ -27,10 +27,10 @@ import numpy as np
 
 import frib
 
-from ..phylib.model.element import merge
-from ..phylib.model import Lattice
+from ..phylib.lattice import Lattice
 from ..phylib.chanfinder import ChannelFinderAgent
-from ..phylib.model.element import CaElement
+from ..phylib.lattice.element import merge
+from ..phylib.lattice.element import CaElement
 
 _logger = logging.getLogger(__name__)
 

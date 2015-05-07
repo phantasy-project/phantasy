@@ -11,8 +11,8 @@ import os
 import logging
 from datetime import datetime
 
-from model import element
-import phyutil.machine as machines
+from lattice import element
+from .. import machine
 
 _logger = logging.getLogger(__name__)
 
@@ -32,7 +32,7 @@ def getTimestamp(t = None, us = True):
 
 def getOutputDir():
     """get the output data dir for the current lattice""" 
-    return machines._lat.OUTPUT_DIR
+    return machine._lat.OUTPUT_DIR
 
 def getElements(group, include_virtual=False, start=None, end=None):
     """searching for elements.
@@ -78,7 +78,7 @@ def getElements(group, include_virtual=False, start=None, end=None):
         if all([isinstance(e, element.AbstractElement) for e in group]):
             return group
 
-    elems = machines._lat.getElementList(group)
+    elems = machine._lat.getElementList(group)
     ret = []
     for e in elems:
         if e is None: 
@@ -103,7 +103,7 @@ def getElements(group, include_virtual=False, start=None, end=None):
 
 def getExactElement(elemname):
     """find the element with exact name"""
-    return machines._lat._find_exact_element(name=elemname)
+    return machine._lat._find_exact_element(name=elemname)
 
 def getPvList(elems, field, handle='readback', **kwargs):
     """return a pv list for given element or element list
@@ -186,14 +186,14 @@ def addGroup(group):
 
     it calls :func:`~aphla.lattice.Lattice.addGroup` of the current lattice.
     """
-    return machines._lat.addGroup(group)
+    return machine._lat.addGroup(group)
 
 def removeGroup(group):
     """
     Remove a group if it is empty. It calls
     :func:`~aphla.lattice.Lattice.removeGroup` of the current lattice.
     """
-    machines._lat.removeGroup(group)
+    machine._lat.removeGroup(group)
 
 def addGroupMembers(group, member):
     """
@@ -208,10 +208,10 @@ def addGroupMembers(group, member):
     lattice.
     """
     if isinstance(member, str):
-        machines._lat.addGroupMember(group, member)
+        machine._lat.addGroupMember(group, member)
     elif isinstance(member, list):
         for m in member:
-            machines._lat.addGroupMember(group, m)
+            machine._lat.addGroupMember(group, m)
     else:
         raise ValueError("member can only be string or list")
 
@@ -228,9 +228,9 @@ def removeGroupMembers(group, member):
     lattice.
     """
     if isinstance(member, str):
-        machines._lat.removeGroupMember(group, member)
+        machine._lat.removeGroupMember(group, member)
     elif isinstance(member, list):
-        for m in member: machines._lat.removeGroupMember(group, m)
+        for m in member: machine._lat.removeGroupMember(group, m)
     else:
         raise ValueError("member can only be string or list")
 
@@ -242,7 +242,7 @@ def getGroups(element='*'):
     
     it calls :func:`~aphla.lattice.Lattice.getGroups` of the current lattice.
     """
-    return machines._lat.getGroups(element)
+    return machine._lat.getGroups(element)
 
 def getGroupMembers(groups, op='intersection', **kwargs):
     """
@@ -254,7 +254,7 @@ def getGroupMembers(groups, op='intersection', **kwargs):
     it calls :func:`~aphla.lattice.Lattice.getGroupMembers` of the current
     lattice.
     """
-    return machines._lat.getGroupMembers(groups, op, **kwargs)
+    return machine._lat.getGroupMembers(groups, op, **kwargs)
 
 def getNeighbors(element, group, n=3, elemself=True):
     """
@@ -290,9 +290,9 @@ def getNeighbors(element, group, n=3, elemself=True):
     """
 
     if isinstance(element, (str, unicode)):
-        return machines._lat.getNeighbors(element, group, n, elemself)
+        return machine._lat.getNeighbors(element, group, n, elemself)
     else:
-        return machines._lat.getNeighbors(element.name, group, n, elemself)
+        return machine._lat.getNeighbors(element.name, group, n, elemself)
 
 def getClosest(element, group):
     """
@@ -311,9 +311,9 @@ def getClosest(element, group):
     >>> getClosest('pm1g4c27b', ["QUAD", "BPM"])
     """
     if isinstance(element, (str, unicode)):
-        return machines._lat.getClosest(element, group)
+        return machine._lat.getClosest(element, group)
     else:
-        return machines._lat.getClosest(element.name, group)
+        return machine._lat.getClosest(element.name, group)
 
 def getBeamlineProfile(**kwargs):
     """
@@ -325,7 +325,7 @@ def getBeamlineProfile(**kwargs):
     it calls :meth:`~aphla.lattice.Lattice.getBeamlineProfile` of the
     current lattice.
     """
-    return machines._lat.getBeamlineProfile(**kwargs)
+    return machine._lat.getBeamlineProfile(**kwargs)
 
 def getDistance(elem1, elem2, absolute=True):
     """
@@ -349,8 +349,8 @@ def getDistance(elem1, elem2, absolute=True):
                            (len(e1), len(e2)))
 
     ds = e2[0].sb - e1[0].sb
-    C = machines._lat.circumference
-    if machines._lat.loop and C > 0:
+    C = machine._lat.circumference
+    if machine._lat.loop and C > 0:
         while ds < -C: ds = ds + C
         while ds > C: ds = ds - C
     if absolute: return abs(ds)
@@ -363,7 +363,7 @@ def getBpms():
     this calls :func:`~aphla.lattice.Lattice.getGroupMembers` of current
     lattice and take a "union".
     """
-    return machines._lat.getGroupMembers('BPM', op='union')
+    return machine._lat.getGroupMembers('BPM', op='union')
 
 def getQuads():
     """
@@ -372,7 +372,7 @@ def getQuads():
     this calls :func:`~aphla.lattice.Lattice.getGroupMembers` of current
     lattice and take a "union".
     """
-    return machines._lat.getGroupMembers('QUAD', op='union')
+    return machine._lat.getGroupMembers('QUAD', op='union')
 
 def outputFileName(group, subgroup, create_path = True):
     """generate the system default output data file name
@@ -386,7 +386,7 @@ def outputFileName(group, subgroup, create_path = True):
     import stat
     t0 = datetime.now()
     output_dir = ""
-    for subdir in [machines.getOutputDir(), t0.strftime("%Y_%m"), group]:
+    for subdir in [machine.getOutputDir(), t0.strftime("%Y_%m"), group]:
         output_dir = os.path.join(output_dir, subdir)
         if not os.path.exists(output_dir):
             if create_path:

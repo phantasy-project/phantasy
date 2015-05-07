@@ -446,39 +446,3 @@ class Result(object):
             return self.__getData(self._fort24, data2=self._fort25, elemIdx=elemIdx, col=3)
         else:
             raise RuntimeError("Result: Unknown plane for beam RMS on: {}".format(plane))
-
-def build_lattice(directory=None):
-    """Convenience method to build IMPACT lattice.
-    """
-    return LatticeFactory(directory).build()
-
-
-class LatticeFactory(object):
-    """A factory to create lattice input file in working directory for IMPACT.
-    """
-
-    def __init__(self, lattice, directory=None):
-        """Initialize class, give IMPACT working directory.
-
-        :param directory: IMPACT working directory (default is current directory)
-        """
-        self.directory = directory
-
-
-    def build(self, **kwargs):
-        """ Build IMPACT input lattice deck.
-
-        :param IMPACT:  IMPACT-Z version, either "FRIB" or "LBL". "FRIB" by default.
-        :return:
-        """
-
-        if self.directory != None:
-            wkdir = self.directory
-        else:
-            wkdir = os.getcwd()
-
-        _IMPACT = kwargs.get("IMPACT", "FRIB")
-        return Lattice()
-
-class Lattice(object):
-    pass
