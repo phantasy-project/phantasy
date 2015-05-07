@@ -77,6 +77,22 @@ CONFIG_IMPACT_OFFSET = "impact_offset"
 
 CONFIG_IMPACT_EOFFSET = "impact_eoffset"
 
+CONFIG_IMPACT_RESTART = "impact_restart"
+
+CONFIG_IMPACT_SUBCYCLE = "impact_subcycle"
+
+CONFIG_IMPACT_INITIAL_CURRENT = "impact_initial_current"
+
+CONFIG_IMPACT_INITIAL_ENERGY = "impact_initial_energy"
+
+CONFIG_IMPACT_INITIAL_PHASE = "impact_initial_phase"
+
+CONFIG_IMPACT_INITIAL_CHARGE = "impact_initial_charge"
+
+CONFIG_IMPACT_PARTICLE_MASS = "impact_particle_mass"
+
+CONFIG_IMPACT_SCALING_FREQ = "impact_scaling_freq"
+
 # Constants used for IMPACT header parameters
 
 INTEGRATOR_LINEAR = 1
@@ -125,6 +141,13 @@ MESH_MODE_FINITE_OPEN_RECT = 5
 
 MESH_MODE_FINITE_PERIODIC_RECT = 6
 
+RESTART_DISABLED = 0
+
+RESTART_ENABLED = 1
+
+SUBCYCLE_DISABLED = 0
+
+SUBCYCLE_ENABLED = 1
 
 # Default values for IMPACT lattice generation
 
@@ -173,6 +196,22 @@ _DEFAULT_EMISMATCH = [ 1.0, 1.0, 1.0 ]
 _DEFAULT_OFFSET = [ 0.0, 0.0, 0.0]
 
 _DEFAULT_EOFFSET = [ 0.0, 0.0, 0.0 ]
+
+_DEFAULT_RESTART = RESTART_DISABLED
+
+_DEFAULT_SUBCYCLE = SUBCYCLE_DISABLED
+
+_DEFAULT_INITIAL_CURRENT = 0.0
+
+_DEFAULT_INITIAL_ENERGY = 0.0
+
+_DEFAULT_INITIAL_PHASE = 0.0
+
+_DEFAULT_INITIAL_CHARGE = 1.0
+
+_DEFAULT_PARTICLE_MASS = 939.294
+
+_DEFAULT_SCALING_FREQ = 100
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -226,6 +265,14 @@ class LatticeFactory(object):
         self.emismatch = None
         self.offset = None
         self.eoffset = None
+        self.restart = None
+        self.subcylce = None
+        self.initialCurrent = None
+        self.initialEnergy = None
+        self.initialPhase = None
+        self.initialCharge = None
+        self.particleMass = None
+        self.scalingFreq = None
         self.settings = None
         self.start = None
         self.end = None
@@ -521,6 +568,24 @@ class LatticeFactory(object):
         return _DEFAULT_EOFFSET
 
 
+    def _get_config_int_default(self, option, defvalue):
+        if cfg.config.has_default(option):
+            value = cfg.config.getint_default(option)
+            _LOGGER.info("LatticeFactory: %s found in configuration: %s", option, value)
+            return value
+
+        return defvalue
+
+
+    def _get_config_float_default(self, option, defvalue):
+        if cfg.config.has_default(option):
+            value = cfg.config.getfloat_default(option)
+            _LOGGER.info("LatticeFactory: %s found in configuration: %s", option, value)
+            return value
+
+        return defvalue
+
+
     def _get_config_settings(self):
         if cfg.config.has_default("settings_file"):
             stgpath = cfg.config.get_default("settings_file")
@@ -667,6 +732,45 @@ class LatticeFactory(object):
         else:
             lattice.eoffset = self._get_config_dist_eoffset()
 
+        if self.restart != None:
+            lattice.restart = self.restart
+        else:
+            lattice.restart = self._get_config_int_default(CONFIG_IMPACT_RESTART, _DEFAULT_RESTART)
+
+        if self.subcylce != None:
+            lattice.subcycle = self.subcylce
+        else:
+            lattice.subcycle = self._get_config_int_default(CONFIG_IMPACT_SUBCYCLE, _DEFAULT_SUBCYCLE)
+
+        if self.initialCurrent != None:
+            lattice.initialCurrent = self.initialCurrent
+        else:
+            lattice.initialCurrent = self._get_config_float_default(CONFIG_IMPACT_INITIAL_CURRENT, _DEFAULT_INITIAL_CURRENT)
+        
+        if self.initialEnergy != None:
+            lattice.initialEnergy = self.initialEnergy
+        else:
+            lattice.initialEnergy = self._get_config_float_default(CONFIG_IMPACT_INITIAL_ENERGY, _DEFAULT_INITIAL_ENERGY)
+        
+        if self.initialPhase != None:
+            lattice.initialPhase = self.initialPhase
+        else:
+            lattice.initialPhase = self._get_config_float_default(CONFIG_IMPACT_INITIAL_PHASE, _DEFAULT_INITIAL_PHASE)
+        
+        if self.particleMass != None:
+            lattice.particleMass = self.particleMass
+        else:
+            lattice.particleMass = self._get_config_float_default(CONFIG_IMPACT_PARTICLE_MASS, _DEFAULT_PARTICLE_MASS)
+            
+        if self.initialCharge != None:
+            lattice.initialCharge = self.initialCharge
+        else:
+            lattice.initialCharge = self._get_config_float_default(CONFIG_IMPACT_INITIAL_CHARGE, _DEFAULT_INITIAL_CHARGE)
+        
+        if self.scalingFreq != None:
+            lattice.scalingFreq = self.scalingFreq
+        else:
+            lattice.scalingFreq = self._get_config_float_default(CONFIG_IMPACT_SCALING_FREQ, _DEFAULT_SCALING_FREQ)
 
         lattice.comment = "Name: {a.name}, Desc: {a.desc}".format(a=self._accel)
 
@@ -965,6 +1069,14 @@ class Lattice(object):
         self.emismatch = _DEFAULT_EMISMATCH
         self.offset = _DEFAULT_OFFSET
         self.eoffset = _DEFAULT_EOFFSET
+        self.restart = _DEFAULT_RESTART
+        self.subcylce = _DEFAULT_SUBCYCLE
+        self.initialCurrent = _DEFAULT_INITIAL_CURRENT
+        self.initialEnergy = _DEFAULT_INITIAL_ENERGY
+        self.initialPhase = _DEFAULT_INITIAL_PHASE
+        self.initialCharge = _DEFAULT_INITIAL_CHARGE
+        self.particleMass = _DEFAULT_PARTICLE_MASS
+        self.scalingFreq = _DEFAULT_SCALING_FREQ
         self.elements = []
         self.properties = []
 
@@ -1283,6 +1395,93 @@ class Lattice(object):
             raise TypeError("Lattice: 'eoffset' must be number or list")
 
 
+    @property
+    def restart(self):
+        return self._restart
+
+    @restart.setter
+    def restart(self, restart):
+        if restart not in [ RESTART_DISABLED, RESTART_ENABLED ]:
+            raise ValueError("Lattice: 'restart' property must be a supported integer value")
+        self._restart = restart
+
+
+    @property
+    def subcycle(self):
+        return self._subcycle
+
+    @subcycle.setter
+    def subcycle(self, subcycle):
+        if subcycle not in [ SUBCYCLE_DISABLED, SUBCYCLE_ENABLED ]:
+            raise ValueError("Lattice: 'subcycle' property must be a supported integer value")
+        self._subcycle = subcycle
+
+    @property
+    def initialCurrent(self):
+        return self._initialCurrent
+
+    @initialCurrent.setter
+    def initialCurrent(self, initialCurrent):
+        if not isinstance(initialCurrent, (int,float)):
+            raise TypeError("Lattice: 'initialCurrent' must be a number")
+        self._initialCurrent = initialCurrent
+
+
+    @property
+    def initialEnergy(self):
+        return self._initialEnergy
+
+    @initialEnergy.setter
+    def initialEnergy(self, initialEnergy):
+        if not isinstance(initialEnergy, (int,float)):
+            raise TypeError("Lattice: 'initialEnergy' must be a number")
+        self._initialEnergy = initialEnergy
+
+
+    @property
+    def initialPhase(self):
+        return self._initialPhase
+
+    @initialPhase.setter
+    def initialPhase(self, initialPhase):
+        if not isinstance(initialPhase, (int,float)):
+            raise TypeError("Lattice: 'initialPhase' must be a number")
+        self._initialPhase = initialPhase
+     
+     
+    @property
+    def particleMass(self):
+        return self._particleMass
+
+    @particleMass.setter
+    def particleMass(self, particleMass):
+        if not isinstance(particleMass, (int,float)):
+            raise TypeError("Lattice: 'particleMass' must be a number")
+        self._particleMass = particleMass
+
+
+    @property
+    def initialCharge(self):
+        return self._initialCharge
+
+    @initialCharge.setter
+    def initialCharge(self, initialCharge):
+        if not isinstance(initialCharge, (int,float)):
+            raise TypeError("Lattice: 'initialCharge' must be a number")
+        self._initialCharge = initialCharge
+
+
+    @property
+    def scalingFreq(self):
+        return self._scalingFreq
+
+    @scalingFreq.setter
+    def scalingFreq(self, scalingFreq):
+        if not isinstance(scalingFreq, (int,float)):
+            raise TypeError("Lattice: 'scalingFreq' must be a number")
+        self._scalingFreq = scalingFreq
+
+
     def append(self, elemformat, length=0.0, steps=0, mapsteps=0, itype=0, radius=0.0, position=0.0, name=None, etype=None, properties={}):
         self.elements.append(LatticeElement(elemformat, length, steps, mapsteps, itype, radius, position, name, etype, properties))
 
@@ -1359,7 +1558,7 @@ class Lattice(object):
         file.write("{lat.nprocessors} 1\r\n".format(lat=self))
         file.write("{lat.ndimensions} {nparticles} {lat._integrator} {lat.errorStudy} {lat.outputMode}\r\n".format(lat=self, nparticles=nparticles))
         file.write("{lat.meshSize[0]} {lat.meshSize[1]} {lat.meshSize[2]} {lat.meshMode} {lat.pipeSize[0]} {lat.pipeSize[1]} {lat.periodSize}\r\n".format(lat=self))
-        file.write("{lat.inputMode} 0 0 {lat.nstates}\r\n".format(lat=self))
+        file.write("{lat.inputMode} {lat.restart} {lat.subcycle} {lat.nstates}\r\n".format(lat=self))
 
         write_list("{}", ncsparticles)
         write_list("{}", current)
@@ -1369,7 +1568,7 @@ class Lattice(object):
         file.write("{lat.distSigma[1]} {lat.distLambda[1]} {lat.distMu[1]} {lat.mismatch[1]} {lat.emismatch[1]} {lat.offset[1]} {lat.eoffset[1]}\r\n".format(lat=self))
         file.write("{lat.distSigma[2]} {lat.distLambda[2]} {lat.distMu[2]} {lat.mismatch[2]} {lat.emismatch[2]} {lat.offset[2]} {lat.eoffset[2]}\r\n".format(lat=self))
 
-        file.write("0.0 0.5e6 931.49432e6 0.1386554621848 80.50e6 0.0 99.9\r\n")
+        file.write("{lat.initialCurrent} {lat.initialEnergy} {lat.particleMass} {lat.initialCharge} {lat.scalingFreq} {lat.initialPhase} 99.9\r\n".format(lat=self))
 
         # TODO: Option to compact lattice by merging drifts, etc.
 
