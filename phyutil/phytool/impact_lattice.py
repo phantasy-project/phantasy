@@ -111,9 +111,9 @@ def main():
 
     if args.latpath != None:
         with open(args.latpath, "w") as fp:
-            lat.write(file=fp)
+            lat.write(fp)
     else:
-        lat.write(file=sys.stdout)
+        lat.write(sys.stdout)
 
     return 0
 
