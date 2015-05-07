@@ -334,14 +334,9 @@ class LatticeFactory(object):
 
     def _get_config_nparticles(self):
         if cfg.config.has_default(CONFIG_IMPACT_NPARTICLES):
-            nparticles = cfg.config.get_default(CONFIG_IMPACT_NPARTICLES)
-            splitNParticles = nparticles.split()
-            if len(splitNParticles) > 1:
-                nparticles = []
-                for m in splitNParticles:
-                    nparticles.append(float(m))
-            else:
-                nparticles = float(splitNParticles[0])
+            nparticles = cfg.config.getarray_default(CONFIG_IMPACT_NPARTICLES, conv=float)
+            if len(nparticles) == 1:
+                nparticles = nparticles[0]
             _LOGGER.info("LatticeFactory: %s found in configuration: %s", CONFIG_IMPACT_NPARTICLES, nparticles)
             return nparticles
 
@@ -394,14 +389,9 @@ class LatticeFactory(object):
 
     def _get_config_mesh_size(self):
         if cfg.config.has_default(CONFIG_IMPACT_MESH_SIZE):
-            meshSize = cfg.config.get_default(CONFIG_IMPACT_MESH_SIZE)
-            splitMeshSize = meshSize.split()
-            if len(splitMeshSize) > 1:
-                meshSize = []
-                for m in splitMeshSize:
-                    meshSize.append(float(m))
-            else:
-                meshSize = float(splitMeshSize[0])
+            meshSize = cfg.config.getarray_default(CONFIG_IMPACT_MESH_SIZE, conv=float)
+            if len(meshSize) == 1:
+                meshSize = meshSize[0]
             _LOGGER.info("LatticeFactory: %s found in configuration: %s", CONFIG_IMPACT_MESH_SIZE, meshSize)
             return meshSize
 
@@ -410,14 +400,9 @@ class LatticeFactory(object):
 
     def _get_config_pipe_size(self):
         if cfg.config.has_default(CONFIG_IMPACT_PIPE_SIZE):
-            pipeSize = cfg.config.get_default(CONFIG_IMPACT_PIPE_SIZE)
-            splitPipeSize = pipeSize.split()
-            if len(splitPipeSize) > 1:
-                pipeSize = []
-                for m in splitPipeSize:
-                    pipeSize.append(float(m))
-            else:
-                pipeSize = float(splitPipeSize[0])
+            pipeSize = cfg.config.getarray_default(CONFIG_IMPACT_PIPE_SIZE, conv=float)
+            if len(pipeSize) == 1:
+                pipeSize = pipeSize[0]
             _LOGGER.info("LatticeFactory: %s found in configuration: %s", CONFIG_IMPACT_PIPE_SIZE, pipeSize)
             return pipeSize
 
@@ -453,14 +438,9 @@ class LatticeFactory(object):
 
     def _get_config_current(self):
         if cfg.config.has_default(CONFIG_IMPACT_CURRENT):
-            current = cfg.config.get_default(CONFIG_IMPACT_CURRENT)
-            splitCurrent = current.split()
-            if len(splitCurrent) > 1:
-                current = []
-                for m in splitCurrent:
-                    current.append(float(m))
-            else:
-                current = float(splitCurrent[0])
+            current = cfg.config.getarray_default(CONFIG_IMPACT_CURRENT, conv=float)
+            if len(current) == 1:
+                current = current[0]
             _LOGGER.info("LatticeFactory: %s found in configuration: %s", CONFIG_IMPACT_CURRENT, current)
             return current
 
@@ -469,14 +449,9 @@ class LatticeFactory(object):
 
     def _get_config_charge(self):
         if cfg.config.has_default(CONFIG_IMPACT_CHARGE):
-            charge = cfg.config.get_default(CONFIG_IMPACT_CHARGE)
-            splitCharge = charge.split()
-            if len(splitCharge) > 1:
-                charge = []
-                for m in splitCharge:
-                    charge.append(float(m))
-            else:
-                charge = float(splitCharge[0])
+            charge = cfg.config.getarray_default(CONFIG_IMPACT_CHARGE, conv=float)
+            if len(charge) == 1:
+                charge = charge[0]
             _LOGGER.info("LatticeFactory: %s found in configuration: %s", CONFIG_IMPACT_CHARGE, charge)
             return charge
 
