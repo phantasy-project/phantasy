@@ -377,7 +377,7 @@ class LatticeFactory(object):
     def _get_config_int_default(self, option, defvalue):
         if cfg.config.has_default(option):
             value = cfg.config.getint_default(option)
-            _LOGGER.info("LatticeFactory: %s found in configuration: %s", option, value)
+            _LOGGER.debug("LatticeFactory: %s found in configuration: %s", option, value)
             return value
 
         return defvalue
@@ -386,7 +386,7 @@ class LatticeFactory(object):
     def _get_config_float_default(self, option, defvalue):
         if cfg.config.has_default(option):
             value = cfg.config.getfloat_default(option)
-            _LOGGER.info("LatticeFactory: %s found in configuration: %s", option, value)
+            _LOGGER.debug("LatticeFactory: %s found in configuration: %s", option, value)
             return value
 
         return defvalue
@@ -397,7 +397,7 @@ class LatticeFactory(object):
             value = cfg.config.getarray_default(option, conv=conv)
             if unpack and (len(value) == 1):
                 value = value[0]
-            _LOGGER.info("LatticeFactory: %s found in configuration: %s", option, value)
+            _LOGGER.debug("LatticeFactory: %s found in configuration: %s", option, value)
             return value
 
         return defvalue
