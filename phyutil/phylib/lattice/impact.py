@@ -63,6 +63,20 @@ CONFIG_IMPACT_CURRENT = "impact_current"
 
 CONFIG_IMPACT_CHARGE = "impact_charge"
 
+CONFIG_IMPACT_DIST_SIGMA = "impact_dist_sigma"
+
+CONFIG_IMPACT_DIST_LAMBDA = "impact_dist_lambda"
+
+CONFIG_IMPACT_DIST_MU = "impact_dist_mu"
+
+CONFIG_IMPACT_MISMATCH = "impact_mismatch"
+
+CONFIG_IMPACT_EMISMATCH = "impact_emismatch"
+
+CONFIG_IMPACT_OFFSET = "impact_offset"
+
+CONFIG_IMPACT_EOFFSET = "impact_eoffset"
+
 # Constants used for IMPACT header parameters
 
 INTEGRATOR_LINEAR = 1
@@ -146,6 +160,21 @@ _DEFAULT_CURRENT = 0.0
 
 _DEFAULT_CHARGE = 1.065836735E-9
 
+_DEFAULT_DIST_SIGMA = [ 1.0, 1.0, 1.0 ]
+
+_DEFAULT_DIST_LAMBDA = [ 1.0, 1.0, 1.0 ]
+
+_DEFAULT_DIST_MU = [ 1.0, 1.0, 1.0 ]
+
+_DEFAULT_MISMATCH = [ 1.0, 1.0, 1.0 ]
+
+_DEFAULT_EMISMATCH = [ 1.0, 1.0, 1.0 ]
+
+_DEFAULT_OFFSET = [ 0.0, 0.0, 0.0]
+
+_DEFAULT_EOFFSET = [ 0.0, 0.0, 0.0 ]
+
+
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -190,6 +219,13 @@ class LatticeFactory(object):
         self.inputMode = None
         self.current = None
         self.charge = None
+        self.distSigma = None
+        self.distLambda = None
+        self.distMu = None
+        self.mismatch = None
+        self.emismatch = None
+        self.offset = None
+        self.eoffset = None
         self.settings = None
         self.start = None
         self.end = None
@@ -447,6 +483,69 @@ class LatticeFactory(object):
         return _DEFAULT_CHARGE
 
 
+    def _get_config_dist_sigma(self):
+        if cfg.config.has_default(CONFIG_IMPACT_DIST_SIGMA):
+            sigma = cfg.config.getarray_default(CONFIG_IMPACT_DIST_SIGMA, conv=float)
+            _LOGGER.info("LatticeFactory: %s found in configuration: %s", CONFIG_IMPACT_DIST_SIGMA, sigma)
+            return sigma
+
+        return _DEFAULT_DIST_SIGMA
+
+
+    def _get_config_dist_lambda(self):
+        if cfg.config.has_default(CONFIG_IMPACT_DIST_LAMBDA):
+            lambda_ = cfg.config.getarray_default(CONFIG_IMPACT_DIST_LAMBDA, conv=float)
+            _LOGGER.info("LatticeFactory: %s found in configuration: %s", CONFIG_IMPACT_DIST_LAMBDA, lambda_)
+            return lambda_
+
+        return _DEFAULT_DIST_LAMBDA
+
+
+    def _get_config_dist_mu(self):
+        if cfg.config.has_default(CONFIG_IMPACT_DIST_MU):
+            mu = cfg.config.getarray_default(CONFIG_IMPACT_DIST_MU, conv=float)
+            _LOGGER.info("LatticeFactory: %s found in configuration: %s", CONFIG_IMPACT_DIST_MU, mu)
+            return mu
+
+        return _DEFAULT_DIST_MU
+
+
+    def _get_config_dist_mismatch(self):
+        if cfg.config.has_default(CONFIG_IMPACT_MISMATCH):
+            value = cfg.config.getarray_default(CONFIG_IMPACT_MISMATCH, conv=float)
+            _LOGGER.info("LatticeFactory: %s found in configuration: %s", CONFIG_IMPACT_MISMATCH, value)
+            return value
+
+        return _DEFAULT_MISMATCH
+
+
+    def _get_config_dist_emismatch(self):
+        if cfg.config.has_default(CONFIG_IMPACT_EMISMATCH):
+            value = cfg.config.getarray_default(CONFIG_IMPACT_EMISMATCH, conv=float)
+            _LOGGER.info("LatticeFactory: %s found in configuration: %s", CONFIG_IMPACT_EMISMATCH, value)
+            return value
+
+        return _DEFAULT_EMISMATCH
+
+
+    def _get_config_dist_offset(self):
+        if cfg.config.has_default(CONFIG_IMPACT_OFFSET):
+            value = cfg.config.getarray_default(CONFIG_IMPACT_OFFSET, conv=float)
+            _LOGGER.info("LatticeFactory: %s found in configuration: %s", CONFIG_IMPACT_OFFSET, value)
+            return value
+
+        return _DEFAULT_OFFSET
+
+
+    def _get_config_dist_eoffset(self):
+        if cfg.config.has_default(CONFIG_IMPACT_EOFFSET):
+            value = cfg.config.getarray_default(CONFIG_IMPACT_EOFFSET, conv=float)
+            _LOGGER.info("LatticeFactory: %s found in configuration: %s", CONFIG_IMPACT_EOFFSET, value)
+            return value
+
+        return _DEFAULT_EOFFSET
+
+
     def _get_config_settings(self):
         if cfg.config.has_default("settings_file"):
             stgpath = cfg.config.get_default("settings_file")
@@ -557,6 +656,42 @@ class LatticeFactory(object):
             lattice.charge = self.charge
         else:
             lattice.charge = self._get_config_charge()
+
+        if self.distSigma != None:
+            lattice.distSigma = self.distSigma
+        else:
+            lattice.distSigma = self._get_config_dist_sigma()
+
+        if self.distLambda != None:
+            lattice.distLambda = self.distLambda
+        else:
+            lattice.distLambda = self._get_config_dist_lambda()
+
+        if self.distMu != None:
+            lattice.distMu = self.distMu
+        else:
+            lattice.distMu = self._get_config_dist_mu()
+
+        if self.mismatch != None:
+            lattice.mismatch = self.mismatch
+        else:
+            lattice.mismatch = self._get_config_dist_mismatch()
+
+        if self.emismatch != None:
+            lattice.emismatch = self.emismatch
+        else:
+            lattice.emismatch = self._get_config_dist_emismatch()
+
+        if self.offset != None:
+            lattice.offset = self.offset
+        else:
+            lattice.offset = self._get_config_dist_offset()
+
+        if self.eoffset != None:
+            lattice.eoffset = self.eoffset
+        else:
+            lattice.eoffset = self._get_config_dist_eoffset()
+
 
         lattice.comment = "Name: {a.name}, Desc: {a.desc}".format(a=self._accel)
 
@@ -848,6 +983,13 @@ class Lattice(object):
         self._periodSize = _DEFAULT_PERIOD_SIZE
         self._current = _DEFAULT_CURRENT
         self._charge = _DEFAULT_CHARGE
+        self.distSigma = _DEFAULT_DIST_SIGMA
+        self.distLambda = _DEFAULT_DIST_LAMBDA
+        self.distMu = _DEFAULT_DIST_MU
+        self.mismatch = _DEFAULT_MISMATCH
+        self.emismatch = _DEFAULT_EMISMATCH
+        self.offset = _DEFAULT_OFFSET
+        self.eoffset = _DEFAULT_EOFFSET
         self.elements = []
         self.properties = []
 
@@ -1033,6 +1175,139 @@ class Lattice(object):
             raise TypeError("Lattice: 'charge' must be number or list")
 
 
+    @property
+    def distSigma(self):
+        return self._distSigma
+
+    @distSigma.setter
+    def distSigma(self, distSigma):
+        if isinstance(distSigma, (int,float)):
+            self._distSigma = [ float(distSigma) ] * 3
+        elif isinstance(distSigma, (list,tuple)):
+            if len(distSigma) != 3:
+                raise ValueError("Lattice: 'distSigma' property must have length 3")
+            for p in distSigma:
+                if not isinstance(p, (int,float)):
+                    raise TypeError("Lattice: 'distSigma' must be a list of numbers")
+            self._distSigma = [ float(distSigma[0]), float(distSigma[1]), float(distSigma[2]) ]
+        else:
+            raise TypeError("Lattice: 'distSigma' must be number or list")
+
+
+    @property
+    def distLambda(self):
+        return self._distLambda
+
+    @distLambda.setter
+    def distLambda(self, distLambda):
+        if isinstance(distLambda, (int,float)):
+            self._distLambda = [ float(distLambda) ] * 3
+        elif isinstance(distLambda, (list,tuple)):
+            if len(distLambda) != 3:
+                raise ValueError("Lattice: 'distLambda' property must have length 3")
+            for p in distLambda:
+                if not isinstance(p, (int,float)):
+                    raise TypeError("Lattice: 'distLambda' must be a list of numbers")
+            self._distLambda = [ float(distLambda[0]), float(distLambda[1]), float(distLambda[2]) ]
+        else:
+            raise TypeError("Lattice: 'distLambda' must be number or list")
+
+
+    @property
+    def distMu(self):
+        return self._distMu
+
+    @distMu.setter
+    def distMu(self, distMu):
+        if isinstance(distMu, (int,float)):
+            self._distMu = [ float(distMu) ] * 3
+        elif isinstance(distMu, (list,tuple)):
+            if len(distMu) != 3:
+                raise ValueError("Lattice: 'distMu' property must have length 3")
+            for p in distMu:
+                if not isinstance(p, (int,float)):
+                    raise TypeError("Lattice: 'distMu' must be a list of numbers")
+            self._distMu = [ float(distMu[0]), float(distMu[1]), float(distMu[2]) ]
+        else:
+            raise TypeError("Lattice: 'distMu' must be number or list")
+
+
+    @property
+    def mismatch(self):
+        return self._mismatch
+
+    @mismatch.setter
+    def mismatch(self, mismatch):
+        if isinstance(mismatch, (int,float)):
+            self._mismatch = [ float(mismatch) ] * 3
+        elif isinstance(mismatch, (list,tuple)):
+            if len(mismatch) != 3:
+                raise ValueError("Lattice: 'mismatch' property must have length 3")
+            for p in mismatch:
+                if not isinstance(p, (int,float)):
+                    raise TypeError("Lattice: 'mismatch' must be a list of numbers")
+            self._mismatch = [ float(mismatch[0]), float(mismatch[1]), float(mismatch[2]) ]
+        else:
+            raise TypeError("Lattice: 'mismatch' must be number or list")
+
+
+    @property
+    def emismatch(self):
+        return self._emismatch
+
+    @emismatch.setter
+    def emismatch(self, emismatch):
+        if isinstance(emismatch, (int,float)):
+            self._emismatch = [ float(emismatch) ] * 3
+        elif isinstance(emismatch, (list,tuple)):
+            if len(emismatch) != 3:
+                raise ValueError("Lattice: 'emismatch' property must have length 3")
+            for p in emismatch:
+                if not isinstance(p, (int,float)):
+                    raise TypeError("Lattice: 'emismatch' must be a list of numbers")
+            self._emismatch = [ float(emismatch[0]), float(emismatch[1]), float(emismatch[2]) ]
+        else:
+            raise TypeError("Lattice: 'emismatch' must be number or list")
+
+
+    @property
+    def offset(self):
+        return self._offset
+
+    @offset.setter
+    def offset(self, offset):
+        if isinstance(offset, (int,float)):
+            self._offset = [ float(offset) ] * 3
+        elif isinstance(offset, (list,tuple)):
+            if len(offset) != 3:
+                raise ValueError("Lattice: 'offset' property must have length 3")
+            for p in offset:
+                if not isinstance(p, (int,float)):
+                    raise TypeError("Lattice: 'offset' must be a list of numbers")
+            self._offset = [ float(offset[0]), float(offset[1]), float(offset[2]) ]
+        else:
+            raise TypeError("Lattice: 'offset' must be number or list")
+
+
+    @property
+    def eoffset(self):
+        return self._eoffset
+
+    @eoffset.setter
+    def eoffset(self, eoffset):
+        if isinstance(eoffset, (int,float)):
+            self._eoffset = [ float(eoffset) ] * 3
+        elif isinstance(eoffset, (list,tuple)):
+            if len(eoffset) != 3:
+                raise ValueError("Lattice: 'eoffset' property must have length 3")
+            for p in eoffset:
+                if not isinstance(p, (int,float)):
+                    raise TypeError("Lattice: 'eoffset' must be a list of numbers")
+            self._eoffset = [ float(eoffset[0]), float(eoffset[1]), float(eoffset[2]) ]
+        else:
+            raise TypeError("Lattice: 'eoffset' must be number or list")
+
+
     def append(self, elemformat, length=0.0, steps=0, mapsteps=0, itype=0, radius=0.0, position=0.0, name=None, etype=None, properties={}):
         self.elements.append(LatticeElement(elemformat, length, steps, mapsteps, itype, radius, position, name, etype, properties))
 
@@ -1115,9 +1390,10 @@ class Lattice(object):
         write_list("{}", current)
         write_list("{}", charge)
 
-        file.write("0.22734189E-02  0.88312578E-04  0.00000000E+00  1.000  1.000  0.000  0.000\r\n")
-        file.write("0.22734189E-02  0.88312578E-04  0.00000000E+00  1.000  1.000  0.000  0.000\r\n")
-        file.write("0.76704772E-01  0.34741445E-05  0.00000000E+00  1.000  1.000  0.000  0.000\r\n")
+        file.write("{lat.distSigma[0]} {lat.distLambda[0]} {lat.distMu[0]} {lat.mismatch[0]} {lat.emismatch[0]} {lat.offset[0]} {lat.eoffset[0]}\r\n".format(lat=self))
+        file.write("{lat.distSigma[1]} {lat.distLambda[1]} {lat.distMu[1]} {lat.mismatch[1]} {lat.emismatch[1]} {lat.offset[1]} {lat.eoffset[1]}\r\n".format(lat=self))
+        file.write("{lat.distSigma[2]} {lat.distLambda[2]} {lat.distMu[2]} {lat.mismatch[2]} {lat.emismatch[2]} {lat.offset[2]} {lat.eoffset[2]}\r\n".format(lat=self))
+
         file.write("0.0 0.5e6 931.49432e6 0.1386554621848 80.50e6 0.0 99.9\r\n")
 
         # TODO: Option to compact lattice by merging drifts, etc.

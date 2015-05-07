@@ -111,6 +111,9 @@ class Configuration(SafeConfigParser):
     def getfloat_default(self, option):
         return self.getfloat(self._DEFAULT_SECTION, option, check_default=False)
 
+    def getarray_default(self, option, sep=None, conv=None):
+        return self.getarray(self._DEFAULT_SECTION, option, check_default=False, sep=sep, conv=conv)
+
     def has_default(self, option):
         return self.has_option(self._DEFAULT_SECTION, option, check_default=False)
 
@@ -139,6 +142,25 @@ class Configuration(SafeConfigParser):
             return SafeConfigParser.getfloat(self, section, option)
         elif check_default and self.has_default(option):
             return self.getfloat_default(option)
+        elif not self.has_section(section):
+            raise NoSectionError(section)
+        else:
+            raise NoOptionError(option, section)
+
+    def getarray(self, section, option, check_default=True, sep=None, conv=None):
+        def parsearray(s):
+            spt = s.split(sep)
+            if callable(conv):
+                tmp = []
+                for s in spt:
+                    tmp.append(conv(s))
+                spt = tmp
+            return spt
+
+        if self.has_option(section, option, False):
+            return parsearray(SafeConfigParser.get(self, section, option))
+        elif check_default and self.has_default(option):
+            return parsearray(self.get_default(option))
         elif not self.has_section(section):
             raise NoSectionError(section)
         else:
