@@ -624,6 +624,14 @@ class VirtualAccelerator(object):
                 ("PINI", "1")
             ])))
 
+        chancharge = chanprefix+"SVR:CHARGE"
+
+        self._epicsdb.append(("ai", chancharge, OrderedDict([
+                ("DESC", "Q/M of Virtual Accelerator"),
+                ("VAL", 0.0),
+                ("PREC", 5)
+            ])))
+
         if self.work_dir != None:
             os.makedirs(self.work_dir)
             self._rm_work_dir = False
@@ -672,6 +680,8 @@ class VirtualAccelerator(object):
             settings = self._copy_settings_with_noise()
             self._latfactory.settings = settings
             lattice = self._latfactory.build()
+
+            catools.caput(chancharge, lattice.initialCharge)
 
             with open(latticepath, "w") as outfile:
                 lattice.write(outfile)
