@@ -349,16 +349,23 @@ class ScanLib():
     
     def getscanstatus(self, scanid):
         """Get status of a scan task.
+        Detailed status could be fetched by calling:
+            - state: like 'Idle', 'Running', 'Paused', 'Finished'
+            - name: scan instance name
+            - id: scan id
+            and
+            - isDone(): `True` or `False`
+            - percentage(): Percent of work done, 0...100
+        
+        see :class:`PyScanClient.scan.client.ScanInfo`
         
         :param scanid: scan id number
-        :return: a tuple (isDone, percentage), isDone
+        :return: ScanInfo object
         """
         if self.scanclient is None:
             self._connectscanserver()
         # clean up this scan task          
-        status = self.scanclient.scanInfo(scanid)
-        return status
-        #return status.isDone(), status.state, status.percentage()
+        return self.scanclient.scanInfo(scanid)
     
     def abortscan(self, scanid):
         """Abort a scan task
