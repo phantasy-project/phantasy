@@ -7,4 +7,4 @@ Created on Apr 20, 2015
 @author: shen
 """
 
-from scanclient import scan1d, scan2d
+from scanlib import ScanLib
