@@ -59,6 +59,7 @@ HLA_ROOT = os.environ.get("PHYUTIL_ROOT", _home_hla)
 
 SCAN_SRV_URL = None
 SIMULATION_CODE = None
+MODELDATA_DIR = None
 
 # the properties used for initializing Element are different than
 # ChannelFinderAgent (CFS or SQlite). This needs a re-map.
@@ -129,7 +130,7 @@ def load(machine, submachine = "*", **kwargs):
     This machine can be a path to config dir.
     """
 
-    global _lattice_dict, _lat, SCAN_SRV_URL, SIMULATION_CODE
+    global _lattice_dict, _lat, SCAN_SRV_URL, SIMULATION_CODE, MODELDATA_DIR
 
     lat_dict = {}
 
@@ -184,6 +185,11 @@ def load(machine, submachine = "*", **kwargs):
         d_msect = dict(cfg.items(msect))
         SCAN_SRV_URL = d_msect.get("ss_url", None)
         SIMULATION_CODE = d_msect.get("model", None)
+        
+        MODELDATA_DIR = os.environ.get("MODEL_DATA_DIR", d_msect.get("model_data", None))
+        if MODELDATA_DIR is not None:
+            # avoid '~' for use home directory
+            MODELDATA_DIR = os.path.expanduser(MODELDATA_DIR)
         
         accstruct = d_msect.get("cfs_url", None)
         # get machine type, default is a linear machine
