@@ -34,7 +34,7 @@ def getOutputDir():
     """get the output data dir for the current lattice""" 
     return machine._lat.OUTPUT_DIR
 
-def getElements(group, include_virtual=False, start=None, end=None):
+def getElements(group, start=None, end=None, include_virtual=False):
     """searching for elements.
     If start is not `None`, get elements from start point.
     If end is not `None`, get elements before end point.
