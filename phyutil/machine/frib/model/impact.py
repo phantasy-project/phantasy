@@ -14,7 +14,7 @@ from ....phylib.lattice.impact import Lattice
 
 from ....phylib import cfg
 
-from ....phylib.model.impact import ResultFactory as ImpactResultFactory
+from ....phylib.model.impact import build_result as ImpactResultFactory
 
 # configuration options
 
@@ -165,7 +165,7 @@ class ResultFactory(object):
             raise
 
         try:
-            return ImpactResultFactory(work_dir).build(IMPACT="FRIB", keep=True)
+            return ImpactResultFactory(impact="FRIB", directory=work_dir, keep=True)
         finally:
             self._remove_work_dir(work_dir, rm_work_dir)
 

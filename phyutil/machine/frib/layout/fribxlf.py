@@ -444,10 +444,12 @@ class AccelFactory(object):
                         elem.channels.hposition_read = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:X_RD".format(chanprefix, elem=elem)
                         elem.channels.vposition_read = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:Y_RD".format(chanprefix, elem=elem)
                         elem.channels.phase_read = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:PHA_RD".format(chanprefix, elem=elem)
+                        elem.channels.energy_read = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:ENG_RD".format(chanprefix, elem=elem)
                         # channel metadata (for channel finder)
                         elem.chanstore[elem.channels.hposition_read] = self._channel_data(machine, elem.name, elem.system, elem.subsystem, elem.device, elem.z, "readback", "X", elem.device)
                         elem.chanstore[elem.channels.vposition_read] = self._channel_data(machine, elem.name, elem.system, elem.subsystem, elem.device, elem.z, "readback", "Y", elem.device)
                         elem.chanstore[elem.channels.phase_read] = self._channel_data(machine, elem.name, elem.system, elem.subsystem, elem.device, elem.z, "readback", "PHA", elem.device)
+                        elem.chanstore[elem.channels.energy_read] = self._channel_data(machine, elem.name, elem.system, elem.subsystem, elem.device, elem.z, "readback", "ENG", elem.device)
 
                         subsequence.append(elem)
 

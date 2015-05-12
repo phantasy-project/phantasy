@@ -24,6 +24,7 @@ from scan.commands import Set, Loop, Delay, Log, Comment
 
 from scan.client.logdata import createTable
 
+# TODO inherit ScanClient class
 class ScanLib():
     """
     """
@@ -35,6 +36,8 @@ class ScanLib():
         if url is None or not re.match(r"https?://.*", url, re.I):
             raise RuntimeError("machine is not properly initialized yet. Cannot find valid scan server url.")
         self.SCAN_SRV_URL = url
+        self.scanclient =None
+        self._connectscanserver()
         
     def scan1d(self, device, start, stop, step, meas_dev, **kwds):
         """ Perform a 1-D alignment scan, it checks the readback within given tolerance, 

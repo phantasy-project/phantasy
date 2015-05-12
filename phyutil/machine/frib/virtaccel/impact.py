@@ -315,6 +315,8 @@ class VirtualAcceleratorFactory(object):
                 va.append_ro(chans.hposition_read, name="Horizontal Position", egu="m")
                 va.append_ro(chans.vposition_read, name="Vertical Position", egu="m")
                 va.append_ro(chans.phase_read, name="Beam Phase", egu="degree")
+                va.append_ro(chans.energy_read, name="Beam Energy", egu="MeV")
+
                 va.append_elem(elem)
 
             elif isinstance(elem, PMElement):
@@ -712,7 +714,7 @@ class VirtualAccelerator(object):
                 catools.caput(chanstat, self.va_bad)
 
             if os.path.isfile(fort18path):
-                fort18 = numpy.loadtxt(fort18path, usecols=(0, 1))
+                fort18 = numpy.loadtxt(fort18path, usecols=(0, 1, 3))
                 fort18length = fort18.shape[0]
             else:
                 _LOGGER.warning("VirtualAccelerator: IMPACT output not found: %s", fort18path)
@@ -771,6 +773,11 @@ class VirtualAccelerator(object):
                     _LOGGER.debug("VirtualAccelerator: Update read: %s to %s", elem.channels.phase_read, 
                                   fort18[idx,1])
                     catools.caput(elem.channels.phase_read, fort18[idx,1])
+                    _LOGGER.debug("VirtualAccelerator: Update read: %s to %s", elem.channels.phase_read, 
+                                  fort18[idx,1])
+                    catools.caput(elem.channels.energy_read, fort18[idx,2])
+                    _LOGGER.debug("VirtualAccelerator: Update read: %s to %s", elem.channels.energy_read, 
+                                  fort18[idx,2])
                 elif isinstance(elem, PMElement):
                     _LOGGER.debug("VirtualAccelerator: Update read: %s to %s", elem.channels.hposition_read, 
                                   fort24[idx,0])
@@ -803,6 +810,9 @@ class VirtualAccelerator(object):
                     _LOGGER.debug("VirtualAccelerator: Update read: %s to %s", elem.channels.phase_read, 
                                   _DEFAULT_ERROR_VALUE)
                     catools.caput(elem.channels.phase_read, _DEFAULT_ERROR_VALUE)
+                    _LOGGER.debug("VirtualAccelerator: Update read: %s to %s", elem.channels.energy_read, 
+                                  _DEFAULT_ERROR_VALUE)
+                    catools.caput(elem.channels.energy_read, _DEFAULT_ERROR_VALUE)
                 elif isinstance(elem, PMElement):
                     _LOGGER.debug("VirtualAccelerator: Update read: %s to %s", elem.channels.hposition_read, 
                                   _DEFAULT_ERROR_VALUE)

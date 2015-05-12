@@ -468,7 +468,7 @@ class BPMElement(Element):
         self.channels.hposition_read = None
         self.channels.vposition_read = None
         self.channels.phase_read = None
-
+        self.channels.energy_read = None
 
 
 class BCMElement(Element):

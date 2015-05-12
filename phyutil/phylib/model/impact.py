@@ -15,11 +15,11 @@ import numpy as np
 
 from ..common import DataError
 
-def build_result(impact="FRIB", directory=None):
+def build_result(impact="FRIB", directory=None, keep=True):
     """Convenience method to build IMPACT model result.
     """
     model = Result(impact, directory)
-    model.updateResult()
+    model.updateResult(keep=keep)
     return model
 
 class Result(object):
