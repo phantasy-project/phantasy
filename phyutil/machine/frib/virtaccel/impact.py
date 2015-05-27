@@ -705,6 +705,10 @@ class VirtualAccelerator(object):
 
             (stdout, _, status) = impact_process.communicate()
 
+            # The virtual accelerator shutdown is likely to occur while IMPACT is executing,
+            # so check if virtual accelerator has been stopped before proceeding.
+            if not self._continue: break
+
             _LOGGER.info("VirtualAccelerator: IMPACT execution time: %f s", time.time()-start)
 
             if status == 0:
