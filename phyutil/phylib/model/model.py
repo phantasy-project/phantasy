@@ -23,13 +23,15 @@ class Model:
     """
     def __init__(self, simulation="IMPACT", resultdir=None):
         """class constructor.
+        This is an online model interface, which assumes all elements have a unique name.
         
         :param simulation: simulation code name, either "IMPACT", "TLM", or others
+        :param resultdir:  directory where simulation results are stored
         """
         self.code = simulation.upper()
         self.modelresult=None
         self.resultdir = resultdir
-        
+    
     def _buildModelResult(self):
         """
         """
@@ -81,17 +83,29 @@ class Model:
             self._buildModelResult()
         return self.modelresult.getAbsPhase(elemIdx)
     
-    def getBetaGamma(self, elemIdx=None):
-        """Get beam beta*gamma at the end if elemIdx is given, or a list for all totalelements
+    def getBeta(self, elemIdx=None):
+        """Get beam beta (v/c) at the end if elemIdx is given, or a list for all totalelements
         
         :param elemIdx: index number of given element
         
-        :return: beta*gamma or list
+        :return: beta or list
         :raise: RuntimeError
         """
         if self.modelresult is None:
             self._buildModelResult()
-        return self.modelresult.getBetaGamma(elemIdx)        
+        return self.modelresult.getBeta(elemIdx)        
+
+    def getGamma(self, elemIdx=None):
+        """Get beam gamma at the end if elemIdx is given, or a list for all totalelements
+        
+        :param elemIdx: index number of given element
+        
+        :return: gamma or list
+        :raise: RuntimeError
+        """
+        if self.modelresult is None:
+            self._buildModelResult()
+        return self.modelresult.getGamma(elemIdx)        
 
     def getOrbit(self, plane="X", elemIdx=None):
         """Get beam position at the end of an element if elemIdx is given, or beam orbit at all totalelements.

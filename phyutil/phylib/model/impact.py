@@ -180,8 +180,30 @@ class Result(object):
             else:
                 return self._fort18[:, 2][elemIdx]
     
-    def getBetaGamma(self, elemIdx=None):
-        """Get beam beta*gamma at the end if elemIdx is given, or a list for all totalelements
+    def getBeta(self, elemIdx=None):
+        """Get beam beta (v/c) at the end if elemIdx is given, or a list for all elements
+        
+        :param elemIdx: index number of given element
+        
+        :return: beta or list
+        :raise: RuntimeError
+        """
+        
+        if elemIdx is None:
+            return self._fort18[:, 4]
+        else:
+            self.__checkElements(elemIdx)
+            if isinstance(elemIdx, (list, tuple)):
+                res = []
+                for idx, val in enumerate(self._fort18[:, 4]):
+                    if idx in elemIdx:
+                        res.append(val)
+                return np.array(res)
+            else:
+                return self._fort18[:, 4][elemIdx]
+    
+    def getGamma(self, elemIdx=None):
+        """Get beam gamma at the end if elemIdx is given, or a list for all elements
         
         :param elemIdx: index number of given element
         
@@ -189,19 +211,18 @@ class Result(object):
         :raise: RuntimeError
         """
         
-        betagamma = self._fort18[:, 3]*self._fort18[:, 4]
         if elemIdx is None:
-            return betagamma
+            return self._fort18[:, 3]
         else:
             self.__checkElements(elemIdx)
             if isinstance(elemIdx, (list, tuple)):
                 res = []
-                for idx, val in enumerate(betagamma):
+                for idx, val in enumerate(self._fort18[:, 3]):
                     if idx in elemIdx:
                         res.append(val)
                 return np.array(res)
             else:
-                return betagamma[elemIdx]
+                return self._fort18[:, 3][elemIdx]
     
     def __getData(self, data, data2=None, elemIdx=None, col=0):
         """Common interface to get simulation data.

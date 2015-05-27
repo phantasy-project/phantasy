@@ -418,4 +418,5 @@ class ScanLib():
         else:
             raise Exception("Unsupported return data type")
     
+    # TODO add method to save scan data into database
     

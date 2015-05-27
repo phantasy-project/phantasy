@@ -110,8 +110,10 @@ def main():
             _write_lattice_data(lat, fp)
 
     if args.latpath != None:
-        with open(args.latpath, "w") as fp:
-            lat.write(fp)
+        name, _ = os.path.splitext(args.latpath)
+        maps = name + ".map"
+        with open(args.latpath, "w") as fp, open(maps, "w") as fmp:
+            lat.write(fp, fmp)
     else:
         lat.write(sys.stdout)
 

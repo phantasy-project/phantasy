@@ -224,7 +224,7 @@ def build_lattice(accel, settings=None, start=None, end=None,  template=False):
     """Convenience method for building the IMPACT lattice."""
 
     lattice_factory = LatticeFactory(accel)
-
+    
     if settings != None:
         lattice_factory.settings = settings
 
@@ -1345,7 +1345,7 @@ class Lattice(object):
         self.properties.append(LatticeProperty(name, units))
 
 
-    def write(self, stream=sys.stdout):
+    def write(self, stream=sys.stdout, mapstream=None):
         """Write the IMPACT lattice stream (test.in) to the specified stream object.
 
         :param stream: stream-like object to write lattice (test.in)
@@ -1421,10 +1421,21 @@ class Lattice(object):
         # TODO: Option to compact lattice by merging drifts, etc.
 
         for elem in self.elements:
+            if self.outputMode in [1, 2]:
+                loop = elem.steps
+                if elem.itype < 0:
+                    loop = elem.steps + 1
+                if mapstream is not None:
+                    for _ in range(loop):
+                        mapstream.write("{0}\r\n".format(elem.name))
+            elif self.outputMode in [3, 4] and elem.itype == -28:
+                if mapstream is not None:
+                    mapstream.write("{0}\r\n".format(elem.name))
+            elif self.outputMode in [5, 6]:
+                if mapstream is not None:
+                    mapstream.write("{0}\r\n".format(elem.name))
             stream.write(str(elem))
             stream.write(" /\r\n")
-
-
 
 class LatticeElement(object):
     """Describes an IMPACT lattice element (a row in the test.in file).

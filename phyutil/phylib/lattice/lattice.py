@@ -25,6 +25,7 @@ from __future__ import print_function, unicode_literals
 import sys
 import re
 from math import log10
+import numpy as np
 import shelve
 from fnmatch import fnmatch
 from element import AbstractElement
@@ -33,7 +34,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 class Lattice:
-    """Lattice
+    """Lattice class. It assumes alll elements inside this lattice has a unique name.
 
     - *name*
     - *mode*
@@ -67,6 +68,7 @@ class Lattice:
         self.arpvs = None
         self.OUTPUT_DIR = ''
         self.source = source
+        self.latticemodelmap = {}
 
     def __getitem__(self, key):
         if isinstance(key, int):
@@ -118,6 +120,20 @@ class Lattice:
             return ileft
         elif loc == 'right':
             return iright
+
+    def createLatticeModelMap(self, mapfile):
+        """Create a mapping between lattice layout and model output from a file
+        
+        :param mapfile: file name which has mapping information.
+        
+        """
+        mapping = np.loadtxt(mapfile, dtype=str)
+        self.latticemodelmap.clear()
+        for idx, mp in enumerate(mapping):
+            try:
+                self.latticemodelmap[mp] = self.latticemodelmap[mp] +[idx]
+            except KeyError:
+                self.latticemodelmap[mp] = [idx]
 
     def hasElement(self, name):
         """has the named element"""
@@ -801,125 +817,4 @@ class Lattice:
             if e.virtual: continue
             s = s + fmt % (i, e.name, e.family, e.sb, e.length)
         return s
-
-
-    # def _get_twiss(self, elem, col, spos):
-    #     """
-    #     """
-    #     elemlst = [e.name for e in self.getElementList(elem)]
-    #     if spos:
-    #         col.append('s')
-    #
-    #     return self._twiss.get(elemlst, col = col)
-    #
-    # def getPhase(self, elem, spos = True):
-    #     """
-    #     return phase from the twiss data
-    #     """
-    #     return self._get_twiss(elem, ['phix', 'phiy'], spos)
-    #
-    # def getBeta(self, elem, spos = True):
-    #     """
-    #     return beta function from the twiss data
-    #     """
-    #     return self._get_twiss(elem, ['betax', 'betay'], spos)
-    #
-    # def getEta(self, elem, spos = True):
-    #     """
-    #     return dispersion from the twiss data
-    #     """
-    #     return self._get_twiss(elem, ['etax', 'etay'], spos)
-    #
-    # def getTunes(self):
-    #     """return tunes -> (nux, nuy) from twiss data"""
-    #     return self._twiss.tune
-    #
-    # def getChromaticities(self):
-    #     """return chromaticities -> (chx, chy) from twiss data"""
-    #     return self._twiss.chrom
-    #
-    # def getBeamlineProfile(self, **kwargs):
-    #     """
-    #     :param s1: s-begin
-    #     :param s2: s-end
-    #     :return: the profile line of elements for plotting
-    #     :rtype: a list of ('sloc', 'point', 'color', 'name')
-    #
-    #     Virtual element is not included.
-    #     """
-    #     s1 = kwargs.get("s1", self.sb)
-    #     s2 = kwargs.get("s2", self.se)
-    #     highlight = kwargs.get("highlight", None)
-    #     prof = []
-    #     if s1 > self.sb:
-    #         prof.append(([self.sb, self.sb], [0.0, 0.0], 'k', ""))
-    #     for i,elem in enumerate(self._elements):
-    #         if elem.virtual: continue
-    #         if elem.se < s1: continue
-    #         if elem.sb > s2: break
-    #         x1, y1, c = elem.profile()
-    #         #if elem.family == highlight: c = 'b'
-    #         prof.append((x1, y1, c, elem.name))
-    #
-    #     if not prof: return []
-    #
-    #     if prof[-1][0] < self.se:
-    #         prof.append(([self.se, self.se], [0.0, 0.0], 'k', ""))
-    #     # filter the zero
-    #     ret = [prof[0]]
-    #     for p in prof[1:]:
-    #         # compare the x with the last element in ret if this is a new
-    #         # element, draw a line from the end of the last element to the
-    #         # beginning of this element.
-    #         if abs(p[0][0] - ret[-1][0][-1]) >  1e-10:
-    #             ret.append(([ret[-1][0][-1], p[0][0]], [0, 0], 'k', None))
-    #         # add the profile
-    #         ret.append(p)
-    #     return ret
-
-
-def _parseElementName(name):
-    """
-    searching G*C*A type of string. e.g. 'CFXH1G1C30A' will be parsed as
-    girder='G1', cell='C30', symmetry='A'
-
-    :Example:
-    
-      >>> parseElementName('CFXH1G1C30A')
-      'C30', 'G1', 'A'
-    """
-    # for NSLS-2 convention of element name
-    a = re.match(r'.+(G\d{1,2})(C\d{1,2})(.)', name)
-    if a:
-        girder   = a.groups()[0]
-        cell     = a.groups()[1]
-        symmetry = a.groups()[2]
-    else:
-        girder   = 'G0'
-        cell     = 'C00'
-        symmetry = '-'
-    return cell, girder, symmetry
-
-
-    
-def saveArchivePvs(lat, **kwargs):
-    """
-    generate file for archiving lattice
-    """
-    fname = kwargs.get("output", None)
-
-    pvs = []
-    for e in lat.getElementList("*", virtual=False):
-        for k in e.fields():
-            for hdl,tag in [('readback', 0), ('setpoint', 1)]:
-                for pv in e.pv(field=k, handle=hdl):
-                    pvs.append((pv, e.name, e.family, k, tag))
-
-    if fname is None: return pvs
-
-    f = open(fname, "w")
-    for r in pvs:
-        pv, name, fam, fld, rw = r
-        f.write("%s,%s,%s,%s,%d\n" % (pv, name, fam, fld, rw))
-    f.close()
 
