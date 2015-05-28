@@ -34,16 +34,6 @@ def getOutputDir():
     """get the output data dir for the current lattice""" 
     return machine._lat.OUTPUT_DIR
 
-def getModelSeq4Elems(elems):
-    """Get model sequence number
-    
-    :param elems: list of element object
-    """
-    res = []
-    for el in elems:
-        res.append(machine._lat.latticemodelmap[el.name][-1])
-    return res
-
 def getElements(group, start=None, end=None, include_virtual=False):
     """searching for elements.
     If start is not `None`, get elements from start point.

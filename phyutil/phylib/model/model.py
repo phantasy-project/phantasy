@@ -14,6 +14,7 @@ Imported from NSLS II APHLA
 import logging
 
 from impact import build_result as build_impact_result
+from ... import machine 
 
 _logger = logging.getLogger(__name__)
 
@@ -32,6 +33,19 @@ class Model:
         self.modelresult=None
         self.resultdir = resultdir
     
+    def __getModelSeq4Elems(self, elems):
+        """Get model sequence number
+        
+        :param elems: list of element object
+        """
+        if len(elems) == 1:
+            return machine._lat.latticemodelmap[elems.name][-1]
+        else:
+            res = []
+            for el in elems:
+                res.append(machine._lat.latticemodelmap[el.name][-1])
+            return res
+    
     def _buildModelResult(self):
         """
         """
@@ -47,163 +61,219 @@ class Model:
         """
         return self.modelresult.updateResult()
     
-    def getEnergy(self, elemIdx=None):
+    def getEnergy(self, elems=None):
         """get current sub-machine beam energy.
         Energy for a storage ring, or energy at given device for accelerating machine.
         If device is None, then final deliver energy.
         MeV for electron machine, or MeV/u for a heavy ion machine.
+        
+        :param elems: list of element name(s)
+        :return: beam energy at the end of each element
     
         """
         if self.modelresult is None:
             self._buildModelResult()
+        if elems is None:
+            elemIdx = None
+        else:
+            elemIdx = self.__getModelSeq4Elems(elems)
         return self.modelresult.getEnergy(elemIdx)
     
-    def getSPosition(self, elemIdx=None):
+    def getSPosition(self, elems=None):
         """Get element s position at the end if elemIdx is given, or list of s position for all totalelements
         
-        :param elemIdx: index number of given element
+        :param elems: list of element name(s)
         
         :return: s position or list
         :raise: RuntimeError
         """
         if self.modelresult is None:
             self._buildModelResult()
+        if elems is None:
+            elemIdx = None
+        else:
+            elemIdx = self.__getModelSeq4Elems(elems)
         return self.modelresult.getSPosition(elemIdx)
 
-    def getAbsPhase(self, elemIdx=None):
+    def getAbsPhase(self, elems=None):
         """Get accumulated beam phase in radian at the end if elemIdx is given, 
         or a list for all totalelements
         
-        :param elemIdx: index number of given element
+        :param elems: list of element name(s)
         
         :return: accumulated beam phase or list
         :raise: RuntimeError
         """
         if self.modelresult is None:
             self._buildModelResult()
+        if elems is None:
+            elemIdx = None
+        else:
+            elemIdx = self.__getModelSeq4Elems(elems)
         return self.modelresult.getAbsPhase(elemIdx)
     
-    def getBeta(self, elemIdx=None):
+    def getBeta(self, elems=None):
         """Get beam beta (v/c) at the end if elemIdx is given, or a list for all totalelements
         
-        :param elemIdx: index number of given element
+        :param elems: list of element name(s)
         
         :return: beta or list
         :raise: RuntimeError
         """
         if self.modelresult is None:
             self._buildModelResult()
+        
+        if elems is None:
+            elemIdx = None
+        else:
+            elemIdx = self.__getModelSeq4Elems(elems)
         return self.modelresult.getBeta(elemIdx)        
 
-    def getGamma(self, elemIdx=None):
+    def getGamma(self, elems=None):
         """Get beam gamma at the end if elemIdx is given, or a list for all totalelements
         
-        :param elemIdx: index number of given element
+        :param elems: list of element name(s)
         
         :return: gamma or list
         :raise: RuntimeError
         """
         if self.modelresult is None:
             self._buildModelResult()
+        
+        if elems is None:
+            elemIdx = None
+        else:
+            elemIdx = self.__getModelSeq4Elems(elems)
         return self.modelresult.getGamma(elemIdx)        
 
-    def getOrbit(self, plane="X", elemIdx=None):
+    def getOrbit(self, plane="X", elems=None):
         """Get beam position at the end of an element if elemIdx is given, or beam orbit at all totalelements.
         Current implementation returns all position information from simulation, and does not separate BPM 
         from other devices like magnet and other diagnostic devices like profile monitor.
 
         :param plane:    beam plane, either "X", "Y", or "XY"
-        :param elemIdx:  element index, `None` by default 
+        :param elems: list of element name(s), `None` by default 
         
         :return: beam position at given location, or at all totalelements
         """
         if self.modelresult is None:
             self._buildModelResult()
+        
+        if elems is None:
+            elemIdx = None
+        else:
+            elemIdx = self.__getModelSeq4Elems(elems)
         return self.modelresult.getOrbit(plane, elemIdx)
 
-    def getTwissAlpha(self, plane="X", elemIdx=None):
+    def getTwissAlpha(self, plane="X", elems=None):
         """Get beam twiss alpha parameters at the end of an element if elemIdx is given, or at all totalelements.
         Current implementation returns all position information from simulation, and does not separate BPM 
         from other devices like magnet and other diagnostic devices like profile monitor.
 
         :param plane:    beam plane, either "X", "Y", "Z", or "XY"
-        :param elemIdx:  element index, `None` by default 
+        :param elems: list of element name(s), `None` by default 
         
         :return: beam twiss alpha at given location, or at all totalelements
         """
         if self.modelresult is None:
             self._buildModelResult()
+        
+        if elems is None:
+            elemIdx = None
+        else:
+            elemIdx = self.__getModelSeq4Elems(elems)
         return self.modelresult.getTwissAlpha(plane, elemIdx)
 
-    def getTwissBeta(self, plane="X", elemIdx=None):
+    def getTwissBeta(self, plane="X", elems=None):
         """Get beam twiss beta parameters at the end of an element if elemIdx is given, or at all totalelements.
         Current implementation returns all position information from simulation, and does not separate BPM 
         from other devices like magnet and other diagnostic devices like profile monitor.
 
         :param plane:    beam plane, either "X", "Y", "Z", or "XY"
-        :param elemIdx:  element index, `None` by default 
+        :param elems: list of element name(s), `None` by default 
         
         :return: beam twiss beta at given location, or at all totalelements
         """
         if self.modelresult is None:
             self._buildModelResult()
+        
+        if elems is None:
+            elemIdx = None
+        else:
+            elemIdx = self.__getModelSeq4Elems(elems)
         return self.modelresult.getTwissBeta(plane, elemIdx)
         
-    def getBeamRms(self, plane="X", elemIdx=None):
+    def getBeamRms(self, plane="X", elems=None):
         """Get beam RMS parameters at the end of an element if elemIdx is given, or at all totalelements.
         Current implementation returns all position information from simulation, and does not separate BPM 
         from other devices like magnet and other diagnostic devices like profile monitor.
 
         :param plane:    beam plane, either "X", "Y", "Z", or "XY"
-        :param elemIdx:  element index, `None` by default 
+        :param elems: list of element name(s), `None` by default 
         
         :return: beam twiss beta at given location, or at all totalelements
         """
         if self.modelresult is None:
             self._buildModelResult()
+        if elems is None:
+            elemIdx = None
+        else:
+            elemIdx = self.__getModelSeq4Elems(elems)
         return self.modelresult.getBeamRms(plane, elemIdx)
 
-    def getEmittance(self, plane="X", elemIdx=None):
+    def getEmittance(self, plane="X", elems=None):
         """Get beam normalized emittance (m-rad for transverse and degree-MeV for longitudinal)
         at the end of an element if elemIdx is given, or at all totalelements.
         Current implementation returns all position information from simulation, and does not separate BPM 
         from other devices like magnet and other diagnostic devices like profile monitor.
 
         :param plane:    beam plane, either "X", "Y", "Z", or "XY"
-        :param elemIdx:  element index, `None` by default 
+        :param elems: list of element name(s), `None` by default 
         
         :return: beam emittance at given location, or at all totalelements
         """
         if self.modelresult is None:
             self._buildModelResult()
+        if elems is None:
+            elemIdx = None
+        else:
+            elemIdx = self.__getModelSeq4Elems(elems)
         return self.modelresult.getEmittance(plane, elemIdx)
     
-    def getBeamMomentumCentroid(self, plane="X", elemIdx=None):
+    def getBeamMomentumCentroid(self, plane="X", elems=None):
         """Get beam centroid momentum (radian for transverse and MeV for longitudinal)
         at the end of an element if elemIdx is given, or at all totalelements.
         Current implementation returns all position information from simulation, and does not separate BPM 
         from other devices like magnet and other diagnostic devices like profile monitor.
 
         :param plane:    beam plane, either "X", "Y", "Z", or "XY"
-        :param elemIdx:  element index, `None` by default 
+        :param elems: list of element name(s), `None` by default 
         
         :return: beam emittance at given location, or at all totalelements
         """
         if self.modelresult is None:
             self._buildModelResult()
+        if elems is None:
+            elemIdx = None
+        else:
+            elemIdx = self.__getModelSeq4Elems(elems)
         return self.modelresult.getBeamMomentumCentroid(plane, elemIdx)
         
-    def getMomentumRms(self, plane="X", elemIdx=None):
+    def getMomentumRms(self, plane="X", elems=None):
         """Get beam RMS momentum (radian for transverse and MeV for longitudinal)
         at the end of an element if elemIdx is given, or at all totalelements.
         Current implementation returns all position information from simulation, and does not separate BPM 
         from other devices like magnet and other diagnostic devices like profile monitor.
 
         :param plane:    beam plane, either "X", "Y", "Z", or "XY"
-        :param elemIdx:  element index, `None` by default 
+        :param elems: list of element name(s), `None` by default 
         
         :return: beam emittance at given location, or at all totalelements
         """
         if self.modelresult is None:
             self._buildModelResult()
+        if elems is None:
+            elemIdx = None
+        else:
+            elemIdx = self.__getModelSeq4Elems(elems)
         return self.modelresult.getMomentumRms(plane, elemIdx)    
