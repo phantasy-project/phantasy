@@ -14,6 +14,7 @@ import os.path, logging, json, sys
 from datetime import datetime
 
 from .. import cfg
+from ..settings import Settings
 
 from ..layout.accel import Element, DriftElement, ValveElement, PortElement
 from ..layout.accel import SeqElement, CavityElement, SolCorrElement, ChgStripElement
@@ -220,22 +221,16 @@ _DEFAULT_BEAM_PERCENT = 99.9
 _LOGGER = logging.getLogger(__name__)
 
 
-def build_lattice(accel, settings=None, start=None, end=None,  template=False):
-    """Convenience method for building the IMPACT lattice."""
+def build_lattice(accel, **kwargs):
+    """Convenience method for building the IMPACT lattice.
 
-    lattice_factory = LatticeFactory(accel)
-    
-    if settings != None:
-        lattice_factory.settings = settings
+       :param accel: accelerator layout
+       :param config: configuration options
+       :param settings: accelerator settings
+       :returns: :class:`Lattice`
+    """
 
-    if start != None:
-        lattice_factory.start = start
-
-    if end != None:
-        lattice_factory.end = end
-
-    if template == True:
-        lattice_factory.template = template
+    lattice_factory = LatticeFactory(accel, **kwargs)
 
     return lattice_factory.build()
 
@@ -243,44 +238,58 @@ def build_lattice(accel, settings=None, start=None, end=None,  template=False):
 class LatticeFactory(object):
     """LatticeFactory class builds an IMPACT lattice
        object from an Accelerator Design Description.
+
+       :param accel: accelerator layout
+       :param config: configuration options
+       :param settings: accelerator settings
     """
 
-    def __init__(self, accel):
+    def __init__(self, accel, **kwargs):
         self.accel = accel
-        self.nstates = None
-        self.nparticles = None
-        self.nprocessors = None
-        self.integrator = None
-        self.ndimensions = None
-        self.errorStudy = None
-        self.meshMode = None
-        self.meshSize = None
-        self.pipeSize = None
-        self.periodSize = None
-        self.outputMode = None
-        self.inputMode = None
-        self.current = None
-        self.charge = None
-        self.distSigma = None
-        self.distLambda = None
-        self.distMu = None
-        self.mismatch = None
-        self.emismatch = None
-        self.offset = None
-        self.eoffset = None
-        self.restart = None
-        self.subcylce = None
-        self.initialCurrent = None
-        self.initialEnergy = None
-        self.initialPhase = None
-        self.initialCharge = None
-        self.particleMass = None
-        self.scalingFreq = None
-        self.beamPercent = None
-        self.settings = None
-        self.start = None
-        self.end = None
-        self.template = False
+
+        if "config" in kwargs:
+            self.config = kwargs.get("config")
+        else:
+            self.config = cfg.config
+
+        if "settings" in kwargs:
+            self.settings = kwargs.get("settings")
+        else:
+            self.settings = Settings()
+
+        self.nstates = kwargs.get("nstates", None)
+        self.nparticles = kwargs.get("nparticles", None)
+        self.nprocessors = kwargs.get("nprocessors", None)
+        self.integrator = kwargs.get("integrator", None)
+        self.ndimensions = kwargs.get("ndimensions", None)
+        self.errorStudy = kwargs.get("errorStudy", None)
+        self.meshMode = kwargs.get("meshMode", None)
+        self.meshSize = kwargs.get("meshSize", None)
+        self.pipeSize = kwargs.get("pipeSize", None)
+        self.periodSize = kwargs.get("periodSize", None)
+        self.outputMode = kwargs.get("outputMode", None)
+        self.inputMode = kwargs.get("inputMode", None)
+        self.current = kwargs.get("current", None)
+        self.charge = kwargs.get("charge", None)
+        self.distSigma = kwargs.get("distSigma", None)
+        self.distLambda = kwargs.get("distLambda", None)
+        self.distMu = kwargs.get("distMu", None)
+        self.mismatch = kwargs.get("mismatch", None)
+        self.emismatch = kwargs.get("emismatch", None)
+        self.offset = kwargs.get("offset", None)
+        self.eoffset = kwargs.get("eoffset", None)
+        self.restart = kwargs.get("restart", None)
+        self.subcylce = kwargs.get("subcylce", None)
+        self.initialCurrent = kwargs.get("initialCurrent", None)
+        self.initialEnergy = kwargs.get("initialEnergy", None)
+        self.initialPhase = kwargs.get("initialPhase", None)
+        self.initialCharge = kwargs.get("initialCharge", None)
+        self.particleMass = kwargs.get("particleMass", None)
+        self.scalingFreq = kwargs.get("scalingFreq", None)
+        self.beamPercent = kwargs.get("beamPercent", None)
+        self.start = kwargs.get("start", None)
+        self.end = kwargs.get("end", None)
+        self.template = kwargs.get("template", False)
 
 
     @property
@@ -317,13 +326,24 @@ class LatticeFactory(object):
 
 
     @property
+    def config(self):
+        return self._config
+
+    @config.setter
+    def config(self, config):
+        if not isinstance(config, (cfg.Configuration)):
+            raise TypeError("LatticeFactory: 'config' property must be type Configuration")
+        self._config = config
+
+
+    @property
     def settings(self):
         return self._settings
 
     @settings.setter
     def settings(self, settings):
-        if (settings != None) and not isinstance(settings, (dict)):
-            raise TypeError("LatticeFactory: 'settings' property must be type string or None")
+        if not isinstance(settings, (dict)):
+            raise TypeError("LatticeFactory: 'settings' property must be a dictionary")
         self._settings = settings
 
 
@@ -339,44 +359,44 @@ class LatticeFactory(object):
 
 
     def _get_config_type(self, dtype, default):
-        if cfg.config.has_option(dtype, CONFIG_IMPACT_TYPE, False):
-            return cfg.config.getint(dtype, CONFIG_IMPACT_TYPE, False)
+        if self.config.has_option(dtype, CONFIG_IMPACT_TYPE, False):
+            return self.config.getint(dtype, CONFIG_IMPACT_TYPE, False)
 
         return default
 
 
     def _get_config_integrator_input_id(self, dtype, integrator):
         if (integrator == INTEGRATOR_LINEAR):
-            if cfg.config.has_option(dtype, CONFIG_IMPACT_LINEAR_INPUT_ID, False):
-                return cfg.config.getint(dtype, CONFIG_IMPACT_LINEAR_INPUT_ID, False)
+            if self.config.has_option(dtype, CONFIG_IMPACT_LINEAR_INPUT_ID, False):
+                return self.config.getint(dtype, CONFIG_IMPACT_LINEAR_INPUT_ID, False)
 
         if (integrator == INTEGRATOR_LORENTZ):
-            if cfg.config.has_option(dtype, CONFIG_IMPACT_LORENTZ_INPUT_ID, False):
-                return cfg.config.getint(dtype, CONFIG_IMPACT_LORENTZ_INPUT_ID, False)
+            if self.config.has_option(dtype, CONFIG_IMPACT_LORENTZ_INPUT_ID, False):
+                return self.config.getint(dtype, CONFIG_IMPACT_LORENTZ_INPUT_ID, False)
 
         return None
 
 
     def _get_config_t7data_input_id(self, dtype):
-        if cfg.config.has_option(dtype, CONFIG_IMPACT_T7DATA_INPUT_ID, False):
-            return cfg.config.getint(dtype, CONFIG_IMPACT_T7DATA_INPUT_ID, False)
+        if self.config.has_option(dtype, CONFIG_IMPACT_T7DATA_INPUT_ID, False):
+            return self.config.getint(dtype, CONFIG_IMPACT_T7DATA_INPUT_ID, False)
 
         return None
 
 
     def _get_config_strip_input_id(self, elem):
-        if cfg.config.has_option(elem.name, CONFIG_IMPACT_STRIP_INPUT_ID, False):
-            return cfg.config.getint(elem.name, CONFIG_IMPACT_STRIP_INPUT_ID, False)
+        if self.config.has_option(elem.name, CONFIG_IMPACT_STRIP_INPUT_ID, False):
+            return self.config.getint(elem.name, CONFIG_IMPACT_STRIP_INPUT_ID, False)
 
-        if cfg.config.has_option(elem.dtype, CONFIG_IMPACT_STRIP_INPUT_ID, False):
-            return cfg.config.getint(elem.dtype, CONFIG_IMPACT_STRIP_INPUT_ID, False)
+        if self.config.has_option(elem.dtype, CONFIG_IMPACT_STRIP_INPUT_ID, False):
+            return self.config.getint(elem.dtype, CONFIG_IMPACT_STRIP_INPUT_ID, False)
 
         return None
 
 
     def _get_config_int_default(self, option, defvalue):
-        if cfg.config.has_default(option):
-            value = cfg.config.getint_default(option)
+        if self.config.has_default(option):
+            value = self.config.getint_default(option)
             _LOGGER.debug("LatticeFactory: %s found in configuration: %s", option, value)
             return value
 
@@ -384,8 +404,8 @@ class LatticeFactory(object):
 
 
     def _get_config_float_default(self, option, defvalue):
-        if cfg.config.has_default(option):
-            value = cfg.config.getfloat_default(option)
+        if self.config.has_default(option):
+            value = self.config.getfloat_default(option)
             _LOGGER.debug("LatticeFactory: %s found in configuration: %s", option, value)
             return value
 
@@ -393,8 +413,8 @@ class LatticeFactory(object):
 
 
     def _get_config_array_default(self, option, defvalue, conv=None, unpack=True):
-        if cfg.config.has_default(option):
-            value = cfg.config.getarray_default(option, conv=conv)
+        if self.config.has_default(option):
+            value = self.config.getarray_default(option, conv=conv)
             if unpack and (len(value) == 1):
                 value = value[0]
             _LOGGER.debug("LatticeFactory: %s found in configuration: %s", option, value)
@@ -404,10 +424,10 @@ class LatticeFactory(object):
 
 
     def _get_config_settings(self):
-        if cfg.config.has_default("settings_file"):
-            stgpath = cfg.config.get_default("settings_file")
-            if not os.path.isabs(stgpath) and (cfg.config_path != None):
-                stgpath = os.path.abspath(os.path.join(os.path.dirname(cfg.config_path), stgpath))
+        if self.config.has_default("settings_file"):
+            stgpath = self.config.get_default("settings_file")
+            if not os.path.isabs(stgpath) and (self.config_path != None):
+                stgpath = os.path.abspath(os.path.join(os.path.dirname(self.config_path), stgpath))
             with open(stgpath, "r") as stgfile:
                 return json.load(stgfile)
 
@@ -415,21 +435,21 @@ class LatticeFactory(object):
 
 
     def _get_config_steps(self, dtype=None):
-        if (dtype == None) and cfg.config.has_default(CONFIG_IMPACT_STEPS):
-            return cfg.config.getint_default(CONFIG_IMPACT_STEPS)
+        if (dtype == None) and self.config.has_default(CONFIG_IMPACT_STEPS):
+            return self.config.getint_default(CONFIG_IMPACT_STEPS)
 
-        if (dtype != None) and cfg.config.has_option(dtype, CONFIG_IMPACT_STEPS):
-            return cfg.config.getint(dtype, CONFIG_IMPACT_STEPS)
+        if (dtype != None) and self.config.has_option(dtype, CONFIG_IMPACT_STEPS):
+            return self.config.getint(dtype, CONFIG_IMPACT_STEPS)
 
         return _DEFAULT_STEPS
 
 
     def _get_config_mapsteps(self, dtype=None):
-        if (dtype == None) and cfg.config.has_default(CONFIG_IMPACT_MAPSTEPS):
-            return cfg.config.getint_default(CONFIG_IMPACT_MAPSTEPS)
+        if (dtype == None) and self.config.has_default(CONFIG_IMPACT_MAPSTEPS):
+            return self.config.getint_default(CONFIG_IMPACT_MAPSTEPS)
 
-        if (dtype != None) and cfg.config.has_option(dtype, CONFIG_IMPACT_MAPSTEPS):
-            return cfg.config.getint(dtype, CONFIG_IMPACT_MAPSTEPS)
+        if (dtype != None) and self.config.has_option(dtype, CONFIG_IMPACT_MAPSTEPS):
+            return self.config.getint(dtype, CONFIG_IMPACT_MAPSTEPS)
 
         return _DEFAULT_MAPSTEPS
 
@@ -1436,6 +1456,8 @@ class Lattice(object):
                     mapstream.write("{0}\r\n".format(elem.name))
             stream.write(str(elem))
             stream.write(" /\r\n")
+
+
 
 class LatticeElement(object):
     """Describes an IMPACT lattice element (a row in the test.in file).
