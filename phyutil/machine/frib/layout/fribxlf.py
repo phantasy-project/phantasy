@@ -10,10 +10,20 @@ __author__ = "Dylan Maxwell"
 
 import os.path, re, logging, xlrd
 
+from collections import OrderedDict
+
 from ....phylib import cfg
 
-from ....phylib.layout.accel import *
+from ....phylib.layout.accel import CONFIG_MACHINE, CONFIG_LENGTH
+from ....phylib.layout.accel import CONFIG_APERTURE, CONFIG_APERTURE_X, CONFIG_APERTURE_Y
+from ....phylib.layout.accel import CONFIG_CAV_BETA, CONFIG_CAV_VOLTAGE, CONFIG_CAV_FREQUENCY
+from ....phylib.layout.accel import CONFIG_BEND_ANGLE, CONFIG_BEND_ENTR_ANGLE, CONFIG_BEND_EXIT_ANGLE
 
+from ....phylib.layout.accel import Accelerator, SeqElement
+from ....phylib.layout.accel import CorrElement, BendElement, QuadElement, HexElement
+from ....phylib.layout.accel import DriftElement, PortElement, ValveElement
+from ....phylib.layout.accel import ChgStripElement, CavityElement, SolCorrElement
+from ....phylib.layout.accel import BPMElement, BLMElement, BCMElement, PMElement, BLElement
 
 # configuration options
 
@@ -69,14 +79,30 @@ def build_accel(xlfpath=None, machine=None):
     return accel_factory.build()
 
 
+def build_layout(**kwargs):
+    """Convenience method for building layout from Expanded Lattice File.
+
+       :returns: accelerator layout
+    """
+
+    accel_factory = AccelFactory(**kwargs)
+
+    return accel_factory.build()
+
+
 class AccelFactory(object):
     """
     Read the Accelerator Design Description from FRIB Expanded Lattice File.
     """
-    def __init__(self):
-        self.xlfpath = None
-        self.machine = None
-        self.diameter = None
+    def __init__(self, **kwargs):
+        if "config" in kwargs:
+            self.config = kwargs.get("config")
+        else:
+            self.config = cfg.config
+
+        self.xlfpath = kwargs.get("xlfpath", None)
+        self.machine = kwargs.get("machine", None)
+        self.diameter = kwargs.get("diameter", None)
 
 
     @property
@@ -112,98 +138,109 @@ class AccelFactory(object):
         self._diameter = diameter
 
 
+    @property
+    def config(self):
+        return self._config
+
+    @config.setter
+    def config(self, config):
+        if not isinstance(config, (cfg.Configuration)):
+            raise TypeError("AccelFactory: 'config' property must be type Configuration")
+        self._config = config
+
+
     def _get_config_beta(self, dtype):
-        return cfg.config.getfloat(dtype, CONFIG_CAV_BETA)
+        return self.config.getfloat(dtype, CONFIG_CAV_BETA)
 
     def _has_config_beta(self, dtype):
-        return cfg.config.has_option(dtype, CONFIG_CAV_BETA)
+        return self.config.has_option(dtype, CONFIG_CAV_BETA)
 
 
     def _get_config_voltage(self, dtype):
-        return cfg.config.getfloat(dtype, CONFIG_CAV_VOLTAGE)
+        return self.config.getfloat(dtype, CONFIG_CAV_VOLTAGE)
 
     def _has_config_voltage(self, dtype):
-        return cfg.config.has_option(dtype, CONFIG_CAV_VOLTAGE)
+        return self.config.has_option(dtype, CONFIG_CAV_VOLTAGE)
 
 
     def _get_config_frequency(self, dtype):
-        return cfg.config.getfloat(dtype, CONFIG_CAV_FREQUENCY)
+        return self.config.getfloat(dtype, CONFIG_CAV_FREQUENCY)
 
     def _has_config_frequency(self, dtype):
-        return cfg.config.has_option(dtype, CONFIG_CAV_FREQUENCY)
+        return self.config.has_option(dtype, CONFIG_CAV_FREQUENCY)
 
 
     def _get_config_bend_angle(self, elem):
-        if cfg.config.has_option(elem.name, CONFIG_BEND_ANGLE, False):
-            return cfg.config.getfloat(elem.name, CONFIG_BEND_ANGLE, False)
+        if self.config.has_option(elem.name, CONFIG_BEND_ANGLE, False):
+            return self.config.getfloat(elem.name, CONFIG_BEND_ANGLE, False)
         else:
-            return cfg.config.getfloat(elem.dtype, CONFIG_BEND_ANGLE, False)
+            return self.config.getfloat(elem.dtype, CONFIG_BEND_ANGLE, False)
 
     def _has_config_bend_angle(self, elem):
-        return cfg.config.has_option(elem.name, CONFIG_BEND_ANGLE, False) \
-                or cfg.config.has_option(elem.dtype, CONFIG_BEND_ANGLE, False)
+        return self.config.has_option(elem.name, CONFIG_BEND_ANGLE, False) \
+                or self.config.has_option(elem.dtype, CONFIG_BEND_ANGLE, False)
 
 
     def _get_config_bend_entr_angle(self, elem):
-        if cfg.config.has_option(elem.name, CONFIG_BEND_ENTR_ANGLE, False):
-            return cfg.config.getfloat(elem.name, CONFIG_BEND_ENTR_ANGLE, False)
+        if self.config.has_option(elem.name, CONFIG_BEND_ENTR_ANGLE, False):
+            return self.config.getfloat(elem.name, CONFIG_BEND_ENTR_ANGLE, False)
         else:
-            return cfg.config.getfloat(elem.dtype, CONFIG_BEND_ENTR_ANGLE, False)
+            return self.config.getfloat(elem.dtype, CONFIG_BEND_ENTR_ANGLE, False)
 
     def _has_config_bend_entr_angle(self, elem):
-        return cfg.config.has_option(elem.name, CONFIG_BEND_ENTR_ANGLE, False) \
-                or cfg.config.has_option(elem.dtype, CONFIG_BEND_ENTR_ANGLE, False)
+        return self.config.has_option(elem.name, CONFIG_BEND_ENTR_ANGLE, False) \
+                or self.config.has_option(elem.dtype, CONFIG_BEND_ENTR_ANGLE, False)
 
 
     def _get_config_bend_exit_angle(self, elem):
-        if cfg.config.has_option(elem.name, CONFIG_BEND_EXIT_ANGLE, False):
-            return cfg.config.getfloat(elem.name, CONFIG_BEND_EXIT_ANGLE, False)
+        if self.config.has_option(elem.name, CONFIG_BEND_EXIT_ANGLE, False):
+            return self.config.getfloat(elem.name, CONFIG_BEND_EXIT_ANGLE, False)
         else:
-            return cfg.config.getfloat(elem.dtype, CONFIG_BEND_EXIT_ANGLE, False)
+            return self.config.getfloat(elem.dtype, CONFIG_BEND_EXIT_ANGLE, False)
 
     def _has_config_bend_exit_angle(self, elem):
-        return cfg.config.has_option(elem.name, CONFIG_BEND_EXIT_ANGLE, False) \
-                or cfg.config.has_option(elem.dtype, CONFIG_BEND_EXIT_ANGLE, False)
+        return self.config.has_option(elem.name, CONFIG_BEND_EXIT_ANGLE, False) \
+                or self.config.has_option(elem.dtype, CONFIG_BEND_EXIT_ANGLE, False)
 
 
     def _get_config_length(self, dtype):
-        return cfg.config.getfloat(dtype, CONFIG_LENGTH, False)
+        return self.config.getfloat(dtype, CONFIG_LENGTH, False)
 
     def _has_config_length(self, dtype):
-        return cfg.config.has_option(dtype, CONFIG_LENGTH, False)
+        return self.config.has_option(dtype, CONFIG_LENGTH, False)
 
 
     def _get_config_aperture(self, elem):
-        if cfg.config.has_option(elem.name, CONFIG_APERTURE, False):
-            return cfg.config.getfloat(elem.name, CONFIG_APERTURE, False)
+        if self.config.has_option(elem.name, CONFIG_APERTURE, False):
+            return self.config.getfloat(elem.name, CONFIG_APERTURE, False)
         else:
-            return cfg.config.getfloat(elem.dtype, CONFIG_APERTURE, False)
+            return self.config.getfloat(elem.dtype, CONFIG_APERTURE, False)
 
     def _has_config_aperture(self, elem):
-        return cfg.config.has_option(elem.name, CONFIG_APERTURE, False) \
-                or cfg.config.has_option(elem.dtype, CONFIG_APERTURE, False)
+        return self.config.has_option(elem.name, CONFIG_APERTURE, False) \
+                or self.config.has_option(elem.dtype, CONFIG_APERTURE, False)
 
 
     def _get_config_aperture_x(self, elem):
-        if cfg.config.has_option(elem.name, CONFIG_APERTURE_X, False):
-            return cfg.config.getfloat(elem.name, CONFIG_APERTURE_X, False)
+        if self.config.has_option(elem.name, CONFIG_APERTURE_X, False):
+            return self.config.getfloat(elem.name, CONFIG_APERTURE_X, False)
         else:
-            return cfg.config.getfloat(elem.dtype, CONFIG_APERTURE_X, False)
+            return self.config.getfloat(elem.dtype, CONFIG_APERTURE_X, False)
 
     def _has_config_aperture_x(self, elem):
-        return cfg.config.has_option(elem.name, CONFIG_APERTURE_X, False) \
-                or cfg.config.has_option(elem.dtype, CONFIG_APERTURE_X, False)
+        return self.config.has_option(elem.name, CONFIG_APERTURE_X, False) \
+                or self.config.has_option(elem.dtype, CONFIG_APERTURE_X, False)
 
 
     def _get_config_aperture_y(self, elem):
-        if cfg.config.has_option(elem.name, CONFIG_APERTURE_Y, False):
-            return cfg.config.getfloat(elem.name, CONFIG_APERTURE_Y, False)
+        if self.config.has_option(elem.name, CONFIG_APERTURE_Y, False):
+            return self.config.getfloat(elem.name, CONFIG_APERTURE_Y, False)
         else:
-            return cfg.config.getfloat(elem.dtype, CONFIG_APERTURE_Y, False)
+            return self.config.getfloat(elem.dtype, CONFIG_APERTURE_Y, False)
 
     def _has_config_aperture_y(self, elem):
-        return cfg.config.has_option(elem.name, CONFIG_APERTURE_Y, False) \
-                or cfg.config.has_option(elem.dtype, CONFIG_APERTURE_Y, False)
+        return self.config.has_option(elem.name, CONFIG_APERTURE_Y, False) \
+                or self.config.has_option(elem.dtype, CONFIG_APERTURE_Y, False)
 
 
     def _apply_config(self, elem):
@@ -224,10 +261,10 @@ class AccelFactory(object):
     def build(self):
 
         xlfpath = self.xlfpath
-        if (xlfpath == None) and cfg.config.has_default(CONFIG_XLF_DATA_FILE):
-            xlfpath = cfg.config.get_default(CONFIG_XLF_DATA_FILE)
-            if not os.path.isabs(xlfpath) and cfg.config_path != None:
-                xlfpath = os.path.abspath(os.path.join(os.path.dirname(cfg.config_path), xlfpath))
+        if (xlfpath == None) and self.config.has_default(CONFIG_XLF_DATA_FILE):
+            xlfpath = self.config.get_default(CONFIG_XLF_DATA_FILE)
+            #if not os.path.isabs(xlfpath) and self.config_path != None:
+            #    xlfpath = os.path.abspath(os.path.join(os.path.dirname(self.config_path), xlfpath))
 
         if xlfpath == None:
             raise ValueError("AccelFactory: Expanded Lattice File not specified, check the configuration.")
@@ -237,13 +274,13 @@ class AccelFactory(object):
 
 
         machine = self.machine
-        if (machine == None) and cfg.config.has_default(CONFIG_MACHINE):
-            machine = cfg.config.get_default(CONFIG_MACHINE)
+        if (machine == None) and self.config.has_default(CONFIG_MACHINE):
+            machine = self.config.get_default(CONFIG_MACHINE)
 
 
         diameter = self.diameter
-        if (diameter == None) and cfg.config.has_default(CONFIG_XLF_DIAMETER):
-            diameter = _parse_diameter(cfg.config.get_default(CONFIG_XLF_DIAMETER))
+        if (diameter == None) and self.config.has_default(CONFIG_XLF_DIAMETER):
+            diameter = _parse_diameter(self.config.get_default(CONFIG_XLF_DIAMETER))
 
 
         chanprefix = ""
