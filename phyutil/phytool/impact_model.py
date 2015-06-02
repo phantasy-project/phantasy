@@ -19,11 +19,12 @@ from ..phylib import cfg
 
 from ..phylib.settings import Settings
 
-from ..phylib.lattice import impact as impact_lattice
+from ..phylib.lattice.impact import OUTPUT_MODE_END
+from ..phylib.lattice.impact import build_lattice as impact_build_lattice
+
+from ..phylib.model.impact import run as impact_run_lattice
 
 from ..machine.frib.layout import fribxlf
-
-from ..machine.frib.model import impact as impact_model
 
 
 parser = ArgumentParser(prog=os.path.basename(sys.argv[0])+" impact-model",
@@ -91,16 +92,16 @@ def main():
 
 
     try:
-        lattice = impact_lattice.build_lattice(accel, settings=settings, start=args.start, end=args.end)
+        lattice = impact_build_lattice(accel, settings=settings, start=args.start, end=args.end)
     except Exception as e:
         if args.verbosity > 0: traceback.print_exc()
         print("Error building lattice:", e, file=sys.stderr)
         return 1
 
-    lattice.outputMode = impact_lattice.OUTPUT_MODE_END
+    lattice.outputMode = OUTPUT_MODE_END
 
     try:
-        result = impact_model.build_result(lattice, data_dir=args.datapath, work_dir=args.workpath)
+        result = impact_run_lattice(lattice, data_dir=args.datapath, work_dir=args.workpath)
     except Exception as e:
         if args.verbosity > 0: traceback.print_exc()
         print("Error building result:", e, file=sys.stderr)
