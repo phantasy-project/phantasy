@@ -6,7 +6,7 @@ Implement phytool command 'impact-settings'.
 
 from __future__ import print_function
 
-import os.path, sys, json, logging
+import os.path, sys, json, logging, traceback
 
 from argparse import ArgumentParser
 
@@ -15,7 +15,7 @@ phylib.AUTO_CONFIG=False
 
 from ..phylib import cfg
 
-from ..machine.frib.settings import impact
+from ..phylib.settings.impact import build_settings as impact_build_settings
 
 from ..machine.frib.layout import fribxlf
 
@@ -65,13 +65,15 @@ def main():
     try:
         accel = fribxlf.build_accel(xlfpath=args.xlfpath, machine=args.mach)
     except Exception as e:
+        if args.verbosity > 0: traceback.print_exc()
         print("Error building accelerator:", e, file=sys.stderr)
         return 1
 
 
     try:
-        settings = impact.build_settings(accel, args.latpath, start=args.start, end=args.end)
+        settings = impact_build_settings(accel, args.latpath, start=args.start, end=args.end)
     except Exception as e:
+        if args.verbosity > 0: traceback.print_exc()
         print("Error building settings:", e, file=sys.stderr)
         return 1
 
@@ -82,7 +84,7 @@ def main():
         else:
             fp = sys.stdout
     except Exception as e:
-        print("Error openning output file:", e, file=sys.stderr)
+        print("Error opening output file:", e, file=sys.stderr)
         return 1    
 
 

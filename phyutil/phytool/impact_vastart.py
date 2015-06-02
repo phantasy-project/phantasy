@@ -6,7 +6,7 @@ Implement phylib command 'impact-vastart'.
 
 from __future__ import print_function
 
-import sys, json, logging
+import sys, logging
 
 from argparse import ArgumentParser
 
@@ -14,6 +14,8 @@ from .. import phylib
 phylib.AUTO_CONFIG=False
 
 from ..phylib import cfg
+
+from ..phylib.settings import Settings
 
 from ..machine.frib.layout import fribxlf
 
@@ -70,7 +72,8 @@ def main():
     else:
         try:
             with open(args.stgpath, "r") as fp:
-                settings = json.load(fp)
+                settings = Settings()
+                settings.readfp(fp)
         except Exception as e:
             print("Error reading settings file:", e, file=sys.stderr)
             return 1

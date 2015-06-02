@@ -11,7 +11,12 @@ import os, logging
 
 from collections import OrderedDict
 
-from ....phylib.layout.accel import *
+from ..settings import Settings
+
+from ..layout.accel import SeqElement, CavityElement, SolCorrElement
+from ..layout.accel import CorrElement, BendElement, QuadElement, HexElement
+from ..layout.accel import BLMElement, BCMElement, BPMElement, BLElement, PMElement
+from ..layout.accel import ChgStripElement, DriftElement, ValveElement, PortElement
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -106,7 +111,7 @@ class SettingsFactory(object):
             lattice_elements = list(_LatticeIterator(fp.readlines(), skip=11))
             lattice_elements.reverse()
 
-        settings = OrderedDict()
+        settings = Settings()
 
         for elem in self._accel.iter(self.start, self.end):
 
@@ -350,11 +355,13 @@ class _LatticeIterator():
             self._skip -= 1
 
         while True:
-            line = self._iter.next()
+            line = self._iter.next().strip()
             self._idx += 1
+            if len(line) == 0:
+                continue
             if line.startswith("!"):
                 continue
-            elm = line.strip().split()
+            elm = line.split()
             if float(elm[3]) in [ 0, -13, -28 ]:
                 _LOGGER.debug("SettingsFactory: Skipping line %s: %s", self._idx+1, elm)
                 continue

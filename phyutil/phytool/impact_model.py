@@ -6,7 +6,7 @@ Implement phylib command 'impact-model'.
 
 from __future__ import print_function
 
-import os, sys, json, logging, traceback
+import os, sys, logging, traceback
 
 from argparse import ArgumentParser
 
@@ -16,6 +16,8 @@ from .. import phylib
 phylib.AUTO_CONFIG=False
 
 from ..phylib import cfg
+
+from ..phylib.settings import Settings
 
 from ..phylib.lattice import impact as impact_lattice
 
@@ -81,7 +83,8 @@ def main():
     else:
         try:
             with open(args.stgpath, "r") as fp:
-                settings = json.load(fp)
+                settings = Settings()
+                settings.readfp(fp)
         except Exception as e:
             print("Error reading settings file:", e, file=sys.stderr)
             return 1
@@ -112,7 +115,7 @@ def main():
 
     xrms = result.getBeamRms("X")
     yrms = result.getBeamRms("Y")
-    zrms = result.getBeamRms("Z")
+    #zrms = result.getBeamRms("Z")
 
     xalpha = result.getTwissAlpha("X")
     yalpha = result.getTwissAlpha("Y")

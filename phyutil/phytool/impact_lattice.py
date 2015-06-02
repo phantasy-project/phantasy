@@ -6,7 +6,7 @@ Implement phylib command 'impact-lattice'.
 
 from __future__ import print_function
 
-import sys, os.path, logging, json, traceback
+import sys, os.path, logging, traceback
 
 from collections import OrderedDict
 
@@ -16,6 +16,8 @@ from .. import phylib
 phylib.AUTO_CONFIG=False
 
 from ..phylib import cfg
+
+from ..phylib.settings import Settings
 
 from ..phylib.lattice import impact
 
@@ -87,7 +89,8 @@ def main():
     else:
         try:
             with open(args.stgpath, "r") as fp:
-                settings = json.load(fp)
+                settings = Settings()
+                settings.readfp(fp)
         except Exception as e:
             print("Error reading settings:", e, file=sys.stderr)
             return 1
