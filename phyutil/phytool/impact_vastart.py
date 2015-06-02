@@ -34,7 +34,7 @@ parser.add_argument("--mach", help="name of machine (used to indicate VA)")
 parser.add_argument("--data", dest="datapath", help="path to directory with IMPACT data")
 parser.add_argument("--work", dest="workpath", help="path to directory for executing IMPACT")
 
-help = parser.print_help # @ReservedAssignment
+print_help = parser.print_help
 
 
 def main():

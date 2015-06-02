@@ -49,7 +49,7 @@ def main():
         return cfutil_export.main()
 
     elif cmd == "help":
-        return help()
+        return print_help()
 
     else:
         print(__USAGE__, file=sys.stderr)
@@ -57,7 +57,7 @@ def main():
         return 1
 
 
-def help():
+def print_help():
     """Display help information for the specified topic."""
 
     if len(sys.argv) < 3:
@@ -69,23 +69,23 @@ def help():
 
     if cmd == "impact-lattice":
         import impact_lattice
-        impact_lattice.help()
+        impact_lattice.print_help()
 
     elif cmd == "impact-settings":
         import impact_settings
-        impact_settings.help()
+        impact_settings.print_help()
 
     elif cmd == "impact-vastart":
         import impact_vastart
-        impact_vastart.help()
+        impact_vastart.print_help()
 
     elif cmd == "impact-model":
         import impact_model
-        impact_model.help()
+        impact_model.print_help()
 
     elif cmd == "cfutil-export":
         import cfutil_export
-        cfutil_export.help()
+        cfutil_export.print_help()
 
     else:
         print("No help available for command: {}".format(cmd), file=sys.stderr)

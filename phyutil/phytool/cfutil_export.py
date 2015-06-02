@@ -16,8 +16,6 @@ from channelfinder.CFDataTypes import Property, Channel
 
 from ..phylib import cfg
 
-from ..phylib.layout.accel import Element
-
 from ..machine.frib.layout import fribxlf
 
 
@@ -37,7 +35,7 @@ parser.add_argument("--user", dest="username", help="specify ChannelFinder usern
 parser.add_argument("--pass", dest="password", help="specify ChannelFinder password")
 parser.add_argument("cfurl", help="path to file (.csv, .json) or Channel Finder Service URL")
 
-help = parser.print_help
+print_help = parser.print_help
 
 
 def main():

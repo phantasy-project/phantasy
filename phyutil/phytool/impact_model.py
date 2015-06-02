@@ -40,7 +40,7 @@ parser.add_argument("--work", dest="workpath", help="path to directory for execu
 parser.add_argument("--plot", action="store_true", help="generate a plot of the model")
 parser.add_argument("resultpath", nargs='?', help="path to write resulting model data")
 
-help = parser.print_help
+print_help = parser.print_help
 
 
 def main():

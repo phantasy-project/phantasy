@@ -31,7 +31,7 @@ parser.add_argument("--mach", help="name of machine (used to indicate VA)")
 parser.add_argument("latpath", help="path to input IMPACT lattice file (test.in)")
 parser.add_argument("stgpath", nargs='?', help="path of output file with JSON format")
 
-help = parser.print_help
+print_help = parser.print_help
 
 
 def main():

@@ -38,7 +38,7 @@ parser.add_argument("--latdata", help="path of file to write lattice data")
 parser.add_argument("--template", action="store_true", help="ignore settings and generate template")
 parser.add_argument("latpath", nargs="?", help="path to output IMPACT lattice file (test.in)")
 
-help = parser.print_help
+print_help = parser.print_help
 
 
 def main():
