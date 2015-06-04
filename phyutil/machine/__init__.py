@@ -215,10 +215,16 @@ def load(machine, submachine = "*", **kwargs):
             MODELDATA_DIR = os.path.expanduser(MODELDATA_DIR)
         
         config_file = d_msect.get("config_file", None)
-        if config_file != None:
+        if config_file is not None:
             config = Configuration()
-            with open(config_file) as fp:
-                config.readfp(fp)
+            if os.path.isabs(config_file):
+                # test whether a file with absolute path  
+                with open(config_file) as fp:
+                    config.readfp(fp)
+            else:
+                # relative path
+                with open(os.path.join(machdir, config_file)) as fp:
+                    config.readfp(fp)
         else:
             raise RuntimeError("Lattice configuration for '%s' not specified" % (msect,))
 
