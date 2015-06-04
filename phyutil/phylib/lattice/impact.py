@@ -255,7 +255,7 @@ class LatticeFactory(object):
         if "settings" in kwargs:
             self.settings = kwargs.get("settings")
         else:
-            self.settings = Settings()
+            self.settings = self._get_config_settings()
 
         self.nstates = kwargs.get("nstates", None)
         self.nparticles = kwargs.get("nparticles", None)
@@ -426,10 +426,10 @@ class LatticeFactory(object):
     def _get_config_settings(self):
         if self.config.has_default("settings_file"):
             stgpath = self.config.get_default("settings_file")
-            if not os.path.isabs(stgpath) and (self.config_path != None):
-                stgpath = os.path.abspath(os.path.join(os.path.dirname(self.config_path), stgpath))
             with open(stgpath, "r") as stgfile:
-                return json.load(stgfile)
+                settings = Settings()
+                settings.readfp(stgfile)
+                return settings
 
         return None
 
@@ -460,8 +460,6 @@ class LatticeFactory(object):
         settings = None
         if self.template == False:
             settings = self.settings
-            if settings == None:
-                settings = self._get_config_settings()
 
         integrator = self.integrator
         if integrator == None:
