@@ -279,7 +279,7 @@ class LatticeFactory(object):
         self.offset = kwargs.get("offset", None)
         self.eoffset = kwargs.get("eoffset", None)
         self.restart = kwargs.get("restart", None)
-        self.subcylce = kwargs.get("subcylce", None)
+        self.subcycle = kwargs.get("subcycle", None)
         self.initialCurrent = kwargs.get("initialCurrent", None)
         self.initialEnergy = kwargs.get("initialEnergy", None)
         self.initialPhase = kwargs.get("initialPhase", None)
@@ -572,8 +572,8 @@ class LatticeFactory(object):
         else:
             lattice.restart = self._get_config_int_default(CONFIG_IMPACT_RESTART, _DEFAULT_RESTART)
 
-        if self.subcylce != None:
-            lattice.subcycle = self.subcylce
+        if self.subcycle != None:
+            lattice.subcycle = self.subcycle
         else:
             lattice.subcycle = self._get_config_int_default(CONFIG_IMPACT_SUBCYCLE, _DEFAULT_SUBCYCLE)
 
@@ -910,7 +910,7 @@ class Lattice(object):
         self.offset = _DEFAULT_OFFSET
         self.eoffset = _DEFAULT_EOFFSET
         self.restart = _DEFAULT_RESTART
-        self.subcylce = _DEFAULT_SUBCYCLE
+        self.subcycle = _DEFAULT_SUBCYCLE
         self.initialCurrent = _DEFAULT_INITIAL_CURRENT
         self.initialEnergy = _DEFAULT_INITIAL_ENERGY
         self.initialPhase = _DEFAULT_INITIAL_PHASE
