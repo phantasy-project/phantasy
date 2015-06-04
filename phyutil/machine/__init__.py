@@ -24,9 +24,14 @@ import ConfigParser
 import fnmatch
 import logging
 import numpy as np
+import tempfile
+import shutil
+import atexit
 
 import frib
+from frib.layout.fribxlf import build_layout as fribxlf_build_layout;
 
+from ..phylib.cfg import Configuration
 from ..phylib.lattice import Lattice
 from ..phylib.chanfinder import ChannelFinderAgent
 from ..phylib.lattice.element import merge
@@ -82,6 +87,16 @@ _lattice_dict = {}
 
 # the current lattice
 _lat = None
+
+
+_temp_dirs = []
+
+def _rm_temp_dirs():
+    for temp_dir in _temp_dirs:
+        shutil.rmtree(temp_dir)
+
+atexit.register(_rm_temp_dirs)
+
 
 def _findMachinePath(machine):
     """Try to find a machine configuration path.
@@ -199,6 +214,19 @@ def load(machine, submachine = "*", **kwargs):
             # avoid '~' for use home directory
             MODELDATA_DIR = os.path.expanduser(MODELDATA_DIR)
         
+        config_file = d_msect.get("config_file", None)
+        if config_file != None:
+            config = Configuration()
+            with open(config_file) as fp:
+                config.readfp(fp)
+        else:
+            raise RuntimeError("Lattice configuration for '%s' not specified" % (msect,))
+
+        layout = createLayout(msect, config)
+
+        layout_start = d_msect.get("layout_start", None)
+        layout_end = d_msect.get("layout_end", None)
+
         accstruct = d_msect.get("cfs_url", None)
         # get machine type, default is a linear machine
         machinetype = int(d_msect.get("loop", 0))
@@ -224,7 +252,9 @@ def load(machine, submachine = "*", **kwargs):
         for k,v in _cf_map.iteritems(): 
             cfa.renameProperty(k, v)
                 
-        lat = createLattice(msect, cfa.results, acctag, src=cfa.source, mtype=machinetype)
+        lat = createLattice(msect, cfa.results, acctag, src=cfa.source, mtype=machinetype,
+                            simulation=SIMULATION_CODE, layout=layout, config=config,
+                            start=layout_start, end=layout_end)
         
         if IMPACT_ELEMENT_MAP is not None:
             lat.createLatticeModelMap(IMPACT_ELEMENT_MAP)
@@ -236,8 +266,9 @@ def load(machine, submachine = "*", **kwargs):
         lat.machdir = machdir
         if d_msect.get("archive_pvs", None):
             lat.arpvs = os.path.join(machdir, d_msect["archive_pvs"])
-        lat.OUTPUT_DIR = d_msect.get("output_dir",
-                               os.path.join(HLA_OUTPUT_DIR, msect))
+        lat.OUTPUT_DIR = tempfile.mkdtemp("_phyutil_output")
+        _logger.info("Temp output directory: {}".format(lat.OUTPUT_DIR))
+        _temp_dirs.append(lat.OUTPUT_DIR);
 
         # TODO add unit conversion information later
         # unit conversion & physics data to be added later
@@ -509,8 +540,25 @@ def findCfaConfig(srcname, machine, submachines):
 
     return cfa
 
+
+def createLayout(msect, config):
+    """
+    """
+
+    if not config.has_default("layout_type"):
+        raise RuntimeError("createLayout: Layout type for '%s' not specified." % (msect,))
+
+    layout_type = config.get_default("layout_type")
+    layout_type = layout_type.strip().upper()
+
+    if layout_type == "XLF":
+        return fribxlf_build_layout(config=config)
+
+    raise RuntimeError("createLayout: Layout type, '%s', not supported." % (layout_type,))
+
+
 def createLattice(latname, pvrec, systag, src = 'channelfinder',
-                  vbpm = True, vcor = True, mtype=0):
+                  vbpm = True, vcor = True, mtype=0, **kwargs):
     """
     create a lattice from channel finder data
 
@@ -530,7 +578,7 @@ def createLattice(latname, pvrec, systag, src = 'channelfinder',
     _logger.debug("creating '%s':%s" % (latname, src))
     _logger.info("%d pvs found in '%s'" % (len(pvrec), latname))
     # a new lattice
-    lat = Lattice(latname, source=src, mtype=mtype)
+    lat = Lattice(latname, source=src, mtype=mtype, **kwargs)
     for rec in pvrec:
         _logger.debug("processing {0}".format(rec))
         # skip if there's no properties.
