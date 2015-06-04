@@ -22,7 +22,7 @@ from ..phylib.settings import Settings
 from ..phylib.lattice.impact import OUTPUT_MODE_END
 from ..phylib.lattice.impact import build_lattice as impact_build_lattice
 
-from ..phylib.model.impact import run as impact_run_lattice
+from ..phylib.model.impact import run_lattice as impact_run_lattice
 
 from ..machine.frib.layout import fribxlf
 
