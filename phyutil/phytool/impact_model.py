@@ -6,7 +6,7 @@ Implement phylib command 'impact-model'.
 
 from __future__ import print_function
 
-import os, sys, logging, traceback
+import os, sys, logging, traceback, shutil
 
 from argparse import ArgumentParser
 
@@ -20,9 +20,9 @@ from ..phylib import cfg
 from ..phylib.settings import Settings
 
 from ..phylib.lattice.impact import OUTPUT_MODE_END
-from ..phylib.lattice.impact import build_lattice as impact_build_lattice
-
-from ..phylib.model.impact import run_lattice as impact_run_lattice
+from ..phylib.lattice.impact import build_lattice
+from ..phylib.lattice.impact import run_lattice
+from ..phylib.model.impact import build_result
 
 from ..machine.frib.layout import fribxlf
 
@@ -49,6 +49,10 @@ def main():
     Entry point for command 'impact-model'.
     """
     args = parser.parse_args(sys.argv[2:])
+
+    def rm_temp_dir(path):
+        if args.workpath == None:
+            shutil.rmtree(path)
 
     if args.verbosity == 1:
         logging.getLogger().setLevel(logging.INFO)
@@ -92,7 +96,7 @@ def main():
 
 
     try:
-        lattice = impact_build_lattice(accel, settings=settings, start=args.start, end=args.end)
+        lattice = build_lattice(accel, settings=settings, start=args.start, end=args.end)
     except Exception as e:
         if args.verbosity > 0: traceback.print_exc()
         print("Error building lattice:", e, file=sys.stderr)
@@ -101,11 +105,20 @@ def main():
     lattice.outputMode = OUTPUT_MODE_END
 
     try:
-        result = impact_run_lattice(lattice, data_dir=args.datapath, work_dir=args.workpath)
+        result_dir = run_lattice(lattice, data_dir=args.datapath, work_dir=args.workpath)
+    except Exception as e:
+        if args.verbosity > 0: traceback.print_exc()
+        print("Error running lattice:", e, file=sys.stderr)
+        return 1
+
+    try:
+        result = build_result(impact="FRIB", directory=result_dir, keep=True)
     except Exception as e:
         if args.verbosity > 0: traceback.print_exc()
         print("Error building result:", e, file=sys.stderr)
+        rm_temp_dir(result_dir)
         return 1
+
 
     spos = result.getSPosition()
 
@@ -214,5 +227,6 @@ def main():
         finally:
             if csvfile != sys.stdout: csvfile.close()
 
+    rm_temp_dir(result_dir)
 
     return 0

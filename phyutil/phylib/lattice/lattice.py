@@ -34,7 +34,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 from ..lattice.impact import LatticeFactory as ImpactLatticeFactory
-from ..model.impact import LatticeRunner as ImpactLatticeRunner
+from ..lattice.impact import run_lattice as run_impact_lattice
 
 class Lattice:
     """Lattice class. It assumes alll elements inside this lattice has a unique name.
@@ -149,8 +149,7 @@ class Lattice:
         if self.simulation == "IMPACT":
             lat = self._latticeFactory.build()
             config = self._latticeFactory.config
-            lattice_runner = ImpactLatticeRunner(lat, config=config, work_dir=self.OUTPUT_DIR)
-            return lattice_runner.run()
+            return run_impact_lattice(lat, config=config, work_dir=self.OUTPUT_DIR)
         else:
             raise RuntimeError("Lattice: Simulation code '{}' not supported".format(self.simulation))
 
