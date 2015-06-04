@@ -1654,7 +1654,8 @@ class _LatticeRunner(object):
 
         try:
             with open(os.path.join(work_dir, "test.in"), "w") as fp:
-                self._lattice.write(fp)
+                with open(os.path.join(work_dir, "model.map"), "w") as mapfp:
+                    self._lattice.write(fp, mapstream=mapfp)
         except:
             self._remove_work_dir(work_dir, rm_work_dir)
             raise

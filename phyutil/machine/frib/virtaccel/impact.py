@@ -646,6 +646,7 @@ class VirtualAccelerator(object):
         # input file paths
         epicsdbpath = os.path.join(self.work_dir, "va.db")
         latticepath = os.path.join(self.work_dir, "test.in")
+        modelmappath = os.path.join(self.work_dir, "model.map")
 
         #output file paths
         fort18path = os.path.join(self.work_dir, "fort.18")
@@ -686,7 +687,8 @@ class VirtualAccelerator(object):
             catools.caput(chancharge, lattice.initialCharge)
 
             with open(latticepath, "w") as outfile:
-                lattice.write(outfile)
+                with open(modelmappath, "w") as mapfile:
+                    lattice.write(outfile, mapstream=mapfile)
 
             start = time.time()
 
