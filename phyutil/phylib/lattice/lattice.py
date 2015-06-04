@@ -33,6 +33,9 @@ from element import AbstractElement
 import logging
 logger = logging.getLogger(__name__)
 
+from ..lattice.impact import LatticeFactory as ImpactLatticeFactory
+from ..model.impact import LatticeRunner as ImpactLatticeRunner
+
 class Lattice:
     """Lattice class. It assumes alll elements inside this lattice has a unique name.
 
@@ -44,10 +47,12 @@ class Lattice:
     - *chromaticity* [cx, cy] mainly for circular machine
     - *ormdata* orbit response matrix data
     - *mtype* as a ring (=1) or line (=0)
+    - *simulation* the type of simulation (ie IMPACT, etc)
+    - *kwargs* other arguments based on the simulation
     """
     # ignore those "element" when construct the lattice object
 
-    def __init__(self, name, source='undefined', mode='', mtype=0):
+    def __init__(self, name, source='undefined', mode='', mtype=0, simulation='IMPACT', **kwargs):
         self.machine = ''
         self.machdir = ''
         self.name = name
@@ -69,6 +74,86 @@ class Lattice:
         self.OUTPUT_DIR = ''
         self.source = source
         self.latticemodelmap = {}
+        self.simulation = simulation.upper()
+
+        if self.simulation == "IMPACT":
+            self._latticeFactory = ImpactLatticeFactory(kwargs.get("layout", None), **kwargs)
+        else:
+            raise RuntimeError("Lattice: Simulation code '{}' not supported".format(self.simulation))
+
+
+    def set(self, name, fieldvalue, value=None):
+        """Set the value of a lattice element field (ie settings)
+
+           If no field name is given, then the element must only contain a single field.
+
+           :param name: an element name or element object
+           :param fieldvalue: if the value parameter is given then this is the name of an element
+                              field, otherwise, this is the value of the field
+           :param value: if None then this is ignored, otherwise, this is the value of the field
+        """
+        if self.simulation == "IMPACT":
+            if not isinstance(name, AbstractElement):
+                elms = self.getElementList(name)
+                if len(elms) != 1:
+                    raise RuntimeError("Lattice: Multiple elements found with the specified name.")
+                name = elms[0]
+
+            if value:
+                pvs = name.pv(field=fieldvalue, handle="setpoint")
+            else:
+                pvs = name.pv(handle="setpoint")
+
+            if len(pvs) != 1:
+                raise RuntimeError("Lattice: Multiple fields found, must specify a field name.")
+            self._latticeFactory.settings[pvs[0]]["VAL"] = value
+
+        else:
+            raise RuntimeError("Lattice: Simulation code '{}' not supported".format(self.simulation))
+
+
+    def get(self, name, field=None):
+        """Get the value of a lattice element field (ie setting).
+
+           if no field name is given, then the element must only contain a single field.
+
+           :param name: an element name or element object
+           :param field: an optional field name
+           :returns: the field value
+        """
+        if self.simulation == "IMPACT":
+            if not isinstance(name, AbstractElement):
+                elms = self.getElementList(name)
+                if len(elms) != 1:
+                    raise RuntimeError("Lattice: Multiple elements found with the specified name.")
+                name = elms[0]
+
+            if field:
+                pvs = name.pv(field=field, handle="setpoint")
+            else:
+                pvs = name.pv(handle="setpoint")
+
+            if len(pvs) != 1:
+                raise RuntimeError("Lattice: Multiple fields found, must specify a field name.")
+            return self._latticeFactory.settings[pvs[0]]["VAL"]
+
+        else:
+            raise RuntimeError("Lattice: Simulation code '{}' not supported".format(self.simulation))
+
+
+    def run(self):
+        """Execute the simulation to update the model data.
+        
+           :returns: path of the model data directory
+        """
+        if self.simulation == "IMPACT":
+            lat = self._latticeFactory.build()
+            config = self._latticeFactory.config
+            lattice_runner = ImpactLatticeRunner(lat, config=config, work_dir=self.OUTPUT_DIR)
+            return lattice_runner.run()
+        else:
+            raise RuntimeError("Lattice: Simulation code '{}' not supported".format(self.simulation))
+
 
     def __getitem__(self, key):
         if isinstance(key, int):
