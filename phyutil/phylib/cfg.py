@@ -10,8 +10,6 @@ import os.path, platform, logging
 
 from ConfigParser import SafeConfigParser, NoSectionError, NoOptionError
 
-from .. import phylib
-
 
 OPTION_SETTINGS_FILE = "settings_file"
 
