@@ -100,14 +100,18 @@ class Lattice:
                     raise RuntimeError("Lattice: Multiple elements found with the specified name.")
                 name = elms[0]
 
-            if value:
+            if value is not None:
                 pvs = name.pv(field=fieldvalue, handle="setpoint")
             else:
                 pvs = name.pv(handle="setpoint")
 
             if len(pvs) != 1:
                 raise RuntimeError("Lattice: Multiple fields found, must specify a field name.")
-            self._latticeFactory.settings[pvs[0]]["VAL"] = value
+
+            if value is not None:
+                self._latticeFactory.settings[pvs[0]]["VAL"] = value
+            else:
+                self._latticeFactory.settings[pvs[0]]["VAL"] = fieldvalue
 
         else:
             raise RuntimeError("Lattice: Simulation code '{}' not supported".format(self.simulation))
@@ -129,13 +133,14 @@ class Lattice:
                     raise RuntimeError("Lattice: Multiple elements found with the specified name.")
                 name = elms[0]
 
-            if field:
+            if field is not None:
                 pvs = name.pv(field=field, handle="setpoint")
             else:
                 pvs = name.pv(handle="setpoint")
 
             if len(pvs) != 1:
                 raise RuntimeError("Lattice: Multiple fields found, must specify a field name.")
+
             return self._latticeFactory.settings[pvs[0]]["VAL"]
 
         else:
