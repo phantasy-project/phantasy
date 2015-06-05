@@ -22,6 +22,7 @@ seealso :mod:`~aphla.element`, :mod:`~aphla.twiss`, :mod:`~aphla.machines`
 
 from __future__ import print_function, unicode_literals
 
+import os
 import sys
 import re
 from math import log10
@@ -73,7 +74,7 @@ class Lattice:
         self.arpvs = None
         self.OUTPUT_DIR = ''
         self.source = source
-        self.latticemodelmap = {}
+        self.latticemodelmap = None
         self.simulation = simulation.upper()
 
         if self.simulation == "IMPACT":
@@ -149,7 +150,10 @@ class Lattice:
         if self.simulation == "IMPACT":
             lat = self._latticeFactory.build()
             config = self._latticeFactory.config
-            return run_impact_lattice(lat, config=config, work_dir=self.OUTPUT_DIR)
+            work_dir = run_impact_lattice(lat, config=config, work_dir=self.OUTPUT_DIR)
+            if self.latticemodelmap is None:
+                self.createLatticeModelMap(os.path.join(work_dir, "model.map"))
+            return work_dir
         else:
             raise RuntimeError("Lattice: Simulation code '{}' not supported".format(self.simulation))
 
@@ -212,7 +216,10 @@ class Lattice:
         
         """
         mapping = np.loadtxt(mapfile, dtype=str)
-        self.latticemodelmap.clear()
+        if self.latticemodelmap is not None:
+            self.latticemodelmap.clear()
+        else:
+            self.latticemodelmap={}
         for idx, mp in enumerate(mapping):
             try:
                 self.latticemodelmap[mp] = self.latticemodelmap[mp] +[idx]

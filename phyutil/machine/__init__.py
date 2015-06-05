@@ -200,14 +200,14 @@ def load(machine, submachine = "*", **kwargs):
         d_msect = dict(cfg.items(msect))
         SCAN_SRV_URL = d_msect.get("ss_url", None)
         SIMULATION_CODE = d_msect.get("model", None)
-        IMPACT_ELEMENT_MAP = None
+#         IMPACT_ELEMENT_MAP = None
         if SIMULATION_CODE is not None:
             SIMULATION_CODE = SIMULATION_CODE.upper()
-            IMPACT_ELEMENT_MAP = d_msect.get("impact_map", None)
-            if IMPACT_ELEMENT_MAP is not None:
-                IMPACT_ELEMENT_MAP = os.path.join(machdir, IMPACT_ELEMENT_MAP)
-            else:
-                raise ValueError("No map file found for IMPACT output file")
+#             IMPACT_ELEMENT_MAP = d_msect.get("impact_map", None)
+#             if IMPACT_ELEMENT_MAP is not None:
+#                 IMPACT_ELEMENT_MAP = os.path.join(machdir, IMPACT_ELEMENT_MAP)
+#             else:
+#                 raise ValueError("No map file found for IMPACT output file")
         
         MODELDATA_DIR = os.environ.get("MODEL_DATA_DIR", d_msect.get("model_data", None))
         if MODELDATA_DIR is not None:
@@ -262,8 +262,8 @@ def load(machine, submachine = "*", **kwargs):
                             simulation=SIMULATION_CODE, layout=layout, config=config,
                             start=layout_start, end=layout_end)
         
-        if IMPACT_ELEMENT_MAP is not None:
-            lat.createLatticeModelMap(IMPACT_ELEMENT_MAP)
+#         if IMPACT_ELEMENT_MAP is not None:
+#             lat.createLatticeModelMap(IMPACT_ELEMENT_MAP)
 
         lat.sb = float(d_msect.get("s_begin", 0.0))
         lat.se = float(d_msect.get("s_end", 0.0))
