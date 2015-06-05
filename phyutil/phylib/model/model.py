@@ -38,13 +38,13 @@ class Model:
         
         :param elems: list of element object
         """
-        if len(elems) == 1:
-            return machine._lat.latticemodelmap[elems.name][-1]
-        else:
+        if isinstance(elems, (list, tuple)):
             res = []
             for el in elems:
                 res.append(machine._lat.latticemodelmap[el.name][-1])
-            return res
+            return res            
+        else:
+            return machine._lat.latticemodelmap[elems.name][-1]
     
     def _buildModelResult(self):
         """

@@ -257,13 +257,13 @@ class Result(object):
                 res = []
                 for idx, val in enumerate(data):
                     if idx in elemIdx:
-                        res.append(val)
+                        res.append(val[col])
                 res2=[]
                 if data2 is not None:
                     for idx, val in enumerate(data2):
                         if idx in elemIdx:
-                            res2.append(val)
-                    return [np.array(res), np.array[res2]]
+                            res2.append(val[col])
+                    return [np.array(res), np.array(res2)]
 
                 return np.array(res)
             else:
@@ -275,14 +275,14 @@ class Result(object):
 
 
     def getOrbit(self, plane="X", elemIdx=None):
-        """Get beam position at the end of an element if elemIdx is given, or beam orbit at all totalelements.
+        """Get beam position at the end of an element if elemIdx is given, or beam orbit at all total elements.
         Current implementation returns all position information from simulation, and does not separate BPM 
         from other devices like magnet and other diagnostic devices like profile monitor.
 
         :param plane:    beam plane, either "X", "Y", or "XY"
         :param elemIdx:  element index, `None` by default 
         
-        :return: beam position at given location, or at all totalelements
+        :return: beam position at given location, or at all total elements
         """
         if plane.upper() == "X":
             return self.__getData(self._fort24, elemIdx=elemIdx, col=0)
