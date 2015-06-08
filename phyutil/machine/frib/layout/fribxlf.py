@@ -95,7 +95,7 @@ class AccelFactory(object):
     Read the Accelerator Design Description from FRIB Expanded Lattice File.
     """
     def __init__(self, **kwargs):
-        if "config" in kwargs:
+        if kwargs.get("config", None) is not None:
             self.config = kwargs.get("config")
         else:
             self.config = cfg.config

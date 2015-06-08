@@ -247,12 +247,12 @@ class LatticeFactory(object):
     def __init__(self, accel, **kwargs):
         self.accel = accel
 
-        if "config" in kwargs:
+        if kwargs.get("config", None) is not None:
             self.config = kwargs.get("config")
         else:
             self.config = cfg.config
 
-        if "settings" in kwargs:
+        if kwargs.get("settings", None) is not None:
             self.settings = kwargs.get("settings")
         else:
             self.settings = self._get_config_settings()
@@ -1548,7 +1548,7 @@ class _LatticeRunner(object):
         """
         self.lattice = lattice
         
-        if "config" in kwargs:
+        if kwargs.get("config", None) is not None:
             self.config = kwargs.get("config")
         else:
             self.config = cfg.config
