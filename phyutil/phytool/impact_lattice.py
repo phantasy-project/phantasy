@@ -12,9 +12,6 @@ from collections import OrderedDict
 
 from argparse import ArgumentParser
 
-from .. import phylib
-phylib.AUTO_CONFIG=False
-
 from ..phylib import cfg
 
 from ..phylib.settings import Settings

@@ -12,9 +12,6 @@ from argparse import ArgumentParser
 
 import matplotlib.pyplot as plt
 
-from .. import phylib
-phylib.AUTO_CONFIG=False
-
 from ..phylib import cfg
 
 from ..phylib.settings import Settings

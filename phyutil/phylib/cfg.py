@@ -82,16 +82,6 @@ def load(cfgpath=None):
     return False
 
 
-# def _auto_load():
-#     """
-#     Auto load the configuration file if enabled.
-#     """
-#     if phylib.AUTO_CONFIG:
-#         if load(DEFAULT_LOCATIONS):
-#             _LOGGER.info("Auto load configuration file found: %s", config_path)
-#         else:
-#             _LOGGER.warning("Auto load configuration file not found: %s", DEFAULT_LOCATIONS)
-
 
 class Configuration(SafeConfigParser):
     """Configuration wraps the standand python config
@@ -174,9 +164,5 @@ class Configuration(SafeConfigParser):
         # to not exist in the configuration.
         return (bool(section) and SafeConfigParser.has_option(self, section, option)) or \
                     (check_default and self.has_default(option))
-
-
-# initialize the global configuration
-# _auto_load()
 
 

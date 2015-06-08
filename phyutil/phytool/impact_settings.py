@@ -10,9 +10,6 @@ import os.path, sys, json, logging, traceback
 
 from argparse import ArgumentParser
 
-from .. import phylib
-phylib.AUTO_CONFIG=False
-
 from ..phylib import cfg
 
 from ..phylib.settings.impact import build_settings as impact_build_settings
