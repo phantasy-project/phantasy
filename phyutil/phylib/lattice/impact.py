@@ -425,7 +425,7 @@ class LatticeFactory(object):
 
     def _get_config_settings(self):
         if self.config.has_default("settings_file"):
-            stgpath = self.config.get_default("settings_file")
+            stgpath = self.config.getabspath_default("settings_file")
             with open(stgpath, "r") as stgfile:
                 settings = Settings()
                 settings.readfp(stgfile)
@@ -1614,7 +1614,7 @@ class _LatticeRunner(object):
 
         data_dir = self.data_dir
         if (data_dir == None) and self.config.has_default(CONFIG_IMPACT_DATA_DIR):
-            data_dir = self.config.get_default(CONFIG_IMPACT_DATA_DIR)
+            data_dir = self.config.getabspath_default(CONFIG_IMPACT_DATA_DIR)
 
         if data_dir == None:
             raise RuntimeError("LatticeRunner: No data directory provided, check the configuration")

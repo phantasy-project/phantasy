@@ -262,9 +262,7 @@ class AccelFactory(object):
 
         xlfpath = self.xlfpath
         if (xlfpath == None) and self.config.has_default(CONFIG_XLF_DATA_FILE):
-            xlfpath = self.config.get_default(CONFIG_XLF_DATA_FILE)
-            #if not os.path.isabs(xlfpath) and self.config_path != None:
-            #    xlfpath = os.path.abspath(os.path.join(os.path.dirname(self.config_path), xlfpath))
+            xlfpath = self.config.getabspath_default(CONFIG_XLF_DATA_FILE)
 
         if xlfpath == None:
             raise ValueError("AccelFactory: Expanded Lattice File not specified, check the configuration.")

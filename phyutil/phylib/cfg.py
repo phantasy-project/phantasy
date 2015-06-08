@@ -32,8 +32,6 @@ if platform.system() == "Linux":
 
 # global configuration
 config = None
-# global configuration file path
-config_path = None
 
 
 def load(cfgpath=None):
@@ -47,9 +45,8 @@ def load(cfgpath=None):
        :params cfgpath: configuration file path or list of file paths
        :return: True if configuration file loaded successfully, otherwise False
     """
-    global config, config_path
+    global config
     config = Configuration()
-    config_path = os.getcwd()
 
     if cfgpath == None:
         # simply initialize an empty configuration
@@ -69,7 +66,7 @@ def load(cfgpath=None):
                 _LOGGER.debug("Attempting to load configuration file: %s", path)
                 with open(path, "r") as fp:
                     config.readfp(fp)
-                    config_path = path
+                    config.configPath = path
                     _LOGGER.info("Successfully loaded configuration file: %s", path)
                     return True
             else:
@@ -86,9 +83,23 @@ def load(cfgpath=None):
 class Configuration(SafeConfigParser):
     """Configuration wraps the standand python config
        parser to provide convenient helper methods.
+       
+       :param configPath: location of configuration file to read (optional)
     """
     
     _DEFAULT_SECTION = "DEFAULT"
+
+    def __init__(self, configPath=None):
+        SafeConfigParser.__init__(self)
+        if configPath is not None:
+            if os.path.isabs(configPath):
+                self.configPath = configPath
+            else:
+                self.configPath = os.path.abspath(configPath)
+            with open(self.configPath, "r") as fp:
+                self.readfp(fp)
+        else:
+            self.configPath = None
 
     def get_default(self, option):
         return self.get(self._DEFAULT_SECTION, option, check_default=False)
@@ -101,6 +112,19 @@ class Configuration(SafeConfigParser):
 
     def getarray_default(self, option, sep=None, conv=None):
         return self.getarray(self._DEFAULT_SECTION, option, check_default=False, sep=sep, conv=conv)
+
+    def getabspath_default(self, option, cmd=False):
+        """Get the given option and convert to an absolute path.
+           If the value of the option is not already an absolute
+           path, than resolve the relative path against the configPath
+           property. If configPath is None, then raise a runtime error.
+
+           :param option: name of configuration option
+           :param cmd: If True, then relative paths must start with a '.' or contain a path
+                       separator otherwise it is considered absolute. (default: False)
+           :return: absolute path
+        """
+        return self.getabspath(self._DEFAULT_SECTION, option, check_default=False, cmd=cmd)
 
     def has_default(self, option):
         return self.has_option(self._DEFAULT_SECTION, option, check_default=False)
@@ -153,6 +177,28 @@ class Configuration(SafeConfigParser):
             raise NoSectionError(section)
         else:
             raise NoOptionError(option, section)
+
+    def getabspath(self, section, option, check_default=True, cmd=False):
+        """Get the given option and convert to an absolute path.
+           If the value of the option is not already an absolute
+           path, than resolve the relative path against the configPath
+           property. If configPath is None, then raise a runtime error.
+
+           :param option: name of configuration option
+           :param check_default: check the default section for the option (default: False)
+           :param cmd: If True, then relative paths must start with a '.' or contain a path
+                       separator otherwise it is considered absolute. (default: False)
+           :return: absolute path
+        """
+        path = self.get(section, option, check_default=check_default)
+        if os.path.isabs(path):
+            return path
+        elif cmd and not path.startswith(".") and (os.path.sep not in path):
+            return path
+        elif self.configPath is not None:
+            return os.path.join(os.path.dirname(self.configPath), path)
+        else:
+            raise RuntimeError("configPath is None: cannot resolve relative path")
 
     def has_option(self, section, option, check_default=True):
         # There is an inconsistency in the SafeConfigParser implementations

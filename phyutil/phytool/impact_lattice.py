@@ -54,6 +54,7 @@ def main():
         try:
             cfg.load(args.cfgpath)
         except:
+            if args.verbosity > 0: traceback.print_exc()
             print("Error: configuration file not found: {}".format(args.cfgpath), file=sys.stderr)
             return 1
 
@@ -77,6 +78,7 @@ def main():
     try:
         accel = fribxlf.build_accel(xlfpath=args.xlfpath, machine=args.mach)
     except Exception as e:
+        if args.verbosity > 0: traceback.print_exc()
         print("Error building accelerator:", e, file=sys.stderr)
         return 1
 

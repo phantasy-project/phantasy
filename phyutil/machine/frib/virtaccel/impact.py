@@ -213,9 +213,7 @@ class VirtualAcceleratorFactory(object):
 
     def _get_config_settings(self):
         if cfg.config.has_default("settings_file"):
-            stgpath = cfg.config.get_default("settings_file")
-            if not os.path.isabs(stgpath) and (cfg.config_path != None):
-                stgpath = os.path.abspath(os.path.join(os.path.dirname(cfg.config_path), stgpath))
+            stgpath = cfg.config.getabspath_default("settings_file")
             with open(stgpath, "r") as stgfile:
                 return json.load(stgfile)
 
@@ -224,10 +222,7 @@ class VirtualAcceleratorFactory(object):
 
     def _get_config_impact_exe(self):
         if cfg.config.has_default(CONFIG_IMPACT_EXE_FILE):
-            impact_exe = cfg.config.get_default(CONFIG_IMPACT_EXE_FILE)
-            if not os.path.isabs(impact_exe) and impact_exe.startswith(".") and (cfg.config_path != None):
-                impact_exe = os.path.abspath(os.path.join(os.path.dirname(cfg.config_path), impact_exe))
-            return impact_exe
+            return cfg.config.getabspath_default(CONFIG_IMPACT_EXE_FILE, cmd=True)
 
         return _DEFAULT_IMPACT_EXE
 
@@ -248,7 +243,7 @@ class VirtualAcceleratorFactory(object):
 
         data_dir = self.data_dir
         if (data_dir == None) and cfg.config.has_default(CONFIG_IMPACT_DATA_DIR):
-            data_dir = cfg.config.get_default(CONFIG_IMPACT_DATA_DIR)
+            data_dir = cfg.config.getabspath_default(CONFIG_IMPACT_DATA_DIR)
 
         if data_dir == None:
             raise RuntimeError("VirtAccelFactory: No data directory provided, check the configuration")
