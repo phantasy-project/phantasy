@@ -106,7 +106,7 @@ class AccelFactory(object):
         if kwargs.get("config", None) is not None:
             self.config = kwargs.get("config")
         else:
-            self.config = cfg.Configuration()
+            self.config = cfg.config
 
         self.xlfpath = kwargs.get("xlfpath", None)
         self.machine = kwargs.get("machine", None)

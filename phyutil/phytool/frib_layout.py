@@ -53,7 +53,7 @@ def main():
             return 1
 
     else:
-        config = None
+        config = cfg.Configuration()
 
 
     if (args.layoutPath != None) and os.path.exists(args.layoutPath):
@@ -73,7 +73,7 @@ def main():
             with open(args.layoutPath, "w") as stream:
                 layout.write(stream, start=args.start, end=args.end)
         else:
-            layout.write(sys.stdout)
+            layout.write(sys.stdout, start=args.start, end=args.end)
     except Exception as e:
         if args.verbosity > 0: traceback.print_exc()
         print("Error writing accelerator layout:", e, file=sys.stderr)
