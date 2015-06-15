@@ -34,6 +34,7 @@ from ..phylib.layout import build_layout
 
 from ..phylib.cfg import Configuration
 from ..phylib.lattice import Lattice
+from ..phylib.settings import Settings
 from ..phylib.chanfinder import ChannelFinderAgent
 from ..phylib.lattice.element import merge
 from ..phylib.lattice.element import CaElement
@@ -231,6 +232,16 @@ def load(machine, submachine = "*", **kwargs):
         else:
             raise RuntimeError("Layout for '%s' not specified" % (msect,))
 
+        settings_file = d_msect.get("settings_file", None)
+        if settings_file is not None:
+            if not os.path.isabs(settings_file):
+                settings_file = os.path.join(machdir, settings_file)
+            with open(settings_file, "r") as fp:
+                settings = Settings()
+                settings.readfp(fp)
+        else:
+            raise RuntimeError("Settings for '%s' not specified" % (msect,))
+
         accstruct = d_msect.get("cfs_url", None)
         # get machine type, default is a linear machine
         machinetype = int(d_msect.get("loop", 0))
@@ -257,7 +268,7 @@ def load(machine, submachine = "*", **kwargs):
             cfa.renameProperty(k, v)
                 
         lat = createLattice(msect, cfa.results, acctag, src=cfa.source, mtype=machinetype,
-                            simulation=SIMULATION_CODE, layout=layout, config=config)
+                            simulation=SIMULATION_CODE, layout=layout, config=config, settings=settings)
         
 #         if IMPACT_ELEMENT_MAP is not None:
 #             lat.createLatticeModelMap(IMPACT_ELEMENT_MAP)
