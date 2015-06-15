@@ -6,7 +6,7 @@ Implement phylib command 'impact-vastart'.
 
 from __future__ import print_function
 
-import sys, logging
+import sys, logging, traceback
 
 from argparse import ArgumentParser
 
@@ -97,6 +97,7 @@ def main():
         va.stop()
         va.wait()
     except Exception as e:
+        if args.verbosity > 0: traceback.print_exc()
         print("Error executing virtual accelerator:", e, file=sys.stderr)
         return 1
 

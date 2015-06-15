@@ -1,4 +1,5 @@
 # encoding: UTF-8
 
-__author__ = "Dylan Maxwell"
+"""Accelerator Layout"""
 
+from layout import build_layout

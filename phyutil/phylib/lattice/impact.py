@@ -17,8 +17,8 @@ from .. import cfg
 from ..settings import Settings
 
 from ..layout.accel import Element, DriftElement, ValveElement, PortElement
-from ..layout.accel import SeqElement, CavityElement, SolCorrElement, ChgStripElement
-from ..layout.accel import CorrElement, BendElement, QuadElement, HexElement
+from ..layout.accel import SeqElement, CavityElement, SolCorElement, StripElement
+from ..layout.accel import CorElement, BendElement, QuadElement, SextElement
 from ..layout.accel import BCMElement, PMElement, BLElement, BLMElement, BPMElement
 
 
@@ -646,17 +646,24 @@ class LatticeFactory(object):
             elif isinstance(elem, CavityElement):
                 phase = 0.0
                 if settings != None:
-                    if elem.channels.phase_cset in settings:
-                        phase = settings[elem.channels.phase_cset]["VAL"]
-                    else:
-                        raise RuntimeError("LatticeFactory: '{}' channel not found for element: {}".format(elem.channels.phase_cset, elem.name))
+                    try:
+                        phase = settings[elem.name][elem.fields.phase]
+                    except KeyError:
+                        raise RuntimeError("LatticeFactory: '{}' setting not found for element: {}".format(elem.fields.phase, elem.name))
 
                 amplitude = 0.0
                 if settings != None:
-                    if elem.channels.amplitude_cset in settings:
-                        amplitude = settings[elem.channels.amplitude_cset]["VAL"]
-                    else:
-                        raise RuntimeError("LatticeFactory: '{}' channel not found for element: {}".format(elem.channels.amplitude_cset, elem.name))
+                    try:
+                        amplitude = settings[elem.name][elem.fields.amplitude]
+                    except KeyError:
+                        raise RuntimeError("LatticeFactory: '{}' setting not found for element: {}".format(elem.fields.amplitude, elem.name))
+
+                frequency = 0.0
+                if settings != None:
+                    try:
+                        frequency = settings[elem.name][elem.fields.frequency]
+                    except KeyError:
+                        raise RuntimeError("LatticeFactory: '{}' setting not found for element: {}".format(elem.fields.frequency, elem.name))
 
                 itype = self._get_config_type(elem.dtype, 103)
                 if itype == 103:
@@ -667,7 +674,7 @@ class LatticeFactory(object):
                     lattice.addProperty("AMP", "V")
                     lattice.addProperty("PHA", "deg")
 
-                    lattice.append("{length} {steps} {mapsteps} {itype} {properties[AMP]} "+str(elem.frequency)+" {properties[PHA]} "+str(input_id)+" {radius}",
+                    lattice.append("{length} {steps} {mapsteps} {itype} {properties[AMP]} "+str(frequency)+" {properties[PHA]} "+str(input_id)+" {radius}",
                                     length=elem.length, steps=steps, mapsteps=mapsteps, itype=103, radius=elem.apertureX/2.0,
                                     position=elem.z+(elem.length/2.0)-poffset, name=elem.name, etype="CAV",
                                     properties={ "AMP":amplitude, "PHA":phase })
@@ -679,7 +686,7 @@ class LatticeFactory(object):
                     lattice.addProperty("AMP", "V")
                     lattice.addProperty("PHA", "deg")
 
-                    lattice.append("{length} {steps} {mapsteps} {itype} {properties[AMP]} "+str(elem.frequency)+" {properties[PHA]} "+str(input_id)+" {radius} {radius} 0 0 0 0 0 1 2",
+                    lattice.append("{length} {steps} {mapsteps} {itype} {properties[AMP]} "+str(frequency)+" {properties[PHA]} "+str(input_id)+" {radius} {radius} 0 0 0 0 0 1 2",
                                     length=elem.length, steps=steps, mapsteps=mapsteps, itype=110, radius=elem.apertureX/2.0,
                                     position=elem.z+(elem.length/2.0)-poffset, name=elem.name, etype="CAV",
                                     properties={ "AMP":amplitude, "PHA":phase })
@@ -687,27 +694,27 @@ class LatticeFactory(object):
                 else:
                     raise RuntimeError("LatticeFactory: IMPACT element type for '{}' not supported: {}".format(elem.name, itype))
 
-            elif isinstance(elem, SolCorrElement):
+            elif isinstance(elem, SolCorElement):
                 field = 0.0
                 if settings != None:
-                    if elem.channels.field_cset in settings:
-                        field = settings[elem.channels.field_cset]["VAL"]
-                    else:
-                        raise RuntimeError("LatticeFactory: '{}' channel not found for element: {}".format(elem.channels.field_cset, elem.name))
+                    try:
+                        field = settings[elem.name][elem.fields.field]
+                    except KeyError:
+                        raise RuntimeError("LatticeFactory: '{}' setting not found for element: {}".format(elem.fields.field, elem.name))
 
                 hkick = 0.0
                 if settings != None:
-                    if elem.channels.hkick_cset in settings:
-                        hkick = settings[elem.channels.hkick_cset]["VAL"]
-                    else:
-                        raise RuntimeError("LatticeFactory: '{}' channel not found for element: {}".format(elem.channels.hkick_cset, elem.name))
+                    try:
+                        hkick = settings[elem.h.name][elem.h.fields.angle]
+                    except KeyError:
+                        raise RuntimeError("LatticeFactory: '{}' setting not found for element: {}".format(elem.h.fields.angle, elem.name))
 
                 vkick = 0.0
                 if settings != None:
-                    if elem.channels.vkick_cset in settings:
-                        vkick = settings[elem.channels.vkick_cset]["VAL"]
-                    else:
-                        raise RuntimeError("LatticeFactory: '{}' channel not found for element: {}".format(elem.channels.vkick_cset, elem.name))
+                    try:
+                        vkick = settings[elem.v.name][elem.v.fields.angle]
+                    except KeyError:
+                        raise RuntimeError("LatticeFactory: '{}' setting not found for element: {}".format(elem.v.fields.angle, elem.name))
 
 
                 lattice.addProperty("B", "T")
@@ -732,10 +739,10 @@ class LatticeFactory(object):
             elif isinstance(elem, QuadElement):
                 gradient = 0.0
                 if settings != None:
-                    if elem.channels.gradient_cset in settings:
-                        gradient = settings[elem.channels.gradient_cset]["VAL"]
-                    else:
-                        raise RuntimeError("LatticeFactory: '{}' not found for element: {}".format(elem.channels.gradient_cset, elem.name))
+                    try:
+                        gradient = settings[elem.name][elem.fields.gradient]
+                    except KeyError:
+                        raise RuntimeError("LatticeFactory: '{}' setting not found for element: {}".format(elem.fields.gradient, elem.name))
 
                 lattice.addProperty("GRAD", "T/m")
 
@@ -744,20 +751,20 @@ class LatticeFactory(object):
                                     position=elem.z+(elem.length/2.0)-poffset, name=elem.name, etype="QUAD", properties={ "GRAD":gradient })
 
 
-            elif isinstance(elem, CorrElement):
+            elif isinstance(elem, CorElement):
                 hkick = 0.0
                 if settings != None:
-                    if elem.channels.hkick_cset in settings:
-                        hkick = settings[elem.channels.hkick_cset]["VAL"]
-                    else:
-                        raise RuntimeError("LatticeFactory: '{}' channel not found for element: {}".format(elem.channels.hkick_cset, elem.name))
+                    try:
+                        hkick = settings[elem.h.name][elem.h.fields.angle]
+                    except KeyError:
+                        raise RuntimeError("LatticeFactory: '{}' setting not found for element: {}".format(elem.h.fields.angle, elem.name))
 
                 vkick = 0.0
                 if settings != None:
-                    if elem.channels.vkick_cset in settings:
-                        vkick = settings[elem.channels.vkick_cset]["VAL"]
-                    else:
-                        raise RuntimeError("LatticeFactory: '{}' channel not found for element: {}".format(elem.channels.vkick_cset, elem.name))
+                    try:
+                        vkick = settings[elem.v.name][elem.v.fields.angle]
+                    except KeyError:
+                        raise RuntimeError("LatticeFactory: '{}' setting not found for element: {}".format(elem.v.fields.angle, elem.name))
 
                 lattice.addProperty("ANG", "rad")
 
@@ -780,13 +787,13 @@ class LatticeFactory(object):
                                     position=elem.z+(elem.length/2.0)-poffset, name="DRIFT", etype="DRIFT")
 
 
-            elif isinstance(elem, HexElement):
+            elif isinstance(elem, SextElement):
                 field = 0.0
                 if settings != None:
-                    if elem.channels.field_cset in settings:
-                        field = settings[elem.channels.field_cset]["VAL"]
-                    else:
-                        raise RuntimeError("LatticeFactory: '{}' channel not found for element: {}".format(elem.channels.field_cset, elem.name))
+                    try:
+                        field = settings[elem.name][elem.fields.field]
+                    except KeyError:
+                        raise RuntimeError("LatticeFactory: '{}' setting not found for element: {}".format(elem.fields.field, elem.name))
 
                 ## IMPACT element 5 is not currently document. Below is provided for reference.
                 ## L, ss, ms, 5, Gq(T/m), Gs(T/m^2),Go(T/m^3),Gd(T/m^4),Gdd(T/m^5),G14,G16,R
@@ -804,33 +811,54 @@ class LatticeFactory(object):
             elif isinstance(elem, BendElement):
                 field = 0.0
                 if settings != None:
-                    if elem.channels.field_cset in settings:
-                        field = settings[elem.channels.field_cset]["VAL"]
-                    else:
-                        raise RuntimeError("LatticeFactory: '{}' channel not found for element: {}".format(elem.channels.field_cset, elem.name))
+                    try:
+                        field = settings[elem.name][elem.fields.field]
+                    except KeyError:
+                        raise RuntimeError("LatticeFactory: '{}' setting not found for element: {}".format(elem.fields.field, elem.name))
+
+                angle = 0.0
+                if settings != None:
+                    try:
+                        angle = settings[elem.name][elem.fields.angle]
+                    except KeyError:
+                        raise RuntimeError("LatticeFactory: '{}' setting not found for element: {}".format(elem.fields.angle, elem.name))
+
+                entrAngle = 0.0
+                if settings != None:
+                    try:
+                        entrAngle = settings[elem.name][elem.fields.entrAngle]
+                    except KeyError:
+                        raise RuntimeError("LatticeFactory: '{}' setting not found for element: {}".format(elem.fields.entrAngle, elem.name))
+
+                exitAngle = 0.0
+                if settings != None:
+                    try:
+                        exitAngle = settings[elem.name][elem.fields.exitAngle]
+                    except KeyError:
+                        raise RuntimeError("LatticeFactory: '{}' setting not found for element: {}".format(elem.fields.exitAngle, elem.name))
 
                 if steps < 3:
                     raise RuntimeError("LatticeFactory: '{}' number of steps must be greater than 2.".format(elem.name))
 
                 lattice.addProperty("B", "T")
 
-                lattice.append("{length} {steps} {mapsteps} {itype} "+str(elem.angle/steps)+" {properties[B]} 400 {radius} "+str(elem.entrAngle)+" "+str(elem.exitAngle)+" 0.0 0.0 0.0",
+                lattice.append("{length} {steps} {mapsteps} {itype} "+str(angle/steps)+" {properties[B]} 400 {radius} "+str(entrAngle)+" "+str(exitAngle)+" 0.0 0.0 0.0",
                                     length=elem.length/steps, steps=1, mapsteps=mapsteps, itype=4, radius=elem.apertureX/2.0,
                                     position=elem.z-(elem.length/2.0)+(elem.length/steps)-poffset,
                                     name=elem.name, etype="BEND", properties={ "B":field })
 
                 for i in xrange(2, steps):
-                    lattice.append("{length} {steps} {mapsteps} {itype} "+str(elem.angle/steps)+" {properties[B]} 500 {radius} 0.0 0.0 0.0 0.0 0.0",
+                    lattice.append("{length} {steps} {mapsteps} {itype} "+str(angle/steps)+" {properties[B]} 500 {radius} 0.0 0.0 0.0 0.0 0.0",
                                     length=elem.length/steps, steps=1, mapsteps=mapsteps, itype=4, radius=elem.apertureX/2.0,
                                     position=elem.z-(elem.length/2.0)+i*(elem.length/steps)-poffset,
                                     name=elem.name, etype="BEND", properties={ "B":field })
 
-                lattice.append("{length} {steps} {mapsteps} {itype} "+str(elem.angle/steps)+" {properties[B]} 600 {radius} "+str(elem.entrAngle)+" "+str(elem.exitAngle)+" 0.0 0.0 0.0",
+                lattice.append("{length} {steps} {mapsteps} {itype} "+str(angle/steps)+" {properties[B]} 600 {radius} "+str(entrAngle)+" "+str(exitAngle)+" 0.0 0.0 0.0",
                                     length=elem.length/steps, steps=1, mapsteps=mapsteps, itype=4, radius=elem.apertureX/2.0,
                                     position=elem.z-(elem.length/2.0)+(elem.length/steps)-poffset,
                                     name=elem.name, etype="BEND", properties={ "B":field })
 
-            elif isinstance(elem, (ChgStripElement)):
+            elif isinstance(elem, (StripElement)):
                 input_id = self._get_config_strip_input_id(elem)
                 if input_id == None:
                     raise RuntimeError("LatticeFactory: IMPACT input id for '{}' not found".format(elem.name))

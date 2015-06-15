@@ -1,48 +1,24 @@
 # encoding: UTF-8
 
 """
-Accelerator Design Description
-==============================
+Layout Elements
+===============
 
-The Accelerator Design Description (ADD) is a data model developed to capture
-the accelerator design independent of file format and/or simulation tool.
-It is used as intermediate data structure when converting between formats
-or generating lattice files for use with various simulation tools.
+The accelerator layout is composed of  elements. These elements
+represent the various types of accelerator devices or components.
+
+:author: Dylan Maxwell
+:date: 2015-06-09
+
+:copyright: Copyright (c) 2015, Facility for Rare Isotope Beams
+
 """
 
 from __future__ import print_function
 
-__copyright__ = "Copyright (c) 2015, Facility for Rare Isotope Beams"
-
-__author__ = "Dylan Maxwell"
-
 import sys
 
 from collections import OrderedDict
-
-# configuration options
-
-CONFIG_MACHINE = "machine"
-
-CONFIG_LENGTH = "length"
-
-CONFIG_APERTURE = "aperture"
-
-CONFIG_APERTURE_X = "aperture_x"
-
-CONFIG_APERTURE_Y = "aperture_y"
-
-CONFIG_CAV_BETA = "cav_beta"
-
-CONFIG_CAV_VOLTAGE = "cav_voltage"
-
-CONFIG_CAV_FREQUENCY = "cav_frequency"
-
-CONFIG_BEND_ANGLE = "bend_angle"
-
-CONFIG_BEND_ENTR_ANGLE = "bend_entr_angle"
-
-CONFIG_BEND_EXIT_ANGLE = "bend_exit_angle"
 
 
 # Base Elements
@@ -63,24 +39,43 @@ class Channels(object):
 
 
 
-class BaseElement(object):
+class Fields(object):
     """
-    BaseElement is the base for the accelerator class heirarchy.
+    Fields is a simple container for element field names.
+
+    :param **kwargs: All keyword arguments become object attributes
+    """
+    def __init__(self, **kwargs):
+        for key, value in kwargs.iteritems():
+            setattr(key, value)
+
+
+    def __iter__(self):
+        return iter(dir(self))
+
+
+    def __str__(self):
+        return str(self.__dict__)
+
+
+
+class Element(object):
+    """
+    Element is the base for the layout element class heirarchy.
 
     :param float z: Position of this accelerator element
     :param float length: Length of this accelerator element
     :param float aperture: Minimum size of this accelerator element
-    :param str desc: Description of this accelerator element
+    :param str name: name of this accelerator element
+    :param str **meta: Meta data describing this accelerator element
     """
-    def __init__(self, z, length, aperture, desc=""):
+    def __init__(self, z, length, aperture, name, **meta):
         self.z = z
         self.length = length
-        if isinstance(aperture, (tuple,list)):
-            self.apertureX = aperture[0]
-            self.apertureY = aperture[1]
-        else:
-            self.aperture = aperture
-        self.desc = desc
+        self.aperture = aperture
+        self.name = name
+        self.meta = dict(meta)
+        self.fields = Fields()
         self.channels = Channels()
         self.chanstore = OrderedDict()
 
@@ -91,7 +86,7 @@ class BaseElement(object):
     @z.setter
     def z(self, z):
         if not isinstance(z, (int, float)):
-            raise TypeError("BaseElement: 'z' property must be type a number")
+            raise TypeError("Element: 'z' property must be a number")
         self._z = z
 
     @property
@@ -101,7 +96,7 @@ class BaseElement(object):
     @length.setter
     def length(self, length):
         if not isinstance(length, (int, float)):
-            raise TypeError("BaseElement: 'length' property must be type a number")
+            raise TypeError("Element: 'length' property must be a number")
         self._length = length
 
 
@@ -111,9 +106,22 @@ class BaseElement(object):
 
     @aperture.setter
     def aperture(self, aperture):
-        self.apertureX = aperture
-        self.apertureY = aperture
+        if isinstance(aperture, (tuple,list)):
+            if isinstance(aperture[0], (int, float)):
+                self.apertureX = float(aperture[0])
+            else:
+                raise TypeError("Element: 'apertureX' property must be a number")
+            if isinstance(aperture[1], (int, float)):
+                self.apertureY = float(aperture[1])
+            else:
+                raise TypeError("Element: 'apertureY' property must be a number")
 
+        elif isinstance(aperture, (int, float)):
+            self.apertureX = aperture
+            self.apertureY = aperture
+
+        else:
+            raise TypeError("Element: 'aperture' property must be a number")
 
     @property
     def apertureX(self):
@@ -122,7 +130,7 @@ class BaseElement(object):
     @apertureX.setter
     def apertureX(self, apertureX):
         if not isinstance(apertureX, (int, float)):
-            raise TypeError("BaseElement: 'apertureX' property must be a number")
+            raise TypeError("Element: 'apertureX' property must be a number")
         self._apertureX = apertureX
 
 
@@ -133,40 +141,9 @@ class BaseElement(object):
     @apertureY.setter
     def apertureY(self, apertureY):
         if not isinstance(apertureY, (int, float)):
-            raise TypeError("BaseElement: 'apertureY' property must be a number")
+            raise TypeError("Element: 'apertureY' property must be a number")
         self._apertureY = apertureY
 
-
-    @property
-    def desc(self):
-        return self._desc
-
-    @desc.setter
-    def desc(self, desc):
-        if not isinstance(desc, basestring):
-            raise TypeError("BaseElement: 'desc' property must be a string")
-        self._desc = desc
-
-
-    def __str__(self):
-        s = "{{ desc:'{elem.desc}', z:{elem.z}, length:{elem.length}, aperture:{elem.aperture}, channels:{elem.channels} }}"
-        return type(self).__name__ + s.format(elem=self)
-
-
-
-class NamedElement(BaseElement):
-    """
-    NamedElement is an accelerator element with unique name.
-
-    :param float z: Position of this accelerator element
-    :param float length: Length of accelerator element
-    :param float aperture: Minimum size of accelerator element
-    :param str name: Name of accelerator element
-    :param str desc: Description of accelerator element
-    """
-    def __init__(self, z, length, aperture, name, desc=""):
-        super(NamedElement, self).__init__(z, length, aperture, desc=desc)
-        self.name = name
 
     @property
     def name(self):
@@ -175,92 +152,23 @@ class NamedElement(BaseElement):
     @name.setter
     def name(self, name):
         if not isinstance(name, basestring):
-            raise TypeError("NamedElement: 'name' property must be a string")
+            raise TypeError("Element: 'name' property must be a string")
         if len(name) == 0:
-            raise ValueError("NamedElement: 'name' property must not be empty")
+            raise ValueError("Element: 'name' property must not be empty")
         self._name = name
 
 
+    def __getattr__(self, name):
+        return self.meta.get(name, "")
+
+
     def __str__(self):
-        s = "{{ name:'{elem.name}', desc:'{elem.desc}', z:{elem.z}, length:{elem.length}, aperture:{elem.aperture}, channels:{elem.channels} }}"
+        s = "{{ name:'{elem.name}', z:{elem.z}, length:{elem.length}, aperture:{elem.aperture}, meta={elem.meta}, fields={elem.fields} }}"
         return type(self).__name__ + s.format(elem=self)
 
 
 
-class Element(NamedElement):
-    """
-    Element is an accelerator element with classified by system, subsystem, device and instance.
-
-    :param float z: Position of this accelerator element
-    :param float length: Length of this accelerator element
-    :param float aperture: Minimum size of this accelerator element
-    :param str name: Name of this accelerator element
-    :param str desc: Description of this accelerator element
-    :param str system: System of this accelerator element
-    :param str subsystem: Subsystem of this accelerator element
-    :param str device: Device of this accelerator element
-    :param str inst: Instance of this accelerator element
-    """
-    def __init__(self, z, length, aperture, name, desc="", system="", subsystem="", device="", dtype="", inst=""):
-        super(Element, self).__init__(z, length, aperture, name, desc=desc)
-        self.system = system
-        self.subsystem = subsystem
-        self.device = device
-        self.dtype = dtype
-        self.inst = inst
-
-    @property
-    def system(self):
-        return self._system
-
-    @system.setter
-    def system(self, system):
-        if not isinstance(system, basestring):
-            raise TypeError("Element: 'system' property must be a string")
-        self._system = system
-
-
-    @property
-    def subsystem(self):
-        return self._subsystem
-
-    @subsystem.setter
-    def subsystem(self, subsystem):
-        if not isinstance(subsystem, basestring):
-            raise TypeError("Element: 'subsystem' property must be a string")
-        self._subsystem = subsystem
-
-
-    @property
-    def device(self):
-        return self._device
-
-    @device.setter
-    def device(self, device):
-        if not isinstance(device, basestring):
-            raise TypeError("Element: 'device' property must be a string")
-        self._device = device
-
-
-    @property
-    def dtype(self):
-        return self._dtype
-
-    @dtype.setter
-    def dtype(self, dtype):
-        if not isinstance(dtype, basestring):
-            raise TypeError("Element: 'dtype' property must be a string")
-        self._dtype = dtype
-
-
-    def __str__(self):
-        s = "{{ name:'{elem.name}', desc:'{elem.desc}', z:{elem.z}, length:{elem.length}, aperture:{elem.aperture}, system:'{elem.system}', " + \
-                "subsystem:'{elem.subsystem}', device:'{elem.device}', dtype:'{elem.dtype}', channels:{elem.channels} }}"
-        return type(self).__name__ + s.format(elem=self)
-
-
-
-class SeqElement(NamedElement):
+class SeqElement(Element):
     """
     SeqElement is a composite accelerator element containing a sequence of elements.
 
@@ -268,8 +176,8 @@ class SeqElement(NamedElement):
     :param str desc: Description of this accelerator element
     :param list elements: List of elements contained by this sequence.
     """
-    def __init__(self, name="", desc="", elements=None):
-        super(SeqElement, self).__init__(None, None, None, name, desc)
+    def __init__(self, name, elements=None, desc="sequence", **meta):
+        super(SeqElement, self).__init__(None, None, None, name, desc=desc, **meta)
         if elements == None:
             self.elements = []
         else:
@@ -308,6 +216,16 @@ class SeqElement(NamedElement):
     def length(self, length):
         if length != None:
             raise NotImplementedError("SeqElement: Setting length not implemented")
+
+
+    @property
+    def aperture(self):
+        return min(self.apertureX, self.apertureY)
+
+    @aperture.setter
+    def aperture(self, aperture):
+        if aperture != None:
+            raise NotImplementedError("SeqElement: Setting aperture not implemented")
 
 
     @property
@@ -398,11 +316,11 @@ class _SeqElementIterator(object):
                 del self._iterators[-1]
                 continue
 
-            if self._start != None and isinstance(elem, NamedElement):
+            if self._start != None and isinstance(elem, Element):
                 if self._start == elem.name:
                     self._start = None
 
-            if self._end != None and isinstance(elem, NamedElement):
+            if self._end != None and isinstance(elem, Element):
                 if self._end == elem.name:
                     self._iterators = []
                     self._end = None
@@ -420,30 +338,37 @@ class _SeqElementIterator(object):
 
 # Passive Elements
 
-class DriftElement(BaseElement):
+class DriftElement(Element):
     """
     DriftElement represents a drift tube, drift space, bellows or other passive element.
     """
-    def __init__(self, z, length, aperture, desc="drift"):
-        super(DriftElement, self).__init__(z, length, aperture, desc=desc)
+
+    ETYPE="DRIFT"
+
+    def __init__(self, z, length, aperture, name="DRIFT", desc="drift", **meta):
+        super(DriftElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
 
 
 class ValveElement(Element):
     """
     ValveElement represents a vaccuum valve or other similar valve.
     """
-    def __init__(self, z, length, aperture, name, desc="valve", system="", subsystem="", device="", dtype="", inst=""):
-        super(ValveElement, self).__init__(z, length, aperture, name, desc=desc, system=system,
-                                            subsystem=subsystem, device=device, dtype=dtype, inst=inst)
+
+    ETYPE="VALVE"
+
+    def __init__(self, z, length, aperture, name, desc="valve", **meta):
+        super(ValveElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
 
 
 class PortElement(Element):
     """
     PortElement represents a attachment point for pump or other device.
     """
-    def __init__(self, z, length, aperture, name, desc="port", system="", subsystem="", device="", dtype="", inst=""):
-        super(PortElement, self).__init__(z, length, aperture, name, desc=desc, system=system,
-                                            subsystem=subsystem, device=device, dtype=dtype, inst=inst)
+
+    ETYPE="PORT"
+
+    def __init__(self, z, length, aperture, name, desc="port", **meta):
+        super(PortElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
 
 
 
@@ -453,54 +378,73 @@ class BLMElement(Element):
     """
     BLMElement represents Beam Loss Monitor diagnostic device.
     """
-    def __init__(self, z, length, aperture, name, desc="beam loss monitor", system="", subsystem="", device="", dtype="", inst=""):
-        super(BLMElement, self).__init__(z, length, aperture, name, desc=desc, system=system,
-                                            subsystem=subsystem, device=device, dtype=dtype, inst=inst)
+
+    ETYPE="BLM"
+
+    def __init__(self, z, length, aperture, name, desc="beam loss monitor", **meta):
+        super(BLMElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
 
 
 class BPMElement(Element):
     """
     BPMElement represents Beam Position Monitor diagnostic device.
     """
-    def __init__(self, z, length, aperture, name, desc="beam positon monitor", system="", subsystem="", device="", dtype="", inst=""):
-        super(BPMElement,self).__init__(z, length, aperture, name, desc=desc, system=system,
-                                            subsystem=subsystem, device=device, dtype=dtype, inst=inst)
+
+    ETYPE="BPM"
+
+    def __init__(self, z, length, aperture, name, desc="beam positon monitor", **meta):
+        super(BPMElement,self).__init__(z, length, aperture, name, desc=desc, **meta)
         self.channels.hposition_read = None
         self.channels.vposition_read = None
         self.channels.phase_read = None
         self.channels.energy_read = None
+        self.fields.x = "X"
+        self.fields.y = "Y"
+        self.fields.phase = "PHA"
+        self.fields.energy = "ENG"
 
 
 class BCMElement(Element):
     """
     BCMElement represents Beam Current Monitor diagnostic device.
     """
-    def __init__(self, z, length, aperture, name, desc="beam current monitor", system="", subsystem="", device="", dtype="", inst=""):
-        super(BCMElement,self).__init__(z, length, aperture, name, desc=desc, system=system,
-                                            subsystem=subsystem, device=device, dtype=dtype, inst=inst)
+
+    ETYPE="BCM"
+
+    def __init__(self, z, length, aperture, name, desc="beam current monitor", **meta):
+        super(BCMElement,self).__init__(z, length, aperture, name, desc=desc, **meta)
         self.channels.current = None
+        self.fields.current = "I"
 
 
 class BLElement(Element):
     """
     BLElement represents Bunch Length Monitor diagnostic device.
     """
-    def __init__(self, z, length, aperture, name, desc="bunch length monitor", system="", subsystem="", device="", dtype="", inst=""):
-        super(BLElement, self).__init__(z, length, aperture, name, desc=desc, system=system,
-                                             subsystem=subsystem, device=device, dtype=dtype, inst="")
+
+    ETYPE="BL"
+
+    def __init__(self, z, length, aperture, name, desc="bunch length monitor", **meta):
+        super(BLElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
 
 
 class PMElement(Element):
     """
     PMElement represents Beam Profile Monitor diagnostic device.
     """
-    def __init__(self, z, length, aperture, name, desc="beam profile monitor", system="", subsystem="", device="", dtype="", inst=""):
-        super(PMElement, self).__init__(z, length, aperture, name, desc=desc, system=system,
-                                             subsystem=subsystem, device=device, dtype=dtype, inst=inst)
+
+    ETYPE="PM"
+
+    def __init__(self, z, length, aperture, name, desc="beam profile monitor", **meta):
+        super(PMElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
         self.channels.hposition_read = None
         self.channels.vposition_read = None
         self.channels.hsize_read = None
         self.channels.vsize_read = None
+        self.fields.x = "X"
+        self.fields.y = "Y"
+        self.fields.xrms = "XRMS"
+        self.fields.yrms = "YRMS"
 
 
 
@@ -511,113 +455,130 @@ class SolElement(Element):
     """
     SolenoidElement represents a solenoid magnet.
     """
-    def __init__(self, z, length, aperture, name, desc="solenoid", system="", subsystem="", device="", dtype="", inst=""):
-        super(SolElement, self).__init__(z, length, aperture, name, desc=desc, system=system,
-                                                subsystem=subsystem, device=device, dtype=dtype, inst=inst)
+
+    ETYPE="SOL"
+
+    def __init__(self, z, length, aperture, name, desc="solenoid", **meta):
+        super(SolElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
         self.channels.field_cset = "FIELD_CSET"
         self.channels.field_rset = "FIELD_RSET"
         self.channels.field_read = "FIELD_READ"
+        self.fields.field = "B"
 
 
 
-class SolCorrElement(SolElement):
+class SolCorElement(SolElement):
     """
     SolenoidElement represents a solenoid magnet with correctors
     """
-    def __init__(self, z, length, aperture, name, desc="solenoid w correctors", system="", subsystem="", device="", dtype="", inst=""):
-        super(SolCorrElement, self).__init__(z, length, aperture, name, desc=desc, system=system,
-                                                subsystem=subsystem, device=device, dtype=dtype, inst=inst)
+
+    ETYPE="SOLCOR"
+
+    def __init__(self, z, length, aperture, name, desc="solenoid w correctors", **meta):
+        super(SolCorElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
         self.channels.hkick_cset = "HKICK_CSET"
         self.channels.hkick_rset = "HKICK_RSET"
         self.channels.hkick_read = "HKICK_READ"
         self.channels.vkick_cset = "VKICK_CSET"
         self.channels.vkick_rset = "VKICK_RSET"
         self.channels.vkick_read = "VKICK_READ"
+        self.h = None
+        self.v = None
+
 
 class BendElement(Element):
     """
     BendElement represents a bending (dipole) magnet.
     """
-    def __init__(self, z, length, aperture, name, desc="bend magnet", system="", subsystem="", device="", dtype="", inst=""):
-        super(BendElement, self).__init__(z, length, aperture, name, desc=desc, system=system,
-                                                subsystem=subsystem, device=device, dtype=dtype, inst=inst)
+
+    ETYPE="BEND"
+
+    def __init__(self, z, length, aperture, name, desc="bend magnet", **meta):
+        super(BendElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
         self.angle = 0.0
         self.entrAngle = 0.0
         self.exitAngle = 0.0
         self.channels.field_cset = "FIELD_CSET"
         self.channels.field_rset = "FIELD_RSET"
         self.channels.field_read = "FIELD_READ"
-
-    @property
-    def angle(self):
-        return self._angle
-
-    @angle.setter
-    def angle(self, angle):
-        if not isinstance(angle, (int, float)):
-            raise TypeError("CavityElement: 'angle' property must be type a number")
-        self._angle = angle
+        self.fields.field = "B"
+        self.fields.angle = "ANG"
+        self.fields.exitAngle = "EXTANG"
+        self.fields.entrAngle = "ENTANG"
 
 
-    @property
-    def entrAngle(self):
-        return self._entrAngle
-
-    @entrAngle.setter
-    def entrAngle(self, entrAngle):
-        if not isinstance(entrAngle, (int, float)):
-            raise TypeError("CavityElement: 'entrAngle' property must be type a number")
-        self._entrAngle = entrAngle
-
-
-    @property
-    def exitAngle(self):
-        return self._exitAngle
-
-    @exitAngle.setter
-    def exitAngle(self, exitAngle):
-        if not isinstance(exitAngle, (int, float)):
-            raise TypeError("CavityElement: 'exitAngle' property must be type a number")
-        self._exitAngle = exitAngle
-
-
-class CorrElement(Element):
+class HCorElement(Element):
     """
-    CorrElement represents a corrector (dipole) magnet.
+    HCorElement represents a horizontal corrector magnet or coil.
     """
-    def __init__(self, z, length, aperture, name, desc="corrector magnet", system="", subsystem="", device="", dtype="", inst=""):
-        super(CorrElement, self).__init__(z, length, aperture, name, desc=desc, system=system,
-                                                subsystem=subsystem, device=device, dtype=dtype, inst=inst)
+
+    ETYPE="HCOR"
+
+    def __init__(self, z, length, aperture, name, desc="horiz. corrector magnet", **meta):
+        super(HCorElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
+        self.fields.angle = "ANG"
+
+
+class VCorElement(Element):
+    """
+    VCorElement represents a vertical corrector magnet or coil.
+    """
+
+    ETYPE="VCOR"
+
+    def __init__(self, z, length, aperture, name, desc="vert. corrector magnet", **meta):
+        super(VCorElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
+        self.fields.angle = "ANG"
+
+
+class CorElement(Element):
+    """
+    CorElement represents an element with horizontal and vertical corrector elements.
+    """
+
+    ETYPE="COR"
+
+    def __init__(self, z, length, aperture, name, desc="corrector magnet", **meta):
+        super(CorElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
         self.channels.hkick_cset = "HKICK_CSET"
         self.channels.hkick_rset = "HKICK_RSET"
         self.channels.hkick_read = "HKICK_READ"
         self.channels.vkick_cset = "VKICK_CSET"
         self.channels.vkick_rset = "VKICK_RSET"
         self.channels.vkick_read = "VKICK_READ"
+        self.h = None
+        self.v = None
 
 
 class QuadElement(Element):
     """
     QuadElement represents a quadrupole magnet.
     """
-    def __init__(self, z, length, aperture, name, desc="quadrupole magnet", system="", subsystem="", device="", dtype="", inst=""):
-        super(QuadElement, self).__init__(z, length, aperture, name, desc=desc, system=system,
-                                                subsystem=subsystem, device=device, dtype=dtype, inst=inst)
+
+    ETYPE="QUAD"
+
+    def __init__(self, z, length, aperture, name, desc="quadrupole magnet", **meta):
+        super(QuadElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
         self.channels.gradient_cset = "GRADIENT_CSET"
         self.channels.gradient_rset = "GRADIENT_RSET"
         self.channels.gradient_read = "GRADIENT_READ"
+        self.fields.gradient = "GRAD"
 
 
-class HexElement(Element):
+class SextElement(Element):
     """
-    HexElement represents a hexapole magnet.
+    SectElement represents a sextapole magnet.
     """
-    def __init__(self, z, length, aperture, name, desc="hexapole magnet", system="", subsystem="", device="", dtype="", inst=""):
-        super(HexElement, self).__init__(z, length, aperture, name, desc=desc, system=system,
-                                                subsystem=subsystem, device=device, dtype=dtype, inst=inst)
+
+    ETYPE="SEXT"
+
+    def __init__(self, z, length, aperture, name, desc="hexapole magnet", **meta):
+        super(SextElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
         self.channels.field_read = "FIELD_READ"
         self.channels.field_cset = "FIELD_CSET"
         self.channels.field_rset = "FIELD_RSET"
+        self.fields.field = "B"
+
 
 # RF Elements
 
@@ -625,9 +586,11 @@ class CavityElement(Element):
     """
     CavityElement represents a RF cavity.
     """
-    def __init__(self, z, length, aperture, name, desc="cavity", system="", subsystem="", device="", dtype="", inst=""):
-        super(CavityElement, self).__init__(z, length, aperture, name, desc=desc, system=system,
-                                                subsystem=subsystem, device=device, dtype=dtype, inst=inst)
+
+    ETYPE="CAV"
+
+    def __init__(self, z, length, aperture, name, desc="cavity", **meta):
+        super(CavityElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
         self.beta = 0.0
         self.voltage = 0.0
         self.frequency = 0.0
@@ -637,50 +600,23 @@ class CavityElement(Element):
         self.channels.amplitude_cset = "AMPLITUDE_CSET"
         self.channels.amplitude_rset = "AMPLITUDE_RSET"
         self.channels.amplitude_read = "AMPLITUDE_READ"
+        self.fields.phase = "PHA"
+        self.fields.amplitude = "AMP"
+        self.fields.frequency = "FREQ"
 
-
-    @property
-    def beta(self):
-        return self._beta
-
-    @beta.setter
-    def beta(self, beta):
-        if not isinstance(beta, (int, float)):
-            raise TypeError("CavityElement: 'beta' property must be type a number")
-        self._beta = beta
-
-
-    @property
-    def voltage(self):
-        return self._voltage
-
-    @voltage.setter
-    def voltage(self, voltage):
-        if not isinstance(voltage, (int, float)):
-            raise TypeError("CavityElement: 'voltage' property must be type a number")
-        self._voltage = voltage
-
-
-    @property
-    def frequency(self):
-        return self._frequency
-
-    @frequency.setter
-    def frequency(self, frequency):
-        if not isinstance(frequency, (int, float)):
-            raise TypeError("CavityElement: 'frequency' property must be type a number")
-        self._frequency = frequency
 
 
 # Charge Stripper Elements
 
-class ChgStripElement(Element):
+class StripElement(Element):
     """
-    ChgStripElement represents a charge stripper.
+    StripElement represents a charge stripper.
     """
-    def __init__(self, z, length, aperture, name, desc="charge stripper", system="", subsystem="", device="", dtype="", inst=""):
-        super(ChgStripElement, self).__init__(z, length, aperture, name, desc=desc, system=system,
-                                                subsystem=subsystem, device=device, dtype=dtype, inst=inst)
+
+    ETYPE="STRIP"
+
+    def __init__(self, z, length, aperture, name, desc="charge stripper", **meta):
+        super(StripElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
 
 
 # Accelerator Element

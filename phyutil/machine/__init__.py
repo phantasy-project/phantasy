@@ -29,7 +29,8 @@ import shutil
 import atexit
 
 import frib
-from frib.layout.fribxlf import build_layout as fribxlf_build_layout;
+#from frib.layout.fribxlf import build_layout as fribxlf_build_layout;
+from ..phylib.layout import build_layout
 
 from ..phylib.cfg import Configuration
 from ..phylib.lattice import Lattice
@@ -213,7 +214,7 @@ def load(machine, submachine = "*", **kwargs):
         if MODELDATA_DIR is not None:
             # avoid '~' for use home directory
             MODELDATA_DIR = os.path.expanduser(MODELDATA_DIR)
-        
+
         config_file = d_msect.get("config_file", None)
         if config_file is not None:
             if not os.path.isabs(config_file):
@@ -222,10 +223,13 @@ def load(machine, submachine = "*", **kwargs):
         else:
             raise RuntimeError("Lattice configuration for '%s' not specified" % (msect,))
 
-        layout = createLayout(msect, config)
-
-        layout_start = d_msect.get("layout_start", None)
-        layout_end = d_msect.get("layout_end", None)
+        layout_file = d_msect.get("layout_file", None)
+        if layout_file is not None:
+            if not os.path.isabs(layout_file):
+                layout_file = os.path.join(machdir, layout_file)
+            layout = build_layout(layoutPath=layout_file)
+        else:
+            raise RuntimeError("Layout for '%s' not specified" % (msect,))
 
         accstruct = d_msect.get("cfs_url", None)
         # get machine type, default is a linear machine
@@ -253,8 +257,7 @@ def load(machine, submachine = "*", **kwargs):
             cfa.renameProperty(k, v)
                 
         lat = createLattice(msect, cfa.results, acctag, src=cfa.source, mtype=machinetype,
-                            simulation=SIMULATION_CODE, layout=layout, config=config,
-                            start=layout_start, end=layout_end)
+                            simulation=SIMULATION_CODE, layout=layout, config=config)
         
 #         if IMPACT_ELEMENT_MAP is not None:
 #             lat.createLatticeModelMap(IMPACT_ELEMENT_MAP)
@@ -539,22 +542,6 @@ def findCfaConfig(srcname, machine, submachines):
             machine, srcname))
 
     return cfa
-
-
-def createLayout(msect, config):
-    """
-    """
-
-    if not config.has_default("layout_type"):
-        raise RuntimeError("createLayout: Layout type for '%s' not specified." % (msect,))
-
-    layout_type = config.get_default("layout_type")
-    layout_type = layout_type.strip().upper()
-
-    if layout_type == "XLF":
-        return fribxlf_build_layout(config=config)
-
-    raise RuntimeError("createLayout: Layout type, '%s', not supported." % (layout_type,))
 
 
 def createLattice(latname, pvrec, systag, src = 'channelfinder',

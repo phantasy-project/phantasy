@@ -48,6 +48,10 @@ def main():
         import cfutil_export
         return cfutil_export.main()
 
+    elif cmd == "frib-layout":
+        from phyutil.phytool import frib_layout
+        return frib_layout.main()
+
     elif cmd == "help":
         return print_help()
 
@@ -86,6 +90,10 @@ def print_help():
     elif cmd == "cfutil-export":
         import cfutil_export
         cfutil_export.print_help()
+
+    elif cmd == "frib-layout":
+        from phyutil.phytool import frib_layout
+        frib_layout.print_help()
 
     else:
         print("No help available for command: {}".format(cmd), file=sys.stderr)

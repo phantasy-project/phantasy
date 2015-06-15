@@ -17,16 +17,18 @@ from collections import OrderedDict
 
 from ....phylib import cfg
 
-from ....phylib.layout.accel import SeqElement, CONFIG_MACHINE 
-from ....phylib.layout.accel import CavityElement, SolCorrElement, CorrElement
-from ....phylib.layout.accel import QuadElement, BendElement, HexElement, ChgStripElement
-from ....phylib.layout.accel import BPMElement, PMElement, BLElement, BCMElement, BLMElement 
+from ....phylib.layout.accel import SeqElement
+from ....phylib.layout.accel import CavityElement, SolCorElement, CorElement
+from ....phylib.layout.accel import QuadElement, BendElement, SextElement, StripElement
+from ....phylib.layout.accel import BPMElement, PMElement, BLElement, BCMElement, BLMElement
 from ....phylib.layout.accel import ValveElement, PortElement, DriftElement
 
 from ....phylib.lattice.impact import LatticeFactory, OUTPUT_MODE_DIAG
 
 
 # configuration options
+
+CONFIG_MACHINE = "machine"
 
 CONFIG_IMPACT_EXE_FILE = "impact_exe_file"
 
@@ -264,69 +266,69 @@ class VirtualAcceleratorFactory(object):
             if isinstance(elem, CavityElement):
                 chans = elem.channels
                 va.append_rw(chans.phase_cset, chans.phase_rset, chans.phase_read, 
-                             name="Cavity Phase", egu="degree")
+                             (elem.name, elem.fields.phase), desc="Cavity Phase", egu="degree")
                 va.append_rw(chans.amplitude_cset, chans.amplitude_rset, chans.amplitude_read, 
-                             name="Cavity Amplitude", egu="%")
+                             (elem.name, elem.fields.amplitude), desc="Cavity Amplitude", egu="%")
                 va.append_elem(elem)
 
-            elif isinstance(elem, SolCorrElement):
+            elif isinstance(elem, SolCorElement):
                 chans = elem.channels
                 va.append_rw(chans.field_cset, chans.field_rset, chans.field_read, 
-                             name="Solenoid Field", egu="T", drvratio=0.10)
+                             (elem.name, elem.fields.field), desc="Solenoid Field", egu="T", drvratio=0.10)
                 va.append_rw(chans.hkick_cset, chans.hkick_rset, chans.hkick_read, 
-                             name="Horizontal Corrector", egu="radian", drvabs=0.001)
+                             (elem.h.name, elem.h.fields.angle), desc="Horizontal Corrector", egu="radian", drvabs=0.001)
                 va.append_rw(chans.vkick_cset, chans.vkick_rset, chans.vkick_read, 
-                             name="Vertical Corrector", egu="radian", drvabs=0.001)
+                             (elem.v.name, elem.v.fields.angle), desc="Vertical Corrector", egu="radian", drvabs=0.001)
                 va.append_elem(elem)
 
-            elif isinstance(elem, CorrElement):
+            elif isinstance(elem, CorElement):
                 chans = elem.channels
                 va.append_rw(chans.hkick_cset, chans.hkick_rset, chans.hkick_read, 
-                             name="Horizontal Corrector", egu="radian", drvabs=0.001)
+                             (elem.h.name, elem.h.fields.angle), desc="Horizontal Corrector", egu="radian", drvabs=0.001)
                 va.append_rw(chans.vkick_cset, chans.vkick_rset, chans.vkick_read, 
-                             name="Vertical Corrector", egu="radian", drvabs=0.001)
+                             (elem.v.name, elem.v.fields.angle), desc="Vertical Corrector", egu="radian", drvabs=0.001)
                 va.append_elem(elem)
 
             elif isinstance(elem, BendElement):
                 chans = elem.channels
                 va.append_rw(chans.field_cset, chans.field_rset, chans.field_read, 
-                             name="Bend Relative Field", egu="none", drvratio=0.10)
+                             (elem.name, elem.fields.field), desc="Bend Relative Field", egu="none", drvratio=0.10)
                 va.append_elem(elem)
 
             elif isinstance(elem, QuadElement):
                 chans = elem.channels
                 va.append_rw(chans.gradient_cset, chans.gradient_rset, chans.gradient_read, 
-                             name="Quadrupole Gradient", egu="T/m", drvratio=0.10)
+                             (elem.name, elem.fields.gradient), desc="Quadrupole Gradient", egu="T/m", drvratio=0.10)
                 va.append_elem(elem)
 
-            elif isinstance(elem, HexElement):
+            elif isinstance(elem, SextElement):
                 _LOGGER.warning("VirtAccelFactory: Hexapole magnet element support not implemented. Ignoring channels.")
                 #chans = elem.channels
-                #va.append_rw(chans.field_cset, chans.field_rset, chans.field_read, name="Hexapole Field", egu="T/m^2", drvrel=0.05)
+                #va.append_rw(chans.field_cset, chans.field_rset, chans.field_read, (elem.name, elem.fields.field), desc="Hexapole Field", egu="T/m^2", drvrel=0.05)
                 #va.append_elem(elem)
 
             elif isinstance(elem, BPMElement):
                 chans = elem.channels
-                va.append_ro(chans.hposition_read, name="Horizontal Position", egu="m")
-                va.append_ro(chans.vposition_read, name="Vertical Position", egu="m")
-                va.append_ro(chans.phase_read, name="Beam Phase", egu="degree")
-                va.append_ro(chans.energy_read, name="Beam Energy", egu="MeV")
+                va.append_ro(chans.hposition_read, desc="Horizontal Position", egu="m")
+                va.append_ro(chans.vposition_read, desc="Vertical Position", egu="m")
+                va.append_ro(chans.phase_read, desc="Beam Phase", egu="degree")
+                va.append_ro(chans.energy_read, desc="Beam Energy", egu="MeV")
 
                 va.append_elem(elem)
 
             elif isinstance(elem, PMElement):
                 chans = elem.channels
-                va.append_ro(chans.hposition_read, name="Horizontal Position", egu="m")
-                va.append_ro(chans.vposition_read, name="Vertical Position", egu="m")
-                va.append_ro(chans.hsize_read, name="Horizontal Size", egu="m")
-                va.append_ro(chans.vsize_read, name="Vertical Size", egu="m")
+                va.append_ro(chans.hposition_read, desc="Horizontal Position", egu="m")
+                va.append_ro(chans.vposition_read, desc="Vertical Position", egu="m")
+                va.append_ro(chans.hsize_read, desc="Horizontal Size", egu="m")
+                va.append_ro(chans.vsize_read, desc="Vertical Size", egu="m")
                 va.append_elem(elem)
 
             elif isinstance(elem, (BLMElement, BLElement, BCMElement)):
                 # ignore these diagnostic elements for now
                 pass
 
-            elif isinstance(elem, (ValveElement, PortElement, ChgStripElement)):
+            elif isinstance(elem, (ValveElement, PortElement, StripElement)):
                 # ignore these elements with no relevant channels
                 pass
 
@@ -369,6 +371,7 @@ class VirtualAccelerator(object):
         self._epicsdb = []
         self._csetmap = OrderedDict()
         self._elemmap = OrderedDict()
+        self._fieldmap = OrderedDict()
 
         self._noise = 0.001
 
@@ -416,7 +419,7 @@ class VirtualAccelerator(object):
         self._work_dir = work_dir
 
 
-    def append_rw(self, cset, rset, read, name="Element", egu="", prec=5, drvabs=None, drvrel=None, drvratio=None):
+    def append_rw(self, cset, rset, read, field, desc="Element", egu="", prec=5, drvabs=None, drvrel=None, drvratio=None):
         """Append a set of read/write channels to this virtual accelerator.
         The algorithm to set EPICS DRVH/DRVK is as:
             - if absolute limit (drvabs) is given, use absolute
@@ -427,7 +430,8 @@ class VirtualAccelerator(object):
         :param cset:        pv name of set point
         :param rset:        pv name of read back for set point
         :param read:        pv name of read back
-        :param name:        element description
+        :param field:       tuple with element name and field
+        :param desc:        element description
         :param egu:         EPICS record engineering unit
         :param prec:        EPICS display precision
         :param drvabs:      absolute driven limit with +-abs(drvabs)
@@ -437,7 +441,7 @@ class VirtualAccelerator(object):
         if self.is_started():
             raise RuntimeError("VirtualAccelerator: Cannot append RW channel when started")
 
-        val = self._settings[cset]["VAL"]
+        val = self._settings[field[0]][field[1]]
         drvh = None
         drvl = None
         if drvabs is not None:
@@ -451,7 +455,7 @@ class VirtualAccelerator(object):
             drvl = val - abs(val*drvratio)
 
         self._epicsdb.append(("ao", cset, OrderedDict([
-                ("DESC", "{} Set Point".format(name)),
+                ("DESC", "{} Set Point".format(desc)),
                 ("VAL", val),
                 ("DRVH", drvh),
                 ("DRVL", drvl),
@@ -460,30 +464,32 @@ class VirtualAccelerator(object):
             ])))
 
         self._epicsdb.append(("ai", rset, OrderedDict([
-                ("DESC", "{} Set Point Read Back".format(name)),
-                ("VAL", self._settings[rset]["VAL"]),
+                ("DESC", "{} Set Point Read Back".format(desc)),
+                ("VAL", val),
                 ("PREC", prec),
                 ("EGU", egu)
             ])))
 
         self._epicsdb.append(("ai", read, OrderedDict([
                 ("DESC", "{} Read Back"),
-                ("VAL", self._settings[read]["VAL"]),
+                ("VAL", val),
                 ("PREC", prec),
                 ("EGU", egu)
             ])))
 
         self._csetmap[cset] = (rset, read)
+        self._fieldmap[cset] = field
 
 
-    def append_ro(self, read, name="Element", egu="", prec=5):
+
+    def append_ro(self, read, desc="Element", egu="", prec=5):
         """Append a read-only channel to this virtual accelerator.
         """
         if self.is_started():
             raise RuntimeError("VirtualAccelerator: Cannot append RO channel when started")
 
         self._epicsdb.append(("ai", read, OrderedDict([
-                ("DESC", "{} Read Back".format(name)),
+                ("DESC", "{} Read Back".format(desc)),
                 ("VAL", "0.0"),
                 ("PREC", prec),
                 ("EGU", egu)
@@ -832,8 +838,9 @@ class VirtualAccelerator(object):
                                     type(elem).__name__)
 
             for name, value in self._csetmap.iteritems():
-                _LOGGER.debug("VirtualAccelerator: Update rset: %s to %s", value[1], settings[name]["VAL"])
-                catools.caput(value[1], settings[name]["VAL"])
+                name, field = self._fieldmap[name]
+                _LOGGER.debug("VirtualAccelerator: Update rset: %s to %s", value[1], settings[name][field])
+                catools.caput(value[1], settings[name][field])
 
             # Sleep for a fraction (10%) of the total execution time 
             # when one simulation costs more than 0.50 seconds.
@@ -854,7 +861,8 @@ class VirtualAccelerator(object):
         cset = self._csetmap.items()[idx]
         _LOGGER.debug("VirtualAccelerator: Update cset: '%s' to %s", cset[0], value)
         catools.caput(cset[1][0], value)
-        self._settings[cset[0]]["VAL"] = float(value)
+        name, field = self._fieldmap[cset[0]]
+        self._settings[name][field] = float(value)
 
 
 
@@ -866,10 +874,9 @@ class VirtualAccelerator(object):
 
 
     def _copy_settings_with_noise(self):
-        s = OrderedDict()
-        for name, value in self._settings.iteritems():
-            s[name] = OrderedDict(value)
-            s[name]["VAL"] = s[name]["VAL"] + s[name]["VAL"] * self._noise * 2.0*(random.random()-0.5)
+        s = OrderedDict(self._settings)
+        for name, field in self._fieldmap.values():
+            s[name][field] = s[name][field] + s[name][field] * self._noise * 2.0*(random.random()-0.5)
         return s
 
 

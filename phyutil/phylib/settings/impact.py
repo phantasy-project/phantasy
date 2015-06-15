@@ -13,10 +13,10 @@ from collections import OrderedDict
 
 from ..settings import Settings
 
-from ..layout.accel import SeqElement, CavityElement, SolCorrElement
-from ..layout.accel import CorrElement, BendElement, QuadElement, HexElement
+from ..layout.accel import SeqElement, CavityElement, SolCorElement
+from ..layout.accel import CorElement, BendElement, QuadElement, SextElement
 from ..layout.accel import BLMElement, BCMElement, BPMElement, BLElement, PMElement
-from ..layout.accel import ChgStripElement, DriftElement, ValveElement, PortElement
+from ..layout.accel import StripElement, DriftElement, ValveElement, PortElement
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -116,6 +116,7 @@ class SettingsFactory(object):
         for elem in self._accel.iter(self.start, self.end):
 
             if isinstance(elem, CavityElement):
+
                 (latidx, latelm) = lattice_elements.pop()
 
                 if latelm[3] not in [ "103", "110" ]:
@@ -126,16 +127,12 @@ class SettingsFactory(object):
 
                 _LOGGER.info("SettingsFactory: %s at line %s: %s", elem.name, latidx+1, latelm)
 
-                settings[elem.channels.phase_cset] = OrderedDict([ ("VAL", float(latelm[6])) ])
-                settings[elem.channels.phase_rset] = OrderedDict(settings[elem.channels.phase_cset])
-                settings[elem.channels.phase_read] = OrderedDict(settings[elem.channels.phase_cset])
+                settings[elem.name] = OrderedDict()
+                settings[elem.name][elem.fields.phase] = float(latelm[6])
+                settings[elem.name][elem.fields.amplitude] = float(latelm[4])
+                settings[elem.name][elem.fields.frequency] = float(latelm[5])
 
-                settings[elem.channels.amplitude_cset] = OrderedDict([ ("VAL", float(latelm[4])) ])
-                settings[elem.channels.amplitude_rset] = OrderedDict(settings[elem.channels.amplitude_cset])
-                settings[elem.channels.amplitude_read] = OrderedDict(settings[elem.channels.amplitude_cset])
-
-
-            elif isinstance(elem, SolCorrElement):
+            elif isinstance(elem, SolCorElement):
                 # Solenoid elements are normally split into a number of steps, add these steps to get the total length.
                 hkick = None
                 vkick = None
@@ -165,28 +162,23 @@ class SettingsFactory(object):
                 if not self._isclose(length, elem.length):
                     raise RuntimeError("SettingsFactory: {} at line {}: unexpected element length: {} ({})".format(elem.name, latidx+1, latelm[0], elem.length))
 
-                settings[elem.channels.field_cset] = OrderedDict([ ("VAL", float(latelm[4])) ])
-                settings[elem.channels.field_rset] = OrderedDict(settings[elem.channels.field_cset])
-                settings[elem.channels.field_read] = OrderedDict(settings[elem.channels.field_cset])
+                settings[elem.name ] = OrderedDict()
+                settings[elem.name ][elem.fields.field] = float(latelm[4])
 
                 if hkick != None:
-                    settings[elem.channels.hkick_cset] = OrderedDict([ ("VAL", hkick ) ])
+                    settings[elem.h.name] = OrderedDict([(elem.h.fields.angle, hkick)])
                 else:     
                     _LOGGER.warning("SettingsFactory: %s: Missing horizontal kick setting, assuming 0.0", elem.name)
-                    settings[elem.channels.hkick_cset] = OrderedDict([ ("VAL", 0.0 ) ])
-                settings[elem.channels.hkick_rset] = OrderedDict(settings[elem.channels.hkick_cset])
-                settings[elem.channels.hkick_read] = OrderedDict(settings[elem.channels.hkick_cset])
+                    settings[elem.h.name] = OrderedDict([(elem.h.fields.angle, 0.0)])
 
                 if vkick != None:
-                    settings[elem.channels.vkick_cset] = OrderedDict([ ("VAL", vkick) ])
+                    settings[elem.v.name] = OrderedDict([(elem.v.fields.angle, vkick)])
                 else:
                     _LOGGER.warning("SettingsFactory: %s: Missing vertical kick setting, assuming 0.0", elem.name)
-                    settings[elem.channels.vkick_cset] = OrderedDict([ ("VAL", 0.0) ])
-                settings[elem.channels.vkick_rset] = OrderedDict(settings[elem.channels.vkick_cset])
-                settings[elem.channels.vkick_read] = OrderedDict(settings[elem.channels.vkick_cset])
+                    settings[elem.v.name] = OrderedDict([(elem.v.fields.angle, 0.0)])
 
 
-            elif isinstance(elem, CorrElement):
+            elif isinstance(elem, CorElement):
                 hkick = None
                 vkick = None
                 count = 0
@@ -220,26 +212,24 @@ class SettingsFactory(object):
                 #    raise RuntimeError("SettingsFactory: {} at line {}: unexpected element length: {} ({})".format(elem.name, latidx+1, latelm[0], elem.length))
                 
                 if hkick != None:
-                    settings[elem.channels.hkick_cset] = OrderedDict([ ("VAL", hkick ) ])
+                    settings[elem.h.name] = OrderedDict([(elem.h.fields.angle, hkick)])
                 else:
                     _LOGGER.warning("SettingsFactory: %s: Missing horizontal kick setting, assuming 0.0", elem.name)
-                    settings[elem.channels.hkick_cset] = OrderedDict([ ("VAL", 0.0 ) ])
-                settings[elem.channels.hkick_rset] = OrderedDict(settings[elem.channels.hkick_cset])
-                settings[elem.channels.hkick_read] = OrderedDict(settings[elem.channels.hkick_cset])
+                    settings[elem.h.name] = OrderedDict([(elem.h.fields.angle, 0.0)])
 
                 if vkick != None:
-                    settings[elem.channels.vkick_cset] = OrderedDict([ ("VAL", vkick) ])
+                    settings[elem.v.name] = OrderedDict([(elem.v.fields.angle, vkick)])
                 else:
                     _LOGGER.warning("SettingsFactory: %s: Missing vertical kick setting, assuming 0.0", elem.name)
-                    settings[elem.channels.vkick_cset] = OrderedDict([ ("VAL", 0.0) ])
-                settings[elem.channels.vkick_rset] = OrderedDict(settings[elem.channels.vkick_cset])
-                settings[elem.channels.vkick_read] = OrderedDict(settings[elem.channels.vkick_cset])
+                    settings[elem.v.name] = OrderedDict([(elem.v.fields.angle, 0.0)])
 
 
             elif isinstance(elem, BendElement):
                 field = 0.0
                 angle = 0.0
                 length = 0.0
+                entrAngle = None
+                exitAngle = None
                 while (length < elem.length) and not self._isclose(length, elem.length):
                     (latidx, latelm) = lattice_elements.pop()
                     
@@ -249,20 +239,25 @@ class SettingsFactory(object):
                         field = float(latelm[5])
                         angle += float(latelm[4])
                         length += float(latelm[0])
+                        # get entrance angle from first element only
+                        if entrAngle is None:
+                            entrAngle = float(latelm[8])
                     else:
                         raise RuntimeError("SettingsFactory: {} at line {}: unexpected element found: {}".format(elem.name, latidx+1, latelm))
 
                     _LOGGER.info("SettingsFactory: %s at line %s: %s", elem.name, latidx+1, latelm)
 
-                if not self._isclose(angle, elem.angle):
-                    raise RuntimeError("SettingsFactory: {} at line {}: unexpected bend angle: {} ({})".format(elem.name, latidx+1, angle, elem.angle))
-                   
+                # get exit angle from last element only
+                exitAngle = float(latelm[9])
+
                 if not self._isclose(length, elem.length):
                     raise RuntimeError("SettingsFactory: {} at line {}: unexpected element length: {} ({})".format(elem.name, latidx+1, length, elem.length))
 
-                settings[elem.channels.field_cset] = OrderedDict([ ("VAL", field) ])
-                settings[elem.channels.field_rset] = OrderedDict(settings[elem.channels.field_cset])
-                settings[elem.channels.field_read] = OrderedDict(settings[elem.channels.field_cset])
+                settings[elem.name] = OrderedDict()
+                settings[elem.name][elem.fields.field] = field
+                settings[elem.name][elem.fields.angle] = angle
+                settings[elem.name][elem.fields.entrAngle] = entrAngle
+                settings[elem.name][elem.fields.exitAngle] = exitAngle
 
 
             elif isinstance(elem, QuadElement):
@@ -277,12 +272,10 @@ class SettingsFactory(object):
                     raise Exception("SettingsFactory: {} at line {}: unexpected element length: {} ({})".format(elem.name, latidx+1, latelm[0], elem.length))
 
                 # Both element type 1 and 5 have the quad field strength at index 4. No special logic required!
-                settings[elem.channels.gradient_cset] = OrderedDict([ ("VAL", float(latelm[4])) ])
-                settings[elem.channels.gradient_rset] = OrderedDict(settings[elem.channels.gradient_cset])
-                settings[elem.channels.gradient_read] = OrderedDict(settings[elem.channels.gradient_cset])
+                settings[elem.name] = OrderedDict([(elem.fields.gradient, float(latelm[4]))])
 
 
-            elif isinstance(elem, HexElement):
+            elif isinstance(elem, SextElement):
                 #(latidx, latelm) = next(lattice_element)
                 #
                 #if latelm[3] not in [ "5" ]:
@@ -293,14 +286,12 @@ class SettingsFactory(object):
                 #if not self._isclose(float(latelm[0]), elem.length):
                 #    raise Exception("SettingsFactory: {} at line {}: unexpected element length: {} ({})".format(elem.name, latidx+1, latelm[0], elem.length))
                 #
-                _LOGGER.warning("SettingsFactory: Hexapole magnet element support not implemented. Assume field setting 0.0 T/m^2.")
+                _LOGGER.warning("SettingsFactory: Sextapole magnet element support not implemented. Assume field setting 0.0 T/m^2.")
 
-                settings[elem.channels.field_cset] = OrderedDict([ ("VAL", 0.0) ])
-                settings[elem.channels.field_rset] = OrderedDict(settings[elem.channels.field_cset])
-                settings[elem.channels.field_read] = OrderedDict(settings[elem.channels.field_cset])
+                settings[elem.name] = OrderedDict([(elem.fields.field, 0.0)])
 
 
-            elif isinstance(elem, ChgStripElement):
+            elif isinstance(elem, StripElement):
                 (latidx, latelm) = lattice_elements.pop()
 
                 if latelm[3] != "-11":

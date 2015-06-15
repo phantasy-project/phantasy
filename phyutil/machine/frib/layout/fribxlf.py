@@ -14,22 +14,30 @@ from collections import OrderedDict
 
 from ....phylib import cfg
 
-from ....phylib.layout.accel import CONFIG_MACHINE, CONFIG_LENGTH
-from ....phylib.layout.accel import CONFIG_APERTURE, CONFIG_APERTURE_X, CONFIG_APERTURE_Y
-from ....phylib.layout.accel import CONFIG_CAV_BETA, CONFIG_CAV_VOLTAGE, CONFIG_CAV_FREQUENCY
-from ....phylib.layout.accel import CONFIG_BEND_ANGLE, CONFIG_BEND_ENTR_ANGLE, CONFIG_BEND_EXIT_ANGLE
-
-from ....phylib.layout.accel import Accelerator, SeqElement
-from ....phylib.layout.accel import CorrElement, BendElement, QuadElement, HexElement
+from ....phylib.layout.accel import SeqElement
+from ....phylib.layout.accel import HCorElement, VCorElement, CorElement
+from ....phylib.layout.accel import BendElement, QuadElement, SextElement
 from ....phylib.layout.accel import DriftElement, PortElement, ValveElement
-from ....phylib.layout.accel import ChgStripElement, CavityElement, SolCorrElement
+from ....phylib.layout.accel import StripElement, CavityElement, SolCorElement
 from ....phylib.layout.accel import BPMElement, BLMElement, BCMElement, PMElement, BLElement
+
+from ....phylib.layout.layout import Layout
 
 # configuration options
 
 CONFIG_XLF_DIAMETER = "xlf_diameter"
 
 CONFIG_XLF_DATA_FILE = "xlf_data_file"
+
+CONFIG_MACHINE = "machine"
+
+CONFIG_LENGTH = "length"
+
+CONFIG_APERTURE = "aperture"
+
+CONFIG_APERTURE_X = "aperture_x"
+
+CONFIG_APERTURE_Y = "aperture_y"
 
 
 # XLF parameters
@@ -98,7 +106,7 @@ class AccelFactory(object):
         if kwargs.get("config", None) is not None:
             self.config = kwargs.get("config")
         else:
-            self.config = cfg.config
+            self.config = cfg.Configuration()
 
         self.xlfpath = kwargs.get("xlfpath", None)
         self.machine = kwargs.get("machine", None)
@@ -147,60 +155,6 @@ class AccelFactory(object):
         if not isinstance(config, (cfg.Configuration)):
             raise TypeError("AccelFactory: 'config' property must be type Configuration")
         self._config = config
-
-
-    def _get_config_beta(self, dtype):
-        return self.config.getfloat(dtype, CONFIG_CAV_BETA)
-
-    def _has_config_beta(self, dtype):
-        return self.config.has_option(dtype, CONFIG_CAV_BETA)
-
-
-    def _get_config_voltage(self, dtype):
-        return self.config.getfloat(dtype, CONFIG_CAV_VOLTAGE)
-
-    def _has_config_voltage(self, dtype):
-        return self.config.has_option(dtype, CONFIG_CAV_VOLTAGE)
-
-
-    def _get_config_frequency(self, dtype):
-        return self.config.getfloat(dtype, CONFIG_CAV_FREQUENCY)
-
-    def _has_config_frequency(self, dtype):
-        return self.config.has_option(dtype, CONFIG_CAV_FREQUENCY)
-
-
-    def _get_config_bend_angle(self, elem):
-        if self.config.has_option(elem.name, CONFIG_BEND_ANGLE, False):
-            return self.config.getfloat(elem.name, CONFIG_BEND_ANGLE, False)
-        else:
-            return self.config.getfloat(elem.dtype, CONFIG_BEND_ANGLE, False)
-
-    def _has_config_bend_angle(self, elem):
-        return self.config.has_option(elem.name, CONFIG_BEND_ANGLE, False) \
-                or self.config.has_option(elem.dtype, CONFIG_BEND_ANGLE, False)
-
-
-    def _get_config_bend_entr_angle(self, elem):
-        if self.config.has_option(elem.name, CONFIG_BEND_ENTR_ANGLE, False):
-            return self.config.getfloat(elem.name, CONFIG_BEND_ENTR_ANGLE, False)
-        else:
-            return self.config.getfloat(elem.dtype, CONFIG_BEND_ENTR_ANGLE, False)
-
-    def _has_config_bend_entr_angle(self, elem):
-        return self.config.has_option(elem.name, CONFIG_BEND_ENTR_ANGLE, False) \
-                or self.config.has_option(elem.dtype, CONFIG_BEND_ENTR_ANGLE, False)
-
-
-    def _get_config_bend_exit_angle(self, elem):
-        if self.config.has_option(elem.name, CONFIG_BEND_EXIT_ANGLE, False):
-            return self.config.getfloat(elem.name, CONFIG_BEND_EXIT_ANGLE, False)
-        else:
-            return self.config.getfloat(elem.dtype, CONFIG_BEND_EXIT_ANGLE, False)
-
-    def _has_config_bend_exit_angle(self, elem):
-        return self.config.has_option(elem.name, CONFIG_BEND_EXIT_ANGLE, False) \
-                or self.config.has_option(elem.dtype, CONFIG_BEND_EXIT_ANGLE, False)
 
 
     def _get_config_length(self, dtype):
@@ -298,7 +252,7 @@ class AccelFactory(object):
             row = _LayoutRow(layout.row(ridx))
             if row.system == "LS1": break
 
-        accelerator = Accelerator(os.path.splitext(os.path.basename(xlfpath))[0], desc="FRIB Linear Accelerator")
+        accelerator = Layout(os.path.splitext(os.path.basename(xlfpath))[0], desc="FRIB Linear Accelerator")
 
         sequence = None
 
@@ -397,21 +351,6 @@ class AccelFactory(object):
                             get_prev_element().z += drift_delta
                             elem.length -= drift_delta * 2.0
 
-                        if self._has_config_beta(dtype):
-                            elem.beta = self._get_config_beta(dtype)
-                        else:
-                            raise RuntimeError("Cavity parameter 'beta' not found")
-
-                        if self._has_config_voltage(dtype):
-                            elem.voltage = self._get_config_voltage(dtype)
-                        else:
-                            raise RuntimeError("Cavity parameter 'voltage' not found")
-
-                        if self._has_config_frequency(dtype):
-                            elem.frequency = self._get_config_frequency(dtype)
-                        else:
-                            raise RuntimeError("Cavity parameter 'frequency' not found")
-
                         elem.channels.phase_cset = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:PHA_CSET".format(chanprefix, elem=elem)
                         elem.channels.phase_rset = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:PHA_RSET".format(chanprefix, elem=elem)
                         elem.channels.phase_read = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:PHA_RD".format(chanprefix, elem=elem)
@@ -432,7 +371,7 @@ class AccelFactory(object):
                         dtype = "SOL_{}".format(row.device_type)
                         inst = "D{:d}".format(int(row.position))
 
-                        elem = SolCorrElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
+                        elem = SolCorElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
                                                     system=row.system, subsystem=row.subsystem, device=row.device, dtype=dtype, inst=inst)
 
                         if self._has_config_length(dtype):
@@ -466,6 +405,12 @@ class AccelFactory(object):
                                                                                                 elem.system, elem.subsystem, "DCV", elem.z, "readset", "ANG", "VCOR")
                         elem.chanstore[elem.channels.vkick_read] = self._channel_data(machine, "{elem.system}_{elem.subsystem}:DCV_{elem.inst}".format(elem=elem),
                                                                                                 elem.system, elem.subsystem, "DCV", elem.z, "readback", "ANG", "VCOR")
+
+                        elem.h = HCorElement(elem.z, elem.length, elem.aperture, "{elem.system}_{elem.subsystem}:DCH_{elem.inst}".format(elem=elem),
+                                                   system=row.system, subsystem=row.subsystem, device="DCH", dtype=row.device_type, inst=inst)
+
+                        elem.v = VCorElement(elem.z, elem.length, elem.aperture, "{elem.system}_{elem.subsystem}:DCV_{elem.inst}".format(elem=elem),
+                                                   system=row.system, subsystem=row.subsystem, device="DCV", dtype=row.device_type, inst=inst)
 
                         subsequence.append(elem)
 
@@ -529,7 +474,7 @@ class AccelFactory(object):
 
                         inst = "D{:d}".format(int(row.position))
 
-                        elem = CorrElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
+                        elem = CorElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
                                                     system=row.system, subsystem=row.subsystem, device=row.device, dtype=row.device_type, inst=inst)
 
                         elem.channels.hkick_cset = "{}{elem.system}_{elem.subsystem}:DCH_{elem.inst}:ANG_CSET".format(chanprefix, elem=elem)
@@ -552,6 +497,12 @@ class AccelFactory(object):
                         elem.chanstore[elem.channels.vkick_read] = self._channel_data(machine, "{elem.system}_{elem.subsystem}:DCV_{elem.inst}".format(elem=elem),
                                                                                                 elem.system, elem.subsystem, "DCV", elem.z, "readback", "ANG", "VCOR")
 
+                        elem.h = HCorElement(elem.z, elem.length, elem.aperture, "{elem.system}_{elem.subsystem}:DCH_{elem.inst}".format(elem=elem),
+                                                   system=row.system, subsystem=row.subsystem, device="DCH", dtype=row.device_type, inst=inst)
+
+                        elem.v = VCorElement(elem.z, elem.length, elem.aperture, "{elem.system}_{elem.subsystem}:DCV_{elem.inst}".format(elem=elem),
+                                                   system=row.system, subsystem=row.subsystem, device="DCV", dtype=row.device_type, inst=inst)
+
                         subsequence.append(elem)
 
                     elif row.device in [ "DH" ]:
@@ -568,18 +519,6 @@ class AccelFactory(object):
                         self._apply_config(elem)
 
                         elem.angle = float(m.group(1))
-
-                        if self._has_config_bend_angle(elem):
-                            elem.angle = self._get_config_bend_angle(elem)
-                            _LOGGER.info("AccelFactory: %s: angle found in configuration: %s", elem.name, elem.angle)
-
-                        if self._has_config_bend_entr_angle(elem):
-                            elem.entrAngle = self._get_config_bend_entr_angle(elem)
-                            _LOGGER.info("AccelFactory: %s: entrance angle found in configuration: %s", elem.name, elem.entrAngle)
-
-                        if self._has_config_bend_exit_angle(elem):
-                            elem.exitAngle = self._get_config_bend_exit_angle(elem)
-                            _LOGGER.info("AccelFactory: %s: exit angle found in configuration: %s", elem.name, elem.exitAngle)
 
                         elem.channels.field_cset = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:B_CSET".format(chanprefix, elem=elem)
                         elem.channels.field_rset = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:B_RSET".format(chanprefix, elem=elem)
@@ -614,7 +553,7 @@ class AccelFactory(object):
 
                         inst = "D{:d}".format(int(row.position))
 
-                        elem = HexElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
+                        elem = SextElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
                                                    system=row.system, subsystem=row.subsystem, device=row.device, dtype=row.device_type, inst=inst)
 
                         elem.channels.field_cset = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}:B_CSET".format(chanprefix, elem=elem)
@@ -635,7 +574,7 @@ class AccelFactory(object):
                         subsequence.append(DriftElement(row.center_position, row.eff_length, row.diameter, desc=row.element_name))
 
                     elif row.device in [ "STRIP" ]:
-                        elem = get_prev_element((ChgStripElement))
+                        elem = get_prev_element((StripElement))
                         elem.z = row.center_position
                         elem.name = row.name
                         elem.desc = row.element_name
@@ -675,14 +614,14 @@ class AccelFactory(object):
                         if drift_delta != 0.0:
                             raise Exception("Unsupported drift delta on element: {}".format(row.element_name))
                         try:
-                            get_prev_element((ChgStripElement)).length += row.eff_length
+                            get_prev_element((StripElement)).length += row.eff_length
                         except:
-                            subsequence.append(ChgStripElement(row.center_position, row.eff_length, row.diameter, "CHARGE STRIPPER", desc=row.element_name))
+                            subsequence.append(StripElement(row.center_position, row.eff_length, row.diameter, "CHARGE STRIPPER", desc=row.element_name))
 
                     elif row.element_name == "lithium film stripper":
                         if drift_delta != 0.0:
                             raise Exception("Unsupported drift delta on element: {}".format(row.element_name))
-                        elem = get_prev_element((ChgStripElement))
+                        elem = get_prev_element((StripElement))
                         elem.z = row.center_position
                         elem.name = row.name
                         elem.desc = row.element_name
