@@ -15,6 +15,7 @@ The support commands are:
    impact-lattice   generate IMPACT lattice file (test.in)
    impact-vastart   start IMPACT virtual accelerator
    impact-settings  read settings from IMPACT lattice file (test.in)
+   frib-layout      generate layout file from FRIB Expanded Lattice File (XLF)
    help             show help information for a specified topic
 """
 
