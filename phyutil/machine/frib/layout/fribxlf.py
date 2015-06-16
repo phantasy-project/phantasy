@@ -406,10 +406,10 @@ class AccelFactory(object):
                         elem.chanstore[elem.channels.vkick_read] = self._channel_data(machine, "{elem.system}_{elem.subsystem}:DCV_{elem.inst}".format(elem=elem),
                                                                                                 elem.system, elem.subsystem, "DCV", elem.z, "readback", "ANG", "VCOR")
 
-                        elem.h = HCorElement(elem.z, elem.length, elem.aperture, "{elem.system}_{elem.subsystem}:DCH_{elem.inst}".format(elem=elem),
+                        elem.h = HCorElement(elem.z, 0.0, elem.aperture, "{elem.system}_{elem.subsystem}:DCH_{elem.inst}".format(elem=elem),
                                                    system=row.system, subsystem=row.subsystem, device="DCH", dtype=row.device_type, inst=inst)
 
-                        elem.v = VCorElement(elem.z, elem.length, elem.aperture, "{elem.system}_{elem.subsystem}:DCV_{elem.inst}".format(elem=elem),
+                        elem.v = VCorElement(elem.z, 0.0, elem.aperture, "{elem.system}_{elem.subsystem}:DCV_{elem.inst}".format(elem=elem),
                                                    system=row.system, subsystem=row.subsystem, device="DCV", dtype=row.device_type, inst=inst)
 
                         subsequence.append(elem)
@@ -497,10 +497,10 @@ class AccelFactory(object):
                         elem.chanstore[elem.channels.vkick_read] = self._channel_data(machine, "{elem.system}_{elem.subsystem}:DCV_{elem.inst}".format(elem=elem),
                                                                                                 elem.system, elem.subsystem, "DCV", elem.z, "readback", "ANG", "VCOR")
 
-                        elem.h = HCorElement(elem.z, elem.length, elem.aperture, "{elem.system}_{elem.subsystem}:DCH_{elem.inst}".format(elem=elem),
+                        elem.h = HCorElement(elem.z, 0.0, elem.aperture, "{elem.system}_{elem.subsystem}:DCH_{elem.inst}".format(elem=elem),
                                                    system=row.system, subsystem=row.subsystem, device="DCH", dtype=row.device_type, inst=inst)
 
-                        elem.v = VCorElement(elem.z, elem.length, elem.aperture, "{elem.system}_{elem.subsystem}:DCV_{elem.inst}".format(elem=elem),
+                        elem.v = VCorElement(elem.z, 0.0, elem.aperture, "{elem.system}_{elem.subsystem}:DCV_{elem.inst}".format(elem=elem),
                                                    system=row.system, subsystem=row.subsystem, device="DCV", dtype=row.device_type, inst=inst)
 
                         subsequence.append(elem)
