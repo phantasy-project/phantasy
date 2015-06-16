@@ -16,6 +16,7 @@ The support commands are:
    impact-vastart   start IMPACT virtual accelerator
    impact-settings  read settings from IMPACT lattice file (test.in)
    frib-layout      generate layout file from FRIB Expanded Lattice File (XLF)
+   frib-channels    generate a channels data file with FRIB naming conventions
    help             show help information for a specified topic
 """
 
@@ -52,6 +53,10 @@ def main():
     elif cmd == "frib-layout":
         from phyutil.phytool import frib_layout
         return frib_layout.main()
+
+    elif cmd == "frib-channels":
+        from phyutil.phytool import frib_channels
+        return frib_channels.main()
 
     elif cmd == "help":
         return print_help()
@@ -95,6 +100,10 @@ def print_help():
     elif cmd == "frib-layout":
         from phyutil.phytool import frib_layout
         frib_layout.print_help()
+
+    elif cmd == "frib-channels":
+        from phyutil.phytool import frib_channels
+        frib_channels.print_help()
 
     else:
         print("No help available for command: {}".format(cmd), file=sys.stderr)
