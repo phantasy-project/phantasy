@@ -133,6 +133,37 @@ def _findMachinePath(machine):
     _logger.warn("can not find machine dir")
     return None, ""
 
+
+def findMachineConfig(machine, **kwargs):
+    """Find the configuration (ini) file for the specified machine.
+
+       :param machine: name or absolute path of machine configuration
+       :param verbose: display more information (default: False)
+       :return: tuple of (config, machdir, machname)
+    """
+    verbose = kwargs.get('verbose', 0)
+
+    machdir, machname = _findMachinePath(machine)
+    if verbose:
+        print "loading machine data '%s: %s'" % (machname, machdir)
+
+    if machdir is None:
+        msg = "can not find machine data directory for '%s'" % machine
+        _logger.error(msg)
+        raise RuntimeError(msg)
+
+    _logger.info("importing '%s' from '%s'" % (machine, machdir))
+
+    try:
+        cfg = Configuration(os.path.join(machdir, "phyutil.ini"))
+        _logger.info("using config file: 'phyutil.ini'")
+    except:
+        raise RuntimeError("can not open '%s' to read configurations" %
+                (os.path.join(machdir, "phyutil.ini")))
+
+    return cfg, machdir, machname
+
+
 def load(machine, submachine = "*", **kwargs):
     """
     load submachine lattices in machine.
@@ -168,24 +199,7 @@ def load(machine, submachine = "*", **kwargs):
             return
 
     #importlib.import_module(machine, 'machines')
-    machdir, machname = _findMachinePath(machine)
-    if verbose:
-        print "loading machine data '%s: %s'" % (machname, machdir)
-
-    if machdir is None:
-        msg = "can not find machine data directory for '%s'" % machine
-        _logger.error(msg)
-        raise RuntimeError(msg)
-
-    _logger.info("importing '%s' from '%s'" % (machine, machdir))
-
-    cfg = ConfigParser.ConfigParser()
-    try:
-        cfg.readfp(open(os.path.join(machdir, "phyutil.ini"), 'r'))
-        _logger.info("using config file: 'phyutil.ini'")
-    except:
-        raise RuntimeError("can not open '%s' to read configurations" % (
-                os.path.join(machdir, "phyutil.ini")))
+    cfg, machdir, machname = findMachineConfig(machine, verbose=verbose)
 
     d_common = dict(cfg.items("COMMON"))
     # set proper output directory in the order of env > phyutil.ini > $HOME

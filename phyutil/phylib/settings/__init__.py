@@ -20,8 +20,11 @@ class Settings(OrderedDict):
        the addition of some utility functions for use within the
        phylib library.
     """
-    def __init__(self, *args, **kwargs):
-        super(Settings, self).__init__(*args, **kwargs)
+    def __init__(self, settingsPath=None):
+        super(Settings, self).__init__()
+        if settingsPath is not None:
+            with open(settingsPath, "r") as fp:
+                self.readfp(fp)
 
 
     def readfp(self, fp):

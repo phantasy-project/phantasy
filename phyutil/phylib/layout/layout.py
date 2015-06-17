@@ -49,12 +49,11 @@ _LOGGER = logging.getLogger(__name__)
 
 
 
-def build_layout(**kwargs):
+def build_layout(layoutPath=None, **kwargs):
     """Build the accelerator layout from a layout data file.
  
        :param layoutPath: path to layout data file
     """
-    layoutPath = kwargs.get("layoutPath", None)
 
     if layoutPath is None:
         raise RuntimeError("build_layout: layout data file not specified")

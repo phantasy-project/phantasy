@@ -8,14 +8,14 @@ __copyright__ = "Copyright (c) 2015, Facility for Rare Isotope Beams"
 
 __author__ = "Dylan Maxwell"
 
-import os.path, tempfile, random, shutil, numpy
-import subprocess, cothread, threading, logging, json, time
+import os.path, tempfile, random, shutil, numpy, re
+import subprocess, cothread, threading, logging, time
 
 from cothread import catools
 
 from collections import OrderedDict
 
-from ....phylib import cfg
+from ....phylib.cfg import Configuration
 
 from ....phylib.layout.accel import SeqElement
 from ....phylib.layout.accel import CavityElement, SolCorElement, CorElement
@@ -42,6 +42,10 @@ _TEMP_DIRECTORY_SUFFIX = "_va_impact"
 
 _DEFAULT_ERROR_VALUE = 0.0
 
+_VA_STATUS_GOOD = "OK"
+
+_VA_STATUS_BAD = "ERR"
+
 # global logger instance
 
 _LOGGER = logging.getLogger(__name__)
@@ -52,11 +56,12 @@ _VIRTUAL_ACCELERATOR = None
 
 
 
-def start(accel, settings=None, machine=None, start=None, end=None, data_dir=None, work_dir=None):
+def start(layout, **kwargs):
     """Start the global virtual accelerator.
 
+       :param layout: accelerator layout object
        :param settings: dictionary of machine settings
-       :param machine: identifier for this machine instance (ie V_1)
+       :param channels: list of channel tuples with (name, properties, tags)
        :param start: name of accelerator element to start simulation
        :param end: name of accelerator element to end simulation
        :param data_dir: path of directory containing IMPACT data files
@@ -66,7 +71,7 @@ def start(accel, settings=None, machine=None, start=None, end=None, data_dir=Non
 
     global _VIRTUAL_ACCELERATOR
     if _VIRTUAL_ACCELERATOR == None:
-        _VIRTUAL_ACCELERATOR = build(accel, settings, machine, start, end, data_dir, work_dir)
+        _VIRTUAL_ACCELERATOR = build_virtaccel(layout, **kwargs)
 
     if _VIRTUAL_ACCELERATOR.is_started():
         raise RuntimeError("Virtual Accelerator already started")
@@ -84,36 +89,19 @@ def stop():
     _VIRTUAL_ACCELERATOR.stop()
 
 
-def build(accel, settings=None, machine=None, start=None, end=None, data_dir=None, work_dir=None):
+def build_virtaccel(layout, **kwargs):
     """Convenience method to build a virtual accelerator.
 
+       :param layout: accelerator layout object
        :param settings: dictionary of machine settings
-       :param machine: identifier for this machine instance (ie V_1)
+       :param channels: list of channel tuples with (name, properties, tags)
        :param start: name of accelerator element to start simulation
        :param end: name of accelerator element to end simulation
        :param data_dir: path of directory containing IMPACT data files
        :param work_dir: path of directory for execution of IMPACT
        :return: VirtualAccelerator instance
     """
-    va_factory = VirtualAcceleratorFactory(accel)
-
-    if settings != None:
-        va_factory.settings = settings
-
-    if machine != None:
-        va_factory.machine = machine
-
-    if start != None:
-        va_factory.start = start
-
-    if end != None:
-        va_factory.end = end
-
-    if data_dir != None:
-        va_factory.data_dir = data_dir
-
-    if work_dir != None:
-        va_factory.work_dir = work_dir
+    va_factory = VirtualAcceleratorFactory(layout, **kwargs)
 
     return va_factory.build()
 
@@ -126,25 +114,26 @@ class VirtualAcceleratorFactory(object):
        exection.
     """
 
-    def __init__(self, accel):
-        self.accel = accel
-        self.settings = None
-        self.machine = None
-        self.start = None
-        self.end = None
-        self.data_dir = None
-        self.work_dir = None
+    def __init__(self, layout, **kwargs):
+        self.layout = layout
+        self.config = kwargs.get("config", None)
+        self.settings = kwargs.get("settings", None)
+        self.channels = kwargs.get("channels", None)
+        self.start = kwargs.get("start", None)
+        self.end = kwargs.get("end", None)
+        self.data_dir = kwargs.get("data_dir", None)
+        self.work_dir = kwargs.get("work_dir", None)
 
 
     @property
-    def accel(self):
-        return self._accel
+    def layout(self):
+        return self._layout
 
-    @accel.setter
-    def accel(self, accel):
-        if not isinstance(accel, SeqElement):
-            raise TypeError("VirtAccelFactory: 'accel' property much be type SeqElement")
-        self._accel = accel
+    @layout.setter
+    def layout(self, layout):
+        if not isinstance(layout, SeqElement):
+            raise TypeError("VirtAccelFactory: 'layout' property much be type SeqElement")
+        self._layout = layout
 
 
     @property
@@ -170,14 +159,36 @@ class VirtualAcceleratorFactory(object):
 
 
     @property
+    def config(self):
+        return self._config
+
+    @config.setter
+    def config(self, config):
+        if not isinstance(config, Configuration):
+            raise TypeError("LatticeFactory: 'config' property must be type Configuration")
+        self._config = config
+
+
+    @property
     def settings(self):
         return self._settings
 
     @settings.setter
     def settings(self, settings):
-        if (settings != None) and not isinstance(settings, (dict)):
-            raise TypeError("VirtAccelFactory: 'settings' property much be type string or None")
+        if not isinstance(settings, (dict)):
+            raise TypeError("VirtAccelFactory: 'settings' property much be type dict")
         self._settings = settings
+
+
+    @property
+    def channels(self):
+        return self._channels
+
+    @channels.setter
+    def channels(self, channels):
+        if not isinstance(channels, (list)):
+            raise TypeError("VirtAccelFactory: 'channels' property much be type list")
+        self._channels = channels
 
 
     @property
@@ -213,39 +224,36 @@ class VirtualAcceleratorFactory(object):
         self._work_dir = work_dir
 
 
-    def _get_config_settings(self):
-        if cfg.config.has_default("settings_file"):
-            stgpath = cfg.config.getabspath_default("settings_file")
-            with open(stgpath, "r") as stgfile:
-                return json.load(stgfile)
-
-        return None
-
-
     def _get_config_impact_exe(self):
-        if cfg.config.has_default(CONFIG_IMPACT_EXE_FILE):
-            return cfg.config.getabspath_default(CONFIG_IMPACT_EXE_FILE, cmd=True)
+        if self.config.has_default(CONFIG_IMPACT_EXE_FILE):
+            return self.config.getabspath_default(CONFIG_IMPACT_EXE_FILE, cmd=True)
 
         return _DEFAULT_IMPACT_EXE
+
+    def _findChannel(self, name, field, handle):
+        for channel, props, _ in self.channels:
+            if props["elemName"] != name:
+                continue
+            if props["elemField"] != field:
+                continue
+            if props["elemHandle"] != handle:
+                continue
+            # IMPORTANT: Channel names originating from channel finder
+            # may be of type 'unicode' instead of 'str'. The cothread
+            # library does not have proper support for unicode strings.
+            return str(channel)
+
+        raise RuntimeError("VirtAccelFactory: channel not found: '{}', '{}', '{}'".format(name, field, handle))
 
 
     def build(self):
         """Process the accelerator description and configure the Virtual Accelerator.
         """
         settings = self.settings
-        if settings == None:
-            settings = self._get_config_settings()
-
-        if settings == None:
-            raise RuntimeError("VirtAccelFactory: No settings have been provided, check the configuration.")
-
-        machine = self.machine
-        if (machine == None) and cfg.config.has_default(CONFIG_MACHINE):
-            machine = cfg.config.get_default(CONFIG_MACHINE)
 
         data_dir = self.data_dir
-        if (data_dir == None) and cfg.config.has_default(CONFIG_IMPACT_DATA_DIR):
-            data_dir = cfg.config.getabspath_default(CONFIG_IMPACT_DATA_DIR)
+        if (data_dir == None) and self.config.has_default(CONFIG_IMPACT_DATA_DIR):
+            data_dir = self.config.getabspath_default(CONFIG_IMPACT_DATA_DIR)
 
         if data_dir == None:
             raise RuntimeError("VirtAccelFactory: No data directory provided, check the configuration")
@@ -254,74 +262,105 @@ class VirtualAcceleratorFactory(object):
 
         impact_exe = self._get_config_impact_exe()
 
-        latfactory = LatticeFactory(self.accel)
+        latfactory = LatticeFactory(self.layout, config=self.config, settings=self.settings)
         latfactory.outputMode = OUTPUT_MODE_DIAG
         latfactory.start = self.start
         latfactory.end = self.end
 
-        va = VirtualAccelerator(latfactory, settings, machine, impact_exe, data_dir, work_dir)
+        m = re.match("(.*:)?(.*):(.*):(.*)", self.channels[0][0])
+        if not m:
+            raise RuntimeError("VirtAccelFactory: Error determining channel prefix, check channel names")
 
-        for elem in self.accel.iter(start=self.start, end=self.end):
+        if m.group(1) is None:
+            chanprefix = None
+        else:
+            #IMPORTANT: chanprefix must 
+            #be converted from unicode
+            chanprefix = str(m.group(1))
+
+        va = VirtualAccelerator(latfactory, settings, chanprefix, impact_exe, data_dir, work_dir)
+
+        for elem in self.layout.iter(start=self.start, end=self.end):
 
             if isinstance(elem, CavityElement):
-                chans = elem.channels
-                va.append_rw(chans.phase_cset, chans.phase_rset, chans.phase_read, 
+                va.append_rw(self._findChannel(elem.name, elem.fields.phase, "setpoint"),
+                             self._findChannel(elem.name, elem.fields.phase, "readset"),
+                             self._findChannel(elem.name, elem.fields.phase, "readback"),
                              (elem.name, elem.fields.phase), desc="Cavity Phase", egu="degree")
-                va.append_rw(chans.amplitude_cset, chans.amplitude_rset, chans.amplitude_read, 
+                va.append_rw(self._findChannel(elem.name, elem.fields.amplitude, "setpoint"),
+                             self._findChannel(elem.name, elem.fields.amplitude, "readset"),
+                             self._findChannel(elem.name, elem.fields.amplitude, "readback"),
                              (elem.name, elem.fields.amplitude), desc="Cavity Amplitude", egu="%")
                 va.append_elem(elem)
 
             elif isinstance(elem, SolCorElement):
-                chans = elem.channels
-                va.append_rw(chans.field_cset, chans.field_rset, chans.field_read, 
+                va.append_rw(self._findChannel(elem.name, elem.fields.field, "setpoint"),
+                             self._findChannel(elem.name, elem.fields.field, "readset"),
+                             self._findChannel(elem.name, elem.fields.field, "readback"),
                              (elem.name, elem.fields.field), desc="Solenoid Field", egu="T", drvratio=0.10)
-                va.append_rw(chans.hkick_cset, chans.hkick_rset, chans.hkick_read, 
+                va.append_rw(self._findChannel(elem.h.name, elem.h.fields.angle, "setpoint"),
+                             self._findChannel(elem.h.name, elem.h.fields.angle, "readset"),
+                             self._findChannel(elem.h.name, elem.h.fields.angle, "readback"),
                              (elem.h.name, elem.h.fields.angle), desc="Horizontal Corrector", egu="radian", drvabs=0.001)
-                va.append_rw(chans.vkick_cset, chans.vkick_rset, chans.vkick_read, 
+                va.append_rw(self._findChannel(elem.v.name, elem.v.fields.angle, "setpoint"),
+                             self._findChannel(elem.v.name, elem.v.fields.angle, "readset"),
+                             self._findChannel(elem.v.name, elem.v.fields.angle, "readback"),
                              (elem.v.name, elem.v.fields.angle), desc="Vertical Corrector", egu="radian", drvabs=0.001)
                 va.append_elem(elem)
 
             elif isinstance(elem, CorElement):
-                chans = elem.channels
-                va.append_rw(chans.hkick_cset, chans.hkick_rset, chans.hkick_read, 
+                va.append_rw(self._findChannel(elem.h.name, elem.h.fields.angle, "setpoint"),
+                             self._findChannel(elem.h.name, elem.h.fields.angle, "readset"),
+                             self._findChannel(elem.h.name, elem.h.fields.angle, "readback"),
                              (elem.h.name, elem.h.fields.angle), desc="Horizontal Corrector", egu="radian", drvabs=0.001)
-                va.append_rw(chans.vkick_cset, chans.vkick_rset, chans.vkick_read, 
+                va.append_rw(self._findChannel(elem.v.name, elem.v.fields.angle, "setpoint"),
+                             self._findChannel(elem.v.name, elem.v.fields.angle, "readset"),
+                             self._findChannel(elem.v.name, elem.v.fields.angle, "readback"),
                              (elem.v.name, elem.v.fields.angle), desc="Vertical Corrector", egu="radian", drvabs=0.001)
                 va.append_elem(elem)
 
             elif isinstance(elem, BendElement):
-                chans = elem.channels
-                va.append_rw(chans.field_cset, chans.field_rset, chans.field_read, 
+                va.append_rw(self._findChannel(elem.name, elem.fields.field, "setpoint"),
+                             self._findChannel(elem.name, elem.fields.field, "readset"),
+                             self._findChannel(elem.name, elem.fields.field, "readback"),
                              (elem.name, elem.fields.field), desc="Bend Relative Field", egu="none", drvratio=0.10)
                 va.append_elem(elem)
 
             elif isinstance(elem, QuadElement):
-                chans = elem.channels
-                va.append_rw(chans.gradient_cset, chans.gradient_rset, chans.gradient_read, 
+                va.append_rw(self._findChannel(elem.name, elem.fields.gradient, "setpoint"),
+                             self._findChannel(elem.name, elem.fields.gradient, "readset"),
+                             self._findChannel(elem.name, elem.fields.gradient, "readback"),
                              (elem.name, elem.fields.gradient), desc="Quadrupole Gradient", egu="T/m", drvratio=0.10)
                 va.append_elem(elem)
 
             elif isinstance(elem, SextElement):
                 _LOGGER.warning("VirtAccelFactory: Hexapole magnet element support not implemented. Ignoring channels.")
-                #chans = elem.channels
-                #va.append_rw(chans.field_cset, chans.field_rset, chans.field_read, (elem.name, elem.fields.field), desc="Hexapole Field", egu="T/m^2", drvrel=0.05)
+                #va.append_rw(self._findChannel(elem.name, elem.fields.field, "setpoint"),
+                #             self._findChannel(elem.name, elem.fields.field, "readset"),
+                #             self._findChannel(elem.name, elem.fields.field, "readback"),
+                #             (elem.name, elem.fields.field), desc="Hexapole Field", egu="T/m^2", drvrel=0.05)
                 #va.append_elem(elem)
 
             elif isinstance(elem, BPMElement):
-                chans = elem.channels
-                va.append_ro(chans.hposition_read, desc="Horizontal Position", egu="m")
-                va.append_ro(chans.vposition_read, desc="Vertical Position", egu="m")
-                va.append_ro(chans.phase_read, desc="Beam Phase", egu="degree")
-                va.append_ro(chans.energy_read, desc="Beam Energy", egu="MeV")
-
+                va.append_ro(self._findChannel(elem.name, elem.fields.x, "readback"),
+                             (elem.name, elem.fields.x), desc="Horizontal Position", egu="m")
+                va.append_ro(self._findChannel(elem.name, elem.fields.y, "readback"),
+                             (elem.name, elem.fields.y), desc="Vertical Position", egu="m")
+                va.append_ro(self._findChannel(elem.name, elem.fields.phase, "readback"),
+                             (elem.name, elem.fields.phase), desc="Beam Phase", egu="degree")
+                va.append_ro(self._findChannel(elem.name, elem.fields.energy, "readback"),
+                            (elem.name, elem.fields.energy), desc="Beam Energy", egu="MeV")
                 va.append_elem(elem)
 
             elif isinstance(elem, PMElement):
-                chans = elem.channels
-                va.append_ro(chans.hposition_read, desc="Horizontal Position", egu="m")
-                va.append_ro(chans.vposition_read, desc="Vertical Position", egu="m")
-                va.append_ro(chans.hsize_read, desc="Horizontal Size", egu="m")
-                va.append_ro(chans.vsize_read, desc="Vertical Size", egu="m")
+                va.append_ro(self._findChannel(elem.name, elem.fields.x, "readback"),
+                             (elem.name, elem.fields.x), desc="Horizontal Position", egu="m")
+                va.append_ro(self._findChannel(elem.name, elem.fields.y, "readback"),
+                             (elem.name, elem.fields.y), desc="Vertical Position", egu="m")
+                va.append_ro(self._findChannel(elem.name, elem.fields.xrms, "readback"),
+                             (elem.name, elem.fields.xrms), desc="Horizontal Size", egu="m")
+                va.append_ro(self._findChannel(elem.name, elem.fields.yrms, "readback"),
+                             (elem.name, elem.fields.yrms), desc="Vertical Size", egu="m")
                 va.append_elem(elem)
 
             elif isinstance(elem, (BLMElement, BLElement, BCMElement)):
@@ -347,7 +386,7 @@ class VirtualAccelerator(object):
     """VirtualAccelerator executes and manages the
        EPICS IOC process and IMPACT simulation process.
     """
-    def __init__(self, latfactory, settings, machine, impact_exe, data_dir, work_dir=None):
+    def __init__(self, latfactory, settings, chanprefix, impact_exe, data_dir, work_dir=None):
         if not isinstance(latfactory, LatticeFactory):
             raise TypeError("VirtualAccelerator: Invalid type for LatticeFactory")
         self._latfactory = latfactory
@@ -356,22 +395,16 @@ class VirtualAccelerator(object):
             raise TypeError("VirtualAccelerator: Invalid type for accelerator Settings")
         self._settings = settings
 
-        if not isinstance(machine, basestring):
-            raise TypeError("VirtualAccelerator: Invalid type for machine value")
-        self._machine = machine
-
+        self._chanprefix = chanprefix
         self.impact_exe = impact_exe
         self.data_dir = data_dir
         self.work_dir = work_dir
-        
-        # status to identify va simulation results
-        self.va_good = "OK"
-        self.va_bad = "ERR"
 
         self._epicsdb = []
         self._csetmap = OrderedDict()
         self._elemmap = OrderedDict()
         self._fieldmap = OrderedDict()
+        self._readfieldmap = OrderedDict()
 
         self._noise = 0.001
 
@@ -482,8 +515,14 @@ class VirtualAccelerator(object):
 
 
 
-    def append_ro(self, read, desc="Element", egu="", prec=5):
+    def append_ro(self, read, field, desc="Element", egu="", prec=5):
         """Append a read-only channel to this virtual accelerator.
+
+           :param read:        pv name of read back
+           :param field:       tuple with element name and field
+           :param desc:        element description
+           :param egu:         EPICS record engineering unit
+           :param prec:        EPICS display precision
         """
         if self.is_started():
             raise RuntimeError("VirtualAccelerator: Cannot append RO channel when started")
@@ -494,6 +533,10 @@ class VirtualAccelerator(object):
                 ("PREC", prec),
                 ("EGU", egu)
             ])))
+
+        if field[0] not in self._readfieldmap:
+            self._readfieldmap[field[0]] = OrderedDict()
+        self._readfieldmap[field[0]][field[1]] = read
 
 
     def append_elem(self, elem):
@@ -604,9 +647,11 @@ class VirtualAccelerator(object):
             10. Repeat from step #5.
         """
         _LOGGER.debug("VirtualAccelerator: Execute virtual accelerator")
-        chanprefix = ""
-        if (self._machine != None) and (len(self._machine.strip()) > 0):
-            chanprefix = self._machine.strip()+":"
+
+        if self._chanprefix is None:
+            chanprefix = ""
+        else:
+            chanprefix = self._chanprefix
 
         # Add channel for VA configuration and control
         channoise = chanprefix+"SVR:NOISE"
@@ -715,17 +760,17 @@ class VirtualAccelerator(object):
             _LOGGER.info("VirtualAccelerator: IMPACT execution time: %f s", time.time()-start)
 
             if status == 0:
-                catools.caput(chanstat, self.va_good)
+                catools.caput(chanstat, _VA_STATUS_GOOD)
             else:
                 _LOGGER.warning("VirtualAccelerator: IMPACT exited with non-zero status code: %s\r\n%s", status, stdout)
-                catools.caput(chanstat, self.va_bad)
+                catools.caput(chanstat, _VA_STATUS_BAD)
 
             if os.path.isfile(fort18path):
                 fort18 = numpy.loadtxt(fort18path, usecols=(0, 1, 3))
                 fort18length = fort18.shape[0]
             else:
                 _LOGGER.warning("VirtualAccelerator: IMPACT output not found: %s", fort18path)
-                catools.caput(chanstat, self.va_bad)
+                catools.caput(chanstat, _VA_STATUS_BAD)
                 fort18length = 0
 
             if os.path.isfile(fort24path):
@@ -733,7 +778,7 @@ class VirtualAccelerator(object):
                 fort24length = fort24.shape[0]
             else:
                 _LOGGER.warning("VirtualAccelerator: IMPACT output not found: %s", fort24path)
-                catools.caput(chanstat, self.va_bad)
+                catools.caput(chanstat, _VA_STATUS_BAD)
                 fort24length = 0
 
             if os.path.isfile(fort25path):
@@ -741,7 +786,7 @@ class VirtualAccelerator(object):
                 fort25length = fort25.shape[0]
             else:
                 _LOGGER.warning("VirtualAccelerator: IMPACT output not found: %s", fort25path)
-                catools.caput(chanstat, self.va_bad)
+                catools.caput(chanstat, _VA_STATUS_BAD)
                 fort25length = 0
 
             output_map = []
@@ -754,92 +799,90 @@ class VirtualAccelerator(object):
             if(fort18length < output_length):
                 _LOGGER.warning("VirtualAccelerator: IMPACT fort.18 length %s, expecting %s",
                                  fort18length, output_length)
-                catools.caput(chanstat, self.va_bad)
+                catools.caput(chanstat, _VA_STATUS_BAD)
 
             if(fort24length < output_length):
                 _LOGGER.warning("VirtualAccelerator: IMPACT fort.24 length %s, expecting %s",
                                  fort24length, output_length)
-                catools.caput(chanstat, self.va_bad)
+                catools.caput(chanstat, _VA_STATUS_BAD)
 
             if(fort25length < output_length):
                 _LOGGER.warning("VirtualAccelerator: IMPACT fort.25 length %s, expecting %s", 
                                 fort25length, output_length)
-                catools.caput(chanstat, self.va_bad)
+                catools.caput(chanstat, _VA_STATUS_BAD)
 
             for idx in xrange(min(fort18length, fort24length, fort25length)):
 
                 elem = self._elemmap[output_map[idx]]
 
                 if isinstance(elem, BPMElement):
-                    _LOGGER.debug("VirtualAccelerator: Update read: %s to %s", elem.channels.hposition_read, 
-                                  fort24[idx,0])
-                    catools.caput(elem.channels.hposition_read, fort24[idx,0])
-                    _LOGGER.debug("VirtualAccelerator: Update read: %s to %s", elem.channels.vposition_read, 
-                                  fort25[idx,0])
-                    catools.caput(elem.channels.vposition_read, fort25[idx,0])
-                    _LOGGER.debug("VirtualAccelerator: Update read: %s to %s", elem.channels.phase_read, 
-                                  fort18[idx,1])
-                    catools.caput(elem.channels.phase_read, fort18[idx,1])
-                    _LOGGER.debug("VirtualAccelerator: Update read: %s to %s", elem.channels.phase_read, 
-                                  fort18[idx,1])
-                    catools.caput(elem.channels.energy_read, fort18[idx,2])
-                    _LOGGER.debug("VirtualAccelerator: Update read: %s to %s", elem.channels.energy_read, 
-                                  fort18[idx,2])
+                    _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
+                                  self._readfieldmap[elem.name][elem.fields.x], fort24[idx,0])
+                    catools.caput(self._readfieldmap[elem.name][elem.fields.x], fort24[idx,0])
+                    _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
+                                  self._readfieldmap[elem.name][elem.fields.y], fort25[idx,0])
+                    catools.caput(self._readfieldmap[elem.name][elem.fields.y], fort25[idx,0])
+                    _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
+                                  self._readfieldmap[elem.name][elem.fields.phase], fort18[idx,1])
+                    catools.caput(self._readfieldmap[elem.name][elem.fields.phase], fort18[idx,1])
+                    _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
+                                  self._readfieldmap[elem.name][elem.fields.energy], fort18[idx,2])
+                    catools.caput(self._readfieldmap[elem.name][elem.fields.energy], fort18[idx,2])
                 elif isinstance(elem, PMElement):
-                    _LOGGER.debug("VirtualAccelerator: Update read: %s to %s", elem.channels.hposition_read, 
-                                  fort24[idx,0])
-                    catools.caput(elem.channels.hposition_read, fort24[idx,0])
-                    _LOGGER.debug("VirtualAccelerator: Update read: %s to %s", elem.channels.vposition_read, 
-                                  fort25[idx,0])
-                    catools.caput(elem.channels.vposition_read, fort25[idx,0])
-                    _LOGGER.debug("VirtualAccelerator: Update read: %s to %s", elem.channels.hsize_read, 
-                                  fort24[idx,1])
-                    catools.caput(elem.channels.hsize_read, fort24[idx,1])
-                    _LOGGER.debug("VirtualAccelerator: Update read: %s to %s", elem.channels.vsize_read, 
-                                  fort25[idx,1])
-                    catools.caput(elem.channels.vsize_read, fort25[idx,1])
+                    _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
+                                  self._readfieldmap[elem.name][elem.fields.x], fort24[idx,0])
+                    catools.caput(self._readfieldmap[elem.name][elem.fields.x], fort24[idx,0])
+                    _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
+                                  self._readfieldmap[elem.name][elem.fields.y], fort25[idx,0])
+                    catools.caput(self._readfieldmap[elem.name][elem.fields.y], fort25[idx,0])
+                    _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
+                                  self._readfieldmap[elem.name][elem.fields.xrms], fort24[idx,1])
+                    catools.caput(self._readfieldmap[elem.name][elem.fields.xrms], fort24[idx,1])
+                    _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
+                                  self._readfieldmap[elem.name][elem.fields.yrms], fort25[idx,1])
+                    catools.caput(self._readfieldmap[elem.name][elem.fields.yrms], fort25[idx,1])
                 else:
                     _LOGGER.warning("VirtualAccelerator: Output from element type not supported: %s", 
                                     type(elem).__name__)
-
+ 
             # Write the default error value to the remaing output PVs.
             for idx in xrange(min(fort18length, fort24length, fort25length), output_length):
-
+ 
                 elem = self._elemmap[output_map[idx]]
-
+ 
                 if isinstance(elem, BPMElement):
-                    _LOGGER.debug("VirtualAccelerator: Update read: %s to %s", elem.channels.hposition_read,
-                                  _DEFAULT_ERROR_VALUE)
-                    catools.caput(elem.channels.hposition_read, _DEFAULT_ERROR_VALUE)
-                    _LOGGER.debug("VirtualAccelerator: Update read: %s to %s", elem.channels.vposition_read,
-                                  _DEFAULT_ERROR_VALUE)
-                    catools.caput(elem.channels.vposition_read, _DEFAULT_ERROR_VALUE)
-                    _LOGGER.debug("VirtualAccelerator: Update read: %s to %s", elem.channels.phase_read, 
-                                  _DEFAULT_ERROR_VALUE)
-                    catools.caput(elem.channels.phase_read, _DEFAULT_ERROR_VALUE)
-                    _LOGGER.debug("VirtualAccelerator: Update read: %s to %s", elem.channels.energy_read, 
-                                  _DEFAULT_ERROR_VALUE)
-                    catools.caput(elem.channels.energy_read, _DEFAULT_ERROR_VALUE)
+                    _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
+                                  self._readfieldmap[elem.name][elem.fields.x], _DEFAULT_ERROR_VALUE)
+                    catools.caput(self._readfieldmap[elem.name][elem.fields.x], _DEFAULT_ERROR_VALUE)
+                    _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
+                                  self._readfieldmap[elem.name][elem.fields.y], _DEFAULT_ERROR_VALUE)
+                    catools.caput(self._readfieldmap[elem.name][elem.fields.y], _DEFAULT_ERROR_VALUE)
+                    _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
+                                  self._readfieldmap[elem.name][elem.fields.phase], _DEFAULT_ERROR_VALUE)
+                    catools.caput(self._readfieldmap[elem.name][elem.fields.phase], _DEFAULT_ERROR_VALUE)
+                    _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
+                                  self._readfieldmap[elem.name][elem.fields.energy], _DEFAULT_ERROR_VALUE)
+                    catools.caput(self._readfieldmap[elem.name][elem.fields.energy], _DEFAULT_ERROR_VALUE)
                 elif isinstance(elem, PMElement):
-                    _LOGGER.debug("VirtualAccelerator: Update read: %s to %s", elem.channels.hposition_read, 
-                                  _DEFAULT_ERROR_VALUE)
-                    catools.caput(elem.channels.hposition_read, _DEFAULT_ERROR_VALUE)
-                    _LOGGER.debug("VirtualAccelerator: Update read: %s to %s", elem.channels.vposition_read, 
-                                  _DEFAULT_ERROR_VALUE)
-                    catools.caput(elem.channels.vposition_read, _DEFAULT_ERROR_VALUE)
-                    _LOGGER.debug("VirtualAccelerator: Update read: %s to %s", elem.channels.hsize_read, 
-                                  _DEFAULT_ERROR_VALUE)
-                    catools.caput(elem.channels.hsize_read, _DEFAULT_ERROR_VALUE)
-                    _LOGGER.debug("VirtualAccelerator: Update read: %s to %s", elem.channels.vsize_read, 
-                                  _DEFAULT_ERROR_VALUE)
-                    catools.caput(elem.channels.vsize_read, _DEFAULT_ERROR_VALUE)
+                    _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
+                                  self._readfieldmap[elem.name][elem.fields.x], _DEFAULT_ERROR_VALUE)
+                    catools.caput(self._readfieldmap[elem.name][elem.fields.x], _DEFAULT_ERROR_VALUE)
+                    _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
+                                  self._readfieldmap[elem.name][elem.fields.y], _DEFAULT_ERROR_VALUE)
+                    catools.caput(self._readfieldmap[elem.name][elem.fields.y], _DEFAULT_ERROR_VALUE)
+                    _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
+                                  self._readfieldmap[elem.name][elem.fields.xrms], _DEFAULT_ERROR_VALUE)
+                    catools.caput(self._readfieldmap[elem.name][elem.fields.xrms], _DEFAULT_ERROR_VALUE)
+                    _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
+                                  self._readfieldmap[elem.name][elem.fields.yrms], _DEFAULT_ERROR_VALUE)
+                    catools.caput(self._readfieldmap[elem.name][elem.fields.yrms], _DEFAULT_ERROR_VALUE)
                 else:
                     _LOGGER.warning("VirtualAccelerator: Output from element type not supported: %s", 
                                     type(elem).__name__)
 
             for name, value in self._csetmap.iteritems():
                 name, field = self._fieldmap[name]
-                _LOGGER.debug("VirtualAccelerator: Update rset: %s to %s", value[1], settings[name][field])
+                _LOGGER.debug("VirtualAccelerator: Update read: %s to %s", value[1], settings[name][field])
                 catools.caput(value[1], settings[name][field])
 
             # Sleep for a fraction (10%) of the total execution time 
