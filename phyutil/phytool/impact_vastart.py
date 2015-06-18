@@ -6,53 +6,29 @@ Implement phylib command 'impact-vastart'.
 
 from __future__ import print_function
 
-import sys, os.path, re, logging, traceback
+import sys, logging, traceback
 
 from argparse import ArgumentParser
 
-from ..phylib import cfg
-
-from ..phylib.settings import Settings
-
-from ..phylib.layout.layout import build_layout
-
-from ..phylib.chanfinder.chanfinderAgent import ChannelFinderAgent
-
-from ..machine import findMachineConfig
+from common import loadMachineConfig, loadLatticeConfig
+from common import loadLayout, loadSettings, loadChannels
 
 from ..machine.frib.virtaccel.impact import build_virtaccel
 
 
-_CONFIG_COMMON_SECTION = "COMMON"
-
-_CONFIG_DEFAULT_SUBMACHINE = "default_submachine"
-
-_CONFIG_CONFIG_FILE = "config_file"
-
-_CONFIG_SETTINGS_FILE = "settings_file"
-
-_CONFIG_LAYOUT_FILE = "layout_file"
-
-_CONFIG_CFS_URL = "cfs_url"
-
-_CONFIG_CFS_TAG = "cfs_tag"
-
-_LOGGER = logging.getLogger(__name__)
-
-
-
 parser = ArgumentParser(description="Start the virtual accelerator using IMPACT simulation")
 parser.add_argument("-v", dest="verbosity", nargs='?', type=int, const=1, default=0, help="set the amount of output")
-parser.add_argument("--config", dest="configpath", help="path to alternate configuration file (.cfg)")
-parser.add_argument("--layout", dest="layoutpath", help="")
-parser.add_argument("--settings", dest="settingspath", help="path to device settings file (.json)")
+parser.add_argument("--mach", dest="machine", help="name of machine or path of machine directory")
+parser.add_argument("--subm", dest="submach", help="name of submachine")
+parser.add_argument("--layout", dest="layoutpath", help="path of accelerator layout file (.csv)")
+parser.add_argument("--settings", dest="settingspath", help="path to accelerator settings file (.json)")
+parser.add_argument("--config", dest="configpath", help="path to accelerator configuration file (.ini)")
 parser.add_argument("--cfsurl", help="url of channel finder service or local sqlite file")
+parser.add_argument("--cfstag", help="tag to query for channels")
 parser.add_argument("--start", help="name of accelerator element to start processing")
 parser.add_argument("--end", help="name of accelerator element to end processing")
-parser.add_argument("--subm", help="name of submachine to load otherwise use configuration")
 parser.add_argument("--data", dest="datapath", help="path to directory with IMPACT data")
 parser.add_argument("--work", dest="workpath", help="path to directory for executing IMPACT")
-parser.add_argument("machine")
 
 
 print_help = parser.print_help
@@ -71,104 +47,42 @@ def main():
 
 
     try:
-        mconfig, _, _ = findMachineConfig(args.machine)
+        mconfig, submach = loadMachineConfig(args.machine, args.submach)
     except Exception as e:
         if args.verbosity > 0: traceback.print_exc()
         print("Error readings machine configuration:", e, file=sys.stderr)
         return 1
 
 
-    if args.subm is None:
-        if mconfig.has_option(_CONFIG_COMMON_SECTION, _CONFIG_DEFAULT_SUBMACHINE):
-            subm = mconfig.get(_CONFIG_COMMON_SECTION, _CONFIG_DEFAULT_SUBMACHINE)
-        else:
-            print("Error: default submachine not specified", file=sys.stderr)
-            return 1
-    else:
-        subm = args.subm.strip()
-
-
-    if args.settingspath is None:
-        if mconfig.has_option(subm, _CONFIG_SETTINGS_FILE):
-            settingsPath = mconfig.getabspath(subm, _CONFIG_SETTINGS_FILE)
-        else:
-            print("Error: settings file not specified", file=sys.stderr)
-            return 1
-    else:
-        settingsPath = args.settingspath
-
     try:
-        settings = Settings(settingsPath)
+        layout = loadLayout(args.layoutpath, mconfig, submach)
     except Exception as e:
         if args.verbosity > 0: traceback.print_exc()
-        print("Error readings settings file:", e, file=sys.stderr)
+        print("Error loading layout:", e, file=sys.stderr)
         return 1
 
 
-    if args.configpath is None:
-        if mconfig.has_option(subm, _CONFIG_CONFIG_FILE):
-            configPath = mconfig.getabspath(subm, _CONFIG_CONFIG_FILE)
-        else:
-            print("Error: config file not specified", file=sys.stderr)
-            return 1
-    else:
-        configPath = args.configpath
-
     try:
-        config = cfg.Configuration(configPath)
+        settings = loadSettings(args.settingspath, mconfig, submach)
     except Exception as e:
         if args.verbosity > 0: traceback.print_exc()
-        print("Error readings config file:", e, file=sys.stderr)
+        print("Error loading settings:", e, file=sys.stderr)
         return 1
 
 
-    if args.layoutpath is None:
-        if mconfig.has_option(subm, _CONFIG_LAYOUT_FILE):
-            layoutPath = mconfig.getabspath(subm, _CONFIG_LAYOUT_FILE)
-        else:
-            print("Error: layout file not specified", file=sys.stderr)
-            return 1
-    else:
-        layoutPath = args.layoutpath
-
     try:
-        layout = build_layout(layoutPath)
+        config = loadLatticeConfig(args.configpath, mconfig, submach)
     except Exception as e:
         if args.verbosity > 0: traceback.print_exc()
-        print("Error readings layout file:", e, file=sys.stderr)
+        print("Error loading configuration:", e, file=sys.stderr)
         return 1
 
 
-    if args.cfsurl is None:
-        if mconfig.has_option(subm, _CONFIG_CFS_URL):
-            cfsUrl = mconfig.get(subm, _CONFIG_CFS_URL)
-        else:
-            print("Error: Channel Finder source not specified", file=sys.stderr)
-            return 1
-    else:
-        cfsUrl = args.cfsurl
-
-    cfa = ChannelFinderAgent()
-
-    if re.match(r"https?://.*", cfsUrl, re.I):
-        _LOGGER.info("impact_vastart: using service '%s' for '%s'" % (cfsUrl, subm))
-        if mconfig.has_option(subm, _CONFIG_CFS_TAG):
-            cfsTag = mconfig.get(subm, _CONFIG_CFS_TAG)
-        else:
-            cfsTag = "phyutil.sys.%s" % subm
-        cfa.downloadCfs(source=cfsUrl, property=[('elemName', '*'),], tagName=cfsTag)
-    else:
-        cfsPath = mconfig.getabspath(subm, _CONFIG_CFS_URL)
-        if os.path.isfile(cfsPath):
-            _LOGGER.info("impact_vastart: using SQLite '%s'" % (cfsPath,))
-            cfa.downloadCfs(source=cfsPath)
-        else:
-            print("Error loading channels from source:", cfsUrl, file=sys.stderr)
-            return 1
+    channels = loadChannels(args.cfsurl, None, mconfig, submach)
 
 
     try:
-        va = build_virtaccel(layout, config=config, channels=cfa.results, settings=settings,
+        va = build_virtaccel(layout, config=config, channels=channels, settings=settings,
                              start=args.start, end=args.end, data_dir=args.datapath, work_dir=args.workpath)
     except Exception as e:
         if args.verbosity > 0: traceback.print_exc()

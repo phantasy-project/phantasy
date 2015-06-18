@@ -10,23 +10,21 @@ import os.path, sys, json, logging, traceback
 
 from argparse import ArgumentParser
 
-from ..phylib import cfg
+from ..phylib.settings.impact import build_settings
 
-from ..phylib.settings.impact import build_settings as impact_build_settings
-
-from ..machine.frib.layout import fribxlf
+from common import loadMachineConfig, loadLayout
 
 
 parser = ArgumentParser(prog=os.path.basename(sys.argv[0])+" impact-settings",
                         description="Extract device settings from IMPACT input file based on accelerator layout.")
 parser.add_argument("-v", dest="verbosity", nargs='?', type=int, const=1, default=0, help="set the amount of output")
-parser.add_argument("--cfg", dest="cfgpath", help="path to alternate configuration file (.cfg)")
-parser.add_argument("--xlf", dest="xlfpath", help="path to FRIB Expanded Lattice File (.xlsx)")
+parser.add_argument("--mach", dest="machine", help="name of machine or path of machine directory")
+parser.add_argument("--subm", dest="submach", help="name of submachine")
+parser.add_argument("--layout", dest="layoutpath", help="path of accelerator layout file")
 parser.add_argument("--start", help="name of accelerator element to start processing")
 parser.add_argument("--end", help="name of accelerator element to end processing")
-parser.add_argument("--mach", help="name of machine (used to indicate VA)")
-parser.add_argument("latpath", help="path to input IMPACT lattice file (test.in)")
-parser.add_argument("stgpath", nargs='?', help="path of output file with JSON format")
+parser.add_argument("latticepath", help="path to input IMPACT lattice file (test.in)")
+parser.add_argument("settingspath", nargs='?', help="path of output file with JSON format")
 
 print_help = parser.print_help
 
@@ -43,55 +41,39 @@ def main():
         logging.getLogger().setLevel(logging.DEBUG)
 
 
-    if args.cfgpath != None:
-        try:
-            cfg.load(args.cfgpath)
-        except:
-            print("Error: configuration file not found: {}".format(args.cfgpath), file=sys.stderr)
-            return 1
-
-    elif not cfg.load(cfg.DEFAULT_LOCATIONS):
-        print("Warning: no default configuration found: {}".format(cfg.DEFAULT_LOCATIONS), file=sys.stderr)
-
-
-    if (args.stgpath != None) and os.path.exists(args.stgpath):
-        print("Error: destination file already exists: {}".format(args.stgpath), file=sys.stderr)
-        return 1
-
-
     try:
-        accel = fribxlf.build_accel(xlfpath=args.xlfpath, machine=args.mach)
+        mconfig, submach = loadMachineConfig(args.machine, args.submach)
     except Exception as e:
         if args.verbosity > 0: traceback.print_exc()
-        print("Error building accelerator:", e, file=sys.stderr)
+        print("Error loading machine configuration:", e, file=sys.stderr)
         return 1
 
 
     try:
-        settings = impact_build_settings(accel, args.latpath, start=args.start, end=args.end)
+        layout = loadLayout(args.layoutpath, mconfig, submach)
+    except Exception as e:
+        if args.verbosity > 0: traceback.print_exc()
+        print("Error loading layout:", e, file=sys.stderr)
+        return 1
+
+
+    try:
+        settings = build_settings(layout, args.latticepath, start=args.start, end=args.end)
     except Exception as e:
         if args.verbosity > 0: traceback.print_exc()
         print("Error building settings:", e, file=sys.stderr)
         return 1
 
-    
+
     try:
-        if args.stgpath != None:
-            fp = open(args.stgpath, "w")
+        if args.settingspath is not None:
+            with open(args.settingspath, "w") as fp:
+                json.dump(settings, fp, indent=2)
         else:
-            fp = sys.stdout
-    except Exception as e:
-        print("Error opening output file:", e, file=sys.stderr)
-        return 1    
-
-
-    try:
-        json.dump(settings, fp, indent=2)
+            json.dump(settings, sys.stdout, indent=2)
     except Exception as e:
         print("Error writing settings:", e, file=sys.stderr)
         return 1
-    finally:
-        if fp != sys.stdout: fp.close()
 
     return 0
 

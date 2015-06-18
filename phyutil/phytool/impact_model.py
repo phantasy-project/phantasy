@@ -12,27 +12,25 @@ from argparse import ArgumentParser
 
 import matplotlib.pyplot as plt
 
-from ..phylib import cfg
-
-from ..phylib.settings import Settings
-
 from ..phylib.lattice.impact import OUTPUT_MODE_END
 from ..phylib.lattice.impact import build_lattice
 from ..phylib.lattice.impact import run_lattice
 from ..phylib.model.impact import build_result
 
-from ..machine.frib.layout import fribxlf
+from common import loadMachineConfig, loadLatticeConfig
+from common import loadLayout, loadSettings
 
 
 parser = ArgumentParser(prog=os.path.basename(sys.argv[0])+" impact-model",
                         description="Run IMPACT model and produce results")
 parser.add_argument("-v", dest="verbosity", nargs='?', type=int, const=1, default=0, help="set the amount of output")
-parser.add_argument("--cfg", dest="cfgpath", help="path to alternate configuration file (.cfg)")
-parser.add_argument("--xlf", dest="xlfpath", help="path to FRIB Expanded Lattice File (.xlsx)")
-parser.add_argument("--stg", dest="stgpath", help="path to device settings file (.json)")
+parser.add_argument("--mach", dest="machine", help="name of machine or path of machine directory")
+parser.add_argument("--subm", dest="submach", help="name of submachine")
+parser.add_argument("--layout", dest="layoutpath", help="path of accelerator layout file (.csv)")
+parser.add_argument("--settings", dest="settingspath", help="path to accelerator settings file (.json)")
+parser.add_argument("--config", dest="configpath", help="path to accelerator configuration file (.ini)")
 parser.add_argument("--start", help="name of accelerator element to start processing")
 parser.add_argument("--end", help="name of accelerator element to end processing")
-parser.add_argument("--mach", help="name of machine (used to indicate VA)")
 parser.add_argument("--data", dest="datapath", help="path to directory with IMPACT data")
 parser.add_argument("--work", dest="workpath", help="path to directory for executing IMPACT")
 parser.add_argument("--plot", action="store_true", help="generate a plot of the model")
@@ -57,43 +55,45 @@ def main():
         logging.getLogger().setLevel(logging.DEBUG)
 
 
-    if args.cfgpath != None:
-        try:
-            cfg.load(args.cfgpath)
-        except:
-            print("Error: configuration file not found: {}".format(args.cfgpath), file=sys.stderr)
-            return 1
-
-    elif not cfg.load(cfg.DEFAULT_LOCATIONS):
-        print("Warning: no default configuration found: {}".format(cfg.DEFAULT_LOCATIONS), file=sys.stderr)
-
-
     if (args.resultpath != None) and os.path.exists(args.resultpath):
         print("Error: destination result path already exists:", args.resultpath, file=sys.stderr)
         return 1
 
 
     try:
-        accel = fribxlf.build_accel(xlfpath=args.xlfpath, machine=args.mach)
+        mconfig, submach = loadMachineConfig(args.machine, args.submach)
     except Exception as e:
-        print("Error building accelerator:", e, file=sys.stderr)
+        if args.verbosity > 0: traceback.print_exc()
+        print("Error loading machine configuration:", e, file=sys.stderr)
         return 1
 
 
-    if args.stgpath == None:
-        settings = None
-    else:
-        try:
-            with open(args.stgpath, "r") as fp:
-                settings = Settings()
-                settings.readfp(fp)
-        except Exception as e:
-            print("Error reading settings file:", e, file=sys.stderr)
-            return 1
+    try:
+        layout = loadLayout(args.layoutpath, mconfig, submach)
+    except Exception as e:
+        if args.verbosity > 0: traceback.print_exc()
+        print("Error loading layout:", e, file=sys.stderr)
+        return 1
 
 
     try:
-        lattice = build_lattice(accel, settings=settings, start=args.start, end=args.end)
+        settings = loadSettings(args.settingspath, mconfig, submach)
+    except Exception as e:
+        if args.verbosity > 0: traceback.print_exc()
+        print("Error loading settings:", e, file=sys.stderr)
+        return 1
+
+
+    try:
+        config = loadLatticeConfig(args.configpath, mconfig, submach)
+    except Exception as e:
+        if args.verbosity > 0: traceback.print_exc()
+        print("Error loading configuration:", e, file=sys.stderr)
+        return 1
+
+
+    try:
+        lattice = build_lattice(layout, config=config, settings=settings, start=args.start, end=args.end)
     except Exception as e:
         if args.verbosity > 0: traceback.print_exc()
         print("Error building lattice:", e, file=sys.stderr)
@@ -102,7 +102,7 @@ def main():
     lattice.outputMode = OUTPUT_MODE_END
 
     try:
-        result_dir = run_lattice(lattice, data_dir=args.datapath, work_dir=args.workpath)
+        result_dir = run_lattice(lattice, config=config, data_dir=args.datapath, work_dir=args.workpath)
     except Exception as e:
         if args.verbosity > 0: traceback.print_exc()
         print("Error running lattice:", e, file=sys.stderr)

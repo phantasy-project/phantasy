@@ -8,32 +8,30 @@ from __future__ import print_function
 
 import sys, os.path, logging, traceback
 
-from collections import OrderedDict
-
 from argparse import ArgumentParser
-
-from ..phylib import cfg
-
-from ..phylib.settings import Settings
 
 from ..phylib.lattice import impact
 
-from ..machine.frib.layout import fribxlf
+from common import loadMachineConfig, loadLatticeConfig
+from common import loadLayout, loadSettings, loadChannels
 
 
 parser = ArgumentParser(prog=os.path.basename(sys.argv[0])+" impact-lattice",
                         description="Generate IMPACT lattice file (test.in).")
 parser.add_argument("-v", dest="verbosity", nargs='?', type=int, const=1, default=0, help="set the amount of output")
-parser.add_argument("--cfg", dest="cfgpath", help="path to alternate configuration file (.cfg)")
-parser.add_argument("--xlf", dest="xlfpath", help="path to FRIB Expanded Lattice File (.xlsx)")
-parser.add_argument("--stg", dest="stgpath", help="path to device settings file (.json)")
+parser.add_argument("--mach", dest="machine", help="name of machine or path of machine directory")
+parser.add_argument("--subm", dest="submach", help="name of submachine")
+parser.add_argument("--layout", dest="layoutpath", help="path of accelerator layout file (.csv)")
+parser.add_argument("--settings", dest="settingspath", help="path to accelerator settings file (.json)")
+parser.add_argument("--config", dest="configpath", help="path to accelerator configuration file (.ini)")
+parser.add_argument("--cfsurl", help="url of channel finder service or local sqlite file")
+parser.add_argument("--cfstag", help="tag to query for channels")
 parser.add_argument("--start", help="name of accelerator element to start processing")
 parser.add_argument("--end", help="name of accelerator element to end processing")
-parser.add_argument("--mach", help="name of machine (used to indicate VA)")
 parser.add_argument("--chanmap", help="path of file to write channel map")
 parser.add_argument("--latdata", help="path of file to write lattice data")
 parser.add_argument("--template", action="store_true", help="ignore settings and generate template")
-parser.add_argument("latpath", nargs="?", help="path to output IMPACT lattice file (test.in)")
+parser.add_argument("latticepath", nargs="?", help="path to output IMPACT lattice file (test.in)")
 
 print_help = parser.print_help
 
@@ -50,22 +48,9 @@ def main():
         logging.getLogger().setLevel(logging.DEBUG)
 
 
-    if args.cfgpath != None:
-        try:
-            cfg.load(args.cfgpath)
-        except:
-            if args.verbosity > 0: traceback.print_exc()
-            print("Error: configuration file not found: {}".format(args.cfgpath), file=sys.stderr)
-            return 1
-
-    elif not cfg.load(cfg.DEFAULT_LOCATIONS):
-        print("Warning: no default configuration found: {}".format(cfg.DEFAULT_LOCATIONS), file=sys.stderr)
-
-
-    if (args.latpath != None) and os.path.exists(args.latpath):
-        print("Destination file already exists: {}".format(args.latpath), file=sys.stderr)
+    if (args.latticepath != None) and os.path.exists(args.latticepath):
+        print("Destination file already exists: {}".format(args.latticepath), file=sys.stderr)
         return 1
-
 
     if (args.chanmap != None) and os.path.exists(args.chanmap):
         print("Destination file already exists: {}".format(args.chanmap), file=sys.stderr)
@@ -75,28 +60,42 @@ def main():
         print("Destination file already exists: {}".format(args.latdata), file=sys.stderr)
         return 1
 
+
     try:
-        accel = fribxlf.build_accel(xlfpath=args.xlfpath, machine=args.mach)
+        mconfig, submach = loadMachineConfig(args.machine, args.submach)
     except Exception as e:
         if args.verbosity > 0: traceback.print_exc()
-        print("Error building accelerator:", e, file=sys.stderr)
+        print("Error loading machine configuration:", e, file=sys.stderr)
         return 1
 
 
-    if (args.stgpath == None) or (args.template == True):
-        settings = None
-    else:
-        try:
-            with open(args.stgpath, "r") as fp:
-                settings = Settings()
-                settings.readfp(fp)
-        except Exception as e:
-            print("Error reading settings:", e, file=sys.stderr)
-            return 1
+    try:
+        layout = loadLayout(args.layoutpath, mconfig, submach)
+    except Exception as e:
+        if args.verbosity > 0: traceback.print_exc()
+        print("Error loading layout:", e, file=sys.stderr)
+        return 1
 
 
     try:
-        lat = impact.build_lattice(accel, settings=settings, start=args.start, end=args.end, template=args.template)
+        settings = loadSettings(args.settingspath, mconfig, submach)
+    except Exception as e:
+        if args.verbosity > 0: traceback.print_exc()
+        print("Error loading settings:", e, file=sys.stderr)
+        return 1
+
+
+    try:
+        config = loadLatticeConfig(args.configpath, mconfig, submach)
+    except Exception as e:
+        if args.verbosity > 0: traceback.print_exc()
+        print("Error loading lattice configuration:", e, file=sys.stderr)
+        return 1
+
+
+    try:
+        lat = impact.build_lattice(layout, config=config, settings=settings,
+                                   start=args.start, end=args.end, template=args.template)
     except Exception as e:
         if args.verbosity > 0: traceback.print_exc()
         print("Error building lattice:", e, file=sys.stderr)
@@ -104,17 +103,24 @@ def main():
 
 
     if args.chanmap != None:
+        try:
+            channels = loadChannels(args.cfsurl, args.cfstag, mconfig, submach)
+        except Exception as e:
+            if args.verbosity > 0: traceback.print_exc()
+            print("Error loading channels:", e, file=sys.stderr)
+            return 1
+
         with open(args.chanmap, "w") as fp:
-            _write_channel_map(accel, lat, fp)
+            _write_channel_map(layout, lat, channels, fp)
 
     if args.latdata != None:
         with open(args.latdata, "w") as fp:
             _write_lattice_data(lat, fp)
 
-    if args.latpath != None:
-        name, _ = os.path.splitext(args.latpath)
+    if args.latticepath != None:
+        name, _ = os.path.splitext(args.latticepath)
         maps = name + ".map"
-        with open(args.latpath, "w") as fp, open(maps, "w") as fmp:
+        with open(args.latticepath, "w") as fp, open(maps, "w") as fmp:
             lat.write(fp, fmp)
     else:
         lat.write(sys.stdout)
@@ -122,7 +128,7 @@ def main():
     return 0
 
 
-def _write_channel_map(accel, lat, fio):
+def _write_channel_map(accel, lat, channels, stream):
     """Write the channel to IMPACT output map to file in CSV format:
 
        PV,elemIndex,elemPosition,elemLength,machine,elemName,elemHandle,elemField,elemType
@@ -133,26 +139,22 @@ def _write_channel_map(accel, lat, fio):
        [...]
     """
 
-    chanstore = OrderedDict()
-    for elem in accel:
-        chanstore.update(elem.chanstore)
-
 
     props = [ "machine", "elemName", "elemHandle", "elemField", "elemType" ]
 
-    fio.write("PV,elemIndex,elemPosition,elemLength")
+    stream.write("PV,elemIndex,elemPosition,elemLength")
     for p in props:
-        fio.write(","+p)
-    fio.write("\r\n")
+        stream.write(","+p)
+    stream.write("\r\n")
 
     for idx in xrange(len(lat.elements)):
         elem = lat.elements[idx]
-        for chan, data in chanstore.iteritems():
+        for chan, data, _ in channels:
             if elem.name == data['elemName']:
-                fio.write(chan+","+str(idx+1)+","+str(elem.position)+","+str(elem.length))
+                stream.write(chan+","+str(idx+1)+","+str(elem.position)+","+str(elem.length))
                 for p in props:
-                    fio.write(","+data[p])
-                fio.write("\r\n")
+                    stream.write(","+data[p])
+                stream.write("\r\n")
 
 
 def _write_lattice_data(lat, fio):
