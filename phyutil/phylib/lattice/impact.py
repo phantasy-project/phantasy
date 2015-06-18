@@ -1624,7 +1624,7 @@ class _LatticeRunner(object):
 
     @config.setter
     def config(self, config):
-        if not isinstance(config, (cfg.Configuration)):
+        if not isinstance(config, cfg.Configuration):
             raise TypeError("LatticeRunner: 'config' property must be type Configuration")
         self._config = config
 
