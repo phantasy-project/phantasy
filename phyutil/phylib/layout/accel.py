@@ -23,21 +23,6 @@ from collections import OrderedDict
 
 # Base Elements
 
-class Channels(object):
-    """
-    Channels is a simple container for channel names.
-
-    :param kwargs: All keyword parameters converted to object attributes
-    """
-    def __init__(self, **kwargs):
-        for key, value in kwargs.iteritems():
-            setattr(key, value)
-
-
-    def __str__(self):
-        return str(self.__dict__)
-
-
 
 class Fields(object):
     """
@@ -76,8 +61,6 @@ class Element(object):
         self.name = name
         self.meta = dict(meta)
         self.fields = Fields()
-        self.channels = Channels()
-        self.chanstore = OrderedDict()
 
     @property
     def z(self):
@@ -394,10 +377,6 @@ class BPMElement(Element):
 
     def __init__(self, z, length, aperture, name, desc="beam positon monitor", **meta):
         super(BPMElement,self).__init__(z, length, aperture, name, desc=desc, **meta)
-        self.channels.hposition_read = None
-        self.channels.vposition_read = None
-        self.channels.phase_read = None
-        self.channels.energy_read = None
         self.fields.x = "X"
         self.fields.y = "Y"
         self.fields.phase = "PHA"
@@ -413,7 +392,6 @@ class BCMElement(Element):
 
     def __init__(self, z, length, aperture, name, desc="beam current monitor", **meta):
         super(BCMElement,self).__init__(z, length, aperture, name, desc=desc, **meta)
-        self.channels.current = None
         self.fields.current = "I"
 
 
@@ -437,10 +415,6 @@ class PMElement(Element):
 
     def __init__(self, z, length, aperture, name, desc="beam profile monitor", **meta):
         super(PMElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
-        self.channels.hposition_read = None
-        self.channels.vposition_read = None
-        self.channels.hsize_read = None
-        self.channels.vsize_read = None
         self.fields.x = "X"
         self.fields.y = "Y"
         self.fields.xrms = "XRMS"
@@ -460,9 +434,6 @@ class SolElement(Element):
 
     def __init__(self, z, length, aperture, name, desc="solenoid", **meta):
         super(SolElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
-        self.channels.field_cset = "FIELD_CSET"
-        self.channels.field_rset = "FIELD_RSET"
-        self.channels.field_read = "FIELD_READ"
         self.fields.field = "B"
 
 
@@ -476,12 +447,6 @@ class SolCorElement(SolElement):
 
     def __init__(self, z, length, aperture, name, desc="solenoid w correctors", **meta):
         super(SolCorElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
-        self.channels.hkick_cset = "HKICK_CSET"
-        self.channels.hkick_rset = "HKICK_RSET"
-        self.channels.hkick_read = "HKICK_READ"
-        self.channels.vkick_cset = "VKICK_CSET"
-        self.channels.vkick_rset = "VKICK_RSET"
-        self.channels.vkick_read = "VKICK_READ"
         self.h = None
         self.v = None
 
@@ -495,12 +460,6 @@ class BendElement(Element):
 
     def __init__(self, z, length, aperture, name, desc="bend magnet", **meta):
         super(BendElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
-        self.angle = 0.0
-        self.entrAngle = 0.0
-        self.exitAngle = 0.0
-        self.channels.field_cset = "FIELD_CSET"
-        self.channels.field_rset = "FIELD_RSET"
-        self.channels.field_read = "FIELD_READ"
         self.fields.field = "B"
         self.fields.angle = "ANG"
         self.fields.exitAngle = "EXTANG"
@@ -540,12 +499,6 @@ class CorElement(Element):
 
     def __init__(self, z, length, aperture, name, desc="corrector magnet", **meta):
         super(CorElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
-        self.channels.hkick_cset = "HKICK_CSET"
-        self.channels.hkick_rset = "HKICK_RSET"
-        self.channels.hkick_read = "HKICK_READ"
-        self.channels.vkick_cset = "VKICK_CSET"
-        self.channels.vkick_rset = "VKICK_RSET"
-        self.channels.vkick_read = "VKICK_READ"
         self.h = None
         self.v = None
 
@@ -559,9 +512,6 @@ class QuadElement(Element):
 
     def __init__(self, z, length, aperture, name, desc="quadrupole magnet", **meta):
         super(QuadElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
-        self.channels.gradient_cset = "GRADIENT_CSET"
-        self.channels.gradient_rset = "GRADIENT_RSET"
-        self.channels.gradient_read = "GRADIENT_READ"
         self.fields.gradient = "GRAD"
 
 
@@ -574,9 +524,6 @@ class SextElement(Element):
 
     def __init__(self, z, length, aperture, name, desc="hexapole magnet", **meta):
         super(SextElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
-        self.channels.field_read = "FIELD_READ"
-        self.channels.field_cset = "FIELD_CSET"
-        self.channels.field_rset = "FIELD_RSET"
         self.fields.field = "B"
 
 
@@ -591,15 +538,6 @@ class CavityElement(Element):
 
     def __init__(self, z, length, aperture, name, desc="cavity", **meta):
         super(CavityElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
-        self.beta = 0.0
-        self.voltage = 0.0
-        self.frequency = 0.0
-        self.channels.phase_cset = "PHASE_CSET"
-        self.channels.phase_rset = "PHASE_RSET"
-        self.channels.phase_read = "PHASE_READ"
-        self.channels.amplitude_cset = "AMPLITUDE_CSET"
-        self.channels.amplitude_rset = "AMPLITUDE_RSET"
-        self.channels.amplitude_read = "AMPLITUDE_READ"
         self.fields.phase = "PHA"
         self.fields.amplitude = "AMP"
         self.fields.frequency = "FREQ"
