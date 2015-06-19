@@ -12,7 +12,7 @@ from argparse import ArgumentParser
 from collections import OrderedDict
 
 from channelfinder import ChannelFinderClient
-from channelfinder.CFDataTypes import Property, Channel
+from channelfinder.CFDataTypes import Property, Channel, Tag
 
 from ..phylib.common.csv_utils import read_csv
 
@@ -26,7 +26,6 @@ parser = ArgumentParser(prog=os.path.basename(sys.argv[0])+" cfutil-export",
 parser.add_argument("-v", dest="verbosity", nargs='?', type=int, const=1, default=0, help="set the amount of output")
 parser.add_argument("--user", dest="username", help="specify ChannelFinder username")
 parser.add_argument("--pass", dest="password", help="specify ChannelFinder password")
-parser.add_argument("--cfstag", help="tag to query for channels")
 parser.add_argument("channelsPath", help="path to input file (.csv)")
 parser.add_argument("cfsurl", help="path to output file (.csv, .sqlite) or Channel Finder Service URL")
 
@@ -98,7 +97,14 @@ def main():
             if args.password == None:
                 args.password = getpass.getpass("Enter password: ")
 
-            _export_to_cfweb(channels, args.cfsurl, args.username, args.password)
+            # Channel Finder Client does not
+            # like trailing slashes in the URL.
+            if args.cfsurl.endswith("/"):
+                uri = args.cfsurl[:-1]
+            else:
+                uri = args.cfsurl
+
+            _export_to_cfweb(channels, uri, args.username, args.password)
         except Exception as e:
             if args.verbosity > 0: traceback.print_exc()
             print("Error exporting to ChannelFinder:", e, file=sys.stderr)
@@ -129,12 +135,24 @@ def _export_to_cfweb(channels, uri, username, password):
     #
     # {
     #    "CH:NAME1": {
-    #         "system":"SEG1",
-    #         "device":"DEV1"
+    #           "properties":{
+    #                 "system":"SEG1",
+    #                 "device":"DEV1"
+    #            },
+    #            "tags":[
+    #                "phyutil.sys.LS1",
+    #                "phyutil.sub.CA01"
+    #            ]
     #    },
     #    "CH:NAME2: {
-    #         "system":"SEG1",
-    #         "device":"DEV2"
+    #            "properties":{
+    #                 "system":"SEG1",
+    #                 "device":"DEV2"
+    #            }
+    #            "tags":[
+    #                "phyutil.sys.LS1",
+    #                "phyutil.sub.BTS"
+    #            ]
     #    }
     # }
     #
@@ -145,24 +163,40 @@ def _export_to_cfweb(channels, uri, username, password):
     #        "SEG1": [ "CH:NAME1", "CH:NAME2" ]
     #    },
     #    "device" : {
-    #        "DEV1" : [ "CH:NAME1" ],
-    #        "DEV2" : [ "CH:NAME2" ]
+    #        "DEV1": [ "CH:NAME1" ],
+    #        "DEV2": [ "CH:NAME2" ]
     #    }
     # }
     #
+    # And tag oriented:
+    #
+    # {
+    #     "phyutil.sys.LS1": [ "CH:NAME1", "CH:NAME2" ],
+    #     "phyutil.sub.CA01": [ "CH:NAME1" ],
+    #     "phyutil.sub.BTS": [ "CH:NAME2" ]
+    # }
+    #
+    tags = {}
     properties = {}
     channelnames = set()
-    for name, props, _ in channels:
-        for prop, value in props:
-            if prop not in properties:
-                properties[prop] = {}
+    for name, ps, ts in channels:
+        for p, value in ps.iteritems():
+            if p not in properties:
+                properties[p] = {}
+
             v = str(value)
+            if v not in properties[p]:
+                properties[p][v] = set()
 
-            if v not in properties[prop]:
-                properties[prop][v] = set()
+            properties[p][v].add(name)
 
-            properties[prop][v].add(name)
-            channelnames.add(name)
+        for t in ts:
+            if t not in tags:
+                tags[t] = set()
+
+            tags[t].add(name)
+
+        channelnames.add(name)
 
     client = ChannelFinderClient(BaseURL=uri, username=username, password=password)
 
@@ -182,6 +216,22 @@ def _export_to_cfweb(channels, uri, username, password):
             p.Value = propvalue
             client.update(property=p, channelNames=channelnames)
             _LOGGER.debug("Export to ChannelFinder: Update property: %s, for channels: %s", _Prop(p), len(channelnames))
+
+    for tag, channelnames in tags.iteritems():
+        t = Tag(tag, username)
+        client.set(tag=t)
+        _LOGGER.info("Export to ChannelFinder: Set tag: %s", _Tag(t))
+        client.update(tag=t, channelNames=channelnames)
+        _LOGGER.debug("Export to ChannelFinder: Update tag: %s, for channels: %s", _Tag(t), len(channelnames))
+
+
+class _Tag(object):
+    """Provides pretty printing for CF Tag object"""
+    def __init__(self, tag):
+        self._tag = tag
+
+    def __str__(self):
+        return "{{ name:'{tag.Name}', owner='{tag.Owner}' }}".format(tag=self._tag)
 
 
 class _Prop(object):
