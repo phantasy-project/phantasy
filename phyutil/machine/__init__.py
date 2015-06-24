@@ -278,9 +278,8 @@ def load(machine, submachine = "*", **kwargs):
 
         cfa.splitPropertyValue('elemGroups')
         cfa.splitChainedElement('elemName')
-        for k,v in _cf_map.iteritems(): 
+        for k, v in _cf_map.iteritems():
             cfa.renameProperty(k, v)
-                
         lat = createLattice(msect, cfa.results, acctag, src=cfa.source, mtype=machinetype,
                             simulation=SIMULATION_CODE, layout=layout, config=config, settings=settings)
         
@@ -349,9 +348,10 @@ def load(machine, submachine = "*", **kwargs):
     # set the default submachine, if no, use the first one
     lat0 = lat_dict.get(accdefault, None)
     if lat0 is None and len(lat_dict) > 0:
+        machineavailable = sorted(lat_dict.keys())[0]
         _logger.warn("default submachine not defined, "
-                      "use the first available one '%s'" % k)
-        lat0 = lat_dict[sorted(lat_dict.keys())[0]]
+                      "use the first available one '%s'" % machineavailable)
+        lat0 = lat_dict[machineavailable]
 
     if lat0 is None:
         raise RuntimeError("NO accelerator structures available")
