@@ -8,6 +8,8 @@ from __future__ import print_function
 
 import sys, os.path, logging, traceback
 
+from collections import OrderedDict
+
 from argparse import ArgumentParser
 
 from ..phylib.lattice import impact
@@ -31,6 +33,7 @@ parser.add_argument("--end", help="name of accelerator element to end processing
 parser.add_argument("--chanmap", help="path of file to write channel map")
 parser.add_argument("--latdata", help="path of file to write lattice data")
 parser.add_argument("--template", action="store_true", help="ignore settings and generate template")
+parser.add_argument("--with-elem-data", action="store_true", help="lattice with element data as comments")
 parser.add_argument("latticepath", nargs="?", help="path to output IMPACT lattice file (test.in)")
 
 print_help = parser.print_help
@@ -121,9 +124,9 @@ def main():
         name, _ = os.path.splitext(args.latticepath)
         maps = name + ".map"
         with open(args.latticepath, "w") as fp, open(maps, "w") as fmp:
-            lat.write(fp, fmp)
+            lat.write(fp, fmp, withElemData=args.with_elem_data)
     else:
-        lat.write(sys.stdout)
+        lat.write(sys.stdout, withElemData=args.with_elem_data)
 
     return 0
 
@@ -157,7 +160,7 @@ def _write_channel_map(accel, lat, channels, stream):
                 stream.write("\r\n")
 
 
-def _write_lattice_data(lat, fio):
+def _write_lattice_data(lat, stream):
     """Write the element data to space delimited format for use with Lattice Service.
 
     ElementName  ElementType  L  s  AMP PHA B GRAD ANG
@@ -170,33 +173,37 @@ def _write_lattice_data(lat, fio):
     LS1_CA01:BPM_D1129  BPM  0.0  0.51132684  0.0  0.0  0.0  0.0  0.0
     [...]
     """
-    fio.write("ElementName  ElementType  L  s")
-    for prop in lat.properties:
-        fio.write(" ")
-        fio.write(prop.name)
-    fio.write("\r\n")
-
-    fio.write("                          m  m")
-    for prop in lat.properties:
-        fio.write(" ")
-        fio.write(prop.units)
-    fio.write("\r\n")
-
-    fio.write("---------------------------------------------\r\n")
-
+    fields = OrderedDict()
     for elem in lat.elements:
-        fio.write(elem.name)
-        fio.write("  ")
-        fio.write(str(elem.etype))
-        fio.write("  ")
-        fio.write(str(elem.length))
-        fio.write("  ")
-        fio.write(str(elem.position))
-        for prop in lat.properties:
-            fio.write("  ")
-            if prop.name in elem.properties:
-                fio.write(str(elem.properties[prop.name]))
-            else:
-                fio.write("NONE")
-        fio.write("\r\n")
+        for field in elem.fields:
+            fields[field.name] = field.unit
+
+    stream.write("ElementName  ElementType  L  s")
+    for fname in fields.keys():
+        stream.write(" ")
+        stream.write(fname)
+    stream.write("\r\n")
+
+    stream.write("                          m  m")
+    for funit in fields.values():
+        stream.write(" ")
+        stream.write(funit)
+    stream.write("\r\n")
+
+    stream.write("---------------------------------------------\r\n")
+    for elem in lat.elements:
+        stream.write(str(elem.name))
+        stream.write("  ")
+        stream.write(str(elem.etype))
+        stream.write("  ")
+        stream.write(str(float(elem.length)))
+        stream.write("  ")
+        stream.write(str(float(elem.position)))
+        for fname in fields.keys():
+            stream.write("  ")
+            try:
+                stream.write(str(elem.getfield(fname)))
+            except:
+                stream.write("NONE")
+        stream.write("\r\n")
 
