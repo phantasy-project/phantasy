@@ -226,6 +226,8 @@ class Lattice:
         else:
             self.latticemodelmap={}
         for idx, mp in enumerate(mapping):
+            if mp == "NONE":
+                continue
             try:
                 self.latticemodelmap[mp] = self.latticemodelmap[mp] +[idx]
             except KeyError:

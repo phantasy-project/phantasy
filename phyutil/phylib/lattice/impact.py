@@ -1430,11 +1430,20 @@ class Lattice(object):
 
         # TODO: Option to compact lattice by merging drifts, etc.
 
+        if self.outputMode in [1, 2]:
+            if mapstream is not None:
+                # First line of data file is initial
+                # values before the first element.
+                mapstream.write("NONE\r\n")
+
         for elem in self.elements:
             if self.outputMode in [1, 2]:
                 loop = elem.steps
                 if elem.itype < 0:
                     loop = elem.steps + 1
+                elif elem.itype == 4:
+                    # no output from dipole
+                    loop = 0
                 if mapstream is not None:
                     for _ in range(loop):
                         mapstream.write("{0}\r\n".format(elem.name))
