@@ -164,7 +164,7 @@ def findMachineConfig(machine, **kwargs):
     return cfg, machdir, machname
 
 
-def load(machine, submachine = "*", **kwargs):
+def load(machine, submachine = None, **kwargs):
     """
     load submachine lattices in machine.
 
@@ -208,6 +208,8 @@ def load(machine, submachine = "*", **kwargs):
                                     os.path.expanduser('~')))
     # the default submachine
     accdefault = d_common.get("default_submachine", "")
+    if submachine is None:
+        submachine = accdefault
 
     # for all submachines specified in INI and matches the pattern
     msects = [subm for subm in re.findall(r'\w+', d_common.get("submachines", ""))
@@ -349,8 +351,7 @@ def load(machine, submachine = "*", **kwargs):
     lat0 = lat_dict.get(accdefault, None)
     if lat0 is None and len(lat_dict) > 0:
         machineavailable = sorted(lat_dict.keys())[0]
-        _logger.warn("default submachine not defined, "
-                      "use the first available one '%s'" % machineavailable)
+        _logger.warn("Use '%s' instead of default submachine '%s'" % (machineavailable, accdefault))
         lat0 = lat_dict[machineavailable]
 
     if lat0 is None:

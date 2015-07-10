@@ -217,9 +217,9 @@ class ChannelStore(object):
     
         if isinstance(tag, (tuple,list)) and (len(tag) > 0):
             if len(tag) > 1:
-               return CSTag(tag[0], tag[1])
+                return CSTag(tag[0], tag[1])
             else:
-               return CSTag(tag[0])
+                return CSTag(tag[0])
 
         raise TypeError("Cannot build CSTag from type: {}".format(type(tag)))
 

@@ -21,7 +21,6 @@ import os
 
 from fnmatch import fnmatch
 from time import gmtime, strftime
-import sqlite3
 
 import logging
 _logger = logging.getLogger(__name__)
@@ -36,7 +35,7 @@ class ChannelFinderAgent(object):
     
     def __init__(self, **kwargs):
         """
-        initialzation.
+        initialization.
         """
         self.__cdate = strftime("%Y-%m-%dT%H:%M:%S", gmtime())
         self.source = kwargs.get("source", None)
