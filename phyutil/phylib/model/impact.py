@@ -279,7 +279,7 @@ class Result(object):
         Current implementation returns all position information from simulation, and does not separate BPM 
         from other devices like magnet and other diagnostic devices like profile monitor.
 
-        :param plane:    beam plane, either "X", "Y", or "XY"
+        :param plane:    beam plane, either "X", "Y", "Z" or "XY"
         :param elemIdx:  element index, `None` by default 
         
         :return: beam position at given location, or at all total elements
@@ -288,6 +288,8 @@ class Result(object):
             return self.__getData(self._fort24, elemIdx=elemIdx, col=0)
         elif plane.upper() == "Y":
             return self.__getData(self._fort25, elemIdx=elemIdx, col=0)
+        elif plane.upper() == "Z":
+            return self.__getData(self._fort26, elemIdx=elemIdx, col=0)
         elif plane.upper() == "XY":
             return self.__getData(self._fort24, data2=self._fort25, elemIdx=elemIdx, col=0)
         else:

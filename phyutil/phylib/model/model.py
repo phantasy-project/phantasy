@@ -151,7 +151,7 @@ class Model:
         Current implementation returns all position information from simulation, and does not separate BPM 
         from other devices like magnet and other diagnostic devices like profile monitor.
 
-        :param plane:    beam plane, either "X", "Y", or "XY"
+        :param plane:    beam plane, either "X", "Y", "Z" or "XY"
         :param elems: list of element name(s), `None` by default 
         
         :return: beam position at given location, or at all totalelements
