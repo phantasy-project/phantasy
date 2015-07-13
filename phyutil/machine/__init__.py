@@ -39,6 +39,8 @@ from ..phylib.chanfinder import ChannelFinderAgent
 from ..phylib.lattice.element import merge
 from ..phylib.lattice.element import CaElement
 
+from clientapi.latticepy.LatticeModelClient import LatticeModelClient
+
 _logger = logging.getLogger(__name__)
 
 HLA_TAG_PREFIX = 'phyutil'
@@ -82,6 +84,9 @@ _cf_map = {'elemName': 'name',
            'elemLength': 'length',
            'system': 'system'
 }
+
+
+_machine_config = None
 
 
 # keep all loaded lattice
@@ -178,7 +183,8 @@ def load(machine, submachine = None, **kwargs):
     This machine can be a path to config dir.
     """
 
-    global _lattice_dict, _lat, SCAN_SRV_URL, SIMULATION_CODE, MODELDATA_DIR
+    global _machine_config, _lattice_dict, _lat
+    global SCAN_SRV_URL, SIMULATION_CODE, MODELDATA_DIR
 
     lat_dict = {}
 
@@ -199,9 +205,9 @@ def load(machine, submachine = None, **kwargs):
             return
 
     #importlib.import_module(machine, 'machines')
-    cfg, machdir, machname = findMachineConfig(machine, verbose=verbose)
+    _machine_config, machdir, machname = findMachineConfig(machine, verbose=verbose)
 
-    d_common = dict(cfg.items("COMMON"))
+    d_common = dict(_machine_config.items("COMMON"))
     # set proper output directory in the order of env > phyutil.ini > $HOME
     HLA_OUTPUT_DIR = os.environ.get("HLA_DATA_DIR",
                                     d_common.get("output_dir",
@@ -215,7 +221,7 @@ def load(machine, submachine = None, **kwargs):
     msects = [subm for subm in re.findall(r'\w+', d_common.get("submachines", ""))
              if fnmatch.fnmatch(subm, submachine)]
     for msect in msects:
-        d_msect = dict(cfg.items(msect))
+        d_msect = dict(_machine_config.items(msect))
         SCAN_SRV_URL = d_msect.get("ss_url", None)
         SIMULATION_CODE = d_msect.get("model", None)
 #         IMPACT_ELEMENT_MAP = None
@@ -497,6 +503,34 @@ def createVirtualElements(vlat, vfams):
             allvelem.virtual = 1
 
         iv = iv - 100
+
+
+def getLatticeModelStore(submachine=None, **kwargs):
+    """
+    Get a Lattice/Model store or client based on the submachine configuration.
+
+    :param submachine: Name of submachine to use, if None use current submachine.
+    :param **kwargs: Extra parameters to be passed to the client constructor.
+    :return: Lattice/Model store
+    """
+    global _machine_config, _lat
+    if _machine_config is None:
+        raise RuntimeError("Machine configuration not found. Did you call load()?")
+
+    if submachine is None:
+        if _lat is not None:
+            submachine = _lat.name
+        else:
+            raise RuntimeError("Current submachine has been specified.")
+
+    if "BaseURL" not in kwargs:
+        if _machine_config.has_option(submachine, "lms_url"):
+            kwargs["BaseURL"] = _machine_config.get(submachine, "lms_url")
+        else:
+            raise RuntimeError("Lattice/Model service URL not found. Check configuration.")
+
+    return LatticeModelClient(**kwargs)
+
 
 def findCfaConfig(srcname, machine, submachines):
     """
