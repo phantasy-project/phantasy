@@ -30,6 +30,7 @@ parser = ArgumentParser(prog=os.path.basename(sys.argv[0])+" frib-channels",
 parser.add_argument("-v", dest="verbosity", nargs='?', type=int, const=1, default=0, help="set the amount of output")
 #parser.add_argument("--start", help="name of accelerator element to start processing")
 #parser.add_argument("--end", help="name of accelerator element to end processing")
+parser.add_argument("--tag", action="append", help="additional tag (can be used multiple times)")
 parser.add_argument("--machine", help="name of machine (used to indicate VA)")
 parser.add_argument("layoutPath", help="path to accelerator layout file")
 parser.add_argument("channelsPath", help="path to output data file (csv or sqlite)")
@@ -71,6 +72,11 @@ def main():
         if args.verbosity > 0: traceback.print_exc()
         print("Error building channels:", e, file=sys.stderr)
         return 1
+
+    # Append tags specified on the command-line.
+    if args.tag is not None:
+        for _, _, tags in channels:
+            tags.extend(args.tag)
 
     _, ext = os.path.splitext(args.channelsPath)
     if ext == ".csv":
