@@ -284,3 +284,61 @@ class Model:
         else:
             elemIdx = self.__getModelSeq4Elems(elems)
         return self.modelresult.getMomentumRms(plane, elemIdx)    
+
+
+    def saveModel(self, name, latname, latbranch, latversion, description="",
+                    username=None, password=None):
+        """Save the model to the Lattice/Model store or client configured for
+        the current submachine. The lattice corresponding to ths this model
+        must be specifed by name, branch and version. Optionally specify a
+        username and password for authenticating the store or client.
+
+        :param name: model name
+        :param latname: lattice name
+        :param latbranch: lattice branch
+        :param latversion: lattice version
+        :param description: optional model description
+        :param username: optional username for service authentication
+        :param password: optional password for service authentication
+        """
+        store = machine.getLatticeModelStore(username=username, password=password)
+
+        model = {
+            'description':description,
+            'simulationCode':'impact',
+            'simulationAlgorithm':'lorentz'
+        }
+
+        energy = self.getEnergy()
+        position = self.getSPosition()
+        x = self.getOrbit("X")
+        y = self.getOrbit("Y")
+        z = self.getOrbit("Z")
+        xrms = self.getBeamRms("X")
+        yrms = self.getBeamRms("Y")
+        zrms = self.getBeamRms("Z")
+        xp = self.getBeamMomentumCentroid("X")
+        yp = self.getBeamMomentumCentroid("Y")
+        zp = self.getBeamMomentumCentroid("Z")
+        xprms = self.getMomentumRms("X")
+        yprms = self.getMomentumRms("Y")
+        zprms = self.getMomentumRms("Z")
+        beamparams = {}
+        for elem, elemorder in machine._lat.latticemodelmap.iteritems():
+            for order, indexes in elemorder.iteritems():
+                for idx in indexes:
+                    beamparams[order] = {
+                            'name':elem,
+                            'energy':energy[idx],
+                            'position':position[idx],
+                            'x':x[idx], 'y':y[idx], 'z':z[idx],
+                            'xrms':xrms[idx], 'yrms':yrms[idx], 'zrms':zrms[idx],
+                            'xp':xp[idx], 'yp':yp[idx], 'zp':zp[idx],
+                            'xprms':xprms[idx], 'yprms':yprms[idx], 'zprms':zprms[idx],
+                            'transferMatrix':[]
+                        }
+
+        model['beamParameter'] = beamparams
+
+        store.saveModel(latname, latbranch, latversion, { name:model })
+

@@ -32,10 +32,15 @@ from fnmatch import fnmatch
 from element import AbstractElement
 
 import logging
+
 logger = logging.getLogger(__name__)
+
+import phyutil.machine
 
 from ..lattice.impact import LatticeFactory as ImpactLatticeFactory
 from ..lattice.impact import run_lattice as run_impact_lattice
+
+
 
 class Lattice:
     """Lattice class. It assumes alll elements inside this lattice has a unique name.
@@ -159,6 +164,29 @@ class Lattice:
             if self.latticemodelmap is None:
                 self.createLatticeModelMap(os.path.join(work_dir, "model.map"))
             return work_dir
+        else:
+            raise RuntimeError("Lattice: Simulation code '{}' not supported".format(self.simulation))
+
+
+    def saveLattice(self, name, branch, version, description="", username=None, password=None):
+        """Save the lattice to the Lattice/Model store or client that has been
+        configured for this submachine. Optionally specify a username and
+        password for authenticating the store or client.
+
+        :param name: lattice name
+        :param branch: lattice branch
+        :param version: lattice version
+        :param description: optional lattice description
+        :param username: optional username for service authentication
+        :param password: optional password for service authentication
+        """
+        store = phyutil.machine.getLatticeModelStore(self.name, username=username, password=password)
+        if self.simulation == "IMPACT":
+            lat = self._latticeFactory.build()
+            with open(os.path.join(self.OUTPUT_DIR, "test.in"), "w") as stream:
+                lat.write(stream, withElemData=True)
+            store.saveLattice(name, branch, version, "test.in", description=description,
+                              latticetype={"name":"impact", "format":"in"}, topdir=self.OUTPUT_DIR)
         else:
             raise RuntimeError("Lattice: Simulation code '{}' not supported".format(self.simulation))
 
