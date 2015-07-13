@@ -38,13 +38,20 @@ class Model:
         
         :param elems: list of element object
         """
+        def lastindex(ordermap):
+            lastidx = -1
+            for indexes in ordermap.values():
+                for idx in indexes:
+                    if idx > lastidx:
+                        lastidx = idx
+            return lastidx
         if isinstance(elems, (list, tuple)):
             res = []
             for el in elems:
-                res.append(machine._lat.latticemodelmap[el.name][-1])
+                res.append(lastindex(machine._lat.latticemodelmap[el.name]))
             return res            
         else:
-            return machine._lat.latticemodelmap[elems.name][-1]
+            return lastindex(machine._lat.latticemodelmap[elems.name])
     
     def _buildModelResult(self):
         """

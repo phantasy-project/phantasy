@@ -226,12 +226,13 @@ class Lattice:
         else:
             self.latticemodelmap={}
         for idx, mp in enumerate(mapping):
-            if mp == "NONE":
+            if mp[0] == "NONE":
                 continue
-            try:
-                self.latticemodelmap[mp] = self.latticemodelmap[mp] +[idx]
-            except KeyError:
-                self.latticemodelmap[mp] = [idx]
+            if mp[0] not in self.latticemodelmap:
+                self.latticemodelmap[mp[0]] = {}
+            if mp[1] not in self.latticemodelmap[mp[0]]:
+                self.latticemodelmap[mp[0]][mp[1]] = []
+            self.latticemodelmap[mp[0]][mp[1]].append(idx)
 
     def hasElement(self, name):
         """has the named element"""

@@ -1434,9 +1434,9 @@ class Lattice(object):
             if mapstream is not None:
                 # First line of data file is initial
                 # values before the first element.
-                mapstream.write("NONE\r\n")
+                mapstream.write("NONE 0\r\n")
 
-        for elem in self.elements:
+        for order, elem in enumerate(self.elements, start=1):
             if self.outputMode in [1, 2]:
                 loop = elem.steps
                 if elem.itype < 0:
@@ -1446,13 +1446,13 @@ class Lattice(object):
                     loop = 0
                 if mapstream is not None:
                     for _ in range(loop):
-                        mapstream.write("{0}\r\n".format(elem.name))
+                        mapstream.write("{0} {1}\r\n".format(elem.name, order))
             elif self.outputMode in [3, 4] and elem.itype == -28:
                 if mapstream is not None:
-                    mapstream.write("{0}\r\n".format(elem.name))
+                    mapstream.write("{0} {1}\r\n".format(elem.name, order))
             elif self.outputMode in [5, 6]:
                 if mapstream is not None:
-                    mapstream.write("{0}\r\n".format(elem.name))
+                    mapstream.write("{0} {1}\r\n".format(elem.name, order))
             elem.write(stream, withElemData)
 
 
