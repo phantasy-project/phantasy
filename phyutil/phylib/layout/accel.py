@@ -18,8 +18,6 @@ from __future__ import print_function
 
 import sys
 
-from collections import OrderedDict
-
 
 # Base Elements
 
@@ -421,6 +419,38 @@ class PMElement(Element):
         self.fields.yrms = "YRMS"
 
 
+class EMSElement(Element):
+    """
+    EMSElement represents an Emittance Scanner device.
+    """
+
+    ETYPE="EMS"
+
+    def __init__(self, z, length, aperture, name, desc="emittance scanner", **meta):
+        super(EMSElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
+
+
+class FCElement(Element):
+    """
+    FCElement represents an Faraday Cup device.
+    """
+
+    ETYPE="FC"
+
+    def __init__(self, z, length, aperture, name, desc="faraday cup", **meta):
+        super(FCElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
+
+
+class VDElement(Element):
+    """
+    VDElement represents a Viewer Detector device.
+    """
+
+    ETYPE="VD"
+
+    def __init__(self, z, length, aperture, name, desc="viewer detector", **meta):
+        super(VDElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
+
 
 # Magnetic Elements
 
@@ -526,8 +556,32 @@ class SextElement(Element):
         super(SextElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
         self.fields.field = "B"
 
+# Electrostatic Elements
 
-# RF Elements
+
+class EBendElement(Element):
+    """
+    EBendElement represents an electrostatic bending element.
+    """
+
+    ETYPE="EBEND"
+
+    def __init__(self, z, length, aperture, name, desc="ebend", **meta):
+        super(EBendElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
+
+
+class EQuadElement(Element):
+    """
+    EQuadElement represents and electrostatic quadrupole element.
+    """
+
+    ETYPE="EQUAD"
+
+    def __init__(self, z, length, aperture, name, desc="equad", **meta):
+        super(EQuadElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
+
+
+# Accelerating Elements
 
 class CavityElement(Element):
     """
@@ -543,6 +597,16 @@ class CavityElement(Element):
         self.fields.frequency = "FREQ"
 
 
+class ColumnElement(Element):
+    """
+    ColumnElement represents an DC column.
+    """
+
+    ETYPE="COL"
+
+    def __init__(self, z, length, aperture, name, desc="column", **meta):
+        super(ColumnElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
+
 
 # Charge Stripper Elements
 
@@ -555,6 +619,19 @@ class StripElement(Element):
 
     def __init__(self, z, length, aperture, name, desc="charge stripper", **meta):
         super(StripElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
+
+
+# Source Elements
+
+class ElectrodeElement(Element):
+    """
+    ElectrodeElement represents an source electrode.
+    """
+
+    ETYPE = "ELCD"
+
+    def __init__(self, z, length, aperture, name, desc="electrode", **meta):
+        super(ElectrodeElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
 
 
 # Accelerator Element

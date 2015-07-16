@@ -14,12 +14,14 @@ from collections import OrderedDict
 
 from ....phylib import cfg
 
-from ....phylib.layout.accel import SeqElement
+from ....phylib.layout.accel import ElectrodeElement, SeqElement
 from ....phylib.layout.accel import HCorElement, VCorElement, CorElement
 from ....phylib.layout.accel import BendElement, QuadElement, SextElement
 from ....phylib.layout.accel import DriftElement, PortElement, ValveElement
-from ....phylib.layout.accel import StripElement, CavityElement, SolCorElement
+from ....phylib.layout.accel import StripElement, ColumnElement, CavityElement
+from ....phylib.layout.accel import EBendElement, EQuadElement, SolElement, SolCorElement
 from ....phylib.layout.accel import BPMElement, BLMElement, BCMElement, PMElement, BLElement
+from ....phylib.layout.accel import EMSElement, FCElement, VDElement
 
 from ....phylib.layout.layout import Layout
 
@@ -131,7 +133,7 @@ class AccelFactory(object):
     @machine.setter
     def machine(self, machine):
         if (machine != None) and not isinstance(machine, basestring):
-            raise TypeError("AccelFactory: 'machine' property much be type string or None")
+            raise TypeError("AccelFactory: 'machine' property must be type string or None")
         self._machine = machine
 
 
@@ -235,22 +237,12 @@ class AccelFactory(object):
             diameter = _parse_diameter(self.config.get_default(CONFIG_XLF_DIAMETER))
 
 
-        chanprefix = ""
-        if (machine != None) and (len(machine.strip()) > 0):
-            chanprefix = machine.strip()+":"
-
-
         wkbk = xlrd.open_workbook(xlfpath)
 
         if _XLF_LAYOUT_SHEET_NAME not in wkbk.sheet_names():
             raise RuntimeError("AccelFactory: Expanded Lattice File layout not found: '{}'".format(_XLF_LAYOUT_SHEET_NAME))
 
         layout = wkbk.sheet_by_name(_XLF_LAYOUT_SHEET_NAME)
-
-        # skip front-end, perhaps this should be read too?
-        for ridx in xrange(_XLF_LAYOUT_SHEET_START, layout.nrows):
-            row = _LayoutRow(layout.row(ridx))
-            if row.system == "LS1": break
 
         accelerator = Layout(os.path.splitext(os.path.basename(xlfpath))[0], desc="FRIB Linear Accelerator")
 
@@ -268,7 +260,7 @@ class AccelFactory(object):
                 raise RuntimeError("AccelFactory: previous element type invalid")
             return elements[-1]
 
-        for ridx in xrange(ridx, layout.nrows):
+        for ridx in xrange(_XLF_LAYOUT_SHEET_START, layout.nrows):
             row = _LayoutRow(layout.row(ridx))
 
             # skip rows without length
@@ -334,12 +326,13 @@ class AccelFactory(object):
                         subsequence.append(ValveElement(row.center_position, row.eff_length, row.diameter, row.name,
                                             desc=row.element_name, system=row.system, subsystem=row.subsystem, device=row.device))
 
-                    elif row.device in [ "CAV1", "CAV2", "CAV3", "CAV4", "CAV5", "CAV6", "CAV7", "CAV8" ]:
+                    elif row.device in [ "CAV1", "CAV2", "CAV3", "CAV4", "CAV5", "CAV6", "CAV7", "CAV8", "CAV" ]:
                         m = re.match("(b\\d{2}) cavity", row.element_name)
-                        if not m:
-                            raise RuntimeError("Unrecognized element name for cavity: '{}'".format(row.element_name))
+                        if m:
+                            dtype = "CAV_{}".format(m.group(1).upper())
+                        else:
+                            dtype = row.element_name
 
-                        dtype = "CAV_{}".format(m.group(1).upper())
                         inst = "D{:d}".format(int(row.position))
 
                         elem = CavityElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
@@ -353,7 +346,16 @@ class AccelFactory(object):
 
                         subsequence.append(elem)
 
-                    elif row.device in [ "SOL1", "SOL2", "SOL3" ]:
+                    elif row.device in [ "SOLR" ]:
+                        dtype = "SOL_{}".format(row.device_type)
+                        inst = "D{:d}".format(int(row.position))
+
+                        elem = SolElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
+                                                    system=row.system, subsystem=row.subsystem, device=row.device, dtype=dtype, inst=inst)
+
+                        subsequence.append(elem)
+
+                    elif row.device in [ "SOL1", "SOL2", "SOL3", "SOLS" ]:
                         dtype = "SOL_{}".format(row.device_type)
                         inst = "D{:d}".format(int(row.position))
 
@@ -404,13 +406,25 @@ class AccelFactory(object):
                         subsequence.append(BCMElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
                                                             system=row.system, subsystem=row.subsystem, device=row.device, dtype=row.device_type))
 
+                    elif row.device in [ "EMS" ]:
+                        subsequence.append(EMSElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
+                                                            system=row.system, subsystem=row.subsystem, device=row.device, dtype=row.device_type))
+
+                    elif row.device in [ "FC", "FFC" ]:
+                        subsequence.append(FCElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
+                                                            system=row.system, subsystem=row.subsystem, device=row.device, dtype=row.device_type))
+
+                    elif row.device in [ "VD" ]:
+                        subsequence.append(VDElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
+                                                            system=row.system, subsystem=row.subsystem, device=row.device, dtype=row.device_type))
+
                     elif row.device in [ "PORT" ]:
                         dtype = "" if row.device_type == None else row.device_type
                         subsystem = "" if row.subsystem == None else row.subsystem
                         subsequence.append(PortElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
                                                                 system=row.system, subsystem=subsystem, device=row.device, dtype=dtype))
 
-                    elif row.device in [ "DC", "DC0", "CH" ]:
+                    elif row.device in [ "DC", "DC0", "CH", "DCHV" ]:
 
                         inst = "D{:d}".format(int(row.position))
 
@@ -426,9 +440,6 @@ class AccelFactory(object):
                         subsequence.append(elem)
 
                     elif row.device in [ "DH" ]:
-                        m = re.match("dipole\\s*\\(?(.*)deg\\)?", row.element_name)
-                        if not m:
-                            raise RuntimeError("Unrecognized element name for bend magnet: '{}'".format(row.element_name))
 
                         dtype = "BEND_{}".format(row.device_type)
                         inst = "D{:d}".format(int(row.position))
@@ -437,8 +448,6 @@ class AccelFactory(object):
                                                     system=row.system, subsystem=row.subsystem, device=row.device, dtype=dtype, inst=inst)
 
                         self._apply_config(elem)
-
-                        elem.angle = float(m.group(1))
 
                         subsequence.append(elem)
 
@@ -462,8 +471,49 @@ class AccelFactory(object):
 
                         subsequence.append(elem)
 
-                    elif row.device in [ "SLH" ]:
-                        # use dift to represent slit for now
+                    elif row.device in [ "ELC1" ]:
+
+                        inst = "D{:d}".format(int(row.position))
+
+                        elem = ElectrodeElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
+                                                   system=row.system, subsystem=row.subsystem, device=row.device, dtype=row.device_type, inst=inst)
+
+                        subsequence.append(elem)
+
+                    elif row.device in [ "ACC" ]:
+
+                        inst = "D{:d}".format(int(row.position))
+
+                        elem = ColumnElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
+                                                   system=row.system, subsystem=row.subsystem, device=row.device, dtype=row.device_type, inst=inst)
+
+                        subsequence.append(elem)
+
+                    elif row.device in [ "DVE" ]:
+
+                        dtype = "BEND_{}".format(row.device_type)
+                        inst = "D{:d}".format(int(row.position))
+
+                        elem = EBendElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
+                                                    system=row.system, subsystem=row.subsystem, device=row.device, dtype=dtype, inst=inst)
+
+                        #self._apply_config(elem)
+
+                        subsequence.append(elem)
+
+                    elif row.device in [ "QHE", "QVE" ]:
+
+                        dtype = "QUAD_{}".format(row.device_type)
+                        inst = "D{:d}".format(int(row.position))
+
+                        elem = EQuadElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
+                                                    system=row.system, subsystem=row.subsystem, device=row.device, dtype=dtype, inst=inst)
+
+                        subsequence.append(elem)
+
+
+                    elif row.device in [ "SLH", "SLT", "CHP", "AP", "ATT" ]:
+                        # use dift to represent slits, chopper, apertures and attenuators
                         subsequence.append(DriftElement(row.center_position, row.eff_length, row.diameter, desc=row.element_name))
 
                     elif row.device in [ "dump" ]:
@@ -482,7 +532,7 @@ class AccelFactory(object):
 
                 elif row.element_name != None:
 
-                    if row.element_name in [ "bellow", "bellows", "bellow+tube", "2 bellows + tube" ]:
+                    if row.element_name in [ "bellow", "bellows", "bellow+tube", "2 bellows + tube", "bellow+box", "bellow+tube/box", "tube", "reducer flange" ]:
                         if drift_delta != 0.0:
                             row.eff_length += drift_delta
                             row.center_position -= drift_delta
@@ -501,7 +551,7 @@ class AccelFactory(object):
                             raise Exception("Unsupported drift delta on element: {}".format(row.element_name))
                         subsequence.append(DriftElement(row.center_position, row.eff_length, row.diameter, desc=row.element_name))
 
-                    elif row.element_name in [ "BPM-box", "diagnostic box", "vacuum box" ]:
+                    elif row.element_name in [ "BPM-box", "diagnostic box", "vacuum box", "box", "box+tube", "mhb box", "mhb box & bellows", "4 way cross", "6 way cross" ]:
                         if drift_delta != 0.0:
                             raise Exception("Unsupported drift delta on element: {}".format(row.element_name))
                         subsequence.append(DriftElement(row.center_position, row.eff_length, row.diameter, desc=row.element_name))
@@ -524,6 +574,16 @@ class AccelFactory(object):
                         elem.system = row.system
                         elem.subsystem = row.subsystem
                         elem.device = "STRIP"
+
+                    elif row.element_name in [ "artemis_b extraction/puller", "extraction box" ]:
+                        if drift_delta != 0.0:
+                            raise Exception("Unsupported drift delta on element: {}".format(row.element_name))
+                        subsequence.append(DriftElement(row.center_position, row.eff_length, row.diameter, desc=row.element_name))
+
+                    elif row.element_name in [ "RFQ end wall", "RFQ inn-wall (match point)", "RFQ inn-wall" ]:
+                        if drift_delta != 0.0:
+                            raise Exception("Unsupported drift delta on element: {}".format(row.element_name))
+                        subsequence.append(DriftElement(row.center_position, row.eff_length, row.diameter, desc=row.element_name))
 
                     else:
                         raise Exception("Unsupported layout with name: '{}'".format(row.element_name))
