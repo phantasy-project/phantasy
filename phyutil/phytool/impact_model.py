@@ -189,8 +189,8 @@ def main():
                 csvfile = sys.stdout
             else:
                 csvfile = open(args.resultpath, "w")
-            csvfile.write("#  i  name   s   energy   codx   cody  alphax alphay emittancex emittancey emittancez TM\r\n")
-            csvfile.write("#           [m]   [eV]     [m]    [m]                                                    \r\n")
+            csvfile.write("#  i  name   s   energy   codx   cody  rmsx  rmsy  alphax alphay emittancex emittancey emittancez TM\r\n")
+            csvfile.write("#           [m]   [eV]     [m]    [m]   [m]   [m]                                                   \r\n")
 
             for idx in xrange(len(lattice.elements)):
                 csvfile.write(str(idx))
@@ -204,6 +204,10 @@ def main():
                 csvfile.write(str(xorbit[idx]))
                 csvfile.write("  ")
                 csvfile.write(str(yorbit[idx]))
+                csvfile.write("  ")
+                csvfile.write(str(xrms[idx]))
+                csvfile.write("  ")
+                csvfile.write(str(yrms[idx]))
                 csvfile.write("  ")
                 csvfile.write(str(xalpha[idx]))
                 csvfile.write("  ")
