@@ -1070,8 +1070,7 @@ def read_lattice(stream):
                 kwargs["fields"].append((m.group(1), m.group(2), idx))
             else:
                 kwargs["fields"].append((name, "", idx))
-
-        lattice.append(*row[:-1], **kwargs)
+        lattice.append(*row, **kwargs)
         element = None
 
     return lattice
