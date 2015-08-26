@@ -13,6 +13,7 @@ import subprocess, cothread, threading, logging, time
 
 from cothread import catools
 
+from copy import deepcopy
 from collections import OrderedDict
 
 from ....phylib.cfg import Configuration
@@ -917,7 +918,7 @@ class VirtualAccelerator(object):
 
 
     def _copy_settings_with_noise(self):
-        s = OrderedDict(self._settings)
+        s = deepcopy(self._settings)
         for name, field in self._fieldmap.values():
             s[name][field] = s[name][field] + s[name][field] * self._noise * 2.0*(random.random()-0.5)
         return s

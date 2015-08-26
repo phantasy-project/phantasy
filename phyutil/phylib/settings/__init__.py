@@ -12,6 +12,7 @@ Utilities for reading machine settings from various sources.
 
 import json
 
+from copy import deepcopy
 from collections import OrderedDict
 
 
@@ -33,4 +34,12 @@ class Settings(OrderedDict):
            :param fp: file-like object to read settings
         """
         self.update(json.load(fp, object_pairs_hook=OrderedDict))
+
+    def __deepcopy__(self, memo):
+        """Due to the custom class initializer the default deepcopy
+           implementation is broken. Override it to make it work again.
+        """
+        s = Settings()
+        s.update(deepcopy(self.items(), memo))
+        return s
 
