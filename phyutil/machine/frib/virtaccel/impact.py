@@ -727,6 +727,11 @@ class VirtualAccelerator(object):
         self._subscriptions.extend(catools.camonitor(self._csetmap.keys(), self._handle_cset_monitor))
 
         while self._continue:
+            # update the RSET channels with new settings
+            for cset in self._csetmap.items():
+                name, field = self._fieldmap[cset[0]]
+                catools.caput(cset[1][0], self._settings[name][field])
+
             settings = self._copy_settings_with_noise()
             self._latfactory.settings = settings
             lattice = self._latfactory.build()
@@ -904,7 +909,6 @@ class VirtualAccelerator(object):
         """
         cset = self._csetmap.items()[idx]
         _LOGGER.debug("VirtualAccelerator: Update cset: '%s' to %s", cset[0], value)
-        catools.caput(cset[1][0], value)
         name, field = self._fieldmap[cset[0]]
         self._settings[name][field] = float(value)
 
