@@ -13,7 +13,6 @@ Library for generating IMPACT lattice file (test.in) from Accelerator Design Des
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
-from __future__ import unicode_literals
 
 import sys, os.path, logging, subprocess, shutil, tempfile, json, re
 
@@ -716,7 +715,7 @@ class LatticeFactory(object):
                     except KeyError:
                         raise RuntimeError("LatticeFactory: '{}' setting not found for element: {}".format(elem.v.fields.angle, elem.name))
 
-                lattice.append(elem.length/2.0, steps/2, mapsteps, 3, field, 0, elem.apertureX/2.0,
+                lattice.append(elem.length/2.0, int(steps/2), mapsteps, 3, field, 0, elem.apertureX/2.0,
                                position=elem.z-poffset, name=elem.name, etype="SOL", #elem.ETYPE
                                fields=[ (elem.fields.field, "T", 4) ])
 
@@ -728,7 +727,7 @@ class LatticeFactory(object):
                                position=elem.v.z-poffset, name=elem.v.name, etype=elem.v.ETYPE,
                                fields=[ (elem.v.fields.angle, "rad", 8) ])
 
-                lattice.append(elem.length/2.0, steps/2, mapsteps, 3, field, 0, elem.apertureX/2.0,
+                lattice.append(elem.length/2.0, int(steps/2), mapsteps, 3, field, 0, elem.apertureX/2.0,
                                position=elem.z+(elem.length/2.0)-poffset, name=elem.name, etype="SOL", #elem.ETYPE
                                fields=[ (elem.fields.field, "T", 4) ])
 
