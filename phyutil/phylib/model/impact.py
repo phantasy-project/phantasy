@@ -327,19 +327,19 @@ class Result(object):
         :return: beam twiss beta at given location, or at all totalelements
         """
         if plane.upper() == "X":
-            if self._fort24.shape()[1] < 7:
+            if self._fort24.shape[1] < 7:
                 raise DataError("No Twiss Beta available")
             return self.__getData(self._fort24, elemIdx=elemIdx, col=6)
         elif plane.upper() == "Y":
-            if self._fort25.shape()[1] < 7:
+            if self._fort25.shape[1] < 7:
                 raise DataError("No Twiss Beta available")
             return self.__getData(self._fort25, elemIdx=elemIdx, col=6)
         elif plane.upper() == "Z":
-            if self._fort26.shape()[1] < 7:
+            if self._fort26.shape[1] < 7:
                 raise DataError("No Twiss Beta available")
             return self.__getData(self._fort26, elemIdx=elemIdx, col=6)
         elif plane.upper() == "XY":
-            if self._fort24.shape()[1] < 7 or self._fort25.shape()[1] < 7:
+            if self._fort24.shape[1] < 7 or self._fort25.shape[1] < 7:
                 raise DataError("No Twiss Beta available")
             return self.__getData(self._fort24, data2=self._fort25, elemIdx=elemIdx, col=6)
         else:
