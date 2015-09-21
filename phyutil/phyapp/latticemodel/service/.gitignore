@@ -1,0 +1,15 @@
+
+
+# ignore eclipse project
+.project
+.pydevproject
+.settings/
+
+# ignore python btye-code
+*.pyc
+
+# ignore javascript libraries
+bower_components/
+static/vendor/
+attachments/
+

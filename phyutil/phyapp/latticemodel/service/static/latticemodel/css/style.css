@@ -1,0 +1,421 @@
+/*
+ * Common styles used in all files
+ *
+ * @author: Dejan Dežman <dejan.dezman@cosylab.com>
+ */
+
+html, body {
+	margin: 0;
+	padding: 0;
+	height: 100%;
+	width: 100%;
+}
+
+.version {
+	font-size: 10px;
+	margin: 0;
+	padding: 0;
+}
+
+.top-margin {
+	margin-top: 60px;
+}
+
+.olog-nav {
+	background-color: #eeeeee;
+	margin: 0;
+	padding: 7px;
+	-webkit-border-radius: 0px;
+	-moz-border-radius: 0px;
+	border-radius: 0px;
+}
+
+.well {
+	padding: 0px;
+	margin: 0px;
+}
+
+.well-light {
+	background-color: white;
+}
+
+@media (max-width: 1023px) {
+	.container-left {
+		float: none;
+		padding: 0px 20px 20px 20px;
+	}
+
+	.container-middle {
+		float: none;
+		padding: 0px 20px 20px 20px;
+	}
+
+	.container-right {
+		float: none;
+		padding: 0px 20px 20px 20px;
+	}
+
+	.container-scroll-middle {
+		background-image: url('../img/list_big2.png');
+		background-repeat: no-repeat;
+		background-position: center;
+		height: 150px;
+	}
+
+	.container-scroll-middle-no-img {
+	}
+
+	.container-scroll-last-one {
+		background-image: url('../img/data_big3.png');
+		background-repeat: no-repeat;
+		background-position: center;
+		height: 150px;
+	}
+
+	.container-scroll-last-one-no-img {
+	}
+
+	/*
+	 * Back to top button
+	 */
+	#back_to_top_button {
+		position:fixed;
+		bottom: 5px;
+		right: 5px;
+		width: 50px;
+		height: 50px;
+		background-color: #0088cc;
+		border: 1px solid #cccccc;
+		-webkit-border-radius: 4px;
+		   -moz-border-radius: 4px;
+				border-radius: 4px;
+		cursor: pointer;
+		text-align: center;
+		opacity: 0.6;
+		display: block;
+	}
+
+	#back_to_top_button > i {
+		margin-top: 15px;
+	}
+}
+
+@media (min-width: 1024px) {
+
+	.container-resize {
+		position: fixed;
+		left: 15%;
+		top: 45px;
+		width: 5px;
+		bottom: 0px;
+		z-index: 501;
+	}
+
+	.container-resize > div {
+		position:relative;
+		height: 100%;
+		width: 100%;
+	}
+
+	.container-resize > div:hover {
+		cursor: col-resize;
+	}
+
+	.container-resize2 {
+		position: fixed;
+		left: 35%;
+		top: 45px;
+		width: 5px;
+		bottom: 0px;
+		z-index: 501;
+	}
+
+	.container-resize2 > div {
+		position:relative;
+		height: 100%;
+		width: 100%;
+	}
+
+	.container-resize2 > div:hover {
+		cursor: col-resize;
+	}
+
+	.container-left {
+		position: absolute;
+		left: 0px;
+		top: 45px;
+		width: 15%;
+		bottom: 0px;
+	}
+
+	.container-middle {
+		position: absolute;
+		left: 15%;
+		width: 20%;
+		top: 45px;
+		bottom: 0px;
+	}
+
+	.container-right {
+		position: absolute;
+		right: 0px;
+		top: 45px;
+		width: 65%;
+		bottom: 0px;
+	}
+
+	.container-scroll {
+		position: absolute;
+		top: 5px;
+		right: 0px;
+		left: 5px;
+		bottom: 5px;
+		overflow-y: auto;
+	}
+
+	.container-scroll-middle {
+		position: absolute;
+		top: 5px;
+		right: 0px;
+		left: 5px;
+		bottom: 5px;
+		overflow-y: auto;
+		background-image: url('../img/list_big2.png');
+		background-repeat: no-repeat;
+		background-position: center;
+	}
+
+	.container-scroll-middle-no-img {
+		position: absolute;
+		top: 5px;
+		right: 0px;
+		left: 5px;
+		bottom: 5px;
+		overflow-y: auto;
+	}
+
+	.container-scroll-last-one {
+		position: absolute;
+		top: 5px;
+		right: 5px;
+		left: 5px;
+		bottom: 5px;
+		overflow-y: auto;
+		background-image: url('../img/data_big3.png');
+		background-repeat: no-repeat;
+		background-position: center;
+	}
+
+	.container-scroll-last-one-no-img {
+		position: absolute;
+		top: 5px;
+		right: 5px;
+		left: 5px;
+		bottom: 5px;
+		overflow-y: auto;
+	}
+
+	#back_to_top_button {
+		display: none;
+	}
+}
+
+.float_right {
+	float: right;
+}
+
+.float_right_padding {
+	padding: 3px;
+}
+
+.bg_light {
+	background-color: #f5f5f5;
+}
+
+.bg_dark {
+	background-color: #f2f2f2;
+}
+
+.lattice {
+	display: block;
+	cursor: pointer;
+	border-bottom: 1px solid #dddddd;
+	padding: 5px;
+}
+
+.lattice:hover {
+	background-color: #ffffff;
+}
+
+.lattice_click {
+	background-color: #82bcd9;
+}
+
+.lattice_click span {
+	color: white;
+}
+
+.lattice_click:hover {
+	background-color: #82bcd9;
+}
+
+.display_none {
+	display: none;
+}
+
+.display_block {
+	display: block;
+}
+
+.disable_selecting_text {
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: moz-none;
+	-ms-user-select: none;
+}
+
+#plot {
+	height: 400px;
+	width: 600px;
+}
+
+#search_form {
+	padding-left: 5px;
+	padding-right: 5px;
+	padding-bottom: 5px;
+}
+
+.clear {
+	clear: both;
+}
+
+.form_search {
+	margin: 5px;
+	margin-bottom: 0px;
+	width: 95%;
+	border-bottom: 1px solid #dddddd;
+}
+
+.search_input {
+	display: block;
+	width: 95%;
+}
+
+.details_data {
+	padding: 5px;
+	position: relative;
+}
+
+.details_data_tabs {
+	padding: 5px;
+}
+
+.details_data_conversion {
+	padding: 5px;
+	border-top: 1px solid #dddddd;
+	border-bottom: 1px solid #dddddd;
+}
+
+.align-top {
+	vertical-align: top;
+}
+
+/*.details_table {
+	border-spacing: 10px;
+	border-collapse: separate;
+}*/
+
+.left-border {
+	padding: 10px;
+	border: 1px solid #dddddd;
+}
+
+.right-border {
+	padding: 10px;
+	border: 1px solid #dddddd;
+}
+
+.search_field {
+	width: 93%;
+}
+
+.float_left {
+	float: left;
+}
+
+.float_clear {
+	clear: both;
+}
+
+.right_space {
+	padding-right: 20px;
+}
+
+#direction_list {
+	list-style-type: none;
+}
+
+.compare_btn {
+	margin-bottom: 5px;
+}
+
+.diff_red {
+	background-color: red;
+	cursor: pointer;
+}
+
+.diff_green {
+	background-color: #c4d79b;
+	cursor: pointer;
+}
+
+.diff_orange {
+	background-color: #ff6600;
+	color: white;
+}
+
+.matrix_bold {
+	font-weight: bold;
+}
+
+/*
+ * LOGIN start
+ */
+.user_dropdown_menu {
+	padding: 10px;
+}
+
+.login_error {
+	color: #b94a48;
+}
+
+#top_container {
+	display: block;
+}
+/*
+ * LOGIN end
+ */
+
+.compare_children {
+	background-color: #f1f1f1;
+}
+
+.lattice_list {
+	width: 100%;
+}
+
+.input-micro {
+	width: 35px !important;
+	margin-bottom: 0 !important;
+}
+
+.model_update {
+	position: absolute;
+	right: 5px;
+	top: 15px;
+}
+
+ul.auto-complete-list {
+	z-index: 1500;
+}

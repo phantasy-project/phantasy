@@ -1,0 +1,190 @@
+{% extends "latticemodel/layout.html" %}
+
+{% block title %}Search :: Lattice{% endblock %}
+
+{% block content %}
+<div class="container">
+	<ul class="nav nav-tabs" role="tablist">
+		<li role="presentation" class="{% if lattices is undefined %}active{% endif %}">
+			<a href="#search" aria-controls="search" role="tab" data-toggle="tab">
+				<span style="font-size:larger;">Search Lattice</span>
+			</a>
+		</li>
+		{% if lattices is defined %}
+		<li role="presentation" class="active">
+			<a href="#results" aria-controls="results" role="tab" data-toggle="tab">
+				<span style="font-size:larger;">Results <span class="badge">{{ lattices|length }}</span></span>
+			</a>
+		</li>
+		{% endif %}
+	</ul>
+	<div class="tab-content">
+		<div role="tabpanel" class="tab-pane {% if lattices is undefined %}active{% endif %}" id="search">
+			<form method="post">
+				<div class="form-horizontal">
+					<div class="form-group">
+						<div class="col-xs-2">
+							<label class="lattice_type">Lattice Type:</label>
+							<select class="form-control" name="lattice_type">
+								<option value=""></option>
+								{% for lt in lattice_types %}
+								<option value="{{ lt.type }}" {% if lt.type == lattice_type %}selected{% endif %}>{{ lt.name }}</option>
+								{% endfor %}
+							</select>
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="col-xs-2">
+							<label class="particle_type">Particle Type:</label>
+							<select class="form-control" name="particle_type">
+								<option value=""></option>
+								{% for pt in particle_types %}
+								<option value="{{ pt.type }}" {% if pt.type == particle_type %}selected{% endif %}>{{ pt.name }}</option>
+								{% endfor %}
+							</select>
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="col-xs-6">
+							<label class="control-label">Name:</label>
+							<input class="form-control" type="text" name="name" />
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="col-xs-6">
+							<label class="control-label">Description:</label>
+							<input class="form-control" type="text" name="description" disabled/>
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="col-xs-6">
+							<label class="control-label">Properties:</label>
+							<input class="form-control" type="text" name="properties" disabled/>
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="col-xs-6">
+							<button class="btn btn-primary pull-right" type="submit">Search</button>
+						</div>
+					</div>
+				</div>
+			</form>
+		</div>
+		{% if lattices is defined %}
+		<div role="tabpanel" class="tab-pane active" id="results">
+			<table class="table">
+				<tr>
+					<td></td>
+					<td>Lattice Type</td>
+					<td>Particle Type</td>
+					<td>Name</td>
+					<td>Description</td>
+				</tr>
+				
+				{% for lattice in lattices %}
+				<tr>
+					<td>
+						<a href="{{ reverse_url("lattice_details", lattice._id) }}">
+							<span class="glyphicon glyphicon-new-window"></span>
+						</a>
+					</td>
+					{% for lt in lattice_types if lt.type == lattice.lattice_type %}
+					<td>{{ lt.name }}</td>
+					{% endfor %}
+					{% for pt in particle_types if pt.type == lattice.particle_type %}
+					<td>{{ pt.name }}</td>
+					{% endfor %}
+					<td>{{ lattice.name }}</td>
+					<td>{{ lattice.description|truncate(80) }}</td>
+				</tr>
+				{% else %}
+				<tr>
+					<td colspan="4">No Results</td>
+				</tr>
+				{% endfor %}
+			</table>
+		</div>
+		{% endif %}
+	</div>
+	
+	{#<div class="{{ '{{' }}search.displayLattice}}">
+		Branch:
+		<br />
+		<input class="search_field" ng-enter="searchForLattice(search)" type="text" ng-model="search.branch" name="branch" />
+		<br />
+		<br />
+	</div>
+	<div class="{{ '{{' }}search.displayLattice}}">
+		Version:
+		<br />
+		<input class="search_field" ng-enter="searchForLattice(search)" type="text" ng-model="search.version" name="version" />
+		<br />
+		<br />
+	</div>
+	
+	<div class="{{ '{{' }}search.displayLattice}}">
+		Creator:
+		<br />
+		<input class="search_field" ng-enter="searchForLattice(search)" type="text" ng-model="search.creator" name="creator" />
+		<br />
+		<br />
+	</div>
+	<div class="{{ '{{' }}search.displayLattice}}">
+		Lattice type:
+		<br />
+<!--		<input class="search_field" ng-enter="searchForLattice(search)" type="text" ng-model="search.latticetype" name="latticetype" />-->
+		<select ng-model="search.latticetype">
+			<option value="">-</option>
+			<option ng-repeat="latticeType in latticeTypes" value="{{ '{{' }}latticeType.name.split('/')[0]}}" ng-selected="latticeType.name.split('/')[0] == search.latticetype">{{ '{{' }}latticeType.name.split('/')[0]}}</option>
+		</select>
+		<br />
+		<br />
+	</div>
+	<div class="{{ '{{' }}search.displayLattice}}">
+		Status:
+		<br />
+		<select ng-model="search.status">
+			<option ng-repeat="status in statuses" value="{{ '{{' }}status.id}}" ng-selected="status.id == search.selected">{{ '{{' }}status.value}}</option>
+		</select>
+		<br />
+		<br />
+	</div>
+	<div class="{{ '{{' }}search.displayLattice}}">
+		<button ng-click="searchForLattice(search)" class="btn">Search</button>
+	</div>
+
+	<div class="{{ '{{' }}search.displayModel}}">
+		Name:
+		<br />
+		<input class="search_field" ng-enter="searchForModel(search)" type="text" ng-model="search.name" name="name" />
+		<br />
+		<br />
+	</div>
+<!--	<div class="{{ '{{' }}search.displayModel}}">
+		Description:
+		<br />
+		<input class="search_field" ng-enter="searchForModel(search)" type="text" ng-model="search.desc" name="desc" />
+		<br />
+		<br />
+	</div>
+	<div class="{{ '{{' }}search.displayModel}}">
+		Creator:
+		<br />
+		<input class="search_field" ng-enter="searchForModel(search)" type="text" ng-model="search.creator" name="creator" />
+		<br />
+		<br />
+	</div>-->
+	<div class="{{ '{{' }}search.displayModel}}">
+		Status:
+		<br />
+		<select ng-model="search.status">
+			<option ng-repeat="status in modelStatuses" value="{{ '{{' }}status.id}}" ng-selected="status.value == search.selected">{{ '{{' }}status.value}}</option>
+		</select>
+		<br />
+		<br />
+	</div>
+	<div class="{{ '{{' }}search.displayModel}}">
+		<button ng-click="searchForModel(search)" class="btn">Search</button>
+	</div>#}
+</div>
+{% endblock %}

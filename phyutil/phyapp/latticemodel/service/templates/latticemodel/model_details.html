@@ -1,0 +1,249 @@
+{% extends "latticemodel/layout.html" %}
+
+{% block title %}Details :: Lattice{% endblock %}
+
+{% block content %}
+<div class="container">
+	<div class="row">
+		<div class="col-xs-6">
+		<h3>Model Info</h3>
+		<table class="table">
+			<tr>
+				<td><b>Name:</b></td>
+				<td class="text-info">{{ model.name|escape }}</td>
+			</tr>
+			<tr>
+				<td><b>Description:</b></td>
+				<td><span class="text-info">{{ model.description|escape }}</span></td>
+			</tr>
+			<tr>
+				<td><b>Lattice:</b></td>
+				<td>
+					<a href="{{ reverse_url("lattice_details", lattice._id) }}">
+						<span class="glyphicon glyphicon-new-window"></span>
+					</a>
+					<span class="text-info">{{ lattice.name|escape }}</span>
+				</td>
+			</tr>
+			<tr>
+				<td><b>Created By: </b></td>
+				<td><span class="text-info">{{model.created_by}}</span></td>
+			</tr>
+			<tr>
+				<td><b>Creation Date: </b></td>
+				<td><span class="text-info">{{model.created_date}}</span></td>
+			</tr>
+		</table>
+		</div>
+	</div>
+	
+	<div class="row">
+		<div class="col-md-6">
+			<table class="table">
+				<thead>
+					<tr>
+						<th>
+							<h4>Properties</h4>
+						</th>
+						<th>
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					{%- for p in model.properties %}
+					<tr>
+						<td>
+							<span>{{ p.name|escape }}</span>
+						</td>
+						<td>
+							<span>{{ p.value|escape }} {{ p.unit|escape }}</span>
+						</td>
+					</tr>
+					{%- else %}
+					<tr>
+						<td colspan="2">
+							<div class="text-center">None</div>
+						</td>
+					</tr>
+					{%- endfor %}
+				</tbody>
+			</table>
+		</div>
+		<!-- </div> -->
+		
+		<!-- <div class="row"> -->
+		<div class="col-xs-6">
+			<table class="table">
+				<thead>
+					<tr>
+						<th>
+							<h4>Files</h4>
+						</th>
+						<th>
+							{%- if model.files %}
+							<a href="{{ reverse_url("model_archive_download", model._id) }}">
+								<h4><small>Download All</small></h4>
+							</a>
+							{%- endif %}
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					{%- for f in model.files %}
+					<tr>
+						<td>
+							<span>{{ f.name|escape }}</span>
+						</td>
+						<td>
+							<a href="{{ reverse_url("model_file_download", model._id, f._id) }}">
+								<span>{{ f.filename|escape }}</span>
+							</a>
+						</td>
+					</tr>
+					{%- else %}
+					<tr>
+						<td colspan="2">
+							<div class="text-center">None</div>
+						</td>
+					</tr>
+					{%- endfor %}
+				</tbody>
+			</table>
+		</div>
+	</div>
+	
+	<div class="row">
+		<div class="col-md-12">
+			<h3>Model Data</h3>
+		</div>
+	</div>
+	
+	{% set element_properties = [] %}
+	{% for e in model_elements %}
+		{% for p in e.properties  %}
+			{% if (p.name, p.unit) not in element_properties %}
+				{% do element_properties.append((p.name, p.unit)) %}
+			{% endif %}
+		{% endfor %}
+	{% endfor %}
+	
+	<div class="row">
+		<div class="col-md-4">
+			<table class="table table-hover table-condensed">
+				{%- for p in element_properties %}
+				<tr>
+					<td class="form-inline model-element-property-controls">
+						<input class="form-control model-element-property-enabled"
+							type="checkbox" autocomplete="off" onchange="updateModelDataPlot();"/>
+						<label class="control-label">
+							<span class="model-element-property-name">{{ p[0] }}</span>
+							{% if p[1] != "" %}<span>[{{ p[1] }}]</span>{% endif %}
+						</label>
+						{#<input class="form-control pull-right model-element-property-scale"
+							type="text" size="4" value="1" onchange=""/>#}
+					</td>
+				</tr>
+				{%- endfor %}
+			</table>
+		</div>
+	
+		<div class="col-md-8">
+			<div class="model-element-data-hint">
+				<div class="text-center alert alert-success">
+					<h4>Select One or More Properties to Plot Data</h4>
+				</div>
+			</div>
+			<div class="model-element-data-plot" style="height:600px;">
+			</div>
+			<div class="model-element-data-label hidden">
+				<div class="text-center">
+					<b>Position [m]</b>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{static_url('vendor/Flot/js/jquery.flot.js')}}"></script>
+<script>
+	var updateModelDataPlot = (function() {
+		
+		var cache = {}
+		
+		function colorByNumber(n) {
+			// The basic algorithm for this method has
+			// been adopted from Flot library internals.
+			
+			// Default color scheme copied from Flot.
+			var colors = ["#edc240", "#afd8f8", "#cb4b4b", "#4da74d", "#9440ed"],
+				variations = [ 0, -0.2, +0.2, -0.4, +0.4, -0.6, +0.6 ],
+				color = null, vidx = 0;
+			
+			n = Math.abs(n);
+			color = $.color.parse(colors[n % colors.length] || "#666");
+			vidx = Math.floor(n / colors.length) % variations.length;
+			color.scale('rgb', 1 + variations[vidx])
+			return color.toString();
+		};
+		
+		function retrieveModelData() {
+			$('.model-element-property-controls').each(function(idx) {
+				var property_name = $(this).find('.model-element-property-name').text(),
+					property_scale = $(this).find('.model-element-property-scale').prop("value"),
+					property_enabled = $(this).find('.model-element-property-enabled').prop("checked"),
+					property_color = '';
+				
+				if( property_enabled === true ) {
+					property_color = colorByNumber(idx);
+					$(this).css('background-color', property_color)
+					
+					if( !cache[property_name] ) {
+						$.ajax('{{reverse_url("model_element_property_values", model._id, "")}}'+property_name, {
+							dataType:'json',
+							success:function(data) {
+								var idx = 0, points = [], npoints = data.values.length;
+								for( idx=0; idx<npoints; idx+=1 ) {
+									points.push([data.positions[idx], data.values[idx]]);
+								}
+								cache[property_name] = { label:property_name, color:property_color, data:points };
+								redrawModelData();
+							}
+						});
+					}
+				} else {
+					$(this).css('background-color', property_color);
+					
+					if( cache[property_name] ) {
+						delete cache[property_name];
+						redrawModelData();
+					}
+				}
+			});
+		}
+		
+		function redrawModelData() {
+			var data = [], yaxes = [];
+			$.each(cache, function(name, value) {
+				value.yaxis = yaxes.length+1;
+				yaxes.push({ color:value.color, tickColor:'rgb(0,0,0,0.15)' });
+				data.push(value);
+			});
+			
+			if( data.length === 0 ) {
+				$('.model-element-data-hint').removeClass('hidden');
+				$('.model-element-data-label').addClass('hidden');
+				$('.model-element-data-plot').addClass('hidden');
+			} else {
+				$('.model-element-data-hint').addClass('hidden');
+				$('.model-element-data-label').removeClass('hidden');
+				$('.model-element-data-plot').removeClass('hidden');
+				$('.model-element-data-plot').plot(data, { yaxes:yaxes, legend:{ show:false } });
+			}
+		}
+		
+		return retrieveModelData;
+	})();
+</script>
+{% endblock %}

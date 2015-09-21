@@ -1,0 +1,109 @@
+{% extends "latticemodel/layout.html" %}
+
+{% block title %}Model :: Lattice{% endblock %}
+
+{% block content %}
+<div class="container">
+	<ul class="nav nav-tabs" role="tablist">
+		<li role="presentation" class="{% if models is undefined %}active{% endif %}">
+			<a href="#search" aria-controls="search" role="tab" data-toggle="tab">
+				<span style="font-size:larger;">Search Model</span>
+			</a>
+		</li>
+		{% if models is defined %}
+		<li role="presentation" class="active">
+			<a href="#results" aria-controls="results" role="tab" data-toggle="tab">
+				<span style="font-size:larger;">Results <span class="badge">{{ models|length }}</span></span>
+			</a>
+		</li>
+		{% endif %}
+	</ul>
+	<div class="tab-content">
+		<div role="tabpanel" class="tab-pane {% if models is undefined %}active{% endif %}" id="search">
+			<form method="post">
+				<div class="form-horizontal">
+					{#<div class="form-group">
+						<div class="col-xs-2">
+							<label class="lattice_type">Lattice Type:</label>
+							<select class="form-control" name="lattice_type">
+								<option value=""></option>
+								{% for lt in lattice_types %}
+								<option value="{{ lt.type }}" {% if lt.type == lattice_type %}selected{% endif %}>{{ lt.name }}</option>
+								{% endfor %}
+							</select>
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="col-xs-2">
+							<label class="particle_type">Particle Type:</label>
+							<select class="form-control" name="particle_type">
+								<option value=""></option>
+								{% for pt in particle_types %}
+								<option value="{{ pt.type }}" {% if pt.type == particle_type %}selected{% endif %}>{{ pt.name }}</option>
+								{% endfor %}
+							</select>
+						</div>
+					</div>#}
+					<div class="form-group">
+						<div class="col-xs-6">
+							<label class="control-label">Name:</label>
+							<input class="form-control" type="text" name="name" value="{{ model_name }}"/>
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="col-xs-6">
+							<label class="control-label">Description:</label>
+							<input class="form-control" type="text" name="description" disabled/>
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="col-xs-6">
+							<label class="control-label">Properties:</label>
+							<input class="form-control" type="text" name="properties" disabled/>
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="col-xs-6">
+							<button class="btn btn-primary pull-right" type="submit">Search</button>
+						</div>
+					</div>
+				</div>
+			</form>
+		</div>
+		{% if models is defined %}
+		<div role="tabpanel" class="tab-pane active" id="results">
+			<table class="table">
+				<tr>
+					<td></td>
+					<td>Name</td>
+					<td>Description</td>
+				</tr>
+				
+				{% for model in models %}
+				<tr>
+					<td>
+						<a href="{{ reverse_url("model_details", model._id) }}">
+							<span class="glyphicon glyphicon-new-window"></span>
+						</a>
+					</td>
+					{#{% for lt in lattice_types if lt.type == lattice.lattice_type %}
+					<td>{{ lt.name }}</td>
+					{% endfor %}
+					{% for pt in particle_types if pt.type == lattice.particle_type %}
+					<td>{{ pt.name }}</td>
+					{% endfor %}#}
+					<td>{{ model.name }}</td>
+					<td>{{ model.description|truncate(80) }}</td>
+				</tr>
+				{% else %}
+				<tr>
+					<td colspan="4">No Results</td>
+				</tr>
+				{% endfor %}
+			</table>
+		</div>
+		{% endif %}
+	</div>
+
+</div>
+{% endblock %}
