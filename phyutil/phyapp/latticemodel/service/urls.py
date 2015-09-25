@@ -8,13 +8,23 @@ from __future__ import division
 from __future__ import print_function
 
 from tornado.web import RedirectHandler
+
+from ...common.tornado.web import OpenIdAuthSessionHandler
+
 from .handlers import web
 
 
-urlpatterns = [
-    (r'/user/login/?', web.LatticeLoginHandler),
+urlpatterns = []
 
-    (r'/user/logout/?', web.LatticeLogoutHandler),
+webpatterns = [
+    (r'/user/login/?',
+        web.LatticeLoginHandler, { "template":"latticemodel/login.html" }),
+
+    (r'/user/logout/?',
+        web.LatticeLogoutHandler),
+
+    (r'/user/auth/?',
+        OpenIdAuthSessionHandler),
 
     (r'/lattice/?',
         RedirectHandler, {"url":"/lattice/web/lattice/search"}),
@@ -62,4 +72,5 @@ urlpatterns = [
     #(r'/lattice/rest/v1/lattice/files', handlers.LatticeFilesHandler)
     #(r'/lattice/rest/v1/lattice/([0-9a-f]{24})/attachments')
 ]
+urlpatterns.extend(webpatterns)
 

@@ -4,7 +4,7 @@
 #
 
 """
-Handlers Module
+Request handlers for web application.
 
 .. moduleauthor:: Dylan Maxwell <maxwelld@frib.msu.edu>
 """
@@ -21,30 +21,35 @@ import logging
 from tempfile import TemporaryFile
 from zipfile import ZipFile
 from zipfile import ZIP_DEFLATED
-from tornado.web import authenticated
+from tornado.web import authenticated, RequestHandler
+from tornado.gen import maybe_future
 from tornado.web import HTTPError
 from tornado.gen import coroutine
 from tornado.util import ObjectDict
 from tornado.escape import url_escape
 from bson import ObjectId
 
-from ....common.tornado.web import CommonRequestHandler
-from ....common.tornado.web import UsernamePasswordLoginHandler
-from ....common.tornado.web import SessionLogoutHandler
-
+from ....common.tornado.jinja2 import Jinja2Mixin
+from ....common.tornado.session import SessionMixin
+from ....common.tornado.web import LogoutSessionHandler
+from ....common.tornado.web import FormLoginSessionHandler
 
 
 LOGGER = logging.getLogger(__name__)
 
 
-class BaseLatticeHandler(CommonRequestHandler):
+class BaseLatticeHandler(RequestHandler, SessionMixin, Jinja2Mixin):
     """
     Base request handler for the lattice application.
     """
 
     @coroutine
-    def prepare_template_namespace(self):
-        yield super(BaseLatticeHandler, self).prepare_template_namespace()
+    def prepare(self):
+        yield maybe_future(super(BaseLatticeHandler,self).prepare())
+        yield self.prepare_current_session()
+        self.template_namespace = self.get_jinja2_namespace()
+        self.template_namespace.login_url = self.settings.get("login_url")
+        self.template_namespace.logout_url = self.settings.get("logout_url")
         data = self.application.data
         namespace = yield dict(
             lattice_types=data.find_lattice_types(),
@@ -53,11 +58,20 @@ class BaseLatticeHandler(CommonRequestHandler):
         self.template_namespace.update(namespace)
 
 
+    def get_current_user(self):
+        return self.get_current_session_user()
+
+
     def get_template_namespace(self):
-        namespace = super(BaseLatticeHandler, self).get_template_namespace()
-        namespace["login_url"] = self.settings.get("login_url")
-        namespace["logout_url"] = self.settings.get("logout_url")
-        return namespace
+        return self.template_namespace
+
+
+    def render(self, template_name, *args, **kwargs):
+        self.render_jinja2(template_name, *args, **kwargs)
+
+
+    def render_string(self, template_name, *args, **kwargs):
+        return self.render_jinja2_string(template_name, *args, **kwargs)
 
 
     def render_error(self, status_code, *args, **kwargs):
@@ -85,14 +99,29 @@ class FileDownloadMixin(object):
 
 
 
-class LatticeLoginHandler(UsernamePasswordLoginHandler, BaseLatticeHandler):
+class LatticeLoginHandler(FormLoginSessionHandler, Jinja2Mixin):
     """
     Extends the common UsernamePasswordLoginHandler with the BaseLatticeHandler.
     """
-    pass
+
+    @coroutine
+    def prepare(self):
+        yield maybe_future(super(LatticeLoginHandler,self).prepare())
+        self.template_namespace = self.get_jinja2_namespace()
 
 
-class LatticeLogoutHandler(SessionLogoutHandler, BaseLatticeHandler):
+    def get_template_namespace(self):
+        return self.template_namespace
+
+
+    def render_string(self, template_name, *args, **kwargs):
+        return self.render_jinja2_string(template_name, *args, **kwargs)
+
+    def render(self, template_name, *args, **kwargs):
+        self.render_jinja2(template_name, *args, **kwargs)
+
+
+class LatticeLogoutHandler(LogoutSessionHandler):
     """
     Extends the common SessionLogoutHandler with the BaseLatticeHandler.
     """
