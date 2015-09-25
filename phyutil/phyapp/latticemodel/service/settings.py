@@ -10,6 +10,7 @@ from __future__ import print_function
 import os.path
 
 from ...common.tornado.auth import InMemoryAuthProvider
+from ...common.tornado.auth.crowd import CrowdAuthProvider
 #from ...common.tornado.session import InMemorySessionProvider
 from ...common.tornado.session.motor import MotorSessionProvider
 from ...common.tornado.db.motor import MotorConnectionFactory
@@ -29,6 +30,11 @@ production["login_success_url"] = "/lattice/web/lattice/search"
 
 production["logout_url"] = "/user/logout"
 production["logout_success_url"] = "/lattice/web/lattice/search"
+
+production["auth_provider_factory"] = CrowdAuthProvider
+production["auth_provider_crowd_url"] = "http://example.com/crowd"
+production["auth_provider_crowd_username"] = "username"
+production["auth_provider_crowd_password"] = "password"
 
 production["db_connection_factory"] = MotorConnectionFactory
 production["db_connection_database"] = "lattice"
