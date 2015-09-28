@@ -35,7 +35,7 @@ setup(
         'jinja2>=2.7',
         'motor>=0.4',
         'functools32>=3.2',
-        'jsonschema>=2.5'
+        'jsonschema>=2.5',
         'matplotlib>=1.4.2',
         # Custom
         'channelfinder>=2.0',
