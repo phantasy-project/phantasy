@@ -13,6 +13,7 @@ Contents:
 
    add
 
+   lms_rest
 
 Indices and tables
 ==================

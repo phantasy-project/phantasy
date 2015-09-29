@@ -352,7 +352,7 @@ class MotorDataProvider(object):
     def find_lattices(self):
         db = self.application.db
         lattices = yield db.lattice.find().to_list(None)
-        raise Return(lattices)
+        raise Return(_bless(lattices))
 
 
     @coroutine
@@ -418,6 +418,15 @@ class MotorDataProvider(object):
         lattice_element = yield db.lattice_element.find_one(query)
         raise Return(_bless(lattice_element))
 
+
+    @coroutine
+    def find_lattice_element_by_order(self, lattice_id, order):
+        db = self.application.db
+        query = {
+            "lattice_id":ObjectId(lattice_id), "order":order
+        }
+        lattice_element = yield db.lattice_element.find_one(query)
+        raise Return(_bless(lattice_element))
 
 
     @coroutine

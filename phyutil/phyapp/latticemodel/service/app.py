@@ -18,8 +18,9 @@ from argparse import ArgumentParser
 from tornado.gen import coroutine
 from tornado.ioloop import IOLoop
 
+
 from phyutil.phyapp.common.tornado.web import Application
-from phyutil.phyapp.latticemodel.service.urls import urlpatterns
+from phyutil.phyapp.latticemodel.service import urls
 from phyutil.phyapp.latticemodel.service import settings
 
 
@@ -44,7 +45,7 @@ def main():
         return
 
     env = getattr(settings, args.env)
-    app = Application(urlpatterns, **env)
+    app = Application(urls.urlpatterns, **env)
     LOGGER.info("Application initialized with environment: '%s'", args.env)
 
     if args.init_db:
@@ -83,4 +84,6 @@ def init_database(application):
 
 if __name__ == "__main__":
     main()
+else:
+    restapi = Application(urls.restpatterns)
 
