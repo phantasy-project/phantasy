@@ -647,6 +647,67 @@ class LatticeElementRestHandler(BaseRestRequestHandler):
         self.write_json(self._lattice_elem_api(element))
 
 
+class ModelsByLatticeIdRestHandler(BaseRestRequestHandler):
+    @coroutine
+    def get(self, lattice_id):
+        """Retrive list of Models for given Lattice ID.
+
+        **Example response**:
+
+        .. sourcecode:: http
+
+            HTTP/1.1 200 OK
+            Content-Type: text/javascript
+
+            [
+              {
+                "id": "55ef4db0fad7b6267302fb4d",
+                "links": {
+                  "self": "/lattice/rest/v1/models/55ef4db0fad7b6267302fb4d"
+                }, 
+                "lattice_id": "55eefbf0fad7b60a68e74754",
+                "name": "Test Model",
+                "description": "",
+                "created_by": "physuser",
+                "created_date": "2015-09-08T17:05:52.052000",
+                "properties": [
+                  ...
+                ],
+                "files": [
+                  ...
+                ]
+              },
+              {
+                "id": "55ef4ed3fad7b62d1990bd3d",
+                "links": {
+                  "self": "/lattice/rest/v1/models/55ef4ed3fad7b62d1990bd3d"
+                }, 
+                "lattice_id": "55eefbf0fad7b60a68e74754",
+                "name": "Test Model",
+                "description": "",
+                "created_by": "physuser", 
+                "created_date": "2015-09-08T17:10:43.317000",
+                "properties": [
+                  ...
+                ], 
+                "files": [
+                  ...
+                ]
+              },
+              ...
+            ]
+
+        :param lattice_id: Lattice ID
+        :status 200: Models found
+        :status 404: Lattice not found
+        """
+        data = self.application.data
+        models = yield data.find_models_by_lattice_id(lattice_id)
+        if not models:
+            raise HTTPError(404)
+        self.write_json([self._model_api(m) for m in models])
+
+
 class ModelsRestHandler(BaseRestRequestHandler):
     @coroutine
     def get(self):

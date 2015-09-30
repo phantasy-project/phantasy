@@ -112,7 +112,8 @@ restpatterns = [
     (_URL_PATTERN(r"/rest/v1/lattices/{lattice_id}/elements/{lattice_element_order}"),
         rest.LatticeElementByOrderRestHandler),
 
-    # /lattice/rest/v1/lattice/{lattice_id}/models
+    (_URL_PATTERN(r"/rest/v1/lattices/{lattice_id}/models"),
+        rest.ModelsByLatticeIdRestHandler),
 
     (_URL_PATTERN(r"/rest/v1/lattices/elements/{lattice_element_id}"),
         rest.LatticeElementRestHandler, {}, "rest_lattice_element_by_id"),

@@ -515,13 +515,18 @@ class MotorDataProvider(object):
         """Get the list of models associated with the given lattice_id.
 
         :param lattice_id: lattice id
-        :return: list of models
+        :return: list of models or None if lattice not found
         """
         db = self.application.db
         query = { "lattice_id":ObjectId(lattice_id) }
         cursor = db.model.find(query)
         # should the models be sorted?
         models = yield cursor.to_list(None)
+        # if no models found, check if lattice exists
+        if len(models) == 0:
+            lattice = yield self.find_lattice_by_id(lattice_id)
+            if not lattice:
+                raise Return(None)
         raise Return(_bless(models))
 
 
