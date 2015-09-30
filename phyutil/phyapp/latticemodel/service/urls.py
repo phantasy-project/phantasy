@@ -21,7 +21,10 @@ def _URL_PATTERN(pattern):
         lattice_id=r"(?P<lattice_id>\w{24})",
         lattice_file_id=r"(?P<file_id>\d+)",
         lattice_element_id=r"(?P<element_id>\w{24})",
-        lattice_element_order=r"(?P<order>\d+)"
+        lattice_element_order=r"(?P<order>\d+)",
+        model_id="(?P<model_id>\\w{24})",
+        model_file_id="(?P<file_id>\\d+)",
+        model_element_id="(?P<element_id>\\w{24})"
     )
 
 
@@ -83,6 +86,8 @@ urlpatterns.extend(webpatterns)
 
 
 restpatterns = [
+    # POST /lattice/rest/v1/lattices
+
     (_URL_PATTERN(r"/rest/v1/lattices/?"),
         rest.LatticesRestHandler),
 
@@ -104,20 +109,25 @@ restpatterns = [
     (_URL_PATTERN(r"/rest/v1/lattices/{lattice_id}/elements/{lattice_element_order}"),
         rest.LatticeElementByOrderRestHandler),
 
-    (_URL_PATTERN(r"/rest/v1/lattices/elements/{lattice_element_id}"),
+    # /lattice/rest/v1/lattice/{lattice_id}/models
+
+    (_URL_PATTERN(r"/rest/v1/lattice/elements/{lattice_element_id}"),
         rest.LatticeElementRestHandler, {}, "rest_lattice_element_by_id"),
 
-    # POST /lattice/rest/v1/lattices
-    # /lattice/rest/v1/lattice/{lattice_id}
-    # /lattice/rest/v1/lattice/{lattice_id}/files
-    # /lattice/rest/v1/lattice/{lattice_id}/elements
-    # /lattice/rest/v1/lattice/{lattice_id}/elements/{order}
-    # /lattice/rest/v1/lattice/{lattice_id}/models
-    # /lattice/rest/v1/lattice/files/{file_id}
-    # /lattice/rest/v1/lattice/elements/{element_id}
-    # /lattice/rest/v1/model/{lattice_id}/files
-    # /lattice/rest/v1/model/{lattice_id}/elements
-    # /lattice/rest/v1/model/files
-    # /lattice/rest/v1/model/elements/
+    (_URL_PATTERN(r"/rest/v1/models"),
+        rest.ModelsRestHandler),
+
+    (_URL_PATTERN(r"/rest/v1/models/{model_id}"),
+        rest.ModelRestHandler, {}, "rest_model_by_id"),
+
+    (_URL_PATTERN(r"/rest/v1/models/{model_id}/files/{model_file_id}/download"),
+        rest.ModelFileDownloadRestHander, {}, "rest_model_file_download_by_id"),
+
+    (_URL_PATTERN(r"/rest/v1/models/{model_id}/elements"),
+        rest.ModelElementsByModelIdRestHandler),
+
+    (_URL_PATTERN(r"/rest/v1/model/elements/{model_element_id}"),
+        rest.ModelElementRestHandler, {}, "rest_model_element_by_id")
+
 ]
 urlpatterns.extend(restpatterns)

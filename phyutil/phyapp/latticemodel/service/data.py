@@ -462,6 +462,19 @@ class MotorDataProvider(object):
 
 
     @coroutine
+    def find_models(self):
+        """Get the list of models.
+
+        :return: list of models
+        """
+        db = self.application.db
+        cursor = db.model.find()
+        # should the models be sorted?
+        models = yield cursor.to_list(None)
+        raise Return(_bless(models))
+
+
+    @coroutine
     def find_models_by_lattice_id(self, lattice_id):
         """Get the list of models associated with the given lattice_id.
 
