@@ -18,13 +18,16 @@ APP_CONTEXT = "/lattice"
 
 def _URL_PATTERN(pattern):
     return APP_CONTEXT + pattern.format(
+        particle_type_id="(?P<type_id>\w+)",
         lattice_id=r"(?P<lattice_id>\w{24})",
         lattice_file_id=r"(?P<file_id>\d+)",
         lattice_element_id=r"(?P<element_id>\w{24})",
         lattice_element_order=r"(?P<order>\d+)",
+        lattice_type_id="(?P<type_id>\w+)",
         model_id="(?P<model_id>\\w{24})",
         model_file_id="(?P<file_id>\\d+)",
-        model_element_id="(?P<element_id>\\w{24})"
+        model_element_id="(?P<element_id>\\w{24})",
+        model_type_id="(?P<type_id>\w+)"
     )
 
 
@@ -86,19 +89,19 @@ urlpatterns.extend(webpatterns)
 
 
 restpatterns = [
+    (_URL_PATTERN(r"/rest/v1/particles/types"),
+        rest.ParticleTypesRestHandler),
+
+    (_URL_PATTERN(r"/rest/v1/particles/types/{particle_type_id}"),
+        rest.ParticleTypeRestHandler, {}, "rest_particle_type_by_id"),
+
     # POST /lattice/rest/v1/lattices
 
-    (_URL_PATTERN(r"/rest/v1/lattices/?"),
+    (_URL_PATTERN(r"/rest/v1/lattices"),
         rest.LatticesRestHandler),
 
     (_URL_PATTERN(r"/rest/v1/lattices/{lattice_id}"),
         rest.LatticeRestHandler, {}, "rest_lattice_by_id"),
-
-    #(_URL_PATTERN(r"/rest/v1/lattices/{lattice_id}/files"),
-    #    rest.LatticeFilesRestHandler),
-
-    #(_URL_PATTERN(r"/rest/v1/lattices/{lattice_id}/files/{lattice_file_id}"),
-    #    rest.LatticeFileRestHandler, {}, "rest_lattice_file_by_id"),
 
     (_URL_PATTERN(r"/rest/v1/lattices/{lattice_id}/files/{lattice_file_id}/download"),
         rest.LatticeFileDownloadRestHander, {}, "rest_lattice_file_download_by_id"),
@@ -111,8 +114,14 @@ restpatterns = [
 
     # /lattice/rest/v1/lattice/{lattice_id}/models
 
-    (_URL_PATTERN(r"/rest/v1/lattice/elements/{lattice_element_id}"),
+    (_URL_PATTERN(r"/rest/v1/lattices/elements/{lattice_element_id}"),
         rest.LatticeElementRestHandler, {}, "rest_lattice_element_by_id"),
+
+    (_URL_PATTERN(r"/rest/v1/lattices/types"),
+        rest.LatticeTypesRestHandler),
+
+    (_URL_PATTERN(r"/rest/v1/lattices/types/{lattice_type_id}"),
+        rest.LatticeTypeRestHandler, {}, "rest_lattice_type_by_id"),
 
     (_URL_PATTERN(r"/rest/v1/models"),
         rest.ModelsRestHandler),
@@ -126,8 +135,13 @@ restpatterns = [
     (_URL_PATTERN(r"/rest/v1/models/{model_id}/elements"),
         rest.ModelElementsByModelIdRestHandler),
 
-    (_URL_PATTERN(r"/rest/v1/model/elements/{model_element_id}"),
-        rest.ModelElementRestHandler, {}, "rest_model_element_by_id")
+    (_URL_PATTERN(r"/rest/v1/models/elements/{model_element_id}"),
+        rest.ModelElementRestHandler, {}, "rest_model_element_by_id"),
 
+    (_URL_PATTERN(r"/rest/v1/models/types"),
+        rest.ModelTypesRestHandler),
+
+    (_URL_PATTERN(r"/rest/v1/models/types/{model_type_id}"),
+        rest.ModelTypeRestHandler, {}, "rest_model_type_by_id")
 ]
 urlpatterns.extend(restpatterns)

@@ -301,6 +301,14 @@ class MotorDataProvider(object):
 
 
     @coroutine
+    def find_particle_type_by_id(self, type_id):
+        db = self.application.db
+        query = { "type":str(type_id) }
+        particle_type = yield db.particle_type.find_one(query)
+        raise Return(_bless(particle_type))
+
+
+    @coroutine
     def insert_particle_type(self, particle_type, validate=True):
         if validate:
             self.validate_particle_type(particle_type)
@@ -323,6 +331,20 @@ class MotorDataProvider(object):
 
 
     @coroutine
+    def find_lattice_type_by_id(self, type_id):
+        settings = self.application.settings
+        lattice_support = settings.get("lattice_support", [])
+        lattice_type = None
+        for support in lattice_support:
+            if support[0] == type_id:
+                lattice_type = dict(
+                    type=support[0],
+                    name=support[1]
+                )
+        return lattice_type
+
+
+    @coroutine
     def find_model_types(self):
         settings = self.application.settings
         model_support = settings.get("model_support", [])
@@ -333,6 +355,20 @@ class MotorDataProvider(object):
                     name=support[1]
             ))
         return model_types
+
+
+    @coroutine
+    def find_model_type_by_id(self, type_id):
+        settings = self.application.settings
+        model_support = settings.get("model_support", [])
+        model_type = None
+        for support in model_support:
+            if support[0] == type_id:
+                model_type = dict(
+                    type=support[0],
+                    name=support[1]
+                )
+        return model_type
 
 
     @coroutine

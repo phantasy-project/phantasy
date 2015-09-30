@@ -50,6 +50,38 @@ class BaseRestRequestHandler(RequestHandler):
         json.dump(obj, self, indent=indent)
 
 
+    def _particle_type_api(self, particle_type):
+        api = OrderedDict()
+        api["type"] = particle_type["type"]
+        api["links"] = {
+            "self":self.reverse_url("rest_particle_type_by_id", api["type"])
+        }
+        api["name"] = particle_type["name"]
+        api["protons"] = particle_type["protons"]
+        api["neutrons"] = particle_type["neutrons"]
+        return api
+
+
+    def _lattice_type_api(self, lattice_type):
+        api = OrderedDict()
+        api["type"] = lattice_type["type"]
+        api["links"] = {
+            "self":self.reverse_url("rest_lattice_type_by_id", api["type"])
+        }
+        api["name"] = lattice_type["name"]
+        return api
+
+
+    def _model_type_api(self, model_type):
+        api = OrderedDict()
+        api["type"] = model_type["type"]
+        api["links"] = {
+            "self":self.reverse_url("rest_model_type_by_id", api["type"])
+        }
+        api["name"] = model_type["name"]
+        return api
+
+
     def _lattice_api(self, lattice):
         api = OrderedDict()
         api["id"] = str(lattice["_id"]) # ObjectId to String
@@ -182,11 +214,138 @@ class BaseRestRequestHandler(RequestHandler):
         return api
 
 
+class ParticleTypesRestHandler(BaseRestRequestHandler):
+    @coroutine
+    def get(self):
+        """Retrieve list of Particle Types.
+
+        **Example response**:
+
+        .. sourcecode:: json
+
+            HTTP/1.1 200 OK
+            Content-Type: text/json
+
+            [
+              {
+                "type": "ar36",
+                "links": {
+                  "self": "/lattice/rest/v1/particle/types/ar36"
+                },
+                "name": "Ar-36",
+                "protons": 18.0,
+                "neutrons": 18.0
+              },
+              ...
+            ]
+
+        :status 200: Particle Types found
+        """
+        data = self.application.data
+        particle_types = yield data.find_particle_types()
+        self.write_json([self._particle_type_api(pt) for pt in particle_types])
+
+
+class ParticleTypeRestHandler(BaseRestRequestHandler):
+    @coroutine
+    def get(self, type_id):
+        """Retrieve Particle Type by ID
+
+        **Example response**:
+
+        .. sourcecode:: json
+
+            HTTP/1.1 200 OK
+            Content-Type: text/json
+
+            [
+              {
+                "type": "ar36",
+                "links": {
+                  "self": "/lattice/rest/v1/particle/types/ar36"
+                },
+                "name": "Ar-36",
+                "protons": 18.0,
+                "neutrons": 18.0
+              },
+              ...
+            ]
+
+        :param type_id: Particle Type ID
+        :status 200: Particle Type found
+        :status 404: Particle Type not found
+        """
+        data = self.application.data
+        particle_type = yield data.find_particle_type_by_id(type_id)
+        if not particle_type:
+            raise HTTPError(404)
+        self.write_json(self._particle_type_api(particle_type))
+
+
+class LatticeTypesRestHandler(BaseRestRequestHandler):
+    @coroutine
+    def get(self):
+        """Retrieve list of Lattice Types.
+
+        **Example response**:
+
+        .. sourcecode:: json
+
+            HTTP/1.1 200 OK
+            Content-Type: text/json
+
+            [
+              {
+                "type": "impactz",
+                "links": {
+                  "self": "/lattice/rest/v1/lattices/types/impactz"
+                },
+                "name": "IMPACT"
+              },
+              ...
+            ]
+
+        :status 200: Lattice Types found
+        """
+        data = self.application.data
+        lattice_types = yield data.find_lattice_types()
+        self.write_json([self._lattice_type_api(lt) for lt in lattice_types])
+
+
+class LatticeTypeRestHandler(BaseRestRequestHandler):
+    @coroutine
+    def get(self, type_id):
+        """Retrieve Lattice Type by ID.
+
+        **Example response**:
+
+        .. sourcecode:: json
+
+            HTTP/1.1 200 OK
+            Content-Type: text/json
+
+            {
+              "type": "impactz",
+              "links": {
+                "self": "/lattice/rest/v1/lattices/types/impactz"
+              },
+              "name": "IMPACT"
+            }
+
+        :param type_id: Lattice Type ID
+        :status 200: Lattice Type found
+        :status 404: Lattice Type not found
+        """
+        data = self.application.data
+        lattice_type = yield data.find_lattice_type_by_id(type_id)
+        self.write_json(self._lattice_type_api(lattice_type))
+
+
 class LatticesRestHandler(BaseRestRequestHandler):
     @coroutine
     def get(self):
         """Retrieve list of Lattice objects.
-        
+
         **Example response**:
 
         .. sourcecode:: json
@@ -745,4 +904,66 @@ class ModelElementRestHandler(BaseRestRequestHandler):
         if not element:
             raise HTTPError(404)
         self.write_json(self._model_elem_api(element))
+
+
+class ModelTypesRestHandler(BaseRestRequestHandler):
+    @coroutine
+    def get(self):
+        """Retrieve list of Model Types.
+
+        **Example response**:
+
+        .. sourcecode:: http
+
+            HTTP/1.1 200 OK
+            Content-Type: text/javascript
+
+            [
+              {
+                "type": "impactz", 
+                "links": {
+                  "self": "/lattice/rest/v1/models/types/impactz"
+                }, 
+                "name": "IMPACT"
+              },
+              ...
+            ]
+
+        :status 200: Model Types found
+        """
+        data = self.application.data
+        model_types = yield data.find_model_types()
+        self.write_json([self._model_type_api(mt) for mt in model_types])
+
+
+class ModelTypeRestHandler(BaseRestRequestHandler):
+    @coroutine
+    def get(self, type_id):
+        """Retrieve Model Type by ID.
+
+        **Example response**:
+
+        .. sourcecode:: http
+
+            HTTP/1.1 200 OK
+            Content-Type: text/javascript
+
+            {
+              "type": "impactz", 
+              "links": {
+                "self": "/lattice/rest/v1/models/types/impactz"
+              }, 
+              "name": "IMPACT"
+            }
+
+        :param type_id: Model Type ID
+        :status 200: Model Type found
+        :status 404: Model Type not found
+        """
+        data = self.application.data
+        model_type = yield data.find_model_type_by_id(type_id)
+        if not model_type:
+            raise HTTPError(404)
+        self.write_json(self._model_type_api(model_type))
+
 
