@@ -65,9 +65,9 @@ class MotorSessionProvider(SessionProvider):
     def get(self, handler):
         """
         Get the session from MongoDB request handler.
-        
+
         :param handler: request handler
-        
+
         :returns: a Future that resolves to a Session object
         """
         token = self.get_session_token(handler)

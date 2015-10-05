@@ -99,10 +99,10 @@ class SessionProvider(object):
         configured session cookie name. If the session token
         is not found than created a new session token and set
         the session cookie in the response.
-        
+
         :param handler: current request handler
         :param force: always create new token
-        
+
         :returns: string session token
         """
         token = None if force else handler.get_cookie(self._cookie_name)
@@ -179,14 +179,14 @@ class InMemorySessionProvider(SessionProvider):
     def get(self, handler):
         """
         Get the in-memory session from request handler.
-        
+
         :param handler: request handler
-        
+
         :returns: a Future that resolves to a Session object
         """
         token = self.get_session_token(handler)
         session = self._sessions.get(token, None)
-        
+
         if session and not self.validate_session(session, handler):
                 token = self.get_session_token(handler, force=True)
                 session = None

@@ -159,7 +159,7 @@ class LatticeSearchHandler(BaseLatticeHandler):
 class LatticeUploadHandler(BaseLatticeHandler):
     """
     Upload lattice files and save to database.
-    
+
     This class uses the application "lattice_support" settings to delegate requests.
     """
     @authenticated
@@ -339,7 +339,7 @@ class ModelSearchHandler(BaseLatticeHandler):
     def get(self):
         ctx = ObjectDict()
         ctx.search_active = True
-        data = self.application.data
+        #data = self.application.data
         #ctx.particle_types = yield data.find_particle_types()
         self.render("latticemodel/model_search.html", **ctx)
 
@@ -351,18 +351,18 @@ class ModelSearchHandler(BaseLatticeHandler):
         #ctx.particle_type = self.get_argument("particle_type", None)
         ctx.model_name = self.get_argument("name", None)
         ctx.model_description = self.get_argument("description", None)
- 
+
         data = self.application.data
         ctx.models = yield data.search_models(**ctx)
         #ctx.particle_types = yield data.find_particle_types()
- 
+
         self.render("latticemodel/model_search.html", ctx)
 
 
 class ModelUploadHandler(BaseLatticeHandler):
     """
     Upload lattice files and save to database.
-    
+
     This class uses the application "lattice_support" settings to delegate requests.
     """
     @authenticated
@@ -393,7 +393,7 @@ class ModelUploadHandler(BaseLatticeHandler):
 
 
 class ModelDetailsHandler(BaseLatticeHandler):
-    
+
     @coroutine
     def get(self, model_id):
         ctx = ObjectDict()

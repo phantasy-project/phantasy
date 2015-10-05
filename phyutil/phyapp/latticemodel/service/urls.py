@@ -82,7 +82,7 @@ webpatterns = [
     (r'/lattice/web/model/([0-9a-f]{24})/file/([0-9a-f]{24})',
         web.ModelFileDownloadHandler, {}, "model_file_download"),
 
-    (r'/lattice/web/model/([0-9a-f]{24})/element/property/(.*)', 
+    (r'/lattice/web/model/([0-9a-f]{24})/element/property/(.*)',
         web.ModelElementPropertyValuesHandler, {}, "model_element_property_values")
 ]
 urlpatterns.extend(webpatterns)

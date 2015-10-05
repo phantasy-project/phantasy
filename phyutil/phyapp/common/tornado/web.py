@@ -38,9 +38,9 @@ class Application(tornado.web.Application):
     """
     A common base application that adds support for configuration of the
     database connection, session provider and authentication provider.
-    
+
     The following settings are supported by this application:
-    
+
     *db_connection_factory*: Callable that returns a database connection
     *auth_provider_factory*: Callable that returns the an authentication provider
     *session_provider_factor*: Callable that returns the a session provider
@@ -96,7 +96,7 @@ class OpenIdAuthSessionHandler(RequestHandler, SessionMixin, OpenIdMixin):
 
     *NEEDS TESTING*
 
-    This handler uses the following application settings: 
+    This handler uses the following application settings:
     *login_success_url*: Redirect to this URL on successful login
     *openid_endpoint*: Location of the OpenID endpoint
     """
@@ -125,11 +125,11 @@ class OpenIdAuthSessionHandler(RequestHandler, SessionMixin, OpenIdMixin):
         user = yield self.get_authenticated_user()
         if not user:
             yield self.authenticate_redirect()
-            
+
         self.current_session["username"] = user["username"]
         self.current_session["authenticated"] = True
         self.current_session["last_authenticated"] = datetime.now()
-         
+
         next_url = self.get_argument("next", None)
         if next_url:
             self.redirect(next_url)
@@ -145,7 +145,7 @@ class FormLoginSessionHandler(RequestHandler, SessionMixin):
     This handles must be initialized with the following:
     *template*: name of login page template
 
-    This handler uses the following application settings: 
+    This handler uses the following application settings:
     *login_success_url*: Redirect to this URL on successful login
     """
 
@@ -227,7 +227,7 @@ class FormLoginSessionHandler(RequestHandler, SessionMixin):
 class LogoutSessionHandler(RequestHandler, SessionMixin):
     """
     Simple login handler that invalids the current session.
-    
+
     This handler uses the following application settings:
     *logout_success_url*: Redirect to this URL on successful logout
     """

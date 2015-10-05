@@ -51,7 +51,7 @@ class AuthProvider(object):
     def authenticate(self):
         """
         Override this method to provide implementation authentication for
-        
+
         :returns: a Future that must a resolve to None or a valid AuthUser object
         """
         raise NotImplementedError()

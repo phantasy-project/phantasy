@@ -18,7 +18,6 @@ from argparse import ArgumentParser
 from tornado.gen import coroutine
 from tornado.ioloop import IOLoop
 
-
 from phyutil.phyapp.common.tornado.web import Application
 from phyutil.phyapp.latticemodel.service import urls
 from phyutil.phyapp.latticemodel.service import settings
@@ -29,7 +28,7 @@ LOGGER = logging.getLogger(__name__)
 
 def main():
     """
-    Configuration the application and start the HTTP server. 
+    Configuration the application and start the HTTP server.
     """
     parser = ArgumentParser()
     parser.add_argument("-e", dest="env", default="development",
@@ -40,7 +39,7 @@ def main():
                         help="initialize the application database")
     args = parser.parse_args()
 
-    if not hasattr(settings, args.env): 
+    if not hasattr(settings, args.env):
         LOGGER.error("Deployment environment not found: '%s'", args.env)
         return
 
@@ -71,9 +70,9 @@ def init_database(application):
     data = application.data
 
     particle_types = [
-        { "type":"ar36", "name":"Ar-36", "protons":18, "neutrons":18 },
-        {"type":"kr86", "name":"Kr-86", "protons":36, "neutrons":50 },
-        {"type":"u238", "name":"U-238", "protons":92, "neutrons":146 }
+        {"type":"ar36", "name":"Ar-36", "protons":18, "neutrons":18},
+        {"type":"kr86", "name":"Kr-86", "protons":36, "neutrons":50},
+        {"type":"u238", "name":"U-238", "protons":92, "neutrons":146}
     ]
 
     LOGGER.info("Inserting particle type data")

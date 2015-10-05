@@ -23,7 +23,6 @@ from tornado.escape import url_escape
 
 from ....common.tornado.util import WriteFileMixin
 
-
 LOGGER = logging.getLogger(__name__)
 
 
@@ -32,12 +31,12 @@ class BaseRestRequestHandler(RequestHandler):
 
     @coroutine
     def prepare(self):
-        yield maybe_future(super(BaseRestRequestHandler,self).prepare())
+        yield maybe_future(super(BaseRestRequestHandler, self).prepare())
         # TODO: process basic authorization
 
 
     def write_error(self, status_code, **kwargs):
-        self.write_json({ "error":status_code })
+        self.write_json({"error":status_code})
 
 
     def write_json(self, obj, content_type="application/json"):
@@ -359,7 +358,7 @@ class LatticesRestHandler(BaseRestRequestHandler):
                 "links": {
                   "self": "/lattice/rest/v1/lattices/55e7542bfad7b66cf2598b4a"
                 },
-                "name": "Test", 
+                "name": "Test",
                 "description": "This is a description",
                 "status_type": "development",
                 "lattice_type": "impactz",
@@ -368,7 +367,7 @@ class LatticesRestHandler(BaseRestRequestHandler):
                 "created_date": "2015-09-02T15:55:23.852000",
                 "properties": [
                   {
-                    "name": "RefParticleMass", 
+                    "name": "RefParticleMass",
                     "value": 931494320.0
                   },
                   ...
@@ -377,10 +376,10 @@ class LatticesRestHandler(BaseRestRequestHandler):
                   {
                     "links": {
                       "enclosure": "/lattice/rest/v1/lattices/55e7542bfad7b66cf2598b4a/files/1/download"
-                    }, 
-                   "name": "LatticeFile", 
+                    },
+                   "name": "LatticeFile",
                    "filename": "test.in"
-                  }, 
+                  },
                   ...
                 ]
               }
@@ -429,10 +428,10 @@ class LatticeRestHandler(BaseRestRequestHandler):
                 {
                   "links": {
                    "enclosure": "/lattice/rest/v1/lattices/55e7542bfad7b66cf2598b4a/files/1/download"
-                  }, 
-                  "name": "LatticeFile", 
+                  },
+                  "name": "LatticeFile",
                   "filename": "test.in"
-                }, 
+                },
                 ...
               ]
             }
@@ -453,7 +452,7 @@ class LatticeFileDownloadRestHander(BaseRestRequestHandler, WriteFileMixin):
     def get(self, lattice_id, file_id):
         """
         Retrieve the file content of the Lattice File specifed.
-        
+
         :param lattice_id: Lattice ID
         :param file_id: Lattice file ID
         :status 200: Lattice file found
@@ -499,7 +498,7 @@ class LatticeElementsByOrderRestHandler(BaseRestRequestHandler):
     @coroutine
     def get(self, lattice_id):
         """Retrieve Lattice Elements by Lattice ID.
-    
+
         **Example response**:
 
         .. sourcecode:: json
@@ -508,43 +507,43 @@ class LatticeElementsByOrderRestHandler(BaseRestRequestHandler):
             Content-Type: text/json
             [
               {
-                "id": "55e7542bfad7b66cf2598b4e", 
+                "id": "55e7542bfad7b66cf2598b4e",
                 "links": {
                   "self": "/lattice/rest/v1/lattices/elements/55e7542bfad7b66cf2598b4e"
-                }, 
-                "type": "VALVE", 
-                "lattice_id": "55e7542bfad7b66cf2598b4a", 
-                "name": "DRIFT", 
-                "length": 0.072, 
-                "position": 0.07200000000000273, 
+                },
+                "type": "VALVE",
+                "lattice_id": "55e7542bfad7b66cf2598b4a",
+                "name": "DRIFT",
+                "length": 0.072,
+                "position": 0.07200000000000273,
                 "properties": []
-              }, 
+              },
               {
-                "id": "55e7542bfad7b66cf2598b50", 
+                "id": "55e7542bfad7b66cf2598b50",
                 "links": {
                   "self": "/lattice/rest/v1/lattices/elements/55e7542bfad7b66cf2598b50"
-                }, 
-                "type": "CAV", 
-                "lattice_id": "55e7542bfad7b66cf2598b4a", 
-                "name": "LS1_CA01:CAV1_D1127", 
-                "length": 0.24, 
-                "position": 0.44706350000001294, 
+                },
+                "type": "CAV",
+                "lattice_id": "55e7542bfad7b66cf2598b4a",
+                "name": "LS1_CA01:CAV1_D1127",
+                "length": 0.24,
+                "position": 0.44706350000001294,
                 "properties": [
                   {
-                    "name": "AMP", 
+                    "name": "AMP",
                     "value": 0.64
-                  }, 
+                  },
                   {
-                    "name": "PHA", 
+                    "name": "PHA",
                     "value": -6.524
                   }
                 ]
-              }, 
+              },
               ...
             ]
 
         :param lattice_id: Lattice ID
-        :status 200: Lattice Elements found 
+        :status 200: Lattice Elements found
         """
         data = self.application.data
         elements = yield data.find_lattice_elements_by_lattice_id(lattice_id)
@@ -565,21 +564,21 @@ class LatticeElementByOrderRestHandler(BaseRestRequestHandler):
             Content-Type: text/javascript
 
             {
-              "id": "55e7542bfad7b66cf2598b50", 
+              "id": "55e7542bfad7b66cf2598b50",
               "links": {
                 "self": "/lattice/rest/v1/lattices/elements/55e7542bfad7b66cf2598b50"
-              }, 
-              "type": "CAV", 
-              "lattice_id": "55e7542bfad7b66cf2598b4a", 
-              "order": 3, 
-              "name": "LS1_CA01:CAV1_D1127", 
-              "length": 0.24, 
-              "position": 0.44706350000001294, 
+              },
+              "type": "CAV",
+              "lattice_id": "55e7542bfad7b66cf2598b4a",
+              "order": 3,
+              "name": "LS1_CA01:CAV1_D1127",
+              "length": 0.24,
+              "position": 0.44706350000001294,
               "properties": [
                 {
-                  "name": "AMP", 
+                  "name": "AMP",
                   "value": 0.64
-                }, 
+                },
                 {
                   "name": "PHA",
                   "value": -6.524
@@ -613,13 +612,13 @@ class LatticeElementRestHandler(BaseRestRequestHandler):
             Content-Type: text/javascript
 
             {
-              "id": "55e7542bfad7b66cf2598b50", 
+              "id": "55e7542bfad7b66cf2598b50",
               "links": {
                 "self": "/lattice/rest/v1/lattices/elements/55e7542bfad7b66cf2598b50"
-              }, 
+              },
               "type": "CAV",
               "lattice_id": "55e7542bfad7b66cf2598b4a",
-              "order": 3, 
+              "order": 3,
               "name": "LS1_CA01:CAV1_D1127",
               "length": 0.24,
               "position": 0.44706350000001294,
@@ -627,7 +626,7 @@ class LatticeElementRestHandler(BaseRestRequestHandler):
                 {
                   "name": "AMP",
                   "value": 0.64
-                }, 
+                },
                 {
                   "name": "PHA",
                   "value": -6.524
@@ -664,7 +663,7 @@ class ModelsByLatticeIdRestHandler(BaseRestRequestHandler):
                 "id": "55ef4db0fad7b6267302fb4d",
                 "links": {
                   "self": "/lattice/rest/v1/models/55ef4db0fad7b6267302fb4d"
-                }, 
+                },
                 "lattice_id": "55eefbf0fad7b60a68e74754",
                 "name": "Test Model",
                 "description": "",
@@ -681,15 +680,15 @@ class ModelsByLatticeIdRestHandler(BaseRestRequestHandler):
                 "id": "55ef4ed3fad7b62d1990bd3d",
                 "links": {
                   "self": "/lattice/rest/v1/models/55ef4ed3fad7b62d1990bd3d"
-                }, 
+                },
                 "lattice_id": "55eefbf0fad7b60a68e74754",
                 "name": "Test Model",
                 "description": "",
-                "created_by": "physuser", 
+                "created_by": "physuser",
                 "created_date": "2015-09-08T17:10:43.317000",
                 "properties": [
                   ...
-                ], 
+                ],
                 "files": [
                   ...
                 ]
@@ -725,7 +724,7 @@ class ModelsRestHandler(BaseRestRequestHandler):
                 "id": "55ef4db0fad7b6267302fb4d",
                 "links": {
                   "self": "/lattice/rest/v1/models/55ef4db0fad7b6267302fb4d"
-                }, 
+                },
                 "lattice_id": "55eefbf0fad7b60a68e74754",
                 "name": "Test Model",
                 "description": "",
@@ -742,15 +741,15 @@ class ModelsRestHandler(BaseRestRequestHandler):
                 "id": "55ef4ed3fad7b62d1990bd3d",
                 "links": {
                   "self": "/lattice/rest/v1/models/55ef4ed3fad7b62d1990bd3d"
-                }, 
+                },
                 "lattice_id": "55eefbf0fad7b60a68e74754",
                 "name": "Test Model",
                 "description": "",
-                "created_by": "physuser", 
+                "created_by": "physuser",
                 "created_date": "2015-09-08T17:10:43.317000",
                 "properties": [
                   ...
-                ], 
+                ],
                 "files": [
                   ...
                 ]
@@ -769,7 +768,7 @@ class ModelRestHandler(BaseRestRequestHandler):
     @coroutine
     def get(self, model_id):
         """Retrieve Model object by ID.
-        
+
         **Example response**:
 
         .. sourcecode:: http
@@ -781,7 +780,7 @@ class ModelRestHandler(BaseRestRequestHandler):
               "id": "55ef4db0fad7b6267302fb4d",
               "links": {
                 "self": "/lattice/rest/v1/models/55ef4db0fad7b6267302fb4d"
-              }, 
+              },
               "lattice_id": "55eefbf0fad7b60a68e74754",
               "name": "Test Model",
               "description": "",
@@ -794,7 +793,7 @@ class ModelRestHandler(BaseRestRequestHandler):
                   "unit":"mm"
                 }
                 ...
-              ], 
+              ],
               "files": [
                 {
                   "links": {
@@ -802,7 +801,7 @@ class ModelRestHandler(BaseRestRequestHandler):
                   },
                   "name": "ModelData",
                   "filename": "model.map"
-                }, 
+                },
                 ...
               ]
             }
@@ -882,18 +881,18 @@ class ModelElementsByModelIdRestHandler(BaseRestRequestHandler):
                 "id": "55f342ccfad7b61a9f72b0b5",
                 "links": {
                   "self": "/lattice/rest/v1/models/elements/55f342ccfad7b61a9f72b0b5"
-                }, 
+                },
                 "model_id": "55f342cbfad7b61a9f72afa9",
                 "lattice_element_id": "55eefbf0fad7b60a68e7475d",
                 "properties": [
                   ...
                 ]
-              }, 
+              },
               {
                 "id": "55f342ccfad7b61a9f72b0b6",
                 "links": {
                   "self": "/lattice/rest/v1/models/elements/55f342ccfad7b61a9f72b0b6"
-                }, 
+                },
                 "model_id": "55f342cbfad7b61a9f72afa9",
                 "lattice_element_id": "55eefbf0fad7b60a68e7475e",
                 "properties": [
@@ -904,7 +903,7 @@ class ModelElementsByModelIdRestHandler(BaseRestRequestHandler):
                 "id": "55f342ccfad7b61a9f72b0aa",
                 "links": {
                   "self": "/lattice/rest/v1/models/elements/55f342ccfad7b61a9f72b0aa"
-                }, 
+                },
                 "model_id": "55f342cbfad7b61a9f72afa9",
                 "lattice_element_id": "55eefbf0fad7b60a68e7475f",
                 "properties": [
@@ -938,7 +937,7 @@ class ModelElementRestHandler(BaseRestRequestHandler):
               "id": "55f342ccfad7b61a9f72b0b5",
               "links": {
                 "self": "/lattice/rest/v1/model/elements/55f342ccfad7b61a9f72b0b5"
-              }, 
+              },
               "model_id": "55f342cbfad7b61a9f72afa9",
               "lattice_element_id": "55eefbf0fad7b60a68e7475d",
               "properties": [
@@ -946,7 +945,7 @@ class ModelElementRestHandler(BaseRestRequestHandler):
                   "name": "BeamCenterX",
                   "value": 2.6565e-05,
                   "unit":"mm"
-                }, 
+                },
                 {
                   "name": "BeamCenterY",
                   "value": 4.62876e-05,
@@ -981,10 +980,10 @@ class ModelTypesRestHandler(BaseRestRequestHandler):
 
             [
               {
-                "type": "impactz", 
+                "type": "impactz",
                 "links": {
                   "self": "/lattice/rest/v1/models/types/impactz"
-                }, 
+                },
                 "name": "IMPACT"
               },
               ...
@@ -1010,10 +1009,10 @@ class ModelTypeRestHandler(BaseRestRequestHandler):
             Content-Type: text/javascript
 
             {
-              "type": "impactz", 
+              "type": "impactz",
               "links": {
                 "self": "/lattice/rest/v1/models/types/impactz"
-              }, 
+              },
               "name": "IMPACT"
             }
 
