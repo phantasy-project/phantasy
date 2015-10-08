@@ -29,10 +29,12 @@ from tornado.util import ObjectDict
 from tornado.escape import url_escape
 from bson import ObjectId
 
-from ....common.tornado.jinja2 import Jinja2Mixin
-from ....common.tornado.session import SessionMixin
-from ....common.tornado.web import LogoutSessionHandler
-from ....common.tornado.web import FormLoginSessionHandler
+from phyutil.phyapp.common.tornado.jinja2 import Jinja2Mixin
+from phyutil.phyapp.common.tornado.session import SessionMixin
+from phyutil.phyapp.common.tornado.web import LogoutSessionHandler
+from phyutil.phyapp.common.tornado.web import FormLoginSessionHandler
+from phyutil.phyapp.common.tornado.util import WriteFileMixin
+from phyutil.phyapp.common.tornado.util import WriteJsonMixin
 
 
 LOGGER = logging.getLogger(__name__)
@@ -80,23 +82,6 @@ class BaseLatticeHandler(RequestHandler, SessionMixin, Jinja2Mixin):
             # attribute _reason should be set by set_status()
             kwargs["reason"] = self._reason
         self.render("latticemodel/error.html", *args, **kwargs)
-
-
-class FileDownloadMixin(object):
-
-    @staticmethod
-    def clean_filename(filename):
-        return re.sub(r'[^\.\-_\(\)\w]', '', filename)
-
-    def write_file(self, file_obj, buf_size=2048):
-        while True:
-            buf = file_obj.read(buf_size)
-            if len(buf) == buf_size:
-                self.write(buf)
-            else:
-                self.finish(buf)
-                return
-
 
 
 class LatticeLoginHandler(FormLoginSessionHandler, Jinja2Mixin):
@@ -156,6 +141,21 @@ class LatticeSearchHandler(BaseLatticeHandler):
         self.render("latticemodel/lattice_search.html", **ctx)
 
 
+class LatticeNamesHandler(BaseLatticeHandler, WriteJsonMixin):
+    """Find the names of Lattices matching the specified query.
+    """
+    @coroutine
+    def get(self):
+        yield self.post()
+
+    @coroutine
+    def post(self):
+        query = self.get_argument("query", "")
+        data = self.application.data
+        names = yield data.find_lattice_names(query)
+        self.write_json(names)
+
+
 class LatticeUploadHandler(BaseLatticeHandler):
     """
     Upload lattice files and save to database.
@@ -213,7 +213,7 @@ class LatticeDetailsHandler(BaseLatticeHandler):
         self.render("latticemodel/lattice_details.html", ctx)
 
 
-class LatticeFileDownloadHandler(BaseLatticeHandler, FileDownloadMixin):
+class LatticeFileDownloadHandler(BaseLatticeHandler, WriteFileMixin):
     """
     Download the lattice file specified by the given lattice ID and file ID.
     """
@@ -261,7 +261,7 @@ class LatticeFileDownloadHandler(BaseLatticeHandler, FileDownloadMixin):
                 return
 
 
-class LatticeArchiveDownloadHandler(BaseLatticeHandler, FileDownloadMixin):
+class LatticeArchiveDownloadHandler(BaseLatticeHandler, WriteFileMixin):
     """
     Download the lattice files in a single archive file (zip).
     """
@@ -419,7 +419,7 @@ class ModelDetailsHandler(BaseLatticeHandler):
         self.render("latticemodel/model_details.html", ctx)
 
 
-class ModelFileDownloadHandler(BaseLatticeHandler, FileDownloadMixin):
+class ModelFileDownloadHandler(BaseLatticeHandler, WriteFileMixin):
     """
     Download the model file specified by model ID and file ID.
     """
@@ -467,7 +467,7 @@ class ModelFileDownloadHandler(BaseLatticeHandler, FileDownloadMixin):
                 return
 
 
-class ModelArchiveDownloadHandler(BaseLatticeHandler, FileDownloadMixin):
+class ModelArchiveDownloadHandler(BaseLatticeHandler, WriteFileMixin):
     """
     Download the model files in a single archive file (zip).
     """

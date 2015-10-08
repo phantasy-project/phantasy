@@ -4,7 +4,7 @@
 	<meta charset="UTF-8">
 	<title>{% block title %}Lattice{% endblock %}</title>
 	<link rel="stylesheet" type="text/css" href="{{static_url('vendor/bootstrap/css/bootstrap.min.css')}}">
-	<link rel="stylesheet" type="text/css" href="{{static_url('latticemodel/css/style.css')}}">
+	<link rel="stylesheet" type="text/css" href="{{static_url('latticemodel/css/latticemodel.css')}}">
 	{% block styles %}{% endblock %}
 	<link rel="shortcut icon" href="{{static_url('latticemodel/img/favicon_lm.png')}}">
 </head>
@@ -36,12 +36,12 @@
 					</a>
 					<ul class="dropdown-menu">
 						<li class="dropdown-header">Lattice</li>
-						{%- for lt in lattice_types %} 
+						{%- for lt in lattice_types %}
 						<li><a href="{{ reverse_url("lattice_upload") }}?type={{lt.type|urlencode}}">{{lt.name|escape}}</a></li>
 						{%- endfor %}
 						<li role="separator" class="divider"></li>
 						<li class="dropdown-header">Model</li>
-						{%- for mt in model_types %} 
+						{%- for mt in model_types %}
 						<li><a href="{{ reverse_url("model_upload") }}?type={{mt.type|urlencode}}">{{mt.name|escape}}</a></li>
 						{%- endfor %}
 					</ul>
@@ -51,7 +51,7 @@
 			<ul class="nav navbar-nav navbar-right">
 				{%- if current_user is none %}
 				<li>
-					<button type="submit" class="btn btn-primary navbar-btn" 
+					<button type="submit" class="btn btn-primary navbar-btn"
 							id="login_button" aria-haspopup="false" aria-expanded="false"
 							onclick="window.location='{{login_url}}';">
 						Sign In
@@ -60,7 +60,7 @@
 				{%- else %}
 				<li><a href="#">{{current_user}}</a></li>
 				<li>
-					<button type="submit" class="btn btn-primary navbar-btn dropdown-toggle" 
+					<button type="submit" class="btn btn-primary navbar-btn dropdown-toggle"
 						data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
 						onclick="window.location='{{logout_url}}';">
 					Sign Out
@@ -72,8 +72,13 @@
 		</div>
 	</div>
 	{% block content %}{% endblock %}
-	<script src="{{static_url('vendor/jquery/js/jquery.min.js')}}"></script>
-	<script src="{{static_url('vendor/bootstrap//js/bootstrap.min.js')}}"></script>
+	<script type="text/javascript" src="{{static_url('vendor/jquery/js/jquery.min.js')}}"></script>
+	<script type="text/javascript" src="{{static_url('vendor/bootstrap//js/bootstrap.min.js')}}"></script>
+	<script type="text/javascript" src="{{static_url('latticemodel/js/latticemodel.js')}}"></script>
+	<script type="text/javascript">
+	// configure latticemodel library
+	latticemodel.config.lattice_names_url = '{{reverse_url("web_lattice_names")}}';
+	</script>
 	{% block scripts %}{% endblock %}
 </body>
 </html>

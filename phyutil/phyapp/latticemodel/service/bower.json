@@ -2,7 +2,8 @@
   "name":"lattice",
   "dependencies": {
     "jquery":"~2.1.4",
-    "bootstrap": "~3.3.5",
+    "bootstrap":"~3.3.5",
+    "typeahead.js":"~0.11.1",
     "Flot": "https://github.com/flot/flot.git#v0.8.3"
   },
   "install":{
@@ -21,6 +22,9 @@
             "bower_components/bootstrap/dist/js/*",
             "bower_components/bootstrap/dist/css/*",
             "bower_components/bootstrap/dist/fonts/*"
+        ],
+        "typeahead.js":[
+            "bower_components/typeahead.js/dist/*"
         ]
     }
   }

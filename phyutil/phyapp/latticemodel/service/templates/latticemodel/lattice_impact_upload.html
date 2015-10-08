@@ -2,7 +2,7 @@
 
 {% block title %}Upload :: Lattice{% endblock %}
 
-{% block content %}
+{%- block content %}
 <div class="container">
 <form data-file-upload="options" method="post" enctype="multipart/form-data">
 	<div>
@@ -32,11 +32,13 @@
 			</div>
 			<div class="form-group {% if errors.name %}has-error{% endif %}">
 				<div class="col-md-6">
-				<label class="control-label">Name</label>
-				<input class="form-control" name="name" type="text" value="{{lattice.name}}"/>
+				<label class="control-label" for="lattice_name">Name</label>
+				<div>
+					<input class="form-control" id="lattice_name" name="name"
+							type="text" autocomplete="off" value="{{lattice.name}}"/>
+				</div>
 				{% if errors.name %}<span class="text-danger">{{errors.name}}</span>{% endif %}
 				</div>
-				
 			</div>
 			<!--<div class="control-group">
 				<label class="control-label" for="inputVersion">Version</label>
@@ -99,4 +101,9 @@
 	</div>
 </form>
 </div>
-{% endblock %}
+{%- endblock %}
+
+{%- block scripts %}
+<script type="text/javascript" src="{{static_url('vendor/typeahead.js/js/typeahead.jquery.min.js')}}"></script>
+<script type="text/javascript" src="{{static_url('latticemodel/js/lattice_impact_upload.js')}}"></script>
+{%- endblock %}

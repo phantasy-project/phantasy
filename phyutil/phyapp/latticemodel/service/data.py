@@ -15,6 +15,7 @@ from __future__ import division
 from __future__ import print_function
 
 import re
+import logging
 
 from datetime import datetime
 from jsonschema import Draft4Validator
@@ -23,6 +24,9 @@ from tornado.gen import coroutine
 from tornado.gen import Return
 from bson import ObjectId
 from pymongo import ASCENDING
+
+
+_LOGGER = logging.getLogger(__name__)
 
 
 EXTRA_SCHEMA_TYPES = {
@@ -369,6 +373,35 @@ class MotorDataProvider(object):
                     name=support[1]
                 )
         return model_type
+
+
+    @coroutine
+    def find_lattice_names(self, query=""):
+        """Find the set of lattice names that match the specified query string.
+
+        The query string is converted to a regular expression to be executed
+        on the servier as follows: 'abc' => '.*abc.*'
+
+        Note that an empty query string matches all names.
+
+        :param query: Lattice name query string
+        :return: array of matching lattice names
+        """
+        name = re.compile(".*" + re.escape(query) + ".*", re.IGNORECASE)
+        print(name)
+        pipeline = [
+            {"$match":{"name":name}}, {"$sort":{"name":1}},
+            {"$group":{"_id":None, "names":{"$addToSet":"$name"}}}
+        ]
+        db = self.application.db
+        result = yield db.lattice.aggregate(pipeline)
+        if not result["ok"] or len(result["result"]) == 0:
+            _LOGGER.error("aggregration failure for pipeline: %s", pipeline)
+            raise Return([])
+        if len(result["result"]) > 1:
+            _LOGGER.warn("aggregration result: expecting: 1, recieved: %s",
+                                                        len(result["result"]))
+        raise Return(_bless(result["result"][0]["names"]))
 
 
     @coroutine
