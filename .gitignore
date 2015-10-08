@@ -5,6 +5,7 @@
 # ignore IDE metadata
 .idea/*
 *.komodoproject
+.settings/
 .project
 .pydevproject
 
