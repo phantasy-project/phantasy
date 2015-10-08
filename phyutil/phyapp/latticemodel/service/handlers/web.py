@@ -114,12 +114,13 @@ class LatticeLogoutHandler(LogoutSessionHandler):
 
 class LatticeSearchHandler(BaseLatticeHandler):
     """
-    Search for a lattice with the specified properties.
+    Search for Lattices with the specified properties.
     """
     @coroutine
     def get(self):
         ctx = ObjectDict()
         ctx.search_active = True
+        ctx.search = ObjectDict()
         data = self.application.data
         ctx.particle_types = yield data.find_particle_types()
         self.render("latticemodel/lattice_search.html", **ctx)
@@ -128,15 +129,17 @@ class LatticeSearchHandler(BaseLatticeHandler):
     def post(self):
         ctx = ObjectDict()
         ctx.search_active = True
-        ctx.lattice_type = self.get_argument("lattice_type", None)
-        ctx.particle_type = self.get_argument("particle_type", None)
-        ctx.lattice_name = self.get_argument("name", None)
-        ctx.lattice_description = self.get_argument("name", None)
-
+        ctx.search = ObjectDict()
+        ctx.search.lattice_type = self.get_argument("lattice_type", None)
+        ctx.search.particle_type = self.get_argument("particle_type", None)
+        ctx.search.name = self.get_argument("name", None)
+        ctx.search.branch = self.get_argument("branch", None)
+        ctx.search.version = self.get_argument("version", None)
+        ctx.search.properties = self.get_argument("properties", None)
+        #ctx.lattice_description = self.get_argument("name", None)
         data = self.application.data
-        ctx.lattices = yield data.search_lattices(**ctx)
+        ctx.lattices = yield data.search_lattices(**ctx.search)
         ctx.particle_types = yield data.find_particle_types()
-
         self.render("latticemodel/lattice_search.html", **ctx)
 
 

@@ -487,6 +487,21 @@ class MotorDataProvider(object):
 
     @coroutine
     def search_lattices(self, **kwargs):
+        """Search database for Lattices matching the specified properties:
+
+        :param lattice_type: Lattice type (must match exactly)
+        :param particle_type: Particle type (must match exactly)
+        :param name: Lattice name case insensitive match with support
+                        for glob operators ('*' and '?')
+        :param branch: Lattice branch case insensitive match with support
+                        for glob operators ('*' and '?')
+        :param version: Lattice version with support for greater than (>)
+                            and less than (<) prefixes (ie '>1' or '<10')
+        :param properties: Lattice properties as space or comma separated list
+                            with property names using case insensitive match
+                            (ie 'particlecharge=33 particlecount=>1000')
+        :return: List of Lattice objects
+        """
         query = []
 
         lattice_type = kwargs.get("lattice_type", None)
@@ -497,12 +512,38 @@ class MotorDataProvider(object):
         if particle_type and len(particle_type) > 0:
             query.append(dict(particle_type = particle_type))
 
-        lattice_name = kwargs.get("lattice_name", None)
-        if lattice_name and len(lattice_name) > 0:
-            regex = re.escape(lattice_name)
-            regex = regex.replace("\\*", "(.*)")
-            regex = regex.replace("\\?", "(.?)")
-            query.append(dict(name = { "$regex" : regex, "$options":"i" })) # consider: m
+        name = kwargs.get("name", None)
+        if name:
+            query.append({"name":_mongo_search_glob(name)})
+
+        branch = kwargs.get("branch", None)
+        if branch:
+            query.append({"branch":_mongo_search_glob(branch)})
+
+        version = kwargs.get("version", None)
+        if version:
+            query.append({"version":_mongo_search_expr(version)})
+
+        prop_regex = re.compile(r'[\s,]*([^\s,=]+)\s*=\s*("([^"]*)"|([^\s]+))', re.IGNORECASE)
+
+        properties = kwargs.get("properties", None)
+        if properties:
+            for m in prop_regex.finditer(properties):
+                prop_name = _mongo_ignorecase(m.group(1))
+                if m.group(3):
+                    prop_value = _mongo_search_expr(m.group(3))
+                elif m.group(4):
+                    prop_value = _mongo_search_expr(m.group(4))
+                else:
+                    continue
+                query.append({
+                    "properties":{
+                        "$elemMatch":{
+                            "name":prop_name,
+                            "value":prop_value
+                        }
+                    }
+                })
 
         if len(query) == 0:
             query = {}
@@ -512,6 +553,7 @@ class MotorDataProvider(object):
             query = { "$and" : query }
 
         db = self.application.db
+        _LOGGER.debug("lattice search: %s", query)
         lattices = yield db.lattice.find(query).to_list(None)
         raise Return(lattices)
 
@@ -760,3 +802,37 @@ def _bless(obj):
     return blessed
 
 
+def _mongo_ignorecase(value):
+    regex = re.escape(value)
+    return {"$regex":regex, "$options":"i"}
+
+
+def _mongo_search_glob(value, options="i"):
+    regex = re.escape(value)
+    regex = regex.replace("\\*", "(.*)")
+    regex = regex.replace("\\?", "(.?)")
+    return {"$regex":"^"+regex+"$", "$options":options}
+
+
+def _mongo_search_expr(value, options="i"):
+    if isinstance(value, (int, float)):
+        return value
+    if value.startswith(">"):
+        op = "$gt"
+        opvalue = value[1:]
+    elif value.startswith("<"):
+        op = "$lt"
+        opvalue = value[1:]
+    else:
+        op = None
+        opvalue = value
+    try:
+        opvalue = float(opvalue)
+        if opvalue.is_integer():
+            opvalue = int(opvalue)
+        if op:
+            return {op:opvalue}
+        else:
+            return opvalue
+    except ValueError:
+        return _mongo_search_glob(value, options)
