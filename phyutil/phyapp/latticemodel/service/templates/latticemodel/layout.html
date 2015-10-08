@@ -55,7 +55,7 @@
 							id="login_button" aria-haspopup="false" aria-expanded="false"
 							onclick="window.location='{{login_url}}';">
 						Sign In
-  					</button>
+					</button>
 				</li>
 				{%- else %}
 				<li><a href="#">{{current_user}}</a></li>
@@ -64,7 +64,7 @@
 						data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
 						onclick="window.location='{{logout_url}}';">
 					Sign Out
-  					</button>
+					</button>
 				</li>
 				{%- endif %}
 			</ul>
@@ -78,6 +78,7 @@
 	<script type="text/javascript">
 	// configure latticemodel library
 	latticemodel.config.lattice_names_url = '{{reverse_url("web_lattice_names")}}';
+	latticemodel.config.lattice_branches_url = '{{reverse_url("web_lattice_branches")}}';
 	</script>
 	{% block scripts %}{% endblock %}
 </body>

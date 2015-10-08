@@ -13,7 +13,6 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import re
 import json
 import os.path
 import logging
@@ -142,7 +141,7 @@ class LatticeSearchHandler(BaseLatticeHandler):
 
 
 class LatticeNamesHandler(BaseLatticeHandler, WriteJsonMixin):
-    """Find the names of Lattices matching the specified query.
+    """Find the names of Lattice matching the specified query.
     """
     @coroutine
     def get(self):
@@ -153,6 +152,21 @@ class LatticeNamesHandler(BaseLatticeHandler, WriteJsonMixin):
         query = self.get_argument("query", "")
         data = self.application.data
         names = yield data.find_lattice_names(query)
+        self.write_json(names)
+
+
+class LatticeBranchesHandler(BaseLatticeHandler, WriteJsonMixin):
+    """Find the branches of Lattice matching the specified query.
+    """
+    @coroutine
+    def get(self):
+        yield self.post()
+
+    @coroutine
+    def post(self):
+        query = self.get_argument("query", "")
+        data = self.application.data
+        names = yield data.find_lattice_branches(query)
         self.write_json(names)
 
 

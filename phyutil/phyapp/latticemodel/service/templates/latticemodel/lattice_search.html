@@ -74,13 +74,15 @@
 		<div role="tabpanel" class="tab-pane active" id="results">
 			<table class="table">
 				<tr>
-					<td></td>
-					<td>Lattice Type</td>
-					<td>Particle Type</td>
-					<td>Name</td>
-					<td>Description</td>
+					<th></th>
+					<th>Lattice Type</th>
+					<th>Particle Type</th>
+					<th>Name</th>
+					<th>Branch</th>
+					<th>Version</th>
+					<th>Description</th>
 				</tr>
-				
+
 				{% for lattice in lattices %}
 				<tr>
 					<td>
@@ -88,14 +90,16 @@
 							<span class="glyphicon glyphicon-new-window"></span>
 						</a>
 					</td>
-					{% for lt in lattice_types if lt.type == lattice.lattice_type %}
+					{%- for lt in lattice_types if lt.type == lattice.lattice_type %}
 					<td>{{ lt.name }}</td>
-					{% endfor %}
-					{% for pt in particle_types if pt.type == lattice.particle_type %}
+					{%- endfor %}
+					{%- for pt in particle_types if pt.type == lattice.particle_type %}
 					<td>{{ pt.name }}</td>
-					{% endfor %}
-					<td>{{ lattice.name }}</td>
-					<td>{{ lattice.description|truncate(80) }}</td>
+					{%- endfor %}
+					<td>{{ lattice.name|escape }}</td>
+					<td>{{ lattice.branch|escape }}</td>
+					<td>{{ lattice.version|escape }}</td>
+					<td>{{ lattice.description|escape|truncate(40) }}</td>
 				</tr>
 				{% else %}
 				<tr>
@@ -106,7 +110,7 @@
 		</div>
 		{% endif %}
 	</div>
-	
+
 	{#<div class="{{ '{{' }}search.displayLattice}}">
 		Branch:
 		<br />
@@ -121,7 +125,7 @@
 		<br />
 		<br />
 	</div>
-	
+
 	<div class="{{ '{{' }}search.displayLattice}}">
 		Creator:
 		<br />

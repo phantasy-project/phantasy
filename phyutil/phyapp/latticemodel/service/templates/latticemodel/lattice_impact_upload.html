@@ -32,26 +32,41 @@
 			</div>
 			<div class="form-group {% if errors.name %}has-error{% endif %}">
 				<div class="col-md-6">
-				<label class="control-label" for="lattice_name">Name</label>
-				<div>
-					<input class="form-control" id="lattice_name" name="name"
-							type="text" autocomplete="off" value="{{lattice.name}}"/>
-				</div>
-				{% if errors.name %}<span class="text-danger">{{errors.name}}</span>{% endif %}
+					<label class="control-label" for="lattice_name">Name</label>
+					<div>
+						<input class="form-control" id="lattice_name" name="name"
+								type="text" autocomplete="off" value="{{lattice.name}}"/>
+					</div>
+					{% if errors.name %}<span class="text-danger">{{errors.name}}</span>{% endif %}
 				</div>
 			</div>
-			<!--<div class="control-group">
-				<label class="control-label" for="inputVersion">Version</label>
-				<div class="controls">
-					<input id="inputVersion" ng-model="upload.version" name="version" type="text">
+			<div class="form-group {% if errors.branch %}has-error{% endif %}">
+				<div class="col-md-6">
+					<label class="control-label" for="lattice_branch">Branch</label>
+					<div>
+						<input class="form-control" id="lattice_branch" name="branch"
+							type="text" autocomplete="off" value="{{lattice.branch}}"/>
+					</div>
+					{% if errors.branch %}<span class="text-danger">{{errors.branch}}</span>{% endif %}
 				</div>
-			</div>-->
-			<!-- <div class="control-group">
-				<label class="control-label" for="inputBranch">Branch</label>
-				<div class="controls">
-					<input id="inputBranch" ng-model="upload.branch" name="branch" type="text">
+			</div>
+			<div class="form-group {% if errors.version %}has-error{% endif %}">
+				<div class="col-md-2">
+					<label class="control-label">Version</label>
+					<div class="form-inline">
+						<span>
+							<input class="form-control" id="lattice_autoversion"
+									name="autoversion" type="checkbox" autocomplete="off"
+									{% if lattice_autoversion %}checked="checked"{% endif %}/>
+							Auto Increment
+						</span>
+					</div>
+					<input class="form-control" id="lattice_version"
+							name="version" type="text" autocomplete="off"
+							{% if lattice_autoversion %}disabled{% else %}value="{{lattice.version}}"{% endif %}/>
+					{% if errors.version %}<span class="text-danger">{{errors.version}}</span>{% endif %}
 				</div>
-			</div> -->
+			</div>
 			<div class="form-group">
 				<div class="col-md-6">
 				<label class="control-label">Description</label>
@@ -63,13 +78,6 @@
 					<input class="form-control" name="status_type" type="hidden" value="development"/>
 				</div>
 			</div>
-			<!-- <div class="control-group">
-				<div class="controls">
-					<label class="checkbox">
-						<input ng-disabled="!modal.doSimulation.show" name="dosimulation" ng-model="modal.doSimulation.selected" type="checkbox"> Do simulation after successful upload
-					</label>
-				</div>
-			</div> -->
 			<div class="form-group {% if errors.lattice_file %}has-error{% endif %}">
 				<div class="col-md-4">
 					<label class="control-label">Lattice File (i.e test.in)</label>
@@ -81,9 +89,9 @@
 				<div class="col-md-4">
 					<label>Attachments</label>
 					<input class="btn btn-default" type="file" name="attachments" multiple>
-				</div>
+					</div>
 			</div>
-			
+
 			{%- if errors._global %}
 			<div class="row">
 				<div class="col-md-6">
@@ -91,7 +99,7 @@
 				</div>
 			</div>
 			{%- endif %}
-			
+
 			<div class="form-group">
 				<div class="col-md-6">
 					<button class="btn btn-primary pull-right" type="submit">Upload</button>

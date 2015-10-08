@@ -37,23 +37,14 @@
 				<td><b>Name: </b></td>
 				<td><span class="text-info">{{lattice.name}}</span></td>
 			</tr>
-			<!--<tr ng-if="lattice.version">
+			<tr>
+				<td><b>Branch: </b></td>
+				<td><span class="text-info">{{lattice.branch}}</span></td>
+			</tr>
+			<tr>
 				<td><b>Version: </b></td>
 				<td><span class="text-info">{{lattice.version}}</span></td>
 			</tr>
-			<tr ng-if="lattice.branch">
-				<td><b>Branch: </b></td>
-				<td><span class="text-info">{{lattice.branch}}</span></td>
-			</tr>-->
-			<!-- <tr ng-if="lattice.creator">
-				<td><b>Creator: </b></td>
-				<td><span class="text-info">{{lattice.creator}}</span></td>
-			</tr> -->
-			<!-- <tr ng-if="lattice.originalDate">
-				<td><b>Original Date: </b></td>
-				<td><span class="text-info">{{lattice.originalDate}}</span></td>
-			</tr> -->
-			
 			<!-- <tr ng-if="lattice.latticeFormat">
 				<td><b>Lattice Format: </b></td>
 				<td><span class="text-info">{{lattice.latticeFormat}}</span></td>
@@ -81,7 +72,7 @@
 		</table>
 		</div>
 		</div>
-		
+
 		<div class="row">
 			<div class="col-xs-6">
 			<h4>Models</h4>
@@ -106,7 +97,7 @@
 			</table>
 			</div>
 		</div>
-		
+
 		<div class="row">
 		<div class="col-xs-6">
 			<table class="table">
@@ -140,7 +131,7 @@
 			</table>
 		</div>
 		<!-- </div> -->
-		
+
 		<!-- <div class="row"> -->
 		<div class="col-xs-6">
 			<table class="table">
@@ -205,7 +196,7 @@
 				<td>{{ p[0] }}[{{ p[1] }}]</td>
 				{% endfor %}
 			</tr>
-			
+
 			{%- for e in lattice_elements %}
 			<tr>
 				<td>{{ e.order }}</td>

@@ -58,6 +58,9 @@ webpatterns = [
     (_URL_PATTERN(r'/web/lattices/names'),
         web.LatticeNamesHandler, {}, "web_lattice_names"),
 
+    (_URL_PATTERN(r'/web/lattices/branches'),
+        web.LatticeBranchesHandler, {}, "web_lattice_branches"),
+
     (r'/lattice/web/lattice/upload',
         web.LatticeUploadHandler, {}, "lattice_upload"),
 

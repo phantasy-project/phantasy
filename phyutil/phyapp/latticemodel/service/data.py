@@ -24,6 +24,7 @@ from tornado.gen import coroutine
 from tornado.gen import Return
 from bson import ObjectId
 from pymongo import ASCENDING
+from pymongo import DESCENDING
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -77,6 +78,12 @@ LATTICE_SCHEMA = {
         "name":{
             "type":"string"
         },
+        "branch":{
+            "type":"string"
+        },
+        "version":{
+            "type":"integer"
+        },
         "description":{
             "type":"string"
         },
@@ -127,7 +134,8 @@ LATTICE_SCHEMA = {
         },
     },
     "required":[ "lattice_type", "particle_type", "status_type",
-                "name", "description","created_by", "created_date" ]
+                "name", "branch", "version", "description",
+                "created_by", "created_date" ]
 }
 
 
@@ -380,7 +388,7 @@ class MotorDataProvider(object):
         """Find the set of lattice names that match the specified query string.
 
         The query string is converted to a regular expression to be executed
-        on the servier as follows: 'abc' => '.*abc.*'
+        on the Mongo server as follows: 'abc' => '.*abc.*'
 
         Note that an empty query string matches all names.
 
@@ -388,20 +396,51 @@ class MotorDataProvider(object):
         :return: array of matching lattice names
         """
         name = re.compile(".*" + re.escape(query) + ".*", re.IGNORECASE)
-        print(name)
         pipeline = [
             {"$match":{"name":name}}, {"$sort":{"name":1}},
             {"$group":{"_id":None, "names":{"$addToSet":"$name"}}}
         ]
         db = self.application.db
         result = yield db.lattice.aggregate(pipeline)
-        if not result["ok"] or len(result["result"]) == 0:
+        if not result["ok"]:
             _LOGGER.error("aggregration failure for pipeline: %s", pipeline)
+            raise Return([])
+        if len(result["result"]) == 0:
             raise Return([])
         if len(result["result"]) > 1:
             _LOGGER.warn("aggregration result: expecting: 1, recieved: %s",
                                                         len(result["result"]))
         raise Return(_bless(result["result"][0]["names"]))
+
+
+    @coroutine
+    def find_lattice_branches(self, query=""):
+        """Find the set of lattice branches that match the specified query string.
+
+        The query string is converted to a regular expression to be executed
+        on the Mongo server as follows: 'abs' => '.*abc.*'
+
+        Note that an empty query string matches all branches.
+
+        :param query: Lattice branch query string
+        :return: array of matching lattice branches
+        """
+        branch = re.compile(".*" + re.escape(query) + ".*", re.IGNORECASE)
+        pipeline = [
+            {"$match":{"branch":branch}}, {"$sort":{"branch":1}},
+            {"$group":{"_id":None, "branches":{"$addToSet":"$branch"}}}
+        ]
+        db = self.application.db
+        result = yield db.lattice.aggregate(pipeline)
+        if not result["ok"]:
+            _LOGGER.error("aggregration failure for pipeline: %s", pipeline)
+            raise Return([])
+        if len(result["result"]) == 0:
+            raise Return([])
+        if len(result["result"]) > 1:
+            _LOGGER.warn("aggregration result: expecting: 1, recieved: %s",
+                                                        len(result["result"]))
+        raise Return(_bless(result["result"][0]["branches"]))
 
 
     @coroutine
@@ -414,6 +453,28 @@ class MotorDataProvider(object):
         db = self.application.db
         query = { "_id":ObjectId(lattice_id) }
         lattice = yield db.lattice.find_one(query)
+        raise Return(_bless(lattice))
+
+
+    @coroutine
+    def find_lattice_by_name(self, name, branch, version=None):
+        """Find the Lattice by name, branch and version. If version is not
+        specified then the Lattice then the last (ie greatest) version is returned.
+
+        :param name: Lattice name
+        :param branch: Lattice branch
+        :param vesion: Lattice version or None
+        :return: Lattice object or None if not found.
+        """
+        db = self.application.db
+        query = {
+            "name":re.compile(re.escape(name), re.IGNORECASE),
+            "branch":re.compile(re.escape(branch), re.IGNORECASE)
+        }
+        if version is not None:
+            query["version"] = int(version)
+        sort = [("version", DESCENDING)]
+        lattice = yield db.lattice.find_one(query, sort=sort)
         raise Return(_bless(lattice))
 
 

@@ -35,6 +35,8 @@ LOGGER = logging.getLogger(__name__)
 
 class ImpactLatticeSupport(object):
 
+    _INITIAL_VERSION = 1
+
     def __init__(self, type_, name, handler):
         self.name = name
         self.type = type_
@@ -60,6 +62,7 @@ class ImpactLatticeSupport(object):
         ctx.particle_types = yield data.find_particle_types()
         ctx.lattice_types = yield data.find_lattice_types()
         ctx.lattice = ObjectDict(lattice_type=self.type)
+        ctx.lattice_autoversion = True
         ctx.errors = ObjectDict()
         raise Return(ctx)
 
@@ -70,7 +73,7 @@ class ImpactLatticeSupport(object):
         return ObjectDict(content=request_file.body, location=location)
 
 
-    def _write_file_attachment(self, file_attachment, base_path): 
+    def _write_file_attachment(self, file_attachment, base_path):
         filename = os.path.join(base_path, file_attachment.location)
         if not os.path.exists(filename):
             with open(filename, 'w') as attfile:
@@ -90,6 +93,8 @@ class ImpactLatticeSupport(object):
         if not content_type.startswith("multipart/form-data;"):
             raise HTTPError(415)
 
+        data = self.application.data
+
         ctx = yield self._create_upload_context()
 
         ctx.lattice.particle_type = self.handler.get_argument("particle_type", "")
@@ -108,6 +113,28 @@ class ImpactLatticeSupport(object):
         if len(ctx.lattice.name) == 0:
             ctx.errors.name = "Name is required"
 
+        ctx.lattice.branch = self.handler.get_argument("branch", "")
+        if len(ctx.lattice.branch) == 0:
+            ctx.errors.branch = "Branch is required"
+
+        if self.handler.get_argument("autoversion", "off") == "on":
+            ctx.lattice_autoversion = True
+        else:
+            ctx.lattice_autoversion = False
+
+        ctx.lattice.version = self.handler.get_argument("version", "")
+        if not ctx.lattice_autoversion:
+            if len(ctx.lattice.version) == 0:
+                ctx.errors.version = "Version is required"
+            else:
+                try:
+                    ctx.lattice.version = int(ctx.lattice.version)
+                except ValueError:
+                    ctx.lattice.version = self._INITIAL_VERSION
+                    ctx.errors.version = "Version must be an integer"
+                if ctx.lattice.version <= 0:
+                    ctx.errors.version = "Version must be greater than zero"
+
         ctx.lattice.description = self.handler.get_argument("description", "")
 
         ctx.lattice.status_type = self.handler.get_argument("status_type", "")
@@ -125,6 +152,27 @@ class ImpactLatticeSupport(object):
 
         elif len(files["lattice_file"]) == 0:
             ctx.errors.lattice_file = "Lattice File is required"
+
+        if ctx.errors:
+            self._render_upload_with_status(400, **ctx)
+            return
+
+        # check for another lattice with name, branch and version
+        if ctx.lattice_autoversion:
+            lattice = yield data.find_lattice_by_name(ctx.lattice.name,
+                                                        ctx.lattice.branch)
+        else:
+            lattice = yield data.find_lattice_by_name(ctx.lattice.name,
+                                    ctx.lattice.branch, ctx.lattice.version)
+
+        if ctx.lattice_autoversion:
+            if lattice:
+                ctx.lattice.version = lattice.version + 1
+            else:
+                ctx.lattice.version = self._INITIAL_VERSION
+        else:
+            if lattice:
+                ctx.errors.version = "Version already exists"
 
         if ctx.errors:
             self._render_upload_with_status(400, **ctx)
@@ -218,7 +266,7 @@ class ImpactLatticeSupport(object):
             filename=lattice_file.filename,
             location=attachment.location
         ))
- 
+
         if "attachments" in files:
             for attachment_file in files["attachments"]:
                 attachment = self._create_file_attachment(attachment_file)
@@ -242,8 +290,6 @@ class ImpactLatticeSupport(object):
             ctx.errors._global = "Attachment directory not found"
             self._render_upload_with_status(500, **ctx)
             return
-
-        data = self.application.data
 
         try:
             yield data.validate_lattice(ctx.lattice)
