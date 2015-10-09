@@ -19,12 +19,14 @@
 				</div>
 			</div>
 			<div class="form-group {% if errors.lattice_id %}has-error{% endif %}">
-				<div class="col-md-2">
+				<div class="col-xs-6">
 					<label class="control-label">Lattice</label>
 					<select class="form-control" name="lattice_id">
 						<option></option>
 						{%- for l in lattices %}
-						<option value="{{l._id}}" {% if l._id == model.lattice_id %}selected{% endif %}>{{l.name}}</option>
+						<option value="{{l._id}}" {% if l._id == model.lattice_id %}selected{% endif %}>
+							{{l.name|escape}} / {{l.branch|escape}} / {{l.version}}
+						</option>
 						{%- endfor %}
 					</select>
 					{% if errors.lattice_id %}<span class="text-danger">{{errors.lattice_id}}</span>{% endif %}
@@ -36,7 +38,6 @@
 				<input class="form-control" name="name" type="text" value="{{model.name}}"/>
 				{% if errors.name %}<span class="text-danger">{{errors.name}}</span>{% endif %}
 				</div>
-				
 			</div>
 			<div class="form-group">
 				<div class="col-md-6">
