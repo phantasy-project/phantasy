@@ -108,6 +108,27 @@ class ImpactLatticeSupport(object):
 
 
     @coroutine
+    def rest_form_upload_post(self):
+        """Entry point for REST API POST requests to upload Lattice.
+        """
+        yield self._form_upload_post(self._rest_send_status)
+
+
+    @coroutine
+    def _rest_send_status(self, status, context):
+        """
+        """
+        if status == 201:
+            lattice_id = str(context.lattice._id)
+            url = self.handler.reverse_url("rest_lattice_by_id", lattice_id)
+            self.handler.set_status(status)
+            self.handler.write_json({"links":{"replies":url}})
+        else:
+            self.handler.set_status(status)
+            self.handler.write_json({"errors":context.errors})
+
+
+    @coroutine
     def _form_upload_post(self, send_status):
         """Process the request and create new Lattice resource.
 

@@ -36,6 +36,8 @@ production["auth_provider_crowd_url"] = "http://example.com/crowd"
 production["auth_provider_crowd_username"] = "username"
 production["auth_provider_crowd_password"] = "password"
 
+production["auth_basic_realm"] = "latticemodel"
+
 production["db_connection_factory"] = MotorConnectionFactory
 production["db_connection_database"] = "lattice"
 

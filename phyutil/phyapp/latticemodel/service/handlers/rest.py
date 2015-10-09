@@ -12,6 +12,7 @@ from __future__ import print_function
 
 import logging
 import os.path
+import functools
 
 from collections import OrderedDict
 from tornado.web import HTTPError
@@ -20,19 +21,45 @@ from tornado.gen import coroutine
 from tornado.gen import maybe_future
 from tornado.escape import url_escape
 
+from phyutil.phyapp.common.tornado.auth import AuthBasicMixin
 from phyutil.phyapp.common.tornado.util import WriteJsonMixin
 from phyutil.phyapp.common.tornado.util import WriteFileMixin
+
+from . import LatticeSupportMixin
 
 LOGGER = logging.getLogger(__name__)
 
 
-class BaseRestRequestHandler(RequestHandler):
 
+def authorized(method):
+    """Decorate handler methods with this to require users to be authorized.
+    Response status code 401 (Unauthorized) is sent for unauthorized users.
+    """
+    @functools.wraps(method)
+    def wrapper(self, *args, **kwargs):
+        if not self.current_user:
+            self.send_error(401)
+            return
+        return method(self, *args, **kwargs)
+    return wrapper
+
+
+class BaseRestRequestHandler(RequestHandler, AuthBasicMixin):
 
     @coroutine
     def prepare(self):
         yield maybe_future(super(BaseRestRequestHandler, self).prepare())
-        # TODO: process basic authorization
+        yield self.prepare_auth_basic_user()
+
+
+    def get_current_user(self):
+        return self.get_auth_basic_user()
+
+
+    def write_error(self, status_code, **kwargs):
+        if status_code == 401:
+            self.set_unauthorized_header(**kwargs)
+        super(BaseRestRequestHandler,self).write_error(status_code, **kwargs)
 
 
     def _particle_type_api(self, particle_type):
@@ -431,6 +458,48 @@ class LatticeRestHandler(BaseRestRequestHandler, WriteJsonMixin):
         if not lattice:
             raise HTTPError(404)
         self.write_json(self._lattice_api(lattice))
+
+
+class LatticeUploadRestHandler(BaseRestRequestHandler, WriteJsonMixin, LatticeSupportMixin):
+    @authorized
+    @coroutine
+    def post(self, type_id):
+        """Create a new Lattice by submitting form data.
+
+        Content type MUST be 'multipart/form-data'
+
+        Content of the form is dictated by the Lattice type being submitted.
+
+        For Lattice type 'impactz' the follow parameters are supported:
+        *name*: new lattice name
+        *branch*: new lattice branch
+        *version*: new lattice version (ignored if autoversion is specified)
+        *autoversion*: (optional) automatically select version of new lattice
+        *particle_type*: particle type associated with new lattice
+        *description*: new lattice description
+        *lattice_file*: raw IMPACT lattice file (ie test.in)
+        *attachments*: extra files to attached to new lattice (multiple allowed)
+
+        **Example response**:
+
+        .. sourcecode:: http
+
+            HTTP/1.1 200 OK
+            Content-Type: application/json
+
+            {
+              "links":{
+                  "replies":"/lattice/rest/v1/lattices/5618320efad7b6600d1f2ecc"
+              }
+            }
+
+        :param type_id: Lattice Type ID
+        :status 201: Lattice created
+        :status 401: Unauthorized
+        :status 404: Lattice Type not supported
+        """
+        lattice_support = self.construct_lattice_support(type_id)
+        yield lattice_support.rest_form_upload_post()
 
 
 class LatticeFileDownloadRestHander(BaseRestRequestHandler, WriteFileMixin):

@@ -23,7 +23,7 @@ def _URL_PATTERN(pattern):
         lattice_file_id=r"(?P<file_id>\d+)",
         lattice_element_id=r"(?P<element_id>\w{24})",
         lattice_element_order=r"(?P<order>\d+)",
-        lattice_type_id="(?P<type_id>\w+)",
+        lattice_type_id="(?P<type_id>\\w+)",
         model_id="(?P<model_id>\\w{24})",
         model_file_id="(?P<file_id>\\d+)",
         model_element_id="(?P<element_id>\\w{24})",
@@ -101,13 +101,14 @@ restpatterns = [
     (_URL_PATTERN(r"/rest/v1/particles/types/{particle_type_id}"),
         rest.ParticleTypeRestHandler, {}, "rest_particle_type_by_id"),
 
-    # POST /lattice/rest/v1/lattices
-
     (_URL_PATTERN(r"/rest/v1/lattices"),
         rest.LatticesRestHandler),
 
     (_URL_PATTERN(r"/rest/v1/lattices/{lattice_id}"),
         rest.LatticeRestHandler, {}, "rest_lattice_by_id"),
+
+    (_URL_PATTERN(r"/rest/v1/lattices/{lattice_type_id}"),
+        rest.LatticeUploadRestHandler, {}, "rest_lattice_upload"),
 
     (_URL_PATTERN(r"/rest/v1/lattices/{lattice_id}/files/{lattice_file_id}/download"),
         rest.LatticeFileDownloadRestHander, {}, "rest_lattice_file_download_by_id"),
