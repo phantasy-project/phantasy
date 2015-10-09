@@ -35,6 +35,8 @@ from phyutil.phyapp.common.tornado.web import FormLoginSessionHandler
 from phyutil.phyapp.common.tornado.util import WriteFileMixin
 from phyutil.phyapp.common.tornado.util import WriteJsonMixin
 
+from . import LatticeSupportMixin
+
 
 LOGGER = logging.getLogger(__name__)
 
@@ -173,7 +175,7 @@ class LatticeBranchesHandler(BaseLatticeHandler, WriteJsonMixin):
         self.write_json(names)
 
 
-class LatticeUploadHandler(BaseLatticeHandler):
+class LatticeUploadHandler(BaseLatticeHandler, LatticeSupportMixin):
     """
     Upload lattice files and save to database.
 
@@ -183,27 +185,16 @@ class LatticeUploadHandler(BaseLatticeHandler):
     @coroutine
     def get(self):
         lattice_type = self.get_argument("type")
-        lattice_support = self._construct_support(lattice_type)
-        yield lattice_support.get_upload()
+        lattice_support = self.construct_lattice_support(lattice_type)
+        yield lattice_support.web_form_upload_get()
 
 
     @authenticated
     @coroutine
     def post(self):
         lattice_type = self.get_argument("type")
-        lattice_support = self._construct_support(lattice_type)
-        yield lattice_support.post_upload()
-
-
-    def _construct_support(self, type_):
-        """
-        Construct a Lattice support class from the given lattice support tuple.
-        """
-        self.require_setting("lattice_support")
-        for support in self.settings["lattice_support"]:
-            if type_ == support[0]:
-                return support[2](support[0], support[1], self)
-        raise HTTPError(404)
+        lattice_support = self.construct_lattice_support(lattice_type)
+        yield lattice_support.web_form_upload_post()
 
 
 class LatticeDetailsHandler(BaseLatticeHandler):

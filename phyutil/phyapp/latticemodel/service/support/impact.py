@@ -37,21 +37,14 @@ class ImpactLatticeSupport(object):
 
     _INITIAL_VERSION = 1
 
+    _TEMPLATE_NAME = "latticemodel/lattice_impact_upload.html"
+
     def __init__(self, type_, name, handler):
         self.name = name
         self.type = type_
         self.handler = handler
         self.settings = handler.settings
         self.application = handler.application
-
-
-    def _render_upload(self, **ctx):
-        self.handler.render("latticemodel/lattice_impact_upload.html", **ctx)
-
-
-    def _render_upload_with_status(self, status, **kwargs):
-        self.handler.set_status(status)
-        self._render_upload(**kwargs)
 
 
     @coroutine
@@ -81,21 +74,52 @@ class ImpactLatticeSupport(object):
 
 
     @coroutine
-    def get_upload(self):
+    def web_form_upload_get(self):
+        """Entry point for web (browser) GET requests to upload Lattice.
+        """
         ctx = yield self._create_upload_context()
-        self._render_upload(**ctx)
-        return
+        self._web_send_status(200, ctx)
 
 
     @coroutine
-    def post_upload(self):
+    def web_form_upload_post(self):
+        """Entry point for web (browser) POST requests to upload Lattice.
+        """
+        yield self._form_upload_post(self._web_send_status)
+
+
+    def _web_send_status(self, status, context):
+        """Send response for web (browser) client.
+
+        If the Lattice has been successfully created (ie status 201)
+        then redirect the client to the new Lattice details.
+
+        :param status: HTTP response status code
+        :param context: dictionary response context
+        """
+        if status == 201:
+            # redirect to created resource
+            lattice_id = str(context.lattice._id)
+            url = self.handler.reverse_url("lattice_details", lattice_id)
+            self.handler.redirect(url, status=303)
+        else:
+            self.handler.set_status(status)
+            self.handler.render(self._TEMPLATE_NAME, **context)
+
+
+    @coroutine
+    def _form_upload_post(self, send_status):
+        """Process the request and create new Lattice resource.
+
+        :param send_status: callback method to signal completion
+        """
+        data = self.application.data
+        ctx = yield self._create_upload_context()
+
         content_type = self.handler.request.headers["Content-Type"]
         if not content_type.startswith("multipart/form-data;"):
-            raise HTTPError(415)
-
-        data = self.application.data
-
-        ctx = yield self._create_upload_context()
+            send_status(415)
+            return
 
         ctx.lattice.particle_type = self.handler.get_argument("particle_type", "")
         if len(ctx.lattice.particle_type) == 0:
@@ -154,7 +178,7 @@ class ImpactLatticeSupport(object):
             ctx.errors.lattice_file = "Lattice File is required"
 
         if ctx.errors:
-            self._render_upload_with_status(400, **ctx)
+            send_status(400, ctx)
             return
 
         # check for another lattice with name, branch and version
@@ -175,7 +199,7 @@ class ImpactLatticeSupport(object):
                 ctx.errors.version = "Version already exists"
 
         if ctx.errors:
-            self._render_upload_with_status(400, **ctx)
+            send_status(400, ctx)
             return
 
         lattice_file = files["lattice_file"][0]
@@ -187,7 +211,7 @@ class ImpactLatticeSupport(object):
             ctx.errors.lattice_file = "Lattice File invalid format"
 
         if ctx.errors:
-            self._render_upload_with_status(400, **ctx)
+            send_status(400, ctx)
             return
 
         ctx.lattice.properties = []
@@ -282,13 +306,13 @@ class ImpactLatticeSupport(object):
         if len(attachment_path) == 0:
             LOGGER.warn("setting 'attachment_path' not found")
             ctx.errors._global = "Attachment directory not specified"
-            self._render_upload_with_status(500, **ctx)
+            send_status(500, ctx)
             return
 
         if not os.path.isdir(attachment_path):
             LOGGER.error("attachment path '%s' not found", attachment_path)
             ctx.errors._global = "Attachment directory not found"
-            self._render_upload_with_status(500, **ctx)
+            send_status(500, ctx)
             return
 
         try:
@@ -296,7 +320,7 @@ class ImpactLatticeSupport(object):
         except Exception as e:
             LOGGER.error("lattice validation error: %s", e)
             ctx.errors._global = "Lattice validation error"
-            self._render_upload_with_status(500, **ctx)
+            send_status(500, ctx)
             return
 
         lattice_elements = []
@@ -321,7 +345,7 @@ class ImpactLatticeSupport(object):
             except Exception as e:
                 LOGGER.error("lattice element validation error: %s", e)
                 ctx.errors._global = "Lattice element validation error"
-                self._render_upload_with_status(500, **ctx)
+                send_status(500, ctx)
                 return
 
             lattice_elements.append(lattice_element)
@@ -331,7 +355,7 @@ class ImpactLatticeSupport(object):
         except Exception as e:
             LOGGER.error("lattice database insert error: %s", e)
             ctx.errors._global = "Lattice database insert error"
-            self._render_upload_with_status(500, **ctx)
+            send_status(500, ctx)
             return
 
         try:
@@ -342,7 +366,7 @@ class ImpactLatticeSupport(object):
             LOGGER.error("lattice element database insert error: %s", e)
             ctx.errors._global = "Lattice element database insert error"
             # Rollback?
-            self._render_upload_with_status(500, **ctx)
+            send_status(500, ctx)
             return
 
         try:
@@ -352,10 +376,10 @@ class ImpactLatticeSupport(object):
             LOGGER.error("lattice attachment write error: %s", e)
             ctx.errors._global = "Lattice attachment write error"
             #Rollback?
-            self._render_upload_with_status(500, **ctx)
+            send_status(500, ctx)
             return
 
-        self.handler.redirect(self.handler.reverse_url("lattice_details", str(lattice_id)))
+        send_status(201, ctx)
         return
 
 
