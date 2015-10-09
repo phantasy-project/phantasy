@@ -10,7 +10,6 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import json
 import logging
 import os.path
 
@@ -21,7 +20,8 @@ from tornado.gen import coroutine
 from tornado.gen import maybe_future
 from tornado.escape import url_escape
 
-from ....common.tornado.util import WriteFileMixin
+from phyutil.phyapp.common.tornado.util import WriteJsonMixin
+from phyutil.phyapp.common.tornado.util import WriteFileMixin
 
 LOGGER = logging.getLogger(__name__)
 
@@ -33,20 +33,6 @@ class BaseRestRequestHandler(RequestHandler):
     def prepare(self):
         yield maybe_future(super(BaseRestRequestHandler, self).prepare())
         # TODO: process basic authorization
-
-
-    def write_error(self, status_code, **kwargs):
-        self.write_json({"error":status_code})
-
-
-    def write_json(self, obj, content_type="application/json"):
-        indent = None
-        if self.settings.get("debug", False):
-            indent = 2    # pretty
-        else:
-            indent = None # compact
-        self.set_header("Content-Type", content_type)
-        json.dump(obj, self, indent=indent)
 
 
     def _particle_type_api(self, particle_type):
@@ -213,7 +199,7 @@ class BaseRestRequestHandler(RequestHandler):
         return api
 
 
-class ParticleTypesRestHandler(BaseRestRequestHandler):
+class ParticleTypesRestHandler(BaseRestRequestHandler, WriteJsonMixin):
     @coroutine
     def get(self):
         """Retrieve list of Particle Types.
@@ -245,7 +231,7 @@ class ParticleTypesRestHandler(BaseRestRequestHandler):
         self.write_json([self._particle_type_api(pt) for pt in particle_types])
 
 
-class ParticleTypeRestHandler(BaseRestRequestHandler):
+class ParticleTypeRestHandler(BaseRestRequestHandler, WriteJsonMixin):
     @coroutine
     def get(self, type_id):
         """Retrieve Particle Type by ID
@@ -281,7 +267,7 @@ class ParticleTypeRestHandler(BaseRestRequestHandler):
         self.write_json(self._particle_type_api(particle_type))
 
 
-class LatticeTypesRestHandler(BaseRestRequestHandler):
+class LatticeTypesRestHandler(BaseRestRequestHandler, WriteJsonMixin):
     @coroutine
     def get(self):
         """Retrieve list of Lattice Types.
@@ -311,7 +297,7 @@ class LatticeTypesRestHandler(BaseRestRequestHandler):
         self.write_json([self._lattice_type_api(lt) for lt in lattice_types])
 
 
-class LatticeTypeRestHandler(BaseRestRequestHandler):
+class LatticeTypeRestHandler(BaseRestRequestHandler, WriteJsonMixin):
     @coroutine
     def get(self, type_id):
         """Retrieve Lattice Type by ID.
@@ -340,7 +326,7 @@ class LatticeTypeRestHandler(BaseRestRequestHandler):
         self.write_json(self._lattice_type_api(lattice_type))
 
 
-class LatticesRestHandler(BaseRestRequestHandler):
+class LatticesRestHandler(BaseRestRequestHandler, WriteJsonMixin):
     @coroutine
     def get(self):
         """Retrieve list of Lattice objects.
@@ -393,7 +379,7 @@ class LatticesRestHandler(BaseRestRequestHandler):
         self.write_json([self._lattice_api(l) for l in lattices])
 
 
-class LatticeRestHandler(BaseRestRequestHandler):
+class LatticeRestHandler(BaseRestRequestHandler, WriteJsonMixin):
     @coroutine
     def get(self, lattice_id):
         """Retrieve Lattice object by identifier.
@@ -494,7 +480,7 @@ class LatticeFileDownloadRestHander(BaseRestRequestHandler, WriteFileMixin):
                 raise HTTPError(500)
 
 
-class LatticeElementsByOrderRestHandler(BaseRestRequestHandler):
+class LatticeElementsByOrderRestHandler(BaseRestRequestHandler, WriteJsonMixin):
     @coroutine
     def get(self, lattice_id):
         """Retrieve Lattice Elements by Lattice ID.
@@ -551,7 +537,7 @@ class LatticeElementsByOrderRestHandler(BaseRestRequestHandler):
 
 
 
-class LatticeElementByOrderRestHandler(BaseRestRequestHandler):
+class LatticeElementByOrderRestHandler(BaseRestRequestHandler, WriteJsonMixin):
     @coroutine
     def get(self, lattice_id, order):
         """Retrieve Lattice Element by Lattice ID and element order.
@@ -599,7 +585,7 @@ class LatticeElementByOrderRestHandler(BaseRestRequestHandler):
         self.write_json(self._lattice_elem_api(element))
 
 
-class LatticeElementRestHandler(BaseRestRequestHandler):
+class LatticeElementRestHandler(BaseRestRequestHandler, WriteJsonMixin):
     @coroutine
     def get(self, element_id):
         """Retrieve Lattice Element by ID.
@@ -646,7 +632,7 @@ class LatticeElementRestHandler(BaseRestRequestHandler):
         self.write_json(self._lattice_elem_api(element))
 
 
-class ModelsByLatticeIdRestHandler(BaseRestRequestHandler):
+class ModelsByLatticeIdRestHandler(BaseRestRequestHandler, WriteJsonMixin):
     @coroutine
     def get(self, lattice_id):
         """Retrive list of Models for given Lattice ID.
@@ -707,7 +693,7 @@ class ModelsByLatticeIdRestHandler(BaseRestRequestHandler):
         self.write_json([self._model_api(m) for m in models])
 
 
-class ModelsRestHandler(BaseRestRequestHandler):
+class ModelsRestHandler(BaseRestRequestHandler, WriteJsonMixin):
     @coroutine
     def get(self):
         """Retrieve list of Model objects.
@@ -764,7 +750,7 @@ class ModelsRestHandler(BaseRestRequestHandler):
         self.write_json([self._model_api(m) for m in models])
 
 
-class ModelRestHandler(BaseRestRequestHandler):
+class ModelRestHandler(BaseRestRequestHandler, WriteJsonMixin):
     @coroutine
     def get(self, model_id):
         """Retrieve Model object by ID.
@@ -864,7 +850,7 @@ class ModelFileDownloadRestHander(BaseRestRequestHandler, WriteFileMixin):
                 raise HTTPError(500)
 
 
-class ModelElementsByModelIdRestHandler(BaseRestRequestHandler):
+class ModelElementsByModelIdRestHandler(BaseRestRequestHandler, WriteJsonMixin):
     @coroutine
     def get(self, model_id):
         """Retrieve Model Elements by Model ID.
@@ -921,7 +907,7 @@ class ModelElementsByModelIdRestHandler(BaseRestRequestHandler):
         self.write_json([self._model_elem_api(e) for e in elements])
 
 
-class ModelElementRestHandler(BaseRestRequestHandler):
+class ModelElementRestHandler(BaseRestRequestHandler, WriteJsonMixin):
     @coroutine
     def get(self, element_id):
         """Retrieve Model Element by ID.
@@ -966,7 +952,7 @@ class ModelElementRestHandler(BaseRestRequestHandler):
         self.write_json(self._model_elem_api(element))
 
 
-class ModelTypesRestHandler(BaseRestRequestHandler):
+class ModelTypesRestHandler(BaseRestRequestHandler, WriteJsonMixin):
     @coroutine
     def get(self):
         """Retrieve list of Model Types.
@@ -996,7 +982,7 @@ class ModelTypesRestHandler(BaseRestRequestHandler):
         self.write_json([self._model_type_api(mt) for mt in model_types])
 
 
-class ModelTypeRestHandler(BaseRestRequestHandler):
+class ModelTypeRestHandler(BaseRestRequestHandler, WriteJsonMixin):
     @coroutine
     def get(self, type_id):
         """Retrieve Model Type by ID.
