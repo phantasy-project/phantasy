@@ -13,10 +13,11 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import re
 import os.path
 import logging
 import hashlib
-import traceback
+import random
 
 from StringIO import StringIO
 from datetime import datetime
@@ -60,12 +61,30 @@ class ImpactLatticeSupport(object):
         raise Return(ctx)
 
 
+    def _create_file_id(self):
+        return ''.join([ random.choice("abcdef0123456789") for _ in range(6) ])
+
+
+    def _create_file_location(self, request_file):
+        digest = hashlib.md5(request_file.body).hexdigest()
+        filename = re.sub(r"[^\.\-\(\)\w]", "", request_file.filename)
+        return "{}_{}".format(digest, filename)
+
+
+    def _write_file_content(self, base_path, location, content):
+        filename = os.path.join(base_path, location)
+        if not os.path.exists(filename):
+            with open(filename, 'w') as attfile:
+                attfile.write(content)
+
+    # deprecated
     def _create_file_attachment(self, request_file):
         digest = hashlib.md5(request_file.body).hexdigest()
         location = "{}_{}".format(digest, request_file.filename)
         return ObjectDict(content=request_file.body, location=location)
 
 
+    # deprecated
     def _write_file_attachment(self, file_attachment, base_path):
         filename = os.path.join(base_path, file_attachment.location)
         if not os.path.exists(filename):
@@ -190,12 +209,12 @@ class ImpactLatticeSupport(object):
 
         ctx.lattice._id = ObjectId()
 
-        files = self.handler.request.files
+        request_files = self.handler.request.files
 
-        if "lattice_file" not in files:
+        if "lattice_file" not in request_files:
             ctx.errors.lattice_file = "Lattice File is required"
 
-        elif len(files["lattice_file"]) == 0:
+        elif len(request_files["lattice_file"]) == 0:
             ctx.errors.lattice_file = "Lattice File is required"
 
         if ctx.errors:
@@ -223,7 +242,7 @@ class ImpactLatticeSupport(object):
             send_status(400, ctx)
             return
 
-        lattice_file = files["lattice_file"][0]
+        lattice_file = request_files["lattice_file"][0]
 
         try:
             lattice = read_lattice(StringIO(lattice_file.body))
@@ -300,37 +319,42 @@ class ImpactLatticeSupport(object):
             lattice_charge = int(lattice.charge * lattice.particleMass * nucleons)
         ctx.lattice.properties.append(dict(name="ParticleCharge",value=lattice_charge))
 
-        pending_attachments = []
         ctx.lattice.files = []
+        file_content = {}
 
-        attachment = self._create_file_attachment(lattice_file)
-        pending_attachments.append(attachment)
-        ctx.lattice.files.append(dict(
-            _id=ObjectId(),
+        file_id = self._create_file_id()
+        ctx.lattice.files.append(ObjectDict(
+            id=file_id,
             name="LatticeFile",
+            size=len(lattice_file.body),
             filename=lattice_file.filename,
-            location=attachment.location
+            location=self._create_file_location(lattice_file)
         ))
+        file_content[file_id] = lattice_file.body
 
-        if "attachments" in files:
-            for attachment_file in files["attachments"]:
-                attachment = self._create_file_attachment(attachment_file)
-                pending_attachments.append(attachment)
-                ctx.lattice.files.append(dict(
-                    _id=ObjectId(),
-                    name="Attachment",
-                    filename=attachment_file.filename,
-                    location=attachment.location
-                ))
+        for data_file in request_files.get("data_file", []):
+            # find a unique file ID
+            while True:
+                file_id=self._create_file_id()
+                if file_id not in file_content:
+                    break
+            ctx.lattice.files.append(ObjectDict(
+                id=file_id,
+                name="DataFile",
+                size=len(data_file.body),
+                filename=data_file.filename,
+                location=self._create_file_location(data_file)
+            ))
+            file_content[file_id] = data_file.body
 
         # check that all the data files specified by the
         # lattice have been submitted as attachments
-        for data_file in lattice.files:
-            for lf in ctx.lattice.files:
-                if data_file == lf["filename"]:
+        for filename in lattice.files:
+            for f in ctx.lattice.files:
+                if f.filename == filename:
                     break
             else:
-                ctx.errors.attachments = "Missing attachment: " + data_file
+                ctx.errors.data_file = "Missing data file: " + filename
                 send_status(400, ctx)
                 return
 
@@ -402,11 +426,11 @@ class ImpactLatticeSupport(object):
             return
 
         try:
-            for attachment in pending_attachments:
-                self._write_file_attachment(attachment, attachment_path)
+            for f in ctx.lattice.files:
+                self._write_file_content(attachment_path, f.location, file_content[f.id])
         except Exception as e:
-            LOGGER.error("lattice attachment write error: %s", e)
-            ctx.errors._global = "Lattice attachment write error"
+            LOGGER.exception("lattice file write error: %s", e)
+            ctx.errors._global = "Lattice file write error"
             #Rollback?
             send_status(500, ctx)
             return

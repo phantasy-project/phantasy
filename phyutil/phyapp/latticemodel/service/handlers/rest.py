@@ -26,6 +26,8 @@ from phyutil.phyapp.common.tornado.util import WriteJsonMixin
 from phyutil.phyapp.common.tornado.util import WriteFileMixin
 
 from . import LatticeSupportMixin
+from . import LatticeFileDownloadMixin
+
 
 LOGGER = logging.getLogger(__name__)
 
@@ -502,7 +504,20 @@ class LatticeUploadRestHandler(BaseRestRequestHandler, WriteJsonMixin, LatticeSu
         yield lattice_support.rest_form_upload_post()
 
 
-class LatticeFileDownloadRestHander(BaseRestRequestHandler, WriteFileMixin):
+class LatticeFilesDownloadRestHander(BaseRestRequestHandler, LatticeFileDownloadMixin):
+    @coroutine
+    def get(self, lattice_id):
+        """
+        Retrieve the an archive file containing all files of the Lattice specifed.
+
+        :param lattice_id: Lattice ID
+        :status 200: Lattice file found
+        :status 404: Lattice file not found
+        """
+        yield self.get_lattice_files(lattice_id)
+
+
+class LatticeFileDownloadRestHander(BaseRestRequestHandler, LatticeFileDownloadMixin):
     @coroutine
     def get(self, lattice_id, file_id):
         """
@@ -513,40 +528,7 @@ class LatticeFileDownloadRestHander(BaseRestRequestHandler, WriteFileMixin):
         :status 200: Lattice file found
         :status 404: Lattice file not found
         """
-        data = self.application.data
-        lattice = yield data.find_lattice_by_id(lattice_id)
-
-        if not lattice or "files" not in lattice:
-            raise HTTPError(404)
-
-        lattice_file_id = int(file_id)
-        if lattice_file_id < 1 or lattice_file_id > len(lattice.files):
-            raise HTTPError(404)
-
-        lattice_file = lattice.files[lattice_file_id-1]
-
-        file_root = self.settings.get("attachment_path", "")
-        if not os.path.isdir(file_root):
-            LOGGER.error("Setting 'attachment_path' does not specify a directory")
-            raise HTTPError(500)
-
-        location = os.path.join(file_root, lattice_file.location)
-        try:
-            data_file = open(location, 'r')
-        except:
-            LOGGER.exception("Error opening lattice file at location: %s", location)
-            raise HTTPError(500)
-
-        with data_file:
-            filename = self.clean_filename(lattice_file.filename)
-            self.set_header("Content-Type", "application/octet-stream")
-            self.set_header("Content-Disposition",
-                            "attachment;filename=" + url_escape(filename))
-            try:
-                self.write_file(data_file)
-            except:
-                LOGGER.exception("Error writing lattice file to response: %s", filename)
-                raise HTTPError(500)
+        yield self.get_lattice_file(lattice_id, file_id)
 
 
 class LatticeElementsByOrderRestHandler(BaseRestRequestHandler, WriteJsonMixin):

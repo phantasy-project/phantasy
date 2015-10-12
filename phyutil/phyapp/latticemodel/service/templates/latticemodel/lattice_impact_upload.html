@@ -80,16 +80,16 @@
 			</div>
 			<div class="form-group {% if errors.lattice_file %}has-error{% endif %}">
 				<div class="col-md-4">
-					<label class="control-label">Lattice File (i.e test.in)</label>
+					<label class="control-label">Lattice File (i.e. test.in)</label>
 					<input class="btn btn-default" type="file" name="lattice_file"/>
 					{% if errors.lattice_file %}<span class="text-danger">{{errors.lattice_file}}</span>{% endif %}
 				</div>
 			</div>
-			<div class="form-group {% if errors.attachments %}has-error{% endif %}">
+			<div class="form-group {% if errors.data_file %}has-error{% endif %}">
 				<div class="col-md-4">
-					<label class="control-label">Attachments</label>
-					<input class="btn btn-default" type="file" name="attachments" multiple>
-					{% if errors.attachments %}<span class="text-danger">{{errors.attachments}}</span>{% endif %}
+					<label class="control-label">Data Files (i.e. rfdata421, etc.) </label>
+					<input class="btn btn-default" type="file" name="data_file" multiple>
+					{% if errors.data_file %}<span class="text-danger">{{errors.data_file}}</span>{% endif %}
 					</div>
 			</div>
 

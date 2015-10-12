@@ -17,10 +17,8 @@ import json
 import os.path
 import logging
 
-from tempfile import TemporaryFile
-from zipfile import ZipFile
-from zipfile import ZIP_DEFLATED
-from tornado.web import authenticated, RequestHandler
+from tornado.web import authenticated
+from tornado.web import RequestHandler
 from tornado.gen import maybe_future
 from tornado.web import HTTPError
 from tornado.gen import coroutine
@@ -36,6 +34,7 @@ from phyutil.phyapp.common.tornado.util import WriteFileMixin
 from phyutil.phyapp.common.tornado.util import WriteJsonMixin
 
 from . import LatticeSupportMixin
+from . import LatticeFileDownloadMixin
 
 
 LOGGER = logging.getLogger(__name__)
@@ -78,11 +77,16 @@ class BaseLatticeHandler(RequestHandler, SessionMixin, Jinja2Mixin):
 
 
     def render_error(self, status_code, *args, **kwargs):
+        self.send_error(status_code, *args, **kwargs)
+
+
+    def write_error(self, status_code, *args, **kwargs):
         self.set_status(status_code)
         if "reason" not in kwargs and hasattr(self, "_reason"):
             # attribute _reason should be set by set_status()
             kwargs["reason"] = self._reason
         self.render("latticemodel/error.html", *args, **kwargs)
+
 
 
 class LatticeLoginHandler(FormLoginSessionHandler, Jinja2Mixin):
@@ -221,122 +225,22 @@ class LatticeDetailsHandler(BaseLatticeHandler):
         self.render("latticemodel/lattice_details.html", ctx)
 
 
-class LatticeFileDownloadHandler(BaseLatticeHandler, WriteFileMixin):
+class LatticeFileDownloadHandler(BaseLatticeHandler, LatticeFileDownloadMixin):
     """
     Download the lattice file specified by the given lattice ID and file ID.
     """
     @coroutine
     def get(self, lattice_id, file_id):
-        data = self.application.data
-        lattice = yield data.find_lattice_by_id(lattice_id)
-
-        if not lattice or "files" not in lattice:
-            self.render_error(404)
-            return
-
-        lattice_file_id = ObjectId(file_id)
-        for lattice_file in lattice.files:
-            if lattice_file._id == lattice_file_id:
-                break
-        else:
-            self.render_error(404)
-            return
-
-        file_root = self.settings.get("attachment_path", "")
-        if not os.path.isdir(file_root):
-            LOGGER.error("Setting 'attachment_path' does not specify a directory")
-            self.render_error(500)
-            return
-
-        location = os.path.join(file_root, lattice_file.location)
-        try:
-            data_file = open(location, 'r')
-        except:
-            LOGGER.exception("Error opening lattice file at location: %s", location)
-            self.render_error(500)
-            return
-
-        with data_file:
-            filename = self.clean_filename(lattice_file.filename)
-            self.set_header("Content-Type", "application/octet-stream")
-            self.set_header("Content-Disposition",
-                            "attachment;filename=" + url_escape(filename))
-            try:
-                self.write_file(data_file)
-            except:
-                LOGGER.exception("Error writing lattice file to response: %s", filename)
-                self.set_status(500)
-                return
+        yield self.get_lattice_file(lattice_id, file_id)
 
 
-class LatticeArchiveDownloadHandler(BaseLatticeHandler, WriteFileMixin):
+class LatticeArchiveDownloadHandler(BaseLatticeHandler, LatticeFileDownloadMixin):
     """
     Download the lattice files in a single archive file (zip).
     """
     @coroutine
     def get(self, lattice_id):
-        data = self.application.data
-        lattice = yield data.find_lattice_by_id(lattice_id)
-
-        if not lattice or "files" not in lattice:
-            self.render_error(404)
-            return
-
-        file_root = self.settings.get("attachment_path", "")
-        if not os.path.isdir(file_root):
-            LOGGER.error("Setting 'attachment_path' does not specify a directory")
-            self.render_error(500)
-            return
-
-        filenames = set()
-        def unique_filename(filename):
-            filename = self.clean_filename(filename)
-            if filename in filenames:
-                name, ext = os.path.splitext(filename)
-                for idx in range(100):
-                    filename = "{}({}).{}".format(name, idx, ext)
-                    if filename not in filenames:
-                        break
-            filenames.add(filename)
-            return filename
-
-        try:
-            archive_temp = TemporaryFile()
-        except:
-            LOGGER.exception("Error opening temporary file")
-            self.render_error(500)
-            return
-
-        with archive_temp:
-            try:
-                archive_file = ZipFile(archive_temp, 'w', ZIP_DEFLATED)
-            except:
-                LOGGER.exception("Error opening archive file")
-                self.render_error(500)
-                return
-
-            with archive_file:
-                for lattice_file in lattice.files:
-                    filename = unique_filename(lattice_file.filename)
-                    location = os.path.join(file_root, lattice_file.location)
-                    try:
-                        archive_file.write(location, filename)
-                    except:
-                        LOGGER.exception("Error writing to archive file from location: %s", location)
-                        self.render_error(500)
-                        return
-
-            filename = self.clean_filename(lattice.name + ".zip")
-            self.set_header("Content-Type", "application/zip")
-            self.set_header("Content-Disposition",
-                            "attachment;filename=" + url_escape(filename))
-            try:
-                archive_temp.seek(0)
-                self.write_file(archive_temp)
-            except:
-                LOGGER.exception("Error writing temporary file to response: %s", filename)
-                self.set_status(500)
-                return
+        yield self.get_lattice_files(lattice_id)
 
 
 class ModelSearchHandler(BaseLatticeHandler):

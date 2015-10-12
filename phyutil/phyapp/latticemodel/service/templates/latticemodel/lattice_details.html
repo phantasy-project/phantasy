@@ -156,7 +156,7 @@
 						<span>{{ f.name|escape }}</span>
 					</td>
 					<td>
-						<a href="{{ reverse_url("lattice_file_download", lattice._id, f._id) }}">
+						<a href="{{ reverse_url("lattice_file_download", lattice._id, f.id) }}">
 							<span>{{ f.filename|escape }}</span>
 						</a>
 					</td>

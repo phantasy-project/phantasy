@@ -20,7 +20,7 @@ def _URL_PATTERN(pattern):
     return APP_CONTEXT + pattern.format(
         particle_type_id="(?P<type_id>\w+)",
         lattice_id=r"(?P<lattice_id>\w{24})",
-        lattice_file_id=r"(?P<file_id>\d+)",
+        lattice_file_id="(?P<file_id>\\w{6})",
         lattice_element_id=r"(?P<element_id>\w{24})",
         lattice_element_order=r"(?P<order>\d+)",
         lattice_type_id="(?P<type_id>\\w+)",
@@ -70,7 +70,7 @@ webpatterns = [
     (r'/lattice/web/lattice/([0-9a-f]{24})/files',
         web.LatticeArchiveDownloadHandler, {}, "lattice_archive_download"),
 
-    (r'/lattice/web/lattice/([0-9a-f]{24})/file/([0-9a-f]{24})',
+    (_URL_PATTERN(r"/web/lattices/{lattice_id}/files/{lattice_file_id}"),
         web.LatticeFileDownloadHandler, {}, "lattice_file_download"),
 
     (r'/lattice/web/model/search',
@@ -109,6 +109,9 @@ restpatterns = [
 
     (_URL_PATTERN(r"/rest/v1/lattices/{lattice_type_id}"),
         rest.LatticeUploadRestHandler, {}, "rest_lattice_upload"),
+
+    (_URL_PATTERN(r"/rest/v1/lattices/{lattice_id}/files/download"),
+        rest.LatticeFilesDownloadRestHander, {}, "rest_lattice_files_download"),
 
     (_URL_PATTERN(r"/rest/v1/lattices/{lattice_id}/files/{lattice_file_id}/download"),
         rest.LatticeFileDownloadRestHander, {}, "rest_lattice_file_download_by_id"),

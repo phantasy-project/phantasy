@@ -116,8 +116,8 @@ LATTICE_SCHEMA = {
             "items":{
                 "type":"object",
                 "properties":{
-                    "_id":{
-                        "type":"objectid"
+                    "id":{
+                        "type":"string"
                     },
                     "name":{
                         "type":"string"
@@ -127,9 +127,12 @@ LATTICE_SCHEMA = {
                     },
                     "location":{
                         "type":"string"
+                    },
+                    "size":{
+                        "type":"integer"
                     }
                 },
-                "required":[ "_id", "name", "filename", "location" ]
+                "required":[ "id", "name", "filename", "location", "size" ]
             }
         },
     },
