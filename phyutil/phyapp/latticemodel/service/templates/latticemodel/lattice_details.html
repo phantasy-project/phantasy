@@ -200,7 +200,7 @@
 			{%- for e in lattice_elements %}
 			<tr>
 				<td>{{ e.order }}</td>
-				<td>{{ e.name }}</td>
+				<td>{% if name %}{{ e.name }}{% else %}-{% endif %}</td>
 				<td>{{ e.type }}</td>
 				<td>{{ e.position }}</td>
 				<td>{{ e.length }}</td>

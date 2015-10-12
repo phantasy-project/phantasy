@@ -889,6 +889,7 @@ def read_lattice(stream):
     '''
     headers = 1
     element = None
+    position = None
     lattice = Lattice()
 
     for _, line in enumerate(stream):
@@ -1054,23 +1055,51 @@ def read_lattice(stream):
             headers += 1
             continue
 
-        if element is None:
-            raise RuntimeError("read_lattice: Lattice data found, expecting element data")
-
         row = [ float(r) for r in line.split()[:-1] ]
         kwargs = {}
-        kwargs["name"] = element[0]
-        kwargs["etype"] = element[1]
-        kwargs["position"] = element[3]
-        kwargs["fields"] = []
-        for name, idx in element[4].iteritems():
-            m = re.match(r'(.*)\[(.*)\]$', name)
-            if m:
-                kwargs["fields"].append((m.group(1), m.group(2), idx))
-            else:
-                kwargs["fields"].append((name, "", idx))
-        lattice.append(*row, **kwargs)
-        element = None
+
+        if element is not None:
+            kwargs["name"] = element[0]
+            element = None
+        else:
+            kwargs["name"] = ""
+
+        elem = lattice.append(*row, **kwargs)
+
+        if position is not None:
+            position += row[0]
+        else:
+            position = row[0]
+
+        elem.position = position
+
+        if elem.itype == 0:
+            elem.etype = "DRIFT"
+        elif elem.itype == 1:
+            elem.etype = "QUAD"
+            elem.addfield("GRAD", "T/m", 4)
+        elif elem.itype == 3:
+            elem.etype = "SOL"
+            elem.addfield("B", "T", 4)
+        elif elem.itype == 4:
+            elem.etype = "BEND" # DIPOLE
+            elem.addfield("B", "T", 5)
+        elif elem.itype == 103:
+            elem.etype = "CAV"
+            elem.addfield("AMP", "V", 4)
+            elem.addfield("PHA", "deg", 6)
+            lattice.files.add("rfdata{}".format(int(row[7])))
+        elif elem.itype == -11:
+            elem.etype = "STRIP"
+            lattice.files.add("fort.{}".format(int(row[2])))
+        elif elem.itype == -21:
+            elem.etype = "COR"
+            elem.addfield("ANGV", "rad", 4)
+            elem.addfield("ANGH", "rad", 6)
+        elif elem.itype == -28:
+            elem.etype = "MON"
+        else:
+            raise RuntimeError("read_lattice: Unsupported IMPACT type: {}".format(elem.itype))
 
     return lattice
 
@@ -1117,6 +1146,7 @@ class Lattice(object):
         self.beamPercent = _DEFAULT_BEAM_PERCENT
         self.elements = []
         self.properties = []
+        self.files = set()
 
 
 
@@ -1559,9 +1589,13 @@ class Lattice(object):
     def append(self, length, steps, mapsteps, itype, *row, **kwargs):
         """
         Append an element to this lattice. See LatticeElement constructor for details.
+
+        :return: LatticeElement object
         """
         kwargs["fields"] = [ LatticeField(*f) for f in kwargs.get("fields", []) ]
-        self.elements.append(LatticeElement(length, steps, mapsteps, itype, *row, **kwargs))
+        element = LatticeElement(length, steps, mapsteps, itype, *row, **kwargs)
+        self.elements.append(element)
+        return element
 
 
     def write(self, stream=sys.stdout, mapstream=None, withElemData=False):
@@ -1681,13 +1715,11 @@ class LatticeElement(object):
     :param fields: element fields
     """
     def __init__(self, length, steps, mapsteps, itype, *data, **kwargs):
-        self._data = [ length, steps, mapsteps, itype ]
+        self._data = [ length, int(steps), int(mapsteps), int(itype) ]
         self._data.extend(data)
-        # required keyword arguments
         self.name = kwargs.get("name", None)
         self.etype = kwargs.get("etype", None)
         self.position = kwargs.get("position", None)
-        # optional keyword arguments
         self.fields = kwargs.get("fields", [])
 
 
@@ -1730,6 +1762,14 @@ class LatticeElement(object):
                 self._data[field.index] = value
                 return
         raise KeyError("LatticeField with name '{}' not found".format(name))
+
+    def addfield(self, name, unit, index):
+        for field in self.fields:
+            if field.name == name:
+                field.unit = unit
+                field.index = index
+                return
+        self.fields.append(LatticeField(name, unit, index))
 
 
     def write(self, stream, withElemData=False):

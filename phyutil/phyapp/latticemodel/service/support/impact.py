@@ -323,6 +323,17 @@ class ImpactLatticeSupport(object):
                     location=attachment.location
                 ))
 
+        # check that all the data files specified by the
+        # lattice have been submitted as attachments
+        for data_file in lattice.files:
+            for lf in ctx.lattice.files:
+                if data_file == lf["filename"]:
+                    break
+            else:
+                ctx.errors.attachments = "Missing attachment: " + data_file
+                send_status(400, ctx)
+                return
+
         attachment_path = self.settings.get("attachment_path", "")
         if len(attachment_path) == 0:
             LOGGER.warn("setting 'attachment_path' not found")
