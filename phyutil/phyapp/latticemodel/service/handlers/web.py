@@ -340,7 +340,7 @@ class ModelFileDownloadHandler(BaseLatticeHandler, FileDownloadMixin):
         yield self.get_model_file(model_id, file_id)
 
 
-class ModelArchiveDownloadHandler(BaseLatticeHandler, FileDownloadMixin):
+class ModelFilesDownloadHandler(BaseLatticeHandler, FileDownloadMixin):
     """
     Download the model files in a single archive file (zip).
     """

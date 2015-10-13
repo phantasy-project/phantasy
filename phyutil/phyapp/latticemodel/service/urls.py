@@ -83,7 +83,7 @@ webpatterns = [
         web.ModelDetailsHandler, {}, "model_details"),
 
     (_URL_PATTERN(r'/web/models/{model_id}/files/download'),
-        web.ModelArchiveDownloadHandler, {}, "model_archive_download"),
+        web.ModelFilesDownloadHandler, {}, "model_files_download"),
 
     (_URL_PATTERN(r'/web/models/{model_id}/files/{model_file_id}/download'),
         web.ModelFileDownloadHandler, {}, "model_file_download"),

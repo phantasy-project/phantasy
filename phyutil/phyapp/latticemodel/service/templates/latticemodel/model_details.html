@@ -81,7 +81,7 @@
 						</th>
 						<th>
 							{%- if model.files %}
-							<a href="{{ reverse_url("model_archive_download", model._id) }}">
+							<a href="{{ reverse_url("model_files_download", model._id) }}">
 								<h4><small>Download All</small></h4>
 							</a>
 							{%- endif %}
