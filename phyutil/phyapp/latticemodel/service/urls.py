@@ -9,8 +9,6 @@ from __future__ import print_function
 
 from tornado.web import RedirectHandler
 
-from ...common.tornado.web import OpenIdAuthSessionHandler
-
 from .handlers import web
 from .handlers import rest
 
@@ -27,7 +25,8 @@ def _URL_PATTERN(pattern):
         model_id="(?P<model_id>\\w{24})",
         model_file_id="(?P<file_id>\\w{6})",
         model_element_id="(?P<element_id>\\w{24})",
-        model_type_id="(?P<type_id>\\w+)"
+        model_type_id="(?P<type_id>\\w+)",
+        model_property_name="(?P<property_name>\\w+)"
     )
 
 
@@ -40,19 +39,16 @@ webpatterns = [
     (r'/user/logout/?',
         web.LatticeLogoutHandler),
 
-    (r'/user/auth/?',
-        OpenIdAuthSessionHandler),
+    (_URL_PATTERN(r'/?'),
+        RedirectHandler, {"url":_URL_PATTERN("/web/lattices/search")}),
 
-    (r'/lattice/?',
-        RedirectHandler, {"url":"/lattice/web/lattice/search"}),
+    (_URL_PATTERN(r'/web/?'),
+        RedirectHandler, {"url":_URL_PATTERN("/web/lattices/search")}),
 
-    (r'/lattice/web/?',
-        RedirectHandler, {"url":"/lattice/web/lattice/search"}),
+    (_URL_PATTERN(r'/web/lattices/?'),
+        RedirectHandler, {"url":_URL_PATTERN("/web/lattices/search")}),
 
-    (r'/lattice/web/lattice/?',
-        RedirectHandler, {"url":"/lattice/web/lattice/search"}),
-
-    (r'/lattice/web/lattice/search',
+    (_URL_PATTERN(r'/web/lattices/search'),
         web.LatticeSearchHandler, {}, "lattice_search"),
 
     (_URL_PATTERN(r'/web/lattices/names'),
@@ -67,13 +63,13 @@ webpatterns = [
     (_URL_PATTERN(r'/web/lattices/{lattice_id}'),
         web.LatticeDetailsHandler, {}, "lattice_details"),
 
-    (_URL_PATTERN(r'/web/lattice/{lattice_id}/files/download'),
+    (_URL_PATTERN(r'/web/lattices/{lattice_id}/files/download'),
         web.LatticeFilesDownloadHandler, {}, "lattice_files_download"),
 
     (_URL_PATTERN(r"/web/lattices/{lattice_id}/files/{lattice_file_id}/download"),
         web.LatticeFileDownloadHandler, {}, "lattice_file_download"),
 
-    (r'/lattice/web/model/search',
+    (_URL_PATTERN(r'/web/models/search'),
         web.ModelSearchHandler, {}, "model_search"),
 
     (_URL_PATTERN(r'/web/models/upload/{model_type_id}'),
@@ -88,7 +84,7 @@ webpatterns = [
     (_URL_PATTERN(r'/web/models/{model_id}/files/{model_file_id}/download'),
         web.ModelFileDownloadHandler, {}, "model_file_download"),
 
-    (r'/lattice/web/model/([0-9a-f]{24})/element/property/(.*)',
+    (_URL_PATTERN(r'/web/models/{model_id}/element/property/{model_property_name}'),
         web.ModelElementPropertyValuesHandler, {}, "model_element_property_values")
 ]
 urlpatterns.extend(webpatterns)
