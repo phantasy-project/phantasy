@@ -506,8 +506,10 @@ class ImpactModelSupport(object):
 
         :param send_status: callback method to signal completion
         """
+        import time
         data = self.application.data
         ctx = yield self._create_upload_context()
+        now = time.clock()
 
         content_type = self.handler.request.headers["Content-Type"]
         if not content_type.startswith("multipart/form-data;"):
@@ -620,14 +622,25 @@ class ImpactModelSupport(object):
             send_status(500, ctx)
             return
 
+        # get lattice elements and map by name and order
+        lattice_elements = {}
+        temp = yield data.find_lattice_elements_by_lattice_id(ctx.model.lattice_id)
+        for elem in temp:
+            if elem.name not in lattice_elements:
+                lattice_elements[elem.name] = {}
+            lattice_elements[elem.name][elem.order] = elem
+
         model_elements = []
 
         for name, order_dict in model._modelmap.iteritems():
 
             for order, indexes in order_dict.iteritems():
-                lattice_element = yield data.find_lattice_element_by_name(ctx.model.lattice_id, name, order)
 
-                if not lattice_element:
+                try:
+                    lattice_element = lattice_elements[name][order]
+                except KeyError:
+                    ctx.errors._global = "Lattice Element not found: '{}'".format(name)
+                    send_status(400, ctx)
                     return
 
                 idx = indexes[-1]
@@ -758,6 +771,7 @@ class ImpactModelSupport(object):
             send_status(500, ctx)
             return
 
+
         try:
             for f in ctx.model.files:
                 _write_file_content(attachment_path, f.location, file_content[f.id])
@@ -767,6 +781,8 @@ class ImpactModelSupport(object):
             #Rollback?
             send_status(500, ctx)
             return
+
+        LOGGER.debug("model processing complete: %ss", (time.clock() - now))
 
         send_status(201, ctx)
         return
