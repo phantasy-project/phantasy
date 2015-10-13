@@ -234,7 +234,7 @@ class LatticeFileDownloadHandler(BaseLatticeHandler, FileDownloadMixin):
         yield self.get_lattice_file(lattice_id, file_id)
 
 
-class LatticeArchiveDownloadHandler(BaseLatticeHandler, FileDownloadMixin):
+class LatticeFilesDownloadHandler(BaseLatticeHandler, FileDownloadMixin):
     """
     Download the lattice files in a single archive file (zip).
     """

@@ -68,7 +68,7 @@ webpatterns = [
         web.LatticeDetailsHandler, {}, "lattice_details"),
 
     (_URL_PATTERN(r'/web/lattice/{lattice_id}/files/download'),
-        web.LatticeArchiveDownloadHandler, {}, "lattice_archive_download"),
+        web.LatticeFilesDownloadHandler, {}, "lattice_files_download"),
 
     (_URL_PATTERN(r"/web/lattices/{lattice_id}/files/{lattice_file_id}/download"),
         web.LatticeFileDownloadHandler, {}, "lattice_file_download"),
