@@ -36,7 +36,7 @@
 		</table>
 		</div>
 	</div>
-	
+
 	<div class="row">
 		<div class="col-md-6">
 			<table class="table">
@@ -70,7 +70,7 @@
 			</table>
 		</div>
 		<!-- </div> -->
-		
+
 		<!-- <div class="row"> -->
 		<div class="col-xs-6">
 			<table class="table">
@@ -95,9 +95,10 @@
 							<span>{{ f.name|escape }}</span>
 						</td>
 						<td>
-							<a href="{{ reverse_url("model_file_download", model._id, f._id) }}">
+							<a href="{{ reverse_url("model_file_download", model._id, f.id) }}">
 								<span>{{ f.filename|escape }}</span>
 							</a>
+							<small>{{ f.size|humanize.filesize(gnu=True) }}</small>
 						</td>
 					</tr>
 					{%- else %}
@@ -111,13 +112,13 @@
 			</table>
 		</div>
 	</div>
-	
+
 	<div class="row">
 		<div class="col-md-12">
 			<h3>Model Data</h3>
 		</div>
 	</div>
-	
+
 	{% set element_properties = [] %}
 	{% for e in model_elements %}
 		{% for p in e.properties  %}
@@ -126,7 +127,7 @@
 			{% endif %}
 		{% endfor %}
 	{% endfor %}
-	
+
 	<div class="row">
 		<div class="col-md-4">
 			<table class="table table-hover table-condensed">
@@ -146,7 +147,7 @@
 				{%- endfor %}
 			</table>
 		</div>
-	
+
 		<div class="col-md-8">
 			<div class="model-element-data-hint">
 				<div class="text-center alert alert-success">

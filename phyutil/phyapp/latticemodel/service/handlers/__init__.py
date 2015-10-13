@@ -43,8 +43,8 @@ class LatticeSupportMixin(object):
 
 
 
-class LatticeFileDownloadMixin(WriteFileMixin):
-    """Mixin implementing Lattice file download.
+class FileDownloadMixin(WriteFileMixin):
+    """Mixin implementing Lattice/Model file download.
     """
     @coroutine
     def get_lattice_file(self, lattice_id, file_id):
@@ -67,31 +67,7 @@ class LatticeFileDownloadMixin(WriteFileMixin):
             self.send_error(404)
             return
 
-        file_root = self.settings.get("attachment_path", "")
-        if not os.path.isdir(file_root):
-            _LOGGER.error("Setting 'attachment_path' does not specify a directory")
-            self.send_error(500)
-            return
-
-        location = os.path.join(file_root, lattice_file.location)
-        try:
-            data_file = open(location, 'r')
-        except:
-            _LOGGER.exception("Error opening lattice file at location: %s", location)
-            self.send_error(500)
-            return
-
-        with data_file:
-            filename = self.clean_filename(lattice_file.filename)
-            self.set_header("Content-Disposition",
-                            "attachment;filename=" + url_escape(filename))
-            try:
-                print(self._headers)
-                self.write_file(data_file, content_type="application/octet-stream")
-            except:
-                _LOGGER.exception("Error writing lattice file to response: %s", filename)
-                self.send_error(500)
-                return
+        self._do_get_file(lattice_file)
 
 
     @coroutine
@@ -107,6 +83,86 @@ class LatticeFileDownloadMixin(WriteFileMixin):
             self.send_error(404)
             return
 
+        self._do_get_files(lattice.name, lattice.files)
+
+
+    @coroutine
+    def get_model_file(self, model_id, file_id):
+        """Retrieve the specified Model file.
+
+        :param model_id: Model ID
+        :param file_id: Model File ID
+        """
+        data = self.application.data
+        model = yield data.find_model_by_id(model_id)
+
+        if not model or "files" not in model:
+            self.send_error(404)
+            return
+
+        for model_file in model.files:
+            if model_file.id == file_id:
+                break
+        else:
+            self.send_error(404)
+            return
+
+        self._do_get_file(model_file)
+
+
+    @coroutine
+    def get_model_files(self, model_id):
+        """Retrieve the specified Model files and create file archive.
+
+        :param model_id: Model ID
+        """
+        data = self.application.data
+        model = yield data.find_model_by_id(model_id)
+
+        if not model or "files" not in model:
+            self.send_error(404)
+            return
+
+        self._do_get_files(model.name, model.files)
+
+
+    def _do_get_file(self, lmfile):
+        """Common implementation of file download for Lattice or Model.
+
+        :param lmfile: Lattice or Model file object
+        """
+        file_root = self.settings.get("attachment_path", "")
+        if not os.path.isdir(file_root):
+            _LOGGER.error("Setting 'attachment_path' does not specify a directory")
+            self.send_error(500)
+            return
+
+        location = os.path.join(file_root, lmfile.location)
+        try:
+            data_file = open(location, 'r')
+        except:
+            _LOGGER.exception("Error opening model file at location: %s", location)
+            self.send_error(500)
+            return
+
+        with data_file:
+            filename = self.clean_filename(lmfile.filename)
+            self.set_header("Content-Disposition",
+                            "attachment;filename=" + url_escape(filename))
+            try:
+                self.write_file(data_file, content_type="application/octet-stream")
+            except:
+                _LOGGER.exception("Error writing model file to response: %s", filename)
+                self.send_error(500)
+                return
+
+
+    def _do_get_files(self, lmname, lmfiles):
+        """Common implementation of file archive download for Lattice or Model.
+
+        :param lmname: Archive base name (typically Lattice or Model name)
+        :param lmfile: Lattice or Model file object
+        """
         file_root = self.settings.get("attachment_path", "")
         if not os.path.isdir(file_root):
             _LOGGER.error("Setting 'attachment_path' does not specify a directory")
@@ -141,9 +197,9 @@ class LatticeFileDownloadMixin(WriteFileMixin):
                 return
 
             with archive_file:
-                for lattice_file in lattice.files:
-                    filename = unique_filename(lattice_file.filename)
-                    location = os.path.join(file_root, lattice_file.location)
+                for lmfile in lmfiles:
+                    filename = unique_filename(lmfile.filename)
+                    location = os.path.join(file_root, lmfile.location)
                     try:
                         archive_file.write(location, filename)
                     except:
@@ -151,7 +207,7 @@ class LatticeFileDownloadMixin(WriteFileMixin):
                         self.send_error(500)
                         return
 
-            filename = self.clean_filename(lattice.name + ".zip")
+            filename = self.clean_filename(lmname + ".zip")
             self.set_header("Content-Disposition",
                             "attachment;filename=" + url_escape(filename))
             try:
@@ -161,4 +217,3 @@ class LatticeFileDownloadMixin(WriteFileMixin):
                 _LOGGER.exception("Error writing temporary file to response: %s", filename)
                 self.send_error(500)
                 return
-

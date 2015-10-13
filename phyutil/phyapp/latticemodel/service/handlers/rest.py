@@ -26,7 +26,7 @@ from phyutil.phyapp.common.tornado.util import WriteJsonMixin
 from phyutil.phyapp.common.tornado.util import WriteFileMixin
 
 from . import LatticeSupportMixin
-from . import LatticeFileDownloadMixin
+from . import FileDownloadMixin
 
 
 LOGGER = logging.getLogger(__name__)
@@ -504,7 +504,7 @@ class LatticeUploadRestHandler(BaseRestRequestHandler, WriteJsonMixin, LatticeSu
         yield lattice_support.rest_form_upload_post()
 
 
-class LatticeFilesDownloadRestHander(BaseRestRequestHandler, LatticeFileDownloadMixin):
+class LatticeFilesDownloadRestHander(BaseRestRequestHandler, FileDownloadMixin):
     @coroutine
     def get(self, lattice_id):
         """
@@ -517,7 +517,7 @@ class LatticeFilesDownloadRestHander(BaseRestRequestHandler, LatticeFileDownload
         yield self.get_lattice_files(lattice_id)
 
 
-class LatticeFileDownloadRestHander(BaseRestRequestHandler, LatticeFileDownloadMixin):
+class LatticeFileDownloadRestHander(BaseRestRequestHandler, FileDownloadMixin):
     @coroutine
     def get(self, lattice_id, file_id):
         """
@@ -854,7 +854,7 @@ class ModelRestHandler(BaseRestRequestHandler, WriteJsonMixin):
         self.write_json(self._model_api(model))
 
 
-class ModelFileDownloadRestHander(BaseRestRequestHandler, WriteFileMixin):
+class ModelFileDownloadRestHander(BaseRestRequestHandler, FileDownloadMixin):
     @coroutine
     def get(self, model_id, file_id):
         """
@@ -865,40 +865,20 @@ class ModelFileDownloadRestHander(BaseRestRequestHandler, WriteFileMixin):
         :status 200: Lattice file found
         :status 404: Lattice file not found
         """
-        data = self.application.data
-        model = yield data.find_model_by_id(model_id)
+        yield self.get_model_file(model_id, file_id)
 
-        if not model or "files" not in model:
-            raise HTTPError(404)
 
-        model_file_id = int(file_id)
-        if model_file_id < 1 or model_file_id > len(model.files):
-            raise HTTPError(404)
+class ModelFilesDownloadRestHander(BaseRestRequestHandler, FileDownloadMixin):
+    @coroutine
+    def get(self, model_id):
+        """
+        Retrieve the an archive file containing all files of the Model specifed.
 
-        model_file = model.files[model_file_id-1]
-
-        file_root = self.settings.get("attachment_path", "")
-        if not os.path.isdir(file_root):
-            LOGGER.error("Setting 'attachment_path' does not specify a directory")
-            raise HTTPError(500)
-
-        location = os.path.join(file_root, model_file.location)
-        try:
-            data_file = open(location, 'r')
-        except:
-            LOGGER.exception("Error opening lattice file at location: %s", location)
-            raise HTTPError(500)
-
-        with data_file:
-            filename = self.clean_filename(model_file.filename)
-            self.set_header("Content-Type", "application/octet-stream")
-            self.set_header("Content-Disposition",
-                            "attachment;filename=" + url_escape(filename))
-            try:
-                self.write_file(data_file)
-            except:
-                LOGGER.exception("Error writing lattice file to response: %s", filename)
-                raise HTTPError(500)
+        :param model_id: Model ID
+        :status 200: Model file found
+        :status 404: Model file not found
+        """
+        yield self.get_model_files(model_id)
 
 
 class ModelElementsByModelIdRestHandler(BaseRestRequestHandler, WriteJsonMixin):

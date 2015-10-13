@@ -22,7 +22,6 @@ import random
 from StringIO import StringIO
 from datetime import datetime
 from tornado.util import ObjectDict
-from tornado.web import HTTPError
 from tornado.gen import coroutine
 from tornado.gen import Return
 from bson import ObjectId
@@ -59,37 +58,6 @@ class ImpactLatticeSupport(object):
         ctx.lattice_autoversion = True
         ctx.errors = ObjectDict()
         raise Return(ctx)
-
-
-    def _create_file_id(self):
-        return ''.join([ random.choice("abcdef0123456789") for _ in range(6) ])
-
-
-    def _create_file_location(self, request_file):
-        digest = hashlib.md5(request_file.body).hexdigest()
-        filename = re.sub(r"[^\.\-\(\)\w]", "", request_file.filename)
-        return "{}_{}".format(digest, filename)
-
-
-    def _write_file_content(self, base_path, location, content):
-        filename = os.path.join(base_path, location)
-        if not os.path.exists(filename):
-            with open(filename, 'w') as attfile:
-                attfile.write(content)
-
-    # deprecated
-    def _create_file_attachment(self, request_file):
-        digest = hashlib.md5(request_file.body).hexdigest()
-        location = "{}_{}".format(digest, request_file.filename)
-        return ObjectDict(content=request_file.body, location=location)
-
-
-    # deprecated
-    def _write_file_attachment(self, file_attachment, base_path):
-        filename = os.path.join(base_path, file_attachment.location)
-        if not os.path.exists(filename):
-            with open(filename, 'w') as attfile:
-                attfile.write(file_attachment.content)
 
 
     @coroutine
@@ -135,7 +103,13 @@ class ImpactLatticeSupport(object):
 
     @coroutine
     def _rest_send_status(self, status, context):
-        """
+        """Send response for REST API client.
+
+        If the Lattice has been successfully created (ie status 201)
+        then respond with JSON containing link to new Lattice details.
+
+        :param status: HTTP response status code
+        :param context: dictionary response context
         """
         if status == 201:
             lattice_id = str(context.lattice._id)
@@ -322,20 +296,20 @@ class ImpactLatticeSupport(object):
         ctx.lattice.files = []
         file_content = {}
 
-        file_id = self._create_file_id()
+        file_id = _create_file_id()
         ctx.lattice.files.append(ObjectDict(
             id=file_id,
             name="LatticeFile",
             size=len(lattice_file.body),
             filename=lattice_file.filename,
-            location=self._create_file_location(lattice_file)
+            location=_create_file_location(lattice_file)
         ))
         file_content[file_id] = lattice_file.body
 
         for data_file in request_files.get("data_file", []):
             # find a unique file ID
             while True:
-                file_id=self._create_file_id()
+                file_id=_create_file_id()
                 if file_id not in file_content:
                     break
             ctx.lattice.files.append(ObjectDict(
@@ -343,7 +317,7 @@ class ImpactLatticeSupport(object):
                 name="DataFile",
                 size=len(data_file.body),
                 filename=data_file.filename,
-                location=self._create_file_location(data_file)
+                location=_create_file_location(data_file)
             ))
             file_content[file_id] = data_file.body
 
@@ -427,7 +401,7 @@ class ImpactLatticeSupport(object):
 
         try:
             for f in ctx.lattice.files:
-                self._write_file_content(attachment_path, f.location, file_content[f.id])
+                _write_file_content(attachment_path, f.location, file_content[f.id])
         except Exception as e:
             LOGGER.exception("lattice file write error: %s", e)
             ctx.errors._global = "Lattice file write error"
@@ -441,6 +415,8 @@ class ImpactLatticeSupport(object):
 
 
 class ImpactModelSupport(object):
+
+    _TEMPLATE_NAME = "latticemodel/model_impact_upload.html"
 
     def __init__(self, model_type, model_name, handler):
         self.model_name = model_name
@@ -464,18 +440,79 @@ class ImpactModelSupport(object):
 
 
     @coroutine
-    def get_upload(self):
+    def web_form_upload_get(self):
+        """Entry point for web (browser) GET requests to upload Model.
+        """
         ctx = yield self._create_upload_context()
-        self.handler.render("latticemodel/model_impact_upload.html", ctx)
+        self._web_send_status(200, ctx)
 
 
     @coroutine
-    def post_upload(self):
+    def web_form_upload_post(self):
+        """Entry point for web (browser) POST request to upload Model.
+        """
+        yield self._form_upload_post(self._web_send_status)
+
+
+    def _web_send_status(self, status_code, context):
+        """Send response for web (browser) client
+
+        If the Model has been successfully created (ie status 201)
+        then redirect the client to the new Model details.
+
+        :param status: HTTP response status code
+        :param context: dictionary response context
+        """
+        if status_code == 201:
+            # redirect to created resource
+            model_id = str(context.model._id)
+            url = self.handler.reverse_url("model_details", model_id)
+            self.handler.redirect(url, status=303)
+        else:
+            self.handler.set_status(status_code)
+            self.handler.render(self._TEMPLATE_NAME, **context)
+
+
+    @coroutine
+    def rest_form_upload_post(self):
+        """Entry point for REST API POST requests to upload Model.
+        """
+        yield self._form_upload_post
+
+
+    @coroutine
+    def _rest_send_status(self, status_code, context):
+        """Send response for REST API client.
+
+        If the Model has been successfully created (ie status 201)
+        then respond with JSON containing link to new Model details.
+
+        :param status: HTTP response status code
+        :param context: dictionary response context
+        """
+        if status_code == 201:
+            model_id = str(context.model._id)
+            url = self.handler.reverse_url("rest_model_by_id", model_id)
+            self.handler.set_status(status_code)
+            self.handler.write_json({"links":{"replies":url}})
+        else:
+            self.handler.set_status(status_code)
+            self.handler.write_json({"errors":context.errors})
+
+
+    @coroutine
+    def _form_upload_post(self, send_status):
+        """Process the POST request and create new Model resource from form data.
+
+        :param send_status: callback method to signal completion
+        """
+        data = self.application.data
+        ctx = yield self._create_upload_context()
+
         content_type = self.handler.request.headers["Content-Type"]
         if not content_type.startswith("multipart/form-data;"):
-            raise HTTPError(415)
-
-        ctx = yield self._create_upload_context()
+            send_status(415, ctx)
+            return
 
         ctx.model["lattice_id"] = self.handler.get_argument("lattice_id", "")
         if len(ctx.model["lattice_id"]) == 0:
@@ -504,10 +541,10 @@ class ImpactModelSupport(object):
 
         ctx.model.files = []
 
-        pending_attachments = []
+        file_content = {}
 
-        files = self.handler.request.files
- 
+        request_files = self.handler.request.files
+
         modelfiles = {
             "fort18":"model_fort18",
             "fort24":"model_fort24",
@@ -515,26 +552,30 @@ class ImpactModelSupport(object):
             "fort26":"model_fort26",
             "modelmap":"model_map"
         }
- 
+
         modelargs = {}
 
         for key, name in modelfiles.iteritems():
-            if name in files and len(files[name]) > 0:
-                modelargs[key] = StringIO(files[name][0].body)
-                attachment = _create_file_attachment(files[name][0])
-                pending_attachments.append(attachment)
-                ctx.model.files.append(dict(
-                    _id=ObjectId(),
+            if name in request_files and len(request_files[name]) > 0:
+                modelargs[key] = StringIO(request_files[name][0].body)
+                # find a unique file ID
+                while True:
+                    file_id=_create_file_id()
+                    if file_id not in file_content:
+                        break
+                ctx.model.files.append(ObjectDict(
+                    id=file_id,
                     name="ModelData",
-                    filename=files[name][0].filename,
-                    location=attachment.location
+                    size=len(request_files[name][0].body),
+                    filename=request_files[name][0].filename,
+                    location=_create_file_location(request_files[name][0])
                 ))
+                file_content[file_id] = request_files[name][0].body
             else:
                 ctx.errors[name] = "Model data file is required"
 
         if ctx.errors:
-            self.handler.set_status(400)
-            self.handler.render("latticemodel/model_impact_upload.html", ctx)
+            send_status(400, ctx)
             return
 
         try:
@@ -542,47 +583,47 @@ class ImpactModelSupport(object):
         except Exception as e:
             LOGGER.warning("Error building model: %s", e)
             ctx.errors._global = "Model invalid format"
-            self.handler.set_status(400)
-            self.handler.render("latticemodel/model_impact_upload.html", ctx)
+            send_status(400, ctx)
             return
 
         ctx.model.properties = []
 
-        if "attachments" in files:
-            for attachment_file in files["attachments"]:
-                attachment = _create_file_attachment(attachment_file)
-                pending_attachments.append(attachment)
-                ctx.model.files.append(dict(
-                    _id=ObjectId(),
+        if "attachments" in request_files:
+            for attachment_file in request_files["attachments"]:
+                while True:
+                    file_id=_create_file_id()
+                    if file_id not in file_content:
+                        break
+                ctx.model.files.append(ObjectDict(
+                    id=file_id,
                     name="Attachment",
+                    size=len(attachment_file.body),
                     filename=attachment_file.filename,
-                    location=attachment.location
+                    location=_create_file_location(attachment_file)
                 ))
+                file_content[file_id] = attachment_file.body
+
 
         attachment_path = self.settings.get("attachment_path", "")
         if len(attachment_path) == 0:
-            self.handler.set_status(500)
             LOGGER.warn("setting 'attachment_path' not found")
             ctx.errors._global = "Attachment directory not specified"
-            self.handler.render("latticemodel/model_impact_upload.html", ctx)
+            send_status(500, ctx)
             return
-#
 
-        data = self.application.data
 
         try:
             yield data.validate_model(ctx.model)
         except Exception as e:
-            self.handler.set_status(500)
             LOGGER.error("model validation error: %s", e)
             ctx.errors._global = "Model validation error"
-            self.handler.render("latticemodel/model_impact_upload.html", ctx)
+            send_status(500, ctx)
             return
 
         model_elements = []
 
         for name, order_dict in model._modelmap.iteritems():
-            
+
             for order, indexes in order_dict.iteritems():
                 lattice_element = yield data.find_lattice_element_by_name(ctx.model.lattice_id, name, order)
 
@@ -698,12 +739,11 @@ class ImpactModelSupport(object):
 
 
         try:
-            model_id = yield data.insert_model(ctx.model, validate=False)
+            yield data.insert_model(ctx.model, validate=False)
         except Exception as e:
-            self.handler.set_status(500)
             LOGGER.error("lattice database insert error: %s", e)
             ctx.errors._global = "Lattice database insert error"
-            self.handler.render("latticemodel/model_impact_upload.html", ctx)
+            send_status(500, ctx)
             return
 
 
@@ -715,36 +755,37 @@ class ImpactModelSupport(object):
             LOGGER.error("model element database insert error: %s", e)
             ctx.errors._global = "Mattice element database insert error"
             # Rollback?
-            self.handler.set_status(500)
-            self.handler.render("latticemodel/model_impact_upload.html", ctx)
+            send_status(500, ctx)
             return
 
         try:
-            for attachment in pending_attachments:
-                _write_file_attachment(attachment, attachment_path)
+            for f in ctx.model.files:
+                _write_file_content(attachment_path, f.location, file_content[f.id])
         except Exception as e:
-            self.handler.set_status(500)
             LOGGER.error("model attachment write error: %s", e)
             ctx.errors._global = "Model attachment write error"
             #Rollback?
-            self.handler.render("latticemodel/model_impact_upload.html", ctx)
+            send_status(500, ctx)
             return
 
-        self.handler.redirect(self.handler.reverse_url("model_details", str(model_id)))
+        send_status(201, ctx)
         return
 
 
 
 
-def _create_file_attachment(request_file):
+def _create_file_id():
+    return ''.join([ random.choice("abcdef0123456789") for _ in range(6) ])
+
+
+def _create_file_location(request_file):
     digest = hashlib.md5(request_file.body).hexdigest()
-    location = "{}_{}".format(digest, request_file.filename)
-    return ObjectDict(content=request_file.body, location=location)
+    filename = re.sub(r"[^\.\-\(\)\w]", "", request_file.filename)
+    return "{}_{}".format(digest, filename)
 
 
-def _write_file_attachment(file_attachment, base_path): 
-    filename = os.path.join(base_path, file_attachment.location)
+def _write_file_content(base_path, location, content):
+    filename = os.path.join(base_path, location)
     if not os.path.exists(filename):
         with open(filename, 'w') as attfile:
-            attfile.write(file_attachment.content)
-
+            attfile.write(content)

@@ -25,7 +25,7 @@ def _URL_PATTERN(pattern):
         lattice_element_order=r"(?P<order>\d+)",
         lattice_type_id="(?P<type_id>\\w+)",
         model_id="(?P<model_id>\\w{24})",
-        model_file_id="(?P<file_id>\\d+)",
+        model_file_id="(?P<file_id>\\w{6})",
         model_element_id="(?P<element_id>\\w{24})",
         model_type_id="(?P<type_id>\w+)"
     )
@@ -61,31 +61,31 @@ webpatterns = [
     (_URL_PATTERN(r'/web/lattices/branches'),
         web.LatticeBranchesHandler, {}, "web_lattice_branches"),
 
-    (r'/lattice/web/lattice/upload',
+    (_URL_PATTERN(r'/web/lattices/upload'),
         web.LatticeUploadHandler, {}, "lattice_upload"),
 
-    (r'/lattice/web/lattice/([0-9a-f]{24})',
+    (_URL_PATTERN(r'/web/lattices/{lattice_id}'),
         web.LatticeDetailsHandler, {}, "lattice_details"),
 
-    (r'/lattice/web/lattice/([0-9a-f]{24})/files',
+    (_URL_PATTERN(r'/web/lattice/{lattice_id}/files/download'),
         web.LatticeArchiveDownloadHandler, {}, "lattice_archive_download"),
 
-    (_URL_PATTERN(r"/web/lattices/{lattice_id}/files/{lattice_file_id}"),
+    (_URL_PATTERN(r"/web/lattices/{lattice_id}/files/{lattice_file_id}/download"),
         web.LatticeFileDownloadHandler, {}, "lattice_file_download"),
 
     (r'/lattice/web/model/search',
         web.ModelSearchHandler, {}, "model_search"),
 
-    (r'/lattice/web/model/upload',
+    (_URL_PATTERN(r'/web/models/upload'),
         web.ModelUploadHandler, {}, "model_upload"),
 
-    (r'/lattice/web/model/([0-9a-f]{24})',
+    (_URL_PATTERN(r'/web/models/{model_id}'),
         web.ModelDetailsHandler, {}, "model_details"),
 
-    (r'/lattice/web/model/([0-9a-f]{24})/files',
+    (_URL_PATTERN(r'/web/models/{model_id}/files/download'),
         web.ModelArchiveDownloadHandler, {}, "model_archive_download"),
 
-    (r'/lattice/web/model/([0-9a-f]{24})/file/([0-9a-f]{24})',
+    (_URL_PATTERN(r'/web/models/{model_id}/files/{model_file_id}/download'),
         web.ModelFileDownloadHandler, {}, "model_file_download"),
 
     (r'/lattice/web/model/([0-9a-f]{24})/element/property/(.*)',
@@ -139,6 +139,9 @@ restpatterns = [
 
     (_URL_PATTERN(r"/rest/v1/models/{model_id}"),
         rest.ModelRestHandler, {}, "rest_model_by_id"),
+
+    (_URL_PATTERN(r"/rest/v1/models/{model_id}/files/download"),
+        rest.ModelFilesDownloadRestHander, {}, "rest_model_files_download"),
 
     (_URL_PATTERN(r"/rest/v1/models/{model_id}/files/{model_file_id}/download"),
         rest.ModelFileDownloadRestHander, {}, "rest_model_file_download_by_id"),

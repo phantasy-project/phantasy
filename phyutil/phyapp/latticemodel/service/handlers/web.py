@@ -34,7 +34,7 @@ from phyutil.phyapp.common.tornado.util import WriteFileMixin
 from phyutil.phyapp.common.tornado.util import WriteJsonMixin
 
 from . import LatticeSupportMixin
-from . import LatticeFileDownloadMixin
+from . import FileDownloadMixin
 
 
 LOGGER = logging.getLogger(__name__)
@@ -225,7 +225,7 @@ class LatticeDetailsHandler(BaseLatticeHandler):
         self.render("latticemodel/lattice_details.html", ctx)
 
 
-class LatticeFileDownloadHandler(BaseLatticeHandler, LatticeFileDownloadMixin):
+class LatticeFileDownloadHandler(BaseLatticeHandler, FileDownloadMixin):
     """
     Download the lattice file specified by the given lattice ID and file ID.
     """
@@ -234,7 +234,7 @@ class LatticeFileDownloadHandler(BaseLatticeHandler, LatticeFileDownloadMixin):
         yield self.get_lattice_file(lattice_id, file_id)
 
 
-class LatticeArchiveDownloadHandler(BaseLatticeHandler, LatticeFileDownloadMixin):
+class LatticeArchiveDownloadHandler(BaseLatticeHandler, FileDownloadMixin):
     """
     Download the lattice files in a single archive file (zip).
     """
@@ -282,7 +282,7 @@ class ModelUploadHandler(BaseLatticeHandler):
     def get(self):
         lattice_type = self.get_argument("type")
         lattice_support = self._construct_support(lattice_type)
-        yield lattice_support.get_upload()
+        yield lattice_support.web_form_upload_get()
 
 
     @authenticated
@@ -290,7 +290,7 @@ class ModelUploadHandler(BaseLatticeHandler):
     def post(self):
         lattice_type = self.get_argument("type")
         lattice_support = self._construct_support(lattice_type)
-        yield lattice_support.post_upload()
+        yield lattice_support.web_form_upload_post()
 
 
     def _construct_support(self, type_):
@@ -331,122 +331,22 @@ class ModelDetailsHandler(BaseLatticeHandler):
         self.render("latticemodel/model_details.html", ctx)
 
 
-class ModelFileDownloadHandler(BaseLatticeHandler, WriteFileMixin):
+class ModelFileDownloadHandler(BaseLatticeHandler, FileDownloadMixin):
     """
     Download the model file specified by model ID and file ID.
     """
     @coroutine
     def get(self, model_id, file_id):
-        data = self.application.data
-        model = yield data.find_model_by_id(model_id)
-
-        if not model or "files" not in model:
-            self.render_error(404)
-            return
-
-        model_file_id = ObjectId(file_id)
-        for model_file in model.files:
-            if model_file._id == model_file_id:
-                break
-        else:
-            self.render_error(404)
-            return
-
-        file_root = self.settings.get("attachment_path", "")
-        if not os.path.isdir(file_root):
-            LOGGER.error("Setting 'attachment_path' does not specify a directory")
-            self.render_error(500)
-            return
-
-        location = os.path.join(file_root, model_file.location)
-        try:
-            data_file = open(location, 'r')
-        except:
-            LOGGER.exception("Error opening model file at location: %s", location)
-            self.render_error(500)
-            return
-
-        with data_file:
-            filename = self.clean_filename(model_file.filename)
-            self.set_header("Content-Type", "application/octet-stream")
-            self.set_header("Content-Disposition",
-                            "attachment;filename=" + url_escape(filename))
-            try:
-                self.write_file(data_file)
-            except:
-                LOGGER.exception("Error writing model file to response: %s", filename)
-                self.set_status(500)
-                return
+        yield self.get_model_file(model_id, file_id)
 
 
-class ModelArchiveDownloadHandler(BaseLatticeHandler, WriteFileMixin):
+class ModelArchiveDownloadHandler(BaseLatticeHandler, FileDownloadMixin):
     """
     Download the model files in a single archive file (zip).
     """
     @coroutine
     def get(self, model_id):
-        data = self.application.data
-        model = yield data.find_model_by_id(model_id)
-
-        if not model or "files" not in model:
-            self.render_error(404)
-            return
-
-        file_root = self.settings.get("attachment_path", "")
-        if not os.path.isdir(file_root):
-            LOGGER.error("Setting 'attachment_path' does not specify a directory")
-            self.render_error(500)
-            return
-
-        filenames = set()
-        def unique_filename(filename):
-            filename = self.clean_filename(filename)
-            if filename in filenames:
-                name, ext = os.path.splitext(filename)
-                for idx in range(100):
-                    filename = "{}({}).{}".format(name, idx, ext)
-                    if filename not in filenames:
-                        break
-            filenames.add(filename)
-            return filename
-
-        try:
-            archive_temp = TemporaryFile()
-        except:
-            LOGGER.exception("Error opening temporary file")
-            self.render_error(500)
-            return
-
-        with archive_temp:
-            try:
-                archive_file = ZipFile(archive_temp, 'w', ZIP_DEFLATED)
-            except:
-                LOGGER.exception("Error opening archive file")
-                self.render_error(500)
-                return
-
-            with archive_file:
-                for model_file in model.files:
-                    filename = unique_filename(model_file.filename)
-                    location = os.path.join(file_root, model_file.location)
-                    try:
-                        archive_file.write(location, filename)
-                    except:
-                        LOGGER.exception("Error writing to archive file from location: %s", location)
-                        self.render_error(500)
-                        return
-
-            filename = self.clean_filename(model.name + ".zip")
-            self.set_header("Content-Type", "application/zip")
-            self.set_header("Content-Disposition",
-                            "attachment;filename=" + url_escape(filename))
-            try:
-                archive_temp.seek(0)
-                self.write_file(archive_temp)
-            except:
-                LOGGER.exception("Error writing temporary file to response: %s", filename)
-                self.set_status(500)
-                return
+        yield self.get_model_files(model_id)
 
 
 class ModelElementPropertyValuesHandler(BaseLatticeHandler):
