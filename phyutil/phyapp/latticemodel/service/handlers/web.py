@@ -249,23 +249,20 @@ class ModelSearchHandler(BaseLatticeHandler):
     def get(self):
         ctx = ObjectDict()
         ctx.search_active = True
-        #data = self.application.data
-        #ctx.particle_types = yield data.find_particle_types()
+        ctx.search = ObjectDict()
         self.render("latticemodel/model_search.html", **ctx)
 
     @coroutine
     def post(self):
         ctx = ObjectDict()
         ctx.search_active = True
-        #ctx.lattice_type = self.get_argument("lattice_type", None)
-        #ctx.particle_type = self.get_argument("particle_type", None)
-        ctx.model_name = self.get_argument("name", None)
-        ctx.model_description = self.get_argument("description", None)
-
+        ctx.search = ObjectDict()
+        ctx.search.model_type = self.get_argument("model_type", None)
+        ctx.search.name = self.get_argument("name", None)
+        ctx.search.properties = self.get_argument("properties", None)
+        #ctx.model_description = self.get_argument("description", None)
         data = self.application.data
-        ctx.models = yield data.search_models(**ctx)
-        #ctx.particle_types = yield data.find_particle_types()
-
+        ctx.models = yield data.search_models(**ctx.search)
         self.render("latticemodel/model_search.html", ctx)
 
 

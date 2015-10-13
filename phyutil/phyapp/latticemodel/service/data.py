@@ -200,6 +200,9 @@ MODEL_SCHEMA = {
         "_id":{
             "type":"objectid"
         },
+        "model_type":{
+            "type":"string"
+        },
         "lattice_id":{
             "type":"objectid"
         },
@@ -512,11 +515,11 @@ class MotorDataProvider(object):
 
         lattice_type = kwargs.get("lattice_type", None)
         if lattice_type and len(lattice_type) > 0:
-            query.append(dict(lattice_type = lattice_type))
+            query.append({"lattice_type":lattice_type})
 
         particle_type = kwargs.get("particle_type", None)
         if particle_type and len(particle_type) > 0:
-            query.append(dict(particle_type = particle_type))
+            query.append({"particle_type":particle_type})
 
         name = kwargs.get("name", None)
         if name:
@@ -561,7 +564,7 @@ class MotorDataProvider(object):
         db = self.application.db
         _LOGGER.debug("lattice search: %s", query)
         lattices = yield db.lattice.find(query).to_list(None)
-        raise Return(lattices)
+        raise Return(_bless(lattices))
 
 
     @coroutine
@@ -674,22 +677,46 @@ class MotorDataProvider(object):
 
     @coroutine
     def search_models(self, **kwargs):
+        """Search database for Models match the specified properties:
+
+        :param model_type: Model type (must match exactly)
+        :param name: Model name case insensitive match with support
+                        for glob operators ('*' and '?')
+        :param properties: Model properties as space or comma separated list
+                            with property names using case insensitive match
+                            (ie 'particlecharge=33 particlecount=>1000')
+        :return: List of Model objects
+        """
         query = []
 
-        #lattice_type = kwargs.get("lattice_type", None)
-        #if lattice_type and len(lattice_type) > 0:
-        #    query.append(dict(lattice_type = lattice_type))
+        model_type = kwargs.get("model_type", None)
+        if model_type:
+            query.append({"model_type":model_type})
 
-        #particle_type = kwargs.get("particle_type", None)
-        #if particle_type and len(particle_type) > 0:
-        #    query.append(dict(particle_type = particle_type))
+        name = kwargs.get("name", None)
+        if name:
+            query.append({"name":_mongo_search_glob(name)})
 
-        model_name = kwargs.get("model_name", None)
-        if model_name and len(model_name) > 0:
-            regex = re.escape(model_name)
-            regex = regex.replace("\\*", "(.*)")
-            regex = regex.replace("\\?", "(.?)")
-            query.append(dict(name = { "$regex" : regex, "$options":"i" })) # consider: m
+        prop_regex = re.compile(r'[\s,]*([^\s,=]+)\s*=\s*("([^"]*)"|([^\s]+))', re.IGNORECASE)
+
+        properties = kwargs.get("properties", None)
+        if properties:
+            for m in prop_regex.finditer(properties):
+                prop_name = _mongo_ignorecase(m.group(1))
+                if m.group(3):
+                    prop_value = _mongo_search_expr(m.group(3))
+                elif m.group(4):
+                    prop_value = _mongo_search_expr(m.group(4))
+                else:
+                    continue
+                query.append({
+                    "properties":{
+                        "$elemMatch":{
+                            "name":prop_name,
+                            "value":prop_value
+                        }
+                    }
+                })
 
         if len(query) == 0:
             query = {}
@@ -699,6 +726,7 @@ class MotorDataProvider(object):
             query = { "$and" : query }
 
         db = self.application.db
+        _LOGGER.debug("model search: %s", query)
         lattices = yield db.model.find(query).to_list(None)
         raise Return(_bless(lattices))
 
