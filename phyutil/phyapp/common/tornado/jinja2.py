@@ -90,9 +90,16 @@ class Jinja2Mixin(object):
                 env.filters["jsonencode"] = json_encode
                 env.filters["squeeze"] = squeeze
                 env.filters["linkify"] = linkify
-                env.filters["humanize.filesize"] = humanize.naturalsize
+                env.filters["humanize.filesize"] = _humanize_filesize
                 Jinja2Mixin._jinja2_environment = env
                 _LOGGER.info("Create jinja2 environment")
             else:
                 env = Jinja2Mixin._jinja2_environment
         return env
+
+
+def _humanize_filesize(value, *args, **kwargs):
+    if isinstance(value, jinja2.Undefined):
+        return value
+    return humanize.naturalsize(value, *args, **kwargs)
+
