@@ -37,12 +37,12 @@
 					<ul class="dropdown-menu">
 						<li class="dropdown-header">Lattice</li>
 						{%- for lt in lattice_types %}
-						<li><a href="{{ reverse_url("lattice_upload") }}?type={{lt.type|urlencode}}">{{lt.name|escape}}</a></li>
+						<li><a href="{{ reverse_url("lattice_upload", lt.type) }}">{{lt.name|escape}}</a></li>
 						{%- endfor %}
 						<li role="separator" class="divider"></li>
 						<li class="dropdown-header">Model</li>
 						{%- for mt in model_types %}
-						<li><a href="{{ reverse_url("model_upload") }}?type={{mt.type|urlencode}}">{{mt.name|escape}}</a></li>
+						<li><a href="{{ reverse_url("model_upload", mt.type) }}">{{mt.name|escape}}</a></li>
 						{%- endfor %}
 					</ul>
 				</li>

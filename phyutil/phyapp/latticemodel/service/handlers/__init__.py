@@ -42,6 +42,18 @@ class LatticeSupportMixin(object):
         return
 
 
+class ModelSupportMixin(object):
+    def construct_model_support(self, model_type):
+        """
+        Construct a Model support class from the given model type.
+        """
+        self.require_setting("model_support")
+        for support in self.settings["model_support"]:
+            if model_type == support[0]:
+                return support[2](support[0], support[1], self)
+        self.send_error(404)
+        return
+
 
 class FileDownloadMixin(WriteFileMixin):
     """Mixin implementing Lattice/Model file download.

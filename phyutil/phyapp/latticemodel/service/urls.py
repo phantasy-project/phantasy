@@ -27,7 +27,7 @@ def _URL_PATTERN(pattern):
         model_id="(?P<model_id>\\w{24})",
         model_file_id="(?P<file_id>\\w{6})",
         model_element_id="(?P<element_id>\\w{24})",
-        model_type_id="(?P<type_id>\w+)"
+        model_type_id="(?P<type_id>\\w+)"
     )
 
 
@@ -61,7 +61,7 @@ webpatterns = [
     (_URL_PATTERN(r'/web/lattices/branches'),
         web.LatticeBranchesHandler, {}, "web_lattice_branches"),
 
-    (_URL_PATTERN(r'/web/lattices/upload'),
+    (_URL_PATTERN(r'/web/lattices/upload/{lattice_type_id}'),
         web.LatticeUploadHandler, {}, "lattice_upload"),
 
     (_URL_PATTERN(r'/web/lattices/{lattice_id}'),
@@ -76,7 +76,7 @@ webpatterns = [
     (r'/lattice/web/model/search',
         web.ModelSearchHandler, {}, "model_search"),
 
-    (_URL_PATTERN(r'/web/models/upload'),
+    (_URL_PATTERN(r'/web/models/upload/{model_type_id}'),
         web.ModelUploadHandler, {}, "model_upload"),
 
     (_URL_PATTERN(r'/web/models/{model_id}'),
@@ -139,6 +139,9 @@ restpatterns = [
 
     (_URL_PATTERN(r"/rest/v1/models/{model_id}"),
         rest.ModelRestHandler, {}, "rest_model_by_id"),
+
+    (_URL_PATTERN(r"/rest/v1/models/{model_type_id}"),
+        rest.ModelUploadRestHandler, {}, "rest_model_upload"),
 
     (_URL_PATTERN(r"/rest/v1/models/{model_id}/files/download"),
         rest.ModelFilesDownloadRestHander, {}, "rest_model_files_download"),

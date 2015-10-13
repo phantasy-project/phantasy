@@ -477,7 +477,7 @@ class ImpactModelSupport(object):
     def rest_form_upload_post(self):
         """Entry point for REST API POST requests to upload Model.
         """
-        yield self._form_upload_post
+        yield self._form_upload_post(self._rest_send_status)
 
 
     @coroutine

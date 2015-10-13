@@ -11,7 +11,6 @@ from __future__ import division
 from __future__ import print_function
 
 import logging
-import os.path
 import functools
 
 from collections import OrderedDict
@@ -19,13 +18,13 @@ from tornado.web import HTTPError
 from tornado.web import RequestHandler
 from tornado.gen import coroutine
 from tornado.gen import maybe_future
-from tornado.escape import url_escape
 
 from phyutil.phyapp.common.tornado.auth import AuthBasicMixin
 from phyutil.phyapp.common.tornado.util import WriteJsonMixin
-from phyutil.phyapp.common.tornado.util import WriteFileMixin
+
 
 from . import LatticeSupportMixin
+from . import ModelSupportMixin
 from . import FileDownloadMixin
 
 
@@ -480,7 +479,7 @@ class LatticeUploadRestHandler(BaseRestRequestHandler, WriteJsonMixin, LatticeSu
         *particle_type*: particle type associated with new lattice
         *description*: new lattice description
         *lattice_file*: raw IMPACT lattice file (ie test.in)
-        *attachments*: extra files to attached to new lattice (multiple allowed)
+        *data_file*: data files referenced by the lattice (multiple allowed)
 
         **Example response**:
 
@@ -852,6 +851,48 @@ class ModelRestHandler(BaseRestRequestHandler, WriteJsonMixin):
         if not model:
             raise HTTPError(404)
         self.write_json(self._model_api(model))
+
+
+class ModelUploadRestHandler(BaseRestRequestHandler, WriteJsonMixin, ModelSupportMixin):
+    @authorized
+    @coroutine
+    def post(self, type_id):
+        """Create a new Model by submitting form data.
+
+        Content type MUST be 'multipart/form-data'
+
+        Content of the form is dictated by the Model type being submitted.
+
+        For Model type 'impactz' the follow parameters are supported:
+        *name*: new lattice name
+        *lattice_id*: lattice ID
+        *description*: new model description
+        *model_fort18*: IMPACT output file fort.18
+        *model_fort24*: IMPACT output file fort.19
+        *model_fort25*: IMPACT output file fort.24
+        *model_fort26*: IMPACT output file fort.26
+        *model_map*: IMPACT output map file model.map
+
+        **Example response**:
+
+        .. sourcecode:: http
+
+            HTTP/1.1 200 OK
+            Content-Type: application/json
+
+            {
+              "links":{
+                  "replies":"/lattice/rest/v1/models/561d449dfad7b65083879d0d"
+              }
+            }
+
+        :param type_id: Model Type ID
+        :status 201: Model created
+        :status 401: Unauthorized
+        :status 404: Model Type not supported
+        """
+        model_support = self.construct_model_support(type_id)
+        yield model_support.rest_form_upload_post()
 
 
 class ModelFileDownloadRestHander(BaseRestRequestHandler, FileDownloadMixin):
