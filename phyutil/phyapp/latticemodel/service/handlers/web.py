@@ -346,15 +346,26 @@ class ModelFilesDownloadHandler(BaseLatticeHandler, FileDownloadMixin):
         yield self.get_model_files(model_id)
 
 
-class ModelElementPropertyValuesHandler(BaseLatticeHandler):
+class ModelElementsPropertyValuesHandler(BaseLatticeHandler, WriteJsonMixin):
 
     @coroutine
     def get(self, model_id, property_name):
+        yield self._post()
+
+
+    @coroutine
+    def post(self):
         data = self.application.data
-        result = yield data.find_model_elements_property_values(model_id, property_name)
-        self.set_header("Content-Type", "application/json")
-        json.dump(result, self)
-        self.finish()
+        model_id = self.get_argument("model_id", None)
+        if not model_id:
+            self.send_error(400)
+            return
+        name = self.get_argument("name", None)
+        if not name:
+            self.send_error(400)
+            return
+        values = yield data.find_model_elements_property_values(model_id, name)
+        self.write_json(values)
 
 
 class RestLatticeHandler(BaseLatticeHandler):

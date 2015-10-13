@@ -412,12 +412,12 @@ class MotorDataProvider(object):
         db = self.application.db
         result = yield db.lattice.aggregate(pipeline)
         if not result["ok"]:
-            _LOGGER.error("aggregration failure for pipeline: %s", pipeline)
+            _LOGGER.error("aggregation failure for pipeline: %s", pipeline)
             raise Return([])
         if len(result["result"]) == 0:
             raise Return([])
         if len(result["result"]) > 1:
-            _LOGGER.warn("aggregration result: expecting: 1, recieved: %s",
+            _LOGGER.warn("aggregation result: expecting: 1, recieved: %s",
                                                         len(result["result"]))
         raise Return(_bless(result["result"][0]["names"]))
 
@@ -442,12 +442,12 @@ class MotorDataProvider(object):
         db = self.application.db
         result = yield db.lattice.aggregate(pipeline)
         if not result["ok"]:
-            _LOGGER.error("aggregration failure for pipeline: %s", pipeline)
+            _LOGGER.error("aggregation failure for pipeline: %s", pipeline)
             raise Return([])
         if len(result["result"]) == 0:
             raise Return([])
         if len(result["result"]) > 1:
-            _LOGGER.warn("aggregration result: expecting: 1, recieved: %s",
+            _LOGGER.warn("aggregation result: expecting: 1, recieved: %s",
                                                         len(result["result"]))
         raise Return(_bless(result["result"][0]["branches"]))
 
@@ -751,12 +751,12 @@ class MotorDataProvider(object):
         db = self.application.db
         result = yield db.model.aggregate(pipeline)
         if not result["ok"]:
-            _LOGGER.error("aggregration failure for pipeline: %s", pipeline)
+            _LOGGER.error("aggregation failure for pipeline: %s", pipeline)
             raise Return([])
         if len(result["result"]) == 0:
             raise Return([])
         if len(result["result"]) > 1:
-            _LOGGER.warn("aggregration result: expecting: 1, recieved: %s",
+            _LOGGER.warn("aggregation result: expecting: 1, recieved: %s",
                                                         len(result["result"]))
         raise Return(_bless(result["result"][0]["names"]))
 
@@ -795,6 +795,14 @@ class MotorDataProvider(object):
 
     @coroutine
     def find_model_elements_property_values(self, model_id, property_name):
+        """Find the values of the given property for model elements
+        with the given model id. The model element position is included
+        in the result.
+
+        :param model_id: Model ID
+        :param property_name: Model Element property name
+        :return: { "property_name":{ "values":[...], "positions":[...] } }
+        """
         db = self.application.db
         pipeline = [
             { "$match": { "model_id":ObjectId(model_id) }},
@@ -809,14 +817,20 @@ class MotorDataProvider(object):
         ]
         result = yield db.model_element.aggregate(pipeline)
         if not result["ok"]:
-            #LOG ERROR
-            raise Return([])
-
+            _LOGGER.error("aggregation failure for pipeline: %s", pipeline)
+            raise Return(_bless({}))
+        if len(result["result"]) == 0:
+            raise Return(_bless({}))
         if len(result["result"]) > 1:
-            #LOG WARN
-            pass
-
-        raise Return(result["result"][0])
+            _LOGGER.warn("aggregation result: expecting: 1, received: %s",
+                                                        len(result["result"]))
+        values = {
+            result["result"][0]["_id"]:{
+                "values":result["result"][0]["values"],
+                "positions":result["result"][0]["positions"]
+            }
+        }
+        raise Return(_bless(values))
 
 
     @coroutine

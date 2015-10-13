@@ -61,5 +61,15 @@ var latticemodel = (function() {
 	exports.data.find_model_names = find_model_names;
 
 
+	function find_model_elements_property_values(model_id, name, callback) {
+		if( !config.model_elements_property_values_url ) {
+			console.log('LatticeModel: missing configuration: "model_elements_property_values_url"');
+			return;
+		}
+		var data = { model_id:model_id, name:name };
+		ajax_post(config.model_elements_property_values_url, data, callback)
+	};
+	exports.data.find_model_elements_property_values = find_model_elements_property_values
+
 	return exports;
 })();

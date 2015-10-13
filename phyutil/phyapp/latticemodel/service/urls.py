@@ -25,8 +25,7 @@ def _URL_PATTERN(pattern):
         model_id="(?P<model_id>\\w{24})",
         model_file_id="(?P<file_id>\\w{6})",
         model_element_id="(?P<element_id>\\w{24})",
-        model_type_id="(?P<type_id>\\w+)",
-        model_property_name="(?P<property_name>\\w+)"
+        model_type_id="(?P<type_id>\\w+)"
     )
 
 
@@ -87,8 +86,8 @@ webpatterns = [
     (_URL_PATTERN(r'/web/models/{model_id}/files/{model_file_id}/download'),
         web.ModelFileDownloadHandler, {}, "model_file_download"),
 
-    (_URL_PATTERN(r'/web/models/{model_id}/element/property/{model_property_name}'),
-        web.ModelElementPropertyValuesHandler, {}, "model_element_property_values")
+    (_URL_PATTERN(r'/web/models/elements/property/values'),
+        web.ModelElementsPropertyValuesHandler, {}, "web_model_elements_property_values")
 ]
 urlpatterns.extend(webpatterns)
 
