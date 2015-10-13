@@ -704,6 +704,36 @@ class MotorDataProvider(object):
 
 
     @coroutine
+    def find_model_names(self, query=""):
+        """Find the set of model names that match the specified query string.
+
+        The query string is converted to a regular expression to be executed
+        on the Mongo server as follows: 'abc' => '.*abc.*'
+
+        Note that an empty query string matches all names.
+
+        :param query: Model name query string
+        :return: array of matching Model names
+        """
+        name = re.compile(".*" + re.escape(query) + ".*", re.IGNORECASE)
+        pipeline = [
+            {"$match":{"name":name}}, {"$sort":{"name":1}},
+            {"$group":{"_id":None, "names":{"$addToSet":"$name"}}}
+        ]
+        db = self.application.db
+        result = yield db.model.aggregate(pipeline)
+        if not result["ok"]:
+            _LOGGER.error("aggregration failure for pipeline: %s", pipeline)
+            raise Return([])
+        if len(result["result"]) == 0:
+            raise Return([])
+        if len(result["result"]) > 1:
+            _LOGGER.warn("aggregration result: expecting: 1, recieved: %s",
+                                                        len(result["result"]))
+        raise Return(_bless(result["result"][0]["names"]))
+
+
+    @coroutine
     def insert_model(self, model, validate=True):
         if validate:
             self.validate_model(model)

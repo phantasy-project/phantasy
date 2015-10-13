@@ -50,5 +50,16 @@ var latticemodel = (function() {
 	};
 	exports.data.find_lattice_branches = find_lattice_branches;
 
+	// Request list of Model names matching the specified query.
+	function find_model_names(query, callback) {
+		if( !config.model_names_url ) {
+			console.log('LatticeModel: missing configuration: "model_names_url"');
+			return;
+		}
+		ajax_post(config.model_names_url, {query:query}, callback);
+	};
+	exports.data.find_model_names = find_model_names;
+
+
 	return exports;
 })();

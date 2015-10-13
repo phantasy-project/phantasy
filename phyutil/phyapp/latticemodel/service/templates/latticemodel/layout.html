@@ -77,8 +77,9 @@
 	<script type="text/javascript" src="{{static_url('latticemodel/js/latticemodel.js')}}"></script>
 	<script type="text/javascript">
 	// configure latticemodel library
-	latticemodel.config.lattice_names_url = '{{reverse_url("web_lattice_names")}}';
-	latticemodel.config.lattice_branches_url = '{{reverse_url("web_lattice_branches")}}';
+	latticemodel.config.lattice_names_url = '{{ reverse_url("web_lattice_names") }}';
+	latticemodel.config.lattice_branches_url = '{{ reverse_url("web_lattice_branches") }}';
+	latticemodel.config.model_names_url = '{{ reverse_url("web_model_names") }}';
 	</script>
 	{% block scripts %}{% endblock %}
 </body>

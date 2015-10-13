@@ -34,9 +34,12 @@
 			</div>
 			<div class="form-group {% if errors.name %}has-error{% endif %}">
 				<div class="col-md-6">
-				<label class="control-label">Name</label>
-				<input class="form-control" name="name" type="text" value="{{model.name}}"/>
-				{% if errors.name %}<span class="text-danger">{{errors.name}}</span>{% endif %}
+					<label class="control-label">Name</label>
+					<div>
+						<input class="form-control" id="model_name" name="name"
+								type="text" autocomplete="off" value="{{model.name}}"/>
+					</div>
+					{% if errors.name %}<span class="text-danger">{{errors.name}}</span>{% endif %}
 				</div>
 			</div>
 			<div class="form-group">
@@ -85,20 +88,13 @@
 					{% if errors.model_map %}<span class="text-danger">{{errors.model_map}}</span>{% endif %}
 				</div>
 			</div>
-			{#<div class="form-group {% if errors.lattice_file %}has-error{% endif %}">
-				<div class="col-md-4">
-					<label class="control-label">Lattice File (i.e test.in)</label>
-					<input class="btn btn-default" type="file" name="lattice_file"/>
-					{% if errors.lattice_file %}<span class="text-danger">{{errors.lattice_file}}</span>{% endif %}
-				</div>
-			</div>#}
 			<div class="form-group">
 				<div class="col-md-4">
 					<label>Attachments</label>
 					<input class="btn btn-default" type="file" name="attachments" multiple>
 				</div>
 			</div>
-			
+
 			{%- if errors._global %}
 			<div class="form-group">
 				<div class="col-md-6">
@@ -106,7 +102,7 @@
 				</div>
 			</div>
 			{%- endif %}
-			
+
 			<div class="form-group">
 				<div class="col-md-6">
 					<button class="btn btn-primary pull-right" type="submit">Upload</button>
@@ -117,3 +113,8 @@
 </form>
 </div>
 {% endblock %}
+
+{%- block scripts %}
+<script type="text/javascript" src="{{static_url('vendor/typeahead.js/js/typeahead.jquery.min.js')}}"></script>
+<script type="text/javascript" src="{{static_url('latticemodel/js/model_impact_upload.js')}}"></script>
+{%- endblock %}

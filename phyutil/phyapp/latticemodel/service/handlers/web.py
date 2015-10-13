@@ -269,6 +269,21 @@ class ModelSearchHandler(BaseLatticeHandler):
         self.render("latticemodel/model_search.html", ctx)
 
 
+class ModelNamesHandler(BaseLatticeHandler, WriteJsonMixin):
+    """Find the names of Models matching the specified query.
+    """
+    @coroutine
+    def get(self):
+        yield self.post()
+
+    @coroutine
+    def post(self):
+        query = self.get_argument("query", "")
+        data = self.application.data
+        names = yield data.find_model_names(query)
+        self.write_json(names)
+
+
 class ModelUploadHandler(BaseLatticeHandler, ModelSupportMixin):
     """
     Upload Model files and save to database.

@@ -72,6 +72,9 @@ webpatterns = [
     (_URL_PATTERN(r'/web/models/search'),
         web.ModelSearchHandler, {}, "model_search"),
 
+    (_URL_PATTERN(r'/web/models/names'),
+        web.ModelNamesHandler, {}, "web_model_names"),
+
     (_URL_PATTERN(r'/web/models/upload/{model_type_id}'),
         web.ModelUploadHandler, {}, "model_upload"),
 
