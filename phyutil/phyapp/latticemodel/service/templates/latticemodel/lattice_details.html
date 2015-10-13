@@ -159,6 +159,7 @@
 						<a href="{{ reverse_url("lattice_file_download", lattice._id, f.id) }}">
 							<span>{{ f.filename|escape }}</span>
 						</a>
+						<small>({{ f.size|humanize.filesize(gnu=True) }})</small>
 					</td>
 				</tr>
 				{%- else %}

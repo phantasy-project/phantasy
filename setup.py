@@ -40,6 +40,7 @@ setup(
     ],
     extras_requires = {
         "LMS":[
+            'humanize>=0.5.1',
             'jsonschema>=2.5',
             'tornado>=4.2',
             'jinja2>=2.7',

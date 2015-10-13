@@ -18,6 +18,7 @@ import logging
 import datetime
 import threading
 import jinja2
+import humanize
 
 from tornado.escape import json_encode
 from tornado.escape import squeeze
@@ -89,6 +90,7 @@ class Jinja2Mixin(object):
                 env.filters["jsonencode"] = json_encode
                 env.filters["squeeze"] = squeeze
                 env.filters["linkify"] = linkify
+                env.filters["humanize.filesize"] = humanize.naturalsize
                 Jinja2Mixin._jinja2_environment = env
                 _LOGGER.info("Create jinja2 environment")
             else:
