@@ -543,8 +543,8 @@ class ImpactModelSupport(object):
             ctx.errors["lattice_id"] = "Lattice is required"
         else:
             ctx.model["lattice_id"] = ObjectId(ctx.model["lattice_id"])
-            for l in ctx.lattices:
-                if l["_id"] == ctx.model["lattice_id"]:
+            for lattice in ctx.lattices:
+                if lattice._id == ctx.model["lattice_id"]:
                     break
             else:
                 ctx.errors["lattice_id"] = "Lattice not found"
@@ -555,7 +555,7 @@ class ImpactModelSupport(object):
 
         ctx.model.description = self.handler.get_argument("description", "")
 
-        #ctx.lattice.status_type = self.handler.get_argument("status_type", "")
+        ctx.model.status_type = self.handler.get_argument("status_type", "")
 
         ctx.model.created_by = self.handler.current_user
 
@@ -573,8 +573,7 @@ class ImpactModelSupport(object):
             "fort18":"model_fort18",
             "fort24":"model_fort24",
             "fort25":"model_fort25",
-            "fort26":"model_fort26",
-            "modelmap":"model_map"
+            "fort26":"model_fort26"
         }
 
         modelargs = {}
@@ -599,6 +598,20 @@ class ImpactModelSupport(object):
                 ctx.errors[name] = "Model data file is required"
 
         if ctx.errors:
+            send_status(400, ctx)
+            return
+
+        for p in lattice.properties:
+            if p.name == "OutputMode":
+                outputMode = p.value
+                break
+        else:
+            ctx.errors.lattice_id = "Lattice missing 'OutputMode' property"
+            send_status(400, ctx)
+            return
+
+        if outputMode not in [1, 2, 3, 4, 5, 6]:
+            ctx.errors.lattice_id = "Lattice 'OutputMode' unsupported"
             send_status(400, ctx)
             return
 
@@ -644,130 +657,167 @@ class ImpactModelSupport(object):
             send_status(500, ctx)
             return
 
-        # get lattice elements and map by name and order
-        lattice_elements = {}
-        temp = yield data.find_lattice_elements_by_lattice_id(ctx.model.lattice_id)
-        for elem in temp:
-            if elem.name not in lattice_elements:
-                lattice_elements[elem.name] = {}
-            lattice_elements[elem.name][elem.order] = elem
+        idx = -1
+        if outputMode in [1, 2]:
+            # First line of data file is initial
+            # values BEFORE the first element.
+            idx = 0
 
         model_elements = []
 
-        for name, order_dict in model._modelmap.iteritems():
+        lattice_elements = yield data.find_lattice_elements_by_lattice_id(
+                                                        ctx.model.lattice_id)
 
-            for order, indexes in order_dict.iteritems():
+        for lattice_element in lattice_elements:
+
+            for p in lattice_element.properties:
+                if p.name == "ITYPE":
+                    elem_itype =  p.value
+                    break
+            else:
+                ctx.errors._global = ("Lattice Element ({}) missing ITYPE property"
+                                                    .format(lattice_element.order))
+                send_status(400, ctx)
+                return
+
+            for p in lattice_element.properties:
+                if p.name == "STEPS":
+                    elem_steps =  p.value
+                    break
+            else:
+                ctx.errors._global = ("Lattice Element ({}) missing STEPS property"
+                                                    .format(lattice_element.order))
+                send_status(400, ctx)
+                return
+
+            if outputMode in [1, 2]:
+                loop = elem_steps
+                if elem_itype < 0:
+                    loop = elem_steps + 1
+                elif elem_itype == 4:
+                    # no output from dipole
+                    loop = 0
+            elif outputMode in [3, 4]:
+                loop = 0
+                if elem_itype == -28:
+                    # only output from monitor
+                    loop = 1
+            elif outputMode in [5, 6]:
+                loop = 1
+
+            for _ in range(loop):
+
+                idx += 1
 
                 try:
-                    lattice_element = lattice_elements[name][order]
-                except KeyError:
-                    ctx.errors._global = "Lattice Element not found: '{}'".format(name)
+                    model_element = ObjectDict()
+                    model_element._id = ObjectId()
+                    model_element.order = idx+1
+                    model_element.model_id = ctx.model._id
+                    model_element.lattice_element_id = lattice_element._id
+                    model_element.position = model.getSPosition(idx)
+                    model_element.properties = []
+                    model_element.properties.append(dict(
+                        name="BeamCenterX",
+                        value=model.getOrbit("X", idx),
+                        unit="mm"
+                    ))
+                    model_element.properties.append(dict(
+                        name="BeamCenterY",
+                        value=model.getOrbit("Y", idx),
+                        unit="mm"
+                    ))
+                    model_element.properties.append(dict(
+                        name="BeamEnergy",
+                        value=model.getEnergy(idx),
+                        unit="eV"
+                    ))
+                    model_element.properties.append(dict(
+                        name="BeamMomentumCenterX",
+                        value=model.getBeamMomentumCentroid("X", idx),
+                        unit="rad"
+                    ))
+                    model_element.properties.append(dict(
+                        name="BeamMomentumCenterY",
+                        value=model.getBeamMomentumCentroid("Y", idx),
+                        unit="rad"
+                    ))
+                    model_element.properties.append(dict(
+                        name="BeamMomentumCenterZ",
+                        value=model.getBeamMomentumCentroid("Z", idx),
+                        unit="MeV"
+                    ))
+                    model_element.properties.append(dict(
+                        name="BeamRMSX",
+                        value=model.getBeamRms("X", idx),
+                        unit="mm"
+                    ))
+                    model_element.properties.append(dict(
+                        name="BeamMomentumRMSY",
+                        value=model.getBeamRms("Y", idx),
+                        unit="mm"
+                    ))
+                    model_element.properties.append(dict(
+                        name="BeamRMSZ",
+                        value=model.getBeamRms("Z", idx),
+                        unit="MeV"
+                    ))
+                    model_element.properties.append(dict(
+                        name="BeamMomentumRMSX",
+                        value=model.getMomentumRms("X", idx),
+                        unit="rad"
+                    ))
+                    model_element.properties.append(dict(
+                        name="BeamMomentumRMSY",
+                        value=model.getMomentumRms("Y", idx),
+                        unit="rad"
+                    ))
+                    model_element.properties.append(dict(
+                        name="BeamMomentumRMSZ",
+                        value=model.getMomentumRms("Z", idx),
+                        unit="MeV"
+                    ))
+                    model_element.properties.append(dict(
+                        name="TwissBetaX",
+                        value=model.getTwissBeta("X", idx),
+                        unit=""
+                    ))
+                    model_element.properties.append(dict(
+                        name="TwissBetaY",
+                        value=model.getTwissBeta("Y", idx),
+                        unit=""
+                    ))
+                    model_element.properties.append(dict(
+                        name="TwissBetaZ",
+                        value=model.getTwissBeta("Z", idx),
+                        unit=""
+                    ))
+                    model_element.properties.append(dict(
+                        name="TwissAlphaX",
+                        value=model.getTwissAlpha("X", idx),
+                        unit=""
+                    ))
+                    model_element.properties.append(dict(
+                        name="TwissAlphaY",
+                        value=model.getTwissAlpha("Y", idx),
+                        unit=""
+                    ))
+                    model_element.properties.append(dict(
+                        name="TwissAlphaZ",
+                        value=model.getTwissAlpha("Z", idx),
+                        unit=""
+                    ))
+                except IndexError:
+                    ctx.errors._global = ("Model data not found at index: {}".format(idx))
                     send_status(400, ctx)
                     return
-
-                idx = indexes[-1]
-
-                model_element = ObjectDict()
-                model_element._id = ObjectId()
-                model_element.model_id = ctx.model._id
-                model_element.lattice_element_id = lattice_element._id
-                #print(type(model.getSPosition(idx)))
-                model_element.position = model.getSPosition(idx)
-                model_element.properties = []
-                model_element.properties.append(dict(
-                    name="BeamCenterX",
-                    value=model.getOrbit("X", idx),
-                    unit="mm"
-                ))
-                model_element.properties.append(dict(
-                    name="BeamCenterY",
-                    value=model.getOrbit("Y", idx),
-                    unit="mm"
-                ))
-                model_element.properties.append(dict(
-                    name="BeamEnergy",
-                    value=model.getEnergy(idx),
-                    unit="eV"
-                ))
-                model_element.properties.append(dict(
-                    name="BeamMomentumCenterX",
-                    value=model.getBeamMomentumCentroid("X", idx),
-                    unit="rad"
-                ))
-                model_element.properties.append(dict(
-                    name="BeamMomentumCenterY",
-                    value=model.getBeamMomentumCentroid("Y", idx),
-                    unit="rad"
-                ))
-                model_element.properties.append(dict(
-                    name="BeamMomentumCenterZ",
-                    value=model.getBeamMomentumCentroid("Z", idx),
-                    unit="MeV"
-                ))
-                model_element.properties.append(dict(
-                    name="BeamRMSX",
-                    value=model.getBeamRms("X", idx),
-                    unit="mm"
-                ))
-                model_element.properties.append(dict(
-                    name="BeamMomentumRMSY",
-                    value=model.getBeamRms("Y", idx),
-                    unit="mm"
-                ))
-                model_element.properties.append(dict(
-                    name="BeamRMSZ",
-                    value=model.getBeamRms("Z", idx),
-                    unit="MeV"
-                ))
-                model_element.properties.append(dict(
-                    name="BeamMomentumRMSX",
-                    value=model.getMomentumRms("X", idx),
-                    unit="rad"
-                ))
-                model_element.properties.append(dict(
-                    name="BeamMomentumRMSY",
-                    value=model.getMomentumRms("Y", idx),
-                    unit="rad"
-                ))
-                model_element.properties.append(dict(
-                    name="BeamMomentumRMSZ",
-                    value=model.getMomentumRms("Z", idx),
-                    unit="MeV"
-                ))
-                model_element.properties.append(dict(
-                    name="TwissBetaX",
-                    value=model.getTwissBeta("X", idx),
-                    unit=""
-                ))
-                model_element.properties.append(dict(
-                    name="TwissBetaY",
-                    value=model.getTwissBeta("Y", idx),
-                    unit=""
-                ))
-                model_element.properties.append(dict(
-                    name="TwissBetaZ",
-                    value=model.getTwissBeta("Z", idx),
-                    unit=""
-                ))
-                model_element.properties.append(dict(
-                    name="TwissAlphaX",
-                    value=model.getTwissAlpha("X", idx),
-                    unit=""
-                ))
-                model_element.properties.append(dict(
-                    name="TwissAlphaY",
-                    value=model.getTwissAlpha("Y", idx),
-                    unit=""
-                ))
-                model_element.properties.append(dict(
-                    name="TwissAlphaZ",
-                    value=model.getTwissAlpha("Z", idx),
-                    unit=""
-                ))
 
                 try:
                     data.validate_model_element(model_element)
                 except:
+                    LOGGER.exception("model element validation error: %s", e)
+                    ctx.errors._global = "Model Element validation error"
+                    send_status(500, ctx)
                     return
 
                 model_elements.append(model_element)

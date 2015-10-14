@@ -206,6 +206,9 @@ MODEL_SCHEMA = {
         "lattice_id":{
             "type":"objectid"
         },
+        "status_type":{
+            "type":"string"
+        },
         "name":{
             "type":"string"
         },
@@ -261,7 +264,8 @@ MODEL_SCHEMA = {
             }
         },
     },
-    "required":[ "lattice_id", "name", "description","created_by", "created_date" ]
+    "required":[ "lattice_id", "status_type", "name",
+                 "description","created_by", "created_date" ]
 }
 
 
