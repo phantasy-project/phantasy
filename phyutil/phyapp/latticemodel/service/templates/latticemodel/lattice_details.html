@@ -193,9 +193,9 @@
 				<td>Type</td>
 				<td>Position</td>
 				<td>Length</td>
-				{% for p in element_properties %}
-				<td>{{ p[0] }}[{{ p[1] }}]</td>
-				{% endfor %}
+				{%- for p in element_properties %}
+				<td>{{ p[0] }}{% if p[1] %}[{{ p[1] }}]{% endif %}</td>
+				{%- endfor %}
 			</tr>
 
 			{%- for e in lattice_elements %}
