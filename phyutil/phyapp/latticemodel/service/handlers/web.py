@@ -14,17 +14,13 @@ from __future__ import division
 from __future__ import print_function
 
 import json
-import os.path
 import logging
 
 from tornado.web import authenticated
 from tornado.web import RequestHandler
 from tornado.gen import maybe_future
-from tornado.web import HTTPError
 from tornado.gen import coroutine
 from tornado.util import ObjectDict
-from tornado.escape import url_escape
-from bson import ObjectId
 
 from phyutil.phyapp.common.tornado.jinja2 import Jinja2Mixin
 from phyutil.phyapp.common.tornado.session import SessionMixin
