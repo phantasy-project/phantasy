@@ -231,7 +231,7 @@ class ImpactLatticeSupport(object):
         ctx.lattice.properties = []
 
         ctx.lattice.properties.append(dict(
-            name="RefParticleMass",
+            name="ParticleMass",
             value=lattice.particleMass,
             unit="MeV/c^2"
         ))
@@ -248,38 +248,48 @@ class ImpactLatticeSupport(object):
         ))
 
         ctx.lattice.properties.append(dict(
-            name="mismatch",
+            name="PositionMismatch",
             value=lattice.mismatch
         ))
 
         ctx.lattice.properties.append(dict(
-            name="emismatch",
+            name="EnergyMismatch",
             value=lattice.emismatch
         ))
 
         ctx.lattice.properties.append(dict(
-            name="offset",
+            name="PositionOffset",
             value=lattice.offset
         ))
 
         ctx.lattice.properties.append(dict(
-            name="eoffset",
+            name="EnergyOffset",
             value=lattice.eoffset
         ))
 
         ctx.lattice.properties.append(dict(
-            name="sigma",
+            name="DistSigma",
             value=lattice.distSigma
         ))
 
         ctx.lattice.properties.append(dict(
-            name="lambda",
+            name="DistLambda",
             value=lattice.distLambda
         ))
 
         ctx.lattice.properties.append(dict(
-            name="mu",
+            name="DistMu",
             value=lattice.distMu
+        ))
+
+        ctx.lattice.properties.append(dict(
+            name="OutputMode",
+            value=lattice.outputMode
+        ))
+
+        ctx.lattice.properties.append(dict(
+            name="IntegratorType",
+            value=lattice.integrator
         ))
 
         nucleons = particle_type.protons + particle_type.neutrons
@@ -291,7 +301,11 @@ class ImpactLatticeSupport(object):
                 lattice_charge.append(int(charge * lattice.particleMass * nucleons))
         else:
             lattice_charge = int(lattice.charge * lattice.particleMass * nucleons)
-        ctx.lattice.properties.append(dict(name="ParticleCharge",value=lattice_charge))
+
+        ctx.lattice.properties.append(dict(
+            name="ParticleCharge",
+            value=lattice_charge
+        ))
 
         ctx.lattice.files = []
         file_content = {}
