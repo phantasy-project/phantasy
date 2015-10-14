@@ -377,6 +377,14 @@ class ImpactLatticeSupport(object):
             lattice_element.length = element.length
             lattice_element.position = element.position
             lattice_element.properties = []
+            lattice_element.properties.append(dict(
+                name="ITYPE",
+                value=element.itype
+            ))
+            lattice_element.properties.append(dict(
+                name="STEPS",
+                value=element.steps
+            ))
             for field in element.fields:
                 lattice_element.properties.append(dict(
                     name = field.name,
