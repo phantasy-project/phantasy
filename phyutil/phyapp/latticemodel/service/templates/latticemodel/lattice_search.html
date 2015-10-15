@@ -4,19 +4,24 @@
 
 {% block content %}
 <div class="container">
-	<ul class="nav nav-tabs" role="tablist">
+	<ul class="nav nav-tabs">
 		<li role="presentation" class="{% if lattices is undefined %}active{% endif %}">
 			<a href="#search" aria-controls="search" role="tab" data-toggle="tab">
 				<span style="font-size:larger;">Search Lattice</span>
 			</a>
 		</li>
-		{% if lattices is defined %}
+		{%- if lattices is defined %}
 		<li role="presentation" class="active">
 			<a href="#results" aria-controls="results" role="tab" data-toggle="tab">
 				<span style="font-size:larger;">Results <span class="badge">{{ lattices|length }}</span></span>
 			</a>
 		</li>
-		{% endif %}
+		{%- endif %}
+		<li>
+			<div style="padding:0px 10px;">
+				<button  class="btn btn-primary compare-button hidden">Compare</button>
+			</div>
+		</li>
 	</ul>
 	<div class="tab-content">
 		<div role="tabpanel" class="tab-pane {% if lattices is undefined %}active{% endif %}" id="search">
@@ -93,6 +98,7 @@
 		</div>
 		{% if lattices is defined %}
 		<div role="tabpanel" class="tab-pane active" id="results">
+		<form class="compare-form" method="POST" action="{{ reverse_url('web_lattice_compare') }}">
 			<table class="table">
 				<tr>
 					<th></th>
@@ -104,12 +110,11 @@
 					<th>Description</th>
 				</tr>
 
-				{% for lattice in lattices %}
+				{%- for lattice in lattices %}
 				<tr>
 					<td>
-						<a href="{{ reverse_url("lattice_details", lattice._id) }}">
-							<span class="glyphicon glyphicon-new-window"></span>
-						</a>
+						<input class="compare-checkbox" type="checkbox"
+							autocomplete="off" name="lattice" value="{{ lattice._id }}"/>
 					</td>
 					{%- for lt in lattice_types if lt.type == lattice.lattice_type %}
 					<td>{{ lt.name }}</td>
@@ -117,17 +122,22 @@
 					{%- for pt in particle_types if pt.type == lattice.particle_type %}
 					<td>{{ pt.name }}</td>
 					{%- endfor %}
-					<td>{{ lattice.name|escape }}</td>
+					<td>
+						<a href="{{ reverse_url("lattice_details", lattice._id) }}">
+							<span>{{ lattice.name|escape }}</span>
+						</a>
+					</td>
 					<td>{{ lattice.branch|escape }}</td>
 					<td>{{ lattice.version|escape }}</td>
 					<td>{{ lattice.description|escape|truncate(40) }}</td>
 				</tr>
-				{% else %}
+				{%- else %}
 				<tr>
 					<td colspan="4">No Results</td>
 				</tr>
-				{% endfor %}
+				{%- endfor %}
 			</table>
+		</form>
 		</div>
 		{% endif %}
 	</div>

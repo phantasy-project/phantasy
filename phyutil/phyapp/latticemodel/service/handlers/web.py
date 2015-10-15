@@ -145,6 +145,47 @@ class LatticeSearchHandler(BaseLatticeHandler):
         self.render("latticemodel/lattice_search.html", **ctx)
 
 
+class LatticeCompareHandler(BaseLatticeHandler):
+    """Compare the two specified Lattices.
+    """
+    @coroutine
+    def post(self):
+        data = self.application.data
+        lattice_ids = self.get_arguments("lattice")
+        if len(lattice_ids) < 2:
+            self.send_error(400, message="Must select two lattice for comparison")
+            return
+
+        lattice1 = yield data.find_lattice_by_id(lattice_ids[0])
+        if not lattice1:
+            self.send_error(400, message="Lattice (1) not found: " + lattice_ids[0])
+            return
+        lattice_elements1 = yield data.find_lattice_elements_by_lattice_id(lattice_ids[0])
+
+        lattice2 = yield data.find_lattice_by_id(lattice_ids[1])
+        if not lattice2:
+            self.send_error(400, message="Lattice (2) not found: " + lattice_ids[1])
+            return
+        lattice_elements2 = yield data.find_lattice_elements_by_lattice_id(lattice_ids[1])
+
+        ctx = ObjectDict()
+        ctx.lattice = (lattice1, lattice2)
+
+        n1 = len(lattice_elements1)
+        n2 = len(lattice_elements2)
+        ctx.lattice_elements = []
+        for idx in range(max(n1, n2)):
+            if idx < n1 and idx < n2:
+                ctx.lattice_elements.append((lattice_elements1[idx], lattice_elements2[idx]))
+            elif idx < n1:
+                ctx.lattice_elements.append((lattice_elements1[idx], None))
+            elif idx < n2:
+                ctx.lattice_elements.append((None, lattice_elements2[idx]))
+
+        ctx.particle_types = yield data.find_particle_types()
+        self.render("latticemodel/lattice_compare.html", **ctx)
+
+
 class LatticeNamesHandler(BaseLatticeHandler, WriteJsonMixin):
     """Find the names of Lattice matching the specified query.
     """

@@ -50,6 +50,9 @@ webpatterns = [
     (_URL_PATTERN(r'/web/lattices/search'),
         web.LatticeSearchHandler, {}, "lattice_search"),
 
+    (_URL_PATTERN(r'/web/lattices/compare'),
+        web.LatticeCompareHandler, {}, "web_lattice_compare"),
+
     (_URL_PATTERN(r'/web/lattices/names'),
         web.LatticeNamesHandler, {}, "web_lattice_names"),
 
