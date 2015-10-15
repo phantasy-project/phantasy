@@ -178,42 +178,45 @@
 		<div class="col-xs-12">
 		<h3>Elements</h3>
 		<table class="table">
-		{% set element_properties = [] %}
-		{% for e in lattice_elements %}
-			{% for p in e.properties  %}
-				{% if (p.name, p.unit) not in element_properties %}
-					{% do element_properties.append((p.name, p.unit)) %}
-				{% endif %}
+			{% set element_properties = [] %}
+			{% for e in lattice_elements %}
+				{% for p in e.properties  %}
+					{% if (p.name, p.unit) not in element_properties %}
+						{% do element_properties.append((p.name, p.unit)) %}
+					{% endif %}
+				{% endfor %}
 			{% endfor %}
-		{% endfor %}
 
+			<thead>
 			<tr>
-				<td>Order</td>
-				<td>Name</td>
-				<td>Type</td>
-				<td>Position</td>
-				<td>Length</td>
+				<th>Order</th>
+				<th>Name</th>
+				<th>Type</th>
+				<th>Length</th>
+				<th>Position</th>
 				{%- for p in element_properties %}
-				<td>{{ p[0] }}{% if p[1] %}[{{ p[1] }}]{% endif %}</td>
+				<th>{{ p[0] }}{% if p[1] %}[{{ p[1] }}]{% endif %}</th>
 				{%- endfor %}
 			</tr>
-
-			{%- for e in lattice_elements %}
+			</thead>
+			<tbody>
+			{%- for elem in lattice_elements %}
 			<tr>
-				<td>{{ e.order }}</td>
-				<td>{% if e.name %}{{ e.name }}{% else %}-{% endif %}</td>
-				<td>{{ e.type }}</td>
-				<td>{{ e.position }}</td>
-				<td>{{ e.length }}</td>
+				<td class="text-info">{{ elem.order }}</td>
+				<td class="text-info">{% if elem.name %}{{ elem.name|e }}{% else %}-{% endif %}</td>
+				<td class="text-info">{{ elem.type|e }}</td>
+				<td class="text-info">{{ elem.length }}</td>
+				<td class="text-info">{{ elem.position }}</td>
 				{%- for pname, punit in element_properties%}
-					{%- for p in e.properties if p.name == pname and p.unit == punit %}
-						<td>{{ p.value }}</td>
+					{%- for p in elem.properties if p.name == pname and p.unit == punit %}
+						<td class="text-info">{{ p.value }}</td>
 					{%- else %}
-						<td>-</td>
+						<td class="text-info">-</td>
 					{%- endfor %}
 				{%- endfor %}
 			</tr>
 			{%- endfor %}
+			</tbody>
 		</table>
 		</div>
 	</div>
