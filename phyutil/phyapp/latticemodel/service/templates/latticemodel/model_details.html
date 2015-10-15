@@ -9,6 +9,14 @@
 		<h3>Model Info</h3>
 		<table class="table">
 			<tr>
+				<td><b>Model Type: </b></td>
+				<td>
+					{%- for mt in model_types if mt.type == model.model_type %}
+					<span class="text-info">{{mt.name|e}}</span>
+					{%- endfor %}
+				</td>
+			</tr>
+			<tr>
 				<td><b>Name:</b></td>
 				<td class="text-info">{{ model.name|escape }}</td>
 			</tr>
@@ -20,9 +28,8 @@
 				<td><b>Lattice:</b></td>
 				<td>
 					<a href="{{ reverse_url("lattice_details", lattice._id) }}">
-						<span class="glyphicon glyphicon-new-window"></span>
+						<span class="text-info">{{ lattice.name|e }}</span>
 					</a>
-					<span class="text-info">{{ lattice.name|escape }}</span>
 				</td>
 			</tr>
 			<tr>
