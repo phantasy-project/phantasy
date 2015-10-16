@@ -6,7 +6,7 @@
 <div class="container">
 	<div class="row">
 		<div class="col-xs-6">
-		<h3>Lattice Info</h3>
+		<h3>Lattice Details</h3>
 		{#{% endverbatim %}
 			{% if user.is_authenticated %}
 				<button ng-click="updateLattice(lattice.name, lattice.version, lattice.branch)" class="model_update btn btn-success"><i class="icon-edit icon-white"></i> Update lattice</button>
@@ -176,7 +176,7 @@
 
 		<div class="row">
 		<div class="col-xs-12">
-		<h3>Elements</h3>
+		<h4>Elements</h4>
 		<table class="table">
 			{% set element_properties = [] %}
 			{% for e in lattice_elements %}

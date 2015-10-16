@@ -5,11 +5,6 @@
 {% block content %}
 <div class="container">
 	<div class="row">
-		<div class="col-xs-12">
-			<h3>Lattice Comparison</h3>
-		</div>
-	</div>
-	<div class="row">
 		{%- macro latticediff(lat1, lat2) %}
 			<tr>
 				<td><b>Lattice Type: </b></td>
@@ -38,11 +33,13 @@
 			<tr>
 				<td><b>Name: </b></td>
 				<td>
+					<a href="{{ reverse_url('lattice_details', lat1._id) }}">
 					{%- if lat1.name != lat2.name %}
 					<span class="text-danger">{{lat1.name|e}}</span>
 					{%- else %}
 					<span class="text-info">{{lat1.name|e}}</span>
 					{%- endif %}
+					</a>
 				</td>
 			</tr>
 			<tr>
@@ -97,11 +94,13 @@
 			</tr>
 		{%- endmacro %}
 		<div class="col-xs-6">
+		<h3>Lattice 1</h3>
 		<table class="table">
 			{{ latticediff(lattice[0], lattice[1]) }}
 		</table>
 		</div>
 		<div class="col-xs-6">
+		<h3>Lattice 2</h3>
 		<table class="table">
 			{{ latticediff(lattice[1], lattice[0]) }}
 		</table>
@@ -285,7 +284,7 @@
 	</tr>
 	{%- endmacro %}
 		<div class="col-md-6">
-		<h3>Elements</h3>
+		<h4>Elements</h4>
 		<table class="table">
 			<thead>
 			<tr>
@@ -304,7 +303,7 @@
 		</table>
 		</div>
 		<div class="col-md-6">
-		<h3>Elements</h3>
+		<h4>Elements</h4>
 		<table class="table">
 			<thead>
 			<tr>
