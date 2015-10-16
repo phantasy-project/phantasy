@@ -303,6 +303,55 @@ class ModelSearchHandler(BaseLatticeHandler):
         self.render("latticemodel/model_search.html", ctx)
 
 
+class ModelCompareHandler(BaseLatticeHandler):
+    """Compare the two specified Models.
+    """
+    @coroutine
+    def post(self):
+        data = self.application.data
+        model_ids = self.get_arguments("model")
+        if len(model_ids) < 2:
+            self.send_error(400, message="Must select two models for comparison")
+            return
+
+        model1, model2 = yield [
+            data.find_model_by_id(model_ids[0]),
+            data.find_model_by_id(model_ids[1])
+        ]
+
+        if not model1:
+            self.send_error(400, message="Model (1) not found: " + model_ids[0])
+            return
+
+        if not model2:
+            self.send_error(400, message="Model (2) not found: " + model_ids[1])
+            return
+
+        lattice1, lattice2, model_elements1, model_elements2 = yield [
+            data.find_lattice_by_id(model1.lattice_id),
+            data.find_lattice_by_id(model2.lattice_id),
+            data.find_model_elements_by_model_id(model1._id),
+            data.find_model_elements_by_model_id(model2._id)
+        ]
+
+        ctx = ObjectDict()
+        ctx.model = (model1, model2)
+        ctx.lattice = (lattice1, lattice2)
+
+        n1 = len(model_elements1)
+        n2 = len(model_elements2)
+        ctx.model_elements = []
+        for idx in range(max(n1, n2)):
+            if idx < n1 and idx < n2:
+                ctx.model_elements.append((model_elements1[idx], model_elements2[idx]))
+            elif idx < n1:
+                ctx.model_elements.append((model_elements1[idx], None))
+            elif idx < n2:
+                ctx.model_elements.append((None, model_elements2[idx]))
+
+        self.render("latticemodel/model_compare.html", **ctx)
+
+
 class ModelNamesHandler(BaseLatticeHandler, WriteJsonMixin):
     """Find the names of Models matching the specified query.
     """

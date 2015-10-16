@@ -74,6 +74,9 @@ webpatterns = [
     (_URL_PATTERN(r'/web/models/search'),
         web.ModelSearchHandler, {}, "model_search"),
 
+    (_URL_PATTERN(r'/web/models/compare'),
+        web.ModelCompareHandler, {}, "web_model_compare"),
+
     (_URL_PATTERN(r'/web/models/names'),
         web.ModelNamesHandler, {}, "web_model_names"),
 

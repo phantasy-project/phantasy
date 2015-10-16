@@ -1,0 +1,224 @@
+{% extends "latticemodel/layout.html" %}
+
+{% block title %}Details :: Lattice{% endblock %}
+
+{% block content %}
+<div class="container">
+	<div class="row">
+		{%- macro modeldiff(model1, lattice1, model2, lattice2) %}
+			<tr>
+				<td><b>Model Type: </b></td>
+				<td>
+					{%- for mt in model_types if mt.type == model1.model_type %}
+					{%- if model1.model_type != model2.model_type %}
+					<span class="text-danger">{{mt.name|e}}</span>
+					{%- else %}
+					<span class="text-info">{{mt.name|e}}</span>
+					{%- endif %}
+					{%- endfor %}
+				</td>
+			</tr>
+			<tr>
+				<td><b>Name:</b></td>
+				<td>
+					<a href="{{ reverse_url('model_details', model1._id) }}">
+					{%- if model1.name != model2.name %}
+					<span class="text-danger">{{ model1.name|e }}</span>
+					{%- else %}
+					<span class="text-info">{{ model1.name|e }}</span>
+					{%- endif %}
+					</a>
+				</td>
+			</tr>
+			<tr>
+				<td><b>Description:</b></td>
+				<td>
+					{%- if model1.description != model2.description %}
+					<span class="text-danger">{{ model1.description|e }}</span>
+					{% else %}
+					<span class="text-info">{{ model1.description|e }}</span>
+					{% endif %}
+				</td>
+			</tr>
+			<tr>
+				<td><b>Lattice:</b></td>
+				<td>
+					<a href="{{ reverse_url('lattice_details', lattice1._id) }}">
+					{%- if model1.lattice_id != model2.lattice_id %}
+						<span class="text-danger">{{ lattice1.name|e }}</span>
+					{%- else %}
+						<span class="text-info">{{ lattice1.name|e }}</span>
+					{%- endif %}
+					</a>
+				</td>
+			</tr>
+			<tr>
+				<td><b>Created By: </b></td>
+				<td>
+					{%- if model1.created_by != model2.created_by %}
+					<span class="text-danger">{{model1.created_by}}</span>
+					{%- else %}
+					<span class="text-info">{{model1.created_by}}</span>
+					{%- endif %}
+				</td>
+			</tr>
+			<tr>
+				<td><b>Creation Date: </b></td>
+				<td>
+					{%- if model1.created_date != model2.created_date %}
+					<span class="text-danger">{{model1.created_date}}</span>
+					{%- else %}
+					<span class="text-info">{{model1.created_date}}</span>
+					{%- endif %}
+				</td>
+			</tr>
+		{%- endmacro %}
+		<div class="col-xs-6">
+		<h3>Model 1</h3>
+		<table class="table">
+			{{ modeldiff(model[0], lattice[0], model[1], lattice[1]) }}
+		</table>
+		</div>
+		<div class="col-xs-6">
+		<h3>Model 2</h3>
+		<table class="table">
+			{{ modeldiff(model[1], lattice[1], model[0], lattice[0]) }}
+		</table>
+		</div>
+	</div>
+
+	<div class="row">
+
+		{%- macro modelprop(cls, prop) %}
+			<td><span>{{ prop.name|e }}</span></td>
+			<td><span class="{{cls}}">{{ prop.value|e }}{% if prop.unit %} {{ prop.unit|e }}{% endif %}</span></td>
+		{% endmacro %}
+
+		{%- macro modelpropdiff(model1, model2) %}
+
+			{% set properties = [] %}
+			{% for p in model1.properties  %}
+				{% if (p.name, p.unit) not in properties %}
+					{% do properties.append((p.name, p.unit)) %}
+				{% endif %}
+			{% endfor %}
+			{% for p in model2.properties  %}
+				{% if (p.name, p.unit) not in properties %}
+					{% do properties.append((p.name, p.unit)) %}
+				{% endif %}
+			{% endfor %}
+
+			{%- for pname, punit in properties %}
+			<tr>
+				{%- for prop1 in model1.properties if prop1.name == pname and prop1.unit == punit %}
+					{%- for prop2 in model2.properties if prop2.name == pname and prop2.unit == punit %}
+						{%- if prop2.value != prop1.value %}
+							{{ modelprop("text-danger", prop1) }}
+						{%- else %}
+							{{ modelprop("text-info", prop1) }}
+						{%- endif %}
+					{%- else %}
+						{{ modelprop("text-success", prop1) }}
+					{%- endfor %}
+				{%- endfor %}
+			<tr>
+			{%- else %}
+			<tr>
+				<td colspan="2" class="text-center">None</td>
+			</tr>
+			{%- endfor %}
+		{%- endmacro %}
+		<div class="col-xs-6">
+			<table class="table">
+				<thead>
+					<tr>
+						<th><h4>Properties</h4></th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody>
+					{{ modelpropdiff(model[0], model[1]) }}
+				</tbody>
+			</table>
+		</div>
+		<div class="col-xs-6">
+			<table class="table">
+				<thead>
+					<tr>
+						<th><h4>Properties</h4></th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody>
+					{{ modelpropdiff(model[1], model[0]) }}
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-md-12">
+			<h4>Element Data</h4>
+		</div>
+	</div>
+
+	{%- set element_properties = [] %}
+	{%- for e in model_elements[0] %}
+		{%- for p in e.properties  %}
+			{%- if (p.name, p.unit) not in element_properties %}
+				{%- do element_properties.append((p.name, p.unit)) %}
+			{%- endif %}
+		{%- endfor %}
+	{%- endfor %}
+	{%- for e in model_elements[1] %}
+		{%- for p in e.properties  %}
+			{%- if (p.name, p.unit) not in element_properties %}
+				{%- do element_properties.append((p.name, p.unit)) %}
+			{%- endif %}
+		{%- endfor %}
+	{%- endfor %}
+
+	<div class="row">
+		<div class="col-md-4">
+			<table class="table table-hover table-condensed">
+				{%- for p in element_properties %}
+				<tr>
+					<td class="form-inline model-element-property-controls">
+						<input class="form-control model-element-property-enabled"
+								type="checkbox" autocomplete="off" value="{{ p[0] }}"/>
+						<label class="control-label">
+							<span class="model-element-property-name">{{ p[0] }}</span>
+							{% if p[1] %}<span>[{{ p[1] }}]</span>{% endif %}
+						</label>
+					</td>
+				</tr>
+				{%- endfor %}
+			</table>
+		</div>
+
+		<div class="col-md-8">
+			<div class="model-element-data-hint">
+				<div class="text-center alert alert-success">
+					<h4>Select a Property to Compare Data</h4>
+				</div>
+			</div>
+			<div class="model-element-data-plot" style="height:600px;">
+			</div>
+			<div class="model-element-data-label hidden">
+				<div class="text-center">
+					<b>Position [m]</b>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+	var model1 = '{{ model[0]._id }}';
+	var model2 = '{{ model[1]._id }}';
+</script>
+<script type="text/javascript" src="{{static_url('vendor/Flot/js/jquery.flot.js')}}"></script>
+<script type="text/javascript" src="{{static_url('latticemodel/js/model_compare.js')}}"></script>
+{% endblock %}

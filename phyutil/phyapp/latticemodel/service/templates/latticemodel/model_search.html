@@ -17,6 +17,11 @@
 			</a>
 		</li>
 		{% endif %}
+		<li>
+			<div style="padding:0px 10px;">
+				<button  class="btn btn-primary compare-button hidden">Compare</button>
+			</div>
+		</li>
 	</ul>
 	<div class="tab-content">
 		<div role="tabpanel" class="tab-pane {% if models is undefined %}active{% endif %}" id="search">
@@ -66,6 +71,7 @@
 		</div>
 		{%- if models is defined %}
 		<div role="tabpanel" class="tab-pane active" id="results">
+		<form class="compare-form" method="POST" action="{{ reverse_url('web_model_compare') }}">
 			<table class="table">
 				<tr>
 					<th></th>
@@ -73,18 +79,20 @@
 					<th>Name</th>
 					<th>Description</th>
 				</tr>
-
 				{%- for model in models %}
 				<tr>
 					<td>
-						<a href="{{ reverse_url("model_details", model._id) }}">
-							<span class="glyphicon glyphicon-new-window"></span>
-						</a>
+						<input class="compare-checkbox" type="checkbox"
+							autocomplete="off" name="model" value="{{ model._id }}"/>
 					</td>
 					{%- for mt in model_types if mt.type == model.model_type %}
 					<td>{{ mt.name|escape }}</td>
 					{%- endfor %}
-					<td>{{ model.name|escape }}</td>
+					<td>
+						<a href="{{ reverse_url("model_details", model._id) }}">
+							{{ model.name|escape }}
+						</a>
+					</td>
 					<td>{{ model.description|truncate(80) }}</td>
 				</tr>
 				{%- else %}
@@ -93,6 +101,7 @@
 				</tr>
 				{%- endfor %}
 			</table>
+		</form>
 		</div>
 		{%- endif %}
 	</div>
