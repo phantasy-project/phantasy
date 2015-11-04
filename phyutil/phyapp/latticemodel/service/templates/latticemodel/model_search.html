@@ -2,7 +2,23 @@
 
 {% block title %}Model :: Lattice{% endblock %}
 
+{% block styles %}
+<style>
+.compare-button {
+	position: fixed;
+	height: 36;
+	width: 100;
+	top: 130px;
+	left: -30px;
+	transform: rotate(-90deg);
+}
+</style>
+{% endblock %}
+
 {% block content %}
+<div>
+	<button class="btn btn-primary compare-button hidden">Compare</button>
+</div>
 <div class="container">
 	<ul class="nav nav-tabs" role="tablist">
 		<li role="presentation" class="{% if models is undefined %}active{% endif %}">
@@ -10,18 +26,13 @@
 				<span style="font-size:larger;">Search Model</span>
 			</a>
 		</li>
-		{% if models is defined %}
+		{%- if models is defined %}
 		<li role="presentation" class="active">
 			<a href="#results" aria-controls="results" role="tab" data-toggle="tab">
 				<span style="font-size:larger;">Results <span class="badge">{{ models|length }}</span></span>
 			</a>
 		</li>
-		{% endif %}
-		<li>
-			<div style="padding:0px 10px;">
-				<button  class="btn btn-primary compare-button hidden">Compare</button>
-			</div>
-		</li>
+		{%- endif %}
 	</ul>
 	<div class="tab-content">
 		<div role="tabpanel" class="tab-pane {% if models is undefined %}active{% endif %}" id="search">
@@ -83,7 +94,7 @@
 				<tr>
 					<td>
 						<input class="compare-checkbox" type="checkbox"
-							autocomplete="off" name="model" value="{{ model._id }}"/>
+							autocomplete="on" name="model" value="{{ model._id }}"/>
 					</td>
 					{%- for mt in model_types if mt.type == model.model_type %}
 					<td>{{ mt.name|escape }}</td>

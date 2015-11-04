@@ -2,7 +2,23 @@
 
 {% block title %}Search :: Lattice{% endblock %}
 
+{% block styles %}
+<style>
+.compare-button {
+	position: fixed;
+	height: 36;
+	width: 100;
+	top: 130px;
+	left: -30px;
+	transform: rotate(-90deg);
+}
+</style>
+{% endblock %}
+
 {% block content %}
+<div style="padding:0px 10px;">
+	<button  class="btn btn-primary compare-button hidden">Compare</button>
+</div>
 <div class="container">
 	<ul class="nav nav-tabs">
 		<li role="presentation" class="{% if lattices is undefined %}active{% endif %}">
@@ -17,11 +33,6 @@
 			</a>
 		</li>
 		{%- endif %}
-		<li>
-			<div style="padding:0px 10px;">
-				<button  class="btn btn-primary compare-button hidden">Compare</button>
-			</div>
-		</li>
 	</ul>
 	<div class="tab-content">
 		<div role="tabpanel" class="tab-pane {% if lattices is undefined %}active{% endif %}" id="search">
@@ -114,7 +125,7 @@
 				<tr>
 					<td>
 						<input class="compare-checkbox" type="checkbox"
-							autocomplete="off" name="lattice" value="{{ lattice._id }}"/>
+							autocomplete="on" name="lattice" value="{{ lattice._id }}"/>
 					</td>
 					{%- for lt in lattice_types if lt.type == lattice.lattice_type %}
 					<td>{{ lt.name }}</td>
