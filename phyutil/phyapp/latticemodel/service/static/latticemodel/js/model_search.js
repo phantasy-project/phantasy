@@ -21,7 +21,7 @@
 			showCompareButton();
 		} else if( checked == 3) {
 			$(this).prop("checked", false);
-			alert("Only two Lattice can be compared.");
+			alert("Only two Models can be compared.");
 		}
 	};
 
