@@ -26,10 +26,10 @@ production["template_path"] = os.path.join(os.path.dirname(__file__), "templates
 production["static_path"] = os.path.join(os.path.dirname(__file__), "static")
 
 production["login_url"] = "/user/login"
-production["login_success_url"] = "/lattice/web/lattice/search"
+production["login_success_url"] = "/lattice/web/lattices/search"
 
 production["logout_url"] = "/user/logout"
-production["logout_success_url"] = "/lattice/web/lattice/search"
+production["logout_success_url"] = "/lattice/web/lattices/search"
 
 production["auth_provider_factory"] = CrowdAuthProvider
 production["auth_provider_crowd_url"] = "http://example.com/crowd"
