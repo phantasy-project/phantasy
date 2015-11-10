@@ -105,7 +105,7 @@
 							<a href="{{ reverse_url("model_file_download", model._id, f.id) }}">
 								<span>{{ f.filename|escape }}</span>
 							</a>
-							<small>{{ f.size|humanize.filesize(gnu=True) }}</small>
+							<small>({{ f.size|humanize.filesize(gnu=True) }})</small>
 						</td>
 					</tr>
 					{%- else %}
