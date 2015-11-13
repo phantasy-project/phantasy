@@ -778,6 +778,21 @@ class ImpactModelSupport(object):
                         unit="MeV"
                     ))
                     model_element.properties.append(dict(
+                        name="EmittanceX",
+                        value=model.getEmittance("X", idx),
+                        unit="m-rad"
+                    ))
+                    model_element.properties.append(dict(
+                        name="EmittanceY",
+                        value=model.getEmittance("Y", idx),
+                        unit="m-rad"
+                    ))
+                    model_element.properties.append(dict(
+                        name="EmittanceZ",
+                        value=model.getEmittance("Z", idx),
+                        unit="deg-MeV"
+                    ))
+                    model_element.properties.append(dict(
                         name="TwissBetaX",
                         value=model.getTwissBeta("X", idx),
                         unit=""
