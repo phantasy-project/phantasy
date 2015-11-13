@@ -12,7 +12,7 @@ var updateModelDataPlot = (function() {
 		// been adopted from Flot library internals.
 
 		// Default color scheme copied from Flot.
-		var colors = ["#edc240", "#afd8f8", "#cb4b4b", "#4da74d", "#9440ed"],
+		var colors = ["#edc240", "#55aff6", "#cb4b4b", "#4da74d", "#9440ed"],
 			variations = [ 0, -0.2, +0.2, -0.4, +0.4, -0.6, +0.6 ],
 			color = null, vidx = 0;
 
