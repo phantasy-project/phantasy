@@ -753,14 +753,14 @@ class ImpactModelSupport(object):
                         unit="mm"
                     ))
                     model_element.properties.append(dict(
-                        name="BeamMomentumRMSY",
+                        name="BeamRMSY",
                         value=model.getBeamRms("Y", idx),
                         unit="mm"
                     ))
                     model_element.properties.append(dict(
                         name="BeamRMSZ",
                         value=model.getBeamRms("Z", idx),
-                        unit="MeV"
+                        unit="deg"
                     ))
                     model_element.properties.append(dict(
                         name="BeamMomentumRMSX",
