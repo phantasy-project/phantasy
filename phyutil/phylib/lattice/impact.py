@@ -1084,6 +1084,14 @@ def read_lattice(stream):
         elif elem.itype == 4:
             elem.etype = "BEND" # DIPOLE
             elem.addfield("B", "T", 5)
+        elif elem.itype == 5:
+            # Element 5 is missing from the IMPACT documentation,
+            # so the element format is provided below for reference.
+            # L, ss, ms, 5, Gq(T/m), Gs(T/m^2),Go(T/m^3),Gd(T/m^4),Gdd(T/m^5),G14,G16,R
+            elem.etype = "MULT" # MULTIPOLE
+            elem.addfield("GRAD", "T/m", 4)
+            elem.addfield("GSEXT", "T/m^2", 5)
+            elem.addfield("GOCT", "T/m^3", 6)
         elif elem.itype == 103:
             elem.etype = "CAV"
             elem.addfield("AMP", "V", 4)
@@ -1094,10 +1102,18 @@ def read_lattice(stream):
             elem.addfield("AMP", "V", 4)
             elem.addfield("PHA", "deg", 6)
             lattice.files.add("1T{}.T7".format(int(row[7])))
+        elif elem.itype == -2:
+            elem.etype = "MON"
         elif elem.itype == -11:
             elem.etype = "STRIP"
             lattice.files.add("fort.{}".format(int(row[2])))
+        elif elem.itype == -13:
+            elem.etype = "SLIT"
         elif elem.itype == -21:
+            elem.etype = "COR"
+            elem.addfield("ANGV", "rad", 4)
+            elem.addfield("ANGH", "rad", 6)
+        elif elem.itype == -25:
             elem.etype = "COR"
             elem.addfield("ANGV", "rad", 4)
             elem.addfield("ANGH", "rad", 6)
