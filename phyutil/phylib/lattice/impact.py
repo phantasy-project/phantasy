@@ -112,9 +112,15 @@ OUTPUT_MODE_NONE = 0
 
 OUTPUT_MODE_STD = 1
 
+OUTPUT_MODE_STD99 = 2
+
 OUTPUT_MODE_DIAG = 3
 
+OUTPUT_MODE_DIAG99 = 4
+
 OUTPUT_MODE_END = 5
+
+OUTPUT_MODE_END99 = 6
 
 INPUT_MODE_RECTANGLE_SINGLE = 1
 
@@ -1304,7 +1310,8 @@ class Lattice(object):
 
     @outputMode.setter
     def outputMode(self, outputMode):
-        if outputMode not in [ OUTPUT_MODE_NONE, OUTPUT_MODE_STD, OUTPUT_MODE_DIAG, OUTPUT_MODE_END ]:
+        if outputMode not in [ OUTPUT_MODE_NONE, OUTPUT_MODE_STD, OUTPUT_MODE_DIAG, OUTPUT_MODE_END,
+                                            OUTPUT_MODE_STD99, OUTPUT_MODE_DIAG99, OUTPUT_MODE_END99 ]:
             raise ValueError("Lattice: 'outputMode' property must be a supported integer value")
         self._outputMode = outputMode
 
