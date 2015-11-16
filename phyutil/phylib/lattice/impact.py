@@ -1089,6 +1089,11 @@ def read_lattice(stream):
             elem.addfield("AMP", "V", 4)
             elem.addfield("PHA", "deg", 6)
             lattice.files.add("rfdata{}".format(int(row[7])))
+        elif elem.itype == 110:
+            elem.etype = "CAV"
+            elem.addfield("AMP", "V", 4)
+            elem.addfield("PHA", "deg", 6)
+            lattice.files.add("1T{}.T7".format(int(row[7])))
         elif elem.itype == -11:
             elem.etype = "STRIP"
             lattice.files.add("fort.{}".format(int(row[2])))
