@@ -790,7 +790,7 @@ class ImpactModelSupport(object):
                     model_element.properties.append(dict(
                         name="EmittanceZ",
                         value=model.getEmittance("Z", idx),
-                        unit="deg-MeV"
+                        unit="m-rad"
                     ))
                     model_element.properties.append(dict(
                         name="TwissBetaX",
