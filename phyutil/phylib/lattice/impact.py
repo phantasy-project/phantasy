@@ -14,7 +14,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import sys, os.path, logging, subprocess, shutil, tempfile, json, re
+import sys, os.path, logging, subprocess, shutil, tempfile, json
 
 from datetime import datetime
 from collections import OrderedDict
@@ -587,27 +587,27 @@ class LatticeFactory(object):
             lattice.initialCurrent = self.initialCurrent
         else:
             lattice.initialCurrent = self._get_config_float_default(CONFIG_IMPACT_INITIAL_CURRENT, _DEFAULT_INITIAL_CURRENT)
-        
+
         if self.initialEnergy != None:
             lattice.initialEnergy = self.initialEnergy
         else:
             lattice.initialEnergy = self._get_config_float_default(CONFIG_IMPACT_INITIAL_ENERGY, _DEFAULT_INITIAL_ENERGY)
-        
+
         if self.initialPhase != None:
             lattice.initialPhase = self.initialPhase
         else:
             lattice.initialPhase = self._get_config_float_default(CONFIG_IMPACT_INITIAL_PHASE, _DEFAULT_INITIAL_PHASE)
-        
+
         if self.particleMass != None:
             lattice.particleMass = self.particleMass
         else:
             lattice.particleMass = self._get_config_float_default(CONFIG_IMPACT_PARTICLE_MASS, _DEFAULT_PARTICLE_MASS)
-            
+
         if self.initialCharge != None:
             lattice.initialCharge = self.initialCharge
         else:
             lattice.initialCharge = self._get_config_float_default(CONFIG_IMPACT_INITIAL_CHARGE, _DEFAULT_INITIAL_CHARGE)
-        
+
         if self.scalingFreq != None:
             lattice.scalingFreq = self.scalingFreq
         else:
@@ -1299,7 +1299,7 @@ class Lattice(object):
 
     @inputMode.setter
     def inputMode(self, inputMode):
-        if inputMode not in [ INPUT_MODE_RECTANGLE_SINGLE, INPUT_MODE_GAUSSIAN_SINGLE, INPUT_MODE_WATERBAG_SINGLE, 
+        if inputMode not in [ INPUT_MODE_RECTANGLE_SINGLE, INPUT_MODE_GAUSSIAN_SINGLE, INPUT_MODE_WATERBAG_SINGLE,
                               INPUT_MODE_SEMIGAUSSIAN_SINGLE, INPUT_MODE_KV_UNIFORM_SINGLE, INPUT_MODE_EXTERNAL_FILE,
                               INPUT_MODE_GAUSSIAN_MULTI, INPUT_MODE_WATERBAG_MULTI ]:
             raise ValueError("Lattice: 'inputMode' property must be a supported integer value")
@@ -1545,8 +1545,8 @@ class Lattice(object):
         if not isinstance(initialPhase, (int,float)):
             raise TypeError("Lattice: 'initialPhase' must be a number")
         self._initialPhase = initialPhase
-     
-     
+
+
     @property
     def particleMass(self):
         return self._particleMass
@@ -1848,12 +1848,12 @@ class _LatticeRunner(object):
         :param work_dir: path of directory for execution of IMPACT
         """
         self.lattice = lattice
-        
+
         if kwargs.get("config", None) is not None:
             self.config = kwargs.get("config")
         else:
             self.config = cfg.config
-        
+
         self.data_dir = kwargs.get("data_dir", None)
         self.work_dir = kwargs.get("work_dir", None)
 
