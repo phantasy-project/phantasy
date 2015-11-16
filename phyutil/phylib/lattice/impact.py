@@ -1705,11 +1705,11 @@ class Lattice(object):
         for order, elem in enumerate(self.elements, start=1):
             if self.outputMode in [1, 2]:
                 loop = elem.steps
-                if elem.itype < 0:
-                    loop = elem.steps + 1
-                elif elem.itype == 4:
-                    # no output from dipole
+                if elem.itype in [ -2, 4 ]:
+                    # no output for these elements
                     loop = 0
+                elif elem.itype < 0:
+                    loop = elem.steps + 1
                 if mapstream is not None:
                     for _ in range(loop):
                         mapstream.write("{0} {1}\r\n".format(elem.name, order))

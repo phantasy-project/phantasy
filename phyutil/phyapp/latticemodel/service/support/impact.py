@@ -692,11 +692,11 @@ class ImpactModelSupport(object):
 
             if outputMode in [1, 2]:
                 loop = elem_steps
-                if elem_itype < 0:
-                    loop = elem_steps + 1
-                elif elem_itype == 4:
-                    # no output from dipole
+                if elem_itype in [ -2, 4 ]:
+                    # no output for these elements
                     loop = 0
+                elif elem_itype < 0:
+                    loop = elem_steps + 1
             elif outputMode in [3, 4]:
                 loop = 0
                 if elem_itype == -28:
@@ -836,7 +836,6 @@ class ImpactModelSupport(object):
                     return
 
                 model_elements.append(model_element)
-
 
         try:
             yield data.insert_model(ctx.model, validate=False)
