@@ -304,7 +304,7 @@ class LatticeFactory(object):
         self.template = kwargs.get("template", False)
         # Support for misalignment
         self.errorStudy = ERROR_STUDY_ENABLED
-        self._misalignment = [ 0.5, 0.5, 0.0, 0.0, 0.0 ]
+        self._misalignment = [ 0.0005, 0.0005, 0.0, 0.0, 0.0 ]
 
 
     @property
