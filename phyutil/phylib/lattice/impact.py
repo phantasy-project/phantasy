@@ -14,7 +14,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import sys, os.path, logging, subprocess, shutil, tempfile, json
+import sys, os.path, logging, subprocess, shutil, tempfile, json, random
 
 from datetime import datetime
 from collections import OrderedDict
@@ -302,6 +302,9 @@ class LatticeFactory(object):
         self.start = kwargs.get("start", None)
         self.end = kwargs.get("end", None)
         self.template = kwargs.get("template", False)
+        # Support for misalignment
+        self.errorStudy = ERROR_STUDY_ENABLED
+        self._misalignment = [ 0.5, 0.5, 0.0, 0.0, 0.0 ]
 
 
     @property
@@ -465,6 +468,16 @@ class LatticeFactory(object):
 
         return _DEFAULT_MAPSTEPS
 
+
+    def _get_misalignment(self):
+        if not self._misalignment:
+            return []
+
+        misalignment = []
+        for m in self._misalignment:
+            misalignment.append(random.uniform(-m, m))
+
+        return misalignment
 
 
     def build(self):
@@ -683,7 +696,7 @@ class LatticeFactory(object):
                     if input_id == None:
                         raise RuntimeError("LatticeFactory: IMPACT input id for '{}' not found".format(elem.name))
 
-                    lattice.append(elem.length, steps, mapsteps, 103, amplitude, frequency, phase, input_id, elem.apertureX/2.0,
+                    lattice.append(elem.length, steps, mapsteps, 103, amplitude, frequency, phase, input_id, elem.apertureX/2.0, *self._get_misalignment(),
                                    position=elem.z+(elem.length/2.0)-poffset, name=elem.name, etype=elem.ETYPE,
                                    fields=[ (elem.fields.amplitude, "V", 4), (elem.fields.phase, "deg", 6) ])
 
@@ -692,7 +705,7 @@ class LatticeFactory(object):
                     if input_id == None:
                         raise RuntimeError("LatticeFactory: IMPACT input id for '{}' not found".format(elem.name))
 
-                    lattice.append(elem.length, steps, mapsteps, 110, amplitude, frequency, phase, input_id, elem.apertureX/2.0, elem.apertureX/2.0, 0, 0, 0, 0, 0, 1, 2,
+                    lattice.append(elem.length, steps, mapsteps, 110, amplitude, frequency, phase, input_id, elem.apertureX/2.0, elem.apertureX/2.0, 0, 0, 0, 0, 0, 1, 2, *self._get_misalignment(),
                                    position=elem.z+(elem.length/2.0)-poffset, name=elem.name, etype=elem.ETYPE,
                                    fields=[ (elem.fields.amplitude, "V", 4), (elem.fields.phase, "deg", 6) ])
 
@@ -721,7 +734,9 @@ class LatticeFactory(object):
                     except KeyError:
                         raise RuntimeError("LatticeFactory: '{}' setting not found for element: {}".format(elem.v.fields.angle, elem.name))
 
-                lattice.append(elem.length/2.0, int(steps/2), mapsteps, 3, field, 0, elem.apertureX/2.0,
+                misalignment = self._get_misalignment()
+
+                lattice.append(elem.length/2.0, int(steps/2), mapsteps, 3, field, 0, elem.apertureX/2.0, *misalignment,
                                position=elem.z-poffset, name=elem.name, etype="SOL", #elem.ETYPE
                                fields=[ (elem.fields.field, "T", 4) ])
 
@@ -733,7 +748,7 @@ class LatticeFactory(object):
                                position=elem.v.z-poffset, name=elem.v.name, etype=elem.v.ETYPE,
                                fields=[ (elem.v.fields.angle, "rad", 8) ])
 
-                lattice.append(elem.length/2.0, int(steps/2), mapsteps, 3, field, 0, elem.apertureX/2.0,
+                lattice.append(elem.length/2.0, int(steps/2), mapsteps, 3, field, 0, elem.apertureX/2.0, *misalignment,
                                position=elem.z+(elem.length/2.0)-poffset, name=elem.name, etype="SOL", #elem.ETYPE
                                fields=[ (elem.fields.field, "T", 4) ])
 
@@ -746,7 +761,7 @@ class LatticeFactory(object):
                     except KeyError:
                         raise RuntimeError("LatticeFactory: '{}' setting not found for element: {}".format(elem.fields.gradient, elem.name))
 
-                lattice.append(elem.length, steps, mapsteps, 1, gradient, 0, elem.apertureX/2.0,
+                lattice.append(elem.length, steps, mapsteps, 1, gradient, 0, elem.apertureX/2.0, *self._get_misalignment(),
                                position=elem.z+(elem.length/2.0)-poffset, name=elem.name, etype=elem.ETYPE,
                                fields=[ (elem.fields.gradient, "T/m", 4) ])
 
