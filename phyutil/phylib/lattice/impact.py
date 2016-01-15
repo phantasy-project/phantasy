@@ -452,21 +452,31 @@ class LatticeFactory(object):
 
 
     def _get_config_steps(self, dtype=None):
-        if (dtype == None) and self.config.has_default(CONFIG_IMPACT_STEPS):
-            return self.config.getint_default(CONFIG_IMPACT_STEPS)
+        option = CONFIG_IMPACT_STEPS
+        if (dtype == None) and self.config.has_default(option):
+            value = self.config.getint_default(option)
+            _LOGGER.debug("LatticeFactory: %s found in configuration: %s", option, value)
+            return value
 
-        if (dtype != None) and self.config.has_option(dtype, CONFIG_IMPACT_STEPS):
-            return self.config.getint(dtype, CONFIG_IMPACT_STEPS)
+        if (dtype != None) and self.config.has_option(dtype, option):
+            value = self.config.getint(dtype, option)
+            _LOGGER.debug("LatticeFactory: [%s] %s found in configuration: %s", dtype, option, value)
+            return value
 
         return _DEFAULT_STEPS
 
 
     def _get_config_mapsteps(self, dtype=None):
-        if (dtype == None) and self.config.has_default(CONFIG_IMPACT_MAPSTEPS):
-            return self.config.getint_default(CONFIG_IMPACT_MAPSTEPS)
+        option = CONFIG_IMPACT_MAPSTEPS
+        if (dtype == None) and self.config.has_default(option):
+            value = self.config.getint_default(option)
+            _LOGGER.debug("LatticeFactory: %s found in configuration: %s", option, value)
+            return value
 
-        if (dtype != None) and self.config.has_option(dtype, CONFIG_IMPACT_MAPSTEPS):
-            return self.config.getint(dtype, CONFIG_IMPACT_MAPSTEPS)
+        if (dtype != None) and self.config.has_option(dtype, option):
+            value = self.config.getint(dtype, option)
+            _LOGGER.debug("LatticeFactory: [%s] %s found in configuration: %s", dtype, option, value)
+            return value
 
         return _DEFAULT_MAPSTEPS
 
