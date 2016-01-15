@@ -54,6 +54,8 @@ CONFIG_IMPACT_NDIMENSIONS = "impact_ndimensions"
 
 CONFIG_IMPACT_ERROR_STUDY = "impact_error_study"
 
+CONFIG_IMPACT_ERROR_RANDOM = "impact_error_random"
+
 CONFIG_IMPACT_MESH_SIZE = "impact_mesh_size"
 
 CONFIG_IMPACT_MESH_MODE = "impact_mesh_mode"
@@ -186,6 +188,8 @@ _DEFAULT_NDIMENSIONS = NDIMENSIONS_6D
 
 _DEFAULT_ERROR_STUDY = ERROR_STUDY_DISABLED
 
+_DEFAULT_ERROR_RANDOM = []
+
 _DEFAULT_MESH_SIZE = [ 64, 64, 64 ]
 
 _DEFAULT_MESH_MODE = MESH_MODE_OPEN_OPEN
@@ -275,6 +279,7 @@ class LatticeFactory(object):
         self.integrator = kwargs.get("integrator", None)
         self.ndimensions = kwargs.get("ndimensions", None)
         self.errorStudy = kwargs.get("errorStudy", None)
+        self.errorRandom = kwargs.get("errorRandom", None)
         self.meshMode = kwargs.get("meshMode", None)
         self.meshSize = kwargs.get("meshSize", None)
         self.pipeSize = kwargs.get("pipeSize", None)
@@ -302,9 +307,6 @@ class LatticeFactory(object):
         self.start = kwargs.get("start", None)
         self.end = kwargs.get("end", None)
         self.template = kwargs.get("template", False)
-        # Support for misalignment
-        self.errorStudy = ERROR_STUDY_ENABLED
-        self._misalignment = [ 0.0005, 0.0005, 0.0, 0.0, 0.0 ]
 
 
     @property
@@ -469,15 +471,32 @@ class LatticeFactory(object):
         return _DEFAULT_MAPSTEPS
 
 
-    def _get_misalignment(self):
-        if not self._misalignment:
+    def _get_config_error_random(self, dtype=None):
+        option = CONFIG_IMPACT_ERROR_RANDOM
+        if (dtype == None) and self.config.has_default(option):
+            value = self.config.getarray_default(option, conv=float)
+            _LOGGER.debug("LatticeFactory: %s found in configuration: %s", option, value)
+            return value
+
+        if (dtype != None) and self.config.has_option(dtype, option):
+            value = self.config.getarray(dtype, option, conv=float)
+            _LOGGER.debug("LatticeFactory: [%s] %s found in configuration: %s", dtype, option, value)
+            return value
+
+        return _DEFAULT_ERROR_RANDOM
+
+
+    def _get_error_random(self, dtype=None):
+        error_random = self._get_config_error_random(dtype=dtype)
+
+        if not error_random:
             return []
 
-        misalignment = []
-        for m in self._misalignment:
-            misalignment.append(random.uniform(-m, m))
+        error = [ 0.0 ] * 5
+        for idx in range(min(len(error), len(error_random))):
+            error[idx] = random.uniform(-1*error_random[idx], error_random[idx])
 
-        return misalignment
+        return error
 
 
     def build(self):
@@ -690,13 +709,15 @@ class LatticeFactory(object):
                     except KeyError:
                         raise RuntimeError("LatticeFactory: '{}' setting not found for element: {}".format(elem.fields.frequency, elem.name))
 
+                error = self._get_error_random(elem.dtype)
+
                 itype = self._get_config_type(elem.dtype, 103)
                 if itype == 103:
                     input_id = self._get_config_integrator_input_id(elem.dtype, integrator)
                     if input_id == None:
                         raise RuntimeError("LatticeFactory: IMPACT input id for '{}' not found".format(elem.name))
 
-                    lattice.append(elem.length, steps, mapsteps, 103, amplitude, frequency, phase, input_id, elem.apertureX/2.0, *self._get_misalignment(),
+                    lattice.append(elem.length, steps, mapsteps, 103, amplitude, frequency, phase, input_id, elem.apertureX/2.0, *error,
                                    position=elem.z+(elem.length/2.0)-poffset, name=elem.name, etype=elem.ETYPE,
                                    fields=[ (elem.fields.amplitude, "V", 4), (elem.fields.phase, "deg", 6) ])
 
@@ -705,7 +726,7 @@ class LatticeFactory(object):
                     if input_id == None:
                         raise RuntimeError("LatticeFactory: IMPACT input id for '{}' not found".format(elem.name))
 
-                    lattice.append(elem.length, steps, mapsteps, 110, amplitude, frequency, phase, input_id, elem.apertureX/2.0, elem.apertureX/2.0, 0, 0, 0, 0, 0, 1, 2, *self._get_misalignment(),
+                    lattice.append(elem.length, steps, mapsteps, 110, amplitude, frequency, phase, input_id, elem.apertureX/2.0, elem.apertureX/2.0, 0, 0, 0, 0, 0, 1, 2, *error,
                                    position=elem.z+(elem.length/2.0)-poffset, name=elem.name, etype=elem.ETYPE,
                                    fields=[ (elem.fields.amplitude, "V", 4), (elem.fields.phase, "deg", 6) ])
 
@@ -734,9 +755,9 @@ class LatticeFactory(object):
                     except KeyError:
                         raise RuntimeError("LatticeFactory: '{}' setting not found for element: {}".format(elem.v.fields.angle, elem.name))
 
-                misalignment = self._get_misalignment()
+                error = self._get_error_random(elem.dtype)
 
-                lattice.append(elem.length/2.0, int(steps/2), mapsteps, 3, field, 0, elem.apertureX/2.0, *misalignment,
+                lattice.append(elem.length/2.0, int(steps/2), mapsteps, 3, field, 0, elem.apertureX/2.0, *error,
                                position=elem.z-poffset, name=elem.name, etype="SOL", #elem.ETYPE
                                fields=[ (elem.fields.field, "T", 4) ])
 
@@ -748,7 +769,7 @@ class LatticeFactory(object):
                                position=elem.v.z-poffset, name=elem.v.name, etype=elem.v.ETYPE,
                                fields=[ (elem.v.fields.angle, "rad", 8) ])
 
-                lattice.append(elem.length/2.0, int(steps/2), mapsteps, 3, field, 0, elem.apertureX/2.0, *misalignment,
+                lattice.append(elem.length/2.0, int(steps/2), mapsteps, 3, field, 0, elem.apertureX/2.0, *error,
                                position=elem.z+(elem.length/2.0)-poffset, name=elem.name, etype="SOL", #elem.ETYPE
                                fields=[ (elem.fields.field, "T", 4) ])
 
@@ -761,7 +782,9 @@ class LatticeFactory(object):
                     except KeyError:
                         raise RuntimeError("LatticeFactory: '{}' setting not found for element: {}".format(elem.fields.gradient, elem.name))
 
-                lattice.append(elem.length, steps, mapsteps, 1, gradient, 0, elem.apertureX/2.0, *self._get_misalignment(),
+                error = self._get_error_random(elem.dtype)
+
+                lattice.append(elem.length, steps, mapsteps, 1, gradient, 0, elem.apertureX/2.0, *error,
                                position=elem.z+(elem.length/2.0)-poffset, name=elem.name, etype=elem.ETYPE,
                                fields=[ (elem.fields.gradient, "T/m", 4) ])
 
