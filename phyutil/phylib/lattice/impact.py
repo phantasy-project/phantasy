@@ -307,6 +307,7 @@ class LatticeFactory(object):
         self.start = kwargs.get("start", None)
         self.end = kwargs.get("end", None)
         self.template = kwargs.get("template", False)
+        self._errors = {}
 
 
     @property
@@ -496,15 +497,19 @@ class LatticeFactory(object):
         return _DEFAULT_ERROR_RANDOM
 
 
-    def _get_error_random(self, dtype=None):
-        error_random = self._get_config_error_random(dtype=dtype)
+    def _get_error(self, elem):
+        if elem.name in self._errors:
+            return self._errors[elem.name]
 
+        error_random = self._get_config_error_random(dtype=elem.dtype)
         if not error_random:
             return []
 
         error = [ 0.0 ] * 5
         for idx in range(min(len(error), len(error_random))):
             error[idx] = random.uniform(-1*error_random[idx], error_random[idx])
+
+        self._errors[elem.name] = error
 
         return error
 
@@ -719,7 +724,7 @@ class LatticeFactory(object):
                     except KeyError:
                         raise RuntimeError("LatticeFactory: '{}' setting not found for element: {}".format(elem.fields.frequency, elem.name))
 
-                error = self._get_error_random(elem.dtype)
+                error = self._get_error(elem)
 
                 itype = self._get_config_type(elem.dtype, 103)
                 if itype == 103:
@@ -765,7 +770,7 @@ class LatticeFactory(object):
                     except KeyError:
                         raise RuntimeError("LatticeFactory: '{}' setting not found for element: {}".format(elem.v.fields.angle, elem.name))
 
-                error = self._get_error_random(elem.dtype)
+                error = self._get_error(elem)
 
                 lattice.append(elem.length/2.0, int(steps/2), mapsteps, 3, field, 0, elem.apertureX/2.0, *error,
                                position=elem.z-poffset, name=elem.name, etype="SOL", #elem.ETYPE
@@ -792,7 +797,7 @@ class LatticeFactory(object):
                     except KeyError:
                         raise RuntimeError("LatticeFactory: '{}' setting not found for element: {}".format(elem.fields.gradient, elem.name))
 
-                error = self._get_error_random(elem.dtype)
+                error = self._get_error(elem)
 
                 lattice.append(elem.length, steps, mapsteps, 1, gradient, 0, elem.apertureX/2.0, *error,
                                position=elem.z+(elem.length/2.0)-poffset, name=elem.name, etype=elem.ETYPE,
