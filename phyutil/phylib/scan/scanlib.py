@@ -144,8 +144,9 @@ class ScanLib():
                                       timeout=timeout, errhandler='OnErrorRetryThenAbort'))
         
         # confirm original setting
-        scan_cmds.append(Set(device, orig, completion=completion, readback=readback, tolerance=tolerance, 
-                             timeout=timeout, errhandler='OnErrorRetryThenAbort'))
+        if orig is not None:
+            scan_cmds.append(Set(device, orig, completion=completion, readback=readback, tolerance=tolerance, 
+                                    timeout=timeout, errhandler='OnErrorRetryThenAbort'))
     
         if self.scanclient is None:
             self._connectscanserver()
@@ -313,10 +314,12 @@ class ScanLib():
                                       readback=readback2, tolerance=tolerance2, 
                                       timeout=timeout, errhandler='OnErrorRetryThenAbort'))    
         # confirm original setting
-        scan_cmds.append(Set(device1[0], orig1, completion=completion, readback=readback1, tolerance=tolerance1, 
-                             timeout=timeout, errhandler='OnErrorRetryThenAbort'))
-        scan_cmds.append(Set(device2[0], orig2, completion=completion, readback=readback2, tolerance=tolerance2, 
-                             timeout=timeout, errhandler='OnErrorRetryThenAbort'))
+        if orig1 is not None:
+            scan_cmds.append(Set(device1[0], orig1, completion=completion, readback=readback1, tolerance=tolerance1, 
+                                    timeout=timeout, errhandler='OnErrorRetryThenAbort'))
+        if orig2 is not None:
+            scan_cmds.append(Set(device2[0], orig2, completion=completion, readback=readback2, tolerance=tolerance2, 
+                                    timeout=timeout, errhandler='OnErrorRetryThenAbort'))
     
         if self.scanclient is None:
             self._connectscanserver()
