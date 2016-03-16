@@ -287,7 +287,7 @@ class VirtualAcceleratorFactory(object):
                 va.append_rw(self._findChannel(elem.name, elem.fields.phase, "setpoint"),
                              self._findChannel(elem.name, elem.fields.phase, "readset"),
                              self._findChannel(elem.name, elem.fields.phase, "readback"),
-                             (elem.name, elem.fields.phase), desc="Cavity Phase", egu="degree")
+                             (elem.name, elem.fields.phase), desc="Cavity Phase", egu="degree", drvh=360, drvl=0)
                 va.append_rw(self._findChannel(elem.name, elem.fields.amplitude, "setpoint"),
                              self._findChannel(elem.name, elem.fields.amplitude, "readset"),
                              self._findChannel(elem.name, elem.fields.amplitude, "readback"),
@@ -453,7 +453,7 @@ class VirtualAccelerator(object):
         self._work_dir = work_dir
 
 
-    def append_rw(self, cset, rset, read, field, desc="Element", egu="", prec=5, drvabs=None, drvrel=None, drvratio=None):
+    def append_rw(self, cset, rset, read, field, desc="Element", egu="", prec=5, drvh=None, drvl=None, drvabs=None, drvrel=None, drvratio=None):
         """Append a set of read/write channels to this virtual accelerator.
         The algorithm to set EPICS DRVH/DRVK is as:
             - if absolute limit (drvabs) is given, use absolute
@@ -476,8 +476,6 @@ class VirtualAccelerator(object):
             raise RuntimeError("VirtualAccelerator: Cannot append RW channel when started")
 
         val = self._settings[field[0]][field[1]]
-        drvh = None
-        drvl = None
         if drvabs is not None:
             drvh = abs(drvabs)
             drvl = - abs(drvabs)
