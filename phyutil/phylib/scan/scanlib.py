@@ -24,6 +24,15 @@ from scan.commands import Set, Loop, Delay, Log, Comment
 
 from scan.client.logdata import createTable
 
+
+try:
+    # Python 2.X
+    basestring
+except NameError:
+    # Python 3.X
+    basestring = str
+
+
 # TODO inherit ScanClient class
 class ScanLib():
     """
@@ -76,6 +85,12 @@ class ScanLib():
         :raise:
         
         """
+        if not isinstance(device, basestring):
+            raise Exception("Expecting device name, got '%s'" % str(device))
+        else:
+            # Ensure device is NOT unicode object until 
+            # it is supported by PyScanClient library.
+            device = str(device)
         comments = kwds.get("title", "phyutil 1D Scan")
         orig = kwds.get("orig", None)
         readback = kwds.get("readback", False)
@@ -200,7 +215,21 @@ class ScanLib():
         if not isinstance(device1, (list, tuple)) or len(device1) != 4 or \
             not isinstance(device2, (list, tuple)) or len(device2) != 4:
             raise RuntimeError("Scan parameters are not sufficient.")
-        
+
+        if not isinstance(device1[0], basestring):
+            raise Exception("Expecting device1 name, got '%s'" % str(device1[0]))
+        else:
+            # Ensure device is NOT unicode object until 
+            # it is supported by PyScanClient library.
+            device1[0] = str(device1[0])
+
+        if not isinstance(device2[0], basestring):
+            raise Exception("Expecting device2 name, got '%s'" % str(device2[0]))
+        else:
+            # Ensure device is NOT unicode object until 
+            # it is supported by PyScanClient library.
+            device2[0] = str(device2[0])
+
         comments = kwds.get("title", "phyutil 2D Scan")
         orig1 = kwds.get("orig1", None)
         readback1 = kwds.get("readback1", False)
