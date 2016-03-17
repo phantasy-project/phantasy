@@ -815,6 +815,12 @@ class VirtualAccelerator(object):
                                 fort25length, output_length)
                 catools.caput(chanstat, _VA_STATUS_BAD)
 
+            def get_phase(idx):
+                phase = 2.0 * fort18[idx,1]
+                if phase >= 360.0:
+                    phase =- 360.0
+                return phase
+
             for idx in xrange(min(fort18length, fort24length, fort25length)):
 
                 elem = self._elemmap[output_map[idx]]
@@ -827,8 +833,8 @@ class VirtualAccelerator(object):
                                   self._readfieldmap[elem.name][elem.fields.y], fort25[idx,0])
                     catools.caput(self._readfieldmap[elem.name][elem.fields.y], fort25[idx,0])
                     _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
-                                  self._readfieldmap[elem.name][elem.fields.phase], fort18[idx,1])
-                    catools.caput(self._readfieldmap[elem.name][elem.fields.phase], fort18[idx,1])
+                                  self._readfieldmap[elem.name][elem.fields.phase], get_phase(idx))
+                    catools.caput(self._readfieldmap[elem.name][elem.fields.phase], get_phase(idx))
                     _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
                                   self._readfieldmap[elem.name][elem.fields.energy], fort18[idx,2])
                     catools.caput(self._readfieldmap[elem.name][elem.fields.energy], fort18[idx,2])
