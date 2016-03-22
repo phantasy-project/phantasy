@@ -8,7 +8,7 @@ __copyright__ = "Copyright (c) 2015, Facility for Rare Isotope Beams"
 
 __author__ = "Dylan Maxwell"
 
-import os.path, tempfile, random, shutil, numpy, re
+import os.path, tempfile, random, shutil, numpy, re, math
 import subprocess, cothread, threading, logging, time
 
 from cothread import catools
@@ -816,7 +816,9 @@ class VirtualAccelerator(object):
                 catools.caput(chanstat, _VA_STATUS_BAD)
 
             def get_phase(idx):
-                phase = 2.0 * fort18[idx,1]
+                # IMPACT computes the phase in radians,
+                # need to convert to degrees for PV.
+                phase = 2.0 * fort18[idx,1] * (180.0 / math.pi)
                 while phase >= 360.0:
                     phase -= 360.0
                 while phase < 0.0:
