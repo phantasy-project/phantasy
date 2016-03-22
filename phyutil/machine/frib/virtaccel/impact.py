@@ -817,8 +817,10 @@ class VirtualAccelerator(object):
 
             def get_phase(idx):
                 phase = 2.0 * fort18[idx,1]
-                if phase >= 360.0:
-                    phase =- 360.0
+                while phase >= 360.0:
+                    phase -= 360.0
+                while phase < 0.0:
+                    phase += 360.0
                 return phase
 
             for idx in xrange(min(fort18length, fort24length, fort25length)):
