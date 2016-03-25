@@ -284,6 +284,8 @@ class VirtualAcceleratorFactory(object):
         for elem in self.layout.iter(start=self.start, end=self.end):
 
             if isinstance(elem, CavityElement):
+                # Need to normalize cavity phase settings to 0~360
+                settings[elem.name][elem.fields.phase] = _normalize_phase(settings[elem.name][elem.fields.phase])
                 va.append_rw(self._findChannel(elem.name, elem.fields.phase, "setpoint"),
                              self._findChannel(elem.name, elem.fields.phase, "readset"),
                              self._findChannel(elem.name, elem.fields.phase, "readback"),
@@ -818,12 +820,7 @@ class VirtualAccelerator(object):
             def get_phase(idx):
                 # IMPACT computes the phase in radians,
                 # need to convert to degrees for PV.
-                phase = 2.0 * fort18[idx,1] * (180.0 / math.pi)
-                while phase >= 360.0:
-                    phase -= 360.0
-                while phase < 0.0:
-                    phase += 360.0
-                return phase
+                return _normalize_phase(2.0 * fort18[idx,1] * (180.0 / math.pi))
 
             for idx in xrange(min(fort18length, fort24length, fort25length)):
 
@@ -950,6 +947,13 @@ class VirtualAccelerator(object):
                     buf.write("    field(\"{}\", \"{}\")\r\n".format(name, value))
             buf.write("}\r\n\r\n")
 
+
+def _normalize_phase(phase):
+    while phase >= 360.0:
+        phase -= 360.0
+    while phase < 0.0:
+        phase += 360.0
+    return phase
 
 
 class _Cothread_Popen(object):
