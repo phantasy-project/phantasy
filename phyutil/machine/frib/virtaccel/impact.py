@@ -891,6 +891,10 @@ class VirtualAccelerator(object):
                     _LOGGER.warning("VirtualAccelerator: Output from element type not supported: %s", 
                                     type(elem).__name__)
 
+            # Allow the BPM, PM, etc. readbacks to update
+            # before the device setting readbacks PVs.
+            cothread.Yield()
+
             for name, value in self._csetmap.iteritems():
                 name, field = self._fieldmap[name]
                 _LOGGER.debug("VirtualAccelerator: Update read: %s to %s", value[1], settings[name][field])
