@@ -898,7 +898,7 @@ class LatticeFactory(object):
                                    fields=[ (elem.fields.field, "T", 5) ])
 
                 lattice.append(elem.length/steps, 1, mapsteps, 4, angle/steps, field, 600, elem.apertureX/2.0, entrAngle, exitAngle, 0.0, 0.0, 0.0,
-                               position=elem.z-(elem.length/2.0)+(elem.length/steps)-poffset, name=elem.name, etype=elem.ETYPE,
+                               position=elem.z-(elem.length/2.0)+elem.length-poffset, name=elem.name, etype=elem.ETYPE,
                                fields=[ (elem.fields.field, "T", 5) ])
 
             elif isinstance(elem, StripElement):
