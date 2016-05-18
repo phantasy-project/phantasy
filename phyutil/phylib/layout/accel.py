@@ -415,8 +415,10 @@ class PMElement(Element):
         super(PMElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
         self.fields.x = "X"
         self.fields.y = "Y"
+        self.fields.xy = "XY"
         self.fields.xrms = "XRMS"
         self.fields.yrms = "YRMS"
+        self.fields.xyrms = "XYRMS"
 
 
 class EMSElement(Element):

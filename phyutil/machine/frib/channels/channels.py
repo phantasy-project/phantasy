@@ -196,6 +196,10 @@ def build_channels(layout, machine=None):
             props[_HANDLE_PROPERTY] = "readback"
             data.append((channel+":Y_RD", OrderedDict(props), list(tags)))
 
+            props[_FIELD_PROPERTY] = elem.fields.xy
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel+":XY_RD", OrderedDict(props), list(tags)))
+
             props[_FIELD_PROPERTY] = elem.fields.xrms
             props[_HANDLE_PROPERTY] = "readback"
             data.append((channel+":XRMS_RD", OrderedDict(props), list(tags)))
@@ -203,6 +207,10 @@ def build_channels(layout, machine=None):
             props[_FIELD_PROPERTY] = elem.fields.yrms
             props[_HANDLE_PROPERTY] = "readback"
             data.append((channel+":YRMS_RD", OrderedDict(props), list(tags)))
+
+            props[_FIELD_PROPERTY] = elem.fields.xyrms
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel+":XYRMS_RD", OrderedDict(props), list(tags)))
 
         elif isinstance(elem, StripElement):
             # Charge Stripper has no channels
