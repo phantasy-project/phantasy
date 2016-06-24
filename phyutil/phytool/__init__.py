@@ -12,6 +12,8 @@ __USAGE__ = """usage: phylib <command> [<args>]
 
 The support commands are:
    cfutil-export    export channel data to file or Channel Finder Service
+   flame-vastart    start FLAME virtual accelerator
+   flame-lattice    generate FLAME lattice file
    impact-lattice   generate IMPACT lattice file (test.in)
    impact-vastart   start IMPACT virtual accelerator
    impact-settings  read settings from IMPACT lattice file (test.in)
@@ -33,6 +35,14 @@ def main():
     if cmd == "impact-lattice":
         import impact_lattice
         return impact_lattice.main()
+
+    elif cmd == "flame-lattice":
+        import flame_lattice
+        return flame_lattice.main()
+
+    elif cmd == "flame-vastart":
+        import flame_vastart
+        return flame_vastart.main()
 
     elif cmd == "impact-settings":
         import impact_settings
