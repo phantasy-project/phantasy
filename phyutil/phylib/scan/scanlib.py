@@ -102,6 +102,7 @@ class ScanLib():
         compress = kwds.get("compress", None)
         wait = kwds.get('wait', True)
         completion = kwds.get('completion', False)
+        errhandler = kwds.get('errhandler', None)
         if compress is not None:
             # TODO add support for multiple samples and compress.lower not in ["average"]:
             raise RuntimeError("Compress algorithm is not support yet.")
@@ -115,17 +116,20 @@ class ScanLib():
         if orig is not None and ramping:
             # slow ramping to the start point for scan
             if orig < start:
-                scan_cmds.append(Loop(device, orig, start, abs(step), [Delay(delay)], completion=completion, 
+                scan_cmds.append(Loop(device, orig, start, abs(step),
+                                      [Delay(delay)], completion=completion, 
                                       readback=readback, tolerance=tolerance, 
-                                      timeout=timeout, errhandler='OnErrorRetryThenAbort'))
+                                      timeout=timeout, errhandler=errhandler))
             else:
-                scan_cmds.append(Loop(device, orig, start, -abs(step), [Delay(delay)], completion=completion, 
+                scan_cmds.append(Loop(device, orig, start, -abs(step),
+                                      [Delay(delay)], completion=completion, 
                                       readback=readback, tolerance=tolerance, 
-                                      timeout=timeout, errhandler='OnErrorRetryThenAbort'))
+                                      timeout=timeout, errhandler=errhandler))
         
         # confirm start point
-        scan_cmds.append(Set(device, start, completion=completion, readback=readback, tolerance=tolerance, 
-                             timeout=timeout, errhandler='OnErrorRetryThenAbort'))
+        scan_cmds.append(Set(device, start, completion=completion,
+                             readback=readback, tolerance=tolerance, 
+                             timeout=timeout, errhandler=errhandler))
         
         # real scan
         if samples == 1:
@@ -133,35 +137,39 @@ class ScanLib():
                                   [
                                    Delay(delay),
                                    Log([device] + list(meas_dev))
-                                   ], 
+                                  ],
                                   completion=completion, 
                                   readback=readback, tolerance=tolerance, 
-                                  timeout=timeout, errhandler='OnErrorRetryThenAbort'))
+                                  timeout=timeout, errhandler=errhandler))
         else:
             scan_cmds.append(Loop(device, start, stop, step,
-                                  [Loop('loc://i(0)', 1, samples, 1, 
-                                        [Delay(delay), Log([device] + list(meas_dev))])
-                                   ],
+                                  [
+                                   Loop('loc://i(0)', 1, samples, 1,
+                                   [Delay(delay), Log([device] + list(meas_dev))])
+                                  ],
                                   completion=completion, 
                                   readback=readback, tolerance=tolerance, 
-                                  timeout=timeout, errhandler='OnErrorRetryThenAbort'))
+                                  timeout=timeout, errhandler=errhandler))
         
         # ramp back to original setting
         if  orig is not None and ramping:
             # slow ramping to the start point for scan
             if stop < orig:
-                scan_cmds.append(Loop(device, stop, orig, abs(step), [Delay(delay)], completion=completion, 
+                scan_cmds.append(Loop(device, stop, orig, abs(step),
+                                      [Delay(delay)], completion=completion, 
                                       readback=readback, tolerance=tolerance,
-                                      timeout=timeout, errhandler='OnErrorRetryThenAbort'))
+                                      timeout=timeout, errhandler=errhandler))
             else:
-                scan_cmds.append(Loop(device, stop, orig, -abs(step), [Delay(delay)], completion=completion,
+                scan_cmds.append(Loop(device, stop, orig, -abs(step),
+                                      [Delay(delay)], completion=completion,
                                       readback=readback, tolerance=tolerance, 
-                                      timeout=timeout, errhandler='OnErrorRetryThenAbort'))
+                                      timeout=timeout, errhandler=errhandler))
         
         # confirm original setting
         if orig is not None:
-            scan_cmds.append(Set(device, orig, completion=completion, readback=readback, tolerance=tolerance, 
-                                    timeout=timeout, errhandler='OnErrorRetryThenAbort'))
+            scan_cmds.append(Set(device, orig, completion=completion,
+                                 readback=readback, tolerance=tolerance, 
+                                 timeout=timeout, errhandler=errhandler))
     
         if self.scanclient is None:
             self._connectscanserver()
@@ -244,6 +252,7 @@ class ScanLib():
         wait = kwds.get('wait', True)
         compress = kwds.get("compress", None)
         completion = kwds.get("completion", False)
+        errhandler = kwds.get('errhandler', None)
         if compress is not None:
             # TODO add support to compress multiple samples and compress.lower not in ["average"]:
             raise RuntimeError("Compress algorithm is not support yet.")
@@ -257,34 +266,40 @@ class ScanLib():
         if orig1 is not None and ramping:
             # slow ramping to the start point for scan
             if orig1 < device1[1]:
-                scan_cmds.append(Loop(device1[0], orig1, device1[1], abs(device1[3]), [Delay(delay)], 
+                scan_cmds.append(Loop(device1[0], orig1, device1[1],
+                                      abs(device1[3]), [Delay(delay)], 
                                       completion=completion, 
                                       readback=readback1, tolerance=tolerance1, 
-                                      timeout=timeout, errhandler='OnErrorRetryThenAbort'))
+                                      timeout=timeout, errhandler=errhandler))
             else:
-                scan_cmds.append(Loop(device1[0], orig1, device1[1], -abs(device1[3]), [Delay(delay)],
+                scan_cmds.append(Loop(device1[0], orig1, device1[1],
+                                      -abs(device1[3]), [Delay(delay)],
                                       completion=completion, 
                                       readback=readback1, tolerance=tolerance1, 
-                                      timeout=timeout, errhandler='OnErrorRetryThenAbort'))
+                                      timeout=timeout, errhandler=errhandler))
         # ramp to start point if needed
         if orig2 is not None and ramping:
             # slow ramping to the start point for scan
             if orig2 < device2[1]:
-                scan_cmds.append(Loop(device2[0], orig2, device2[1], abs(device2[3]), [Delay(delay)], 
+                scan_cmds.append(Loop(device2[0], orig2, device2[1],
+                                      abs(device2[3]), [Delay(delay)], 
                                       completion=completion, 
                                       readback=readback2, tolerance=tolerance2, 
-                                      timeout=timeout, errhandler='OnErrorRetryThenAbort'))
+                                      timeout=timeout, errhandler=errhandler))
             else:
-                scan_cmds.append(Loop(device2[0], orig2, device2[1], -abs(device2[3]), [Delay(delay)],
+                scan_cmds.append(Loop(device2[0], orig2, device2[1],
+                                      -abs(device2[3]), [Delay(delay)],
                                       completion=completion, 
                                       readback=readback2, tolerance=tolerance2, 
-                                      timeout=timeout, errhandler='OnErrorRetryThenAbort'))
+                                      timeout=timeout, errhandler=errhandler))
         
         # confirm start point
-        scan_cmds.append(Set(device1[0], device1[1], completion=completion, readback=readback1, tolerance=tolerance1, 
-                             timeout=timeout, errhandler='OnErrorRetryThenAbort'))
-        scan_cmds.append(Set(device2[0], device2[1], completion=completion, readback=readback2, tolerance=tolerance2, 
-                             timeout=timeout, errhandler='OnErrorRetryThenAbort'))
+        scan_cmds.append(Set(device1[0], device1[1], completion=completion,
+                             readback=readback1, tolerance=tolerance1, 
+                             timeout=timeout, errhandler=errhandler))
+        scan_cmds.append(Set(device2[0], device2[1], completion=completion,
+                             readback=readback2, tolerance=tolerance2, 
+                             timeout=timeout, errhandler=errhandler))
         
         # real scan
         if samples == 1:
@@ -296,58 +311,64 @@ class ScanLib():
                                         completion=completion, 
                                         readback=readback2, tolerance=tolerance2,
                                         ),
-                                   ], 
+                                   ],
                                   completion=completion, 
-                                  readback=readback1, tolerance=tolerance1, 
-                                  timeout=timeout, errhandler='OnErrorRetryThenAbort'))
+                                  readback=readback1, tolerance=tolerance1,
+                                  timeout=timeout, errhandler=errhandler))
         else:
             scan_cmds.append(Loop(device1[0], device1[1], device1[2], device1[3],
-                                  [Loop(device2[0], device2[1], device2[2], device2[3], 
-                                        [Loop('loc://i(0)', 1, samples, 1, 
+                                  [Loop(device2[0], device2[1], device2[2], device2[3],
+                                        [Loop('loc://i(0)', 1, samples, 1,
                                               [Delay(delay), Log([device1[0], device2[0]] + list(meas_dev))])
                                          ],
                                         completion=completion, 
                                         readback=readback2, tolerance=tolerance2,
                                         ),
                                    ], 
-                                  completion=completion, 
-                                  readback=readback1, tolerance=tolerance1, 
-                                  timeout=timeout, errhandler='OnErrorRetryThenAbort'))
+                                  completion=completion,
+                                  readback=readback1, tolerance=tolerance1,
+                                  timeout=timeout, errhandler=errhandler))
         
         # ramp back to original setting
         if orig1 is not None and ramping:
             # slow ramping to the start point for scan
             if device1[2] < orig1:
-                scan_cmds.append(Loop(device1[0], device1[2], orig1, abs(device1[3]), [Delay(delay)], 
+                scan_cmds.append(Loop(device1[0], device1[2], orig1,
+                                      abs(device1[3]), [Delay(delay)],
                                       completion=completion, 
-                                      readback=readback1, tolerance=tolerance1, 
-                                      timeout=timeout, errhandler='OnErrorRetryThenAbort'))
+                                      readback=readback1, tolerance=tolerance1,
+                                      timeout=timeout, errhandler=errhandler))
             else:
-                scan_cmds.append(Loop(device1[0], device1[2], orig1, -abs(device1[3]), [Delay(delay)],
-                                      completion=completion, 
-                                      readback=readback1, tolerance=tolerance1, 
-                                      timeout=timeout, errhandler='OnErrorRetryThenAbort'))
+                scan_cmds.append(Loop(device1[0], device1[2], orig1,
+                                      -abs(device1[3]), [Delay(delay)],
+                                      completion=completion,
+                                      readback=readback1, tolerance=tolerance1,
+                                      timeout=timeout, errhandler=errhandler))
         
         # ramp back to original setting
         if orig2 is not None and ramping:
             # slow ramping to the start point for scan
             if device2[2] < orig2:
-                scan_cmds.append(Loop(device2[0], device2[2], orig2, abs(device2[3]), [Delay(delay)], 
+                scan_cmds.append(Loop(device2[0], device2[2], orig2,
+                                      abs(device2[3]), [Delay(delay)],
                                       completion=completion, 
-                                      readback=readback2, tolerance=tolerance2, 
-                                      timeout=timeout, errhandler='OnErrorRetryThenAbort'))
+                                      readback=readback2, tolerance=tolerance2,
+                                      timeout=timeout, errhandler=errhandler))
             else:
-                scan_cmds.append(Loop(device2[0], device2[2], orig2, -abs(device2[3]), [Delay(delay)],
+                scan_cmds.append(Loop(device2[0], device2[2], orig2,
+                                      -abs(device2[3]), [Delay(delay)],
                                       completion=completion, 
-                                      readback=readback2, tolerance=tolerance2, 
-                                      timeout=timeout, errhandler='OnErrorRetryThenAbort'))    
+                                      readback=readback2, tolerance=tolerance2,
+                                      timeout=timeout, errhandler=errhandler))
         # confirm original setting
         if orig1 is not None:
-            scan_cmds.append(Set(device1[0], orig1, completion=completion, readback=readback1, tolerance=tolerance1, 
-                                    timeout=timeout, errhandler='OnErrorRetryThenAbort'))
+            scan_cmds.append(Set(device1[0], orig1, completion=completion,
+                                 readback=readback1, tolerance=tolerance1, 
+                                 timeout=timeout, errhandler=errhandler))
         if orig2 is not None:
-            scan_cmds.append(Set(device2[0], orig2, completion=completion, readback=readback2, tolerance=tolerance2, 
-                                    timeout=timeout, errhandler='OnErrorRetryThenAbort'))
+            scan_cmds.append(Set(device2[0], orig2, completion=completion,
+                                 readback=readback2, tolerance=tolerance2,
+                                 timeout=timeout, errhandler=errhandler))
     
         if self.scanclient is None:
             self._connectscanserver()
