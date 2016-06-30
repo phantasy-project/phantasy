@@ -39,7 +39,7 @@ from ..phylib.chanfinder import ChannelFinderAgent
 from ..phylib.lattice.element import merge
 from ..phylib.lattice.element import CaElement
 
-from clientapi.latticepy.LatticeModelClient import LatticeModelClient
+#from clientapi.latticepy.LatticeModelClient import LatticeModelClient
 
 _logger = logging.getLogger(__name__)
 
