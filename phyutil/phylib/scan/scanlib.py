@@ -101,10 +101,10 @@ class ScanLib():
         samples = int(kwds.get("samples", 1))
         compress = kwds.get("compress", None)
         wait = kwds.get('wait', True)
+        completion = kwds.get('completion', False)
         if compress is not None:
             # TODO add support for multiple samples and compress.lower not in ["average"]:
             raise RuntimeError("Compress algorithm is not support yet.")
-        completion = True
     
         scan_cmds = []
     
@@ -243,12 +243,11 @@ class ScanLib():
         samples = int(kwds.get("samples", 1))
         wait = kwds.get('wait', True)
         compress = kwds.get("compress", None)
+        completion = kwds.get("completion", False)
         if compress is not None:
             # TODO add support to compress multiple samples and compress.lower not in ["average"]:
             raise RuntimeError("Compress algorithm is not support yet.")
-    
-        completion = True
-    
+
         scan_cmds = []
     
         # prepare scan comments    
