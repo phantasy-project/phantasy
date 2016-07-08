@@ -17,6 +17,11 @@ from collections import OrderedDict
 
 from cothread import catools
 
+try:
+    basestring # Python 2.X
+except NameError:
+    basestring = str # Python 3.X
+
 # Export constants from catools module
 FORMAT_RAW = catools.FORMAT_RAW
 FORMAT_TIME = catools.FORMAT_TIME
@@ -25,10 +30,12 @@ FORMAT_CTRL = catools.FORMAT_CTRL
 
 def _to_str(pvs):
     """Ensure argument is a string or list of strings."""
-    if isinstance(pvs, (list, tuple)):
-        return [str(pv) for pv in pvs]
-    else:
+    # The logic follows that from the cothread library.
+    # If is it NOT a string then assume it is an iterable.
+    if isinstance(pvs, basestring):
         return str(pvs)
+    else:
+        return [str(pv) for pv in pvs]
 
 
 def caput(pvs, values, repeat_value=False, datatype=None,
@@ -40,10 +47,18 @@ def caput(pvs, values, repeat_value=False, datatype=None,
     .. note:: The default value of the 'wait' keyword argument
        has been changed from the original cothread function.
     """
-    return catools.caput(_to_str(pvs), values,
-                         repeat_value=repeat_value, wait=wait,
-                         datatype=datatype, timeout=timeout,
-                         callback=callback, throw=throw)
+    # Work around for problem in cothread library.
+    # Passing the repeat_value keyword parameter
+    # with a single PV throws an exception.
+    if isinstance(pvs, basestring):
+        return catools.caput(_to_str(pvs), values,
+                             datatype=datatype, wait=wait,
+                             timeout=timeout, callback=callback, throw=throw)
+    else:
+        return catools.caput(_to_str(pvs), values,
+                             repeat_value=repeat_value,
+                             datatype=datatype, wait=wait,
+                             timeout=timeout, callback=callback, throw=throw)
 
 
 def caget(pvs, timeout=5, datatype=None,
