@@ -38,23 +38,34 @@ def _to_str(pvs):
         return [str(pv) for pv in pvs]
 
 
-def caput(pvs, values, repeat_value=False, datatype=None,
+def caput(pvs, values, repeat_value=None, datatype=None,
           wait=True, timeout=5, callback=None, throw=True):
     """
     Convenience function that wraps the cothread.catools.caput()
-    function with safe handling of unicode string in Python 2.X.
+    function with safe handling of unicode strings in Python 2.X.
 
     .. note:: The default value of the 'wait' keyword argument
        has been changed from the original cothread function.
+
+    .. note:: The default value of the 'repeat_value' keyword
+       argument has been changed from the original cothread
+       function. The original cothread function raises an
+       exception if the repeat_value argument is given when
+       using a single channel. This function permits the
+       repeat_value argument to be given with a value of
+       None when using a single channel.  When using an
+       array of channels, a repeat_value with the value
+       of None is the same as the value of False.
     """
-    # Work around for problem in cothread library.
-    # Passing the repeat_value keyword parameter
-    # with a single PV throws an exception.
     if isinstance(pvs, basestring):
+        if repeat_value is not None:
+            raise ValueError("repeat_value must be None for a single channel")
         return catools.caput(_to_str(pvs), values,
                              datatype=datatype, wait=wait,
                              timeout=timeout, callback=callback, throw=throw)
     else:
+        if repeat_value is None:
+            repeat_value = False
         return catools.caput(_to_str(pvs), values,
                              repeat_value=repeat_value,
                              datatype=datatype, wait=wait,
