@@ -12,7 +12,6 @@ from argparse import ArgumentParser
 from collections import OrderedDict
 
 from channelfinder import ChannelFinderClient
-from channelfinder.CFDataTypes import Property, Channel, Tag
 
 from ..phylib.common.csv_utils import read_csv
 
@@ -129,9 +128,7 @@ def _export_to_json(channels, path):
 
 
 def _export_to_cfweb(channels, uri, username, password):
-    # Improve performance by reducing the number
-    # of HTTP server requests by restructuring
-    # the channel data from channel oriented:
+    # Channel data with the following structure:
     #
     # {
     #    "CH:NAME1": {
@@ -156,98 +153,40 @@ def _export_to_cfweb(channels, uri, username, password):
     #    }
     # }
     #
-    # To property oriented:
-    #
-    # {
-    #    "system" : {
-    #        "SEG1": [ "CH:NAME1", "CH:NAME2" ]
-    #    },
-    #    "device" : {
-    #        "DEV1": [ "CH:NAME1" ],
-    #        "DEV2": [ "CH:NAME2" ]
-    #    }
-    # }
-    #
-    # And tag oriented:
-    #
-    # {
-    #     "phyutil.sys.LS1": [ "CH:NAME1", "CH:NAME2" ],
-    #     "phyutil.sub.CA01": [ "CH:NAME1" ],
-    #     "phyutil.sub.BTS": [ "CH:NAME2" ]
-    # }
-    #
-    tags = {}
-    properties = {}
-    channelnames = set()
-    for name, ps, ts in channels:
-        for p, value in ps.iteritems():
-            if p not in properties:
-                properties[p] = {}
-
-            v = str(value)
-            if v not in properties[p]:
-                properties[p][v] = set()
-
-            properties[p][v].add(name)
-
-        for t in ts:
-            if t not in tags:
-                tags[t] = set()
-
-            tags[t].add(name)
-
-        channelnames.add(name)
-
     client = ChannelFinderClient(BaseURL=uri, username=username, password=password)
 
-    channels = []
-    for cname in channelnames:
-        c = Channel(cname, username)
-        channels.append(c)
-        _LOGGER.debug("Export to Channel Finder: Set channel: %s", _Chan(c))
-    client.set(channels=channels)
-    _LOGGER.info("Export to ChannelFinder: Set channels: %s", len(channels))
+    data = []
+    existing_tags = []
+    existing_properties = []
+    for name, properties, tags in channels:
+        c = {'name':name, 'owner':username, 'properties':[], 'tags':[]}
 
-    for prop, values in properties.iteritems():
-        p = Property(prop, username)
-        client.set(property=p)
-        _LOGGER.info("Export to ChannelFinder: Set property: %s", _Prop(p))
-        for propvalue, channelnames in values.iteritems():
-            p.Value = propvalue
-            client.update(property=p, channelNames=channelnames)
-            _LOGGER.debug("Export to ChannelFinder: Update property: %s, for channels: %s", _Prop(p), len(channelnames))
+        for tname in tags:
+             t = {'name':tname, 'owner':username}
+             if tname not in existing_tags:
+                 if not client.findTag(tname):
+                     client.set(tag=t)
+                     _LOGGER.debug("Tag created in Channel Finder: %s", tname)
+                 else:
+                     _LOGGER.debug("Tag exists in Channel Finder: %s", tname)
+                 existing_tags.append(tname)
+             _LOGGER.debug("Add tag '%s' to channel: %s", tname, name)
+             c['tags'].append(t)
 
-    for tag, channelnames in tags.iteritems():
-        t = Tag(tag, username)
-        client.set(tag=t)
-        _LOGGER.info("Export to ChannelFinder: Set tag: %s", _Tag(t))
-        client.update(tag=t, channelNames=channelnames)
-        _LOGGER.debug("Export to ChannelFinder: Update tag: %s, for channels: %s", _Tag(t), len(channelnames))
+        for pname, pvalue in properties.iteritems():
+             p = {'name':pname, 'owner':username}
+             if pname not in existing_properties:
+                 if not client.findProperty(pname):
+                     client.set(property=p)
+                     _LOGGER.debug("Property created in Channel Finder: %s", pname)
+                 else:
+                     _LOGGER.debug("Property exists in Channel Finder: %s", pname)
+                 existing_properties.append(pname)
+             p['value'] = pvalue
+             _LOGGER.debug("Add property '%s' with value '%s' to channel: %s", pname, pvalue, name)
+             c['properties'].append(p)
 
+        data.append(c)
 
-class _Tag(object):
-    """Provides pretty printing for CF Tag object"""
-    def __init__(self, tag):
-        self._tag = tag
-
-    def __str__(self):
-        return "{{ name:'{tag.Name}', owner='{tag.Owner}' }}".format(tag=self._tag)
-
-
-class _Prop(object):
-    """Provides pretty printing for CF Property object."""
-    def __init__(self, prop):
-        self._prop = prop
-
-    def __str__(self):
-        return "{{ name:'{prop.Name}', value='{prop.Value}', owner='{prop.Owner}' }}".format(prop=self._prop)
-
-
-class _Chan(object):
-    """Provides pretty printing for CF Channel object."""
-    def __init__(self, chan):
-        self._chan = chan
-
-    def __str__(self):
-        return "{{ name='{chan.Name}', owner='{chan.Owner}' }}".format(chan=self._chan)
+    client.set(channels=data)
 
