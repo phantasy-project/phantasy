@@ -548,8 +548,8 @@ class FlameLatticeFactory(BaseLatticeFactory):
                                    ('aper',elem.aperture/2.0))
 
                 lattice.append(elem.name, "stripper",
-                               ('Stripper_IonChargeStates',stripper_charge),
-                               ('Stripper_NCharge',stripper_count),
+                               ('IonChargeStates',stripper_charge),
+                               ('NCharge',stripper_count),
                                name=elem.name, etype=elem.ETYPE)
 
                 if elem.length != 0.0:
