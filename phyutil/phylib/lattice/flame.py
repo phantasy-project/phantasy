@@ -324,11 +324,15 @@ class FlameLatticeFactory(BaseLatticeFactory):
         else:
             lattice.initialEnvelope = self._get_config_data_default(CONFIG_FLAME_INITIAL_ENVELOPE_FILE, _DEFAULT_INITIAL_ENVELOPE)
 
+        ndrift = [ 0 ]
+        def nextDrift():
+            ndrift[0] += 1
+            return "DRIFT_" + str(ndrift[0])
 
         for elem in self._accel.iter(self.start, self.end):
 
             if isinstance(elem, DriftElement):
-                lattice.append("DRIFT", "drift",
+                lattice.append(nextDrift(), "drift",
                                ('L',elem.length), ('aper',elem.aperture/2.0))
 
             elif isinstance(elem, (ValveElement, PortElement)):
@@ -338,12 +342,12 @@ class FlameLatticeFactory(BaseLatticeFactory):
 
             elif isinstance(elem, BPMElement):
                 if elem.length != 0.0:
-                    lattice.append("DRIFT", "drift", ('L',elem.length/2.0), ('aper',elem.aperture/2.0))
+                    lattice.append(nextDrift(), "drift", ('L',elem.length/2.0), ('aper',elem.aperture/2.0))
 
                 lattice.append(elem.name, "bpm", name=elem.name, etype=elem.ETYPE)
 
                 if elem.length != 0.0:
-                    lattice.append("DRIFT", "drift", ('L',elem.length/2.0), ('aper',elem.aperture/2.0))
+                    lattice.append(nextDrift(), "drift", ('L',elem.length/2.0), ('aper',elem.aperture/2.0))
 
             elif isinstance(elem, (PMElement, BLMElement, BLElement, BCMElement)):
                 if elem.length != 0.0:
@@ -405,7 +409,7 @@ class FlameLatticeFactory(BaseLatticeFactory):
 
                 #error = self._get_error(elem)
 
-                lattice.append(elem.name, "solenoid", ('L',elem.length),
+                lattice.append(elem.name + "_1", "solenoid", ('L',elem.length),
                                ('aper',elem.aperture/2.0), ('B',field),
                                name=elem.name, etype="SOL")
 
@@ -415,7 +419,7 @@ class FlameLatticeFactory(BaseLatticeFactory):
                 lattice.append(elem.v.name, "orbtrim", ('theta_y',vkick),
                                name=elem.v.name, etype=elem.v.ETYPE)
 
-                lattice.append(elem.name, "solenoid", ('L',elem.length),
+                lattice.append(elem.name + "_2", "solenoid", ('L',elem.length),
                                ('aper',elem.aperture/2.0), ('B',field),
                                name=elem.name, etype="SOL")
 
@@ -462,7 +466,7 @@ class FlameLatticeFactory(BaseLatticeFactory):
                         raise RuntimeError("FlameLatticeFactory: '{}' setting not found for element: {}".format(elem.v.fields.angle, elem.name))
 
                 if elem.length != 0.0:
-                    lattice.append("DRIFT", "drift",
+                    lattice.append(nextDrift(), "drift",
                                    ('L',elem.length/2.0),
                                    ('aper',elem.apertureX/2.0))
 
@@ -473,7 +477,7 @@ class FlameLatticeFactory(BaseLatticeFactory):
                                name=elem.v.name, etype=elem.v.ETYPE)
 
                 if elem.length != 0.0:
-                    lattice.append("DRIFT", "drift",
+                    lattice.append(nextDrift(), "drift",
                                    ('L',elem.length/2.0),
                                 ('aper',elem.apertureX/2.0))
 
@@ -511,18 +515,18 @@ class FlameLatticeFactory(BaseLatticeFactory):
                 if split < 3:
                     raise RuntimeError("FlameLatticeFactory: '{}' split must be greater than 3.".format(elem.name))
 
-                lattice.append(elem.name, "sbend", ('L',elem.length/split),
+                lattice.append(elem.name + "_1", "sbend", ('L',elem.length/split),
                                ('aper',elem.aperture/2.0), ('phi',angle/split),
                                ('phi1',entrAngle), ('phi2',exitAngle), ('bg',field),
                                name=elem.name, etype=elem.ETYPE)
 
                 for i in xrange(2, split):
-                    lattice.append(elem.name, "sbend", ('L',elem.length/split),
+                    lattice.append(elem.name + "_" + str(i), "sbend", ('L',elem.length/split),
                                    ('aper',elem.aperture/2.0), ('phi',angle/split),
                                    ('phi1',0.0), ('phi2',0.0), ('bg',field),
                                    name=elem.name, etype=elem.ETYPE)
 
-                lattice.append(elem.name, "sbend", ('L',elem.length/split),
+                lattice.append(elem.name + "_" + str(split), "sbend", ('L',elem.length/split),
                                ('aper',elem.aperture/2.0), ('phi',angle/split),
                                ('phi1',entrAngle), ('phi2',exitAngle), ('bg',field),
                                name=elem.name, etype=elem.ETYPE)
@@ -539,7 +543,7 @@ class FlameLatticeFactory(BaseLatticeFactory):
                 stripper_count = numpy.array(stripper_count)
 
                 if elem.length != 0.0:
-                    lattice.append("DRIFT", "drift",
+                    lattice.append(nextDrift(), "drift",
                                    ('L',elem.length/2.0),
                                    ('aper',elem.aperture/2.0))
 
@@ -549,7 +553,7 @@ class FlameLatticeFactory(BaseLatticeFactory):
                                name=elem.name, etype=elem.ETYPE)
 
                 if elem.length != 0.0:
-                    lattice.append("DRIFT", "drift",
+                    lattice.append(nextDrift(), "drift",
                                    ('L',elem.length/2.0),
                                    ('aper',elem.aperture/2.0))
 
@@ -759,7 +763,6 @@ class FlameLattice(object):
 
 
     def append(self, fname, ftype, *args, **kwargs):
-        fname += "_" + str(len(self.elements))
         self.elements.append((fname, ftype, OrderedDict(args), OrderedDict(kwargs)))
 
 
