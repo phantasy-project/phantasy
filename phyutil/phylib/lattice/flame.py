@@ -613,7 +613,7 @@ class FlameLattice(object):
 
     @property
     def hdipoleFitMode(self):
-        return self.variables['MpoleLevel']
+        return self.variables['HdipoleFitMode']
 
     @hdipoleFitMode.setter
     def hdipoleFitMode(self, hdipoleFitMode):
