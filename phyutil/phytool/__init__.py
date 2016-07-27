@@ -14,6 +14,7 @@ The support commands are:
    cfutil-export    export channel data to file or Channel Finder Service
    flame-vastart    start FLAME virtual accelerator
    flame-lattice    generate FLAME lattice file
+   flame-settings   read settings from FLAME lattice file (test.lat)
    impact-lattice   generate IMPACT lattice file (test.in)
    impact-vastart   start IMPACT virtual accelerator
    impact-settings  read settings from IMPACT lattice file (test.in)
@@ -39,6 +40,10 @@ def main():
     elif cmd == "flame-lattice":
         import flame_lattice
         return flame_lattice.main()
+
+    elif cmd == "flame-settings":
+        import flame_settings
+        return flame_settings.main()
 
     elif cmd == "flame-vastart":
         import flame_vastart
@@ -102,6 +107,10 @@ def print_help():
     elif cmd == "impact-model":
         import impact_model
         impact_model.print_help()
+
+    elif cmd == "flame-settings":
+        import flame_settings
+        flame_settings.print_help()
 
     elif cmd == "cfutil-export":
         import cfutil_export
