@@ -297,8 +297,6 @@ class VirtualAcceleratorFactory(object):
         for elem in self.layout.iter(start=self.start, end=self.end):
 
             if isinstance(elem, CavityElement):
-                # Need to normalize cavity phase settings to 0~360
-                settings[elem.name][elem.fields.phase] = _normalize_phase(settings[elem.name][elem.fields.phase])
                 va.append_rw(self._findChannel(elem.name, elem.fields.phase, "setpoint"),
                              self._findChannel(elem.name, elem.fields.phase, "readset"),
                              self._findChannel(elem.name, elem.fields.phase, "readback"),
