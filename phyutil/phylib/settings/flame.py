@@ -166,6 +166,11 @@ class SettingsFactory(object):
                     settings[name] = fields
                 else:
                     settings[name][bend.fields.angle] += elem['phi']
+                    if elem['phi2'] != 0.0:
+                        if settings[name][bend.fields.exitAngle] == 0.0:
+                            settings[name][bend.fields.exitAngle] = elem['phi2']
+                        else:
+                            raise RuntimeError("Bend element exit angle already defined")
 
             elif ftype == "quadrupole":
                 name = parseName(elem['name'])
