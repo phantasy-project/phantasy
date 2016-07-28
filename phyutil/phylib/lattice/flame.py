@@ -409,7 +409,7 @@ class FlameLatticeFactory(BaseLatticeFactory):
 
                 #error = self._get_error(elem)
 
-                lattice.append(elem.name + "_1", "solenoid", ('L',elem.length),
+                lattice.append(elem.name + "_1", "solenoid", ('L',elem.length/2.0),
                                ('aper',elem.aperture/2.0), ('B',field),
                                name=elem.name, etype="SOL")
 
@@ -419,7 +419,7 @@ class FlameLatticeFactory(BaseLatticeFactory):
                 lattice.append(elem.v.name, "orbtrim", ('theta_y',vkick),
                                name=elem.v.name, etype=elem.v.ETYPE)
 
-                lattice.append(elem.name + "_2", "solenoid", ('L',elem.length),
+                lattice.append(elem.name + "_2", "solenoid", ('L',elem.length/2.0),
                                ('aper',elem.aperture/2.0), ('B',field),
                                name=elem.name, etype="SOL")
 
@@ -479,7 +479,7 @@ class FlameLatticeFactory(BaseLatticeFactory):
                 if elem.length != 0.0:
                     lattice.append(nextDrift(), "drift",
                                    ('L',elem.length/2.0),
-                                ('aper',elem.apertureX/2.0))
+                                   ('aper',elem.apertureX/2.0))
 
             elif isinstance(elem, BendElement):
                 field = 0.0
