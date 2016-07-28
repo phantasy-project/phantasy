@@ -517,7 +517,7 @@ class FlameLatticeFactory(BaseLatticeFactory):
 
                 lattice.append(elem.name + "_1", "sbend", ('L',elem.length/split),
                                ('aper',elem.aperture/2.0), ('phi',angle/split),
-                               ('phi1',entrAngle), ('phi2',exitAngle), ('bg',field),
+                               ('phi1',entrAngle), ('phi2',0.0), ('bg',field),
                                name=elem.name, etype=elem.ETYPE)
 
                 for i in xrange(2, split):
@@ -528,7 +528,7 @@ class FlameLatticeFactory(BaseLatticeFactory):
 
                 lattice.append(elem.name + "_" + str(split), "sbend", ('L',elem.length/split),
                                ('aper',elem.aperture/2.0), ('phi',angle/split),
-                               ('phi1',entrAngle), ('phi2',exitAngle), ('bg',field),
+                               ('phi1',0.0), ('phi2',exitAngle), ('bg',field),
                                name=elem.name, etype=elem.ETYPE)
 
             elif isinstance(elem, StripElement):
