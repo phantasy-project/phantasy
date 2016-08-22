@@ -799,8 +799,8 @@ class VirtualAccelerator(object):
                                       self._readfieldmap[elem.name][elem.fields.phase], S.ref_phis)
                         batch[self._readfieldmap[elem.name][elem.fields.phase]] = S.ref_phis
                         _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
-                                      self._readfieldmap[elem.name][elem.fields.energy], S.ref_IonEk)
-                        batch[self._readfieldmap[elem.name][elem.fields.phase]] = S.ref_phis
+                                      self._readfieldmap[elem.name][elem.fields.energy], S.ref_IonEk/1.0e6)
+                        batch[self._readfieldmap[elem.name][elem.fields.energy]] = S.ref_IonEk/1.0e6
                     elif isinstance(elem, PMElement):
                         _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
                                       self._readfieldmap[elem.name][elem.fields.x], S.moment0_env[0])
