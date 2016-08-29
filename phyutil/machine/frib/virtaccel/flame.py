@@ -297,6 +297,8 @@ class VirtualAcceleratorFactory(object):
         for elem in self.layout.iter(start=self.start, end=self.end):
 
             if isinstance(elem, CavityElement):
+                # Need to normalize cavity phase settings to 0~360
+                settings[elem.name][elem.fields.phase] = _normalize_phase(settings[elem.name][elem.fields.phase])
                 va.append_rw(self._findChannel(elem.name, elem.fields.phase, "setpoint"),
                              self._findChannel(elem.name, elem.fields.phase, "readset"),
                              self._findChannel(elem.name, elem.fields.phase, "readback"),
@@ -789,31 +791,40 @@ class VirtualAccelerator(object):
                 if output_map[i] in self._elemmap:
                     elem = self._elemmap[output_map[i]]
                     if isinstance(elem, BPMElement):
+                        x_centroid = S.moment0_env[0]/1.0e3 # convert mm to m
                         _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
-                                      self._readfieldmap[elem.name][elem.fields.x], S.moment0_env[0])
-                        batch[self._readfieldmap[elem.name][elem.fields.x]] = S.moment0_env[0]
+                                      self._readfieldmap[elem.name][elem.fields.x], x_centroid)
+                        batch[self._readfieldmap[elem.name][elem.fields.x]] = x_centroid
+                        y_centroid = S.moment0_env[2]/1.0e3 # convert mm to m
                         _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
-                                      self._readfieldmap[elem.name][elem.fields.y], S.moment0_env[2])
-                        batch[self._readfieldmap[elem.name][elem.fields.y]] = S.moment0_env[2]
+                                      self._readfieldmap[elem.name][elem.fields.y], y_centroid)
+                        batch[self._readfieldmap[elem.name][elem.fields.y]] = y_centroid
+                         # convert rad to deg and adjust for 161MHz sampling frequency
+                        phase = _normalize_phase(2.0 * S.ref_phis * (180.0 / math.pi))
                         _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
-                                      self._readfieldmap[elem.name][elem.fields.phase], S.ref_phis)
-                        batch[self._readfieldmap[elem.name][elem.fields.phase]] = S.ref_phis
+                                      self._readfieldmap[elem.name][elem.fields.phase], phase)
+                        batch[self._readfieldmap[elem.name][elem.fields.phase]] = phase
+                        energy = S.ref_IonEk/1.0e6 # convert eV to MeV
                         _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
-                                      self._readfieldmap[elem.name][elem.fields.energy], S.ref_IonEk/1.0e6)
-                        batch[self._readfieldmap[elem.name][elem.fields.energy]] = S.ref_IonEk/1.0e6
+                                      self._readfieldmap[elem.name][elem.fields.energy], energy)
+                        batch[self._readfieldmap[elem.name][elem.fields.energy]] = energy
                     elif isinstance(elem, PMElement):
+                        x_centroid = S.moment0_env[0]/1.0e3 # convert mm to m
                         _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
-                                      self._readfieldmap[elem.name][elem.fields.x], S.moment0_env[0])
-                        batch[self._readfieldmap[elem.name][elem.fields.x]] = S.moment0_env[0]
+                                      self._readfieldmap[elem.name][elem.fields.x], x_centroid)
+                        batch[self._readfieldmap[elem.name][elem.fields.x]] = x_centroid
+                        y_centroid = S.moment0_env[2]/1.0e3 # convert mm to m
                         _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
-                                      self._readfieldmap[elem.name][elem.fields.y], S.moment0_env[2])
-                        batch[self._readfieldmap[elem.name][elem.fields.y]] = S.moment0_env[2]
+                                      self._readfieldmap[elem.name][elem.fields.y], y_centroid)
+                        batch[self._readfieldmap[elem.name][elem.fields.y]] = y_centroid
+                        x_rms = S.moment0_rms[0]/1.0e3 # convert mm to m
                         _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
-                                      self._readfieldmap[elem.name][elem.fields.xrms], S.moment0_rms[0])
-                        batch[self._readfieldmap[elem.name][elem.fields.xrms]] = S.moment0_rms[0]
+                                      self._readfieldmap[elem.name][elem.fields.xrms], x_rms)
+                        batch[self._readfieldmap[elem.name][elem.fields.xrms]] = x_rms
+                        y_rms = S.moment0_rms[2]/1.0e3
                         _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
-                                      self._readfieldmap[elem.name][elem.fields.yrms], S.moment0_rms[2])
-                        batch[self._readfieldmap[elem.name][elem.fields.xrms]] = S.moment0_rms[2]
+                                      self._readfieldmap[elem.name][elem.fields.yrms], y_rms)
+                        batch[self._readfieldmap[elem.name][elem.fields.xrms]] = y_rms
 
             batch.caput()
 
