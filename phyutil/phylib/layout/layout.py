@@ -43,6 +43,14 @@ from accel import DriftElement, ValveElement, PortElement, CavityElement
 from accel import HCorElement, VCorElement, CorElement, SolCorElement
 from accel import BLMElement, BPMElement, BLElement, PMElement,  BCMElement
 from accel import StripElement, BendElement, QuadElement, SextElement
+from accel import SolElement
+from accel import FCElement
+from accel import VDElement
+from accel import EMSElement
+from accel import EBendElement
+from accel import ColumnElement
+from accel import EQuadElement
+from accel import ElectrodeElement
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -122,6 +130,21 @@ def build_layout(layoutPath=None, **kwargs):
             elif etype == BCMElement.ETYPE:
                 elements.append(buildElement(row, BCMElement))
 
+            elif etype == FCElement.ETYPE:
+                elements.append(buildElement(row, FCElement))
+
+            elif etype == VDElement.ETYPE:
+                elements.append(buildElement(row, VDElement))
+
+            elif etype == EMSElement.ETYPE:
+                elements.append(buildElement(row, EMSElement))
+
+            elif etype == ColumnElement.ETYPE:
+                elements.append(buildElement(row, ColumnElement))
+
+            elif etype == SolElement.ETYPE:
+                elements.append(buildElement(row, SolElement))
+
             elif etype == SolCorElement.ETYPE or etype == CorElement.ETYPE:
                 if etype == SolCorElement.ETYPE:
                     elem = buildElement(row, SolCorElement)
@@ -153,8 +176,17 @@ def build_layout(layoutPath=None, **kwargs):
             elif etype == SextElement.ETYPE:
                 elements.append(buildElement(row, SextElement))
 
+            elif etype == EBendElement.ETYPE:
+                elements.append(buildElement(row, EBendElement))
+
+            elif etype == EQuadElement.ETYPE:
+                elements.append(buildElement(row, EQuadElement))
+
             elif etype == StripElement.ETYPE:
                 elements.append(buildElement(row, StripElement))
+
+            elif etype == ElectrodeElement.ETYPE:
+                elements.append(buildElement(row, ElectrodeElement))
 
             else:
                 raise RuntimeError("read_layout: Element type '{}' not supported".format(etype))

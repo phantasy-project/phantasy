@@ -452,7 +452,7 @@ class AccelFactory(object):
                         subsequence.append(elem)
 
 
-                    elif row.device in [ "QH", "QV" ]:
+                    elif row.device in [ "QH", "QV", "Q" ]:
 
                         dtype = "QUAD_{}".format(row.device_type)
                         inst = "D{:d}".format(int(row.position))
@@ -471,7 +471,7 @@ class AccelFactory(object):
 
                         subsequence.append(elem)
 
-                    elif row.device in [ "ELC1" ]:
+                    elif row.device in [ "ELC1", "ELC2", "ELC3" ]:
 
                         inst = "D{:d}".format(int(row.position))
 
@@ -516,7 +516,7 @@ class AccelFactory(object):
                         # use dift to represent slits, chopper, apertures and attenuators
                         subsequence.append(DriftElement(row.center_position, row.eff_length, row.diameter, desc=row.element_name))
 
-                    elif row.device in [ "dump" ]:
+                    elif row.device in [ "dump", "DUMP" ]:
                         subsequence.append(DriftElement(row.center_position, row.eff_length, row.diameter, desc=row.element_name))
 
                     elif row.device in [ "STRIP" ]:
@@ -532,7 +532,7 @@ class AccelFactory(object):
 
                 elif row.element_name != None:
 
-                    if row.element_name in [ "bellow", "bellows", "bellow+tube", "2 bellows + tube", "bellow+box", "bellow+tube/box", "tube", "reducer flange" ]:
+                    if row.element_name in [ "bellow", "bellows", "bellow+tube", "2 bellows + tube", "bellow+box", "bellow+tube/box", "tube", "reducer flange", "bellow ?", "4 way cross ??", "BPM bellow", "bellow?", "bellow+tube ??", "6 way cross ??" ]:
                         if drift_delta != 0.0:
                             row.eff_length += drift_delta
                             row.center_position -= drift_delta
@@ -575,7 +575,7 @@ class AccelFactory(object):
                         elem.subsystem = row.subsystem
                         elem.device = "STRIP"
 
-                    elif row.element_name in [ "artemis_b extraction/puller", "extraction box" ]:
+                    elif row.element_name in [ "artemis_b extraction/puller", "artemis_b extraction wall", "extraction mounting plate", "extraction box", "gap (puller & extraction hole)", "gap (puller main & bias)", "puller tube" ]:
                         if drift_delta != 0.0:
                             raise Exception("Unsupported drift delta on element: {}".format(row.element_name))
                         subsequence.append(DriftElement(row.center_position, row.eff_length, row.diameter, desc=row.element_name))

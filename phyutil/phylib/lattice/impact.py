@@ -26,6 +26,14 @@ from ..layout.accel import Element, DriftElement, ValveElement, PortElement
 from ..layout.accel import SeqElement, CavityElement, SolCorElement, StripElement
 from ..layout.accel import CorElement, BendElement, QuadElement, SextElement
 from ..layout.accel import BCMElement, PMElement, BLElement, BLMElement, BPMElement
+from ..layout.accel import ElectrodeElement
+from ..layout.accel import SolElement
+from ..layout.accel import ColumnElement
+from ..layout.accel import EQuadElement
+from ..layout.accel import EBendElement
+from ..layout.accel import FCElement
+from ..layout.accel import VDElement
+from ..layout.accel import EMSElement
 
 
 CONFIG_IMPACT_NSTATES = "impact_nstates"
@@ -702,22 +710,27 @@ class LatticeFactory(object):
                                position=elem.z+(elem.length/2.0)-poffset,
                                name=elem.name, etype=elem.ETYPE)
 
+            elif isinstance(elem, ColumnElement):
+                lattice.append(elem.length, steps, mapsteps, 0, elem.apertureX/2.0,
+                               position=elem.z+(elem.length/2.0)-poffset,
+                               name=elem.name, etype=elem.ETYPE)
+
             elif isinstance(elem, CavityElement):
-                phase = 0.0
+                phase = 99999
                 if settings != None:
                     try:
                         phase = settings[elem.name][elem.fields.phase]
                     except KeyError:
                         raise RuntimeError("LatticeFactory: '{}' setting not found for element: {}".format(elem.fields.phase, elem.name))
 
-                amplitude = 0.0
+                amplitude = 99999
                 if settings != None:
                     try:
                         amplitude = settings[elem.name][elem.fields.amplitude]
                     except KeyError:
                         raise RuntimeError("LatticeFactory: '{}' setting not found for element: {}".format(elem.fields.amplitude, elem.name))
 
-                frequency = 0.0
+                frequency = 99999
                 if settings != None:
                     try:
                         frequency = settings[elem.name][elem.fields.frequency]
@@ -730,7 +743,7 @@ class LatticeFactory(object):
                 if itype == 103:
                     input_id = self._get_config_integrator_input_id(elem.dtype, integrator)
                     if input_id == None:
-                        raise RuntimeError("LatticeFactory: IMPACT input id for '{}' not found".format(elem.name))
+                        raise RuntimeError("LatticeFactory: IMPACT input id for type '{}' not found".format(elem.dtype))
 
                     lattice.append(elem.length, steps, mapsteps, 103, amplitude, frequency, phase, input_id, elem.apertureX/2.0, *error,
                                    position=elem.z+(elem.length/2.0)-poffset, name=elem.name, etype=elem.ETYPE,
@@ -739,7 +752,7 @@ class LatticeFactory(object):
                 elif itype == 110:
                     input_id = self._get_config_t7data_input_id(elem.dtype)
                     if input_id == None:
-                        raise RuntimeError("LatticeFactory: IMPACT input id for '{}' not found".format(elem.name))
+                        raise RuntimeError("LatticeFactory: IMPACT input id for type '{}' not found".format(elem.dtype))
 
                     lattice.append(elem.length, steps, mapsteps, 110, amplitude, frequency, phase, input_id, elem.apertureX/2.0, elem.apertureX/2.0, 0, 0, 0, 0, 0, 1, 2, *error,
                                    position=elem.z+(elem.length/2.0)-poffset, name=elem.name, etype=elem.ETYPE,
@@ -748,22 +761,37 @@ class LatticeFactory(object):
                 else:
                     raise RuntimeError("LatticeFactory: IMPACT element type for '{}' not supported: {}".format(elem.name, itype))
 
-            elif isinstance(elem, SolCorElement):
-                field = 0.0
+
+            elif isinstance(elem, SolElement):
+                field = 99999
                 if settings != None:
                     try:
                         field = settings[elem.name][elem.fields.field]
                     except KeyError:
                         raise RuntimeError("LatticeFactory: '{}' setting not found for element: {}".format(elem.fields.field, elem.name))
 
-                hkick = 0.0
+                error = self._get_error(elem)
+
+                lattice.append(elem.length, steps, mapsteps, 3, field, 0, elem.apertureX/2.0, *error,
+                               position=elem.z-poffset, name=elem.name, etype="SOL", #elem.ETYPE
+                               fields=[ (elem.fields.field, "T", 4) ])
+
+            elif isinstance(elem, SolCorElement):
+                field = 99999
+                if settings != None:
+                    try:
+                        field = settings[elem.name][elem.fields.field]
+                    except KeyError:
+                        raise RuntimeError("LatticeFactory: '{}' setting not found for element: {}".format(elem.fields.field, elem.name))
+
+                hkick = 99999
                 if settings != None:
                     try:
                         hkick = settings[elem.h.name][elem.h.fields.angle]
                     except KeyError:
                         raise RuntimeError("LatticeFactory: '{}' setting not found for element: {}".format(elem.h.fields.angle, elem.name))
 
-                vkick = 0.0
+                vkick = 99999
                 if settings != None:
                     try:
                         vkick = settings[elem.v.name][elem.v.fields.angle]
@@ -790,7 +818,7 @@ class LatticeFactory(object):
 
 
             elif isinstance(elem, QuadElement):
-                gradient = 0.0
+                gradient = 99999
                 if settings != None:
                     try:
                         gradient = settings[elem.name][elem.fields.gradient]
@@ -805,14 +833,14 @@ class LatticeFactory(object):
 
 
             elif isinstance(elem, CorElement):
-                hkick = 0.0
+                hkick = 99999
                 if settings != None:
                     try:
                         hkick = settings[elem.h.name][elem.h.fields.angle]
                     except KeyError:
                         raise RuntimeError("LatticeFactory: '{}' setting not found for element: {}".format(elem.h.fields.angle, elem.name))
 
-                vkick = 0.0
+                vkick = 99999
                 if settings != None:
                     try:
                         vkick = settings[elem.v.name][elem.v.fields.angle]
@@ -837,7 +865,7 @@ class LatticeFactory(object):
 
 
             elif isinstance(elem, SextElement):
-                field = 0.0
+                field = 99999
                 if settings != None:
                     try:
                         field = settings[elem.name][elem.fields.field]
@@ -857,28 +885,28 @@ class LatticeFactory(object):
                                position=elem.z+(elem.length/2.0)-poffset, name="DRIFT", etype="DRIFT")
 
             elif isinstance(elem, BendElement):
-                field = 0.0
+                field = 99999
                 if settings != None:
                     try:
                         field = settings[elem.name][elem.fields.field]
                     except KeyError:
                         raise RuntimeError("LatticeFactory: '{}' setting not found for element: {}".format(elem.fields.field, elem.name))
 
-                angle = 0.0
+                angle = 99999
                 if settings != None:
                     try:
                         angle = settings[elem.name][elem.fields.angle]
                     except KeyError:
                         raise RuntimeError("LatticeFactory: '{}' setting not found for element: {}".format(elem.fields.angle, elem.name))
 
-                entrAngle = 0.0
+                entrAngle = 99999
                 if settings != None:
                     try:
                         entrAngle = settings[elem.name][elem.fields.entrAngle]
                     except KeyError:
                         raise RuntimeError("LatticeFactory: '{}' setting not found for element: {}".format(elem.fields.entrAngle, elem.name))
 
-                exitAngle = 0.0
+                exitAngle = 99999
                 if settings != None:
                     try:
                         exitAngle = settings[elem.name][elem.fields.exitAngle]
@@ -920,6 +948,12 @@ class LatticeFactory(object):
                 if elem.length != 0.0:
                     lattice.append(elem.length, steps, mapsteps, 0, elem.apertureX/2.0,
                                    position=elem.z+(elem.length/2.0)-poffset, name="DRIFT", etype="DRIFT")
+
+            elif isinstance(elem, (ElectrodeElement, EBendElement, EQuadElement, FCElement, VDElement, EMSElement)):
+                if elem.length != 0.0:
+                    lattice.append(elem.length, steps, mapsteps, 0, elem.apertureX/2.0,
+                                   position=elem.z+(elem.length/2.0)-poffset, name=elem.name, etype=elem.ETYPE)
+
 
             elif isinstance(elem, (BPMElement, PMElement)):
                 if elem.length != 0.0:
