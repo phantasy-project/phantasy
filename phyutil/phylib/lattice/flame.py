@@ -351,7 +351,12 @@ class FlameLatticeFactory(BaseLatticeFactory):
 
             elif isinstance(elem, (PMElement, BLMElement, BLElement, BCMElement)):
                 if elem.length != 0.0:
-                    lattice.append(elem.name, "drift", ('L',elem.length), ('aper',elem.aperture/2.0))
+                    lattice.append(nextDrift(), "drift", ('L',elem.length/2.0), ('aper',elem.aperture/2.0))
+
+                lattice.append(elem.name, "marker", name=elem.name, etype=elem.ETYPE)
+
+                if elem.length != 0.0:
+                    lattice.append(nextDrift(), "drift", ('L',elem.length/2.0), ('aper',elem.aperture/2.0))
 
             elif isinstance(elem, CavityElement):
                 phase = 0.0
