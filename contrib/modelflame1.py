@@ -23,7 +23,7 @@ m = Machine(open(latfile, 'r'))
 # create MachineStates object
 ms = flameutils.MachineStates(machine=m)
 # adjust the attributes of ms
-#ms.ref_IonEk = 1e7
+#ms.ref_IonEk = 500000
 
 # create ModelFlame object
 fm = flameutils.ModelFlame()
@@ -37,9 +37,21 @@ r,s = fm.run(monitor=obs)
 # get data of intereset from running results
 data = fm.collect_data(r, pos=True, x0_env=True, y0_env=True, ref_IonEk=True)
 
+e = fm.get_element(type='orbtrim')[10]
+e['properties']['theta_x'] = 0.1
+fm.configure(e)
+r1,s1 = fm.run(monitor=obs)
+data1 = fm.collect_data(r1, pos=True, x0_env=True, y0_env=True, ref_IonEk=True)
+#print(s.ref_IonEk)
+
 # plot figure
-plt.plot(data['pos'], data['ref_IonEk'])
-#plt.plot(data['pos'], data['x0_env'], 'r', lw=2, label='x')
+plt.figure()
+plt.plot(data['pos'], data['ref_IonEk'], 'r-')
+plt.plot(data1['pos'], data1['ref_IonEk'], 'b-')
+
+plt.figure()
+plt.plot(data['pos'], data['x0_env'], 'r', lw=2, label='x-0')
+plt.plot(data1['pos'], data1['x0_env'], 'b', lw=2, label='x-cor')
 #plt.plot(data['pos'], data['y0_env'], 'b', lw=2, label='y')
 #plt.legend()
 #plt.xlabel('z [m]')
