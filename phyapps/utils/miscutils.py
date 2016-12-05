@@ -52,13 +52,15 @@ def flatten(nnn):
     return list(_flatten(nnn))
 
 def get_intersection(**kws):
-    """ get the intersection of all input keyword parameters, ignore
-    empty list or tuple
+    """Get the intersection of all input keyword parameters, ignore
+    empty list or tuple.
 
-    :return: list
+    Returns
+    -------
+    res : list
     
-    :Example:
-    
+    Examples
+    --------
     >>> a, b, c = [], [], []
     >>> print(get_intersection(a=a,b=b,c=c))
     []
@@ -74,7 +76,6 @@ def get_intersection(**kws):
     >>> a, b, c = [1,2], [3,4], [2,3]
     >>> print(get_intersection(a=a,b=b,c=c))
     []
-    >>> 
     """
     s = set()
     for k in kws:
@@ -85,7 +86,7 @@ def get_intersection(**kws):
             s = s.intersection(v)
     return list(s)
     
-def _machine_setter(_latfile=None, _machine=None, _handle_name=None):
+def machine_setter(_latfile=None, _machine=None, _handle_name=None):
     """ set flame machine, prefer *_latfile*
 
     :return: FLAME machine object

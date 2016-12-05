@@ -1,56 +1,58 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-""" This module contains classes/functions to serve as utils for the 
+"""This module contains classes/functions to serve as utils for the
 potential requirment of modeling with FLAME code
-
-.. moduleauthor:: Tong Zhang <zhangt@frib.msu.edu>
-
-:date: 2016-11-11 11:04:53 AM EST
 """
 
-from __future__ import print_function
 from __future__ import division
+from __future__ import print_function
 
+import logging
+import os
+import sys
+from collections import Counter
+
+import numpy as np
 from flame import Machine
 from numpy import ndarray
-import sys
-#import traceback
-import logging
-from collections import Counter
-import os
-import miscutils
-import numpy as np
 
+import miscutils
+
+import scipy
+
+__authors__ = "Tong Zhang"
+__copyright__ = "(c) 2016, Facility for Rare Isotope beams, Michigan State University"
+__contact__ = "Tong Zhang <zhangt@frib.msu.edu>"
 
 _LOGGER = logging.getLogger(__name__)
 
+
 def generate_latfile(machine, latfile=None, out=None):
-    """Generate lattice file for the usage of FLAME code
+    """Generate lattice file for the usage of FLAME code.
 
     Parameters
     ----------
     machine :
-        flame machine object
-    latfile : 
-        file name for generated lattice file
-    out : 
-        new stream paramter, file stream, would be preferred
-    
+        FLAME machine object.
+    latfile :
+        File name for generated lattice file.
+    out :
+        New stream paramter, file stream, would be preferred.
+
     Returns
     -------
-    str
-        None if failed to generate lattice file, or the out file name
+    filename : str
+        None if failed to generate lattice file, or the out file name.
 
-    Note
-    ----
-        * if *latfile* and *out* are not defined, will print all output to screen;
-        * if *latfile* and *out* are all defined, *out* stream is preferred;
-        * for other cases, choose one that is defined.
+    Notes
+    -----
+    - If *latfile* and *out* are not defined, will print all output to screen;
+    - If *latfile* and *out* are all defined, *out* stream is preferred;
+    - For other cases, choose one that is defined.
 
-    Example
-    -------
-
+    Examples
+    --------
     >>> from flame import Machine
     >>> latfile = 'test.lat'
     >>> m = Machine(open(latfile))
@@ -60,14 +62,13 @@ def generate_latfile(machine, latfile=None, out=None):
     >>> # recommand new way
     >>> fout = open('out.lat', 'w')
     >>> generate_latfile(m, out=fout)
-    >>> 
 
-    Warning
-    -------
-        To get element configuration only by ``m.conf(i)`` method,
-        where ``m`` is ``flame.Machine`` object, ``i`` is element index,
-        when some re-configuring operation is done, ``m.conf(i)`` will be update,
-        but ``m.conf()["elements"]`` remains with the initial values.
+    Warnings
+    --------
+    To get element configuration only by ``m.conf(i)`` method,
+    where ``m`` is ``flame.Machine`` object, ``i`` is element index,
+    when some re-configuring operation is done, ``m.conf(i)`` will be update,
+    but ``m.conf()["elements"]`` remains with the initial values.
     """
     m = machine
     try:
@@ -132,7 +133,6 @@ def generate_latfile(machine, latfile=None, out=None):
         print("Failed to generate lattice file.")
         return None
 
-    
     all_lines = '\n'.join(lines)
     try:
         if latfile is None and out is None:
@@ -143,7 +143,7 @@ def generate_latfile(machine, latfile=None, out=None):
             sout = out
         print(all_lines, file=sout)
     except:
-        print("Failed to write to %s" % (latfile))
+        print("Failed to write to %s" % latfile)
         return None
 
     try:
@@ -155,15 +155,15 @@ def generate_latfile(machine, latfile=None, out=None):
 
 
 class ModelFlame(object):
-    """ General FLAME modeling class
+    """General FLAME modeling class.
 
     Parameters
     ----------
-    lat_file: 
-        FLAME lattice file, if not set, None
+    lat_file : str
+        FLAME lattice file, if not set, None.
 
-    Example
-    -------
+    Examples
+    --------
     >>> from flame import Machine
     >>> from phyapps import flameutils
     >>>  
@@ -193,18 +193,19 @@ class ModelFlame(object):
     >>> 
     >>> # get result, storing as a dict, e.g. data
     >>> data = fm.collect_data(r, pos=True, x0=True, y0=True)
-    >>>  
 
     See Also
     --------
-    MachineStates : FLAME Machine state class created for ``MomentMatrix`` type 
+    MachineStates : FLAME Machine state class created for ``MomentMatrix`` type.
     """
+
     def __init__(self, lat_file=None, **kws):
         self._lat_file = lat_file
         self._mach_ins, self._mach_states = self.init_machine(lat_file)
 
     @property
     def latfile(self):
+        """str: FLAME lattice file name."""
         return self._lat_file
 
     @latfile.setter
@@ -213,6 +214,7 @@ class ModelFlame(object):
 
     @property
     def machine(self):
+        """FLAME machine object."""
         return self._mach_ins
 
     @machine.setter
@@ -221,18 +223,33 @@ class ModelFlame(object):
 
     @property
     def mstates(self):
+        """FLAME machine state, could be internal state or MachineStates.
+
+        See Also
+        --------
+        MachineStates : FLAME Machine state class created for ``MomentMatrix``
+            type.
+        """
         return self._mach_states
 
     @mstates.setter
     def mstates(self, s):
         self._mach_states = s
 
-    def init_machine(self, latfile):
-        """ initialize FLAME machine
+    @staticmethod
+    def init_machine(latfile):
+        """Initialize FLAME machine.
 
-        :param latfile: FLAME lattice file
-        :return: tuple of ``(m, s)``, where ``m`` is FLAME machine instance,
-                 and ``s`` is initial machine states
+        Parameters
+        ----------
+        latfile :
+            FLAME lattice file.
+
+        Returns
+        -------
+        res : tuple
+            Tuple of ``(m, s)``, where ``m`` is FLAME machine instance,
+            and ``s`` is initial machine states.
         """
         try:
             with open(latfile, 'r') as f:
@@ -242,127 +259,187 @@ class ModelFlame(object):
             _LOGGER.info("ModelFlame: Initialization succeeded.")
             return m, s
         except:
-            #traceback.print_exc()
             _LOGGER.warning("ModelFlame: Lattice file is not valid, do it manually.")
             return None, None
-        
+
     def get_element(self, name=None, index=None, type=None):
-        """ element inspection, get properties, see :func:`get_element()`.
+        """Element inspection, get properties.
         
-        :return: list of dict of properties or empty list
+        Returns
+        -------
+        res : list of dict
+            List of dict of properties or empty list.
+
+        See Also
+        --------
+        get_element : Get element from FLAME machine object.
         """
-        elem_list = get_element(_machine=self._mach_ins, 
-                name=name, index=index, type=type)
-        return elem_list 
+        elem_list = get_element(_machine=self._mach_ins,
+                                name=name, index=index, type=type)
+        return elem_list
 
     def inspect_lattice(self):
-        """ inspect FLAME machine and print out information, see :func:`inspect_lattice()`.
+        """Inspect FLAME machine and print out information.
+
+        See Also
+        --------
+        inspect_lattice : Inspect FLAME lattice file, print a brief report.
         """
         inspect_lattice(_machine=self._mach_ins)
 
     def get_all_types(self):
-        """get all uniqe element types, see :func:`.get_all_types()`.
+        """Get all uniqe element types.
 
         Returns
         -------
-        list
-            list of element type names
+        res : list of str
+            List of element type names
+
+        See Also
+        --------
+        get_all_types : Get all unique types from a FLAME machine.
         """
         return get_all_types(_machine=self._mach_ins)
 
     def get_all_names(self):
-        """ get all uniqe element names, see :func:`.get_all_names()`.
+        """Get all uniqe element names.
 
-        :return: list of element names
+        Returns
+        -------
+        res : list of str
+            List of element names.
+
+        See Also
+        --------
+        get_all_names : Get all uniqe names from a FLAME machine.
         """
         return get_all_names(_machine=self._mach_ins)
 
     def get_index_by_type(self, type='', rtype='dict'):
-        """ get element(s) index by type(s), see :func:`.get_index_by_type()`.
+        """Get element(s) index by type(s).
         
-        :param type: single element type name or list[tuple] of element type names
-        :param rtype: return type, 'dict' (default) or 'list'
-        :return: dict, key is type name, value if indice list of each type name,
-                 list, of indices list, with the order of type
+        Parameters
+        ----------
+        type : str or list of str
+            Single element type name or list[tuple] of element type names.
+        rtype : str
+            Return type, 'dict' (default) or 'list'.
+
+        Returns
+        -------
+        ind : dict or list
+            Dict, key is type name, value if indice list of each type name,
+            list, of indices list, with the order of type.
+
+        See Also
+        --------
+        get_index_by_type : Get element(s) index by type(s).
         """
         return get_index_by_type(type=type, rtype=rtype, _machine=self._mach_ins)
 
     def get_index_by_name(self, name='', rtype='dict'):
-        """get index(s) by name(s), see :func:`.get_index_by_name()`.
+        """Get index(s) by name(s).
 
         Parameters
         ----------
-        name: list or tuple of str
-            single element name or list[tuple] of element names
-        rtype: 
-            return type, 'dict' (default) or 'list'
+        name : list or tuple of str
+            Single element name or list[tuple] of element names.
+        rtype : str 
+            Return type, 'dict' (default) or 'list'.
 
         Returns
         -------
         dict or list
-            dict of element indices, key is name, value is index,
-            list of element indices list
+            Dict of element indices, key is name, value is index,
+            list of element indices list.
+
+        See Also
+        --------
+        get_index_by_name : Get index(s) by element name(s).
         """
-        return get_index_by_name(name=name, _machine=self._mach_ins)
+        return get_index_by_name(name=name, _machine=self._mach_ins, rtype=rtype)
 
     def run(self, mstates=None, from_element=None, to_element=None, monitor=None):
-        """propagate machine
+        """Simulate model.
 
         Parameters
         ----------
-        mstates: 
-            FLAME machine states object, also could be :class:`MachineStates` object
-            if not set, will use the one from ``ModelFlame`` object itself, usually is
-            created at the initialization stage, see :func:`init_machine()`
-        from_element: int
-            element index of start point, if not set, will be the first element
-            if not set, will be 0 for zero states, or 1
-        to_element: int
-            element index of end point, if not set, will be the last element
-        monitor: list[int]
-            list of element indice selected as states monitors, if set -1, 
-            will be a list of only last element
+        mstates : 
+            FLAME machine states object, also could be :class:`MachineStates`
+            object if not set, will use the one from ``ModelFlame`` object
+            itself, usually is created at the initialization stage,
+            see :func:`init_machine()`.
+        from_element : int
+            Element index of start point, if not set, will be the first element
+            if not set, will be 0 for zero states, or 1.
+        to_element : int
+            Element index of end point, if not set, will be the last element.
+        monitor : list[int]
+            List of element indice selected as states monitors, if set -1, 
+            will be a list of only last element.
 
         Returns
         -------
         tuple
-            tuple of ``(r,s)``, where ``r`` is list of results at each monitor points,
-            ``s`` is ``MachineStates`` object after the last monitor point
+            Tuple of ``(r,s)``, where ``r`` is list of results at each monitor
+            points, ``s`` is ``MachineStates`` object after the last monitor
+            point.
+
+        Warnings
+        --------
+        This method does not change the input *mstates*, while ``propagate``
+        changes.
+
+        See Also
+        --------
+        MachineStates : FLAME Machine state class created for ``MomentMatrix``
+            type.
+        propagate : Propagate ``MachineStates`` within defined FLAME machine
+            object.
         """
         m = self._mach_ins
         if mstates is None:
-            #s = m.allocState({})
-            s = self._mach_states
+            # s = m.allocState({})
+            s = self._mach_states.clone()
         else:
-            s = mstates
-    
+            s = mstates.clone()
+
         if is_zeros_states(s):
             vstart = 0 if from_element is None else from_element
         else:
             vstart = 1 if from_element is None else from_element
-        vend = len(m)-1 if to_element is None else to_element
+        vend = len(m) - 1 if to_element is None else to_element
         obs = [vend] if monitor is -1 else monitor
 
-        vmax = vend-vstart+1
+        vmax = vend - vstart + 1
         if isinstance(s, MachineStates):
             r, s = propagate(m, s, from_element=vstart, to_element=vend, monitor=obs)
         else:
             r = m.propagate(s, start=vstart, max=vmax, observe=obs)
         r = self.convert_results(r)
-        return r,s
+        return r, s
 
-    def convert_results(self, mres, **kws):
-        """convert all machine states of results generated by :func:`run()` method
-        to be ``MachineStates`` object
+    @staticmethod
+    def convert_results(mres, **kws):
+        """Convert all machine states of results generated by :func:`run()`
+        method to be ``MachineStates`` object.
 
         Parameters
         ----------
-        mres: list of tuple
-            list of propagation results
-        """
-        return [(i, MachineStates(s)) for (i,s) in mres] 
+        mres : list of tuple
+            List of propagation results.
 
-    def collect_data(self, result, **kws):
+        Returns
+        -------
+        list of tuple
+            Tuple of ``(r,s)``, where ``r`` is list of results at each monitor
+            points, ``s`` is ``MachineStates`` object after the last monitor
+            point.
+        """
+        return [(i, MachineStates(s)) for (i, s) in mres]
+
+    @staticmethod
+    def collect_data(result, **kws):
         """collect data of interest from propagation results
 
         Parameters
@@ -372,236 +449,380 @@ class ModelFlame(object):
 
         See Also
         --------
-        collect_data : get data of interest from results
+        collect_data : Get data of interest from results.
         """
         return collect_data(result, **kws)
-        #valid_keys = [k for k,v in kws.items() if v is not None]
-        #return {ik: np.array([getattr(s, ik) for (i, s) in result]) for ik in valid_keys}
 
+    def configure(self, econf):
+        """Configure FLAME model.
 
-def convert_results(mres, **kws):
-    """convert all machine states of results generated by :func:`run()` method
-    to be ``MachineStates`` object
+        Parameters
+        ----------
+        econf : (list of) dict
+            Element configuration(s), see :func:`get_element`.
+
+        See Also
+        --------
+        configure : Configure FLAME machine.
+        get_element : Get FLAME lattice element configuration.
+        """
+        m = configure(self._mach_ins, econf)
+        self._mach_ins = m
+    
+def configure(machine=None, econf=None, **kws):
+    """Configure FLAME machine.
 
     Parameters
     ----------
-    mres: list of tuple
-        list of propagation results
+    machine :
+        FLAME machine object.
+    econf : (list of) dict
+        Element configuration(s).
+
+    Keyword Arguments
+    -----------------
+    latfile : str
+        FLAME lattice file.
+    c_idx : int
+        Element index.
+    c_dict : dict
+        Configuration dict.
+
+
+    Returns
+    -------
+    m : new FLAME machine object 
+        None if failed, else new machine object.
+
+    Notes
+    -----
+    If wanna configure FLAME machine by conventional way, then *c_idx* and
+    *c_dict* could be used, e.g. reconfigure one corrector of ``m``:
+    ``configure(machine=m, c_idx=10, c_dict={'theta_x': 0.001})``
+    which is just the same as: ``m.reconfigure(10, {'theta_x': 0.001})``.
+    
+    Examples
+    --------
+    >>> from flame import Machine
+    >>> from phyapps import flameutils
+    >>> latfile = 'test.lat'
+    >>> m = Machine(open(latfile, 'r'))
+    >>> 
+    >>> # reconfigure one element
+    >>> e1 = flameutils.get_element(_machine=m, index=1)[0]
+    >>> print(e1)
+    {'index': 1, 'properties': {'L': 0.072, 'aper': 0.02, 
+     'name': 'LS1_CA01:GV_D1124', 'type': 'drift'}}
+    >>> e1['properties']['aper'] = 0.04
+    >>> m = flameutils.configure(m, e1)
+    >>> print(flameutils.get_element(_machine=m, index=1)[0])
+    {'index': 1, 'properties': {'L': 0.072, 'aper': 0.04, 
+     'name': 'LS1_CA01:GV_D1124', 'type': 'drift'}}
+    >>> 
+    >>> # reconfiugre more than one element
+    >>> e_cor = flameutils.get_element(_machine=m, type='orbtrim')
+    >>> # set all horizontal correctors with theta_x = 0.001 
+    >>> for e in e_cor:
+    >>>     if 'theta_x' in e['properties']:
+    >>>         e['properties']['theta_x'] = 0.001
+    >>> m = flameutils.configure(m, e_cor)
+
+    See Also
+    --------
+    get_element : Get FLAME lattice element configuration.
     """
-    return [(i, MachineStates(s)) for (i,s) in mres] 
+    _latfile = kws.get('latfile', None)
+    _machine = machine
+    _m = miscutils.machine_setter(_latfile, _machine, 'configure')
+    if _m is None:
+        return None
+
+    _c_idx, _c_dict = kws.get('c_idx'), kws.get('c_dict')
+    if _c_idx is not None and _c_dict is not None:
+        _m.reconfigure(_c_idx, _c_dict)
+    else:
+        if not isinstance(econf, list):
+            _m.reconfigure(econf['index'], econf['properties'])
+        else:
+            for e in econf:
+                _m.reconfigure(e['index'], e['properties'])
+    return _m
+
+
+def convert_results(mres, **kws):
+    """Convert all machine states of results generated by :func:`run()` method
+    to be ``MachineStates`` object.
+
+    Parameters
+    ----------
+    mres : list of tuple
+        List of propagation results.
+
+    Returns
+    -------
+    list of tuple
+        Tuple of ``(r,s)``, where ``r`` is list of results at each monitor
+        points, ``s`` is ``MachineStates`` object after the last monitor point.
+    """
+    return [(i, MachineStates(s)) for (i, s) in mres]
+
 
 def collect_data(result, **kws):
-    """collect data of interest from propagation results
+    """Collect data of interest from propagation results.
 
     Parameters
     ----------
     result : 
-        propagation results with ``MachineStates`` object
+        Propagation results with ``MachineStates`` object.
 
     Keyword Arguments
     -----------------
-    pos: float
-        longitudinally propagating position, [m]
-    ref_beta: float
-        speed in the unit of light velocity in vacuum of reference charge state, lorentz beta
-    ref_bg: float
-        multiplication of beta and gamma of reference charge state
-    ref_gamma: float
-        relativistic energy of reference charge state, lorentz gamma
-    ref_IonEk: float
-        kinetic energy of reference charge state, [eV/u]
-    ref_IonEs: float
-        rest energy of reference charge state, [eV/u]
-    ref_IonQ: int
-        macro particle number of reference charge state
-    ref_IonW: float
-        total energy of reference charge state, [eV/u], i.e. :math:`W = E_s + E_k`
-    ref_IonZ: float
-        reference charge state, measured by charge to mass ratio, e.g. :math:`^{33^{+}}_{238}U: Q[33]/A[238]`
-    ref_phis: float
-        absolute synchrotron phase of reference charge state, [rad]
-    ref_SampleIonK: float
-        wave-vector in cavities with different beta values of reference charge state
-    beta: Array
-        speed in the unit of light velocity in vacuum of all charge states, lorentz beta
-    bg: Array
-        multiplication of beta and gamma of all charge states
-    gamma: Array
-        relativistic energy of all charge states, lorentz gamma
-    IonEk: Array
-        kinetic energy of all charge states, [eV/u]
-    IonEs: Array
-        rest energy of all charge states, [eV/u]
-    IonQ: Array
-        macro particle number of all charge states
-    IonW: Array
-        total energy of all charge states, [eV/u], i.e. :math:`W = E_s + E_k`
-    IonZ: Array
-        all charge states, measured by charge to mass ratio
-    phis: Array
-        absolute synchrotron phase of all charge states, [rad]
-    SampleIonK: Array
-        wave-vector in cavities with different beta values of all charge states
-    x0: Array
-        x centroid for all charge states, [mm]
-    y0: Array
-        y centroid for all charge states, [mm]
-    xp0: Array
-        x centroid divergence for all charge states, [rad]
-    yp0: Array
-        y centroid divergence for all charge states, [rad]
-    phi0: Array
-        longitudinal beam length, measured in RF frequency for all charge states, [rad]
-    dEk0: Array
-        kinetic energy deviation w.r.t. reference charge state, for all charge states, [MeV/u]
-    x0_rms: Array
-        general rms beam envelope for x, [mm]
-    y0_rms: Array
-        general rms beam envelope for y, [mm]
-    xp0_rms: Array
-        general rms beam envelope for x', [rad]
-    yp0_rms: Array
-        general rms beam envelope for y', [rad]
-    phi0_rms: Array
-        general rms beam envelope for :math:`\phi`, [rad]
-    dEk0_rms: Array
-        general rms beam envelope for :math:`\delta E_k`, [MeV/u]
-    x0_env: Array
-        weight average of all charge state for x', [rad]
-    y0_env: Array
-        weight average of all charge state for y, [mm]
-    xp0_env: Array
-        weight average of all charge state for x', [rad]
-    yp0_env: Array
-        weight average of all charge state for y', [rad]
-    phi0_env: Array
-        weight average of all charge state for :math:`\phi`, [mm]
-    dEk0_env: Array
-        weight average of all charge state for :math:`\delta E_k`, [MeV/u]
-    moment0_env: Array
-        weight average of centroid for all charge states, array of ``[x, x', y, y', phi, dEk, 1]``,
-        with the units of ``[mm, rad, mm, rad, rad, MeV/u, 1]``
-    moment0: Array
-        centroid for all charge states, array of ``[x, x', y, y', phi, dEk, 1]``
-    moment0_rms: Array
-        rms beam envelope, part of statistical results from ``moment1``
-    moment1: Array
-        correlation tensor of all charge states, for each charge state
+    pos : float
+        Longitudinally propagating position, [m].
+    ref_beta : float
+        Speed in the unit of light velocity in vacuum of reference charge
+        state, Lorentz beta.
+    ref_bg : float
+        Multiplication of beta and gamma of reference charge state.
+    ref_gamma : float
+        Relativistic energy of reference charge state, Lorentz gamma.
+    ref_IonEk : float
+        Kinetic energy of reference charge state, [eV/u].
+    ref_IonEs : float
+        Rest energy of reference charge state, [eV/u].
+    ref_IonQ : int
+        Macro particle number of reference charge state.
+    ref_IonW : float
+        Total energy of reference charge state, [eV/u],
+        i.e. :math:`W = E_s + E_k`.
+    ref_IonZ : float
+        Reference charge state, measured by charge to mass ratio, e.g.
+        :math:`^{33^{+}}_{238}U: Q[33]/A[238]`.
+    ref_phis : float
+        Absolute synchrotron phase of reference charge state, [rad].
+    ref_SampleIonK : float
+        Wave-vector in cavities with different beta values of reference charge
+        state.
+    beta : Array
+        Speed in the unit of light velocity in vacuum of all charge states,
+        Lorentz beta.
+    bg : Array
+        Multiplication of beta and gamma of all charge states.
+    gamma : Array
+        Relativistic energy of all charge states, Lorentz gamma.
+    IonEk : Array
+        Kinetic energy of all charge states, [eV/u].
+    IonEs : Array
+        Rest energy of all charge states, [eV/u].
+    IonQ : Array
+        Macro particle number of all charge states.
+    IonW : Array
+        Total energy of all charge states, [eV/u], i.e. :math:`W = E_s + E_k`.
+    IonZ : Array
+        All charge states, measured by charge to mass ratio
+    phis : Array
+        Absolute synchrotron phase of all charge states, [rad]
+    SampleIonK : Array
+        Wave-vector in cavities with different beta values of all charge
+        states.
+    x0 : Array
+        X centroid for all charge states, [mm].
+    y0 : Array
+        Y centroid for all charge states, [mm].
+    xp0 : Array
+        X centroid divergence for all charge states, [rad].
+    yp0 : Array
+        Y centroid divergence for all charge states, [rad].
+    phi0 : Array
+        Longitudinal beam length, measured in RF frequency for all charge
+        states, [rad].
+    dEk0 : Array
+        Kinetic energy deviation w.r.t. reference charge state, for all charge
+        states, [MeV/u].
+    x0_rms : Array
+        General rms beam envelope for x, [mm].
+    y0_rms : Array
+        General rms beam envelope for y, [mm].
+    xp0_rms : Array
+        General rms beam envelope for x', [rad].
+    yp0_rms : Array
+        General rms beam envelope for y', [rad].
+    phi0_rms : Array
+        General rms beam envelope for :math:`\phi`, [rad].
+    dEk0_rms : Array
+        General rms beam envelope for :math:`\delta E_k`, [MeV/u].
+    x0_env : Array
+        Weight average of all charge states for x', [rad].
+    y0_env : Array
+        Weight average of all charge states for y, [mm].
+    xp0_env : Array
+        Weight average of all charge states for x', [rad].
+    yp0_env : Array
+        Weight average of all charge states for y', [rad].
+    phi0_env : Array
+        Weight average of all charge states for :math:`\phi`, [mm].
+    dEk0_env : Array
+        Weight average of all charge states for :math:`\delta E_k`, [MeV/u].
+    moment0_env : Array
+        Weight average of centroid for all charge states, array of
+        ``[x, x', y, y', phi, dEk, 1]``, with the units of
+        ``[mm, rad, mm, rad, rad, MeV/u, 1]``.
+    moment0 : Array
+        Centroid for all charge states, array of ``[x, x', y, y', phi, dEk, 1]``.
+    moment0_rms : Array
+        RMS beam envelope, part of statistical results from ``moment1``.
+    moment1 : Array
+        Correlation tensor of all charge states, for each charge state.
 
     Returns
     -------
     dict
-        dict of ``{k1:v1, k2,v2...}``, keys are from keyword parameters
+        Dict of ``{k1:v1, k2,v2...}``, keys are from keyword parameters.
 
-    Note
-    ----
-    Set the data of interest with ``k=True`` as input will return the defined ``k`` value.
+    Notes
+    -----
+    Set the data of interest with ``k=True`` as input will return the defined
+    ``k`` value.
 
-    Example
-    -------
+    Examples
+    --------
     >>> # get x0 and y0 array
     >>> collect_data(r, x0=True, y0=True)
+
+    See Also
+    --------
+    MachineStates : FLAME Machine state class created for ``MomentMatrix`` type.
     """
-    valid_keys = [k for k,v in kws.items() if v is not None]
+    valid_keys = [k for k, v in kws.items() if v is not None]
     try:
         return {ik: np.array([getattr(s, ik) for (i, s) in result]) for ik in valid_keys}
     except:
         result = convert_results(result)
         return {ik: np.array([getattr(s, ik) for (i, s) in result]) for ik in valid_keys}
-    
+
+
 def propagate(machine=None, mstates=None, from_element=None, to_element=None, monitor=None, **kws):
-    """ propagate for `MachineStates`, see :class:`MachineStates`.
-    
-    :param machine: FLAME machine object
-    :param mstates: MachineStates object
-    :param from_element: int, element index of start point, if not set, will be the first element
-    :param to_element: int, element index of end point, if not set, will be the last element
-    :param monitor: list of element indice selected as states monitors, if set -1, will be a list of only last element
-    :return: None if failed, else tuple of ``(r,ms)``, where ``r`` is list of results at each monitor points,
-            ``ms`` is ``MachineStates`` object after the last monitor point
+    """Propagate ``MachineStates``.
 
-    valid keyword parameters:
+    Parameters
+    ----------
+    machine :
+        FLAME machine object.
+    mstates :
+        MachineStates object.
+    from_element : int
+        Element index of start point, if not set, will be the first element.
+    to_element : int
+        Element index of end point, if not set, will be the last element.
+    monitor : list
+        List of element indice selected as states monitors, if set -1, will be
+        a list of only last element.
 
-        * latfile: FLAME lattice file
+    Keyword Arguments
+    -----------------
+    latfile : str
+        FLAME lattice file.
+
+    Returns
+    -------
+    tuple
+        None if failed, else tuple of ``(r,ms)``, where ``r`` is list of
+        results at each monitor points, ``ms`` is ``MachineStates`` object
+        after the last monitor point.
+
+    See Also
+    --------
+    MachineStates : FLAME Machine state class created for ``MomentMatrix`` 
+        type.
     """
-    _latfile = kws.get('lattice', None)
+    _latfile = kws.get('latfile', None)
     _machine = machine
-    _m = miscutils._machine_setter(_latfile, _machine, 'propagate')
+    _m = miscutils.machine_setter(_latfile, _machine, 'propagate')
     if _m is None:
         return None
     if mstates is None:
-        s0 = m.allocState({})
+        s0 = _m.allocState({})
         ms = MachineStates(s0)
     else:
         ms = mstates
 
     vstart = 0 if from_element is None else from_element
-    vend = len(m)-1 if to_element is None else to_element
+    vend = len(_m) - 1 if to_element is None else to_element
     obs = [vend] if monitor is -1 else monitor
-    
-    vmax = vend-vstart+1
+
+    vmax = vend - vstart + 1
     s = ms.mstates
     r = _m.propagate(s, start=vstart, max=vmax, observe=obs)
     ms.mstates = s
     return r, ms
 
+
 def get_all_types(latfile=None, _machine=None):
-    """ get all unique types from a FLAME machine or lattice file
+    """Get all unique types from a FLAME machine or lattice file.
     
-    :param latfile: FLAME lattice file
-    :param _machine: FLAME machine object
-    :return: None if failed, or list of valid element types' string names
+    Parameters
+    ----------
+    latfile:
+        FLAME lattice file.
+    _machine:
+        FLAME machine object.
+
+    Returns
+    -------
+    list
+        None if failed, or list of valid element types' string names.
     """
-    m = miscutils._machine_setter(latfile, _machine, 'get_all_types')
+    m = miscutils.machine_setter(latfile, _machine, 'get_all_types')
     if m is None: return None
 
     mconf = m.conf()
     mconfe = mconf['elements']
     return list(set([i.get('type') for i in mconfe]))
 
+
 def get_all_names(latfile=None, _machine=None):
-    """get all uniqe names from a FLAME machine or lattice file
+    """Get all uniqe names from a FLAME machine or lattice file.
     
     Parameters
     ----------
     latfile : str
-        FLAME lattice file
+        FLAME lattice file.
     _machine : 
-        FLAME machine object
+        FLAME machine object.
     
     Returns
     -------
     str or None
-        None if failed, or list of valid element types' string names
+        None if failed, or list of valid element types' string names.
     """
-    m = miscutils._machine_setter(latfile, _machine, 'get_all_names')
+    m = miscutils.machine_setter(latfile, _machine, 'get_all_names')
     if m is None: return None
 
     mconf = m.conf()
     mconfe = mconf['elements']
     return list(set([i.get('name') for i in mconfe]))
-    
+
+
 def inspect_lattice(latfile=None, out=None, _machine=None):
-    """inspect FLAME lattice file, print a lattice information report,
+    """Inspect FLAME lattice file, print a lattice information report,
     if failed, print nothing.
 
     Parameters
     ----------
-    latfile: 
-        FLAME lattice file
-    out: 
-        output stream, stdout by default
-    _machine: 
-        FLAME machine object
+    latfile : 
+        FLAME lattice file.
+    out : 
+        output stream, stdout by default.
+    _machine :
+        FLAME machine object.
 
     Returns
     -------
     None
-        None if failed, or print information
+        None if failed, or print information.
 
-    Example
-    -------
-
+    Examples
+    --------
     >>> from flame import Machine
     >>> from phyapps import flameutils
     >>> latfile = 'lattice/test.lat'
@@ -611,7 +832,7 @@ def inspect_lattice(latfile=None, out=None, _machine=None):
     ==============================
     TYPE        COUNT   PERCENTAGE
     ------------------------------
-    SOURCE       1       0.08  
+    SOURCE       1       0.08
     STRIPPER     1       0.08  
     QUADRUPOLE   40      3.22  
     BPM          75      6.04  
@@ -647,51 +868,64 @@ def inspect_lattice(latfile=None, out=None, _machine=None):
     >>> sio = StringIO()
     >>> flameutils.inspect_lattice(latfile=latfile, out=sio)
     >>> retstr = sio.getvalue()
-    >>> 
     """
     if latfile is None:
         latfile = "<machine>"  # data from machine, not lattice file
-    m = miscutils._machine_setter(latfile, _machine, 'inspect_lattice')
+    m = miscutils.machine_setter(latfile, _machine, 'inspect_lattice')
     if m is None: return None
 
     mconf = m.conf()
     mconfe = mconf['elements']
     msize = len(mconfe)
     type_cnt = Counter([i.get('type') for i in mconfe])
-    etable = [(t,n,n/msize) for (t,n) in sorted(type_cnt.items(), key=lambda x:x[1])]
+    etable = [(t, n, n / msize) for (t, n) in sorted(type_cnt.items(), key=lambda x: x[1])]
 
     out = sys.stdout if out is None else out
     print("Inspecting lattice: %s" % os.path.basename(latfile), file=out)
-    print("="*30, file=out)
-    print("{0:<11s} {1:<7s} {2:<10s}".format("TYPE","COUNT","PERCENTAGE"), file=out)
-    print("-"*30, file=out)
+    print("=" * 30, file=out)
+    print("{0:<11s} {1:<7s} {2:<10s}".format("TYPE", "COUNT", "PERCENTAGE"), file=out)
+    print("-" * 30, file=out)
     for (t, n, p) in etable:
-        outstr = "{t:<12s} {n:<5d} {p:^8.2f}".format(t=t.upper(),n=n,p=p*100)
+        outstr = "{t:<12s} {n:<5d} {p:^8.2f}".format(t=t.upper(), n=n, p=p * 100)
         print(outstr, file=out)
 
-def get_element(latfile=None, index=None, name=None,  type=None, _machine=None):
-    """ inspect FLAME lattice element, return properties
 
-    :param latfile: FLAME lattice file
-    :param index: (list of) element index(s), int
-    :param name: (list of) element name(s), string
-    :param type: (list of) element type(s), string
-    :param _machine: FLAME machine object
-    :return: list of dict of properties or empty list
+def get_element(latfile=None, index=None, name=None, type=None, _machine=None):
+    """Inspect FLAME lattice element, return properties.
 
-    .. note:: if more than one optional paramters (index, name, type) are provided,
-        only return element that meets all these definitions.
+    Parameters
+    ----------
+    latfile : str
+        FLAME lattice file.
+    index : int
+        (list of) Element index(s).
+    name : str
+        (list of) Element name(s).
+    type : str
+        (list of) Element type(s).
+    _machine :
+        FLAME machine object.
 
-    :Example:
+    Returns
+    -------
+    res : list of dict or []
+        List of dict of properties or empty list
 
+    Notes
+    -----
+    If more than one optional paramters (index, name, type) are provided,
+    only return element that meets all these definitions.
+
+    Examples
+    --------
     >>> from flame import Machine
     >>> from phyapps import flameutils
     >>> latfile = 'lattice/test.lat'
     >>> ename = 'LS1_CA01:CAV4_D1150'
     >>> e = flameutils.get_element(name=ename, latfile=latfile)
     >>> print(e)
-    [{'index': 27, 'properties': {'aper': 0.017, 'name': 'LS1_CA01:CAV4_D1150', 
-      'f': 80500000.0, 'cavtype': '0.041QWR', 'L': 0.24, 'phi': 325.2, 
+    [{'index': 27, 'properties': {'aper': 0.017, 'name': 'LS1_CA01:CAV4_D1150',
+      'f': 80500000.0, 'cavtype': '0.041QWR', 'L': 0.24, 'phi': 325.2,
       'scl_fac': 0.819578, 'type': 'rfcavity'}}]
     >>> # use multiple filters, e.g. get all BPMs in the first 20 elements
     >>> e = flameutils.get_element(_machine=m, index=range(20), type='bpm')
@@ -699,14 +933,19 @@ def get_element(latfile=None, index=None, name=None,  type=None, _machine=None):
     [{'index': 18, 'properties': {'name': 'LS1_CA01:BPM_D1144', 'type': 'bpm'}},
      {'index': 5, 'properties': {'name': 'LS1_CA01:BPM_D1129', 'type': 'bpm'}}]
     >>> # all thee filters could be used together, return [] if found nothing
-    >>> 
+    >>>
 
-    .. warning:: invalid element names or type names will be ignored.
+    Warnings
+    --------
+    Invalid element names or type names will be ignored.
+
+    See Also
+    --------
+    :func:`.get_intersection` : Get the intersection of input valid list or tuple.
     """
-    m = miscutils._machine_setter(latfile, _machine, 'get_element')
+    m = miscutils.machine_setter(latfile, _machine, 'get_element')
     if m is None: return None
 
-    idx = set()
     if index is not None:
         if not isinstance(index, (list, tuple)):
             idx_from_index = index,
@@ -741,25 +980,38 @@ def get_element(latfile=None, index=None, name=None,  type=None, _machine=None):
             if elem.get('type') == 'stripper':
                 elem_k.add('IonChargeStates')
                 elem_k.add('NCharge')
-            elem_p = {k:elem.get(k) for k in elem_k}
-            retval.append({'index':i, 'properties':elem_p})
+            elem_p = {k: elem.get(k) for k in elem_k}
+            retval.append({'index': i, 'properties': elem_p})
         return retval
-            
+
+
 def get_index_by_type(type='', latfile=None, rtype='dict', _machine=None):
-    """ get element(s) index by type(s)
+    """Get element(s) index by type(s).
     
-    :param type: single element type name or list[tuple] of element type names
-    :param latfile: FLAME lattice file, preferred
-    :param rtype: return type, 'dict' (default) or 'list'
-    :param _machine: FLAME machine object
-    :return: dict, key is type name, value if indice list of each type name,
-             list, of indices list, with the order of type
+    Parameters
+    ----------
+    type : str or list of str
+        Single element type name or list[tuple] of element type names.
+    latfile : 
+        FLAME lattice file, preferred.
+    rtype : str
+        Return type, 'dict' (default) or 'list'.
+    _machine : 
+        FLAME machine object.
 
-    .. note:: if *rtype* is ``list``, list of list would be returned instead of a dict,
-        ``flatten()`` function could be used to flatten the list, see :func:`.flatten()`.
+    Returns
+    -------
+    ind : dict or list
+        Dict, key is type name, value if indice list of each type name,
+        list, of indices list, with the order of type.
 
-    :Example:
+    Notes
+    -----
+    If *rtype* is ``list``, list of list would be returned instead of a dict,
+    ``flatten()`` function could be used to flatten the list.
 
+    Examples
+    --------
     >>> from flame import Machine
     >>> from phyapps import flameutils
     >>> latfile = 'lattice/test.lat'
@@ -775,34 +1027,51 @@ def get_index_by_type(type='', latfile=None, rtype='dict', _machine=None):
     >>> # return a list instead of dict
     >>> print(flameutils.get_index_by_type(type=types, latfile=latfile, rtype='list'))
     [[891], [0]]
-    >>> 
-    """
-    m = miscutils._machine_setter(latfile, _machine, 'get_index_by_type')
+    
+
+    See Also
+    --------
+    :func:`.flatten` : flatten recursive list.
+   """
+    m = miscutils.machine_setter(latfile, _machine, 'get_index_by_type')
     if m is None: return None
 
     if not isinstance(type, (list, tuple)):
         type = type,
-    
+
     if rtype == 'dict':
-        return {t:m.find(type=t) for t in type}
+        return {t: m.find(type=t) for t in type}
     else:  # list
         return [m.find(type=t) for t in type]
- 
+
+
 def get_index_by_name(name='', latfile=None, rtype='dict', _machine=None):
-    """ get index(s) by name(s)
+    """Get index(s) by name(s).
 
-    :param name: single element name or list[tuple] of element names
-    :param latfile: FLAME lattice file, preferred
-    :param rtype: return type, 'dict' (default) or 'list'
-    :param _machine: FLAME machine object
-    :return: dict of element indices, key is name, value is index,
-             list of element indices list
+    Parameters
+    ----------
+    name : str or list of str
+        Single element name or list[tuple] of element names
+    latfile :
+        FLAME lattice file, preferred.
+    rtype : str
+        Return type, 'dict' (default) or 'list'.
+    _machine :
+        FLAME machine object.
 
-    .. note:: if *rtype* is ``list``, list of list would be returned instead of a dict,
-        ``flatten()`` function could be used to flatten the list, see :func:`.flatten()`.
+    Returns
+    -------
+    ind : dict or list
+        dict of element indices, key is name, value is index,
+        list of element indices list
 
-    :Example:
+    Notes
+    -----
+    If *rtype* is ``list``, list of list would be returned instead of a dict,
+    ``flatten()`` function could be used to flatten the list.
 
+    Examples
+    --------
     >>> from flame import Machine
     >>> from phyapps import flameutils
     >>> latfile = 'lattice/test.lat'
@@ -820,17 +1089,21 @@ def get_index_by_name(name='', latfile=None, rtype='dict', _machine=None):
     >>> # return a list instead of dict
     >>> print(flameutils.get_index_by_name(name=names, latfile=latfile, rtype='list'))
     [[8], [27], [154], [18]]
-    >>>
+
+    See Also
+    --------
+    :func:`.flatten` : flatten recursive list.
     """
-    m = miscutils._machine_setter(latfile, _machine, 'get_index_by_name')
+    m = miscutils.machine_setter(latfile, _machine, 'get_index_by_name')
     if m is None: return None
 
     if not isinstance(name, (list, tuple)):
         name = name,
     if rtype == 'dict':
-        return {n:m.find(name=n) for n in name}
+        return {n: m.find(name=n) for n in name}
     else:
         return [m.find(name=n) for n in name]
+
 
 def is_zeros_states(s):
     """ test if flame machine states is all zeros
@@ -844,25 +1117,54 @@ def is_zeros_states(s):
 
 
 class MachineStates(object):
-    """class for flame.Machine states
+    """Class for general FLAME machine states
 
     all attributes of states:
 
-     * ``pos``, 
-     * ``ref_beta``, ``ref_bg``, ``ref_gamma``, ``ref_IonEk``, ``ref_IonEs``, 
-       ``ref_IonQ``, ``ref_IonW``, ``ref_IonZ``, ``ref_phis``, ``ref_SampleIonK``,
-     * ``beta``, ``bg``, ``gamma``, ``IonEk``, ``IonEs``, ``IonQ``, ``IonW``, ``IonZ``, ``phis``, ``SampleIonK``,
-     * ``moment0``, ``moment0_rms``, ``moment0_env``, ``moment1``
+     - ``pos``,
+     - ``ref_beta``, ``ref_bg``, ``ref_gamma``, ``ref_IonEk``, ``ref_IonEs``,
+       ``ref_IonQ``, ``ref_IonW``, ``ref_IonZ``, ``ref_phis``,
+       ``ref_SampleIonK``,
+     - ``beta``, ``bg``, ``gamma``, ``IonEk``, ``IonEs``, ``IonQ``, ``IonW``,
+       ``IonZ``, ``phis``, ``SampleIonK``,
+     - ``moment0``, ``moment0_rms``, ``moment0_env``, ``moment1``
 
-    Warning
-    -------
-    These attributes are only valid for the case of ``sim_type`` being defined as ``MomentMatrix``,
-    which is de facto the exclusive option used at FRIB.
+    Warnings
+    --------
+    1. These attributes are only valid for the case of ``sim_type`` being
+       defined as ``MomentMatrix``, which is de facto the exclusive option
+       used at FRIB.
+    2. If the attribute is an array, new array value should be assigned
+       instead of by element indexing way, e.g.
+
+       >>> ms = MachineStates(s)
+       >>> print(ms.moment0)
+       array([[ -7.88600000e-04],
+              [  1.08371000e-05],
+              [  1.33734000e-02],
+              [  6.67853000e-06],
+              [ -1.84773000e-04],
+              [  3.09995000e-04],
+              [  1.00000000e+00]])
+        >>> # the right way to just change the first element of the array
+        >>> m_tmp = ms.moment0
+        >>> m_tmp[0] = 0
+        >>> ms.moment0 = m_tmp
+        >>> print(ms.moment0)
+        array([[  0.00000000e+00],
+               [  1.08371000e-05],
+               [  1.33734000e-02],
+               [  6.67853000e-06],
+               [ -1.84773000e-04],
+               [  3.09995000e-04],
+               [  1.00000000e+00]])
+        >>> # this way does work: ms.moment0[0] = 0
+
 
     Parameters
     ----------
     s : 
-        machine states object
+        machine states object.
 
     Keyword Arguments
     -----------------
@@ -873,20 +1175,20 @@ class MachineStates(object):
     latfile : 
         flame lattice file name, priority: low
 
-    Note
-    ----
+    Notes
+    -----
     If more than one keyword parameters are provided, 
     the selection policy follows the priority from high to low.
     
-    Warning
-    -------
+    Warnings
+    --------
     If only ``s`` is assigned with all-zeros states (usually created by 
-    ``allocState({})`` method), then attention should be paid, since this machine
-    states only can propagate from the first element, i.e. ``SOURCE`` 
-    (``from_element`` parameter of ``run()`` or ``propagate()`` should be 0), or errors 
-    happen; the better initialization should be passing one of keyword parameters of
-    ``machine`` and ``latfile`` to initialize the states to be significant for the
-    ``propagate()`` method.
+    ``allocState({})`` method), then attention should be paid, since this
+    machine states only can propagate from the first element, i.e. ``SOURCE``
+    (``from_element`` parameter of ``run()`` or ``propagate()`` should be 0),
+    or errors happen; the better initialization should be passing one of
+    keyword parameters of ``machine`` and ``latfile`` to initialize the
+    states to be significant for the ``propagate()`` method.
     """
     def __init__(self, s=None, **kws):
         _mstates = kws.get('mstates', None)
@@ -898,7 +1200,7 @@ class MachineStates(object):
             if _mstates is not None:
                 self._states = _mstates.clone()
             else:
-                _m = miscutils._machine_setter(_latfile, _machine, 'MachineStates')
+                _m = miscutils.machine_setter(_latfile, _machine, 'MachineStates')
                 if _m is not None:
                     self._states = _m.allocState({})
         else:
@@ -906,11 +1208,12 @@ class MachineStates(object):
 
         if self._states is not None:
             if is_zeros_states(self._states):
-                _m = miscutils._machine_setter(_latfile, _machine, 'MachineStates')
+                _m = miscutils.machine_setter(_latfile, _machine, 'MachineStates')
                 if _m is not None:
                     _m.propagate(self._states, 0, 1)
                 else:
-                    _LOGGER.warning("MachineStates: The initial machine states is 0, true values could be obtained with more information.")
+                    _LOGGER.warning(
+                        "MachineStates: The initial machine states is 0, true values could be obtained with more information.")
 
     @property
     def mstates(self):
@@ -932,7 +1235,8 @@ class MachineStates(object):
 
     @property
     def ref_beta(self):
-        """float: speed in the unit of light velocity in vacuum of reference charge state, lorentz beta"""
+        """float: speed in the unit of light velocity in vacuum of reference
+        charge state, Lorentz beta"""
         return getattr(self._states, 'ref_beta')
 
     @ref_beta.setter
@@ -950,7 +1254,7 @@ class MachineStates(object):
 
     @property
     def ref_gamma(self):
-        """float: relativistic energy of reference charge state, lorentz gamma"""
+        """float: relativistic energy of reference charge state, Lorentz gamma"""
         return getattr(self._states, 'ref_gamma')
 
     @ref_gamma.setter
@@ -986,10 +1290,11 @@ class MachineStates(object):
     @ref_IonQ.setter
     def ref_IonQ(self, x):
         setattr(self._states, 'ref_IonQ', x)
-    
+
     @property
     def ref_IonW(self):
-        """float: total energy of reference charge state, [eV/u], i.e. :math:`W = E_s + E_k`"""
+        """float: total energy of reference charge state, [eV/u],
+        i.e. :math:`W = E_s + E_k`"""
         return getattr(self._states, 'ref_IonW')
 
     @ref_IonW.setter
@@ -998,7 +1303,8 @@ class MachineStates(object):
 
     @property
     def ref_IonZ(self):
-        """float: reference charge state, measured by charge to mass ratio, e.g. :math:`^{33^{+}}_{238}U: Q[33]/A[238]`"""
+        """float: reference charge state, measured by charge to mass ratio,
+        e.g. :math:`^{33^{+}}_{238}U: Q[33]/A[238]`"""
         return getattr(self._states, 'ref_IonZ')
 
     @ref_IonZ.setter
@@ -1007,7 +1313,8 @@ class MachineStates(object):
 
     @property
     def ref_phis(self):
-        """float: absolute synchrotron phase of reference charge state, [rad]"""
+        """float: absolute synchrotron phase of reference charge state,
+        [rad]"""
         return getattr(self._states, 'ref_phis')
 
     @ref_phis.setter
@@ -1016,7 +1323,8 @@ class MachineStates(object):
 
     @property
     def ref_SampleIonK(self):
-        """float: wave-vector in cavities with different beta values of reference charge state"""
+        """float: wave-vector in cavities with different beta values of
+        reference charge state"""
         return getattr(self._states, 'ref_SampleIonK')
 
     @ref_SampleIonK.setter
@@ -1025,7 +1333,8 @@ class MachineStates(object):
 
     @property
     def beta(self):
-        """Array: speed in the unit of light velocity in vacuum of all charge states, lorentz beta"""
+        """Array: speed in the unit of light velocity in vacuum of all charge
+        states, Lorentz beta"""
         return getattr(self._states, 'beta')
 
     @beta.setter
@@ -1043,7 +1352,7 @@ class MachineStates(object):
 
     @property
     def gamma(self):
-        """Array: relativistic energy of all charge states, lorentz gamma"""
+        """Array: relativistic energy of all charge states, Lorentz gamma"""
         return getattr(self._states, 'gamma')
 
     @gamma.setter
@@ -1072,8 +1381,8 @@ class MachineStates(object):
     def IonQ(self):
         """Array: macro particle number of all charge states
 
-        Note
-        ----
+        Notes
+        -----
         This is what ``NCharge`` means in the FLAME lattice file.
         """
         return getattr(self._states, 'IonQ')
@@ -1081,10 +1390,11 @@ class MachineStates(object):
     @IonQ.setter
     def IonQ(self, x):
         setattr(self._states, 'IonQ', x)
-    
+
     @property
     def IonW(self):
-        """Array: total energy of all charge states, [eV/u], i.e. :math:`W = E_s + E_k`"""
+        """Array: total energy of all charge states, [eV/u],
+        i.e. :math:`W = E_s + E_k`"""
         return getattr(self._states, 'IonW')
 
     @IonW.setter
@@ -1095,8 +1405,8 @@ class MachineStates(object):
     def IonZ(self):
         """Array: all charge states, measured by charge to mass ratio
 
-        Note
-        ----
+        Notes
+        -----
         This is what ``IonChargeStates`` means in the FLAME lattice file.
         """
         return getattr(self._states, 'IonZ')
@@ -1116,7 +1426,8 @@ class MachineStates(object):
 
     @property
     def SampleIonK(self):
-        """Array: wave-vector in cavities with different beta values of all charge states"""
+        """Array: wave-vector in cavities with different beta values of all
+        charge states"""
         return getattr(self._states, 'SampleIonK')
 
     @SampleIonK.setter
@@ -1125,11 +1436,12 @@ class MachineStates(object):
 
     @property
     def moment0_env(self):
-        """Array: weight average of centroid for all charge states, array of ``[x, x', y, y', phi, dEk, 1]``,
-        with the units of ``[mm, rad, mm, rad, rad, MeV/u, 1]``.
+        """Array: weight average of centroid for all charge states, array of
+        ``[x, x', y, y', phi, dEk, 1]``, with the units of
+        ``[mm, rad, mm, rad, rad, MeV/u, 1]``.
 
-        Note
-        ----
+        Notes
+        -----
         The physics meanings for each column are:
 
             * ``x``: x position in transverse plane;
@@ -1138,7 +1450,8 @@ class MachineStates(object):
             * ``y'``: y divergence;
             * ``phi``: longitudinal beam length, measured in RF frequency;
             * ``dEk``: kinetic energy deviation w.r.t. reference charge state;
-            * ``1``: should be always 1, for the convenience of handling corrector (i.e. ``orbtrim`` element)
+            * ``1``: should be always 1, for the convenience of handling 
+              corrector (i.e. ``orbtrim`` element)
         """
         return getattr(self._states, 'moment0_env')
 
@@ -1148,11 +1461,13 @@ class MachineStates(object):
 
     @property
     def moment0_rms(self):
-        """Array: rms beam envelope, part of statistical results from ``moment1``.
+        """Array: rms beam envelope, part of statistical results from
+        ``moment1``.
 
         Note
         ----
-        The square of moment0_rms should be equal to the diagonal elements of moment1.
+        The square of ``moment0_rms`` should be equal to the diagonal
+        elements of ``moment1``.
 
         See Also
         --------
@@ -1162,7 +1477,8 @@ class MachineStates(object):
 
     @property
     def moment0(self):
-        """Array: centroid for all charge states, array of ``[x, x', y, y', phi, dEk, 1]``"""
+        """Array: centroid for all charge states, array of
+        ``[x, x', y, y', phi, dEk, 1]``"""
         return getattr(self._states, 'moment0')
 
     @moment0.setter
@@ -1171,8 +1487,8 @@ class MachineStates(object):
 
     @property
     def moment1(self):
-        r"""Array: correlation tensor of all charge states, for each charge state, the
-        correlation matrix could be written as:
+        r"""Array: correlation tensor of all charge states, for each charge
+        state, the correlation matrix could be written as:
 
         .. math::
 
@@ -1214,42 +1530,46 @@ class MachineStates(object):
 
     @property
     def phi0(self):
-        """Array: longitudinal beam length, measured in RF frequency for all charge states, [rad]"""
+        """Array: longitudinal beam length, measured in RF frequency for all
+        charge states, [rad]"""
         return self._states.moment0[4]
 
     @property
     def dEk0(self):
-        """Array: kinetic energy deviation w.r.t. reference charge state, for all charge states, [MeV/u]"""
+        """Array: kinetic energy deviation w.r.t. reference charge state,
+        for all charge states, [MeV/u]"""
         return self._states.moment0[5]
 
     @property
     def x0_env(self):
-        """Array: weight average of all charge state for ``x``, [mm]"""
+        """Array: weight average of all charge states for ``x``, [mm]"""
         return self._states.moment0_env[0]
 
     @property
     def xp0_env(self):
-        """Array: weight average of all charge state for ``x'``, [rad]"""
+        """Array: weight average of all charge states for ``x'``, [rad]"""
         return self._states.moment0_env[1]
 
     @property
     def y0_env(self):
-        """Array: weight average of all charge state for ``y``, [mm]"""
+        """Array: weight average of all charge states for ``y``, [mm]"""
         return self._states.moment0_env[2]
 
     @property
     def yp0_env(self):
-        """Array: weight average of all charge state for ``y'``, [rad]"""
+        """Array: weight average of all charge states for ``y'``, [rad]"""
         return self._states.moment0_env[3]
 
     @property
     def phi0_env(self):
-        """Array: weight average of all charge state for :math:`\phi`, [mm]"""
+        """Array: weight average of all charge states for :math:`\phi`,
+        [mm]"""
         return self._states.moment0_env[4]
 
     @property
     def dEk0_env(self):
-        """Array: weight average of all charge state for :math:`\delta E_k`, [MeV/u]"""
+        """Array: weight average of all charge states for :math:`\delta E_k`,
+        [MeV/u]"""
         return self._states.moment0_env[5]
 
     @property
@@ -1282,8 +1602,14 @@ class MachineStates(object):
         """Array: general rms beam envelope for :math:`\delta E_k`, [MeV/u]"""
         return self._states.moment0_rms[5]
 
-    def __repr__(self):
-        moment0_env = ','.join(["{0:.6g}".format(i) for i in self.moment0_env])
-        return "State: moment0 mean=[7]({})".format(moment0_env)
-        
+    def clone(self):
+        """Return a copy of machine states
+        """
+        return MachineStates(self._states.clone())
 
+    def __repr__(self):
+        try:
+            moment0_env = ','.join(["{0:.6g}".format(i) for i in self.moment0_env])
+            return "State: moment0 mean=[7]({})".format(moment0_env)
+        except AttributeError:
+            return "Incompleted initializaion."
