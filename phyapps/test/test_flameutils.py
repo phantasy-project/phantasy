@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-""" Unittest for flameutils module
-
-:author: Tong Zhang <zhangt@frib.msu.edu>
-:date: 2016-11-15 09:55:08 AM EST
+"""Unittest for flameutils module.
 """
 
 import unittest
@@ -275,10 +272,6 @@ class TestModelFlame(unittest.TestCase):
         rs = [ts for (ti,ts) in r] 
         for (is1, is2) in zip(rs0, rs):
             self.iter_all_attrs(is1, is2)
-
-        
-
-
 
 
 class TestMachineStates(unittest.TestCase):
