@@ -26,7 +26,6 @@ def _flatten(nnn):
     >>> l1 = list(_flatten(l0))
     >>> print(l1)
     [1,2,3,4,5,6,7,8,9,10,'x','y']
-    >>> 
     """
     for nn in nnn:
         if isinstance(nn, (list, tuple)):
@@ -47,7 +46,6 @@ def flatten(nnn):
     >>> l1 = flatten(l0)
     >>> print(l1)
     [1,2,3,4,5,6,7,8,9,10,'x','y']
-    >>> 
     """
     return list(_flatten(nnn))
 

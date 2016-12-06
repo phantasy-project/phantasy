@@ -11,6 +11,7 @@ from __future__ import print_function
 import logging
 import os
 import sys
+import re
 from collections import Counter
 
 import numpy as np
@@ -19,7 +20,6 @@ from numpy import ndarray
 
 import miscutils
 
-import scipy
 
 __authors__ = "Tong Zhang"
 __copyright__ = "(c) 2016, Facility for Rare Isotope beams, Michigan State University"
@@ -45,8 +45,8 @@ def generate_latfile(machine, latfile=None, out=None):
     filename : str
         None if failed to generate lattice file, or the out file name.
 
-    Notes
-    -----
+    Note
+    ----
     - If *latfile* and *out* are not defined, will print all output to screen;
     - If *latfile* and *out* are all defined, *out* stream is preferred;
     - For other cases, choose one that is defined.
@@ -63,8 +63,8 @@ def generate_latfile(machine, latfile=None, out=None):
     >>> fout = open('out.lat', 'w')
     >>> generate_latfile(m, out=fout)
 
-    Warnings
-    --------
+    Warning
+    -------
     To get element configuration only by ``m.conf(i)`` method,
     where ``m`` is ``flame.Machine`` object, ``i`` is element index,
     when some re-configuring operation is done, ``m.conf(i)`` will be update,
@@ -166,7 +166,7 @@ class ModelFlame(object):
     --------
     >>> from flame import Machine
     >>> from phyapps import flameutils
-    >>>  
+    >>>   
     >>> latfile = "lattice/test.lat"
     >>> fm1 = flameutils.ModelFlame()
     >>> # manually initialization
@@ -176,21 +176,21 @@ class ModelFlame(object):
     >>> fm1.mstates = m.allocState({})
     >>> # or by explicitly calling:
     >>> fm1.machine, fm1.mstates = fm1.init_machine(latfile)
-    >>> 
+    >>>  
     >>> # initialize with valid lattice file
     >>> fm2 = flameutils.ModelFlame(lat_file=latfile)
-    >>> 
+    >>>  
     >>> # (Recommanded) initialize with MachineStates
     >>> fm = flameutils.ModelFlame()
     >>> ms = flameutils.MachineStates(machine=m)
     >>> # now the attributes of ms could be arbitarily altered
     >>> fm.mstates = ms
     >>> fm.machine = m
-    >>> 
+    >>>  
     >>> # run fm
     >>> obs = fm.get_index_by_type(type='bpm')['bpm']
     >>> r, s = fm.run(monitor=obs)
-    >>> 
+    >>>  
     >>> # get result, storing as a dict, e.g. data
     >>> data = fm.collect_data(r, pos=True, x0=True, y0=True)
 
@@ -262,7 +262,7 @@ class ModelFlame(object):
             _LOGGER.warning("ModelFlame: Lattice file is not valid, do it manually.")
             return None, None
 
-    def get_element(self, name=None, index=None, type=None):
+    def get_element(self, name=None, index=None, type=None, **kws):
         """Element inspection, get properties.
         
         Returns
@@ -275,7 +275,8 @@ class ModelFlame(object):
         get_element : Get element from FLAME machine object.
         """
         elem_list = get_element(_machine=self._mach_ins,
-                                name=name, index=index, type=type)
+                                name=name, index=index, type=type,
+                                **kws)
         return elem_list
 
     def inspect_lattice(self):
@@ -385,8 +386,8 @@ class ModelFlame(object):
             points, ``s`` is ``MachineStates`` object after the last monitor
             point.
 
-        Warnings
-        --------
+        Warning
+        -------
         This method does not change the input *mstates*, while ``propagate``
         changes.
 
@@ -494,8 +495,8 @@ def configure(machine=None, econf=None, **kws):
     m : new FLAME machine object 
         None if failed, else new machine object.
 
-    Notes
-    -----
+    Note
+    ----
     If wanna configure FLAME machine by conventional way, then *c_idx* and
     *c_dict* could be used, e.g. reconfigure one corrector of ``m``:
     ``configure(machine=m, c_idx=10, c_dict={'theta_x': 0.001})``
@@ -507,7 +508,7 @@ def configure(machine=None, econf=None, **kws):
     >>> from phyapps import flameutils
     >>> latfile = 'test.lat'
     >>> m = Machine(open(latfile, 'r'))
-    >>> 
+    >>>  
     >>> # reconfigure one element
     >>> e1 = flameutils.get_element(_machine=m, index=1)[0]
     >>> print(e1)
@@ -518,7 +519,7 @@ def configure(machine=None, econf=None, **kws):
     >>> print(flameutils.get_element(_machine=m, index=1)[0])
     {'index': 1, 'properties': {'L': 0.072, 'aper': 0.04, 
      'name': 'LS1_CA01:GV_D1124', 'type': 'drift'}}
-    >>> 
+    >>>  
     >>> # reconfiugre more than one element
     >>> e_cor = flameutils.get_element(_machine=m, type='orbtrim')
     >>> # set all horizontal correctors with theta_x = 0.001 
@@ -679,8 +680,8 @@ def collect_data(result, **kws):
     dict
         Dict of ``{k1:v1, k2,v2...}``, keys are from keyword parameters.
 
-    Notes
-    -----
+    Note
+    ----
     Set the data of interest with ``k=True`` as input will return the defined
     ``k`` value.
 
@@ -856,13 +857,13 @@ def inspect_lattice(latfile=None, out=None, _machine=None):
     RFCAVITY     117     9.42  
     ORBTRIM      120     9.66  
     DRIFT        730    58.78 
-    >>> 
+    >>>  
     >>> ## write inspection message to other streams
     >>> # write to file
     >>> fout = open('test.out', 'w')
     >>> flameutils.inspect_lattice(latfile=latfile, out=fout)
     >>> fout.close()
-    >>> 
+    >>>   
     >>> # write to string
     >>> from cStringIO import StringIO
     >>> sio = StringIO()
@@ -890,7 +891,7 @@ def inspect_lattice(latfile=None, out=None, _machine=None):
         print(outstr, file=out)
 
 
-def get_element(latfile=None, index=None, name=None, type=None, _machine=None):
+def get_element(latfile=None, index=None, name=None, type=None, **kws):
     """Inspect FLAME lattice element, return properties.
 
     Parameters
@@ -903,18 +904,23 @@ def get_element(latfile=None, index=None, name=None, type=None, _machine=None):
         (list of) Element name(s).
     type : str
         (list of) Element type(s).
+
+    Keyword Arguments
+    -----------------
     _machine :
         FLAME machine object.
+    _pattern : str
+        Regex to search element name.
 
     Returns
     -------
     res : list of dict or []
         List of dict of properties or empty list
 
-    Notes
-    -----
-    If more than one optional paramters (index, name, type) are provided,
-    only return element that meets all these definitions.
+    Note
+    ----
+    If more than one optional paramters (index, name, type, _pattern) are
+    provided, only return element that meets all these definitions.
 
     Examples
     --------
@@ -932,17 +938,28 @@ def get_element(latfile=None, index=None, name=None, type=None, _machine=None):
     >>> print(e)
     [{'index': 18, 'properties': {'name': 'LS1_CA01:BPM_D1144', 'type': 'bpm'}},
      {'index': 5, 'properties': {'name': 'LS1_CA01:BPM_D1129', 'type': 'bpm'}}]
-    >>> # all thee filters could be used together, return [] if found nothing
-    >>>
+    >>> # all these filters could be used together, return [] if found nothing
+    >>>  
+    >>> # get names by regex
+    >>> e = flameutils.get_element(_machine=m, _pattern='FS1_BBS:DH_D2394_1.?')
+    >>> print(e)
+    [{'index': 1092, 'properties': {'L': 0.104065, 'aper': 0.07,
+      'bg': 0.191062, 'name': 'FS1_BBS:DH_D2394_1', 'phi': 4.5, 'phi1': 7.0,
+      'phi2': 0.0, 'type': 'sbend'}},
+     {'index': 1101, 'properties': {'L': 0.104065, 'aper': 0.07,
+      'bg': 0.191062, 'name': 'FS1_BBS:DH_D2394_10', 'phi': 4.5, 'phi1': 0.0,
+      'phi2': 7.0, 'type': 'sbend'}}]
 
-    Warnings
-    --------
+    Warning
+    -------
     Invalid element names or type names will be ignored.
 
     See Also
     --------
-    :func:`.get_intersection` : Get the intersection of input valid list or tuple.
+    get_index_by_name, get_index_by_type
+    :func:`.get_intersection` : Get the intersection of input valid list/tuple.
     """
+    _machine = kws.get('_machine', None)
     m = miscutils.machine_setter(latfile, _machine, 'get_element')
     if m is None: return None
 
@@ -954,8 +971,22 @@ def get_element(latfile=None, index=None, name=None, type=None, _machine=None):
     else:
         idx_from_index = []
 
+    names = [] 
+    # name pattern
+    _name_pattern, _name_list = kws.get('_pattern'), None
+    if _name_pattern is not None:
+        _name_list = get_names_by_pattern(pattern=_name_pattern, _machine=m)
+    if _name_list is not None:
+        names = _name_list
+        
     if name is not None:
-        idx_from_name = list(miscutils.flatten(get_index_by_name(name, _machine=m, rtype='list')))
+        if isinstance(name, str):
+            names.append(name)
+        elif isinstance(name, list):
+            names.extend(name)
+
+    if names:
+        idx_from_name = list(miscutils.flatten(get_index_by_name(names, _machine=m, rtype='list')))
     else:
         idx_from_name = []
 
@@ -1005,8 +1036,8 @@ def get_index_by_type(type='', latfile=None, rtype='dict', _machine=None):
         Dict, key is type name, value if indice list of each type name,
         list, of indices list, with the order of type.
 
-    Notes
-    -----
+    Note
+    ----
     If *rtype* is ``list``, list of list would be returned instead of a dict,
     ``flatten()`` function could be used to flatten the list.
 
@@ -1065,8 +1096,8 @@ def get_index_by_name(name='', latfile=None, rtype='dict', _machine=None):
         dict of element indices, key is name, value is index,
         list of element indices list
 
-    Notes
-    -----
+    Note
+    ----
     If *rtype* is ``list``, list of list would be returned instead of a dict,
     ``flatten()`` function could be used to flatten the list.
 
@@ -1104,6 +1135,34 @@ def get_index_by_name(name='', latfile=None, rtype='dict', _machine=None):
     else:
         return [m.find(name=n) for n in name]
 
+def get_names_by_pattern(pattern='.*', latfile=None, _machine=None):
+    """Get element names by regex defined by *pattern*.
+
+    Parameters
+    ----------
+    pattern : str
+        Regex to search element name.
+    latfile :
+        FLAME lattice file, preferred.
+    _machine :
+        FLAME machine object.
+
+    Returns
+    -------
+    names : List
+        List of element names, if not found, return None.
+    """
+    m = miscutils.machine_setter(latfile, _machine, 'get_names_by_pattern')
+    if m is None: return None
+
+    econf = m.conf().get('elements')
+    rp = re.compile(pattern)
+    m_names = [e.get('name') for e in econf if rp.search(e.get('name'))]
+    if m_names != []:
+        return m_names
+    else:
+        return None
+    
 
 def is_zeros_states(s):
     """ test if flame machine states is all zeros
@@ -1129,8 +1188,8 @@ class MachineStates(object):
        ``IonZ``, ``phis``, ``SampleIonK``,
      - ``moment0``, ``moment0_rms``, ``moment0_env``, ``moment1``
 
-    Warnings
-    --------
+    Warning
+    -------
     1. These attributes are only valid for the case of ``sim_type`` being
        defined as ``MomentMatrix``, which is de facto the exclusive option
        used at FRIB.
@@ -1146,19 +1205,19 @@ class MachineStates(object):
               [ -1.84773000e-04],
               [  3.09995000e-04],
               [  1.00000000e+00]])
-        >>> # the right way to just change the first element of the array
-        >>> m_tmp = ms.moment0
-        >>> m_tmp[0] = 0
-        >>> ms.moment0 = m_tmp
-        >>> print(ms.moment0)
-        array([[  0.00000000e+00],
-               [  1.08371000e-05],
-               [  1.33734000e-02],
-               [  6.67853000e-06],
-               [ -1.84773000e-04],
-               [  3.09995000e-04],
-               [  1.00000000e+00]])
-        >>> # this way does work: ms.moment0[0] = 0
+       >>> # the right way to just change the first element of the array
+       >>> m_tmp = ms.moment0
+       >>> m_tmp[0] = 0
+       >>> ms.moment0 = m_tmp
+       >>> print(ms.moment0)
+       array([[  0.00000000e+00],
+              [  1.08371000e-05],
+              [  1.33734000e-02],
+              [  6.67853000e-06],
+              [ -1.84773000e-04],
+              [  3.09995000e-04],
+              [  1.00000000e+00]])
+       >>> # this way does work: ms.moment0[0] = 0
 
 
     Parameters
@@ -1175,13 +1234,13 @@ class MachineStates(object):
     latfile : 
         flame lattice file name, priority: low
 
-    Notes
-    -----
+    Note
+    ----
     If more than one keyword parameters are provided, 
     the selection policy follows the priority from high to low.
     
-    Warnings
-    --------
+    Warning
+    -------
     If only ``s`` is assigned with all-zeros states (usually created by 
     ``allocState({})`` method), then attention should be paid, since this
     machine states only can propagate from the first element, i.e. ``SOURCE``
@@ -1381,8 +1440,8 @@ class MachineStates(object):
     def IonQ(self):
         """Array: macro particle number of all charge states
 
-        Notes
-        -----
+        Note
+        ----
         This is what ``NCharge`` means in the FLAME lattice file.
         """
         return getattr(self._states, 'IonQ')
@@ -1405,8 +1464,8 @@ class MachineStates(object):
     def IonZ(self):
         """Array: all charge states, measured by charge to mass ratio
 
-        Notes
-        -----
+        Note
+        ----
         This is what ``IonChargeStates`` means in the FLAME lattice file.
         """
         return getattr(self._states, 'IonZ')
@@ -1440,8 +1499,8 @@ class MachineStates(object):
         ``[x, x', y, y', phi, dEk, 1]``, with the units of
         ``[mm, rad, mm, rad, rad, MeV/u, 1]``.
 
-        Notes
-        -----
+        Note
+        ----
         The physics meanings for each column are:
 
             * ``x``: x position in transverse plane;

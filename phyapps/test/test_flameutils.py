@@ -454,6 +454,13 @@ class TestGetElement(unittest.TestCase):
         e2 = flameutils.get_element(index=eidx, type=etyp, latfile=self.latfile, name='LS1_CA01:BPM_D1144')
         self.assertEqual(e2, [e0[0]])
 
+    def test_name_pattern(self):
+        name_pattern = 'FS1_BBS:DH_D2394_.?$'
+        e1 = flameutils.get_element(_pattern=name_pattern, latfile=self.latfile)
+        names = ['FS1_BBS:DH_D2394_{}'.format(i) for i in range(1,10)]
+        e2 = flameutils.get_element(name=names, latfile=self.latfile)
+        self.assertEqual(e1, e2)
+
 
 class TestGetIndexByType(unittest.TestCase):
     def setUp(self):
