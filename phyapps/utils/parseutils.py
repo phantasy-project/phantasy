@@ -6,11 +6,17 @@
 :time: 2016-11-14 17:29:28 PM EST
 """
 
+from __future__ import absolute_import
+from __future__ import unicode_literals
+from __future__ import division
+from __future__ import print_function
+
 from ConfigParser import SafeConfigParser, ConfigParser
 
 import os
 import sys
 import time
+
 
 class ConfigFile(object):
     """
@@ -140,7 +146,7 @@ def loadtest():
     # test load config from file
     testparser = IniParser('sample.ini')
     testparser.readConfig()
-    print testparser.makeHierDict()
+    print(testparser.makeHierDict())
 
 def savetest():
     # test save config to file

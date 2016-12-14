@@ -1,0 +1,19 @@
+5
+238.  238.  238.   238.   238.
+78.   76.   77.    79.    80.
+0.264 0.121 0.209 0.243 0.163
+3.  20.  16.623  3.0 
+0.0  0.0
+16.348     1.00547    -0.10681
+2.8874e-3  6.3960e-7   4.8485e-4
+0.39947   -2.6017e-2   7.8072e-2
+1.56580   -5.1560e-3  -1.4112e-2 
+
+05/11/2010 (Q.Z.) seg1 output energy is lower due to the reduction of beta08
+voltage, so the distribution of charge states were changed based on Baron formula,
+and other parameters are used the same as 79+.
+
+The default thickness variation is +/-5%, but should try use +/-10% as ANL using
+Change the 2nd entry of the 5th line for the thickness variation 
+Note: updated on 04/03/08 as agreed at ASF mtg (DG,FM,MD,XW,QZ, east room PM)
+This version only generates five charge states, 08/29/2008 (Q.Z.)
