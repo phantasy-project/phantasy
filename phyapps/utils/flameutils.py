@@ -5,6 +5,8 @@
 potential requirment of modeling with FLAME code
 """
 
+from __future__ import absolute_import
+from __future__ import unicode_literals
 from __future__ import division
 from __future__ import print_function
 
@@ -18,7 +20,7 @@ import numpy as np
 from flame import Machine
 from numpy import ndarray
 
-import miscutils
+from . import miscutils
 
 
 __authors__ = "Tong Zhang"
@@ -1058,7 +1060,6 @@ def get_index_by_type(type='', latfile=None, rtype='dict', _machine=None):
     >>> # return a list instead of dict
     >>> print(flameutils.get_index_by_type(type=types, latfile=latfile, rtype='list'))
     [[891], [0]]
-    
 
     See Also
     --------
