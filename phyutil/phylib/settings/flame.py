@@ -18,8 +18,6 @@ import flame
 
 from phyutil.phylib.settings import Settings
 
-from phyutil.phylib.lattice.flame import read_lattice
-
 from phyutil.phylib.layout.accel import CavityElement
 from phyutil.phylib.layout.accel import SolElement
 from phyutil.phylib.layout.accel import BendElement
