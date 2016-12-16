@@ -18,7 +18,8 @@ import flame
 
 from phyutil.phylib.settings import Settings
 
-from phyutil.phylib.lattice.flame import read_lattice
+# read_lattice is not implemented
+# from phyutil.phylib.lattice.flame import read_lattice
 
 from phyutil.phylib.layout.accel import CavityElement
 from phyutil.phylib.layout.accel import SolElement
@@ -148,7 +149,7 @@ class SettingsFactory(object):
                     fields[cor.fields.angle] = elem['theta_x']
                 elif 'theta_y' in elem:
                     cor = VCorElement(0, 0, 0, name)
-                    fields[cor.fields.angle] = elem['theta_x']
+                    fields[cor.fields.angle] = elem['theta_y']
                 else:
                     cor = HCorElement(0, 0, 0, name)
                     fields[cor.fields.angle] = 0.0
