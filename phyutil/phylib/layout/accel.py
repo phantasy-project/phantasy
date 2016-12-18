@@ -26,37 +26,45 @@ class Fields(object):
     """
     Fields is a simple container for element field names.
 
-    :param **kwargs: All keyword arguments become object attributes
+    Keyword Arguments
+    -----------------
+    kwargs :
+        All keyword arguments become object attributes.
     """
     def __init__(self, **kwargs):
         for key, value in kwargs.iteritems():
             setattr(key, value)
 
-
     def __iter__(self):
         return iter(dir(self))
-
 
     def __str__(self):
         return str(self.__dict__)
 
 
-
 class Element(object):
-    """
-    Element is the base for the layout element class heirarchy.
+    """Element is the base for the layout element class heirarchy.
 
-    :param float z: Position of this accelerator element
-    :param float length: Length of this accelerator element
-    :param float aperture: Minimum size of this accelerator element
-    :param str name: name of this accelerator element
-    :param str **meta: Meta data describing this accelerator element
+    Parameters
+    ----------
+    z : float
+        Position of this accelerator element.
+    length : float
+        Length of this accelerator element.
+    aperture : float
+        Minimum size of this accelerator element.
+    name : str
+        Name of this accelerator element.
+
+    Keyword Arguments:
+    **meta :
+        Meta data describing this accelerator element.
     """
     def __init__(self, z, length, aperture, name, **meta):
-        self.z = z
-        self.length = length
+        self._z = z
+        self._length = length
         self.aperture = aperture
-        self.name = name
+        self._name = name
         self.meta = dict(meta)
         self.fields = Fields()
 
@@ -80,7 +88,6 @@ class Element(object):
             raise TypeError("Element: 'length' property must be a number")
         self._length = length
 
-
     @property
     def aperture(self):
         return min(self.apertureX, self.apertureY)
@@ -89,17 +96,17 @@ class Element(object):
     def aperture(self, aperture):
         if isinstance(aperture, (tuple,list)):
             if isinstance(aperture[0], (int, float)):
-                self.apertureX = float(aperture[0])
+                self._apertureX = float(aperture[0])
             else:
                 raise TypeError("Element: 'apertureX' property must be a number")
             if isinstance(aperture[1], (int, float)):
-                self.apertureY = float(aperture[1])
+                self._apertureY = float(aperture[1])
             else:
                 raise TypeError("Element: 'apertureY' property must be a number")
 
         elif isinstance(aperture, (int, float)):
-            self.apertureX = aperture
-            self.apertureY = aperture
+            self._apertureX = aperture
+            self._apertureY = aperture
 
         else:
             raise TypeError("Element: 'aperture' property must be a number")
@@ -114,7 +121,6 @@ class Element(object):
             raise TypeError("Element: 'apertureX' property must be a number")
         self._apertureX = apertureX
 
-
     @property
     def apertureY(self):
         return self._apertureY
@@ -124,7 +130,6 @@ class Element(object):
         if not isinstance(apertureY, (int, float)):
             raise TypeError("Element: 'apertureY' property must be a number")
         self._apertureY = apertureY
-
 
     @property
     def name(self):
@@ -138,31 +143,33 @@ class Element(object):
             raise ValueError("Element: 'name' property must not be empty")
         self._name = name
 
-
     def __getattr__(self, name):
         return self.meta.get(name, "")
-
 
     def __str__(self):
         s = "{{ name:'{elem.name}', z:{elem.z}, length:{elem.length}, aperture:{elem.aperture}, meta={elem.meta}, fields={elem.fields} }}"
         return type(self).__name__ + s.format(elem=self)
 
 
-
 class SeqElement(Element):
-    """
-    SeqElement is a composite accelerator element containing a sequence of elements.
+    """SeqElement is a composite accelerator element containing a sequence
+    of elements.
 
-    :param str name: Name of this accelerator element
-    :param str desc: Description of this accelerator element
-    :param list elements: List of elements contained by this sequence.
+    Parameters
+    ----------
+    name : str
+        Name of this accelerator element.
+    desc : str
+        Description of this accelerator element.
+    elements : list
+        List of elements contained by this sequence.
     """
     def __init__(self, name, elements=None, desc="sequence", **meta):
         super(SeqElement, self).__init__(None, None, None, name, desc=desc, **meta)
         if elements == None:
-            self.elements = []
+            self._elements = []
         else:
-            self.elements = elements
+            self._elements = elements
 
 
     @property
@@ -178,7 +185,7 @@ class SeqElement(Element):
     def z(self):
         if len(self.elements) == 0:
             raise Exception("SeqElement: Z-Position undefined for empty sequence")
-        return self.elements[0].z
+        return self._elements[0].z
 
     @z.setter
     def z(self, z):
@@ -189,7 +196,7 @@ class SeqElement(Element):
     @property
     def length(self):
         length = 0.0
-        for elem in self.elements:
+        for elem in self._elements:
             length += elem.length
         return length
 
@@ -212,7 +219,7 @@ class SeqElement(Element):
     @property
     def apertureX(self):
         apertureX = float('inf')
-        for elem in self.elements:
+        for elem in self._elements:
             apertureX = min(apertureX, elem.apertureX)
         return apertureX
 
@@ -225,7 +232,7 @@ class SeqElement(Element):
     @property
     def apertureY(self):
         apertureY = float('inf')
-        for elem in self.elements:
+        for elem in self._elements:
             apertureY = min(apertureY, elem.apertureY)
         return apertureY
 
@@ -234,9 +241,8 @@ class SeqElement(Element):
         if apertureY != None:
             raise NotImplementedError("SeqElement: Setting apertureY not implemented")
 
-
     def append(self, elem):
-        self.elements.append(elem)
+        self._elements.append(elem)
 
 
     def write(self, indent=2, stream=sys.stdout):
@@ -271,7 +277,6 @@ class SeqElement(Element):
     def __str__(self):
         s = "{{ name:'{elem.name}', desc:'{elem.desc}', nelements:{nelements} }}"
         return type(self).__name__ + s.format(elem=self, nelements=len(self.elements))
-
 
 
 class _SeqElementIterator(object):
@@ -316,7 +321,6 @@ class _SeqElementIterator(object):
         raise StopIteration()
 
 
-
 # Passive Elements
 
 class DriftElement(Element):
@@ -350,7 +354,6 @@ class PortElement(Element):
 
     def __init__(self, z, length, aperture, name, desc="port", **meta):
         super(PortElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
-
 
 
 # Diagnostic Elements
@@ -558,8 +561,8 @@ class SextElement(Element):
         super(SextElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
         self.fields.field = "B"
 
-# Electrostatic Elements
 
+# Electrostatic Elements
 
 class EBendElement(Element):
     """
