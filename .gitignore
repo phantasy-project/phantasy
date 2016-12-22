@@ -21,3 +21,9 @@ docs/build/
 # trial temp directory  
 _trial_temp/
 
+
+# ignore vim swp files
+*.swp
+
+# ignore egg info folder
+*.egg-info

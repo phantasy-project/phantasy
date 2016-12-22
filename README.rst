@@ -1,7 +1,6 @@
 phantasy
 ========
 
-
 Physics High-level Applications and Toolkits for Accelerator SYstem.
 
 Refactored from repos: ``phyapps`` and ``phyhlc``.

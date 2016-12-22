@@ -8,6 +8,6 @@
 import sys
 
 if __name__ == '__main__':
-    from phyutil import phytool
+    from phantasy import phytool
     sys.exit(phytool.main())
 
