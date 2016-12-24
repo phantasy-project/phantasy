@@ -16,9 +16,8 @@ import sys
 import re
 from collections import Counter
 
-import numpy as np
 from flame import Machine
-from numpy import ndarray
+from numpy import ndarray, array, alltrue, zeros
 
 from . import miscutils
 
@@ -64,6 +63,10 @@ def generate_latfile(machine, latfile=None, out=None):
     >>> # recommand new way
     >>> fout = open('out.lat', 'w')
     >>> generate_latfile(m, out=fout)
+
+    Note
+    ----
+    Parameter *out* can also be ``StringIO``, and get string by ``getvalue()``.
 
     Warning
     -------
@@ -698,10 +701,10 @@ def collect_data(result, **kws):
     """
     valid_keys = [k for k, v in kws.items() if v is not None]
     try:
-        return {ik: np.array([getattr(s, ik) for (i, s) in result]) for ik in valid_keys}
+        return {ik: array([getattr(s, ik) for (i, s) in result]) for ik in valid_keys}
     except:
         result = convert_results(result)
-        return {ik: np.array([getattr(s, ik) for (i, s) in result]) for ik in valid_keys}
+        return {ik: array([getattr(s, ik) for (i, s) in result]) for ik in valid_keys}
 
 
 def propagate(machine=None, mstates=None, from_element=None, to_element=None, monitor=None, **kws):
@@ -1173,7 +1176,7 @@ def is_zeros_states(s):
     True or False
         True if is all zeros, else False
     """
-    return np.alltrue(getattr(s, 'moment0') == np.zeros([7, 1]))
+    return alltrue(getattr(s, 'moment0') == zeros([7, 1]))
 
 
 class MachineStates(object):

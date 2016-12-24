@@ -73,7 +73,7 @@ class TestMachinePortal(unittest.TestCase):
             self.assertEqual(mp.get_elements(name=name)[0].name, name)
 
         for i in range(10):
-            name = [random.choice(all_names) for _ in range(3)]
+            name = list(set([random.choice(all_names) for _ in range(3)]))
             names_get = [e.name for e in mp.get_elements(name=name,
                                                         sort_key='name')]
             self.assertEqual(names_get, sorted(name))
@@ -208,18 +208,25 @@ class TestMachinePortal(unittest.TestCase):
                 mp.get_elements(name=names2)
                 )
 
-    def test_next_elements_more_types(self):
+    def test_inspect_mconf(self):
         mp = self.mp
-        lat_name = mp.work_lattice_name
-        self.assertEqual(lat_name, 'LINAC')
-        lat = mp.work_lattice_conf
-        all_e = sorted([e for e in lat if e.virtual==0], key=lambda e:e.sb)
+        mconf = mp.inspect_mconf()
+        self.assertEqual(mconf.get('machine'), 'FRIB1')
+        self.assertEqual(mconf.get('path'), 
+                os.path.join(self.config_dir, 'FRIB1/phyutil.ini'))
+        self.assertEqual(mconf.get('lattices'), ['LINAC', 'LS1'])
+
+    def test_get_pv_names(self):
+        mp = self.mp
+        elem = mp.get_elements(type='*PM')
+        pv1 = mp.get_pv_names(elem)
+        pv_x = [e.pv(field='X', handle='readback')[0] for e in elem]
+        pv_y = [e.pv(field='Y', handle='readback')[0] for e in elem]
+        self.assertEqual(pv1['X'], pv_x)
+        self.assertEqual(pv1['Y'], pv_y)
+
+        e0 = elem[0]
+        pv2 = mp.get_pv_names(e0)
+        for k,v in pv2.items():
+            self.assertEqual(v, e0.pv(field=k, handle='readback'))
         
-        ref_elem = all_e[5]
- 
-
-    
-        
-
-
-

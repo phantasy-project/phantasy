@@ -17,10 +17,13 @@ from __future__ import print_function
 
 import logging
 import os
+import sys
+from numpy import intersect1d
 
 import phyutil
 from .miscutils import (flatten, get_intersection, 
                         bisect_index, pattern_filter)
+from .pvutils import get_readback
 
 __authors__ = "Tong Zhang"
 __copyright__ = "(c) 2016, Facility for Rare Isotope beams, Michigan State University"
@@ -760,3 +763,185 @@ class MachinePortal(object):
         else:
             lat = self._work_lattice_conf
         return [e.name for e in lat.getElementList('*', virtual=virtual)]
+
+    def inspect_mconf(self, mconf=None, out=None):
+        """Inspect given machine configuration.
+
+        Parameters
+        ----------
+        mconf :
+            Machine configuration object, if not given, inspect the last
+            loaded machine.
+        out :
+            Output stream, if not given, only return results, or besides
+            returning results, also print into defined stream, 
+            could be ``stdout``, ``file``(valid file object), or``StringIO``.
+
+        Returns
+        -------
+        ret : dict or StringIO or None
+            Inspection results, retur a dict when *out* is None, 
+            or StringIO object when *out* is ``sio``, or None;
+            keys of dict: 
+             * ``path`` : (str), phyutil.ini fullpath
+             * ``lattices`` : (list), all defined lattices
+             * ``machine`` : (str), defined machine name
+             * ``config`` : (dict), all configurations 
+
+        Examples
+        --------
+        >>> mconf = mp.inspect_mconf()
+        >>> # write inspection results into file
+        >>> with open('fileout.dat', 'w') as f:
+        >>>     mconf = mp.inspect_mconf(out=f)
+        >>> # out could be StringIO or sys.stdout or 'stdout'.
+
+        See Also
+        --------
+        :class:`~phyutil.Configuration`
+        """
+        if mconf is None:
+            mconf = self._last_mach_conf
+        
+        if isinstance(mconf, phyutil.Configuration):
+            retval = MachinePortal.get_inspect_mconf(mconf)
+
+            try:
+                if out == 'stdout':
+                    out = sys.stdout
+
+                print('{0:<20s} : {1}'.format('Facility config path', retval['path']),
+                        file=out, end='\n')
+                print('-'*22, file=out, end='\n')
+                print('{0:<20s} : {1}'.format('Facility name', retval['machine']),
+                        file=out, end='\n')
+                print('-'*22, file=out, end='\n')
+                print('{0:<20s} : {1}'.format('All valid lattices', ' '.join(retval['lattices'])),
+                        file=out, end='\n')
+                d = retval['config']
+                for sn in sorted(d):
+                    print('-'*22, file=out, end='\n')
+                    print("Section - " + sn, file=out, end='\n')
+                    print('-'*22, file=out, end='\n')
+                    for k,v in d[sn].items():
+                        print("{0:<20s} : {1}".format(k,v), file=out, end='\n')
+            except:
+                _LOGGER.warn("Cannot output into stream defined by out.")
+            finally:
+                return retval
+        else:
+            _LOGGER.warn("Cannot inspect invalid machine configuration object.")
+            return None
+
+    @staticmethod
+    def get_inspect_mconf(mconf):
+        m_path = mconf.configPath
+        m_name = m_path.split(os.sep)[-2]
+        m_lats = mconf.getarray('COMMON', 'submachines')
+        m_dict = {sn:dict(mconf.items(sn)) for sn in mconf.sections()}
+        return {'path': m_path, 'lattices': m_lats, 
+                'machine': m_name, 'config': m_dict}
+
+    @staticmethod
+    def get_pv_names(elem, field=None, **kws):
+        """Get PV names by given fields for defined elements.
+
+        Parameters
+        ----------
+        elem : 
+            (List of) CaElement objects.
+        field : str or List(str)
+            (List of) Field name of PV, if list of names is defined, only
+            names shared by all elements are valid; if not defined, all
+            shared fields will be used.
+
+        Keyword Arguments
+        -----------------
+        handle : str
+            Handle of pv, 'readback' or'setpoint'
+        
+        Returns
+        -------
+        ret : dict
+            dict of PV names, with keys of field names.
+
+        Examples
+        --------
+        >>> # get all BPM and PM elements
+        >>> elem = mp.get_elements(type='*PM')
+        >>> # get all pv names with same field
+        >>> pv1 = mp.get_pv_names(elem) # {'X':[...], 'Y':[...]}
+        >>> # define field
+        >>> pv2 = mp.get_pv_names(elem, 'X')
+        >>> pv2 = mp.get_pv_names(elem, ['X'])
+        >>> # get all PV names from one elements
+        >>> pv3 = mp.get_pv_names(elem[0])
+        >>> # return value example:
+        {u'ENG': [u'V_1:LS1_CA01:BPM_D1129:ENG_RD'],
+         u'PHA': [u'V_1:LS1_CA01:BPM_D1129:PHA_RD'],
+         u'X': [u'V_1:LS1_CA01:BPM_D1129:X_RD'],
+         u'Y': [u'V_1:LS1_CA01:BPM_D1129:Y_RD']}
+
+        See Also
+        --------
+        :class:`~phyutil.CaElement`
+        get_pv_values
+        get_readback
+        """
+        if not isinstance(elem, (list, tuple)):
+            if not isinstance(elem, phyutil.CaElement):
+                LOGGER.warn("Invalid CaElement.")
+                return None
+            elem = elem,
+        else:
+            if not isinstance(elem[0], phyutil.CaElement):
+                _LOGGER.warn("Invalid CaElements.")
+                return None
+
+        all_fields = reduce(intersect1d, [e.fields() for e in elem])
+        if field is None:
+            field = all_fields
+        else:
+            if not isinstance(field, (list, tuple)):
+                field = field,
+            field = [f for f in field if f in all_fields]
+
+        handle = kws.get('handle', 'readback')
+        return {f:[e.pv(field=f, handle=handle)[0] for e in elem] for f in field}
+        
+    @staticmethod
+    def get_pv_values(elem, field=None, **kws):
+        """Get PV readback values by given fields for defined elements.
+
+        Parameters
+        ----------
+        elem : 
+            (List of) CaElement objects.
+        field : str or List(str)
+            (List of) Field name of PV, if list of names is defined, only
+            names shared by all elements are valid; if not defined, all
+            shared fields will be used.
+
+        Returns
+        -------
+        ret : dict
+            dict of PV readback values, with keys of field names.
+
+        Examples
+        --------
+        >>> # get all BPM and PM elements
+        >>> elem = mp.get_elements(type='*PM')
+        >>> # get 'X' and 'Y' pv readback values
+        >>> data = mp.get_pv_values(elem, ['X','Y'])
+        >>> data.keys()
+        ['Y', 'X']
+
+        See Also
+        --------
+        get_pv_names
+        get_readback
+        """
+        pv_names = MachinePortal.get_pv_names(elem, field, handle='readback')
+        pv_values = get_readback(pv_names)
+        return pv_values
+ 
