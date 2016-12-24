@@ -23,7 +23,7 @@ from zipfile import ZIP_DEFLATED
 from tornado.gen import coroutine
 from tornado.escape import url_escape
 
-from ....common.tornado.util import WriteFileMixin
+from phantasy.apps.common.tornado.util import WriteFileMixin
 
 
 _LOGGER = logging.getLogger(__name__)

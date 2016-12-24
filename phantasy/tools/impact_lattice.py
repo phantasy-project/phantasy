@@ -13,7 +13,7 @@ import traceback
 from collections import OrderedDict
 from argparse import ArgumentParser
 
-from ..library.lattice import build_impact_lattice
+from phantasy.library.lattice import build_impact_lattice
 
 from .common import loadMachineConfig
 from .common import loadLatticeConfig

@@ -25,26 +25,26 @@ from StringIO import StringIO
 import cothread
 from flame import Machine
 
-from ....library.pv import Popen
-from ....library.pv import catools
-from ....library.parser import Configuration
-from ....library.layout import SeqElement
-from ....library.layout import CavityElement
-from ....library.layout import SolCorElement
-from ....library.layout import CorElement
-from ....library.layout import QuadElement
-from ....library.layout import BendElement
-from ....library.layout import SextElement
-from ....library.layout import StripElement
-from ....library.layout import BPMElement
-from ....library.layout import PMElement
-from ....library.layout import BLElement
-from ....library.layout import BCMElement
-from ....library.layout import BLMElement
-from ....library.layout import ValveElement
-from ....library.layout import PortElement
-from ....library.layout import DriftElement
-from ....library.lattice import FlameLatticeFactory
+from phantasy.library.pv import Popen
+from phantasy.library.pv import catools
+from phantasy.library.parser import Configuration
+from phantasy.library.layout import SeqElement
+from phantasy.library.layout import CavityElement
+from phantasy.library.layout import SolCorElement
+from phantasy.library.layout import CorElement
+from phantasy.library.layout import QuadElement
+from phantasy.library.layout import BendElement
+from phantasy.library.layout import SextElement
+from phantasy.library.layout import StripElement
+from phantasy.library.layout import BPMElement
+from phantasy.library.layout import PMElement
+from phantasy.library.layout import BLElement
+from phantasy.library.layout import BCMElement
+from phantasy.library.layout import BLMElement
+from phantasy.library.layout import ValveElement
+from phantasy.library.layout import PortElement
+from phantasy.library.layout import DriftElement
+from phantasy.library.lattice import FlameLatticeFactory
 
 
 try:

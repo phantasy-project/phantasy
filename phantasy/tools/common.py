@@ -10,12 +10,12 @@ Common utilities used by phytool commands.
 
 import os.path, logging, re
 
-from ..library.settings import Settings
-from ..library.parser import Configuration 
-from ..library.layout import build_layout
-from ..library.misc import read_csv
-from ..library.channelfinder import ChannelFinderAgent
-from ..library.parser import find_machine_config
+from phantasy.library.settings import Settings
+from phantasy.library.parser import Configuration 
+from phantasy.library.layout import build_layout
+from phantasy.library.misc import read_csv
+from phantasy.library.channelfinder import ChannelFinderAgent
+from phantasy.library.parser import find_machine_config
 
 
 _CONFIG_COMMON_SECTION = "COMMON"

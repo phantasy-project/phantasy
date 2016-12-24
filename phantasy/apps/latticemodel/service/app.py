@@ -18,9 +18,9 @@ from argparse import ArgumentParser
 from tornado.gen import coroutine
 from tornado.ioloop import IOLoop
 
-from ...common.tornado.web import Application
-from ...latticemodel.service import urls
-from ...latticemodel.service import settings
+from phantasy.apps.common.tornado.web import Application
+from phantasy.apps.latticemodel.service import urls
+from phantasy.apps.latticemodel.service import settings
 
 
 LOGGER = logging.getLogger(__name__)

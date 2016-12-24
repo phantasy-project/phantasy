@@ -20,7 +20,7 @@ from .common import loadChannels
 from .common import loadLatticeConfig
 from .common import loadMachineConfig
 
-from ..facility.frib.virtaccel import build_flame_virtaccel
+from phantasy.facility.frib.virtaccel import build_flame_virtaccel
 
 
 parser = ArgumentParser(description="Start the virtual accelerator using FLAME simulation")

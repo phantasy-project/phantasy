@@ -17,7 +17,7 @@ import traceback
 
 from argparse import ArgumentParser
 
-from ..library.settings import build_flame_settings
+from phantasy.library.settings import build_flame_settings
 
 #from common import loadMachineConfig, loadLayout
 

@@ -9,11 +9,11 @@ from __future__ import print_function
 
 import os.path
 
-from ...common.tornado.auth import InMemoryAuthProvider
-from ...common.tornado.auth.crowd import CrowdAuthProvider
-#from ...common.tornado.session import InMemorySessionProvider
-from ...common.tornado.session.motor import MotorSessionProvider
-from ...common.tornado.db.motor import MotorConnectionFactory
+from phantasy.apps.common.tornado.auth import InMemoryAuthProvider
+from phantasy.apps.common.tornado.auth.crowd import CrowdAuthProvider
+#from phantasy.apps.common.tornado.session import InMemorySessionProvider
+from phantasy.apps.common.tornado.session.motor import MotorSessionProvider
+from phantasy.apps.common.tornado.db.motor import MotorConnectionFactory
 from .support.impact import ImpactLatticeSupport
 from .support.impact import ImpactModelSupport
 from .data import MotorDataProvider

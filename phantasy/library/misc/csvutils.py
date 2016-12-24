@@ -28,7 +28,7 @@ It supports 2 different CSV file formats.
 import os
 import csv
 
-from ..exception import CSVFormatError
+from phantasy.library.exception import CSVFormatError
 
 def __read_csv_1(csvdata):
     """Load data from CSV file with headers like:

@@ -32,11 +32,11 @@ import tempfile
 import shutil
 import atexit
 
-from ..library.layout import build_layout
-from ..library.parser import Configuration
-from ..library.settings import Settings
-from ..library.chanfinder import ChannelFinderAgent
-from ..library.lattice import merge, CaElement, Lattice
+from phantasy.library.layout import build_layout
+from phantasy.library.parser import Configuration
+from phantasy.library.settings import Settings
+from phantasy.library.chanfinder import ChannelFinderAgent
+from phantasy.library.lattice import merge, CaElement, Lattice
 
 _logger = logging.getLogger(__name__)
 

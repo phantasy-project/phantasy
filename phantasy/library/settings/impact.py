@@ -13,13 +13,22 @@ from collections import OrderedDict
 
 from .common import Settings
 
-from ..layout import SeqElement, CavityElement, SolCorElement
-from ..layout import CorElement, BendElement, QuadElement
-from ..layout import SextElement
-from ..layout import BLMElement, BCMElement, BPMElement
-from ..layout import BLElement, PMElement
-from ..layout import StripElement, DriftElement
-from ..layout import ValveElement, PortElement
+from phantasy.library.layout import SeqElement
+from phantasy.library.layout import CavityElement
+from phantasy.library.layout import SolCorElement
+from phantasy.library.layout import CorElement
+from phantasy.library.layout import BendElement
+from phantasy.library.layout import QuadElement
+from phantasy.library.layout import SextElement
+from phantasy.library.layout import BLMElement
+from phantasy.library.layout import BCMElement
+from phantasy.library.layout import BPMElement
+from phantasy.library.layout import BLElement
+from phantasy.library.layout import PMElement
+from phantasy.library.layout import StripElement
+from phantasy.library.layout import DriftElement
+from phantasy.library.layout import ValveElement
+from phantasy.library.layout import PortElement
 
 __copyright__ = "Copyright (c) 2015, Facility for Rare Isotope Beams"
 

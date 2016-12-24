@@ -13,7 +13,7 @@ import logging
 import traceback
 from argparse import ArgumentParser
 
-from ..library.settings import build_impact_settings
+from phantasy.library.settings import build_impact_settings
 from .common import loadMachineConfig
 from .common import loadLayout
 

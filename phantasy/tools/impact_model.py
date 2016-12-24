@@ -16,10 +16,10 @@ from argparse import ArgumentParser
 
 import matplotlib.pyplot as plt
 
-from ..library.lattice.impact import OUTPUT_MODE_END
-from ..library.lattice.impact import build_lattice
-from ..library.lattice.impact import run_lattice
-from ..library.model.impact import build_result
+from phantasy.library.lattice.impact import OUTPUT_MODE_END
+from phantasy.library.lattice.impact import build_lattice
+from phantasy.library.lattice.impact import run_lattice
+from phantasy.library.model.impact import build_result
 
 from .common import loadMachineConfig
 from .common import loadLatticeConfig

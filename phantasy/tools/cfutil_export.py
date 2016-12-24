@@ -13,8 +13,8 @@ from collections import OrderedDict
 
 from channelfinder import ChannelFinderClient
 
-from ..library.misc import read_csv
-from ..library.channelfinder import importCfLocalData
+from phantasy.library.misc import read_csv
+from phantasy.library.channelfinder import import_cf_localdata
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -112,7 +112,7 @@ def main():
 
 
 def _export_to_sqlite(channels, path):
-    importCfLocalData(channels, path, overwrite=True)
+    import_cf_localdata(channels, path, overwrite=True)
 
 
 def _export_to_json(channels, path):

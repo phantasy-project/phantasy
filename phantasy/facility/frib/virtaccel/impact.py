@@ -16,17 +16,24 @@ from cothread import catools
 from copy import deepcopy
 from collections import OrderedDict
 
-from ....library.parser import Configuration
-
-from ....library.layout import SeqElement
-from ....library.layout import CavityElement, SolCorElement, CorElement
-from ....library.layout import QuadElement, BendElement
-from ....library.layout import SextElement, StripElement
-from ....library.layout import BPMElement, PMElement
-from ....library.layout import BLElement, BCMElement, BLMElement
-from ....library.layout import ValveElement, PortElement, DriftElement
-
-from ....library.lattice.impact import LatticeFactory, OUTPUT_MODE_DIAG
+from phantasy.library.parser import Configuration
+from phantasy.library.layout import SeqElement
+from phantasy.library.layout import CavityElement
+from phantasy.library.layout import SolCorElement
+from phantasy.library.layout import CorElement
+from phantasy.library.layout import QuadElement
+from phantasy.library.layout import BendElement
+from phantasy.library.layout import SextElement
+from phantasy.library.layout import StripElement
+from phantasy.library.layout import BPMElement
+from phantasy.library.layout import PMElement
+from phantasy.library.layout import BLElement
+from phantasy.library.layout import BCMElement
+from phantasy.library.layout import BLMElement
+from phantasy.library.layout import ValveElement
+from phantasy.library.layout import PortElement
+from phantasy.library.layout import DriftElement
+from phantasy.library.lattice.impact import LatticeFactory, OUTPUT_MODE_DIAG
 
 
 # configuration options

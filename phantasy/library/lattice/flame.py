@@ -17,23 +17,23 @@ from collections import OrderedDict
 import numpy
 from flame import GLPSPrinter
 
-from ..parser import Configuration
-from ..layout import Element
-from ..layout import DriftElement
-from ..layout import ValveElement
-from ..layout import CavityElement
-from ..layout import BLMElement
-from ..layout import BLElement
-from ..layout import BCMElement
-from ..layout import BPMElement
-from ..layout import PMElement
-from ..layout import SolCorElement
-from ..layout import PortElement
-from ..layout import CorElement
-from ..layout import BendElement
-from ..layout import QuadElement
-from ..layout import StripElement
-from ..layout import SextElement
+from phantasy.library.parser import Configuration
+from phantasy.library.layout import Element
+from phantasy.library.layout import DriftElement
+from phantasy.library.layout import ValveElement
+from phantasy.library.layout import CavityElement
+from phantasy.library.layout import BLMElement
+from phantasy.library.layout import BLElement
+from phantasy.library.layout import BCMElement
+from phantasy.library.layout import BPMElement
+from phantasy.library.layout import PMElement
+from phantasy.library.layout import SolCorElement
+from phantasy.library.layout import PortElement
+from phantasy.library.layout import CorElement
+from phantasy.library.layout import BendElement
+from phantasy.library.layout import QuadElement
+from phantasy.library.layout import StripElement
+from phantasy.library.layout import SextElement
 
 
 CONFIG_FLAME_SIM_TYPE = "flame_sim_type"

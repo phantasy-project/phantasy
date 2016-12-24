@@ -15,7 +15,7 @@ import logging
 import traceback
 from argparse import ArgumentParser
 
-from ..library.lattice import build_flame_lattice
+from phantasy.library.lattice import build_flame_lattice
 from .common import loadLayout
 from .common import loadSettings
 from .common import loadLatticeConfig

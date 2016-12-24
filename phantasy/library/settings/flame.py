@@ -15,12 +15,12 @@ from collections import OrderedDict
 from flame import GLPSParser
 
 from .common import Settings
-from ..layout import CavityElement
-from ..layout import SolElement
-from ..layout import BendElement
-from ..layout import HCorElement
-from ..layout import VCorElement
-from ..layout import QuadElement
+from phantasy.library.layout import CavityElement
+from phantasy.library.layout import SolElement
+from phantasy.library.layout import BendElement
+from phantasy.library.layout import HCorElement
+from phantasy.library.layout import VCorElement
+from phantasy.library.layout import QuadElement
 
 
 def build_settings(latpath, start=None, end=None):

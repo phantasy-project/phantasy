@@ -18,8 +18,8 @@ import traceback
 
 from argparse import ArgumentParser
 
-from ..library.parser import Configuration
-from ..facility.frib.layout import fribxlf
+from phantasy.library.parser import Configuration
+from phantasy.facility.frib.layout import fribxlf
 
 
 parser = ArgumentParser(prog=os.path.basename(sys.argv[0])+" frib-layout",

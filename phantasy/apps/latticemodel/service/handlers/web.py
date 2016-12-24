@@ -22,11 +22,11 @@ from tornado.gen import maybe_future
 from tornado.gen import coroutine
 from tornado.util import ObjectDict
 
-from ....common.tornado.jinja2 import Jinja2Mixin
-from ....common.tornado.session import SessionMixin
-from ....common.tornado.web import LogoutSessionHandler
-from ....common.tornado.web import FormLoginSessionHandler
-from ....common.tornado.util import WriteJsonMixin
+from phantasy.apps.common.tornado.jinja2 import Jinja2Mixin
+from phantasy.apps.common.tornado.session import SessionMixin
+from phantasy.apps.common.tornado.web import LogoutSessionHandler
+from phantasy.apps.common.tornado.web import FormLoginSessionHandler
+from phantasy.apps.common.tornado.util import WriteJsonMixin
 
 from . import LatticeSupportMixin
 from . import ModelSupportMixin

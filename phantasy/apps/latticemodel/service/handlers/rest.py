@@ -19,8 +19,8 @@ from tornado.web import RequestHandler
 from tornado.gen import coroutine
 from tornado.gen import maybe_future
 
-from ....common.tornado.auth import AuthBasicMixin
-from ....common.tornado.util import WriteJsonMixin
+from phantasy.apps.common.tornado.auth import AuthBasicMixin
+from phantasy.apps.common.tornado.util import WriteJsonMixin
 
 
 from . import LatticeSupportMixin

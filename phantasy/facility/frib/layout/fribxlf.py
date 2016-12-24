@@ -12,20 +12,20 @@ import os.path, re, logging, xlrd
 
 from collections import OrderedDict
 
-from ....library.parser import Configuration
-from ....library.layout import ElectrodeElement, SeqElement
-from ....library.layout import HCorElement, VCorElement, CorElement
-from ....library.layout import BendElement, QuadElement, SextElement
-from ....library.layout import DriftElement, PortElement
-from ....library.layout import ValveElement
-from ....library.layout import StripElement, ColumnElement
-from ....library.layout import CavityElement
-from ....library.layout import EBendElement, EQuadElement
-from ....library.layout import SolElement, SolCorElement
-from ....library.layout import BPMElement, BLMElement
-from ....library.layout import BCMElement, PMElement, BLElement
-from ....library.layout import EMSElement, FCElement, VDElement
-from ....library.layout import Layout
+from phantasy.library.parser import Configuration
+from phantasy.library.layout import ElectrodeElement, SeqElement
+from phantasy.library.layout import HCorElement, VCorElement, CorElement
+from phantasy.library.layout import BendElement, QuadElement, SextElement
+from phantasy.library.layout import DriftElement, PortElement
+from phantasy.library.layout import ValveElement
+from phantasy.library.layout import StripElement, ColumnElement
+from phantasy.library.layout import CavityElement
+from phantasy.library.layout import EBendElement, EQuadElement
+from phantasy.library.layout import SolElement, SolCorElement
+from phantasy.library.layout import BPMElement, BLMElement
+from phantasy.library.layout import BCMElement, PMElement, BLElement
+from phantasy.library.layout import EMSElement, FCElement, VDElement
+from phantasy.library.layout import Layout
 
 # configuration options
 

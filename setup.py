@@ -32,7 +32,7 @@ extrarequires = {
     "LMS": [
         'tornado',
         'humanize',
-        'motor',
+        'motor==0.4',
         'jinja2',
         'jsonschema',
     ]

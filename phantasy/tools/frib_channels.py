@@ -18,10 +18,10 @@ import traceback
 
 from argparse import ArgumentParser
 
-from ..library.layout import build_layout
-from ..library.misc import write_csv
-from ..library.channelfinder import importCfLocalData
-from ..facility.frib.channels import build_channels
+from phantasy.library.layout import build_layout
+from phantasy.library.misc import write_csv
+from phantasy.library.channelfinder import import_cf_localdata
+from phantasy.facility.frib.channels import build_channels
 
 
 parser = ArgumentParser(prog=os.path.basename(sys.argv[0])+" frib-channels",
@@ -88,7 +88,7 @@ def main():
 
     elif ext == ".sqlite":
         try:
-            importCfLocalData(channels, args.channelsPath, overwrite=True)
+            import_cf_localdata(channels, args.channelsPath, overwrite=True)
         except Exception as e:
             if args.verbosity > 0: traceback.print_exc()
             print("Error writing channels sqlite file:", e, file=sys.stderr)

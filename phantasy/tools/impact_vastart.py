@@ -17,7 +17,7 @@ from .common import loadLayout
 from .common import loadSettings
 from .common import loadChannels
 
-from ..facility.frib.virtaccel import build_impact_virtaccel
+from phantasy.facility.frib.virtaccel import build_impact_virtaccel
 
 
 parser = ArgumentParser(description="Start the virtual accelerator using IMPACT simulation")

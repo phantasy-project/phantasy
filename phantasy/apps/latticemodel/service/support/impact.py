@@ -25,8 +25,8 @@ from tornado.util import ObjectDict
 from tornado.gen import coroutine
 from tornado.gen import Return
 from bson import ObjectId
-from .....library.lattice.impact import read_lattice
-from .....library.model.impact import build_result
+from phantasy.library.lattice.impact import read_lattice
+from phantasy.library.model.impact import build_result
 
 
 LOGGER = logging.getLogger(__name__)
