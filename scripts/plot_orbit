@@ -9,6 +9,7 @@ Tong Zhang <zhangt@frib.msu.edu>
 
 import argparse
 import sys
+import os
 
 
 parser = argparse.ArgumentParser(
@@ -33,7 +34,7 @@ Examples:
 > {n} test.lat --output plot x and y to figure.png
 > {n} test.lat --output --x # plot x to figure.png
 > {n} test.lat --output test.eps --x # plot x to test.eps
-""".format(n=sys.argv[0])
+""".format(n=os.path.basename(sys.argv[0]))
 
 if len(sys.argv) < 2:
     parser.print_help()

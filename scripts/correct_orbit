@@ -9,6 +9,7 @@ Tong Zhang <zhangt@frib.msu.edu>
 
 import argparse
 import sys
+import os
 
 
 parser = argparse.ArgumentParser(
@@ -38,7 +39,7 @@ Examples:
 > {n} test.lat --pseudo_all  # take all element as BPMs
 > {n} test.lat --outfile # correct x and y, and print new lattice
 > {n} test.lat --outfile new.lat # correct x and y, and save lattice to new.lat
-""".format(n=sys.argv[0])
+""".format(n=os.path.basename(sys.argv[0]))
 
 if len(sys.argv) < 2:
     parser.print_help()
