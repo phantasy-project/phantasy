@@ -1,7 +1,9 @@
 """
-Local cache for channel finder service.
+Channel finder serice source: database (sqlite)
 
-:author: Guobao Shen <shen@frib.msu.edu>
+Authors:
+    Guobao Shen <shen@frib.msu.edu>
+    Tong Zhang <zhangt@frib.msu.edu>
 """
 
 import os
@@ -9,37 +11,55 @@ import sqlite3
 from fnmatch import fnmatch
 
 import logging
-_logger = logging.getLogger(__name__)
 
 
-class ChannelFinderLocal(object):
+_LOGGER = logging.getLogger(__name__)
+
+class CFCDatabase(object):
+    """Channel finder client using SQLite database as service data source.
+    CFCDatabase provide uniform interface as ``ChannelFinderClient``, which
+    uses real CFS as data source.
+
+    Parameters
+    ----------
+    dbname : str
+        Name of SQLite database.
+
+    See Also
+    --------
+    ChannelFinderClient
     """
-    Local channel finder service using SQLite db
-    """
-    def __init__(self, dbname):
-        """
+    def __init__(self, dbname=None):
+        self._dbname = dbname
+        try:
+            self.conn()
+        except:
+            _LOGGER.error("{0} cannot be connected to.".format(self._dbname))
 
-        :return:
-        """
-        self.dbname = dbname
+    @property
+    def dbname(self):
+        return self._dbname
+
+    @dbname.setter
+    def dbname(self, n):
+        self._dbname = n
 
     def conn(self):
-        """
-
-        :return: SQLite database connect object
+        """Connect to SQLite database
         """
         self.dbconn = sqlite3.connect(self.dbname)
 
     def close(self):
         """ Close current SQLite db connection
-
-        :return:
         """
         self.dbconn.close()
 
-
     def find(self, **kwargs):
         '''
+        Todo
+        ----
+        Return values should be tuned to be consistent with ChannelFinderClient.
+
         Method allows you to query for a channel/s based on name, properties, tags
         find(name = channelNamePattern)
         >>> find(name='*')
@@ -80,9 +100,16 @@ class ChannelFinderLocal(object):
         will return all the channels which have the tags matching pattern1 AND pattern2
 
         To query for the existance of a tag or property use findTag and findProperty.
+
+        Keyword Arguments
+        -----------------
+        name : str
+            Unix shell pattern of channel name, default is '*'.
+
         '''
         if len(kwargs) == 0:
-            raise Exception, 'Incorrect usage: at least one parameter must be specified'
+            raise Exception, 'Incorrect usage: at least one parameter must be specified.'
+
         channames = kwargs.get("name", "*")
         properties = kwargs.get("property", None)
         tags = kwargs.get("tagName", None)
@@ -128,55 +155,86 @@ class ChannelFinderLocal(object):
         return (properties, cur.fetchall())
 
     def findProperty(self, propertyName):
-        """Searches for the _exact_ propertyName and return a single Property object if found
+        """Searches for the property name or pattern.
 
-        :param propertyName:
-        :return:
+        Parameters
+        ----------
+        propertyName : str
+            Unix shell pattern for property name.
+
+        Returns
+        -------
+        ret : list
+            List of properties.
         """
-        if propertyName == "*":
-            return self.getAllProperties()
+        return [p for p in self.getAllProperties() if fnmatch(p['name'], propertyName)]
+    
+    def findTag(self, tagName):
+        """Searches for the tag name or pattern.
 
-        cur = self.dbconn.cursor()
-        cur.execute("""SELECT * from pvs join elements__pvs on pvs.pv_id = elements__pvs.pv_id 
-                        join elements on elementd__pvs.elem_id = elements.elem_id where  limit 1""")
-        properties = [prpts[0] for prpts in cur.description if prpts[0] not in ["elem_id", "pv_id", "tags", 'pv', 'elem_pvs_id']]
+        Parameters
+        ----------
+        tagName : str
+            Unix shell pattern for tag name.
 
-        res = None
-        for prpts in properties:
-            if fnmatch(prpts, propertyName):
-                # find the first property name matched
-                res = prpts
-                break
-
-        return res
-
-    def getAllTags(self, delimiter=";"):
+        Returns
+        -------
+        ret : list
+            List of tags.
         """
-        return a list of all the Tags present - even the ones not associated w/t any channel
+        return [t for t in self.getAllTags() if fnmatch(t['name'], tagName)]
 
-        :param delimiter: delimiter to separate multiple tags for one PV. ";" by default.
+    def getAllTags(self, delimiter=";", **kws):
+        """Return a list of all the Tags present - even the ones not associated w/t any channel
+
+        Parameters
+        ----------
+        delimiter : str
+            Delimiter to separate multiple tags for one PV, ";" by default.
+
+        Keyword Arguments
+        -----------------
+        name_only : True or False
+            If true, only return list of tag names.
+
+        Returns
+        -------
+        ret : list of dict
+            dict: {'name': tag_name}
         """
         cur = self.dbconn.cursor()
         cur.execute("SELECT tags from pvs")
-        tmp = cur.fetchall()
+        tag_set = set()
+        for tag in cur.fetchall():
+            [tag_set.add(str(i)) for i in tag[0].split(delimiter)]
+        if kws.get('name_only', False):
+            return sorted(list(tag_set))
+        else:
+            return [{'name': tag} for tag in tag_set]
 
-        results = []
-        for res in tmp:
-            if res is not None:
-                results.extend(res.split(delimiter))
+    def getAllProperties(self, **kws):
+        """Get all property definitions.
 
-        return results
+        Keyword Arguments
+        -----------------
+        name_only : True or False
+            If true, only return list of property names.
 
-    def getAllProperties(self):
-        """
-
-        :return:
+        Returns
+        -------
+        ret : list of dict
+            dict: {'name': property_name, 'value': None}
         """
         cur = self.dbconn.cursor()
         cur.execute("""SELECT * from pvs join elements__pvs on pvs.pv_id = elements__pvs.pv_id 
-                        join elements on elementd__pvs.elem_id = elements.elem_id where  limit 1""")
-        properties = [prpts[0] for prpts in cur.description if prpts[0] not in ["elem_id", "pv_id", "tags", 'pv', 'elem_pvs_id']]
-        return properties
+                        join elements on elements__pvs.elem_id = elements.elem_id""")
+        properties = [{'name': prpts[0],'value': None} for prpts in cur.description
+                            if prpts[0] not in ["elem_id", "pv_id", "tags", 'pv', 'elem_pvs_id']]
+
+        if kws.get('name_only', False):
+            return sorted([p['name'] for p in properties])
+        else:
+            return properties
 
     def delete(self, **kwargs):
         """
@@ -563,6 +621,7 @@ class ChannelFinderLocal(object):
                         self.dbconn.executemany("""UPDATE pvs SET {0} = ? WHERE pv_id = ?""".format(prpt_names[0]),
                                                 new_values)
 
+
 def export_cf_localdata(dbname="cf_localdb.sqlite", **kwargs):
     """Export channel finder data from local SQLite database
 
@@ -579,40 +638,74 @@ def export_cf_localdata(dbname="cf_localdb.sqlite", **kwargs):
     tags are separated by ';'
 
     pv name can be duplicate (chained element).
+
+    Keyword Arguments
+    -----------------
+    pv : str
+        Column name to define PV name, 'pv' by default.
+    tags : str
+        Column name to define tags, 'tags' by default.
+    properties : list(str)
+        List of property names, invalid ones will be excluded.
+    tag_delimiter : str
+        Delimiter to separate different tags, ';' by default.
+
     """
     conn = sqlite3.connect(dbname)
     # use byte string instead of the default unicode
     conn.text_factory = str
     cur = conn.cursor()
-    cur.execute("select * from pvs, elements where pvs.elem_id = elements.elem_id")
+    #cur.execute("select * from pvs, elements where pvs.elem_id = elements.elem_id")
+    cur.execute("select * from pvs")
 
+    # column name of PV name, 'pv' by default
     pv = kwargs.get('pv', 'pv')
+    # column name of tages, 'tags' by default
     tags = kwargs.get('tags', 'tags')
 
-    # get all column names for property names, excluding "elem_id", "pv", and "tags"
-    allcols = [v[0] for v in cur.description if "elem_id" not in v and pv not in v and tags not in v]
-    if len(allcols) == 0:
+    col_skip = ['elem_id', pv, tags]
+
+    # all column names read from db file
+    all_col_names = [v[0] for v in cur.description]
+
+    # exclude column names that do not need (defined by prop_skip list)
+    sel_col_names = [i for i in all_col_names if i not in col_skip]
+    if len(sel_col_names) == 0:
         raise RuntimeError("Wrong local channel finder database {0}".format(dbname))
-    proplist= kwargs.get('properties', allcols)
+
+    # user-defined list of property names to read, using selected columns by default
+    prop_kws = kwargs.get('properties', sel_col_names)
+    prop_names = [i for i in prop_kws if i in sel_col_names]
+    _LOGGER.info("Selected column names as PV properties:")
+    _LOGGER.info(" {}.".format(' '.join(prop_names)))
+
+    # delimiter fo tags string
     delimiter = kwargs.get('tag_delimiter', ';')
 
-    cols_idx = [idx for idx in range(len(cur.description)) if cur.description[idx][0] in proplist]
-    pv_idx = allcols.index(pv)
-    tags_idx = allcols.index(tags)
+    print(prop_names)
+    # selected column indice to read
+    sel_col_idx = [idx for idx, name in enumerate(all_col_names) if name in prop_names]
 
+    # pv name column index
+    pv_idx = all_col_names.index(pv)
+
+    # tags column index
+    tags_idx = all_col_names.index(tags)
+
+    # data return as PV data
     results= []
     for row in cur.fetchall():
         pv = row[pv_idx]
         prpts = {}
-        for i in cols_idx:
-            if i in [pv_idx, tags_idx]:
-                # not record "pv", and "tags" columns
-                continue
+        for i in sel_col_idx:
+            #if i in [pv_idx, tags_idx]:
+            #    # not record "pv", and "tags" columns
+            #    continue
             if row[i] is None or row[i] == '':
-                # ignore NULL and ''
+                # ignore None and ''
                 continue
-            prpts[allcols[i]] = row[i]
-        if not row[tags_idx]:
+            prpts[all_col_names[i]] = row[i]
+        if row[tags_idx] is None or row[tags_idx] == '':
             tags = []
         else:
             tags = [v.strip().encode('ascii') for v in row[tags_idx].split(delimiter)]
@@ -622,6 +715,7 @@ def export_cf_localdata(dbname="cf_localdb.sqlite", **kwargs):
     conn.close()
 
     return results
+
 
 def import_cf_localdata(data, dbname, overwrite=False, **kwargs):
     """Import data into SQLite local database, create a new one if overwrite is True,
@@ -825,6 +919,7 @@ def import_cf_localdata(data, dbname, overwrite=False, **kwargs):
 
     conn.close()
 
+
 def create_cf_localdb(dbname="cf_localdb.sqlite", overwrite=False, colheads=None):
     """Create a local SQLite database for channel finder local caching purpose using SQLAlchemy library.
 
@@ -976,6 +1071,7 @@ def create_cf_localdb(dbname="cf_localdb.sqlite", overwrite=False, colheads=None
                      values (datetime('now'), "channel finder local database created")""")
 
     conn.close()
+
 
 if __name__ == "__main__":
     # see contrib

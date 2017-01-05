@@ -20,10 +20,14 @@ import os
 import sys
 from numpy import intersect1d
 
-import phyutil
-from .miscutils import (flatten, get_intersection, 
-                        bisect_index, pattern_filter)
-from .pvutils import get_readback
+from phantasy.library.lattice import CaElement
+from phantasy.library.parser import Configuration
+from phantasy.library.misc import flatten
+from phantasy.library.misc import get_intersection
+from phantasy.library.misc import bisect_index
+from phantasy.library.misc import pattern_filter
+from phantasy.library.pv import get_readback
+from phantasy.library.operation import load_lattice
 
 __authors__ = "Tong Zhang"
 __copyright__ = "(c) 2016, Facility for Rare Isotope beams, Michigan State University"
@@ -115,7 +119,7 @@ class MachinePortal(object):
         
         See Also
         --------
-        :class:`~phyutil.Configuration`
+        :class:`Configuration`
         """
         return self._last_mach_conf
 
@@ -146,7 +150,7 @@ class MachinePortal(object):
         
         See Also
         --------
-        :class:`~phyutil.CaElement`
+        :class:`CaElement`
         """
         return self._last_lattice_conf
 
@@ -157,11 +161,11 @@ class MachinePortal(object):
 
     @property
     def work_lattice_conf(self):
-        """list: Configuration of working lattice, composed of caElements.
+        """list: Configuration of working lattice, composed of CaElements.
         
         See Also
         --------
-        :class:`~phyutil.CaElement`
+        :class:`CaElement`
         use_lattice : Choose working lattice from loaded lattices.
         """
         return self._work_lattice_conf
@@ -257,8 +261,8 @@ class MachinePortal(object):
             return retval
 
         try:
-            retval = phyutil.machine.load(machine=facility, submachine=segment,
-                            return_lattices=True, return_more=True, **kws)
+            retval = load_lattice(machine=facility, submachine=segment,
+                                  return_lattices=True, return_more=True, **kws)
             
             lat_name = retval['lat_name']
             lat_conf = retval['lat_conf']
@@ -465,7 +469,7 @@ class MachinePortal(object):
 
         See Also
         --------
-        :class:`phyutil.CaElement` : Element class.
+        :class:`CaElement` : Element class.
         get_virtual_elements
         next_elements
         """
@@ -608,7 +612,7 @@ class MachinePortal(object):
          LS1_WA01:BPM_D1155:BPM @ sb=3.109095]
         """
         ref_include_flag = kws.get('ref_include', False)
-        if not isinstance(ref_elem, phyutil.CaElement):
+        if not isinstance(ref_elem, CaElement):
             _LOGGER.warn("{} is not a valid CaElement.".format(str(ref_elem)))
             if ref_include_flag:
                 return [ref_elem]
@@ -674,7 +678,7 @@ class MachinePortal(object):
         ret : True or False
             True for virtual element, else False.
         """
-        if isinstance(elem, phyutil.CaElement):
+        if isinstance(elem, CaElement):
             t_vir = True if elem.virtual == 1 else False
         else:
             t_vir = False
@@ -798,12 +802,12 @@ class MachinePortal(object):
 
         See Also
         --------
-        :class:`~phyutil.Configuration`
+        :class:`Configuration`
         """
         if mconf is None:
             mconf = self._last_mach_conf
         
-        if isinstance(mconf, phyutil.Configuration):
+        if isinstance(mconf, Configuration):
             retval = MachinePortal.get_inspect_mconf(mconf)
 
             try:
@@ -884,17 +888,17 @@ class MachinePortal(object):
 
         See Also
         --------
-        :class:`~phyutil.CaElement`
+        :class:`CaElement`
         get_pv_values
         get_readback
         """
         if not isinstance(elem, (list, tuple)):
-            if not isinstance(elem, phyutil.CaElement):
+            if not isinstance(elem, CaElement):
                 LOGGER.warn("Invalid CaElement.")
                 return None
             elem = elem,
         else:
-            if not isinstance(elem[0], phyutil.CaElement):
+            if not isinstance(elem[0], CaElement):
                 _LOGGER.warn("Invalid CaElements.")
                 return None
 

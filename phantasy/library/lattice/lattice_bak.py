@@ -1,42 +1,47 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#/usr/env/python
 
 """
-For original version of this model, see 'lattice_bak.py' in the present
-directory.
+Create Lattice object from PV data
 
-Create Lattice object from PV data,
+:author: Lingyun Yang
+:date: 2012-07-09 16:50
+
+:modified: Guobao Shen
+:date: 2015-03-27 13:26
+
+A lattice is equivalent to a machine: a storage ring, a LINAC or a transport
+line. 
+
+the lattice object manages a set of elements
+(e.g. :class:`~aphla.element.CaElement`) and their group information, a twiss
+data, an orbit response matrix data and more.
+
+seealso :mod:`~aphla.element`, :mod:`~aphla.twiss`, :mod:`~aphla.machines`
 """
 
-from __future__ import absolute_import
-from __future__ import unicode_literals
-from __future__ import division
-from __future__ import print_function
+from __future__ import print_function, unicode_literals
 
-import logging
 import os
 import sys
 import re
+from math import log10
 import numpy as np
 import shelve
 from fnmatch import fnmatch
-from math import log10
+import logging
 
 from .element import AbstractElement
 from .impact import LatticeFactory as ImpactLatticeFactory
 from .impact import run_lattice as run_impact_lattice
 
 
-_LOGGER = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 class Lattice(object):
-    """All elements inside this lattice has a unique name.
-    
-    Parameters
-    ----------
-    name : str
-        Lattice name.
+    """Lattice class. It assumes all elements inside this lattice has a 
+    unique name.
 
+    - *name*
     - *mode*
     - *source* where it was created. URL, Sqlite3 DB filename, ...
     - *sb*, *se* s-position of begin and end.
@@ -76,6 +81,7 @@ class Lattice(object):
             self._latticeFactory = ImpactLatticeFactory(kwargs.get("layout", None), **kwargs)
         else:
             raise RuntimeError("Lattice: Simulation code '{}' not supported".format(self.simulation))
+
 
     def set(self, name, fieldvalue, value=None):
         """Set the value of a lattice element field (ie settings).
@@ -171,6 +177,7 @@ class Lattice(object):
             return work_dir
         else:
             raise RuntimeError("Lattice: Simulation code '{}' not supported".format(self.simulation))
+
 
     def __getitem__(self, key):
         if isinstance(key, int):
@@ -385,7 +392,7 @@ class Lattice(object):
 
         for child in chlist:
             if not self._group.has_key(child):
-                _LOGGER.warn("WARNING: no %s group found" % child)
+                logger.warn("WARNING: no %s group found" % child)
                 continue
             for elem in self._group[child]:
                 if elem in pl: continue

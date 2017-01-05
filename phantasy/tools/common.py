@@ -35,7 +35,7 @@ _CONFIG_CFS_TAG = "cfs_tag"
 _LOGGER = logging.getLogger(__name__)
 
 
-def loadMachineConfig(machine, submach=None):
+def loadMachineConfig(machine, submach=None, **kws):
     """Find the configuration for the specified machine.
 
     Parameters
@@ -46,16 +46,21 @@ def loadMachineConfig(machine, submach=None):
     submach : str
         Submachine/segment/lattice name, if not given, use default.
 
+    Keyword Arguments
+    -----------------
+    verbose : True or False
+        Display more information (default: False)
+
     Returns
     -------
-    ret : 
-        Machine configuration object or None.
+    ret : tuple 
+        Machine configuration object and name of lattice.
     """
     if os.path.isdir(machine):
         machine = os.path.abspath(machine)
 
     if machine is not None:
-        mconfig, _, _ = find_machine_config(machine)
+        mconfig, _, _ = find_machine_config(machine, **kws)
     else:
         mconfig = None
 

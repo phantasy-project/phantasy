@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-"""Utils for handling channels/PVs.
+"""functions for readback handler.
 """
 
 from __future__ import absolute_import
@@ -19,21 +19,6 @@ __copyright__ = "(c) 2016, Facility for Rare Isotope beams, Michigan State Unive
 __contact__ = "Tong Zhang <zhangt@frib.msu.edu>"
 
 _LOGGER = logging.getLogger(__name__)
-
-
-class DataSource(object):
-    """ class represents PV data sources,
-    valid data sources: 
-    
-    * *cfs*: channel finder service
-    * *csv*: csv sheet
-    * *sql*: sqlite database
-
-    :param source: PV data source, one of listed valid data sources
-    :param kws: other keyword parameters
-    """
-    def __init__(self, source, **kws):
-        pass
 
 
 def get_readback(pv):

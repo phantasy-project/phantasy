@@ -1,63 +1,77 @@
 """
-Channel Finder
----------------
+Channel Finder Agent
+--------------------
 
-A module providing local Channel Finder Service (CFS). It interfaces to CFS or
-local comma separated file (csv) and provides configuration data for the aphla
-package.
+Fetch data from Channel Finder Service.
 
 For each PV, Channel Finder Service (CFS) provide a set of properties and
 tags. This can help us to identify the associated element name, type, location
 for every PV. The PVs are also tagged for 'default' read/write for a element
 it is linked.
+
+Authors: 
+    Lingyun Yang <lyyang@bnl.gov>
+    Guobao Shen <shen@frib.msu.edu>
+    Tong Zhang <zhangt@frib.msu.edu>
 """
 
-# :author: Lingyun Yang <lyyang@bnl.gov>
-# :modified: Guobao Shen <shen@frib.msu.edu>
-
-from __future__ import print_function, unicode_literals
+from __future__ import print_function
+from __future__ import unicode_literals
 
 import os
-
-from fnmatch import fnmatch
-from time import gmtime, strftime
-
+import time
 import logging
-_logger = logging.getLogger(__name__)
+from copy import copy
+from fnmatch import fnmatch
 
+from channelfinder import ChannelFinderClient
+from .database import CFCDatabase
+from phantasy.library.misc import pattern_filter
+from phantasy.library.misc import flatten
+from phantasy.library.misc import expand_list_to_dict
+
+
+_LOGGER = logging.getLogger(__name__)
+
+# cannot fetch data from CFS, need to be fixed
+# 2016-12-28 17:38:08 EST
 class ChannelFinderAgent(object):
     """
+    [docstring to be updated]
     Channel Finder Agent
 
     This module builds a local cache of channel finder service. It can imports
     data from CSV format file.
+
+    For every PV record, fetched data is of the following format:
+    [PV name (str), PV properties (dict), PV tags (list of str)]
     """
     
     def __init__(self, **kwargs):
-        """
-        initialization.
-        """
-        self.__cdate = strftime("%Y-%m-%dT%H:%M:%S", gmtime())
+        # timestamp
+        self.__cdate = time.strftime("%Y-%m-%d %H:%M:%S %Z", time.localtime())
+
         self.source = kwargs.get("source", None)
         self.use_unicode = False
-        # the data is in `rows`. It has (n,3) shape, n*(pv, prpts, tags) with
-        # type (str, dict, list)
+
+        # PV data results
         self.results = []
 
         # property name for a channel running in an IOC
         # by default, iocName
         self.ioc_name = kwargs.get("hostName", "iocName")
+
         # property name for an IOC running on a computer server
         # by default, hostName
         self.host_name = kwargs.get("hostName", "hostName")
+    
+    @property
+    def source(self):
+        return self._source
 
-    def updateSource(self, source):
-        """ Update data source, using the new data source.
-
-        :param source: data source
-        :return:
-        """
-        self.source = source
+    @source.setter
+    def source(self, s):
+        self._source = s
 
     def downloadCfs(self, **kwargs):
         """
@@ -91,47 +105,6 @@ class ChannelFinderAgent(object):
             res = self._downloadCfs(self.source, **kwargs)
 
         return res
-
-    def _downloadCfsSQLite(self, dbname, **kwargs):
-        """Get data from local SQLite database, either in file, or in memory
-
-        :param dbname:
-        :param kwargs:
-        :return:
-        """
-        # keep_prpts = kwargs.pop('keep', None)
-        # converter  = kwargs.pop('converter', {})
-        delimeter = kwargs.get('tag_delimiter', ';')
-
-        from cflocaldb import ChannelFinderLocal
-
-        cfl = ChannelFinderLocal(dbname)
-        cfl.conn()
-        properties, results = cfl.find(name="*")
-        cfl.close()
-
-        # if keep_prpts is None:
-        #     # use all possible property names
-        #     keep_prpts = [p.Name for p in properties]
-
-        #print "# include properties", properties
-        self.results[:]=[]
-        for res in results:
-            pvname = None
-            props = {}
-            tags = []
-            for idx, prpts in enumerate(properties):
-                if prpts in ['pv_id', 'elem_id']:
-                    continue
-                elif prpts == "pv":
-                    pvname = res[idx]
-                elif prpts == "tags":
-                    if res[idx] is not None:
-                        tags = res[idx].split(delimeter)
-                elif res[idx] is not None:
-                    props[prpts] = res[idx]
-            if pvname is not None:
-                self.results.append([pvname, props, tags])
 
     def _downloadCfs(self, cfsurl, **kwargs):
         """Get daya from channel finder web service
@@ -398,6 +371,278 @@ class ChannelFinderAgent(object):
                     continue
                 ret[pv][1].append(t)
         return ret
+
+def get_data_from_cf(url, **kws):
+    """Get PV data from Channel Finder Service (URL).
+
+    Parameters
+    ----------
+    url : str
+        URL address of channel finder server, e.g. 
+        ``https://127.0.0.1:8181/ChannelFinder``.
+    
+    Keyword Arguments
+    -----------------
+    name_filter : str or list(str)
+        Only get PVs with defined PV name(s), could be Unix shell pattern(s),
+        logical OR applies for list of multiple name patterns.
+    prop_filter : str or list(str) or list(tuple) or list(str, tuple)
+        Only get PVs with defined property names (list(str)) or
+        property configurations (list(tuple)),
+        could be Unix shell patterns, e.g.:
+        List of str pattern(s), to filter property names:
+        - ``prop_filter='elem*'``
+        - ``prop_filter=['elemHandle', 'send']``
+        List of tuple(s), to filter property configurations,
+        (ignore invalid property names):
+        - ``prop_filter=[('elemHandle', 'setpoint')]``
+        - ``prop_filter=[('elemHandle', 'setpoint'), ('INVALID', 'ABC')]``
+        Or mixture of the above two:
+        - ``prop_filter=['elem*', ('elemHandle', 'setpoint')]``
+    tag_filter : str or list(str)
+        Only get PVs with defined tags, could be Unix shell patterns,
+        logical AND applies for multiple tags.
+    raw_data : list
+        List of PV data.
+    """
+    prop_filter = kws.get('prop_filter', None)
+    tag_filter = kws.get('tag_filter', None)
+    name_filter = kws.get('name_filter', None)
+    raw_data = kws.get('raw_data', None)
+    
+    cfc = ChannelFinderClient(BaseURL=url)
+    all_prop_list = sorted([p['name'] for p in cfc.getAllProperties()])
+    all_tag_list = sorted([t['name'] for t in cfc.getAllTags()])
+
+    if name_filter is not None:
+        if isinstance(name_filter, (str, unicode)):
+            name_filter = name_filter,
+    else:
+        name_filter = ('*',)
+
+    prop_default = dict(zip(all_prop_list, ['*']*len(all_prop_list)))
+    if prop_filter is not None:
+        if isinstance(prop_filter, (str, unicode)):
+            prop_filter = prop_filter,
+        prop_tmp = expand_list_to_dict(prop_filter, all_prop_list) # dict
+        if prop_tmp == {}:
+            prop_selected = prop_default
+        else:
+            prop_selected = prop_tmp
+    else:
+        prop_selected = prop_default
+    
+    tag_selected = []
+    if tag_filter is not None:
+        if isinstance(tag_filter, (str, unicode)):
+            tag_filter = tag_filter,
+        tag_selected = flatten(
+                    [pattern_filter(all_tag_list, tn_i)
+                        for tn_i in tag_filter]
+                    )
+        if tag_selected == []:
+            _LOGGER.warn('Invalid tags defined, tag_filter will be inactived.')
+
+    if raw_data is None:
+        raw_data = cfc.find(name='*')
+
+    retval = []
+    for rec in raw_data:
+        pv_name_tmp = rec.get('name')
+        if True in [fnmatch(pv_name_tmp, npi) for npi in name_filter]:
+            pv_name = pv_name_tmp
+        else:
+            continue
+
+        pv_tags = [t['name'] for t in rec.get('tags')]
+        if not set(tag_selected).issubset(pv_tags):
+            continue
+
+        pv_props_selected = []
+        for p in rec.get('properties'):
+            k, v = p['name'], p['value']
+            if k in prop_selected:
+                if prop_selected[k] is not None and not fnmatch(str(v), prop_selected[k]):
+                    pv_name = None
+                    continue
+                else:
+                    pv_props_selected.append(p)
+
+        # ignore empty properties
+        if pv_props_selected == []:
+            continue
+
+        rec['properties'] = pv_props_selected
+
+        #pv_props_selected = [p for p in rec.get('properties')
+        #                     if p['name'] in prop_selected and 
+        #                     fnmatch(str(p['value']), str(prop_selected[p['name']]))]
+        #new_rec = copy(rec)
+        #new_rec['properties'] = pv_props_selected
+        #retval.append(new_rec)
+        if pv_name is not None:
+            retval.append(rec)
+
+    return retval
+        
+
+def get_data_from_db(db_name, db_type='sqlite', **kws):
+    """Get PV data from database, currently support database: ``SQLite``.
+
+    Parameters
+    ----------
+    db_name : str
+        Name of database.
+    db_type : str
+        Type of database, 'sqlite' by default.
+
+    Keyword Arguments
+    -----------------
+    tag_delimiter : str
+        Delimiter for tag string, ';' by default.
+    name_filter : str or list(str)
+        Only get PVs with defined PV name(s), could be Unix shell pattern(s),
+        logical OR applies for list of multiple name patterns.
+    prop_filter : str or list(str) or list(tuple) or list(str, tuple)
+        Only get PVs with defined property names (list(str)) or
+        property configurations (list(tuple)),
+        could be Unix shell patterns, e.g.:
+        List of str pattern(s), to filter property names:
+        - ``prop_filter='elem*'``
+        - ``prop_filter=['elemHandle', 'send']``
+        List of tuple(s), to filter property configurations,
+        (ignore invalid property names):
+        - ``prop_filter=[('elemHandle', 'setpoint')]``
+        - ``prop_filter=[('elemHandle', 'setpoint'), ('INVALID', 'ABC')]``
+        Or mixture of the above two:
+        - ``prop_filter=['elem*', ('elemHandle', 'setpoint')]``
+    tag_filter : str or list(str)
+        Only get PVs with defined tags, could be Unix shell patterns,
+        logical AND applies for multiple tags.
+    raw_data : list
+        List of PV data.
+
+    Returns
+    -------
+    ret : list
+        List of list, each list element is of the format:
+        [PV name (str), PV properties (dict), PV tags (list of str)]
+    """
+    tag_delimiter = kws.get('tag_delimiter', ';')
+    prop_filter = kws.get('prop_filter', None)
+    tag_filter = kws.get('tag_filter', None)
+    name_filter = kws.get('name_filter', None)
+    raw_data = kws.get('raw_data', None)
+
+    if db_type == 'sqlite': 
+        cfcd = CFCDatabase(db_name)
+        cfcd.conn()
+        properties, results = cfcd.find(name="*")
+        all_prop_list = cfcd.getAllProperties(name_only=True)
+        all_tag_list = cfcd.getAllTags(name_only=True)
+        cfcd.close()
+    else:
+        _LOGGER.warn("{} will be implemented later.".format(db_type))
+        raise NotImplementedError
+
+    if name_filter is not None:
+        if isinstance(name_filter, (str, unicode)):
+            name_filter = name_filter,
+    else:
+        name_filter = ('*',)
+
+    prop_default = dict(zip(all_prop_list, ['*']*len(all_prop_list)))
+    if prop_filter is not None:
+        if isinstance(prop_filter, (str, unicode)):
+            prop_filter = prop_filter,
+        prop_tmp = expand_list_to_dict(prop_filter, all_prop_list) # dict
+        if prop_tmp == {}:
+            prop_selected = prop_default
+        else:
+            prop_selected = prop_tmp
+    else:
+        prop_selected = prop_default
+    
+    tag_selected = []
+    if tag_filter is not None:
+        if isinstance(tag_filter, (str, unicode)):
+            tag_filter = tag_filter,
+        tag_selected = flatten(
+                    [pattern_filter(all_tag_list, tn_i)
+                        for tn_i in tag_filter]
+                    )
+        if tag_selected == []:
+            _LOGGER.warn('Invalid tags defined, tag_filter will be inactived.')
+
+    prop_skip = ['pv_id', 'elem_id']
+
+    retval = []
+    for res in results:
+        pv_name = None
+        pv_props = {}
+        pv_tags = []
+        for idx, prpts in enumerate(properties):
+            if prpts in prop_skip:
+                continue
+            elif prpts == "pv":
+                pv_name_tmp = res[idx]
+                if True in [fnmatch(pv_name_tmp, npi) for npi in name_filter]:
+                    pv_name = pv_name_tmp
+                else:
+                    continue
+            elif prpts == "tags":
+                if res[idx] is not None:
+                    pv_tags = res[idx].split(tag_delimiter)
+                    tag_on = set(tag_selected).issubset(pv_tags)
+            elif res[idx] is not None:
+                pv_props[prpts] = res[idx]
+        if not tag_on:
+            continue
+
+        pv_props_selected = []
+        for k, v in pv_props.iteritems():
+            if k in prop_selected:
+                if prop_selected[k] is not None and not fnmatch(str(v), prop_selected[k]):
+                    pv_name = None
+                    continue
+                else:
+                    pv_props_selected.append((k,v))
+
+        # ignore empty properties
+        if pv_props_selected == []:
+            continue
+
+        #pv_props_selected = {k:v for k,v in pv_props.iteritems() 
+        #                     if k in prop_selected and fnmatch(str(v), str(prop_selected[k]))}
+        if pv_name is not None:
+            retval.append([pv_name, pv_props_selected, pv_tags])
+
+    return retval
+
+
+def get_data_from_tb(tb_name, tb_type='csv', **kws):
+    """Get PV data from table file, currently support: ``csv``.
+
+    Parameters
+    ----------
+    tb_name : str
+        Name of table file.
+    tb_type : str
+        Type of table file, 'csv' by default
+
+    Keyword Arguments
+    -----------------
+    tag_delimiter : str
+        Delimiter for tag string, ';' by default.
+
+    Returns
+    -------
+    ret : list
+        List of list, each list element is of the format:
+        [PV name (str), PV properties (dict), PV tags (list of str)]
+    """
+    pass
+
 
 if __name__ == "__main__":
     cfa = ChannelFinderAgent()

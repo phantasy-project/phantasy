@@ -35,7 +35,9 @@ LS1_CA01:BPM_D1129,BPM,0.0,112.8833268,0.04,0.04,CA01,BPM6,LS1,D1129,BPM,"positi
 :copyright: Copyright (c) 2015, Facility for Rare Isotope Beams
 """
 
-import os.path, logging, csv
+import os.path
+import logging
+import csv
 
 from .accel import SeqElement
 from .accel import DriftElement, ValveElement, PortElement, CavityElement

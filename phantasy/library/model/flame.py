@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """This module contains classes/functions to serve as utils for the
-potential requirment of modeling with FLAME code
+potential requirment of modeling accelerator with FLAME code.
 """
 
 from __future__ import absolute_import
@@ -17,9 +17,9 @@ import re
 from collections import Counter
 
 from flame import Machine
-from numpy import ndarray, array, alltrue, zeros
+import numpy as np
 
-from . import miscutils
+from phantasy.library.misc import miscutils
 
 
 __authors__ = "Tong Zhang"
@@ -91,7 +91,7 @@ def generate_latfile(machine, latfile=None, out=None):
         lines = []
         for k in mconf_ks:
             v = mconf[k]
-            if isinstance(v, ndarray):
+            if isinstance(v, np.ndarray):
                 v = v.tolist()
             if isinstance(v, str):
                 v = '"{0}"'.format(v)
@@ -117,7 +117,7 @@ def generate_latfile(machine, latfile=None, out=None):
             p = []
             for k, v in elem_i.items():
                 if k in elem_k and k not in ['name', 'type']:
-                    if isinstance(v, ndarray):
+                    if isinstance(v, np.ndarray):
                         v = v.tolist()
                     if isinstance(v, str):
                         v = '"{0}"'.format(v)
@@ -701,10 +701,10 @@ def collect_data(result, **kws):
     """
     valid_keys = [k for k, v in kws.items() if v is not None]
     try:
-        return {ik: array([getattr(s, ik) for (i, s) in result]) for ik in valid_keys}
+        return {ik: np.array([getattr(s, ik) for (i, s) in result]) for ik in valid_keys}
     except:
         result = convert_results(result)
-        return {ik: array([getattr(s, ik) for (i, s) in result]) for ik in valid_keys}
+        return {ik: np.array([getattr(s, ik) for (i, s) in result]) for ik in valid_keys}
 
 
 def propagate(machine=None, mstates=None, from_element=None, to_element=None, monitor=None, **kws):
@@ -1176,7 +1176,7 @@ def is_zeros_states(s):
     True or False
         True if is all zeros, else False
     """
-    return alltrue(getattr(s, 'moment0') == zeros([7, 1]))
+    return np.alltrue(getattr(s, 'moment0') == np.zeros([7, 1]))
 
 
 class MachineStates(object):

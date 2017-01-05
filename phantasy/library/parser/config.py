@@ -282,6 +282,9 @@ def find_machine_config(machine, **kwargs):
     ----------
     machine : str
         Name or directory path of machine configuration.
+
+    Keyword Arguments
+    -----------------
     verbose : True or False
         Display more information (default: False)
 

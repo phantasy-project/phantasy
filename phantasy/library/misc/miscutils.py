@@ -178,3 +178,41 @@ def pattern_filter(x, pattern):
     """
     return [i for i in x if fnmatch(i, pattern)]
 
+
+def expand_list_to_dict(x, keys):
+    """Expand list to dict according to following rule:
+    1. If list element is string, treat it as Unix shell pattern,
+       to match *keys*, and expand it as tuple like ``(k, None)``;
+    2. If list element is tuple, test if the first element of tuple
+       is in the *keys* list, if not just ignore;
+    3. Convert final list of tuple to be a dict.
+
+    Parameters
+    ----------
+    x : list
+        List of (tuple and str).
+    keys : list
+        List of keys.
+    
+    Returns
+    -------
+    ret : dict
+    
+    Examples
+    --------
+    >>> x = ['k?', ('k2', 3), ('a1', 's')]
+    >>> keys = ['k1', 'k2', 'k3', 'k4']
+    >>> print(expand_list_to_dict(x, keys))
+    {'k1': None, 'k2': 3, 'k3': None, 'k4': None}
+    """
+    ret = []
+    for i in x:
+        if not isinstance(i, tuple):
+            ret.extend([(k, None) for k in keys if fnmatch(k, i)])
+        else:
+            if i[0] in keys:
+                ret.append(i)
+    return dict(ret)
+
+
+

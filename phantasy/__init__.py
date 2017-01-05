@@ -7,7 +7,27 @@ import logging
 from .apps import lmapp
 from .tools import phytool
 
+__authors__ = "Tong Zhang"
+__copyright__ = "(c) 2016, Facility for Rare Isotope beams, Michigan State University"
+__contact__ = "Tong Zhang <zhangt@frib.msu.edu>"
 
-# configure the root logger
-logging.basicConfig(format="%(levelname)s: %(asctime)s: %(name)s: %(message)s")
+__doc__ = """PHANTASY:
+Physics high-level applications and toolkits for accelerator system.
 
+:version: %s
+:authors: %s
+
+:Example:
+
+>>>
+>>>
+""" % (__version__, __authors__)
+
+#__all__ = [
+#           'flameutils', 'parseutils', 'miscutils', 'pvutils', 'flowutils',
+#           'ocapp',
+#           ]
+
+logging.basicConfig(
+        format="%(levelname)s: %(asctime)s: %(name)s: %(message)s"
+        )
