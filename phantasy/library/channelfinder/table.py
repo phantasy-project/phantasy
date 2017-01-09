@@ -156,7 +156,7 @@ def read_csv(csvfile):
     if len(csvraw) == head_idx:
         raise RuntimeError("No data in CSV file {0}".format(csvfile))
 
-    if csvraw[head_idx][0].strip().lower == 'pv':
+    if csvraw[head_idx][0].strip().lower() == 'pv':
         csv_data = __read_csv_1(csvraw[head_idx:])
     else:
         csv_data = __read_csv_2(csvraw[head_idx:])
