@@ -27,3 +27,5 @@ _trial_temp/
 
 # ignore egg info folder
 *.egg-info
+
+.coverage
