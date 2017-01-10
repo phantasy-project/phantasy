@@ -1,0 +1,61 @@
+Facility config path : /home/tong1/work/FRIB/projects/packages/phyapps/phyapps/test/config/FRIB1/phyutil.ini
+----------------------
+Facility name        : FRIB1
+----------------------
+All valid lattices   : LINAC LS1
+----------------------
+Section - COMMON
+----------------------
+default_submachine   : LINAC
+submachines          : LINAC LS1
+output_dir           : ~/Development/tools/data
+----------------------
+Section - LINAC
+----------------------
+controls_protocol    : EPICS
+s_end                : 158.094
+config_file          : phyutil.cfg
+impact_map           : ls1_fs1.map
+s_begin              : 0.0
+unit_conversion      : linac_unitconv.hdf5, UnitConversion
+settings_file        : baseline_settings.json
+cfs_tag              : phyutil.sys.LINAC
+physics_data         : linac.hdf5
+model                : impact
+layout_file          : baseline_layout.csv
+ss_url               : http://localhost:4810
+loop                 : 0
+cfs_url              : baseline_channels.sqlite
+----------------------
+Section - LINAC_CF
+----------------------
+controls_protocol    : EPICS
+s_end                : 158.094
+config_file          : phyutil.cfg
+impact_map           : ls1_fs1.map
+s_begin              : 0.0
+unit_conversion      : linac_unitconv.hdf5, UnitConversion
+settings_file        : baseline_settings.json
+cfs_tag              : phyutil.sys.LINAC
+physics_data         : linac.hdf5
+model                : impact
+layout_file          : baseline_layout.csv
+ss_url               : http://localhost:4810
+loop                 : 0
+cfs_url              : https://localhost:8080/ChannelFinder
+----------------------
+Section - LS1
+----------------------
+controls_protocol    : EPICS
+s_end                : 80.000
+config_file          : phyutil.cfg
+s_begin              : 0.0
+unit_conversion      : linac_unitconv.hdf5, UnitConversion
+settings_file        : ls1_settings.json
+cfs_tag              : phyutil.sys.LS1
+physics_data         : linac.hdf5
+model                : impact
+layout_file          : ls1_layout.csv
+ss_url               : None
+loop                 : 0
+cfs_url              : ls1_fs1.sqlite

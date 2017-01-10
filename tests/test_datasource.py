@@ -31,7 +31,7 @@ class TestDataSource(unittest.TestCase):
     def setUp(self):
         self.config_dir = os.path.join(curdir, 'config')
         self.db = os.path.join(self.config_dir, 
-                'FRIB1/baseline_channels.sqlite')
+                'FRIB1/baseline_channels_bak.sqlite')
         self.url = 'https://127.0.0.1:8181/ChannelFinder'
         self.file1 = 'cfd_data_1.pkl'
         self.file2 = 'cfd_data_2.pkl'
@@ -91,9 +91,8 @@ class TestDataSource(unittest.TestCase):
         for d in data1:
             self.assertTrue(fnmatch(d['name'], '*PM*'))
         for d in data2:
-            self.assertTrue(
-                    {'name':'elemType', 'value':'BPM'} in 
-                    d['properties'])
+            dp = {p['name']:p['value'] for p in d['properties']}
+            self.assertTrue(dp.get('elemType'), 'BPM')
         
 
 
