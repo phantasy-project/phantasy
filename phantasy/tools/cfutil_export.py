@@ -6,26 +6,38 @@ Implement phytool command 'cfutil-export'.
 
 from __future__ import print_function
 
-import sys, os.path, logging, json, traceback, getpass
+import sys
+import os.path
+import logging
+import json
+import traceback
+import getpass
+
 from urlparse import urlparse
 from argparse import ArgumentParser
 from collections import OrderedDict
 
 from channelfinder import ChannelFinderClient
 
-from phantasy.library.misc import read_csv
-from phantasy.library.channelfinder import import_cf_localdata
+from phantasy.library.channelfinder import write_db
+from phantasy.library.channelfinder import write_tb
+from phantasy.library.channelfinder import write_json
+from phantasy.library.channelfinder import write_cfs
+from phantasy.library.pv import DataSource
 
 _LOGGER = logging.getLogger(__name__)
 
 
 parser = ArgumentParser(prog=os.path.basename(sys.argv[0])+" cfutil-export",
-                        description="Export channel data to file or Channel Finder Service")
-parser.add_argument("-v", dest="verbosity", nargs='?', type=int, const=1, default=0, help="set the amount of output")
-parser.add_argument("--user", dest="username", help="specify ChannelFinder username")
-parser.add_argument("--pass", dest="password", help="specify ChannelFinder password")
-parser.add_argument("channelsPath", help="path to input file (.csv)")
-parser.add_argument("cfsurl", help="path to output file (.csv, .sqlite) or Channel Finder Service URL")
+                        description="Export channel data to file or Channel Finder Service (CFS)")
+parser.add_argument("-v", dest="verbosity", nargs='?', type=int, const=1, default=0,
+        help="set the amount of output")
+parser.add_argument("--from", dest='from_path',
+        help="path to input file (.csv, .sqlite) as channel data source")
+parser.add_argument("--to", dest='to_path',
+        help="path to output file (.csv, .sqlite, .json) or CFS URL")
+parser.add_argument("--user", dest="username", help="specify CFS username")
+parser.add_argument("--pass", dest="password", help="specify CFS password")
 
 print_help = parser.print_help
 
@@ -41,26 +53,28 @@ def main():
     elif args.verbosity > 1:
         logging.getLogger().setLevel(logging.DEBUG)
 
-    if not os.path.isfile(args.channelsPath):
-        print("Error channel CSV file not found:", args.channelsPath, file=sys.stderr)
+    channel_source = args.from_path
+    if not os.path.isfile(channel_source):
+        print("Cannot find channel data source: ", args.from_path, file=sys.stderr)
         return 1
 
     try:
-        channels = read_csv(args.channelsPath)
+        ds = DataSource(source=channel_source)
+        channels = ds.get_data()
     except Exception as e:
-        print("Error reading channels from CSV file:", e, file=sys.stderr)
+        print("Failed to get data from channel source:", e, file=sys.stderr)
         return 1
 
 
-    cfsurl = urlparse(args.cfsurl, "file")
+    cfsurl = urlparse(args.to_path, "file")
     if cfsurl.scheme == "file":
         (_, ext) = os.path.splitext(cfsurl.path)
-        if ext in [ ".sqlite", ".json" ]:
+        if ext in [ ".csv", ".sqlite", ".json" ]:
             if os.path.exists(cfsurl.path):
-                print("Destination file already exists: {}".format(args.cfsurl), file=sys.stderr)
+                print("Destination file already exists: {}".format(args.to_path), file=sys.stderr)
                 return 1
         else:
-            print("Destination file format not supported: {}".format(args.cfsurl), file=sys.stderr)
+            print("Destination file format not supported: {}".format(args.to_path), file=sys.stderr)
             return 1
 
     elif cfsurl.scheme in [ "http", "https" ]:
@@ -68,26 +82,35 @@ def main():
         pass
 
     else:
-        print("Destination URL not supported: {}".format(args.cfsurl), file=sys.stderr)
+        print("Destination path not supported: {}".format(args.to_path), file=sys.stderr)
         return 1
 
 
     if cfsurl.scheme == "file":
+        # local file
         if ext == ".sqlite":
             try:
                 _export_to_sqlite(channels, cfsurl.path)
             except Exception as e:
-                print("Error exporting to CSV:", e, file=sys.stderr)
+                print("Failed export to SQLite file: ", e, file=sys.stderr)
+                return 1
+
+        if ext == ".csv":
+            try:
+                _export_to_csv(channels, cfsurl.path)
+            except Exception as e:
+                print("Failed export to CSV file: ", e, file=sys.stderr)
                 return 1
 
         if ext == ".json":
             try:
                 _export_to_json(channels, cfsurl.path)
             except Exception as e:
-                print("Error exporting to JSON:", e, file=sys.stderr)
+                print("Failed export to JSON file: ", e, file=sys.stderr)
                 return 1
 
     elif cfsurl.scheme in [ "http", "https" ]:
+        # CFS
         try:
             if args.username == None:
                 args.username = raw_input("Enter username: ")
@@ -97,36 +120,35 @@ def main():
 
             # Channel Finder Client does not
             # like trailing slashes in the URL.
-            if args.cfsurl.endswith("/"):
-                uri = args.cfsurl[:-1]
+            if args.to_path.endswith("/"):
+                uri = args.to_path[:-1]
             else:
-                uri = args.cfsurl
+                uri = args.to_path
 
             _export_to_cfweb(channels, uri, args.username, args.password)
         except Exception as e:
             if args.verbosity > 0: traceback.print_exc()
-            print("Error exporting to ChannelFinder:", e, file=sys.stderr)
+            print("Failed export to Channel Finder Service: ", e, file=sys.stderr)
             return 1
 
     return 0
 
 
 def _export_to_sqlite(channels, path):
-    import_cf_localdata(channels, path, overwrite=True)
+    write_db(channels, path, overwrite=True)
+
+
+def _export_to_csv(channels, path):
+    write_tb(channels, path, overwrite=True)
 
 
 def _export_to_json(channels, path):
-    chandict = OrderedDict()
-    with open(path, "w") as fp:
-        for name, props, tags in channels:
-            data = OrderedDict(props)
-            data["tags"] = ";".join(tags)
-            chandict[name] = data
-
-        json.dump(chandict, fp, indent=4)
+    write_json(channels, path, overwrite=True)
 
 
 def _export_to_cfweb(channels, uri, username, password):
+    write_cfs(channels, uri, username=username, password=password, force=True)
+    """
     # Channel data with the following structure:
     #
     # {
@@ -188,4 +210,5 @@ def _export_to_cfweb(channels, uri, username, password):
         data.append(c)
 
     client.set(channels=data)
+    """
 
