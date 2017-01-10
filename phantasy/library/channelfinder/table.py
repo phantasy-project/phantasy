@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 """
 Module to read data from a CSV (comma separated values).
 It is developed to assist the channel finder service, but could be used for
@@ -22,13 +25,24 @@ It supports 2 different CSV file formats.
     PV, machine, elemIndex, elemPosition, elemName, elemHandle, elemField, elemType
     xxx, xxx,    xxx,       xxx,          xxx,      xxx,        xxx,       xxx,      tag1,tag2
 
-:author: Guobao Shen <shen@frib.msu.edu>
+Authors:
+    Guobao Shen <shen@frib.msu.edu>
+    Tong Zhang <zhangt@frib.msu.edu>
 """
+
+from __future__ import print_function
+from __future__ import unicode_literals
 
 import os
 import csv
+import getpass
+import logging
 
 from phantasy.library.exception import CSVFormatError
+from phantasy.library.misc import simplify_data
+
+
+_LOGGER = logging.getLogger(__name__)
 
 def __read_csv_1(csvdata):
     """Load data from CSV file with headers like:
@@ -238,3 +252,167 @@ def write_csv(data, csvname, frmt="table"):
     else:
         raise CSVFormatError("CSV file format {0} not supported yet.".format(format))
     
+
+def write_tb(data, tb_name, overwrite=False, **kwargs):
+    """Write PV/channels data into spreadsheet, overwrite if *tb_name* is
+    already exists while *overwrite* is True.
+
+    Parameters
+    ----------
+    data : list(dict)
+        List of dict, each dict element is of the format:
+        {'name': PV name (str), 'owner': str,
+         'properties': PV properties (list(dict)),
+         'tags': PV tags (list(dict))]
+    tb_name : str
+        Filename of spreadsheet
+    overwrite : bool
+        Overwrite existing spreadsheet file or not, False by default.
+    
+    Keyword Arguments
+    -----------------
+    tb_type : str
+        File type of spreadsheet, 'csv' by default.
+
+    See Also
+    --------
+    get_data_from_tb : Get PV data from spreadsheet.
+    get_data_from_db : Get PV data from database.
+    get_data_from_cf : Get PV data from Channel Finder Service.
+    """
+    tb_type = kwargs.get('tb_type', 'csv')
+    
+    if os.path.isfile(tb_name):
+        if not overwrite:
+            _LOGGER.warn("{} already exists, overwrite it by passing overwrite=True".format(tb_name))
+            return None
+        else:
+            _LOGGER.warn("{} will be overwritten.".format(tb_name))
+
+    if tb_type == 'csv':
+        pvdata = simplify_data(data)
+        write_csv(pvdata, tb_name)
+
+
+class CFCTable(object):
+    """Channel finder client using spreadsheet as data source, uniform
+    interface is provided as ``CFCDatabase`` and ``ChannelFinderClient``.
+
+    Note
+    ----
+    This class is not intended to be used by the users, better solution is:
+    1. Convert spreadsheet into SQLite database;
+    2. Use ``CFCDatabase`` to initialize.
+    3. If spreadsheet data source is required, generate from ``CFCDatabase``.
+    """
+    def __init__(self, tb_name=None, owner=None):
+        self._tb_name = tb_name
+        self.owner = owner
+        self._csv_data = None
+        if tb_name is not None:
+            try:
+                data = read_csv(tb_name)
+                self._csv_data = data
+            except:
+                _LOGGER.warn("Cannot read data from {}.".format(tb_name))
+        
+    @property
+    def owner(self):
+        """Str: owner of the table source."""
+        return self._owner
+
+    @owner.setter
+    def owner(self, owner):
+        if owner is None:
+            self._owner = getpass.getuser()
+        else:
+            self._owner = owner
+
+    @property
+    def tb_name(self):
+        """Str: Filename of table source."""
+        return self._tb_name
+
+    @tb_name.setter
+    def tb_name(self, n):
+        try:
+            data = read_csv(n)
+            self._csv_data = data
+            self._tb_name = n
+        except:
+            _LOGGER.warn("Cannot read data from {}.".format(n))
+            _LOGGER.warn("Rollback to previous one.")
+
+    def find(self, name='*'):
+        """Return csv data as channel finder format.
+        """
+        if self._csv_data is None:
+            return None
+        
+        _owner = self.owner
+        retval = []
+        for rec in self._csv_data:
+            new_rec = {'name': rec[0],
+                       'owner': _owner,
+                       'properties': [{'name': k, 'value': v, 'owner': _owner}
+                                        for k,v in rec[1].iteritems()],
+                       'tags': [{'name': t, 'owner': _owner} for t in rec[2]],
+            }
+            retval.append(new_rec)
+            
+        return retval
+    
+    def getAllTags(self, **kws):
+        """Get all tags.
+
+        Keyword Arguments
+        -----------------
+
+        Keyword Arguments
+        -----------------
+        name_only : True or False
+            If true, only return list of tag names.
+
+        Returns
+        -------
+        ret : list of dict
+            dict: {'name': tag_name, 'owner': owner}
+        """
+        if self._csv_data is None:
+            return None
+
+        _owner = self.owner
+        tag_set = set()
+        for _,_,t in self._csv_data:
+            [tag_set.add(i) for i in t]
+
+        if kws.get('name_only', False):
+            return sorted(list(tag_set))
+        else:
+            return [{'name': tag, 'owner': _owner} for tag in tag_set]
+
+    def getAllProperties(self, **kws):
+        """Get all property definitions.
+
+        Keyword Arguments
+        -----------------
+        name_only : True or False
+            If true, only return list of property names.
+
+        Returns
+        -------
+        ret : list of dict
+            dict: {'name': property_name, 'value': None, 'owner': owner}
+        """
+        if self._csv_data is None:
+            return None
+
+        _owner = self.owner
+        p_set = set()
+        for _,p,_ in self._csv_data:
+            [p_set.add(i) for i in p]
+
+        if kws.get('name_only', False):
+            return sorted(list(p_set))
+        else:
+            return [{'name': p, 'owner': _owner, 'value': None} for p in p_set]
