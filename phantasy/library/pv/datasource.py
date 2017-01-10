@@ -18,7 +18,12 @@ import os
 from fnmatch import fnmatch
 
 from phantasy.library.channelfinder import get_data_from_db
+from phantasy.library.channelfinder import get_data_from_tb
 from phantasy.library.channelfinder import get_data_from_cf
+from phantasy.library.channelfinder import write_db
+from phantasy.library.channelfinder import write_tb
+from phantasy.library.channelfinder import write_json
+from phantasy.library.channelfinder import write_cfs
 
 
 __authors__ = "Tong Zhang"
@@ -56,7 +61,9 @@ class DataSource(object):
                 'sql': self._get_sql_data,
                 }
 
-        self.pvdata = self.get_data()
+        self._pvdata = None
+        if source is not None:
+            self._pvdata = self.get_data()
 
     @property
     def source(self):
@@ -93,13 +100,22 @@ class DataSource(object):
             self._src_type = None
         self._source = s
 
+    @property
+    def pvdata(self):
+        """List(dict): PV data got from source."""
+        return self._pvdata
+
+    @pvdata.setter
+    def pvdata(self, data):
+        self._pvdata = data
+
     def get_data(self, **kws):
         """Get PV data from specific source.
         
         Keyword Arguments
         -----------------
         name_filter : str or list(str)
-            Only get PVs with defined PV name(s), could be Unix shell pattern(s),
+            Only get PVs with defined PV name(s), could be Unix shell pattern,
             logical OR applies for list of multiple name patterns.
         prop_filter : str or list(str) or list(tuple) or list(str, tuple)
             Only get PVs with defined property names (list(str)) or
@@ -126,10 +142,11 @@ class DataSource(object):
 
         Returns
         -------
-        ret : list
-            List of PV data, for each PV data, should be of list as:
-            ``string of PV name, dict of PV properties, list of PV tags``,
-            if failed, return None.
+        ret : list(dict) or None
+            List of dict, each dict element is of the format:
+            {'name': PV name (str), 'owner': str,
+             'properties': PV properties (list(dict)),
+             'tags': PV tags (list(dict))]
 
         Examples
         --------
@@ -152,7 +169,8 @@ class DataSource(object):
           'virtual': 0},
          [u'phyutil.sub.CA01', u'phyutil.sys.LINAC', u'phyutil.sys.LS1']]
         2. Get PVs with single tag and property filters
-        >>> pvdata = get_data(tag_filter='phyutil.sub.CB09', prop_filter='elem*')
+        >>> pvdata = get_data(tag_filter='phyutil.sub.CB09',
+        >>>                   prop_filter='elem*')
         >>> print(len(pvdata))
         87
         >>> print(pvdata[0])
@@ -196,10 +214,55 @@ class DataSource(object):
     def _get_csv_data(self, **kws):
         """Get PV data from spreadsheet (CSV)
         """
-        pass
+        return get_data_from_tb(self.source, **kws)
 
     def _get_sql_data(self, **kws):
         """Get PV data from database (SQLite)
         """
         return get_data_from_db(self.source, **kws)
 
+    def dump_data(self, fname, ftype, **kws):
+        """Dump PV data to file or CFS, defined by *ftype*, support types:
+        - *sql*: SQLite database
+        - *csv*: CSV spreadsheet
+        - *json*: JSON string file
+        - *cfs*: Channel Finder Service
+
+        Parameters
+        ----------
+        fname : str
+            File name or CFS url.
+        ftype : str
+            Dumped file type, supported types: sql*, *csv*, *json*, *cfs*.
+        """
+        if self._pvdata is None:
+            _LOGGER.warn("PV data is not available, get_data() first.")
+            return None
+
+        dump_data(self._pvdata, fname, ftype, **kws)
+
+
+def dump_data(data, fname, ftype, **kws):
+    """Dump PV data to file or CFS, defined by *ftype*, support types:
+    - *sql*: SQLite database
+    - *csv*: CSV spreadsheet
+    - *json*: JSON string file
+    - *cfs*: Channel Finder Service
+
+    Parameters
+    ----------
+    data : list(dict)
+        List of dict, each dict element is of the format:
+        {'name': PV name (str), 'owner': str,
+         'properties': PV properties (list(dict)),
+         'tags': PV tags (list(dict))]
+    fname : str
+        File name or CFS url.
+    ftype : str
+        Dumped file type, supported types: sql*, *csv*, *json*, *cfs*.
+    """
+    dump_meth = {'csv': write_tb, 
+                 'sql': write_db,
+                 'json': write_json,
+                 'cfs': write_cfs}
+    dump_meth.get(ftype)(data, fname, **kws)
