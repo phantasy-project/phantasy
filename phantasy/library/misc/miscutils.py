@@ -215,4 +215,34 @@ def expand_list_to_dict(x, keys):
     return dict(ret)
 
 
+def simplify_data(raw_data):
+    """Convert CFS formated data into simple tuple.
+    
+    Parameters
+    ----------
+    raw_data : list(dict)
+        List of dict, each dict element is of the format:
+        {'name': PV name (str), 'owner': str,
+         'properties': PV properties (list(dict)),
+         'tags': PV tags (list(dict))]
+
+    Returns
+    -------
+    ret : list(list)
+        List of list, each list element is of the format:
+        PV name (str), PV properties (dict), PV tags (list(str))
+
+    See Also
+    --------
+    get_data_from_tb, get_data_from_db, get_data_from_cf
+    """
+    retval = []
+    for r in raw_data:
+        new_rec = [
+                    r['name'], 
+                    {p['name']:p['value'] for p in r['properties']},
+                    [t['name'] for t in r['tags']]
+        ]
+        retval.append(new_rec)
+    return retval
 
