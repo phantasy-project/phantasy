@@ -7,6 +7,7 @@ Authors:
 """
 
 import os
+import getpass
 import sqlite3
 from fnmatch import fnmatch
 
@@ -20,92 +21,96 @@ class CFCDatabase(object):
     CFCDatabase provide uniform interface as ``ChannelFinderClient``, which
     uses real CFS as data source.
 
+    If *db_name* is given, connection to database would be established
+    automatically, if *db_name* is further changed, connection would be
+    updated or rollback to last connection.
+
+    Parameter *owner* is required by CFS (not by database), if not given,
+    use the present login username.
+
     Parameters
     ----------
-    dbname : str
+    db_name : str
         Name of SQLite database.
+    owner : str
+        Database owner, login username by default.
 
     See Also
     --------
-    ChannelFinderClient
+    :class:`~channelfidner.ChannelFinderClient`
     """
-    def __init__(self, dbname=None):
-        self._dbname = dbname
-        try:
-            self.conn()
-        except:
-            _LOGGER.error("{0} cannot be connected to.".format(self._dbname))
+    def __init__(self, db_name=None, owner=None):
+        self._db_name = db_name
+        self.owner = owner
+        self.dbconn = None
+        if db_name is not None:
+            try:
+                self.conn()
+                self.dbconn.execute('SELECT 1 FROM pvs LIMIT 1')
+            except:
+                _LOGGER.error("Cannot connect to {}.".format(self._db_name))
 
     @property
-    def dbname(self):
-        return self._dbname
+    def owner(self):
+        """Str: owner of the database."""
+        return self._owner
 
-    @dbname.setter
-    def dbname(self, n):
-        self._dbname = n
+    @owner.setter
+    def owner(self, owner):
+        if owner is None:
+            self._owner = getpass.getuser()
+        else:
+            self._owner = owner
+
+    @property
+    def db_name(self):
+        """Str: Filename of database."""
+        return self._db_name
+
+    @db_name.setter
+    def db_name(self, n):
+        try:
+            new_conn = sqlite3.connect(n)
+            new_conn.execute('SELECT 1 FROM pvs LIMIT 1')
+            self._db_name = n
+            if self.dbconn is not None:
+                self.dbconn.close()
+            self.dbconn = new_conn
+        except:
+            _LOGGER.warn("Cannot establish new connection to {}.".format(n))
+            _LOGGER.warn("Rollback to previous one.")
+            if os.path.isfile(n):
+                os.remove(n)
 
     def conn(self):
-        """Connect to SQLite database
+        """Connect to SQLite database.
         """
-        self.dbconn = sqlite3.connect(self.dbname)
+        self.dbconn = sqlite3.connect(self.db_name)
 
     def close(self):
-        """ Close current SQLite db connection
+        """Close current SQLite db connection.
         """
         self.dbconn.close()
 
     def find(self, **kwargs):
         '''
-        Todo
+        Note
         ----
-        Return values should be tuned to be consistent with ChannelFinderClient.
-
-        Method allows you to query for a channel/s based on name, properties, tags
-        find(name = channelNamePattern)
-        >>> find(name='*')
-        >>> find(name='SR:C01*')
-
-        find(tagName = tagNamePattern)
-        >>> find(tagName = 'myTag')
-
-        find(property = [(propertyName,propertyValuePattern)])
-        >>> find(property=[('position','*')])
-        >>> find(property=[('position','*'),('cell','')])
-
-        returns a _list_ of matching Channels
-        special pattern matching char
-        * for multiple char
-        ? for single char
-
-        Searching with multiple parameters
-        >>> find(name='SR:C01*', tagName = 'myTag', property=[('position','pattern1')])
-        return all channels with name matching 'SR:C01*' AND
-                            with tagName = 'mytag' AND
-                            with property 'position' with value matching 'pattern1'
-
-
-        For multiValued searches
-        >>> find(name='pattern1,pattern2')
-        will return all the channels which match either pattern1 OR pattern2
-
-        >>> find(property=[('propA','pattern1,pattern2')])
-        will return all the channels which have the property propA  and
-        whose values match pattern1 OR pattern2
-
-        >>> find(property=[('propA', 'pattern1'),('propB', 'pattern2')])
-        will return all the channels which have properties
-        _propA_ with value matching _pattern1_ AND _propB_ with value matching _pattern2_
-
-        >>> find(tagName='pattern1,pattern2')
-        will return all the channels which have the tags matching pattern1 AND pattern2
-
-        To query for the existance of a tag or property use findTag and findProperty.
+        More complex filter logic is provided in ``get_data_from_db`` and
+        ``get_data_from_cf``.
 
         Keyword Arguments
         -----------------
         name : str
             Unix shell pattern of channel name, default is '*'.
 
+        Returns
+        -------
+        ret : list(dict)
+            List of dict, each dict element is of the format:
+            {'name': PV name (str), 'owner': str,
+            'properties': PV properties (list(dict)),
+            'tags': PV tags (list(dict))]
         '''
         if len(kwargs) == 0:
             raise Exception, 'Incorrect usage: at least one parameter must be specified.'
@@ -113,8 +118,8 @@ class CFCDatabase(object):
         channames = kwargs.get("name", "*")
         properties = kwargs.get("property", None)
         tags = kwargs.get("tagName", None)
-        sql = """SELECT * from pvs join elements__pvs on pvs.pv_id = elements__pvs.pv_id 
-                join elements on elements__pvs.elem_id = elements.elem_id where """
+        sql = """SELECT * FROM pvs JOIN elements__pvs ON pvs.pv_id=elements__pvs.pv_id 
+                JOIN elements ON elements__pvs.elem_id=elements.elem_id WHERE """
         querycons = []
         if channames != "*":
             first = True
@@ -151,8 +156,57 @@ class CFCDatabase(object):
         cur.execute(sql, querycons)
 
         properties = [prpts[0] for prpts in cur.description]
+        
+        return self.convert_data(properties, cur.fetchall(), owner=self.owner)
 
-        return (properties, cur.fetchall())
+    @staticmethod
+    def convert_data(properties, results, **kws):
+        """Covnert raw data to be uniform as ChannelFinderClient
+
+        Parameters
+        ----------
+        properties : list
+            List of all properties, including PV name, PV properties, PV tags, etc.
+        results : tuple
+            Tuple of values for each properties.
+
+        Keyword Arguments
+        -----------------
+        tag_delimiter : str
+            Delimiter for tags string, ``';'`` by default.
+        pv_name: str
+            Property key name for PV name, ``'pv'`` by default.
+        prop_skip: list
+            List of properties to skip, ``['pv_id', 'elem_id']`` by default.
+        owner : str
+            Required by real Channel Finder Service.
+        """
+        key_pv_name = kws.get('pv_name', 'pv')
+        prop_skip = kws.get('prop_skip', ['pv_id', 'elem_id'])
+        tag_delimiter = kws.get('tag_delimiter', ';')
+        owner = kws.get('owner', getpass.getuser())
+
+        retval = []
+        for rec in results:
+            pv_name = None
+            pv_props = []
+            pv_tags = []
+            for idx, props in enumerate(properties):
+                if props in prop_skip:
+                    continue
+                elif props == key_pv_name:
+                    pv_name = rec[idx]
+                elif props == "tags":
+                    if rec[idx] is not None:
+                        pv_tags = [{'name': t, 'owner': owner} for t in rec[idx].split(tag_delimiter)]
+                elif rec[idx] is not None:
+                    pv_props.append({'name': props, 'value': rec[idx], 'owner': owner})
+            if pv_name is not None:
+                retval.append({'name': pv_name, 'owner': owner,
+                               'properties': pv_props,
+                               'tags': pv_tags})
+        
+        return retval
 
     def findProperty(self, propertyName):
         """Searches for the property name or pattern.
@@ -185,7 +239,7 @@ class CFCDatabase(object):
         return [t for t in self.getAllTags() if fnmatch(t['name'], tagName)]
 
     def getAllTags(self, delimiter=";", **kws):
-        """Return a list of all the Tags present - even the ones not associated w/t any channel
+        """Get all tags.
 
         Parameters
         ----------
@@ -200,17 +254,19 @@ class CFCDatabase(object):
         Returns
         -------
         ret : list of dict
-            dict: {'name': tag_name}
+            dict: {'name': tag_name, 'owner': owner}
         """
+        owner = self.owner
         cur = self.dbconn.cursor()
         cur.execute("SELECT tags from pvs")
         tag_set = set()
         for tag in cur.fetchall():
-            [tag_set.add(str(i)) for i in tag[0].split(delimiter)]
+            if tag[0] is not None:
+                [tag_set.add(str(i)) for i in tag[0].split(delimiter)]
         if kws.get('name_only', False):
             return sorted(list(tag_set))
         else:
-            return [{'name': tag} for tag in tag_set]
+            return [{'name': tag, 'owner': owner} for tag in tag_set]
 
     def getAllProperties(self, **kws):
         """Get all property definitions.
@@ -223,26 +279,36 @@ class CFCDatabase(object):
         Returns
         -------
         ret : list of dict
-            dict: {'name': property_name, 'value': None}
+            dict: {'name': property_name, 'value': None, 'owner': owner}
         """
+        owner = self.owner
         cur = self.dbconn.cursor()
-        cur.execute("""SELECT * from pvs join elements__pvs on pvs.pv_id = elements__pvs.pv_id 
-                        join elements on elements__pvs.elem_id = elements.elem_id""")
-        properties = [{'name': prpts[0],'value': None} for prpts in cur.description
+        cur.execute("""SELECT * FROM pvs JOIN elements__pvs ON pvs.pv_id=elements__pvs.pv_id 
+                       JOIN elements ON elements__pvs.elem_id=elements.elem_id""")
+        properties = [{'name': prpts[0],'value': None, 'owner': owner} for prpts in cur.description
                             if prpts[0] not in ["elem_id", "pv_id", "tags", 'pv', 'elem_pvs_id']]
 
         if kws.get('name_only', False):
             return sorted([p['name'] for p in properties])
         else:
             return properties
-
+ 
     def delete(self, **kwargs):
-        """
-        Method to delete a channel, property, tag
-        delete(channel = string)
-        >>> delete(channel = 'ch1')
+        """Delete channel, property and tag.
 
-        delete(tag = string)
+        Keyword Arguments
+        -----------------
+        channelName : str
+            Channel name string.
+
+        Examples
+        --------
+        1. Delete channel by channel name
+        # delete channel of the name of 'ch1':
+        >>> delete(channelName='ch1')
+
+        2. Delete tag by tag name
+        delete(tagName = string)
         >>> delete(tag = 'myTag')
         # tag = tag name of the tag to be removed from all channels
 
@@ -268,7 +334,7 @@ class CFCDatabase(object):
         """
         channels = kwargs.get("channel", None)
         property = kwargs.get("property", None)
-        tag =  kwargs.get("tag", None)
+        tag = kwargs.get("tag", None)
 
         if isinstance(property, (list, tuple)) or isinstance(tag, (list, tuple)):
             raise Exception("Handling multiple properties or tags not support yet.")
@@ -397,9 +463,6 @@ class CFCDatabase(object):
             self.dbconn.rollback()
             raise
 
-    #===============================================================================
-    # Update methods
-    #===============================================================================
     def update(self, **kwargs):
         """
         update(property = string, channel = string)
@@ -621,340 +684,337 @@ class CFCDatabase(object):
                         self.dbconn.executemany("""UPDATE pvs SET {0} = ? WHERE pv_id = ?""".format(prpt_names[0]),
                                                 new_values)
 
+    def set(self, **kwargs):
+        """Add new properties/tags/channels.
+        """
+        ## Add new tags
+        ## Add new properties
+        ## Add new channels
+        pass
 
-def export_cf_localdata(dbname="cf_localdb.sqlite", **kwargs):
-    """Export channel finder data from local SQLite database
 
-    :param dbname: database file name
+def write_db(data, db_name, overwrite=False, **kwargs):
+    """Write PV/channels data into SQLite database, overwrite if *db_name* is
+    already exists while *overwrite* is True.
 
-    - NULL/None or '' will be ignored
-    - *properties*, a list of column names for properties
-    - *pvcol* default 'pv', the column name for pv
-    - *tagscol* default 'tags', the column name for tags
-    - *tag_delimiter* default ';'
-
-    The default properties will have all in 'elements' and 'pvs' tables except the pv and tags columns.
-
-    tags are separated by ';'
-
-    pv name can be duplicate (chained element).
-
+    Parameters
+    ----------
+    data : list(dict)
+        List of dict, each dict element is of the format:
+        {'name': PV name (str), 'owner': str,
+         'properties': PV properties (list(dict)),
+         'tags': PV tags (list(dict))]
+    db_name : str
+        Filename of database.
+    overwrite : bool
+        Overwrite existing database file or not, False by default.
+    
     Keyword Arguments
     -----------------
-    pv : str
-        Column name to define PV name, 'pv' by default.
-    tags : str
-        Column name to define tags, 'tags' by default.
-    properties : list(str)
-        List of property names, invalid ones will be excluded.
     tag_delimiter : str
-        Delimiter to separate different tags, ';' by default.
+        Delimiter for tags string, ``';'`` by default.
+    use_unicode : bool
+        If treat string as unicode or not, False by default.
+    quite : bool
+        Add log entries if False, False by default.
 
+    See Also
+    --------
+    get_data_from_tb : Get PV data from spreadsheet.
+    get_data_from_db : Get PV data from database.
+    get_data_from_cf : Get PV data from Channel Finder Service.
     """
-    conn = sqlite3.connect(dbname)
-    # use byte string instead of the default unicode
-    conn.text_factory = str
-    cur = conn.cursor()
-    #cur.execute("select * from pvs, elements where pvs.elem_id = elements.elem_id")
-    cur.execute("select * from pvs")
-
-    # column name of PV name, 'pv' by default
-    pv = kwargs.get('pv', 'pv')
-    # column name of tages, 'tags' by default
-    tags = kwargs.get('tags', 'tags')
-
-    col_skip = ['elem_id', pv, tags]
-
-    # all column names read from db file
-    all_col_names = [v[0] for v in cur.description]
-
-    # exclude column names that do not need (defined by prop_skip list)
-    sel_col_names = [i for i in all_col_names if i not in col_skip]
-    if len(sel_col_names) == 0:
-        raise RuntimeError("Wrong local channel finder database {0}".format(dbname))
-
-    # user-defined list of property names to read, using selected columns by default
-    prop_kws = kwargs.get('properties', sel_col_names)
-    prop_names = [i for i in prop_kws if i in sel_col_names]
-    _LOGGER.info("Selected column names as PV properties:")
-    _LOGGER.info(" {}.".format(' '.join(prop_names)))
-
-    # delimiter fo tags string
-    delimiter = kwargs.get('tag_delimiter', ';')
-
-    print(prop_names)
-    # selected column indice to read
-    sel_col_idx = [idx for idx, name in enumerate(all_col_names) if name in prop_names]
-
-    # pv name column index
-    pv_idx = all_col_names.index(pv)
-
-    # tags column index
-    tags_idx = all_col_names.index(tags)
-
-    # data return as PV data
-    results= []
-    for row in cur.fetchall():
-        pv = row[pv_idx]
-        prpts = {}
-        for i in sel_col_idx:
-            #if i in [pv_idx, tags_idx]:
-            #    # not record "pv", and "tags" columns
-            #    continue
-            if row[i] is None or row[i] == '':
-                # ignore None and ''
-                continue
-            prpts[all_col_names[i]] = row[i]
-        if row[tags_idx] is None or row[tags_idx] == '':
-            tags = []
-        else:
-            tags = [v.strip().encode('ascii') for v in row[tags_idx].split(delimiter)]
-        results.append([pv, prpts, tags])
-
-    cur.close()
-    conn.close()
-
-    return results
-
-
-def import_cf_localdata(data, dbname, overwrite=False, **kwargs):
-    """Import data into SQLite local database, create a new one if overwrite is True,
-    using a data set with a list of (pv, properties, tags)
-
-    :oaram dbfname : str
-    cflist :
-    sep : str. ";". separate single string to a list.
-    quiet : False. do not insert a log entry.
-
-    It only updates columns which are in both DB table and data. The
-    existing data will be updated and new data will be added.
-
-    Ignore the tags if it is None.
-
-    if pv is false, the pv part is not updated. Same as elemName part.
-
-
-    :param data: list of (pv, properties, tags)
-    :type data: list
-
-    :param dbname: SQLite database name
-    :type dbname:  string
-
-    :param overwrite: create a new database if True
-    :type overwrite: boolean
-
-    :return:
-    """
-    if not os.path.isfile(dbname) or overwrite:
-        # create a new database if overwrite is True
-        create_cf_localdb(dbname=dbname, overwrite=overwrite, **kwargs)
+    if not os.path.isfile(db_name):
+        # create a new database
+        init_db(db_name=db_name)
+    elif overwrite:
+        init_db(db_name, overwrite=overwrite)
+    else:
+        _LOGGER.warn("{} already exists, overwrite it by passing overwrite=True.".format(db_name))
+        return None
 
     # delimeter to separate tags in database
-    delimeter   = kwargs.get("delimeter", ";")
+    tag_delimeter = kwargs.get("tag_delimeter", ";")
+    use_unicode = kwargs.get('unicode', False)
     quiet = kwargs.get("quiet", False)
 
-    # elemName, elemType, system is "NOT NULL"
-    conn = sqlite3.connect(dbname)
-    # save byte string instead of the default unicode
-    conn.text_factory = str
+    # elemName, elemType, elemIndex MUST not be None
+    conn = sqlite3.connect(db_name)
+    conn.text_factory = str if not use_unicode else unicode
     cur = conn.cursor()
 
-    # new elements and pvs need to insert
+    # insert entries into table 'elements' and table 'pvs',
+    # as well as table 'log' if quite is False.
     elem_sets = []
     elem_sets_key = []
     pv_sets = []
     pv_sets_pvs = []
     # process elements table and pvs table
     for rec in data:
-        pv, prpts, tags = rec
-        ukey = (prpts.get("elemIndex", None),
-                prpts.get("elemType", ""),
-                prpts.get("elemName", ""),
-                )
+        pv_name, pv_tags = rec['name'], rec['tags']
+        pv_props = {p['name']:p['value'] for p in rec['properties']}
+
+        ukey = (
+                pv_props.get("elemIndex", None),
+                pv_props.get("elemType", ""),
+                pv_props.get("elemName", ""),
+        )
 
         # skip if already in the to-be-inserted list
         # deprecated: elemName has to be unique
         # elemIndex has to be unique since one element might be split into many pieces
-        if ukey[0] and ukey not in elem_sets_key:
-            cur.execute("""SELECT EXISTS(SELECT * from elements where elemIndex=? and elemType=? and elemName=? LIMIT 1)""", 
-                        (ukey[0], ukey[1], ukey[2],))
-            res = cur.fetchone()
+        elem_index, elem_type, elem_name = ukey
+        if elem_index and elem_index not in elem_sets_key:
+            cur.execute("""SELECT EXISTS(SELECT * FROM elements WHERE elemIndex=? AND elemType=? AND elemName=? LIMIT 1)""", 
+                        (elem_index, elem_type, elem_name))
+            res, = cur.fetchone()
             # no need to insert if exists
-            if res[0] == 0:
+            if res == 0:
                 # element index does not exist yet.
                 elem_sets.append(ukey)
                 # avoid element index + name, which has been added already
                 #elem_sets_key.append((ukey[0], ukey[1], ukey[2]))
                 elem_sets_key.append(ukey)
-        ukey = (pv,
-                prpts.get("elemField", ""), 
-                prpts.get("elemHandle", "")
-                )
-        if pv and pv not in pv_sets_pvs:
-            cur.execute("""SELECT EXISTS(SELECT * from pvs where pv=? LIMIT 1)""", (pv,))
-            res = cur.fetchone()
-            if res[0] == 0:
-                # pv does not exist yet.
-                pv_sets.append(ukey)
-                # not to add the pv again
-                pv_sets_pvs.append(pv) 
-        
-    for elem in elem_sets:
-        _logger.debug("adding new element: {0}".format(elem))
-    for pv in pv_sets:
-        _logger.debug("adding new pv: {0}".format(pv))
-    with conn:
-        conn.executemany("""INSERT INTO elements (elemIndex, elemType, elemName) VALUES (?,?,?)""", elem_sets)
-        conn.executemany("""INSERT INTO pvs (pv, elemField, elemHandle) VALUES (?,?,?)""", pv_sets)
-    _logger.debug("added {0} elements".format(len(elem_sets)))
-    _logger.debug("added {0} pvs".format(len(pv_sets)))
 
+        ukey = (
+                pv_name,
+                pv_props.get("elemField", ""), 
+                pv_props.get("elemHandle", "")
+        )
+        if pv_name and pv_name not in pv_sets_pvs:
+            cur.execute("""SELECT EXISTS(SELECT * from pvs where pv=? LIMIT 1)""", (pv_name,))
+            res, = cur.fetchone()
+            if res == 0:
+                # pv name does not exist yet.
+                pv_sets.append(ukey)
+                # not to add the pv name again
+                pv_sets_pvs.append(pv_name) 
+        
+    for ielem in elem_sets:
+        _LOGGER.debug("Adding new element: {0}".format(ielem))
+
+    for ipv in pv_sets:
+        _LOGGER.debug("Adding new PV: {0}".format(ipv))
+
+    # insert new entries, distinguished by (elemIndex, elemType, elemName)
+    #with conn:
+    #for elem in elem_sets:
+    #    print(elem)
+    #    conn.execute("""INSERT INTO elements (elemIndex, elemType, elemName) VALUES (?,?,?)""", elem)
+
+    conn.executemany("""INSERT INTO elements (elemIndex, elemType, elemName) VALUES (?,?,?)""", elem_sets)
+    conn.executemany("""INSERT INTO pvs (pv, elemField, elemHandle) VALUES (?,?,?)""", pv_sets)
+
+    _LOGGER.debug("Added {0} elements".format(len(elem_sets)))
+    _LOGGER.debug("Added {0} pvs".format(len(pv_sets)))
+
+    # update elements table
     cur.execute("begin")
     cur.execute("PRAGMA table_info(elements)")
     tbl_elements_cols = [v[1] for v in cur.fetchall()]
-    # update the elements table if data has the same column
+
+    # add more columns if defined by schema
     for col in tbl_elements_cols:
         # element index with element name is unique 
         if col in ["elemIndex", "elemType", "elemName"]:
             continue
         vals = []
         for rec in data:
-            pv, prpts, tags = rec
-            if col not in prpts:
+            pv_name, pv_tags = rec['name'], rec['tags']
+            pv_props = {p['name']:p['value'] for p in rec['properties']}
+            if col not in pv_props:
+                # only update rec whose cols are defined in schema 
                 continue
-            vals.append((prpts[col], prpts["elemIndex"], prpts["elemType"], prpts["elemName"]))
+            try:
+                vals.append((pv_props[col], pv_props["elemIndex"], pv_props["elemType"], pv_props["elemName"]))
+            except:
+                cur.execute("""INSERT INTO log (timestamp, message) 
+                        VALUES (datetime('now', 'localtime'), 'Incomplete record for pv={}')""".format(pv_name)) 
         if len(vals) == 0:
-            _logger.debug("elements: no data for column '{0}'".format(col))
+            _LOGGER.debug("Table(elements): no data for column '{0}'.".format(col))
             continue
         try:
-            cur.executemany("UPDATE elements set %s=? where elemIndex=? and elemType=? and elemName=?" % col, vals)
+            cur.executemany("UPDATE elements SET {0}=? WHERE elemIndex=? AND elemType=? AND elemName=?".format(col), vals)
         except:
             raise RuntimeError("Error at updating {0} {1}".format(col, vals))
 
         # conn.commit()
-        _logger.debug("elements: updated column '{0}' with {1} records".format(
+        _LOGGER.debug("Table(elements): update column '{0}' with {1} records.".format(
                 col, len(vals)))
 
+    # update pvs table
     cur.execute("PRAGMA table_info(pvs)")
     tbl_pvs_cols = [v[1] for v in cur.fetchall()]
+
+    # add more columns if defined by schema
     for col in tbl_pvs_cols:
         if col in ['pv', 'elemField', 'elemHandle', 'tags']:
             continue
         vals = []
         for rec in data:
-            pv, prpts, tags = rec
-            if col not in prpts:
+            pv_name, pv_tags = rec['name'], rec['tags']
+            pv_props = {p['name']:p['value'] for p in rec['properties']}
+            if col not in pv_props:
+                # only update rec whose cols are defined in schema 
                 continue
-            if not prpts.has_key("elemField") or not prpts.has_key("elemIndex"):
-                # @TODO to be convert to log instead of print to screen
-                print("Incomplete record for pv={0}: {1} {2}".format(
-                    pv, prpts, tags))
+            if not pv_props.has_key("elemField") or not pv_props.has_key("elemIndex"):
+                #print("Incomplete record for pv={0}: {1} {2}".format(
+                #    pv, prpts, tags))
+                cur.execute("""INSERT INTO log (timestamp, message) 
+                        VALUES (datetime('now', 'localtime'), 'Incomplete record for pv={}')""".format(pv_name)) 
                 continue
             # elemGroups is a list
-            vals.append((prpts[col], pv, prpts["elemField"]))
+            vals.append((pv_props[col], pv_name, pv_props["elemField"]))
 
         if len(vals) == 0:
-        #     _logger.debug("pvs: no data for column '{0}'".format(col))
+            _LOGGER.debug("Table(pvs): no data for column '{0}'.".format(col))
             continue
-        cur.executemany("""UPDATE pvs set %s=? where pv=? and elemField=?"""% col, vals)
+        cur.executemany("UPDATE pvs SET {0}=? WHERE pv=? and elemField=?".format(col), vals)
  
         # conn.commit()
-        _logger.debug("pvs: updated column '{0}' with {1} records '{2}'".format(
-                col, len(vals), [v[0] for v in vals]))
+        _LOGGER.debug("Table(pvs): update column '{0}' with {1} records.".format(col, len(vals)))
 
-    # # update tags
+    # update tags
     vals = []
     for rec in data:
-        pv, prpts, tags = rec
-        if tags is None: 
+        pv_name, pv_tags = rec['name'], rec['tags']
+        pv_props = {p['name']:p['value'] for p in rec['properties']}
+        if pv_tags is None: 
             continue
-        if not prpts.has_key("elemField") or not prpts.has_key("elemIndex"):
-            # @TODO to be convert to log instead of print to screen
-            print("Incomplete record for pv={0}: {1} {2}. IGNORED".format(
-                pv, prpts, tags))
+        if not pv_props.has_key("elemField") or not pv_props.has_key("elemIndex"):
+            #print("Incomplete record for pv={0}: {1} {2}. IGNORED".format(
+            #    pv, prpts, tags))
+            cur.execute("""INSERT INTO log (timestamp, message)
+                    VALUES (datetime('now', 'localtime'), "Incomplete record for pv={}")""".format(pv_name))
             continue
-        vals.append((delimeter.join(sorted(tags)), pv, prpts["elemField"]))
+        pv_tags_str = tag_delimeter.join(sorted([t['name'] for t in pv_tags]))
+        vals.append((pv_tags_str, pv_name, pv_props["elemField"]))
     if len(vals) > 0:
-        cur.executemany("""UPDATE pvs set tags=? where pv=? and elemField=?""", vals)
+        cur.executemany("""UPDATE pvs SET tags=? WHERE pv=? AND elemField=?""", vals)
         # conn.commit()
-        _logger.debug("pvs: updated tags for {0} rows".format(len(vals)))
+        _LOGGER.debug("Table(pvs): update tags for {0} records.".format(len(vals)))
 
+    # write log if not *quiet*
     if not quiet:
-        msg = "channel finder local database updated %d records" % (len(data))
-        cur.execute("""insert into log(timestamp, message) values (datetime('now'), ? )""", (msg,))
+        msg = "Local database for Channel Finder Service processed {0:<3d} records, added {1:<3d} elements and {2:<3d} PVs".format(len(data), len(elem_sets), len(pv_sets))
+        cur.execute("""Insert into log(timestamp, message) VALUES (datetime('now', 'localtime'), ? )""", (msg,))
 
+    # update table elements__pvs
     cur.execute("DELETE FROM elements__pvs")
-    pre_pv = ""
-    pre_elem = ""
-    pre_elem_type=""
-    pre_elemIdx = 0
+    pre_pv_name = ""
+    pre_elem_name = ""
+    pre_elem_type = ""
+    pre_elem_index = 0
     pvid = 0
     elemid = 0
     values = []
     for rec in data:
-        pv, prpts, _ = rec
-        if pv != pre_pv:
-            cur.execute("SELECT pv_id from pvs where pv = ?", (pv,))
-            pvid = cur.fetchone()[0]
-            pre_pv = pv
-        if pre_elem != prpts['elemName'] or pre_elemIdx != prpts['elemIndex'] or pre_elem_type != prpts['elemType']:
-            pre_elem = prpts['elemName']
-            pre_elemIdx = prpts['elemIndex']
-            pre_elem_type = prpts['elemType']
-            cur.execute("SELECT elem_id from elements where elemName = ? and elemType=? and elemIndex = ?", 
-                        (pre_elem, pre_elem_type, pre_elemIdx))
+        pv_name = rec['name']
+        pv_props = {p['name']:p['value'] for p in rec['properties']}
+
+        if 'elemName' not in pv_props or 'elemType' not in pv_props or 'elemIndex' not in pv_props:
+            continue
+
+        if pv_name != pre_pv_name:
+            cur.execute("SELECT pv_id FROM pvs WHERE pv = ?", (pv_name,))
+            pvid = cur.fetchone()
+            if pvid is not None:
+                pvid = pvid[0]
+            else:
+                raise ValueError("pv_id is None")
+            pre_pv_name = pv_name
+        if pre_elem_name != pv_props['elemName'] \
+                or pre_elem_index != pv_props['elemIndex'] \
+                or pre_elem_type != pv_props['elemType']:
+            pre_elem_name = pv_props['elemName']
+            pre_elem_index = pv_props['elemIndex']
+            pre_elem_type = pv_props['elemType']
+            cur.execute("SELECT elem_id FROM elements WHERE elemName=? and elemType=? and elemIndex=?", 
+                        (pre_elem_name, pre_elem_type, pre_elem_index))
             elemid = cur.fetchone()
             if elemid is None:
-                raise ValueError("Cannot find elem_id for element (name: {0}, index: {1}) in elements table".
-                                 format(pre_elem, pre_elemIdx))
-            elemid = elemid[0]
+                raise ValueError("Cannot find elem_id for element (name: {0}, index: {1}) in elements table.".
+                                 format(pre_elem_name, pre_elem_index))
+            else:
+                elemid = elemid[0]
         values.append([pvid, elemid])
+
     cur.executemany("INSERT INTO elements__pvs (pv_id, elem_id) VALUES (?, ?)", values)
+
     try:
         conn.commit()
     except conn.Error:
         conn.rollback()
+    finally:
         conn.close()
-        raise
-
-    conn.close()
 
 
-def create_cf_localdb(dbname="cf_localdb.sqlite", overwrite=False, colheads=None):
-    """Create a local SQLite database for channel finder local caching purpose using SQLAlchemy library.
+def init_db(db_name, overwrite=False, extra_cols=None):
+    """Initialize SQLite database schema for channels data.
 
-    It has 4 tables, which are elements, pvs, and log, and mapping table to link elements and pvs 
-    since they are N:M mapping.
-    The element table is to save all element information with elem_id as primary key.
-    It has columns by default:
-        elem_id:        integer
-        elemName:       string
-        elemType:       string
-        system:         string
-        elemPosition:   float
-        elemLength:     float
-        elemIndex:      integer
-        elemGroup:      string
-        virtual:        integer
-    User could customize more columns, for example:
-        cell:           string
-        girder:         string
-        symmetry:       string
+    Four tables will be initialized:
+        * elements
+        * pvs
+        * log
+        * elements__pvs: mapping table to link elements and pvs (N:M mapping)
 
-    The pvs table is to save pv related information. It uses pv name as primary key,
-    and has foreign key pointing to element table. Its columns are as below:
-        devName:        string
-        elemHandle:     string
-        elemField:      string
-        tags:           string
-        hostname:       string
-        iocname:        float
+    The *element* table is to store all element information with *elem_id* as
+    primary key.
+    Columns defined by default are:
 
-    The log table is to save history information, which has columns as:
-        log_id:         integer
-        timestamp:      time stamp
-        message:        string
+        +--------------+---------+
+        | elem_id      | integer |
+        | elemName     | string  |
+        | elemType     | string  |
+        | elemLength   | float   |
+        | elemPosition | float   |
+        | elemIndex    | integer |
+        | elemGroups   | string  |
+        | fieldPolar   | integer |
+        | virtual      | integer |
+        +--------------+---------+
 
+    User could customize more columns (defined by *extra_cols*), for example,
+    ``extra_cols=['cell', 'girder', 'symmetry']`` will add the following
+    columns:
+
+        +--------------+---------+
+        | cell         | string  |
+        | girder       | string  |
+        | symmetry     | string  |
+        +--------------+---------+
+
+    The *pvs* table is to store PV related information. It uses pv name as
+    primary key, and has foreign key pointing to element table.
+    Columns defined by default are:
+ 
+        +--------------+---------+
+        | pv_id        | integer |
+        | pv           | string  | 
+        | elemHandle   | string  |
+        | elemField    | string  |
+        | hostname     | string  |
+        | devName      | string  |
+        | iocname      | float   |
+        | tags         | string  |
+        | speed        | float   |
+        | hlaHigh      | float   |
+        | hlaLow       | float   |
+        | hlaStepsize  | float   |
+        | hlaValRef    | float   |
+        | archive      | integer |
+        | size         | integer |
+        | epsilon      | float   |
+        +--------------+---------+
+
+    The *log* table is to save history information.
+    Columns defined by default are:
+
+        +--------------+---------+
+        | log_id       | integer |
+        | timestamp    |timestamp|
+        | message      | string  |
+        +--------------+---------+
 
     Constraints:
 
@@ -962,14 +1022,25 @@ def create_cf_localdb(dbname="cf_localdb.sqlite", overwrite=False, colheads=None
     - (pv,elemName,elemField) is unique
     - elemType can not be NULL
 
+    Parameters
+    ----------
+    db_name : str
+        Filename of database.
+    overwrite : bool
+        Overwrite existing database file or not, False by default.
+    extra_cols : list(str)
+        List of extra column names for *elements* table, which are user-defined
+        element properties.
 
-    :param dbname: string
-    :param overwrite: boolean, force to overwrite existing database file, False by default.
-    :return:
+    Returns
+    -------
+    ret : str
+        If database initialization is successful, return the database name,
+        or None.
     """
-    if os.path.isfile(dbname) and not overwrite:
-        # if db file exists already and not to overwrite existing db file
-        return
+    if os.path.isfile(db_name) and not overwrite:
+        _LOGGER.warn("{} already exists, overwrite it by pass overwrite=True.".format(db_name))
+        return db_name
 
     sqlcmd = """DROP TABLE IF EXISTS log;
     DROP TABLE IF EXISTS elements;
@@ -988,10 +1059,10 @@ def create_cf_localdb(dbname="cf_localdb.sqlite", overwrite=False, colheads=None
                   elemPosition  REAL,
                   elemIndex     INTEGER NOT NULL,
                   elemGroups    TEXT,
-                  {0}
+                  {}
                   fieldPolar    INTEGER,
                   virtual       INTEGER DEFAULT 0,
-                  UNIQUE (elemName, elemType, elemIndex) ON CONFLICT FAIL
+                  UNIQUE (elemName, elemType, elemIndex) ON CONFLICT IGNORE 
                   );
                   
     CREATE TABLE elements__pvs 
@@ -1023,8 +1094,7 @@ def create_cf_localdb(dbname="cf_localdb.sqlite", overwrite=False, colheads=None
                   );
     """
 
-    extra = """
-    """
+    extra = '\n'
 
     keys = [key.upper() for key in ['elemName',
                                     'elemType',
@@ -1051,26 +1121,20 @@ def create_cf_localdb(dbname="cf_localdb.sqlite", overwrite=False, colheads=None
                                     'size',
                                     'epsilon']]
 
-    if colheads is not None:
-        for key in colheads:
+    if extra_cols is not None:
+        for key in extra_cols:
             if key.upper() not in keys and key is not None and key.strip() != "":
-                extra += """                  {0}          TEXT,""".format(key)
+                extra += """{0:<18s}{1:<13s} TEXT,\n""".format(' ', key)
 
-    conn = sqlite3.connect(dbname)
-
-    # cur = conn.cursor()
-    # cur.executescript(sqlcmd.format(extra))
-    # cur.execute("""insert into log(timestamp, message)
-    #              values (datetime('now'), "channel finder local database created")""")
-    # conn.commit()
-    # Use connection objects context managers that automatically commit or rollback transactions.
-    # In the event of an exception, the transaction is rolled back; otherwise, the transaction is committed:
-    with conn:
-        conn.executescript(sqlcmd.format(extra))
-        conn.execute("""insert into log(timestamp, message)
-                     values (datetime('now'), "channel finder local database created")""")
-
-    conn.close()
+    try:
+        with sqlite3.connect(db_name) as conn:
+            conn.executescript(sqlcmd.format(extra))
+            conn.execute("""INSERT INTO log (timestamp, message)
+                         VALUES (datetime('now', 'localtime'), "Local database for Channel Finder Service is created.")""")
+        return db_name
+    except:
+        _LOGGER.error("Database initialization failed.")
+        return None
 
 
 if __name__ == "__main__":
@@ -1078,7 +1142,7 @@ if __name__ == "__main__":
     pass
     #from phyutil.phylib.common import read_csv
     #results = read_csv('../../../demo/impact_va.csv')
-    #create_cf_localdb(dbname='example.sqlite', overwrite=True, colheads=results[0][1].keys())
+    #create_cf_localdb(db_name='example.sqlite', overwrite=True, extra_cols=results[0][1].keys())
 
     # print results
 
