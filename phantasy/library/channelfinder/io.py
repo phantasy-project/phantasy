@@ -1,13 +1,8 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 """
-Channel Finder Agent
---------------------
-
-Fetch data from Channel Finder Service.
-
-For each PV, Channel Finder Service (CFS) provide a set of properties and
-tags. This can help us to identify the associated element name, type, location
-for every PV. The PVs are also tagged for 'default' read/write for a element
-it is linked.
+Input and output functions about CFS.
 
 Authors: 
     Lingyun Yang <lyyang@bnl.gov>
@@ -23,18 +18,22 @@ import time
 import logging
 from copy import copy
 from fnmatch import fnmatch
+from collections import OrderedDict
+import json
+import getpass
 
 from channelfinder import ChannelFinderClient
-from .database import CFCDatabase
+
 from phantasy.library.misc import pattern_filter
 from phantasy.library.misc import flatten
 from phantasy.library.misc import expand_list_to_dict
 
+from .database import CFCDatabase
+from .table import CFCTable
+
 
 _LOGGER = logging.getLogger(__name__)
 
-# cannot fetch data from CFS, need to be fixed
-# 2016-12-28 17:38:08 EST
 class ChannelFinderAgent(object):
     """
     [docstring to be updated]
@@ -372,6 +371,7 @@ class ChannelFinderAgent(object):
                 ret[pv][1].append(t)
         return ret
 
+
 def get_data_from_cf(url, **kws):
     """Get PV data from Channel Finder Service (URL).
 
@@ -404,87 +404,26 @@ def get_data_from_cf(url, **kws):
         logical AND applies for multiple tags.
     raw_data : list
         List of PV data.
+
+    Returns
+    -------
+    ret : list(dict)
+        List of dict, each dict element is of the format:
+        {'name': PV name (str), 'owner': str,
+         'properties': PV properties (list(dict)),
+         'tags': PV tags (list(dict))]
     """
-    prop_filter = kws.get('prop_filter', None)
-    tag_filter = kws.get('tag_filter', None)
-    name_filter = kws.get('name_filter', None)
     raw_data = kws.get('raw_data', None)
-    
+
     cfc = ChannelFinderClient(BaseURL=url)
     all_prop_list = sorted([p['name'] for p in cfc.getAllProperties()])
     all_tag_list = sorted([t['name'] for t in cfc.getAllTags()])
-
-    if name_filter is not None:
-        if isinstance(name_filter, (str, unicode)):
-            name_filter = name_filter,
-    else:
-        name_filter = ('*',)
-
-    prop_default = dict(zip(all_prop_list, ['*']*len(all_prop_list)))
-    if prop_filter is not None:
-        if isinstance(prop_filter, (str, unicode)):
-            prop_filter = prop_filter,
-        prop_tmp = expand_list_to_dict(prop_filter, all_prop_list) # dict
-        if prop_tmp == {}:
-            prop_selected = prop_default
-        else:
-            prop_selected = prop_tmp
-    else:
-        prop_selected = prop_default
-    
-    tag_selected = []
-    if tag_filter is not None:
-        if isinstance(tag_filter, (str, unicode)):
-            tag_filter = tag_filter,
-        tag_selected = flatten(
-                    [pattern_filter(all_tag_list, tn_i)
-                        for tn_i in tag_filter]
-                    )
-        if tag_selected == []:
-            _LOGGER.warn('Invalid tags defined, tag_filter will be inactived.')
-
     if raw_data is None:
         raw_data = cfc.find(name='*')
 
-    retval = []
-    for rec in raw_data:
-        pv_name_tmp = rec.get('name')
-        if True in [fnmatch(pv_name_tmp, npi) for npi in name_filter]:
-            pv_name = pv_name_tmp
-        else:
-            continue
+    new_kws = {k:v for k,v in kws.iteritems() if k != 'raw_data'} 
+    return _get_data(raw_data, all_prop_list, all_tag_list, **new_kws)
 
-        pv_tags = [t['name'] for t in rec.get('tags')]
-        if not set(tag_selected).issubset(pv_tags):
-            continue
-
-        pv_props_selected = []
-        for p in rec.get('properties'):
-            k, v = p['name'], p['value']
-            if k in prop_selected:
-                if prop_selected[k] is not None and not fnmatch(str(v), prop_selected[k]):
-                    pv_name = None
-                    continue
-                else:
-                    pv_props_selected.append(p)
-
-        # ignore empty properties
-        if pv_props_selected == []:
-            continue
-
-        rec['properties'] = pv_props_selected
-
-        #pv_props_selected = [p for p in rec.get('properties')
-        #                     if p['name'] in prop_selected and 
-        #                     fnmatch(str(p['value']), str(prop_selected[p['name']]))]
-        #new_rec = copy(rec)
-        #new_rec['properties'] = pv_props_selected
-        #retval.append(new_rec)
-        if pv_name is not None:
-            retval.append(rec)
-
-    return retval
-        
 
 def get_data_from_db(db_name, db_type='sqlite', **kws):
     """Get PV data from database, currently support database: ``SQLite``.
@@ -524,9 +463,11 @@ def get_data_from_db(db_name, db_type='sqlite', **kws):
 
     Returns
     -------
-    ret : list
-        List of list, each list element is of the format:
-        [PV name (str), PV properties (dict), PV tags (list of str)]
+    ret : list(dict)
+        List of dict, each dict element is of the format:
+        {'name': PV name (str), 'owner': str,
+         'properties': PV properties (list(dict)),
+         'tags': PV tags (list(dict))]
     """
     tag_delimiter = kws.get('tag_delimiter', ';')
     prop_filter = kws.get('prop_filter', None)
@@ -536,14 +477,87 @@ def get_data_from_db(db_name, db_type='sqlite', **kws):
 
     if db_type == 'sqlite': 
         cfcd = CFCDatabase(db_name)
-        cfcd.conn()
-        properties, results = cfcd.find(name="*")
+        if raw_data is None:
+            raw_data = cfcd.find(name='*')
         all_prop_list = cfcd.getAllProperties(name_only=True)
         all_tag_list = cfcd.getAllTags(name_only=True)
         cfcd.close()
     else:
         _LOGGER.warn("{} will be implemented later.".format(db_type))
         raise NotImplementedError
+
+    new_kws = {k:v for k,v in kws.iteritems() if k != 'raw_data'} 
+    return _get_data(raw_data, all_prop_list, all_tag_list, **new_kws)
+
+
+def get_data_from_tb(tb_name, tb_type='csv', **kws):
+    """Get PV data from table file, currently support: ``csv``.
+
+    Parameters
+    ----------
+    tb_name : str
+        Name of table file.
+    tb_type : str
+        Type of table file, 'csv' by default
+
+    Keyword Arguments
+    -----------------
+    name_filter : str or list(str)
+        Only get PVs with defined PV name(s), could be Unix shell pattern(s),
+        logical OR applies for list of multiple name patterns.
+    prop_filter : str or list(str) or list(tuple) or list(str, tuple)
+        Only get PVs with defined property names (list(str)) or
+        property configurations (list(tuple)),
+        could be Unix shell patterns, e.g.:
+        List of str pattern(s), to filter property names:
+        - ``prop_filter='elem*'``
+        - ``prop_filter=['elemHandle', 'send']``
+        List of tuple(s), to filter property configurations,
+        (ignore invalid property names):
+        - ``prop_filter=[('elemHandle', 'setpoint')]``
+        - ``prop_filter=[('elemHandle', 'setpoint'), ('INVALID', 'ABC')]``
+        Or mixture of the above two:
+        - ``prop_filter=['elem*', ('elemHandle', 'setpoint')]``
+    tag_filter : str or list(str)
+        Only get PVs with defined tags, could be Unix shell patterns,
+        logical AND applies for multiple tags.
+    raw_data : list
+        List of PV data.
+
+    Returns
+    -------
+    ret : list(dict)
+        List of dict, each dict element is of the format:
+        {'name': PV name (str), 'owner': str,
+         'properties': PV properties (list(dict)),
+         'tags': PV tags (list(dict))]
+    """
+    prop_filter = kws.get('prop_filter', None)
+    tag_filter = kws.get('tag_filter', None)
+    name_filter = kws.get('name_filter', None)
+    raw_data = kws.get('raw_data', None)
+
+    if tb_type == 'csv':
+        cfct = CFCTable(tb_name)
+        if raw_data is None:
+            raw_data = cfct.find(name='*')
+        all_prop_list = cfct.getAllProperties(name_only=True)
+        all_tag_list = cfct.getAllTags(name_only=True)
+    else:
+        _LOGGER.warn("{} will be implemented later.".format(db_type))
+        raise NotImplementedError
+
+    new_kws = {k:v for k,v in kws.iteritems() if k != 'raw_data'} 
+    return _get_data(raw_data, all_prop_list, all_tag_list, **new_kws)
+
+
+def _get_data(raw_data, all_prop_list, all_tag_list, **kws):
+    """Filter data from *raw_data* by applying filters, which are
+    defined by keyword arguments.
+    """
+    prop_filter = kws.get('prop_filter', None)
+    tag_filter = kws.get('tag_filter', None)
+    name_filter = kws.get('name_filter', None)
 
     if name_filter is not None:
         if isinstance(name_filter, (str, unicode)):
@@ -574,77 +588,245 @@ def get_data_from_db(db_name, db_type='sqlite', **kws):
         if tag_selected == []:
             _LOGGER.warn('Invalid tags defined, tag_filter will be inactived.')
 
-    prop_skip = ['pv_id', 'elem_id']
-
     retval = []
-    for res in results:
-        pv_name = None
-        pv_props = {}
-        pv_tags = []
-        for idx, prpts in enumerate(properties):
-            if prpts in prop_skip:
-                continue
-            elif prpts == "pv":
-                pv_name_tmp = res[idx]
-                if True in [fnmatch(pv_name_tmp, npi) for npi in name_filter]:
-                    pv_name = pv_name_tmp
-                else:
-                    continue
-            elif prpts == "tags":
-                if res[idx] is not None:
-                    pv_tags = res[idx].split(tag_delimiter)
-                    tag_on = set(tag_selected).issubset(pv_tags)
-            elif res[idx] is not None:
-                pv_props[prpts] = res[idx]
-        if not tag_on:
+    for rec in raw_data:
+        pv_name_tmp = rec.get('name')
+        if True in [fnmatch(pv_name_tmp, npi) for npi in name_filter]:
+            pv_name = pv_name_tmp
+        else:
+            continue
+
+        pv_tags = [t['name'] for t in rec.get('tags')]
+        if not set(tag_selected).issubset(pv_tags):
             continue
 
         pv_props_selected = []
-        for k, v in pv_props.iteritems():
+        for p in rec.get('properties'):
+            k, v = p['name'], p['value']
             if k in prop_selected:
                 if prop_selected[k] is not None and not fnmatch(str(v), prop_selected[k]):
                     pv_name = None
                     continue
                 else:
-                    pv_props_selected.append((k,v))
+                    pv_props_selected.append(p)
 
         # ignore empty properties
         if pv_props_selected == []:
             continue
 
-        #pv_props_selected = {k:v for k,v in pv_props.iteritems() 
-        #                     if k in prop_selected and fnmatch(str(v), str(prop_selected[k]))}
+        rec['properties'] = pv_props_selected
+
+        #pv_props_selected = [p for p in rec.get('properties')
+        #                     if p['name'] in prop_selected and 
+        #                     fnmatch(str(p['value']), str(prop_selected[p['name']]))]
+        #new_rec = copy(rec)
+        #new_rec['properties'] = pv_props_selected
+        #retval.append(new_rec)
         if pv_name is not None:
-            retval.append([pv_name, pv_props_selected, pv_tags])
+            retval.append(rec)
 
     return retval
 
 
-def get_data_from_tb(tb_name, tb_type='csv', **kws):
-    """Get PV data from table file, currently support: ``csv``.
+def write_cfs(data, cfs_url, **kws):
+    """Write PV/channels data into Channel Finder Service, only the owner of 
+    tags/properties/channels can manipulate CFS.
 
     Parameters
     ----------
-    tb_name : str
-        Name of table file.
-    tb_type : str
-        Type of table file, 'csv' by default
+    data : list(dict)
+        List of dict, each dict element is of the format:
+        {'name': PV name (str), 'owner': str,
+         'properties': PV properties (list(dict)),
+         'tags': PV tags (list(dict))]
+    cfs_url : str
+        URL of channel Finder Service.
+    force : True or False
+        Skip authorization if True, False by default.
 
     Keyword Arguments
     -----------------
+    username : str
+        Username of Channel Finder Service.
+    password : str
+        Password of defined username of Channel Finder Service.
+    """
+    force = kws.get('force', False)
+    if not force:
+        username = kws.get('username', None)
+        password = kws.get('password', None)
+        
+        if username is None:
+            username = raw_input("Enter username: ")
+
+        if password is None:
+            password = getpass.getpass("Enter password: ")
+
+        cfc = ChannelFinderClient(BaseURL=cfs_url, username=username, password=password)
+        
+        cfc_tags = cfc.getAllTags()
+        cfc_props = cfc.getAllProperties()
+
+        ch_list = []
+        for ch in data:
+            ch_tags, ch_props = ch['tags'], ch['properties']
+            skip_ch = False
+
+            for t in ch_tags:
+                if t not in cfc_tags:
+                    _LOGGER.debug('Add new tag: {0}:{1}'.format(t['name'], t['owner']))
+                    if username == t['owner']:
+                        cfc.set(tag=t)
+                        cfc_tags.append(t)
+                    else:
+                        _LOGGER.debug('Cannot add new tag, permission denied.')
+                        skip_ch = True
+
+            for p in ch_props:
+                p_dict = {'name': p['name'], 'owner': p['owner'], 'value': None}
+                if p_dict not in cfc_props:
+                    _LOGGER.debug('Add new property: {0}:{1}'.format(t['name'], t['owner']))
+                    if username == t['owner']:
+                        cfc.set(property=p)
+                        cfc_props.append(p)
+                    else:
+                        _LOGGER.debug('Cannot add new property, permission denied.')
+                        skip_ch = True
+
+            if username == ch['owner'] and not skip_ch:
+                ch_list.append(ch)
+        
+        cfc.set(channels=ch_list)
+    else:
+        if cfs_url is None:
+            cfc = ChannelFinderClient()
+        else:
+            cfc = ChannelFinderClient(BaseURL=cfs_url)
+        tags, props = get_all_tags(data), get_all_properties(data)
+        cfc.set(tags=tags)
+        cfc.set(properties=props)
+        cfc.set(channels=data)
+        
+
+def write_json(data, json_name, overwrite=False, **kws):
+    """Write PV/channels data into JSON file, overwrite if *json_name* is
+    already exists while *overwrite* is True.
+
+    Parameters
+    ----------
+    data : list(dict)
+        List of dict, each dict element is of the format:
+        {'name': PV name (str), 'owner': str,
+         'properties': PV properties (list(dict)),
+         'tags': PV tags (list(dict))]
+    json_name : str
+        Filename of JSON file.
+    overwrite : bool
+        Overwrite existing database file or not, False by default.
+    
+    Keyword Arguments
+    -----------------
     tag_delimiter : str
-        Delimiter for tag string, ';' by default.
+        Delimiter for tags string, ``';'`` by default.
+    indent : int
+        Indent level of JSON file, 4 by default.
+
+    See Also
+    --------
+    get_data_from_tb : Get PV data from spreadsheet.
+    get_data_from_db : Get PV data from database.
+    get_data_from_cf : Get PV data from Channel Finder Service.
+    """
+    tag_delimiter = kws.get('tag_delimiter', ';')
+    indent = kws.get('indent', 4)
+
+    fname = json_name
+    if os.path.isfile(fname):
+        if not overwrite:
+            _LOGGER.warn("{} already exists, overwrite it by passing overwrite=True".format(fname))
+            return None
+        else:
+            _LOGGER.warn("{} will be overwritten.".format(fname))
+
+    pvdict = OrderedDict()
+    for r in data:
+        name = r['name']
+        prop_dict = {p['name']:p['value'] for p in r['properties']}
+        tag_list = [t['name'] for t in r['tags']]
+        rdata = OrderedDict(prop_dict)
+        rdata['tags'] = tag_delimiter.join(tag_list)
+        pvdict[name] = rdata
+
+    with open(fname, 'w') as f:
+        json.dump(pvdict, f, indent=indent)
+
+
+def get_all_tags(data, **kws):
+    """Get all tags from PV data.
+
+    Parameters
+    ----------
+    data : list(dict)
+        List of dict, each dict element is of the format:
+        {'name': PV name (str), 'owner': str,
+         'properties': PV properties (list(dict)),
+         'tags': PV tags (list(dict))]
+
+    Keyword Arguments
+    -----------------
+    name_only : True or False
+        If true, only return list of property names.
 
     Returns
     -------
-    ret : list
-        List of list, each list element is of the format:
-        [PV name (str), PV properties (dict), PV tags (list of str)]
+    ret : list of dict
+        dict: {'name': property_name, 'value': None, 'owner': owner}
     """
-    pass
+    t_list = []
+    for r in data:
+        new_t = [
+                 {'name': p['name'], 'owner': p['owner']}
+                    for p in r['tags']
+                 ]
+        [t_list.append(i) for i in new_t if i not in t_list]
+
+    if kws.get('name_only', False):
+        return sorted([t['name'] for t in t_list])
+    else:
+        return t_list
 
 
-if __name__ == "__main__":
-    cfa = ChannelFinderAgent()
-    cfa.downloadCfs("example.sqlite")
-    print (cfa.results)
+def get_all_properties(data, **kws):
+    """Get all property definitions from PV data.
+
+    Parameters
+    ----------
+    data : list(dict)
+        List of dict, each dict element is of the format:
+        {'name': PV name (str), 'owner': str,
+         'properties': PV properties (list(dict)),
+         'tags': PV tags (list(dict))]
+
+    Keyword Arguments
+    -----------------
+    name_only : True or False
+        If true, only return list of property names.
+
+    Returns
+    -------
+    ret : list of dict
+        dict: {'name': property_name, 'value': None, 'owner': owner}
+    """
+    p_list = []
+    for r in data:
+        new_p = [
+                 {'name': p['name'], 'owner': p['owner'], 'value': None}
+                    for p in r['properties']
+                 ]
+        [p_list.append(i) for i in new_p if i not in p_list]
+
+    if kws.get('name_only', False):
+        return sorted([p['name'] for p in p_list])
+    else:
+        return p_list
+
