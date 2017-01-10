@@ -664,31 +664,26 @@ def write_cfs(data, cfs_url, **kws):
 
         cfc = ChannelFinderClient(BaseURL=cfs_url, username=username, password=password)
         
-        cfc_tags = cfc.getAllTags()
-        cfc_props = cfc.getAllProperties()
-
         ch_list = []
         for ch in data:
             ch_tags, ch_props = ch['tags'], ch['properties']
             skip_ch = False
 
             for t in ch_tags:
-                if t not in cfc_tags:
+                if not cfc.findTag(t['name']):
                     _LOGGER.debug('Add new tag: {0}:{1}'.format(t['name'], t['owner']))
                     if username == t['owner']:
                         cfc.set(tag=t)
-                        cfc_tags.append(t)
                     else:
                         _LOGGER.debug('Cannot add new tag, permission denied.')
                         skip_ch = True
 
             for p in ch_props:
                 p_dict = {'name': p['name'], 'owner': p['owner'], 'value': None}
-                if p_dict not in cfc_props:
+                if not cfc.findProperty(p['name']):
                     _LOGGER.debug('Add new property: {0}:{1}'.format(t['name'], t['owner']))
                     if username == t['owner']:
                         cfc.set(property=p)
-                        cfc_props.append(p)
                     else:
                         _LOGGER.debug('Cannot add new property, permission denied.')
                         skip_ch = True
