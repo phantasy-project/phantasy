@@ -20,7 +20,7 @@ from datetime import datetime
 from collections import OrderedDict
 
 from phantasy.library.settings import Settings
-from phantasy.library.parser import config
+from phantasy.library.parser import Configuration
 from phantasy.library.layout import Element
 from phantasy.library.layout import DriftElement
 from phantasy.library.layout import ValveElement
@@ -196,7 +196,7 @@ class LatticeFactory(object):
         if kwargs.get("config", None) is not None:
             self.config = kwargs.get("config")
         else:
-            self.config = config.config
+            self.config = Configuration()
 
         if kwargs.get("settings", None) is not None:
             self.settings = kwargs.get("settings")
@@ -276,7 +276,7 @@ class LatticeFactory(object):
 
     @config.setter
     def config(self, config):
-        if not isinstance(config, (config.Configuration)):
+        if not isinstance(config, Configuration):
             raise TypeError("LatticeFactory: 'config' property must be type Configuration")
         self._config = config
 
