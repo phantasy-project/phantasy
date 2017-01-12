@@ -7,6 +7,8 @@ import logging
 from .apps import lmapp
 from .tools import phytool
 
+from phantasy.library.model import flame as flameutils
+
 __authors__ = "Tong Zhang"
 __copyright__ = "(c) 2016, Facility for Rare Isotope beams, Michigan State University"
 __contact__ = "Tong Zhang <zhangt@frib.msu.edu>"
