@@ -11,6 +11,10 @@ from __future__ import print_function
 
 import logging
 import os
+import re
+import tempfile
+import time
+from fnmatch import fnmatch
 
 from phantasy.library.parser import find_machine_config
 from phantasy.library.parser import Configuration
@@ -21,6 +25,7 @@ from phantasy.library.misc import simplify_data
 from phantasy.library.lattice import merge
 from phantasy.library.lattice import CaElement
 from phantasy.library.lattice import Lattice
+
 
 __authors__ = "Tong Zhang"
 __copyright__ = "(c) 2016, Facility for Rare Isotope beams, Michigan State University"
@@ -33,25 +38,27 @@ HLA_TAG_PREFIX = 'phyutil'
 HLA_TAG_SYS_PREFIX = HLA_TAG_PREFIX + '.sys'
 HLA_VFAMILY = 'HLA:VIRTUAL'
 
-# submachines and default_submachine
-KEYNAME_SUBMACHINES = "submachines"
-KEYNAME_DEFAULT_SUBMACHINE = "default_submachine"
+## namelist defined in phyutil.ini
 
-# root directory for output data
-KEYNAME_OUTPUT_DATA_DIR = 'output_dir'
-DEFAULT_OUTPUT_DATA_DIR = "~/data"
+# segment and default_segment
+KEYNAME_SEGMENTS = "segments"
+KEYNAME_DEFAULT_SEGMENT = "default_segment"
+
+# root directory for temp output data
+KEYNAME_ROOT_DATA_DIR = 'root_data_dir'
+DEFAULT_ROOT_DATA_DIR = "~/data" # sub-dir, created as date, e.g. 20170112
 
 # scan server address
 KEYNAME_SCAN_SVR_URL = 'ss_url'
 DEFAULT_SCAN_SVR_URL = None
 
 # simulating code, or model
-KEYNAME_MULATION_CODE = 'model'
+KEYNAME_SIMULATION_CODE = 'model'
 DEFAULT_SIMULATION_CODE = None
 
 # model data dir, extra resources to support simulation
 KEYNAME_MODEL_DATA_DIR = 'model_data_dir'
-DEFAULT_MODEL_DATA_DIR = os.path.join(DEFAULT_OUTPUT_DATA_DIR, 'model')
+DEFAULT_MODEL_DATA_DIR = os.path.join(DEFAULT_ROOT_DATA_DIR, 'model_data')
 
 # config file, e.g. phyutil.cfg
 KEYNAME_CONFIG_FILE = 'config_file'
@@ -78,6 +85,13 @@ DEFAULT_CF_SVR_TAG =  lambda x: '{0}.{1}'.format(HLA_TAG_SYS_PREFIX, x)
 KEYNAME_MTYPE = 'loop'
 DEFAULT_MTYPE = 0
 
+# begin and end of s positoin
+KEYNAME_SBEGIN = 's_begin'
+DEFAULT_SBEGIN = 0.0
+KEYNAME_SEND = 's_end'
+DEFAULT_SEND = 0.0
+
+
 # the properties used for initializing Element are different from those defined
 # by cfs or sqlite, re-name property to Element property may needed.
 _cf_map = {'elemName' : 'name',
@@ -94,15 +108,16 @@ _cf_map = {'elemName' : 'name',
 }
 
 
-def load_lattice(facility, segment=None, **kwargs):
-    """Load segment lattice from facility.
+def load_lattice(machine, segment=None, **kwargs):
+    """Load segment lattice(s) from machine.
 
     Parameters
     ----------
-    facility : str
-        The exact name of facility/machine.
+    machine : str
+        The exact name of machine.
     segment : str
-        Default '*', Unix shell pattern to define lattice/submachine.
+        Unix shell pattern to define segment of machine, if not defined,
+        will use default segment defined in configuration file.
 
     Keyword Arguments
     -----------------
@@ -112,48 +127,57 @@ def load_lattice(facility, segment=None, **kwargs):
         Save cache or not, ``False`` by default.
     verbose : int
         If not 0, show output, 0 by default.
-    return_lattices : bool
-        Return lattices or not, ``False`` by default.
-    return_more : bool
-        Return more information, ``False`` by default,
-        if set True, return information as a dict.
+
+    Returns
+    -------
+    ret : dict
+        Keys or returned dict:
+        - lattices: dict of loaded lattice(s);
+        - machname: name of the machine;
+        - machpath: full path of machine;
+        - machconf: loaded machine configuration object.
 
     Note
     ----
-    *facility* can be a path to config dir.
+    *machine* can be a path to config dir.
     """
     lat_dict = {}
 
     use_cache = kwargs.get('use_cache', False)
     save_cache = kwargs.get('save_cache', False)
     verbose = kwargs.get('verbose', 0)
-    return_lattices = kwargs.get('return_lattices', False)
-    return_more = kwargs.get('return_more', False)
 
-    if use_cache:
-        try:
-            loadCache(machine)
-        except:
-            _LOGGER.error('Lattice initialization using cache failed. ' +
-                  'Will attempt initialization with other method(s).')
-            save_cache = True
-        else:
-            # Loading from cache was successful.
-            return
+    #if use_cache:
+    #    try:
+    #        loadCache(machine)
+    #    except:
+    #        _LOGGER.error('Lattice initialization using cache failed. ' +
+    #              'Will attempt initialization with other method(s).')
+    #        save_cache = True
+    #    else:
+    #        # Loading from cache was successful.
+    #        return
     
-    mconfig, mdir, mname = find_machine_config(facility, verbose=verbose)
+    mconfig, mdir, mname = find_machine_config(machine, verbose=verbose)
 
     d_common = dict(mconfig.items("COMMON"))
-    output_data_dir = d_common.get(KEYNAME_OUTPUT_DATA_DIR,
-                                   os.path.expanduser(DEFAULT_OUTPUT_DATA_DIR))
-    # the default submachine
-    accdefault = d_common.get(KEYNAME_DEFAULT_SUBMACHINE, "")
-    if submachine is None:
-        submachine = accdefault
+    root_data_dir = d_common.get(KEYNAME_ROOT_DATA_DIR, DEFAULT_ROOT_DATA_DIR)
+    # create root_data_dir/today(fmt. YYYY-MM-DD)
+    today_dir_name = os.path.expanduser(
+        os.path.join(root_data_dir, time.strftime("%Y%m%d", time.localtime()))
+    )
+    if not os.path.exists(today_dir_name):
+        os.makedirs(today_dir_name)
+    work_dir = today_dir_name
 
-    # for all submachines specified in INI and matches the pattern
-    msects = [subm for subm in re.findall(r'\w+', d_common.get(KEYNAME_SUBMACHINES, ""))
-                if fnmatch.fnmatch(subm, submachine)]
+    # default segment and all segments defined in phyutil.ini file
+    default_segment = d_common.get(KEYNAME_DEFAULT_SEGMENT, "")
+    all_segments = d_common.get(KEYNAME_SEGMENTS, "")
+    if segment is None:
+        segment = default_segment
+
+    # filter out valid segment(s) from 'segment' string or pattern.
+    msects = [s for s in re.findall(r'\w+', all_segments) if fnmatch(s, segment)]
 
     for msect in msects:
         d_msect = dict(mconfig.items(msect))
@@ -222,7 +246,7 @@ def load_lattice(facility, segment=None, **kwargs):
             _LOGGER.warn("Invalid CFS is defined.")
             raise RuntimeError("Unknown channel finder source '%s'" % cf_svr_url)
 
-        ds.get_data(tag_filter=cf_svr_tag)
+        ds.get_data(tag_filter=cf_svr_tag, prop_filter='elem*')
         ds.map_property_name(_cf_map)
 
         # build lattice from PV data
@@ -230,23 +254,25 @@ def load_lattice(facility, segment=None, **kwargs):
         pv_data = simplify_data(ds.pvdata)
         tag = cf_svr_tag
         src = ds.source
-        lat = create_lattice(latname, pv_data, tag, src, mtype=machinetype,
-                             simulation=simulation_code,
+        lat = create_lattice(latname, pv_data, tag, src,
+                             mtype=mtype, simulation=simulation_code,
                              layout=layout, config=config, settings=settings)
         
 #         if IMPACT_ELEMENT_MAP is not None:
 #             lat.createLatticeModelMap(IMPACT_ELEMENT_MAP)
 
-        lat.sb = float(d_msect.get("s_begin", 0.0))
-        lat.se = float(d_msect.get("s_end", 0.0))
-        lat.loop = bool(d_msect.get("loop", True))
-        lat.machine = machname
-        lat.machdir = machdir
-        if d_msect.get("archive_pvs", None):
-            lat.arpvs = os.path.join(machdir, d_msect["archive_pvs"])
-        lat.OUTPUT_DIR = tempfile.mkdtemp("_phyutil_output")
-        _LOGGER.info("Temp output directory: {}".format(lat.OUTPUT_DIR))
-        _temp_dirs.append(lat.OUTPUT_DIR);
+        lat.sb = float(d_msect.get(KEYNAME_SBEGIN, DEFAULT_SBEGIN))
+        lat.se = float(d_msect.get(KEYNAME_SEND, DEFAULT_SEND))
+        lat.loop = bool(d_msect.get(KEYNAME_MTYPE, DEFAULT_MTYPE))
+        lat.machine = mname
+        lat.machdir = mdir
+
+        #if d_msect.get("archive_pvs", None):
+        #    lat.arpvs = os.path.join(machdir, d_msect["archive_pvs"])
+
+        lat.output_dir = tempfile.mkdtemp(prefix="output_", dir=work_dir)
+        _LOGGER.info("Temp output directory: {}".format(lat.output_dir))
+        #_temp_dirs.append(lat.output_dir)
 
         # TODO add unit conversion information later
         # unit conversion & physics data to be added later
@@ -264,27 +290,29 @@ def load_lattice(facility, segment=None, **kwargs):
         #     lat._twiss.load(phy_fname, group="Twiss")
         #     setGoldenLattice(lat, phy_fname, "Golden")
 
-        vex = lambda k: re.findall(r"\w+", d_msect.get(k, ""))
-        vfams = { HLA_VBPM:  ('BPM',  vex("virtual_bpm_exclude")),
-                  HLA_VPM:   ('PM',   vex("virtual_pm_exclude")),
-                  HLA_VHCOR: ('HCOR', vex("virtual_hcor_exclude")),
-                  HLA_VVCOR: ('VCOR', vex("virtual_vcor_exclude")),
-                  HLA_VCOR:  ('COR',  vex("virtual_cor_exclude")),
-                  HLA_VBEND: ('BEND', vex("virtual_bend_exclude")),
-                  HLA_VQUAD: ('QUAD', vex("virtual_quad_exclude")),
-                  HLA_VSEXT: ('SEXT', vex("virtual_sext_exclude")),
-                  HLA_VSOL:  ('SOL',  vex("virtual_sol_exclude")),
-                  HLA_VSOL:  ('CAV',  vex("virtual_cav_exclude")),
-        }
-        
-        createVirtualElements(lat, vfams)
+        # virtual elements, skip now (2017-01-12 16:43:27 EST)
+        #vex = lambda k: re.findall(r"\w+", d_msect.get(k, ""))
+        #vfams = { HLA_VBPM:  ('BPM',  vex("virtual_bpm_exclude")),
+        #          HLA_VPM:   ('PM',   vex("virtual_pm_exclude")),
+        #          HLA_VHCOR: ('HCOR', vex("virtual_hcor_exclude")),
+        #          HLA_VVCOR: ('VCOR', vex("virtual_vcor_exclude")),
+        #          HLA_VCOR:  ('COR',  vex("virtual_cor_exclude")),
+        #          HLA_VBEND: ('BEND', vex("virtual_bend_exclude")),
+        #          HLA_VQUAD: ('QUAD', vex("virtual_quad_exclude")),
+        #          HLA_VSEXT: ('SEXT', vex("virtual_sext_exclude")),
+        #          HLA_VSOL:  ('SOL',  vex("virtual_sol_exclude")),
+        #          HLA_VSOL:  ('CAV',  vex("virtual_cav_exclude")),
+        #}
+        #createVirtualElements(lat, vfams)
+
         lat_dict[msect] = lat
+        # if show more informaion
         if verbose:
-            nelems = len([e for e in lat.getElementList('*') if e.virtual == 0])
-            if msect == accdefault:
-                print("%s (*): %d elements" % (msect, nelems))
+            n_elems = len([e for e in lat.getElementList('*') if e.virtual == 0])
+            if msect == default_segment:
+                print("%s (*): %d elements" % (msect, n_elems))
             else:
-                print("%s: %d elements" % (msect, nelems))
+                print("%s: %d elements" % (msect, n_elems))
             print("  BPM: %d, PM: %s, HCOR: %d, VCOR: %d, BEND: %d, QUAD: %d, SEXT: %d, SOL: %d, CAV: %d" % (
                 len(lat.getElementList('BPM')), 
                 len(lat.getElementList('PM')), 
@@ -295,39 +323,34 @@ def load_lattice(facility, segment=None, **kwargs):
                 len(lat.getElementList('SEXT')),
                 len(lat.getElementList('SOL')),
                 len(lat.getElementList('CAV')))
-                )
+            )
     
-    # set the default submachine, if no, use the first one
-    lat0 = lat_dict.get(accdefault, None)
+    # set the default segment, if None, use the first one
+    lat0 = lat_dict.get(default_segment, None)
     if lat0 is None and len(lat_dict) > 0:
-        machineavailable = sorted(lat_dict.keys())[0]
-        _LOGGER.warn("Use '%s' instead of default submachine '%s'" % (machineavailable, accdefault))
-        lat0 = lat_dict[machineavailable]
+        _k = sorted(lat_dict.keys())[0]
+        _LOGGER.warn("Use '%s' instead of default segment '%s'" % (_k, default_segment))
+        lat0 = lat_dict[_k]
 
     if lat0 is None:
         raise RuntimeError("NO accelerator structures available")
 
-    _lat = lat0
-    _lattice_dict.update(lat_dict)
-    if save_cache:
-        selected_lattice_name = [k for (k,v) in _lattice_dict.iteritems()
-                                 if _lat == v][0]
-        saveCache(machine, _lattice_dict, selected_lattice_name)
+    #_lat = lat0
+    #_lattice_dict.update(lat_dict)
 
-    if return_lattices:
-        if return_more:
-            return {'lat_name': lat_dict.keys()[0],
-                    'lat_conf': lat_dict.values()[0],
-                    'mach_name': machname,
-                    'mach_path': machdir,
-                    'mach_conf': _machine_config}
-        else:
-            return lat0, lat_dict
+    #if save_cache:
+    #    selected_lattice_name = [k for (k,v) in _lattice_dict.iteritems()
+    #                             if _lat == v][0]
+    #    saveCache(machine, _lattice_dict, selected_lattice_name)
+
+    return {'lattices': lat_dict,
+            'machname': mname,
+            'machpath': mdir,
+            'machconf': mconfig}
 
 
-def create_lattice(latname, pv_data, tag, src='channelfinder',
-                   vbpm=True, vcor=True, **kwargs):
-    """Create a lattice from PV data source.
+def create_lattice(latname, pv_data, tag, src=None, mtype=None, **kwargs):
+    """Create lattice object from PV data source.
 
     Parameters
     -----------
@@ -339,17 +362,28 @@ def create_lattice(latname, pv_data, tag, src='channelfinder',
     tag : str
         Only select PV data according to defined tag. e.g. `phyutil.sys.LS1`.
     src : str
-        Source of PV data, could be CFS url or sqlite file name,
+        Source of PV data, URL of channel finder service, file name of SQLite
+        database or csv spreadsheet.
+    mtype : int
+        Machine type, 0 for linear (default), 1 for a ring.
 
     Keyword Arguments
     -----------------
-    mtype : int
-        Machine type, 0 for linear (default), 1 for a ring.
+    simulation_code:
+    layout:
+    config:
+    settings:
 
     Returns
     ---------
     lat : 
         Lattice object.
+
+    Note
+    ----
+    Usually, *src* could be obtained from *source* attribute of ``DataSource``
+    instance, which can handle general PV data source type, including: channel
+    finder service, SQLite database, CSV file, etc.
 
     See Also
     --------
@@ -359,11 +393,11 @@ def create_lattice(latname, pv_data, tag, src='channelfinder',
     _LOGGER.debug("Creating lattice {0} from {1}".format(latname, src))
     _LOGGER.info("Found {0:d} PVs in {1}".format(len(pv_data), latname))
     
-    # parameters
-    mtype = kwargs.get('mtype', 0)
-    
+    mtype = 0 if mtype is None else mtype
+
     # create a new lattice
     lat = Lattice(latname, source=src, mtype=mtype, **kwargs)
+
     for pv_name, pv_props, pv_tags in pv_data:
         _LOGGER.debug("Processing {0}".format(pv_name))
 
