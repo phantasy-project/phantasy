@@ -1,7 +1,8 @@
 """
 Channel finder serice source: database (sqlite)
 
-Authors:
+.. moduleauthor::
+
     Guobao Shen <shen@frib.msu.edu>
     Tong Zhang <zhangt@frib.msu.edu>
 """
@@ -304,17 +305,21 @@ class CFCDatabase(object):
         Examples
         --------
         1. Delete channel by channel name
-        # delete channel of the name of 'ch1':
+        
+        >>> # delete channel of the name of 'ch1':
         >>> delete(channelName='ch1')
 
         2. Delete tag by tag name
-        delete(tagName = string)
+        
+        >>> # delete(tagName = string)
         >>> delete(tag = 'myTag')
-        # tag = tag name of the tag to be removed from all channels
+        >>> # tag = tag name of the tag to be removed from all channels
 
-        delete(property = string)
+        3. Delete property by property name
+
+        >>> # property = property name of property to be removed from all channels
+        >>> # delete(property = string)
         >>> delete(property = 'position')
-        # property = property name of property to be removed from all channels
 
         delete(tag = string, channel = string)
         >>> delete(tag='myTag', channel = 'chName')
@@ -964,13 +969,21 @@ def init_db(db_name, overwrite=False, extra_cols=None):
 
         +--------------+---------+
         | elem_id      | integer |
+        +--------------+---------+
         | elemName     | string  |
+        +--------------+---------+
         | elemType     | string  |
+        +--------------+---------+
         | elemLength   | float   |
+        +--------------+---------+
         | elemPosition | float   |
+        +--------------+---------+
         | elemIndex    | integer |
+        +--------------+---------+
         | elemGroups   | string  |
+        +--------------+---------+
         | fieldPolar   | integer |
+        +--------------+---------+
         | virtual      | integer |
         +--------------+---------+
 
@@ -980,7 +993,9 @@ def init_db(db_name, overwrite=False, extra_cols=None):
 
         +--------------+---------+
         | cell         | string  |
+        +--------------+---------+
         | girder       | string  |
+        +--------------+---------+
         | symmetry     | string  |
         +--------------+---------+
 
@@ -990,20 +1005,35 @@ def init_db(db_name, overwrite=False, extra_cols=None):
  
         +--------------+---------+
         | pv_id        | integer |
+        +--------------+---------+
         | pv           | string  | 
+        +--------------+---------+
         | elemHandle   | string  |
+        +--------------+---------+
         | elemField    | string  |
+        +--------------+---------+
         | hostname     | string  |
+        +--------------+---------+
         | devName      | string  |
+        +--------------+---------+
         | iocname      | float   |
+        +--------------+---------+
         | tags         | string  |
+        +--------------+---------+
         | speed        | float   |
+        +--------------+---------+
         | hlaHigh      | float   |
+        +--------------+---------+
         | hlaLow       | float   |
+        +--------------+---------+
         | hlaStepsize  | float   |
+        +--------------+---------+
         | hlaValRef    | float   |
+        +--------------+---------+
         | archive      | integer |
+        +--------------+---------+
         | size         | integer |
+        +--------------+---------+
         | epsilon      | float   |
         +--------------+---------+
 
@@ -1012,7 +1042,9 @@ def init_db(db_name, overwrite=False, extra_cols=None):
 
         +--------------+---------+
         | log_id       | integer |
+        +--------------+---------+
         | timestamp    |timestamp|
+        +--------------+---------+
         | message      | string  |
         +--------------+---------+
 
