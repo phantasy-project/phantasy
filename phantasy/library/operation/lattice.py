@@ -10,13 +10,17 @@ from __future__ import division
 from __future__ import print_function
 
 import logging
+import os
 
 from phantasy.library.parser import find_machine_config
 from phantasy.library.parser import Configuration
 from phantasy.library.layout import build_layout
 from phantasy.library.settings import Settings
-from phantasy.library.channelfinder import ChannelFinderAgent
-from phantasy.library.lattice import merge, CaElement, Lattice
+from phantasy.library.pv import DataSource
+from phantasy.library.misc import simplify_data
+from phantasy.library.lattice import merge
+from phantasy.library.lattice import CaElement
+from phantasy.library.lattice import Lattice
 
 __authors__ = "Tong Zhang"
 __copyright__ = "(c) 2016, Facility for Rare Isotope beams, Michigan State University"
@@ -24,6 +28,10 @@ __contact__ = "Tong Zhang <zhangt@frib.msu.edu>"
 
 _LOGGER = logging.getLogger(__name__)
 
+# HLA MARCOs
+HLA_TAG_PREFIX = 'phyutil'
+HLA_TAG_SYS_PREFIX = HLA_TAG_PREFIX + '.sys'
+HLA_VFAMILY = 'HLA:VIRTUAL'
 
 # submachines and default_submachine
 KEYNAME_SUBMACHINES = "submachines"
@@ -64,15 +72,14 @@ DEFAULT_CF_SVR_URL = None
 # channel finder tag
 # tagging rule: phyutil.sys.{LATTICE}, e.g. phyutil.sys.LINAC
 KEYNAME_CF_SVR_TAG = 'cfs_tag'
-DEFAULT_CF_SVR_TAG =  lambda x: 'phyutil.sys.{}'.format(x)
+DEFAULT_CF_SVR_TAG =  lambda x: '{0}.{1}'.format(HLA_TAG_SYS_PREFIX, x)
 
 # machine type, loop (1) or not (0)
 KEYNAME_MTYPE = 'loop'
 DEFAULT_MTYPE = 0
 
-# the properties used for initializing Element are different than
-# ChannelFinderAgent (CFS or SQlite). This needs a re-map.
-# convert from CFS property to Element property
+# the properties used for initializing Element are different from those defined
+# by cfs or sqlite, re-name property to Element property may needed.
 _cf_map = {'elemName' : 'name',
            'elemField': 'field',
            'elemType' : 'family',
@@ -81,13 +88,13 @@ _cf_map = {'elemName' : 'name',
            'elemPosition' : 'se',
            'elemLength' : 'length',
            ##
-           'system' : 'system'
+           'system' : 'system',
            'devName' : 'devname',
            'elemGroups' : 'groups',
 }
 
 
-def load(facility, segment=None, **kwargs):
+def load_lattice(facility, segment=None, **kwargs):
     """Load segment lattice from facility.
 
     Parameters
@@ -113,7 +120,7 @@ def load(facility, segment=None, **kwargs):
 
     Note
     ----
-    This machine can be a path to config dir.
+    *facility* can be a path to config dir.
     """
     lat_dict = {}
 
@@ -122,19 +129,6 @@ def load(facility, segment=None, **kwargs):
     verbose = kwargs.get('verbose', 0)
     return_lattices = kwargs.get('return_lattices', False)
     return_more = kwargs.get('return_more', False)
-
-    #global _machine_config, _lattice_dict, _lat
-    #global SCAN_SRV_URL, SIMULATION_CODE, MODELDATA_DIR
-
-    ### DEBUG
-    #print("BEFORE LOADING")
-    #print("_machine_config", _machine_config)
-    #print("_lattice_dict", _lattice_dict)
-    #print("_lat", _lat)
-    #print("SCAN_SRV_URL", SCAN_SRV_URL)
-    #print("SIMULATION_CODE", SIMULATION_CODE)
-    #print("MODELDATA_DIR", MODELDATA_DIR)
-    ### DEBUG
 
     if use_cache:
         try:
@@ -146,15 +140,12 @@ def load(facility, segment=None, **kwargs):
         else:
             # Loading from cache was successful.
             return
-
-    #_machine_config, machdir, machname = findMachineConfig(machine, verbose=verbose)
     
     mconfig, mdir, mname = find_machine_config(facility, verbose=verbose)
 
-
     d_common = dict(mconfig.items("COMMON"))
     output_data_dir = d_common.get(KEYNAME_OUTPUT_DATA_DIR,
-                                   os.path.expanduser(DEFAULT_OUTPUT_DATA_DIR)))
+                                   os.path.expanduser(DEFAULT_OUTPUT_DATA_DIR))
     # the default submachine
     accdefault = d_common.get(KEYNAME_DEFAULT_SUBMACHINE, "")
     if submachine is None:
@@ -213,28 +204,35 @@ def load(facility, segment=None, **kwargs):
         # channel finder service: address
         cf_svr_url = d_msect.get(KEYNAME_CF_SVR_URL, DEFAULT_CF_SVR_URL)
         if cf_svr_url is None:
-            raise RuntimeError("No accelerator data source (cfs_url) available "
+            raise RuntimeError("No accelerator data source (cfs_url) available")
 
         # channel finder service: tag
         cf_svr_tag = d_msect.get(KEYNAME_CF_SVR_TAG, DEFAULT_CF_SVR_TAG(msect))
-        cfa = ChannelFinderAgent(source=cf_svr_url)
-        cf_sqlite = os.path.join(mdir, cf_svr_url)
+        ds_sql_path = os.path.join(mdir, cf_svr_url)
+
         if re.match(r"https?://.*", cf_svr_url, re.I):
+            # pv data source is cfs
             _LOGGER.info("Using Channel Finder Service '%s' for '%s'" % (cf_svr_url, msect))
-            cfa.downloadCfs(source=cf_svr_url, property=[('elemName', '*'),], tagName=cf_svr_tag)
-        elif os.path.isfile(cf_sqlite):
-            _LOGGER.info("Using SQlite instead of CFS '%s'" % cf_sqlite)
-            cfa.downloadCfs(source=cf_sqlite)
+            ds = DataSource(source=cf_svr_url)
+        elif os.path.isfile(ds_sql_path):
+            # pv data source is sqlite
+            _LOGGER.info("Using SQlite instead of CFS '%s'" % ds_sql_path)
+            ds = DataSource(source=ds_sql_path)
         else:
             _LOGGER.warn("Invalid CFS is defined.")
             raise RuntimeError("Unknown channel finder source '%s'" % cf_svr_url)
 
-        cfa.splitPropertyValue('elemGroups')
-        cfa.splitChainedElement('elemName')
-        for k, v in _cf_map.iteritems():
-            cfa.renameProperty(k, v)
-        lat = createLattice(msect, cfa.results, acctag, src=cfa.source, mtype=machinetype,
-                            simulation=SIMULATION_CODE, layout=layout, config=config, settings=settings)
+        ds.get_data(tag_filter=cf_svr_tag)
+        ds.map_property_name(_cf_map)
+
+        # build lattice from PV data
+        latname = msect
+        pv_data = simplify_data(ds.pvdata)
+        tag = cf_svr_tag
+        src = ds.source
+        lat = create_lattice(latname, pv_data, tag, src, mtype=machinetype,
+                             simulation=simulation_code,
+                             layout=layout, config=config, settings=settings)
         
 #         if IMPACT_ELEMENT_MAP is not None:
 #             lat.createLatticeModelMap(IMPACT_ELEMENT_MAP)
@@ -284,10 +282,10 @@ def load(facility, segment=None, **kwargs):
         if verbose:
             nelems = len([e for e in lat.getElementList('*') if e.virtual == 0])
             if msect == accdefault:
-                print "%s (*): %d elements" % (msect, nelems)
+                print("%s (*): %d elements" % (msect, nelems))
             else:
-                print "%s: %d elements" % (msect, nelems)
-            print "  BPM: %d, PM: %s, HCOR: %d, VCOR: %d, BEND: %d, QUAD: %d, SEXT: %d, SOL: %d, CAV: %d" % (
+                print("%s: %d elements" % (msect, nelems))
+            print("  BPM: %d, PM: %s, HCOR: %d, VCOR: %d, BEND: %d, QUAD: %d, SEXT: %d, SOL: %d, CAV: %d" % (
                 len(lat.getElementList('BPM')), 
                 len(lat.getElementList('PM')), 
                 len(lat.getElementList('HCOR')),
@@ -297,6 +295,7 @@ def load(facility, segment=None, **kwargs):
                 len(lat.getElementList('SEXT')),
                 len(lat.getElementList('SOL')),
                 len(lat.getElementList('CAV')))
+                )
     
     # set the default submachine, if no, use the first one
     lat0 = lat_dict.get(accdefault, None)
@@ -326,29 +325,26 @@ def load(facility, segment=None, **kwargs):
             return lat0, lat_dict
 
 
-def create_lattice(latname, pvdata, pvtag, pvsrc='channelfinder',
+def create_lattice(latname, pv_data, tag, src='channelfinder',
                    vbpm=True, vcor=True, **kwargs):
-    """
-    create a lattice from PV data source.
+    """Create a lattice from PV data source.
 
     Parameters
     -----------
     latname : str
         Lattice/segment/submachine name, e.g. 'LINAC', 'LS1'.
-    pvdata : list
+    pv_data : list
         List of PV data, for each PV data, should be of list as: 
         ``string of PV name, dict of properties, list of tags``.
-    pvtag : str
+    tag : str
         Only select PV data according to defined tag. e.g. `phyutil.sys.LS1`.
-    pvsrc : str
+    src : str
         Source of PV data, could be CFS url or sqlite file name,
-        ``ChannelFinderAgent`` instance could be asked for.
 
     Keyword Arguments
     -----------------
     mtype : int
         Machine type, 0 for linear (default), 1 for a ring.
-
 
     Returns
     ---------
@@ -357,77 +353,80 @@ def create_lattice(latname, pvdata, pvtag, pvsrc='channelfinder',
 
     See Also
     --------
-    :class:`~phantasy.library.lattice.lattice.Lattice`
-    :class:`~phantasy.library.channelfinder.cfagent.ChannelFinderAgent`
+    :class:`~phantasy.library.lattice.Lattice`
+    :class:`~phantasy.library.pv.DataSource`
     """
-    # log information
-    _LOGGER.debug("Creating lattice {0} from {1}".format(latname, pvsrc))
-    _LOGGER.info("Found {0:d} PVs in {1}".format(len(pvdata), latname))
+    _LOGGER.debug("Creating lattice {0} from {1}".format(latname, src))
+    _LOGGER.info("Found {0:d} PVs in {1}".format(len(pv_data), latname))
     
     # parameters
     mtype = kwargs.get('mtype', 0)
     
     # create a new lattice
     lat = Lattice(latname, source=src, mtype=mtype, **kwargs)
-    for pv_name, pv_properties, pv_tags in pvdata:
+    for pv_name, pv_props, pv_tags in pv_data:
         _LOGGER.debug("Processing {0}".format(pv_name))
 
         # skip if property is None
-        if pv_properties is None: 
+        if pv_props is None: 
             continue
 
         # skip if tag does not match
-        if pv_name and pvtag not in pv_tags:
-            _LOGGER.debug("{0} is not tagged as {1}".format(pv_name, pvtag))
+        if pv_name and tag not in pv_tags:
+            _LOGGER.debug("{0} is not tagged as {1}".format(pv_name, tag))
             continue
         
-        #
-        if 'name' not in rec[1]: 
+        # element name is mandatory ('elemName' -> 'name')
+        if 'name' not in pv_props:
             continue
-        prpt = rec[1]
+        name = pv_props.get('name')
 
-        if 'se' in prpt:
-            prpt['sb'] = float(prpt['se']) - float(prpt.get('length', 0))
-        name = prpt.get('name', None)
+        # begin and end s position
+        if 'se' in pv_props:
+            pv_props['sb'] = float(pv_props['se']) - float(pv_props.get('length', 0))
 
-        # find if the element exists.
+        # add element only if the element does not exist
         elem = lat._find_exact_element(name=name)
         if elem is None:
             try:
-                elem = CaElement(**prpt)
-                gl = [g.strip() for g in prpt.get('groups', [])]
+                elem = CaElement(**pv_props)
+                gl = [g.strip() for g in pv_props.get('groups', [])]
                 elem.group.update(gl)
             except:
-                _logger.error("Error: creating element '{0}' with '{1}'".format(name, prpt))
+                _LOGGER.error("Error: creating element '{0}' with '{1}'".format(name, pv_props))
                 raise
 
-            _logger.debug("created new element: '%s'" % name)
+            _LOGGER.debug("Created new element: '{0}'".format(name))
             lat.insertElement(elem)
         else:
-            _logger.debug("using existed element %s" % (name,))
-        if HLA_VFAMILY in prpt.get('group', []): 
+            _LOGGER.debug("Using existed element '{0}'".format(name))
+
+        # mark element virtual (1) or not (0, default)
+        if HLA_VFAMILY in pv_props.get('group', []): 
             elem.virtual = 1
 
-        handle = prpt.get('handle', '').lower()
+        handle = pv_props.get('handle', '').lower()
+        ## legacy code, present code will not be 'get' or 'put'
         if handle == 'get': 
-            prpt['handle'] = 'readback'
+            pv_props['handle'] = 'readback'
         elif handle == 'put': 
-            prpt['handle'] = 'setpoint'
+            pv_props['handle'] = 'setpoint'
 
-        pv = rec[0]
-        if pv: 
-            elem.updatePvRecord(pv, prpt, rec[2])
+        # update elment attributes
+        if pv_name: 
+            elem.updatePvRecord(pv_name, pv_props, pv_tags)
 
     # group info is a redundant info, needs rebuild based on each element
     lat.buildGroups()
+
     # !IMPORTANT! since Channel finder has no order, but lat class has
     lat.sortElements()
     lat.circumference = lat[-1].se if lat.size() > 0 else 0.0
 
-    _logger.debug("mode {0}".format(lat.mode))
-    _logger.info("'%s' has %d elements" % (lat.name, lat.size()))
+    _LOGGER.debug("Mode {0}".format(lat.mode))
+    _LOGGER.info("'{0:s}' has {1:d} elements".format(lat.name, lat.size()))
     for g in sorted(lat._group.keys()):
-        _logger.debug("lattice '%s' group %s(%d)" % (
+        _LOGGER.debug("Lattice '%s' group %s(%d)" % (
                 lat.name, g, len(lat._group[g])))
 
     return lat
