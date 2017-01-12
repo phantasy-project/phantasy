@@ -25,6 +25,7 @@ from math import log10
 from .element import AbstractElement
 from .impact import LatticeFactory as ImpactLatticeFactory
 from .impact import run_lattice as run_impact_lattice
+from .flame import FlameLatticeFactory
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -74,6 +75,8 @@ class Lattice(object):
 
         if self.simulation == "IMPACT":
             self._latticeFactory = ImpactLatticeFactory(kwargs.get("layout", None), **kwargs)
+        elif self.simulation == "FLAME":
+            self._latticeFactory = FlameLatticeFactory(kwargs.get("layout", None), **kwargs)
         else:
             raise RuntimeError("Lattice: Simulation code '{}' not supported".format(self.simulation))
 
@@ -249,17 +252,22 @@ class Lattice(object):
         else:
             return False
 
-    def insertElement(self, elem, i = None, groups = None):
-        """insert an element at index *i* or append it.
-
-        seealso :func:`appendElement`
+    def insertElement(self, elem, i=None, groups=None):
+        """Insert an element at index *i* or append it.
 
         Parameters
         ------------
-        elem : element object. :class:`~aphla.element.CaElement`, :class:`~aphla.element.AbstractElement`
-        i : int. the index to insert. append if *None*
-        groups : group names the element belongs to.
+        elem : 
+            CaElement object. 
+        i : int
+            Index to insert, append if None.
+        groups : 
+            Group names the element belongs to.
 
+        See Also
+        --------
+        appendElement
+        :class:`~phantasy.library.lattice.CaElement`
         """
         if i is not None:
             self._elements.insert(i, elem)
@@ -392,7 +400,7 @@ class Lattice(object):
                 pl.append(elem)
         self._group[parent] = pl
             
-    def sortElements(self, namelist = None):
+    def sortElements(self, namelist=None):
         """
         sort the element list to the order of *s*
 
@@ -401,7 +409,7 @@ class Lattice(object):
         The group needs to be rebuild, since *getElementList* relies on a 
         sorted group dict.
         """
-        if not namelist:
+        if namelist is None:
             self._elements = sorted(self._elements)
             self.buildGroups()
             return
