@@ -1,6 +1,8 @@
 phantasy
 ========
 
+Introduction
+------------
 
 Physics High-level Applications and Toolkits for Accelerator SYstem.
 
@@ -12,6 +14,11 @@ Refactored from repos: ``phyapps`` and ``phyhlc``.
 - Rebuild API systematically, make import process more easy;
 - Add more docs and examples;
 - Add more packages/modules upon this new framework.
+
+Documentation
+-------------
+
+URL: https://controls.frib.msu.edu/phantasy/
 
 ---------------------------------------------------------------------------
 
