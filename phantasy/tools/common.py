@@ -8,14 +8,16 @@ Common utilities used by phytool commands.
 """
 
 
-import os.path, logging, re
+import os.path
+import logging
+import re
 
 from phantasy.library.settings import Settings
 from phantasy.library.parser import Configuration 
-from phantasy.library.layout import build_layout
-from phantasy.library.misc import read_csv
-from phantasy.library.channelfinder import ChannelFinderAgent
 from phantasy.library.parser import find_machine_config
+from phantasy.library.layout import build_layout
+from phantasy.library.channelfinder import read_csv
+from phantasy.library.pv import DataSource
 
 
 _CONFIG_COMMON_SECTION = "COMMON"
@@ -199,9 +201,15 @@ def loadChannels(source, cfstag, mconfig, submach):
                 cfstag = mconfig.get(submach, _CONFIG_CFS_TAG)
             else:
                 cfstag = "phyutil.sys.%s" % submach
-        cfa = ChannelFinderAgent()
-        cfa.downloadCfs(source=cfsurl, property=[('elemName', '*'),], tagName=cfstag)
-        return cfa.results
+        ds = DataSource(source=cfsurl)
+        data = ds.get_data(tag_filter=cfstag)
+        pvdata = [
+                  [d['name'], 
+                  {p['name']:p['value'] for p in d['properties']},
+                  [t['name'] for t in d['tags']]] 
+                  for d in data
+                 ]
+        return pvdata
 
     if source is None:
         if mconfig is not None and submach is not None \
@@ -214,9 +222,15 @@ def loadChannels(source, cfstag, mconfig, submach):
 
     if cfspath.endswith(".sqlite") and os.path.isfile(cfspath):
         _LOGGER.info("loadChannels: using SQLite '%s'" % (cfspath,))
-        cfa = ChannelFinderAgent()
-        cfa.downloadCfs(source=cfspath)
-        return cfa.results
+        ds = DataSource(source=cfspath)
+        data = ds.get_data()
+        pvdata = [
+                  [d['name'], 
+                  {p['name']:p['value'] for p in d['properties']},
+                  [t['name'] for t in d['tags']]] 
+                  for d in data
+                 ]
+        return pvdata
 
     if cfspath.endswith(".csv") and os.path.isfile(cfspath):
         _LOGGER.info("loadChannels: using CSV '%s'" % (cfspath,))

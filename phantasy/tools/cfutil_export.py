@@ -29,7 +29,9 @@ _LOGGER = logging.getLogger(__name__)
 
 
 parser = ArgumentParser(prog=os.path.basename(sys.argv[0])+" cfutil-export",
-                        description="Export channel data to file or Channel Finder Service (CFS)")
+                        description="Export channel data (.csv, .sqlite) to \
+                        file (.csv, .sqlite, .json) or \
+                        Channel Finder Service (CFS)")
 parser.add_argument("-v", dest="verbosity", nargs='?', type=int, const=1, default=0,
         help="set the amount of output")
 parser.add_argument("--from", dest='from_path',

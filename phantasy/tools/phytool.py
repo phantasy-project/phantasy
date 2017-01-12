@@ -8,20 +8,20 @@ from __future__ import print_function
 
 import sys
 
-__USAGE__ = """usage: phytool <command> [<args>]
+__USAGE__ = """Usage: phytool <command> [<args>]
 
 The support commands are:
-   flame-vastart    start FLAME virtual accelerator
-   flame-lattice    generate FLAME lattice file
-   flame-settings   read settings from FLAME lattice file (test.lat)
-   impact-vastart   start IMPACT virtual accelerator
-   impact-lattice   generate IMPACT lattice file (test.in)
-   impact-settings  read settings from IMPACT lattice file (test.in)
-   import-model     run IMPACT model and produce results
-   frib-layout      generate layout file from FRIB Expanded Lattice File (XLF)
-   frib-channels    generate a channels data file with FRIB naming conventions
-   cfutil-export    export channel data to file or Channel Finder Service
-   help             show help information for a specified topic
+  flame-vastart    Start FLAME virtual accelerator
+  flame-lattice    Generate FLAME lattice file
+  flame-settings   Read settings from FLAME lattice file (test.lat)
+  impact-vastart   Start IMPACT virtual accelerator
+  impact-lattice   Generate IMPACT lattice file (test.in)
+  impact-settings  Read settings from IMPACT lattice file (test.in)
+  import-model     Run IMPACT model and produce results
+  frib-layout      Generate layout file from FRIB Expanded Lattice File (XLF)
+  frib-channels    Generate a channels data file with FRIB naming conventions
+  cfutil-export    Export channel data to file or Channel Finder Service
+  help             Show help information for a specified topic
 """
 
 
