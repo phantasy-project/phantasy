@@ -29,3 +29,4 @@ _trial_temp/
 *.egg-info
 
 .coverage
+.noseids

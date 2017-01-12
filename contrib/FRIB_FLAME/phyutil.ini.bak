@@ -1,0 +1,81 @@
+# the common section
+[COMMON]
+submachines: LINAC LS1
+default_submachine: LINAC
+# This can be overwritten by environment variable "OUTPUT_DATA_DIR"
+# use ~/data if none of these two are available.
+output_dir: ~/Development/tools/data
+
+[LINAC]
+controls_protocol: EPICS
+# mark the s-location for begin and end.
+s_begin: 0.0
+s_end: 158.094
+# loop: 0 => linear; 1 => ring
+loop: 0
+model: impact
+# defines the accelerator elements and associated PVs.
+cfs_url: baseline_channels.sqlite
+#cfs_url: ls1_fs1.sqlite
+#cfs_url: https://localhost:8080/ChannelFinder
+cfs_tag: phyutil.sys.LINAC
+# define scan server
+# using RESTful based scan server
+ss_url: http://localhost:4810
+# using local library
+#ss_url: None
+physics_data: linac.hdf5
+unit_conversion: linac_unitconv.hdf5, UnitConversion
+settings_file: baseline_settings.json
+layout_file: baseline_layout.csv
+config_file: phyutil.cfg
+impact_map: ls1_fs1.map
+
+[LINAC_CF]
+controls_protocol: EPICS
+# mark the s-location for begin and end.
+s_begin: 0.0
+s_end: 158.094
+# loop: 0 => linear; 1 => ring
+loop: 0
+model: impact
+# defines the accelerator elements and associated PVs.
+cfs_url: baseline_channels.sqlite
+#cfs_url: ls1_fs1.sqlite
+cfs_url: https://localhost:8080/ChannelFinder
+cfs_tag: phyutil.sys.LINAC
+# define scan server
+# using RESTful based scan server
+ss_url: http://localhost:4810
+# using local library
+#ss_url: None
+physics_data: linac.hdf5
+unit_conversion: linac_unitconv.hdf5, UnitConversion
+settings_file: baseline_settings.json
+layout_file: baseline_layout.csv
+config_file: phyutil.cfg
+impact_map: ls1_fs1.map
+
+[LS1]
+controls_protocol: EPICS
+# mark the s-location for begin and end.
+s_begin: 0.0
+s_end: 80.000
+loop: 1
+model: impact
+# defines the accelerator elements and associated PVs.
+#cfs_url: ls1.sqlite
+cfs_url: ls1_fs1.sqlite
+#cfs_url: http://localhost:8080/ChannelFinder
+cfs_tag: phyutil.sys.LS1
+# define scan server
+# using RESTful based scan server
+# ss_url: http://localhost:4810
+# using local library
+ss_url: None
+physics_data: linac.hdf5
+unit_conversion: linac_unitconv.hdf5, UnitConversion
+settings_file: ls1_settings.json
+layout_file: ls1_layout.csv
+config_file: phyutil.cfg
+
