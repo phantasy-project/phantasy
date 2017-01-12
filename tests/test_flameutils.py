@@ -6,7 +6,7 @@
 
 import unittest
 import numpy as np
-from phyapps import flameutils
+from phantasy.library.model import flame as flameutils
 from flame import Machine
 import os
 from cStringIO import StringIO
