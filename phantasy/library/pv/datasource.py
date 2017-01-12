@@ -151,6 +151,7 @@ class DataSource(object):
         Examples
         --------
         1. Get all PVs
+
         >>> pvdata = get_data()
         >>> print(len(pvdata))
         1737
@@ -168,7 +169,9 @@ class DataSource(object):
           'size': 0,
           'virtual': 0},
          [u'phyutil.sub.CA01', u'phyutil.sys.LINAC', u'phyutil.sys.LS1']]
+
         2. Get PVs with single tag and property filters
+
         >>> pvdata = get_data(tag_filter='phyutil.sub.CB09',
         >>>                   prop_filter='elem*')
         >>> print(len(pvdata))
@@ -183,13 +186,19 @@ class DataSource(object):
           'elemPosition': 61.6459917,
           'elemType': u'CAV'},
          [u'phyutil.sub.CB09', u'phyutil.sys.LINAC', u'phyutil.sys.LS1']]
+
         3. Get PVs with multiple tags and property filters
+
         >>> get_data(tag_filter=['phyutil.sub.CB09','phyutil.sys.LINAC'],
                      prop_filter=['elem*','size'])
+
         4. Get PVs with certain property configuration
+
         >>> get_data(prop_filter=[('elemHandle', 'setpoint')])
+
         5. Get PVs with certain property configuration, also only get part
         properties
+
         >>> get_data(prop_filter=['elem*', ('elemHandle', 'setpoint')])
         
         Note
@@ -204,6 +213,8 @@ class DataSource(object):
         else:
             _LOGGER.warn("Failed to get PV data from invalid source.")
             ret = None
+        if ret is not None:
+            self.pvdata = ret
         return ret
     
     def _get_cfs_data(self, **kws):
@@ -223,6 +234,7 @@ class DataSource(object):
 
     def dump_data(self, fname, ftype, **kws):
         """Dump PV data to file or CFS, defined by *ftype*, support types:
+
         - *sql*: SQLite database
         - *csv*: CSV spreadsheet
         - *json*: JSON string file
@@ -234,6 +246,10 @@ class DataSource(object):
             File name or CFS url.
         ftype : str
             Dumped file type, supported types: sql*, *csv*, *json*, *cfs*.
+
+        See Also
+        --------
+        dump_data
         """
         if self._pvdata is None:
             _LOGGER.warn("PV data is not available, get_data() first.")
@@ -241,9 +257,31 @@ class DataSource(object):
 
         dump_data(self._pvdata, fname, ftype, **kws)
 
+    def map_property_name(self, name_map, **kws):
+        """Adjust property name(s) according to *name_map*.
+
+        Parameters
+        ----------
+        name_map : dict
+            Keys are original name(s), and values are new name(s).
+        """
+        if self._pvdata is None:
+            _LOGGER.warn("PV data is not available, get_data() first.")
+            return None
+
+        for r in self._pvdata:
+            p_list = []
+            for p in r['properties']:
+                for k,v in name_map.iteritems():
+                    if k == p['name']:
+                        p['name'] = v
+                p_list.append(p)
+            r['properties'] = p_list
+
 
 def dump_data(data, fname, ftype, **kws):
     """Dump PV data to file or CFS, defined by *ftype*, support types:
+
     - *sql*: SQLite database
     - *csv*: CSV spreadsheet
     - *json*: JSON string file
@@ -255,7 +293,8 @@ def dump_data(data, fname, ftype, **kws):
         List of dict, each dict element is of the format:
         {'name': PV name (str), 'owner': str,
          'properties': PV properties (list(dict)),
-         'tags': PV tags (list(dict))]
+         'tags': PV tags (list(dict))
+        }
     fname : str
         File name or CFS url.
     ftype : str
