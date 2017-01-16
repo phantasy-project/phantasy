@@ -1,4 +1,6 @@
-# encoding: UTF-8
+"""FRIB specific configurations"""
 
-"""Utilities for FRIB specific data formats, etc."""
+# configuration namelist
 
+from ._conf_std import INI_DICT
+from ._conf_std import generate_inifile

@@ -33,14 +33,13 @@ Authors:
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import os
 import csv
 import getpass
 import logging
+import os
 
 from phantasy.library.exception import CSVFormatError
 from phantasy.library.misc import simplify_data
-
 
 _LOGGER = logging.getLogger(__name__)
 

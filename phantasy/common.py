@@ -36,7 +36,6 @@ from phantasy.library.layout import build_layout
 from phantasy.library.parser import Configuration
 from phantasy.library.settings import Settings
 from phantasy.library.chanfinder import ChannelFinderAgent
-from phantasy.library.lattice import merge, CaElement, Lattice
 
 _logger = logging.getLogger(__name__)
 
@@ -60,21 +59,6 @@ SCAN_SRV_URL = None
 SIMULATION_CODE = None
 MODELDATA_DIR = None
 
-# the properties used for initializing Element are different than
-# ChannelFinderAgent (CFS or SQlite). This needs a re-map.
-# convert from CFS property to Element property
-_cf_map = {'elemName' : 'name',
-           'elemField': 'field',
-           'elemType' : 'family',
-           'elemHandle' : 'handle',
-           'elemIndex' : 'index',
-           'elemPosition' : 'se',
-           'elemLength' : 'length',
-           ##
-           'system' : 'system'
-           'devName' : 'devname',
-           'elemGroups' : 'groups',
-}
 
 
 _machine_config = None
@@ -316,85 +300,6 @@ def findCfaConfig(srcname, machine, submachines):
     return cfa
 
 
-def createLattice(latname, pvrec, systag, src = 'channelfinder',
-                  vbpm = True, vcor = True, mtype=0, **kwargs):
-    """
-    create a lattice from channel finder data
-
-    Parameters
-    -----------
-    name: lattice name, e.g. 'SR', 'LTD'
-    pvrec: list of pv records `(pv, property dict, list of tags)`
-    systag: process records which has this systag. e.g. `phyutil.sys.SR`
-    src: source URL or filename of this lattice
-    mtype: machine type, 0 by default for linear, 1 for a ring 
-
-    Returns
-    ---------
-    lat : the :class:`~phyutil.lattice.Lattice` type.
-    """
-
-    _logger.debug("creating '%s':%s" % (latname, src))
-    _logger.info("%d pvs found in '%s'" % (len(pvrec), latname))
-    # a new lattice
-    lat = Lattice(latname, source=src, mtype=mtype, **kwargs)
-    for rec in pvrec:
-        _logger.debug("processing {0}".format(rec))
-        # skip if there's no properties.
-        if rec[1] is None: 
-            continue
-        if rec[0] and systag not in rec[2]:
-            _logger.debug("%s is not tagged '%s'" % (rec[0], systag))
-            continue
-        if 'name' not in rec[1]: 
-            continue
-        prpt = rec[1]
-
-        if 'se' in prpt:
-            prpt['sb'] = float(prpt['se']) - float(prpt.get('length', 0))
-        name = prpt.get('name', None)
-
-        # find if the element exists.
-        elem = lat._find_exact_element(name=name)
-        if elem is None:
-            try:
-                elem = CaElement(**prpt)
-                gl = [g.strip() for g in prpt.get('groups', [])]
-                elem.group.update(gl)
-            except:
-                _logger.error("Error: creating element '{0}' with '{1}'".format(name, prpt))
-                raise
-
-            _logger.debug("created new element: '%s'" % name)
-            lat.insertElement(elem)
-        else:
-            _logger.debug("using existed element %s" % (name,))
-        if HLA_VFAMILY in prpt.get('group', []): 
-            elem.virtual = 1
-
-        handle = prpt.get('handle', '').lower()
-        if handle == 'get': 
-            prpt['handle'] = 'readback'
-        elif handle == 'put': 
-            prpt['handle'] = 'setpoint'
-
-        pv = rec[0]
-        if pv: 
-            elem.updatePvRecord(pv, prpt, rec[2])
-
-    # group info is a redundant info, needs rebuild based on each element
-    lat.buildGroups()
-    # !IMPORTANT! since Channel finder has no order, but lat class has
-    lat.sortElements()
-    lat.circumference = lat[-1].se if lat.size() > 0 else 0.0
-
-    _logger.debug("mode {0}".format(lat.mode))
-    _logger.info("'%s' has %d elements" % (lat.name, lat.size()))
-    for g in sorted(lat._group.keys()):
-        _logger.debug("lattice '%s' group %s(%d)" % (
-                lat.name, g, len(lat._group[g])))
-
-    return lat
 
 
 def use(lattice):

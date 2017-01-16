@@ -7,13 +7,11 @@ Channel finder serice source: database (sqlite)
     Tong Zhang <zhangt@frib.msu.edu>
 """
 
-import os
 import getpass
+import logging
+import os
 import sqlite3
 from fnmatch import fnmatch
-
-import logging
-
 
 _LOGGER = logging.getLogger(__name__)
 

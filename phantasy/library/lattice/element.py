@@ -1,9 +1,9 @@
 """
 Element
-~~~~~~~~
+~~~~~~~
 
-:author: Lingyun Yang
-:date: 2011-05-13 10:28
+.. moduleauthor:: Lingyun Yang
+.. moduledate:: 2011-05-13 10:28
 """
 
 import re

@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""
-For original version of this model, see 'lattice_bak.py' in the present
+"""For original version of this model, see 'lattice_bak.py' in the present
 directory.
 
-Create Lattice object from PV data,
+Create Lattice object.
 """
 
 from __future__ import absolute_import
@@ -39,7 +38,7 @@ class Lattice(object):
         Lattice name.
 
     - *mode*
-    - *source* where it was created. URL, Sqlite3 DB filename, ...
+    - *source* where it was created, URL, Sqlite3 DB filename, ...
     - *sb*, *se* s-position of begin and end.
     - *tune* [nux, nuy], mainly for circular machine
     - *chromaticity* [cx, cy] mainly for circular machine
@@ -47,9 +46,20 @@ class Lattice(object):
     - *mtype* as a ring (=1) or line (=0)
     - *simulation* the type of simulation (ie IMPACT, etc)
     - *kwargs* other arguments based on the simulation
+
+    Note
+    ----
+    :class:`~phantasy.library.operation.create_lattice` method could be used
+    set up lattice created by this class by provided information like: PV data,
+    lattice layout, configuration and settings, etc.
+
+    See Also
+    --------
+    :class:`~phantasy.library.operation.create_lattice`
     """
     # ignore those "element" when construct the lattice object
-    def __init__(self, name, source='undefined', mode='', mtype=0, simulation='IMPACT', **kwargs):
+    def __init__(self, name, source=None, mode='', mtype=0,
+                 simulation='IMPACT', **kwargs):
         self.machine = ''
         self.machdir = ''
         self.name = name
@@ -68,7 +78,7 @@ class Lattice(object):
         self.isring = bool(mtype)
         self.Ek = None
         self.arpvs = None
-        self.OUTPUT_DIR = ''
+        self.output_dir = ''
         self.source = source
         self.latticemodelmap = None
         self.simulation = simulation.upper()
@@ -80,44 +90,47 @@ class Lattice(object):
         else:
             raise RuntimeError("Lattice: Simulation code '{}' not supported".format(self.simulation))
 
-    def set(self, name, fieldvalue, value=None):
-        """Set the value of a lattice element field (ie settings).
+    def set(self, elem, value, field=None):
+        """Set the value of a lattice element field, if element only has one
+        field, parameter *field* is optional, or *field* must be specified.
         
-        If no field name is given, then the element must only contain a 
-        single field.
-
         Parameters
         ----------
-        name : 
-            Element name or element object.
-        fieldvalue :
-            If the value parameter is given then this is the name of an
-            element field, otherwise, this is the value of the field.
+        elem : str or object 
+            Element name string or CaElement object.
         value :
-            Value of the field if set, or None.
+            Value of the field, type should be valid w.r.t *field*.
+        field : str
+            Field name (case insensitive) of element to be assigned, optional
+            if element has only one field, *value* will be assigned to.
+
+        Returns
+        -------
+        ret :
+            None if failed, or 0.
         """
-        if self.simulation == "IMPACT":
-            if not isinstance(name, AbstractElement):
-                elms = self.getElementList(name)
-                if len(elms) != 1:
-                    raise RuntimeError("Lattice: Multiple elements found with the specified name.")
-                name = elms[0]
+        elems = self.getElementList(elem)
+        if len(elems) != 1:
+            raise RuntimeError("Lattice: Multiple elements found with the specified name.")
+        _elem = elems[0]
 
-            if value is not None:
-                fds = [ fieldvalue ]
-            else:
-                fds = name.fields()
-
-            if len(fds) != 1:
-                raise RuntimeError("Lattice: Multiple fields found, must specify a field name.")
-
-            if value is not None:
-                self._latticeFactory.settings[name.name][fds[0]] = value
-            else:
-                self._latticeFactory.settings[name.name][fds[0]] = fieldvalue
-
+        all_fields = _elem.fields()
+        
+        if len(all_fields) > 1:
+            if field is None:
+                print("Please specify field from [{}]".format(','.join(all_fields)))
+                return None
+            elif field not in all_fields:
+                print("Wrong field.")
+                return None
+        elif len(all_fields) == 1:
+            field = all_fields[0]
         else:
-            raise RuntimeError("Lattice: Simulation code '{}' not supported".format(self.simulation))
+            print("Element has not defined field.")
+            return None
+        
+        self._latticeFactory.settings[_elem.name][field] = value
+        return 0
 
     def get(self, name, field=None):
         """Get the value of a lattice element field (ie setting).
@@ -168,7 +181,7 @@ class Lattice(object):
         if self.simulation == "IMPACT":
             lat = self._latticeFactory.build()
             config = self._latticeFactory.config
-            work_dir = run_impact_lattice(lat, config=config, work_dir=self.OUTPUT_DIR)
+            work_dir = run_impact_lattice(lat, config=config, work_dir=self.output_dir)
             if self.latticemodelmap is None:
                 self.createLatticeModelMap(os.path.join(work_dir, "model.map"))
             return work_dir
@@ -505,17 +518,17 @@ class Lattice(object):
         return ret
 
     def getElementList(self, group, **kwargs):
-        """
-        get a list of element objects.
+        """Get a list of element objects.
 
         Parameters
-        -----------
-        group : str, list. element name, pattern or name list.
-            when it is str, searching for an element with name *group*, if not
-            found, searching for a group with name *group*. At last treat it
-            as a pattern to match the element names.  When the input *group*
-            is a list, each string in this list will be treated as exact
-            string instead of pattern.
+        ----------
+        group : str, list.
+            Element name, pattern or name list.
+            when it is str, searching for elements of defined group name;
+            if not found, searching for a group with name *group*.
+            At last treat it as a pattern to match the element names.
+            When the input *group* is a list, each string in this list will
+            be treated as exact string instead of pattern.
 
         virtual : bool. optional(True). Including virtual element or not.
 
@@ -913,7 +926,7 @@ class Lattice(object):
         return el[idx]
         
     def __repr__(self):
-        s0 = '#name of submachine: {}'.format(self.name)
+        s0 = '#name of segment: {}'.format(self.name)
         s1 = '#{0:<6s}{1:^20s} {2:<10s} {3:<10s} {4:<10s}'.format(
                 'index', 'name', 'family', 'position', 'length'
                 )

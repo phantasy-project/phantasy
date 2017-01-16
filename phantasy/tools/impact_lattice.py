@@ -26,7 +26,7 @@ parser = ArgumentParser(prog=os.path.basename(sys.argv[0])+" impact-lattice",
                         description="Generate IMPACT lattice file (test.in).")
 parser.add_argument("-v", dest="verbosity", nargs='?', type=int, const=1, default=0, help="set the amount of output")
 parser.add_argument("--mach", dest="machine", help="name of machine or path of machine directory")
-parser.add_argument("--subm", dest="submach", help="name of submachine")
+parser.add_argument("--subm", dest="submach", help="name of segment")
 parser.add_argument("--layout", dest="layoutpath", help="path of accelerator layout file (.csv)")
 parser.add_argument("--settings", dest="settingspath", help="path to accelerator settings file (.json)")
 parser.add_argument("--config", dest="configpath", help="path to accelerator configuration file (.ini)")

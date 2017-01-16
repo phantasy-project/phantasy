@@ -1,15 +1,26 @@
-# encoding: UTF-8
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
-"""
-Utilities for handling configuration file.
+"""Utilities for handling configuration file.
 """
 
+from __future__ import absolute_import
+from __future__ import division
 from __future__ import print_function
+from __future__ import unicode_literals
 
-import os.path
-import platform
 import logging
-from ConfigParser import SafeConfigParser, NoSectionError, NoOptionError
+import os.path
+from collections import OrderedDict
+
+try:
+    from ConfigParser import SafeConfigParser
+    from ConfigParser import NoSectionError
+    from ConfigParser import NoOptionError
+except ImportError:
+    from configparser import SafeConfigParser
+    from configparser import NoSectionError
+    from configparser import NoOptionError
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -19,61 +30,6 @@ _LOGGER = logging.getLogger(__name__)
 _home_hla = os.path.join(os.path.expanduser('~'), '.phyutil')
 PHYUTIL_CONFIG_DIR = os.environ.get("PHYUTIL_CONFIG_DIR", _home_hla)
 
-# global configuration
-#config = None
-#
-#def load(cfgpath=None):
-#    """Load the global configuration from the specified file path or
-#    list of file paths. The existing configuration is always replaced.
-#    If a list of paths is provided then an attempt is made to read
-#    each file is the order specified and processing stops after a
-#    configuration file has been successfully loaded. 
-#    To load multiple files into the configuration use the 
-#    ``Configuration.read()`` method.
-#
-#    Parameters
-#    ----------
-#    cfgpath :
-#        Configuration file path or list of file paths.
-#    
-#    Returns
-#    -------
-#    ret : True or False
-#        True if configuration file loaded successfully, otherwise False.
-#    """
-#    global config
-#    config = Configuration()
-#
-#    if cfgpath == None:
-#        # simply initialize an empty configuration
-#        return True
-#
-#    if isinstance(cfgpath , (tuple,list)):
-#        raise_error = False
-#    else:
-#        cfgpath = [ cfgpath ]
-#        raise_error = True
-#
-#    for path in cfgpath:
-#        try:
-#            if isinstance(path, basestring):
-#                path = os.path.expanduser(path)
-#                path = os.path.expandvars(path)
-#                _LOGGER.debug("Attempting to load configuration file: %s", path)
-#                with open(path, "r") as fp:
-#                    config.readfp(fp)
-#                    config.configPath = path
-#                    _LOGGER.info("Successfully loaded configuration file: %s", path)
-#                    return True
-#            else:
-#                TypeError("Configuration file path must have type string")
-#
-#        except Exception as e:
-#            if raise_error:
-#                raise e
-#
-#    return False
-
 
 class Configuration(SafeConfigParser):
     """Configuration wraps the standand python config
@@ -81,22 +37,22 @@ class Configuration(SafeConfigParser):
        
     Parameters
     ----------
-    configPath : str
+    config_path : str
         Location of configuration file to read (optional)
     """
     _DEFAULT_SECTION = "DEFAULT"
 
-    def __init__(self, configPath=None):
+    def __init__(self, config_path=None):
         SafeConfigParser.__init__(self)
-        if configPath is not None:
-            if os.path.isabs(configPath):
-                self.configPath = configPath
+        if config_path is not None:
+            if os.path.isabs(config_path):
+                self.config_path = config_path
             else:
-                self.configPath = os.path.abspath(configPath)
-            with open(self.configPath, "r") as fp:
+                self.config_path = os.path.abspath(config_path)
+            with open(self.config_path, "r") as fp:
                 self.readfp(fp)
         else:
-            self.configPath = None
+            self.config_path = None
 
     def get_default(self, option):
         return self.get(self._DEFAULT_SECTION, option, check_default=False)
@@ -113,8 +69,8 @@ class Configuration(SafeConfigParser):
     def getabspath_default(self, option, cmd=False):
         """Get the given option and convert to an absolute path.
         If the value of the option is not already an absolute
-        path, than resolve the relative path against the configPath
-        property. If configPath is None, then raise a runtime error.
+        path, than resolve the relative path against the config_path
+        property. If config_path is None, then raise a runtime error.
 
         Parameters
         ----------
@@ -187,11 +143,13 @@ class Configuration(SafeConfigParser):
     def getabspath(self, section, option, check_default=True, cmd=False):
         """Get the given option and convert to an absolute path.
         If the value of the option is not already an absolute
-        path, than resolve the relative path against the configPath
-        property. If configPath is None, then raise a runtime error.
+        path, than resolve the relative path against the config_path
+        property. If config_path is None, then raise a runtime error.
 
         Parameters
         ----------
+        section : str
+            Name of section.
         option :
             Name of configuration option.
         check_default :
@@ -211,10 +169,10 @@ class Configuration(SafeConfigParser):
             return path
         elif cmd and not path.startswith(".") and (os.path.sep not in path):
             return path
-        elif self.configPath is not None:
-            return os.path.join(os.path.dirname(self.configPath), path)
+        elif self.config_path is not None:
+            return os.path.join(os.path.dirname(self.config_path), path)
         else:
-            raise RuntimeError("configPath is None: cannot resolve relative path")
+            raise RuntimeError("config_path is None: cannot resolve relative path")
 
     def has_option(self, section, option, check_default=True):
         # There is an inconsistency in the SafeConfigParser implementations
@@ -226,6 +184,32 @@ class Configuration(SafeConfigParser):
         # to not exist in the configuration.
         return (bool(section) and SafeConfigParser.has_option(self, section, option)) or \
                     (check_default and self.has_default(option))
+    
+    def to_dict(self, flat=False, ordered=True):
+        """Convert configuration into dict.
+
+        Parameters
+        ----------
+        flat : True or False
+            If True, return flat dict, overidden same key(s), False by default.
+        ordered : True or False
+            If False, return dict will not maintain key order, True by default.
+
+        Returns
+        -------
+        ret : dict
+            Inherit all keys from configuration.
+        """
+        fdict = OrderedDict if ordered else dict
+        rdict = fdict()
+        if flat:
+            for sn in self.sections():
+                for k, v in self.items(sn):
+                    rdict[k] = v
+        else:
+            for sn in self.sections():
+                    rdict[sn] = fdict(self.items(sn))
+        return rdict 
 
 
 def _find_machine_path(machine):
@@ -243,34 +227,35 @@ def _find_machine_path(machine):
     machine : str
         Facility/machine name, or directory path.
 
-    Returns:
+    Returns
+    -------
     ret : tuple
         Tuple of mpath and mname, where mpath is the full path of machine
         configuration files, and mname is the name of machine; if not found,
         return None, "".
     """
     # if machine is an abs path
-    _LOGGER.info("searching configuration in relative or absolute path: '%s'" % machine)
+    _LOGGER.info("Searching configuration in relative or absolute path: '%s'" % machine)
     if os.path.isdir(machine):
         machine = os.path.realpath(machine)
         mname = os.path.basename(machine)
         return machine, mname
 
     # try "machine" in PHYUTIL_CONFIG_DIR and ~/.phyutil/ (default)
-    _LOGGER.info("searching configuration under path: '%s' '%s'" % (PHYUTIL_CONFIG_DIR, machine))
+    _LOGGER.info("Searching configuration under path: '%s' '%s'" % (PHYUTIL_CONFIG_DIR, machine))
     home_machine = os.path.join(PHYUTIL_CONFIG_DIR, machine)
     if os.path.isdir(home_machine):
         mname = os.path.basename(os.path.realpath(machine))
         return home_machine, mname
 
     # try the package
-    pkg_machine = resource_filename(__name__, machine)
-    _LOGGER.info("trying system dir '%s'" % pkg_machine)
-    if os.path.isdir(pkg_machine):
-        mname = os.path.basename(os.path.realpath(pkg_machine))
-        return pkg_machine, mname
+    # pkg_machine = resource_filename(__name__, machine)
+    # _LOGGER.info("trying system dir '%s'" % pkg_machine)
+    # if os.path.isdir(pkg_machine):
+    #     mname = os.path.basename(os.path.realpath(pkg_machine))
+    #     return pkg_machine, mname
 
-    _LOGGER.warn("can not find machine dir")
+    _LOGGER.warn("Can not find machine dir")
     return None, ""
 
 
@@ -286,7 +271,9 @@ def find_machine_config(machine, **kwargs):
     Keyword Arguments
     -----------------
     verbose : True or False
-        Display more information (default: False)
+        Display more information, False by default.
+    filename : str
+        File name of target configuration file, 'phyutil.ini' by default.
 
     Returns
     -------
@@ -304,10 +291,11 @@ def find_machine_config(machine, **kwargs):
      'FRIB')
     """
     verbose = kwargs.get('verbose', 0)
+    filename = kwargs.get('filename', 'phyutil.ini')
 
     machdir, machname = _find_machine_path(machine)
     if verbose:
-        print("loading machine data '%s: %s'" % (machname, machdir))
+        print("Loading machine data '%s: %s'" % (machname, machdir))
 
     if machdir is None:
         msg = "Cannot find machine data directory for '%s'" % machine
@@ -317,10 +305,10 @@ def find_machine_config(machine, **kwargs):
     _LOGGER.info("Importing '%s' from '%s'" % (machine, machdir))
 
     try:
-        cfg = Configuration(os.path.join(machdir, "phyutil.ini"))
-        _LOGGER.info("Using config file: 'phyutil.ini'")
+        cfg = Configuration(os.path.join(machdir, filename))
+        _LOGGER.info("Using config file: {0}".format(filename))
     except:
-        raise RuntimeError("can not open '%s' to read configurations" %
-                (os.path.join(machdir, "phyutil.ini")))
+        raise RuntimeError("Can not open '%s' to read configurations" %
+                (os.path.join(machdir, filename)))
 
     return cfg, machdir, machname

@@ -8,6 +8,7 @@ from .apps import lmapp
 from .tools import phytool
 
 from phantasy.library.model import flame as flameutils
+from phantasy.library.operation import MachinePortal
 
 __authors__ = "Tong Zhang"
 __copyright__ = "(c) 2016, Facility for Rare Isotope beams, Michigan State University"
@@ -18,18 +19,8 @@ Physics high-level applications and toolkits for accelerator system.
 
 :version: %s
 :authors: %s
-
-:Example:
-
->>>
->>>
 """ % (__version__, __authors__)
 
-#__all__ = [
-#           'flameutils', 'parseutils', 'miscutils', 'pvutils', 'flowutils',
-#           'ocapp',
-#           ]
+__all__ = ['flameutils', 'MachinePortal']
 
-logging.basicConfig(
-        format="%(levelname)s: %(asctime)s: %(name)s: %(message)s"
-        )
+logging.basicConfig(format="%(levelname)s: %(asctime)s: %(name)s: %(message)s")

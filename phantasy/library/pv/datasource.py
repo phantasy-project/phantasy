@@ -9,22 +9,21 @@
 """
 
 from __future__ import absolute_import
-from __future__ import unicode_literals
 from __future__ import division
 from __future__ import print_function
+from __future__ import unicode_literals
 
 import logging
 import os
 from fnmatch import fnmatch
 
+from phantasy.library.channelfinder import get_data_from_cf
 from phantasy.library.channelfinder import get_data_from_db
 from phantasy.library.channelfinder import get_data_from_tb
-from phantasy.library.channelfinder import get_data_from_cf
-from phantasy.library.channelfinder import write_db
-from phantasy.library.channelfinder import write_tb
-from phantasy.library.channelfinder import write_json
 from phantasy.library.channelfinder import write_cfs
-
+from phantasy.library.channelfinder import write_db
+from phantasy.library.channelfinder import write_json
+from phantasy.library.channelfinder import write_tb
 
 __authors__ = "Tong Zhang"
 __copyright__ = "(c) 2016, Facility for Rare Isotope beams, Michigan State University"

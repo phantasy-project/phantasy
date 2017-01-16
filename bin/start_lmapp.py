@@ -1,5 +1,8 @@
-#!/usr/bin/python
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
+"""Lattice model application.
+"""
 
 import sys
 

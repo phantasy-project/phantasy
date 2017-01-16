@@ -13,24 +13,21 @@ Authors:
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import getpass
+import json
+import logging
 import os
 import time
-import logging
-from copy import copy
-from fnmatch import fnmatch
 from collections import OrderedDict
-import json
-import getpass
+from fnmatch import fnmatch
 
 from channelfinder import ChannelFinderClient
 
-from phantasy.library.misc import pattern_filter
-from phantasy.library.misc import flatten
 from phantasy.library.misc import expand_list_to_dict
-
+from phantasy.library.misc import flatten
+from phantasy.library.misc import pattern_filter
 from .database import CFCDatabase
 from .table import CFCTable
-
 
 _LOGGER = logging.getLogger(__name__)
 

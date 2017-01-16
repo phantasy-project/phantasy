@@ -22,7 +22,7 @@ from phantasy.library.pv import DataSource
 
 _CONFIG_COMMON_SECTION = "COMMON"
 
-_CONFIG_DEFAULT_SUBMACHINE = "default_submachine"
+_CONFIG_DEFAULT_SEGMENT = "default_segment"
 
 _CONFIG_CONFIG_FILE = "config_file"
 
@@ -37,7 +37,7 @@ _CONFIG_CFS_TAG = "cfs_tag"
 _LOGGER = logging.getLogger(__name__)
 
 
-def loadMachineConfig(machine, submach=None, **kws):
+def loadMachineConfig(machine, segment=None, **kws):
     """Find the configuration for the specified machine.
 
     Parameters
@@ -45,8 +45,8 @@ def loadMachineConfig(machine, submach=None, **kws):
     machine : str
         Name (search path) or path (rel or abs) of machine to load.
 
-    submach : str
-        Submachine/segment/lattice name, if not given, use default.
+    segment : str
+        Name of segment of machine, if not given, use default.
 
     Keyword Arguments
     -----------------
@@ -66,21 +66,21 @@ def loadMachineConfig(machine, submach=None, **kws):
     else:
         mconfig = None
 
-    if submach is None:
+    if segment is None:
         if mconfig is not None:
-            if mconfig.has_option(_CONFIG_COMMON_SECTION, _CONFIG_DEFAULT_SUBMACHINE):
-                submach = mconfig.get(_CONFIG_COMMON_SECTION, _CONFIG_DEFAULT_SUBMACHINE)
+            if mconfig.has_option(_CONFIG_COMMON_SECTION, _CONFIG_DEFAULT_SEGMENT):
+                segment = mconfig.get(_CONFIG_COMMON_SECTION, _CONFIG_DEFAULT_SEGMENT)
             else:
-                raise RuntimeError("Error: default submachine not specified")
+                raise RuntimeError("Error: default segment not specified")
         else:
-            submach = None
+            segment = None
     else:
-        submach = submach.strip()
+        segment = segment.strip()
 
-    return mconfig, submach
+    return mconfig, segment
 
 
-def loadLayout(layoutPath, mconfig=None, submach=None):
+def loadLayout(layoutPath, mconfig=None, segment=None):
     """Load the layout from the specified path or find the path in the
     configuration.
 
@@ -90,8 +90,8 @@ def loadLayout(layoutPath, mconfig=None, submach=None):
         Path of layout file or None.
     mconfig :
         Machine configuration.
-    submach : str
-        Name of submachine.
+    segment : str
+        Name of segment.
 
     Returns
     -------
@@ -99,16 +99,16 @@ def loadLayout(layoutPath, mconfig=None, submach=None):
         Accelerator layout object.
     """
     if layoutPath is None:
-        if mconfig is not None and submach is not None \
-                and mconfig.has_option(submach, _CONFIG_LAYOUT_FILE):
-            layoutPath = mconfig.getabspath(submach, _CONFIG_LAYOUT_FILE)
+        if mconfig is not None and segment is not None \
+                and mconfig.has_option(segment, _CONFIG_LAYOUT_FILE):
+            layoutPath = mconfig.getabspath(segment, _CONFIG_LAYOUT_FILE)
         else:
             raise RuntimeError("Error: layout path option not specified")
 
     return build_layout(layoutPath)
 
 
-def loadSettings(settingsPath, mconfig=None, submach=None):
+def loadSettings(settingsPath, mconfig=None, segment=None):
     """Load the settings from the specified path or find the path in the
     configuration.
 
@@ -118,8 +118,8 @@ def loadSettings(settingsPath, mconfig=None, submach=None):
         Path of settings file or None.
     mconfig :
         Machine configuration.
-    submach : str
-        Name of submachine.
+    segment : str
+        Name of segment.
 
     Returns
     -------
@@ -127,44 +127,44 @@ def loadSettings(settingsPath, mconfig=None, submach=None):
         Accelerator settings object.
     """
     if settingsPath is None:
-        if mconfig is not None and submach is not None \
-                and mconfig.has_option(submach, _CONFIG_SETTINGS_FILE):
-            settingsPath = mconfig.getabspath(submach, _CONFIG_SETTINGS_FILE)
+        if mconfig is not None and segment is not None \
+                and mconfig.has_option(segment, _CONFIG_SETTINGS_FILE):
+            settingsPath = mconfig.getabspath(segment, _CONFIG_SETTINGS_FILE)
         else:
             raise RuntimeError("Error: settings path option not specified")
 
     return Settings(settingsPath)
 
 
-def loadLatticeConfig(configPath, mconfig=None, submach=None):
+def loadLatticeConfig(config_path, mconfig=None, segment=None):
     """Load the configuration from the specified path or find the path in the
     configuration.
 
     Parameters
     ----------
-    configPath :
+    config_path :
         Path of configuration file or None.
     mconfig :
         Machine configuration.
-    submach : str
-        Name of submachine.
+    segment : str
+        Name of segment.
 
     Returns
     -------
     ret :
         Lattice configuration object.
     """
-    if configPath is None:
-        if mconfig is not None and submach is not None \
-                and mconfig.has_option(submach, _CONFIG_CONFIG_FILE):
-            configPath = mconfig.getabspath(submach, _CONFIG_CONFIG_FILE)
+    if config_path is None:
+        if mconfig is not None and segment is not None \
+                and mconfig.has_option(segment, _CONFIG_CONFIG_FILE):
+            config_path = mconfig.getabspath(segment, _CONFIG_CONFIG_FILE)
         else:
             raise RuntimeError("Error: config path option not specified")
 
-    return Configuration(configPath)
+    return Configuration(config_path)
 
 
-def loadChannels(source, cfstag, mconfig, submach):
+def loadChannels(source, cfstag, mconfig, segment):
     """Load channel names from the given url or find the url from the 
     configuration files.
 
@@ -176,8 +176,8 @@ def loadChannels(source, cfstag, mconfig, submach):
         CFS tag to query or None.
     mconfig :
         Machine configuration.
-    submach :
-        Name of submachine.
+    segment :
+        Name of segment.
 
     Returns
     -------
@@ -185,22 +185,22 @@ def loadChannels(source, cfstag, mconfig, submach):
         List of channels with tuples (name, properties, tags).
     """
     if source is None:
-        if mconfig is not None and submach is not None \
-                and mconfig.has_option(submach, _CONFIG_CFS_URL):
-            cfsurl = mconfig.get(submach, _CONFIG_CFS_URL)
+        if mconfig is not None and segment is not None \
+                and mconfig.has_option(segment, _CONFIG_CFS_URL):
+            cfsurl = mconfig.get(segment, _CONFIG_CFS_URL)
         else:
             raise RuntimeError("Error: Channel Finder URL option not specified")
     else:
         cfsurl = source
 
     if re.match(r"https?://.*", cfsurl, re.I):
-        _LOGGER.info("loadChannels: using service '%s' for '%s'" % (cfsurl, submach))
+        _LOGGER.info("loadChannels: using service '%s' for '%s'" % (cfsurl, segment))
         if cfstag is None:
-            if mconfig is not None and submach is not None \
-                    and mconfig.has_option(submach, _CONFIG_CFS_TAG):
-                cfstag = mconfig.get(submach, _CONFIG_CFS_TAG)
+            if mconfig is not None and segment is not None \
+                    and mconfig.has_option(segment, _CONFIG_CFS_TAG):
+                cfstag = mconfig.get(segment, _CONFIG_CFS_TAG)
             else:
-                cfstag = "phyutil.sys.%s" % submach
+                cfstag = "phyutil.sys.%s" % segment
         ds = DataSource(source=cfsurl)
         data = ds.get_data(tag_filter=cfstag)
         pvdata = [
@@ -212,9 +212,9 @@ def loadChannels(source, cfstag, mconfig, submach):
         return pvdata
 
     if source is None:
-        if mconfig is not None and submach is not None \
-                and mconfig.has_option(submach, _CONFIG_CFS_URL):
-            cfspath = mconfig.getabspath(submach, _CONFIG_CFS_URL)
+        if mconfig is not None and segment is not None \
+                and mconfig.has_option(segment, _CONFIG_CFS_URL):
+            cfspath = mconfig.getabspath(segment, _CONFIG_CFS_URL)
         else:
             raise RuntimeError("Error: Channel Finder URL option not specified")
     else:
