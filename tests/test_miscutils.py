@@ -9,7 +9,7 @@
 
 import unittest
 import numpy as np
-from phyapps import miscutils
+from phantasy.library.misc import miscutils
 import os
 
 curdir = os.path.dirname(__file__)

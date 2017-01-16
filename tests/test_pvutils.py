@@ -7,7 +7,7 @@
 import unittest
 import os
 
-from phyapps import pvutils
+from phantasy.library.pv import get_readback
 
 curdir = os.path.dirname(__file__)
 
