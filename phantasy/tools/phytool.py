@@ -21,6 +21,7 @@ The support commands are:
   frib-layout      Generate layout file from FRIB Expanded Lattice File (XLF)
   frib-channels    Generate a channels data file with FRIB naming conventions
   cfutil-export    Export channel data to file or Channel Finder Service
+  gen_mconfig      Generate machine configuration template file
   help             Show help information for a specified topic
 """
 
@@ -73,6 +74,10 @@ def main():
     elif cmd == "frib-channels":
         from . import frib_channels
         return frib_channels.main()
+
+    elif cmd == "gen_mconfig":
+        from . import gen_mconfig
+        return gen_mconfig.main()
 
     elif cmd == "help":
         return print_help()
