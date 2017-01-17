@@ -19,8 +19,9 @@ import traceback
 from argparse import ArgumentParser
 
 from phantasy.library.layout import build_layout
-from phantasy.library.misc import write_csv
-from phantasy.library.channelfinder import import_cf_localdata
+from phantasy.library.channelfinder import write_csv
+from phantasy.library.channelfinder import write_db
+from phantasy.library.misc import complicate_data
 from phantasy.facility.frib.channels import build_channels
 
 
@@ -88,7 +89,8 @@ def main():
 
     elif ext == ".sqlite":
         try:
-            import_cf_localdata(channels, args.channelsPath, overwrite=True)
+            pv_data = complicate_data(channels)
+            write_db(pv_data, args.channelsPath, overwrite=True)
         except Exception as e:
             if args.verbosity > 0: traceback.print_exc()
             print("Error writing channels sqlite file:", e, file=sys.stderr)
