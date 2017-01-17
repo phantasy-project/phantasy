@@ -29,13 +29,13 @@ _LOGGER = logging.getLogger(__name__)
 
 
 parser = ArgumentParser(prog=os.path.basename(sys.argv[0])+" cfutil-export",
-                        description="Export channel data (.csv, .sqlite) to \
+                        description="Export channel data (.csv, .sqlite, CFS) to \
                         file (.csv, .sqlite, .json) or \
                         Channel Finder Service (CFS)")
 parser.add_argument("-v", dest="verbosity", nargs='?', type=int, const=1, default=0,
         help="set the amount of output")
 parser.add_argument("--from", dest='from_path',
-        help="path to input file (.csv, .sqlite) as channel data source")
+        help="path to input file (.csv, .sqlite, CFS) as channel data source")
 parser.add_argument("--to", dest='to_path',
         help="path to output file (.csv, .sqlite, .json) or CFS URL")
 parser.add_argument("--user", dest="username", help="specify CFS username")
@@ -56,12 +56,25 @@ def main():
         logging.getLogger().setLevel(logging.DEBUG)
 
     channel_source = args.from_path
-    if not os.path.isfile(channel_source):
-        print("Cannot find channel data source: ", args.from_path, file=sys.stderr)
+
+    channel_source = urlparse(args.from_path, "file")
+    if channel_source.scheme == "file":
+        sourcepath = channel_source.path
+        if not os.path.isfile(channel_source.path):
+            print("Cannot find channel data source: ", args.from_path, file=sys.stderr)
+            return 1
+    elif channel_source.scheme in ["http", "https"]:
+        sourcepath = args.from_path
+        if args.username == None:
+            args.username = raw_input("Enter username: ")
+        if args.password == None:
+            args.password = getpass.getpass("Enter password: ")
+    else:
+        print("Unknown source.".format(arg.from_path), file=sys.stderr)
         return 1
 
     try:
-        ds = DataSource(source=channel_source)
+        ds = DataSource(source=sourcepath, username=args.username, password=args.password)
         channels = ds.get_data()
     except Exception as e:
         print("Failed to get data from channel source:", e, file=sys.stderr)
