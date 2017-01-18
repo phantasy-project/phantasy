@@ -12,6 +12,7 @@ from __future__ import print_function
 import logging
 from bisect import bisect
 from fnmatch import fnmatch
+import getpass
 
 from flame import Machine
 
@@ -246,3 +247,38 @@ def simplify_data(raw_data):
         retval.append(new_rec)
     return retval
 
+
+def complicate_data(raw_data, **kws):
+    """Convert simple tuple PV data into CFS formatted data.
+
+    Parameters
+    ----------
+    raw_data : list(list)
+        List of list, each list element is of the format:
+        PV name (str), PV properties (dict), PV tags (list(str))
+    owner : str
+        Owner of the data.
+
+    Returns
+    -------
+    ret : list(dict)
+        List of dict, each dict element is of the format:
+        {'name': PV name (str), 'owner': str,
+         'properties': PV properties (list(dict)),
+         'tags': PV tags (list(dict))]
+
+    See Also
+    --------
+    get_data_from_tb, get_data_from_db, get_data_from_cf
+    """
+    owner = kws.get('owner', getpass.getuser())
+    retval = []
+    for pv_name, pv_props, pv_tags in raw_data:
+        new_rec = {'name': pv_name,
+                   'owner': owner,
+                   'properties': [{'name': k, 'value': v, 'owner': owner}
+                                    for k,v in pv_props.items()],
+                   'tags': [{'name': t, 'owner': owner} for t in pv_tags],
+        }
+        retval.append(new_rec)
+    return retval
