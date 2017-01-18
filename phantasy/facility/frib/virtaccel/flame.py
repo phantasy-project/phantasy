@@ -692,6 +692,14 @@ class VirtualAccelerator(object):
         else:
             chanprefix = self._chanprefix
 
+        # Add channel for sample counting
+        sample_cnt = chanprefix + "SVR:CNT"
+
+        self._epicsdb.append(("ai", sample_cnt, OrderedDict([
+            ("DESC", "Sample counter for scan client"),
+            ("VAL", 0)
+            ])))
+
         # Add channel for VA configuration and control
         channoise = chanprefix+"SVR:NOISE"
 
