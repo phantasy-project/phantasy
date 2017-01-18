@@ -401,6 +401,10 @@ def get_data_from_cf(url, **kws):
         logical AND applies for multiple tags.
     raw_data : list
         List of PV data.
+    username :
+        Username of channel finder service.
+    password :
+        Password of channel finder service username.
 
     Returns
     -------
@@ -411,8 +415,9 @@ def get_data_from_cf(url, **kws):
          'tags': PV tags (list(dict))]
     """
     raw_data = kws.get('raw_data', None)
-
-    cfc = ChannelFinderClient(BaseURL=url)
+    username = kws.get('username', None)
+    password = kws.get('password', None)
+    cfc = ChannelFinderClient(BaseURL=url, username=username, password=password)
     all_prop_list = sorted([p['name'] for p in cfc.getAllProperties()])
     all_tag_list = sorted([t['name'] for t in cfc.getAllTags()])
     if raw_data is None:

@@ -49,6 +49,10 @@ class DataSource(object):
     
     Keyword Arguments
     -----------------
+    username : str
+        Username of channel finder service
+    password : str
+        Password of username.
     """
     def __init__(self, source=None, **kws):
         # source and source type is None by default or failed to set source
