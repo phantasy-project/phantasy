@@ -392,7 +392,7 @@ class CaElement(AbstractElement):
 
     'field' -> Object Attr.
     """
-    __slots__ = []
+    #__slots__ = []
     def __init__(self, **kwargs):
         """
         An element is homogeneous means, it use same get/put function on a
