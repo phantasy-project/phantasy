@@ -9,3 +9,4 @@ from .miscutils import pattern_filter
 from .miscutils import expand_list_to_dict
 from .miscutils import simplify_data
 from .miscutils import complicate_data
+from .miscutils import SpecialDict

@@ -13,6 +13,7 @@ import logging
 from bisect import bisect
 from fnmatch import fnmatch
 import getpass
+from UserDict import DictMixin
 
 from flame import Machine
 
@@ -282,3 +283,28 @@ def complicate_data(raw_data, **kws):
         }
         retval.append(new_rec)
     return retval
+
+
+class SpecialDict(DictMixin):
+    """New dict class to support dynamic features.
+
+    1: Initialize class with keyword arguments (meta) defined properties;
+    2: New attributes could be dynamically added by assigning new k,v to (meta);
+    """
+    def __init__(self, meta, obj, *args, **kwargs):
+        self.meta = meta
+        self.obj = obj
+        self.obj.__dict__.update(meta)
+    
+    def __setitem__(self, k, v):
+        self.meta.update({k:v})
+        self.obj.__dict__.update({k:v})
+
+    def __getitem__(self, k):
+        return self.meta.get(k, None)
+    
+    def keys(self):
+        return self.meta.keys()
+
+    def __repr__(self):
+        return str(self.meta)

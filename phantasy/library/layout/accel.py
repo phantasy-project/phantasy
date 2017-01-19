@@ -18,6 +18,8 @@ from __future__ import print_function
 
 import sys
 
+from phantasy.library.misc import SpecialDict
+
 
 # Base Elements
 
@@ -65,7 +67,7 @@ class Element(object):
         self._length = length
         self.aperture = aperture
         self._name = name
-        self.meta = dict(meta)
+        self.meta = SpecialDict(meta, self)
         self.fields = Fields()
 
     @property
@@ -143,8 +145,8 @@ class Element(object):
             raise ValueError("Element: 'name' property must not be empty")
         self._name = name
 
-    def __getattr__(self, name):
-        return self.meta.get(name, "")
+    #def __getattr__(self, name):
+    #    return self.meta.get(name, "")
 
     def __str__(self):
         s = "{{ name:'{elem.name}', z:{elem.z}, length:{elem.length}, aperture:{elem.aperture}, meta={elem.meta}, fields={elem.fields} }}"
