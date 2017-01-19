@@ -13,7 +13,8 @@ class Settings(OrderedDict):
     """
     def __init__(self, settingsPath=None):
         super(Settings, self).__init__()
-        if settingsPath is not None:
+        #if settingsPath is not None:
+        if isinstance(settingsPath, (basestring, unicode)):
             with open(settingsPath, "r") as fp:
                 self.readfp(fp)
 
