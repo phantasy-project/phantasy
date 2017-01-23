@@ -156,21 +156,23 @@ class AbstractElement(object):
                self.index == other.index and \
                self.name == other.name
 
-    def updateProperties(self, prpt):
-        """
-        Update the properties of this element.
+    def update_properties(self, prpt):
+        """Update element properties.
 
-        :param dict prpt: a dictionary with the following keys:
-
-        - *devname* Device name
-        - *cell* Cell
-        - *girder* Girder
-        - *symmetry* Symmetry
-        - *phylen* Physical length
-        - *length* Effective/magnetic length
-        - *sb* s-loc of the entrance (effective length)
-        - *se* s-loc of the exit (effective length)
-        - *index* index in lattice
+        Parameters
+        ----------
+        prpt : dict
+            Dictionary of properties, valid keys:
+            
+            - *devname*: device name
+            - *cell*: cell
+            - *girder*: girder
+            - *symmetry*: symmetry
+            - *phylen*: physical length
+            - *length*: effective/magnetic length
+            - *sb*: s-loc of the entrance (effective length)
+            - *se*: s-loc of the exit (effective length)
+            - *index*: index in lattice
 
         This update will not synchronize element properties, e.g. calculate
         length from sb and se, or se from sb and length.
@@ -213,6 +215,7 @@ class AbstractElement(object):
             self.flag = self.flag & ~_DISABLED
         else:
             self.flag = self.flag | _DISABLED
+
 
 class CaAction(object):
     """Manages channel access for an element field.
@@ -387,6 +390,7 @@ class CaAction(object):
         self._sp1 = self.sp
         self.sp = []
 
+
 class CaElement(AbstractElement):
     """Element with Channel Access ability.
 
@@ -472,9 +476,15 @@ class CaElement(AbstractElement):
         """Search for pv with specified *tag*, *tags*, *field*, *handle* or a
         combinatinon of *field* and *handle*.
 
+        Returns
+        -------
+        ret : list
+            List of PV names.
+
         Examples
         --------
         >>> pv() # returns all pvs.
+        >>> pv(tag='phyutil.sys.LS1')
         >>> pv(tag='aphla.X')
         >>> pv(tags=['aphla.EGET', 'aphla.Y'])
         >>> pv(field = "x")
@@ -726,14 +736,15 @@ class CaElement(AbstractElement):
     def setEpsilon(self, field, eps):
         self._field[field].sprb_epsilon = eps
 
-    def updatePvRecord(self, pvname, properties, tags = []):
-        """Update the pv with property dictionary and tag list."""
+    def update_pv_record(self, pvname, properties, tags=[]):
+        """Update PV with properties (dict) and tags(list).
+        """
         if not isinstance(pvname, (str, unicode)):
             raise TypeError("%s is not a valid type" % (type(pvname)))
 
         # update the properties
         if properties is not None: 
-            self.updateProperties(properties)
+            self.update_properties(properties)
 
         # the default handle is 'readback'
         if properties is not None:
@@ -748,9 +759,9 @@ class CaElement(AbstractElement):
                 if idx is not None: 
                     idx = int(idx[1:-1])
                 if elemhandle == 'readback': 
-                    self.setGetAction(pvname, fieldname, idx)
+                    self.set_get_action(pvname, fieldname, idx)
                 elif elemhandle == 'setpoint':
-                    self.setPutAction(pvname, fieldname, idx)
+                    self.set_put_action(pvname, fieldname, idx)
                 elif elemhandle == 'readset':
                     # TODO Add support for read set pvs
                     # slient ignore that handle for now
@@ -781,7 +792,7 @@ class CaElement(AbstractElement):
         else: 
             self._pvtags[pvname] = set(tags)
 
-    def setGetAction(self, v, field, idx = None, desc = ''):
+    def set_get_action(self, v, field, idx=None, desc=''):
         """Set the action when reading *field*.
     
         The previous action will be replaced if it was defined.
@@ -794,7 +805,7 @@ class CaElement(AbstractElement):
      
         self._field[field].setReadbackPv(v, idx)
     
-    def setPutAction(self, v, field, idx=None, desc = ''):
+    def set_put_action(self, v, field, idx=None, desc = ''):
         """Set the action for writing *field*.
     
         The previous action will be replaced if it was define.
@@ -1061,18 +1072,18 @@ def merge(elems, field=None, **kwargs):
         #print pvdict.keys()
         for fld,pvs in pvdict.iteritems():
             if len(pvs[0]) > 0: 
-                elem.setGetAction(pvs[0], fld, None, '')
+                elem.set_get_action(pvs[0], fld, None, '')
             if len(pvs[1]) > 0: 
-                elem.setPutAction(pvs[1], fld, None, '')
+                elem.set_put_action(pvs[1], fld, None, '')
         elem.sb = [e.sb for e in elems]
         elem.se = [e.se for e in elems]
         elem._name = [e.name for e in elems]
     elif field in pvdict:
         pvrb, pvsp = pvdict[field][0], pvdict[field][1]
         if len(pvrb) > 0: 
-            elem.setGetAction(pvrb, field, None, '')
+            elem.set_get_action(pvrb, field, None, '')
         if len(pvsp) > 0: 
-            elem.setPutAction(pvsp, field, None, '')
+            elem.set_put_action(pvsp, field, None, '')
         # count the element who has the field
         elemgrp = [e for e in elems if field in e.fields()]
         elem.sb = [e.sb for e in elemgrp] 

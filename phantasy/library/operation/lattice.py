@@ -205,9 +205,12 @@ def load_lattice(machine, segment=None, **kwargs):
         lat = create_lattice(latname,
                              pv_data,
                              tag,
-                             src,
+                             source=src,
                              mtype=mtype,
-                             simulation=simulation_code,
+                             mname=mname,
+                             mpath=mdir,
+                             mconf=mconfig,
+                             model=simulation_code,
                              layout=layout,
                              config=config,
                              settings=settings)
@@ -215,20 +218,17 @@ def load_lattice(machine, segment=None, **kwargs):
         #         if IMPACT_ELEMENT_MAP is not None:
         #             lat.createLatticeModelMap(IMPACT_ELEMENT_MAP)
 
-        lat.sb = float(d_msect.get(INI_DICT['KEYNAME_SBEGIN'],
+        lat.s_begin = float(d_msect.get(INI_DICT['KEYNAME_SBEGIN'],
                                    INI_DICT['DEFAULT_SBEGIN']))
-        lat.se = float(d_msect.get(INI_DICT['KEYNAME_SEND'],
+        lat.s_end = float(d_msect.get(INI_DICT['KEYNAME_SEND'],
                                    INI_DICT['DEFAULT_SEND']))
         lat.loop = bool(d_msect.get(INI_DICT['KEYNAME_MTYPE'],
                                     INI_DICT['DEFAULT_MTYPE']))
-        lat.machine = mname
-        lat.machdir = mdir
+        if not os.path.exists(model_data_dir):
+            os.makedirs(model_data_dir)
+        lat.data_dir = tempfile.mkdtemp(prefix="data_", dir=model_data_dir)
+        _LOGGER.info("Temp model data directory: {}".format(lat.data_dir))
 
-        # if d_msect.get("archive_pvs", None):
-        #    lat.arpvs = os.path.join(machdir, d_msect["archive_pvs"])
-
-        lat.output_dir = tempfile.mkdtemp(prefix="output_", dir=work_dir)
-        _LOGGER.info("Temp output directory: {}".format(lat.output_dir))
         # _temp_dirs.append(lat.output_dir)
 
         # TODO add unit conversion information later
@@ -312,8 +312,8 @@ def load_lattice(machine, segment=None, **kwargs):
             'machconf': mconfig}
 
 
-def create_lattice(latname, pv_data, tag, src=None, mtype=None, **kwargs):
-    """Create lattice object from PV data source.
+def create_lattice(latname, pv_data, tag, **kwargs):
+    """Create high-level lattice object from PV data source.
 
     Parameters
     -----------
@@ -324,15 +324,15 @@ def create_lattice(latname, pv_data, tag, src=None, mtype=None, **kwargs):
         ``string of PV name, dict of properties, list of tags``.
     tag : str
         Only select PV data according to defined tag. e.g. `phyutil.sys.LS1`.
-    src : str
+
+    Keyword Arguments
+    -----------------
+    source : str
         Source of PV data, URL of channel finder service, file name of SQLite
         database or csv spreadsheet.
     mtype : int
         Machine type, 0 for linear (default), 1 for a ring.
-
-    Keyword Arguments
-    -----------------
-    simulation_code : str
+    model : str
         Model code, 'FLAME' or 'IMPACT', 'FLAME' by default.
     layout :
         Lattice layout object.
@@ -344,7 +344,7 @@ def create_lattice(latname, pv_data, tag, src=None, mtype=None, **kwargs):
     Returns
     ---------
     lat : 
-        Lattice object.
+        High-level lattice object.
 
     Note
     ----
@@ -357,14 +357,17 @@ def create_lattice(latname, pv_data, tag, src=None, mtype=None, **kwargs):
     :class:`~phantasy.library.lattice.Lattice`
     :class:`~phantasy.library.pv.DataSource`
     """
+    src = kwargs.get('source', None)
+    if src is None:
+        _LOGGER.warn("PV data source type should be explicitly defined.")
+        return
+
     _LOGGER.debug("Creating lattice {0} from {1}".format(latname, src))
     _LOGGER.info("Found {0:d} PVs in {1}".format(len(pv_data), latname))
 
-    mtype = 0 if mtype is None else mtype
-
     # create a new lattice
-    lat = Lattice(latname, source=src, mtype=mtype, **kwargs)
-
+    lat = Lattice(latname, **kwargs)
+    # set up lattice
     for pv_name, pv_props, pv_tags in pv_data:
         _LOGGER.debug("Processing {0}".format(pv_name))
 
@@ -419,16 +422,16 @@ def create_lattice(latname, pv_data, tag, src=None, mtype=None, **kwargs):
 
         # update elment attributes
         if pv_name:
-            elem.updatePvRecord(pv_name, pv_props, pv_tags)
+            elem.update_pv_record(pv_name, pv_props, pv_tags)
 
     # group info is a redundant info, needs rebuild based on each element
     lat.buildGroups()
 
     # !IMPORTANT! since Channel finder has no order, but lat class has
     lat.sortElements()
-    lat.circumference = lat[-1].se if lat.size() > 0 else 0.0
+    lat.length = lat[-1].se if lat.size() > 0 else 0.0
 
-    _LOGGER.debug("Mode {0}".format(lat.mode))
+    #_LOGGER.debug("Mode {0}".format(lat.mode))
     _LOGGER.info("'{0:s}' has {1:d} elements".format(lat.name, lat.size()))
     # noinspection PyProtectedMember
     for g in sorted(lat._group.keys()):
