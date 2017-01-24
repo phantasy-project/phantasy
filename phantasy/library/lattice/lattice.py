@@ -26,6 +26,7 @@ from collections import OrderedDict
 from datetime import datetime
 
 from .element import AbstractElement
+from .element import CaElement
 from .impact import LatticeFactory as ImpactLatticeFactory
 from .impact import run_lattice as run_impact_lattice
 from .flame import FlameLatticeFactory
@@ -34,6 +35,8 @@ from phantasy.library.parser import Configuration
 from phantasy.library.settings import Settings
 from phantasy.library.pv import caget
 from phantasy.library.pv import caput
+from phantasy.library.miscutils import parse_dt
+
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -421,24 +424,29 @@ class Lattice(object):
     def _set_control_field(self, elem, field, value):
         """Set value to element field onto control environment.
         """
-        pv = elem.pv(field=field, handle='setpoint')
+        pv = elem.pv(field=field, handle='setpoint')[0]
+        value0 = caget(pv)
         caput(pv, value)
         self._log_trace('control', element=elem.name, 
-                field=field, value=value, pv=pv[0])
+                field=field, value0=value0, value=value, pv=pv)
 
     def _set_model_field(self, elem, field, value):
         """Set value to element field.
         """
-        elem_name = elem.name
+        if isinstance(elem, CaElement):
+            elem_name = elem.name
+        else:
+            elem_name = elem
         if elem_name not in self.settings:
             _LOGGER.warn("Element:{} to set not found in lattice model.".format(elem_name))
         elif field not in self.settings[elem_name]:
             _LOGGER.warn("Field: {} to set not found in element: {}.".format(field, elem_name))
         else:
+            value0 = self.settings[elem_name][field]
             self.settings[elem_name][field] = value
             self.model_factory.settings[elem_name][field] = value
             _LOGGER.debug("Updated field: {0:s} of element: {1:s} with value: {2:f}".format(field, elem_name, value))
-        self._log_trace('model', element=elem_name, field=field, value=value)
+        self._log_trace('model', element=elem_name, field=field, value=value, value0=value0)
 
     def _log_trace(self, type, **kws):
         """Add set log entry into trace history.
@@ -447,11 +455,18 @@ class Lattice(object):
         ----------
         type : str
             Set type according to environment source, 'control' or 'model'.
+        timestamp
+        element
+        field
+        pv
+        value
+        value0
         """
         if self._trace == 'on':
             name = kws.get('element')
             field = kws.get('field')
             value = kws.get('value')
+            value0 = kws.get('value0')
             if type == 'control':
                 pv = kws.get('pv')
                 log_entry = OrderedDict((
@@ -459,6 +474,7 @@ class Lattice(object):
                             ('type', type),
                             ('element', name),
                             ('field', field),
+                            ('value0', value0),
                             ('value', value),
                             ('pv', pv)))
             elif type == 'model':
@@ -467,6 +483,7 @@ class Lattice(object):
                             ('type', type),
                             ('element', name),
                             ('field', field),
+                            ('value0', value0),
                             ('value', value)))
 
             self._trace_history.append(log_entry)
@@ -520,6 +537,8 @@ class Lattice(object):
     def _get_control_field(self, elem, field):
         """Get field value(s) from element, source is control environment.
         """
+        if not isinstance(field, (list, tuple)):
+            field = field,
         pv = {f:elem.pv(field=f, handle='readback') for f in field}
         return {k:caget(v)[0] for k,v in pv.iteritems()}
 
@@ -532,82 +551,222 @@ class Lattice(object):
         return {k:v for k,v in self.settings[elem_name].items() if k in field}
 
     def trace_history(self, rtype='human', **kws):
-        """Inspect set trace history of lattice, return humana friendly for
-        raw data.
+        """Inspect trace history of Lattice set actions, return data type with
+        human friendly or raw format.
 
         Parameters
         ----------
         rtype : str
             'human' or 'raw', default option 'human' will return formated
-            strings, could be printed out for reading; 'raw' will return
-            history entries meeting filters defined by keyword arguments.
+            human readable strings, could be printed out to streams;
+            'raw' will return history entries meeting filters defined by
+            keyword arguments.
+
+        Note
+        ----
+        Data structure of every traced log entry:
+
+        +---------------+--------------------------------------+
+        |  key name     |   value example                      |
+        +---------------+--------------------------------------+
+        | *timestamp*   | ``1485275869``                       |
+        +---------------+--------------------------------------+
+        | *type*        | ``control``                          |  
+        +---------------+--------------------------------------+
+        | *element*     | ``LS1_CA01:CAV1_D1127``              |
+        +---------------+--------------------------------------+
+        | *field*       | ``PHA``                              |
+        +---------------+--------------------------------------+
+        | *value*       | ``30``                               |
+        +---------------+--------------------------------------+
+        | *value0*      | ``325``                              |
+        +---------------+--------------------------------------+
+        | *pv*          | ``V_1:LS1_CA01:CAV1_D1127:PHA_CSET`` |
+        +---------------+--------------------------------------+
 
         Keyword Arguments
         -----------------
         element : str
-            Unix shell pattern of element name(s).
-
-        
+            Unix shell pattern of element name.
+        pv : str
+            Unix shell pattern of element pv name, only valid for 'control'
+            type entry.
+        field : str
+            Unix shell pattern of element field name.
+        type : str
+            Log entry type: 'control' or 'model', could be Unix shell pattern.
+        value : number or list of numbers
+            From which, lower and upper limit values will be extracted.
         """
         if self._trace_history is None:
             return None
 
         _history = self._filter_trace(self._trace_history, **kws)
 
-        retval = []
-        for log_entry in _history:
-            type = log_entry['type']
-            time = log_entry['timestamp']
-            value = log_entry['value']
-            if type == 'control':
-                pv = log_entry['pv']
-                log_str = "{time} [{type:^7s}] set {pv} with {value}".format(
-                        time=datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S'),
-                        type=type, pv=pv, value=value)
-            elif type == 'model':
-                name = log_entry['element']
-                field = log_entry['field']
-                log_str = "{time} [{type:^7s}] set {name}:{field} with {value}".format(
-                        time=datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S'),
-                        type=type, name=name, field=field, value=value)
-            retval.append(log_str)
-            print(log_str)
-        return "\n".join(retval)
+        if rtype == 'human':
+            retval = []
+            for log_entry in _history:
+                type = log_entry['type']
+                time = log_entry['timestamp']
+                value = log_entry['value']
+                value0 = log_entry['value0']
+                if type == 'control':
+                    pv = log_entry['pv']
+                    log_str = "{time} [{type:^7s}] set {pv} with {value} which was {value0}".format(
+                            time=datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S'),
+                            type=type, pv=pv, value=value, value0=value0)
+                elif type == 'model':
+                    name = log_entry['element']
+                    field = log_entry['field']
+                    log_str = "{time} [{type:^7s}] set {name}:{field} with {value} which was {value0}".format(
+                            time=datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S'),
+                            type=type, name=name, field=field, value=value, value0=value0)
+                retval.append(log_str)
+                print(log_str)
+            return "\n".join(retval)
+        else:
+            return _history
 
     @staticmethod
     def _filter_trace(data, **kws):
         """Apply filters on trace history data, return list of valid entries.
         """
         # filters
-        elem_name = kws.get('element')
-        
-        return data
-        
+        elem_name = kws.get('element', '*')
+        pv_name = kws.get('pv', None)
+        entry_type = kws.get('type', '*')
+        field_name = kws.get('field', '*')
+        value = kws.get('value', None)
+        if value is not None:
+            if isinstance(value, (int, float, long)):
+                value = [value]
+            elif not isinstance(value, (list, tuple)):
+                raise RuntimeError("Invalid value argument.")
+                return []
+            val_min, val_max = min(value), max(value)
+        else:
+            val_min, val_max = -1e10, 1e10
 
-    def roll_back(self, setting=None):
-        """Roll back PV setpoint.
+        retval = []
+        for d in data:
+            _elem_name = d.get('element')
+            _pv_name = d.get('pv', None)
+            _entry_type = d.get('type')
+            _field_name = d.get('field')
+            _value = d.get('value')
+            if Lattice._fnmatch(_pv_name, pv_name) and fnmatch(_elem_name, elem_name) \
+                and fnmatch(_entry_type, entry_type) \
+                and fnmatch(_field_name, field_name) \
+                and val_min <= _value <= val_max:
+                    retval.append(d)
+        
+        return retval
+
+    @staticmethod
+    def _fnmatch(name, pattern):
+        if pattern == None: # pv pattern is not defined
+            return True
+        else: # pv pattern is defined
+            if name is None:
+                return False
+            else:
+                return fnmatch(name, pattern)
+
+    def roll_back(self, setting=None, type=None, retroaction=None):
+        """Roll back PV setpoint by providing *setting* or log entries from
+        trace history, which indicating high-level lattice object to proceed
+        some set action to roll it back into previous states..
 
         Parameters
         ----------
-        setting : dict
+        setting : dict of list of dict
             Element setting, could be trace_history entry, if not defined,
-            use the last entry.
+            use the last entry with the type of 'control'
+        type : str
+            Type of environment to roll back, 'control' or 'model', 'control'
+            by default.
+        retroaction : time
+            Timestamp of the trace history, dating back to *retroaction*,
+            machine state should roll back to be.
+
+        Note
+        ----
+        Possible input of *setting* parameter:
+        * (Default) Last trace history entry.
+        * Trace history entry or list of entries;
+
+        Note
+        ----
+        About *retroaction* parameter, following input types will be supported:
+        - Absolute timestamp indicated by a float number, i.e. time in seconds
+          since Epoch: entries with logging timestamp newer (bigger) than
+          *retroaction* will be rolled back;
+        - Relative timestamp w.r.t. current time available units: *years*,
+          *months*, *weeks*, *days*, *hours*, *minutes*, *seconds*,
+          *microseconds*, and some unit alias: *year*, *month*, *week*, *day*,
+          *hour*, *minute*, *second*, *microsecond*, *mins*, *secs*, *msecs*,
+          *min*, *sec*, *msec*, could be linked by string 'and' or ',',
+          ended with 'ago', e.g. '5 mins ago', '1 hour and 30 mins ago'.
+        
+        Warning
+        -------
+        If valid *retroaction* parameter is defined, *setting* will be
+        disregarded.
+
+        See Also
+        --------
+        trace_history : Log history of set actions.
         """
-        pass
+        type = 'control' if type is None else type
+        _history = self.trace_history(rtype='raw', type=type)
+        if setting is None:
+            if _history != []:
+                setting = _history[-1]
 
+        if retroaction is not None:
+            setting = self._get_retroactive_trace_history(_history, retroaction)
+        
+        if not isinstance(setting, (list, tuple)):
+            setting = setting,
 
+        for entry in setting:
+            _elem_name = entry.get('element')
+            _entry_type = entry.get('type')
+            _field_name = entry.get('field')
+            _value = entry.get('value0')
+            _pv_name = entry.get('pv', None)
+            if _pv_name is None:
+                self._set_model_field(_elem_name, _field_name, _value)
+            else:
+                _value0 = caget(_pv_name)
+                caput(_pv_name, _value)
+                self._log_trace('control', element=_elem_name, field=_field_name,
+                                value=_value, value0=_value0, pv=_pv_name)
+
+    def _get_retroactive_trace_history(self, trace_history_data, retroaction):
+        data = trace_history_data
+        if isinstance(retroaction, (float, int, long)):
+            # absolute time
+            retval = [_entry for _entry in data if _entry['timestamp'] >= retroaction]
+        else:
+            # relative time
+            retro_datetime = parse_dt(retroaction, datetime.now(), epoch=True)
+            retval = [_entry for _entry in data if _entry['timestamp'] >= retro_datetime]
+        return retval
+            
     def sync_settings(self, data_source=None):
         """Synchronize lattice settings between model and control environment.
 
         Parameters
         ----------
         data_source : str
-            Data source of synchronization, if 'model' is defined, will sync
-            data of control environment w.r.t. 'model', i.e. data of control
-            will be updated; if 'control' is defined, model data will be
-            synchronized, if not defined, data_source will be 'control'.
+            Data source of synchronization, if 'model' is defined, will update 
+            data of control environment with data from 'model'; if 'control'
+            is defined, model data will be synchronized; *data_source* is
+            'control' by default.
         """
-        pass
+        data_source = 'control' if data_source is None else data_source
+
 
 
     def run(self):
