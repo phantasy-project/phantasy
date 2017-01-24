@@ -313,7 +313,7 @@ class SpecialDict(DictMixin):
         return str(self.meta)
 
 
-def parse_dt(dt, ref_date=None):
+def parse_dt(dt, ref_date=None, epoch=None):
     """Parse delta time defined by *dt*, which is approching plain English,
     e.g. '1 hour and 30 mins ago', return date time object.
 
@@ -328,6 +328,8 @@ def parse_dt(dt, ref_date=None):
         ended with 'ago', e.g. '5 mins ago', '1 hour and 30 mins ago'.
     ref_date :
         Datetime object, default one is now.
+    epoch : True or False
+        If return date time as seconds since Epoch.
 
     Warning
     -------
@@ -344,6 +346,7 @@ def parse_dt(dt, ref_date=None):
     >>> print(parse_dt(dt))
     datetime.datetime(2016, 12, 10, 12, 30, 41, 833955)
     """
+    enable_epoch = False if epoch is None else epoch
     if ref_date is None:
         timenow = datetime.now()
     elif isinstance(ref_date, datetime):
@@ -367,4 +370,11 @@ def parse_dt(dt, ref_date=None):
         dt_dict[time_unit_table[k]] = int(v)
 
     dt = relativedelta.relativedelta(**dt_dict)
-    return timenow - dt
+
+    retro_datetime = timenow - dt
+    if enable_epoch:
+        retval = (retro_datetime - datetime(1970, 1, 1)).total_seconds()
+    else:
+        retval = retro_datetime
+
+    return retval
