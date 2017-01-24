@@ -14,6 +14,9 @@ from bisect import bisect
 from fnmatch import fnmatch
 import getpass
 from UserDict import DictMixin
+from datetime import datetime
+
+import dateutil.relativedelta as relativedelta
 
 from flame import Machine
 
@@ -308,3 +311,60 @@ class SpecialDict(DictMixin):
 
     def __repr__(self):
         return str(self.meta)
+
+
+def parse_dt(dt, ref_date=None):
+    """Parse delta time defined by *dt*, which is approching plain English,
+    e.g. '1 hour and 30 mins ago', return date time object.
+
+    Parameters
+    ----------
+    dt : str
+        Relative timestamp w.r.t. current time available units: *years*,
+        *months*, *weeks*, *days*, *hours*, *minutes*, *seconds*,
+        *microseconds*, and some unit alias: *year*, *month*, *week*, *day*,
+        *hour*, *minute*, *second*, *microsecond*, *mins*, *secs*, *msecs*,
+        *min*, *sec*, *msec*, could be linked by string 'and' or ',',
+        ended with 'ago', e.g. '5 mins ago', '1 hour and 30 mins ago'.
+    ref_date :
+        Datetime object, default one is now.
+
+    Warning
+    -------
+    Only support integer number when defining time unit.
+
+    Returns
+    -------
+    ret : date
+        Datetime object.
+
+    Examples
+    --------
+    >>> dt = '1 month, 2 weeks, 4 hours, 7 mins and 10 secs ago'
+    >>> print(parse_dt(dt))
+    datetime.datetime(2016, 12, 10, 12, 30, 41, 833955)
+    """
+    if ref_date is None:
+        timenow = datetime.now()
+    elif isinstance(ref_date, datetime):
+        timenow = ref_date
+    else:
+        raise TypeError("Invalid date time variable.")
+    
+    time_unit_table = {'years': 'years', 'months': 'months', 'weeks': 'weeks',
+            'days': 'days', 'hours': 'hours', 'minutes': 'minutes',
+            'seconds': 'seconds', 'microseconds': 'microseconds',
+            'year': 'years', 'month': 'months', 'week': 'weeks', 'day': 'days',
+            'hour': 'hours', 'minute': 'minutes', 'second': 'seconds',
+            'microsecond': 'microseconds', 'min': 'minutes', 'sec': 'seconds',
+            'msec': 'microseconds', 'mins': 'minutes', 'secs': 'seconds',
+            'msecs': 'microseconds'}
+
+    dt_dict = {}
+    dt_tuple = dt.replace('and', ',').replace('ago', ',').strip(' ,').split(',')
+    for part in dt_tuple:
+        v, k = part.strip().split()
+        dt_dict[time_unit_table[k]] = int(v)
+
+    dt = relativedelta.relativedelta(**dt_dict)
+    return timenow - dt
