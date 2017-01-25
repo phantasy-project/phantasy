@@ -33,10 +33,10 @@ from .flame import FlameLatticeFactory
 from phantasy.library.layout import Layout
 from phantasy.library.parser import Configuration
 from phantasy.library.settings import Settings
+from phantasy.library.settings import build_flame_settings
 from phantasy.library.pv import caget
 from phantasy.library.pv import caput
-from phantasy.library.miscutils import parse_dt
-
+from phantasy.library.misc import parse_dt
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -612,15 +612,15 @@ class Lattice(object):
                 value0 = log_entry['value0']
                 if type == 'control':
                     pv = log_entry['pv']
-                    log_str = "{time} [{type:^7s}] set {pv} with {value} which was {value0}".format(
+                    log_str = "{time} [{type:^7s}] set {pv:<34s} with {value:>16.6e} which was {value0:>16.6e}".format(
                             time=datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S'),
                             type=type, pv=pv, value=value, value0=value0)
                 elif type == 'model':
                     name = log_entry['element']
                     field = log_entry['field']
-                    log_str = "{time} [{type:^7s}] set {name}:{field} with {value} which was {value0}".format(
+                    log_str = "{time} [{type:^7s}] set {name:<34s} with {value:>16.6e} which was {value0:>16.6e}".format(
                             time=datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S'),
-                            type=type, name=name, field=field, value=value, value0=value0)
+                            type=type, name="{0}:{1}".format(name,field), value=value, value0=value0)
                 retval.append(log_str)
                 print(log_str)
             return "\n".join(retval)
@@ -753,7 +753,46 @@ class Lattice(object):
             retro_datetime = parse_dt(retroaction, datetime.now(), epoch=True)
             retval = [_entry for _entry in data if _entry['timestamp'] >= retro_datetime]
         return retval
-            
+
+    def update_model_settings(self, model_lattice, **kws):
+        """Update model lattice settings with external lattice file, prefer
+        keyword argument *sdict* or *sjson* if anyone is defined.
+
+        Parameters
+        ----------
+        model_lattice : path
+            External model lattice file.
+        
+        Keyword Arguments
+        -----------------
+        sdict : dict
+            Dict of model lattice settings.
+        sjson : path
+            JSON file of model lattice settings.
+        """
+        sdict = kws.get('sdict', None)
+        sjson = kws.get('sjson', None)
+        if isinstance(sdict, dict):
+            settings = sdict
+        elif sjson is not None:
+            with open(sjson, 'r') as fp:
+                settings = json.load(fp)
+        else:
+            # read settings from lattice file
+            if self.model == 'FLAME':
+                settings = build_flame_settings(model_lattice)
+            elif self.model == 'IMPACT':
+                raise NotImplementedError
+
+        # apply settings
+        for e_name, e_setting in settings.iteritems():
+            if e_name in self.settings:
+                for field,value in e_setting.iteritems():
+                        self._set_model_field(e_name, field, value)
+                        _LOGGER.debug("Update model: {e}:{f} to be {v}.".format(e=e_name, f=field, v=value))
+            else:
+                _LOGGER.debug('Model settings does not have field: {e}:{f}.'.format(e=e_name, f=field))
+
     def sync_settings(self, data_source=None):
         """Synchronize lattice settings between model and control environment.
 
@@ -766,15 +805,49 @@ class Lattice(object):
             'control' by default.
         """
         data_source = 'control' if data_source is None else data_source
+        
+        if data_source == 'control':
+            _LOGGER.info("Sync settings from 'control' to 'model'.")
+            model_settings = self.settings
+            for elem in self.getElementList('*'):
+                if elem.name in model_settings:
+                    if not self._skip_elements(elem.name):
+                        for field,value in self.get(elem=elem, _source='control').iteritems():
+                            if field in model_settings[elem.name]:
+                                self._set_model_field(elem, field, value)
+                                # model_settings[elem.name][field] = value
+                                # _LOGGER.debug("Update model: {e}:{f} to be {v}.".format(e=elem.name, f=field, v=value))
+                            else:
+                                _LOGGER.debug('Model settings does not have field: {e}:{f}.'.format(e=elem.name, f=field))
+                else:
+                    _LOGGER.debug('Model settings does not have element: {e}.'.format(e=elem.name))
+        elif data_source == 'model':
+            _LOGGER.info("Sync settings from 'model' to 'control'.")
+            for e_name, e_setting in self.settings.iteritems():
+                elem = self.getElementList(e_name)
+                if elem == []:
+                    _LOGGER.debug('Control settings does not have element {0}.'.format(e_name))
+                    continue
+                for field,value in e_setting.iteritems():
+                    if not self._skip_elements(elem[0].name):
+                        if field in elem[0].fields():
+                            self._set_control_field(elem[0], field, value)
 
-
+    def _skip_elements(self, name):
+        """Presently, element should skip: SEXT
+        """
+        SKIP_TYPES = ['SEXT']
+        elements = self.model_factory._accel.elements
+        for e in elements:
+            if e.name == name:
+                return e.ETYPE in SKIP_TYPES
 
     def run(self):
-        """Execute the simulation to update the model data.
+        """Run mchine with defined model, e.g. 'FLAME' or 'IMPACT'
         
         Returns
         -------
-        p : 
+        p : str
             Path of the model data directory.
         """
         if self.model == "IMPACT":
@@ -784,6 +857,12 @@ class Lattice(object):
             if self.latticemodelmap is None:
                 self.createLatticeModelMap(os.path.join(work_dir, "model.map"))
             return work_dir
+        elif self.model == "FLAME":
+            lat = self.model_factory.build()
+            _, latpath = tempfile.mkstemp(prefix='model_', suffix='.lat', dir=self.data_dir)
+            with open(latpath, 'w') as f:
+                lat.write(f)
+            return latpath
         else:
             raise RuntimeError("Lattice: Simulation code '{}' not supported".format(self.model))
 
