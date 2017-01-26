@@ -1,0 +1,1048 @@
+2017-01-25 14:46:55 [control] set V_1:LS1_CA01:DCH_D1131:ANG_CSET    with     1.000000e-03 which was     0.000000e+00
+2017-01-25 14:46:55 [ model ] set LS1_CA01:DCH_D1131:ANG             with     1.000000e-03 which was     0.000000e+00
+2017-01-25 14:47:05 [control] set V_1:LS1_CA01:DCH_D1131:ANG_CSET    with     0.000000e+00 which was     1.000000e-03
+2017-01-25 14:47:06 [control] set V_1:LS1_CA01:DCH_D1131:ANG_CSET    with     1.000000e-03 which was     0.000000e+00
+2017-01-25 14:47:06 [ model ] set LS1_CA01:DCH_D1131:ANG             with     1.000000e-03 which was     1.000000e-03
+2017-01-25 14:47:16 [ model ] set LS1_CA01:CAV1_D1127:PHA            with     3.250260e+02 which was    -3.500000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CA01:CAV1_D1127:AMP            with     6.405610e-01 which was     6.400000e-01
+2017-01-25 14:47:16 [ model ] set LS1_CA01:CAV1_D1127:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CA01:SOL1_D1131:B              with     5.340220e+00 which was     5.340000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CA01:DCH_D1131:ANG             with     8.558077e-05 which was     1.000000e-03
+2017-01-25 14:47:16 [ model ] set LS1_CA01:DCV_D1131:ANG             with     2.114499e-04 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CA01:CAV2_D1135:PHA            with     3.251560e+02 which was    -3.500000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CA01:CAV2_D1135:AMP            with     6.996910e-01 which was     7.000000e-01
+2017-01-25 14:47:16 [ model ] set LS1_CA01:CAV2_D1135:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CA01:CAV3_D1143:PHA            with     3.249820e+02 which was    -3.500000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CA01:CAV3_D1143:AMP            with     7.604370e-01 which was     7.600000e-01
+2017-01-25 14:47:16 [ model ] set LS1_CA01:CAV3_D1143:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CA01:SOL2_D1147:B              with     5.900720e+00 which was     5.900000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CA01:DCH_D1147:ANG             with     4.108329e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CA01:DCV_D1147:ANG             with     2.316525e-04 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CA01:CAV4_D1150:PHA            with     3.250500e+02 which was    -3.500000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CA01:CAV4_D1150:AMP            with     8.206650e-01 which was     8.200000e-01
+2017-01-25 14:47:16 [ model ] set LS1_CA01:CAV4_D1150:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CA02:CAV1_D1161:PHA            with     3.253170e+02 which was    -3.500000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CA02:CAV1_D1161:AMP            with     8.806980e-01 which was     8.800000e-01
+2017-01-25 14:47:16 [ model ] set LS1_CA02:CAV1_D1161:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CA02:SOL1_D1165:B              with     6.498340e+00 which was     6.500000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CA02:DCH_D1165:ANG             with    -2.918382e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CA02:DCV_D1165:ANG             with     8.132171e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CA02:CAV2_D1169:PHA            with     3.248840e+02 which was    -3.500000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CA02:CAV2_D1169:AMP            with     9.401210e-01 which was     9.400000e-01
+2017-01-25 14:47:16 [ model ] set LS1_CA02:CAV2_D1169:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CA02:CAV3_D1176:PHA            with     3.253000e+02 which was    -3.500000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CA02:CAV3_D1176:AMP            with     1.000810e+00 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CA02:CAV3_D1176:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CA02:SOL2_D1180:B              with     6.893670e+00 which was     6.900000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CA02:DCH_D1180:ANG             with     3.665278e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CA02:DCV_D1180:ANG             with     2.586874e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CA02:CAV4_D1184:PHA            with     3.248370e+02 which was    -3.500000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CA02:CAV4_D1184:AMP            with     9.996910e-01 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CA02:CAV4_D1184:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CA03:CAV1_D1194:PHA            with     3.247200e+02 which was    -3.500000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CA03:CAV1_D1194:AMP            with     9.999850e-01 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CA03:CAV1_D1194:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CA03:SOL1_D1199:B              with     7.196490e+00 which was     7.200000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CA03:DCH_D1199:ANG             with     1.956160e-04 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CA03:DCV_D1199:ANG             with    -5.627057e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CA03:CAV2_D1202:PHA            with     3.247350e+02 which was    -3.500000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CA03:CAV2_D1202:AMP            with     1.000810e+00 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CA03:CAV2_D1202:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CA03:CAV3_D1210:PHA            with     3.246870e+02 which was    -3.500000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CA03:CAV3_D1210:AMP            with     1.000680e+00 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CA03:CAV3_D1210:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CA03:SOL2_D1214:B              with     7.697650e+00 which was     7.700000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CA03:DCH_D1214:ANG             with     2.061395e-04 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CA03:DCV_D1214:ANG             with     1.039936e-04 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CA03:CAV4_D1218:PHA            with     3.147200e+02 which was    -4.500000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CA03:CAV4_D1218:AMP            with     1.000400e+00 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CA03:CAV4_D1218:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB01:CAV1_D1229:PHA            with     3.197780e+02 which was    -4.000000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB01:CAV1_D1229:AMP            with     9.999900e-01 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB01:CAV1_D1229:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB01:SOL1_D1235:B              with     5.002160e+00 which was     5.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB01:DCH_D1235:ANG             with     3.185674e-04 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB01:DCV_D1235:ANG             with     4.660995e-04 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB01:CAV2_D1241:PHA            with     3.390560e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB01:CAV2_D1241:AMP            with     1.000220e+00 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB01:CAV2_D1241:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB01:CAV3_D1245:PHA            with     3.388440e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB01:CAV3_D1245:AMP            with     9.998670e-01 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB01:CAV3_D1245:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB01:CAV4_D1249:PHA            with     3.390670e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB01:CAV4_D1249:AMP            with     9.992470e-01 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB01:CAV4_D1249:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB01:SOL2_D1255:B              with     5.198390e+00 which was     5.200000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB01:DCH_D1255:ANG             with    -1.159787e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB01:DCV_D1255:ANG             with     3.778586e-04 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB01:CAV5_D1261:PHA            with     3.387170e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB01:CAV5_D1261:AMP            with     9.996430e-01 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB01:CAV5_D1261:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB01:CAV6_D1265:PHA            with     3.390800e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB01:CAV6_D1265:AMP            with     1.000500e+00 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB01:CAV6_D1265:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB01:CAV7_D1269:PHA            with     3.391650e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB01:CAV7_D1269:AMP            with     1.000180e+00 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB01:CAV7_D1269:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB01:SOL3_D1275:B              with     5.100610e+00 which was     5.100000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB01:DCH_D1275:ANG             with    -1.166574e-04 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB01:DCV_D1275:ANG             with     5.915238e-04 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB01:CAV8_D1281:PHA            with     3.203150e+02 which was    -4.000000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB01:CAV8_D1281:AMP            with     1.000580e+00 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB01:CAV8_D1281:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB02:CAV1_D1293:PHA            with     3.197740e+02 which was    -4.000000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB02:CAV1_D1293:AMP            with     9.992780e-01 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB02:CAV1_D1293:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB02:SOL1_D1299:B              with     4.997160e+00 which was     5.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB02:DCH_D1299:ANG             with    -2.742477e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB02:DCV_D1299:ANG             with     5.924082e-04 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB02:CAV2_D1305:PHA            with     3.392420e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB02:CAV2_D1305:AMP            with     1.000390e+00 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB02:CAV2_D1305:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB02:CAV3_D1309:PHA            with     3.387600e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB02:CAV3_D1309:AMP            with     1.000940e+00 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB02:CAV3_D1309:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB02:CAV4_D1313:PHA            with     3.387740e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB02:CAV4_D1313:AMP            with     1.000920e+00 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB02:CAV4_D1313:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB02:SOL2_D1319:B              with     4.897220e+00 which was     4.900000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB02:DCH_D1319:ANG             with     3.564029e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB02:DCV_D1319:ANG             with     5.131160e-04 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB02:CAV5_D1325:PHA            with     3.387800e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB02:CAV5_D1325:AMP            with     9.991720e-01 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB02:CAV5_D1325:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB02:CAV6_D1329:PHA            with     3.392820e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB02:CAV6_D1329:AMP            with     1.000250e+00 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB02:CAV6_D1329:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB02:CAV7_D1333:PHA            with     3.386900e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB02:CAV7_D1333:AMP            with     9.993460e-01 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB02:CAV7_D1333:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB02:SOL3_D1339:B              with     5.514460e+00 which was     5.510000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB02:DCH_D1339:ANG             with     1.696891e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB02:DCV_D1339:ANG             with     4.471688e-04 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB02:CAV8_D1345:PHA            with     3.197660e+02 which was    -4.000000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB02:CAV8_D1345:AMP            with     9.997690e-01 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB02:CAV8_D1345:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB03:CAV1_D1356:PHA            with     3.201050e+02 which was    -4.000000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB03:CAV1_D1356:AMP            with     9.999660e-01 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB03:CAV1_D1356:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB03:SOL1_D1363:B              with     5.560730e+00 which was     5.560000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB03:DCH_D1363:ANG             with    -5.341783e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB03:DCV_D1363:ANG             with     3.959728e-04 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB03:CAV2_D1368:PHA            with     3.386810e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB03:CAV2_D1368:AMP            with     9.990920e-01 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB03:CAV2_D1368:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB03:CAV3_D1372:PHA            with     3.389850e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB03:CAV3_D1372:AMP            with     1.000020e+00 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB03:CAV3_D1372:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB03:CAV4_D1376:PHA            with     3.388490e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB03:CAV4_D1376:AMP            with     1.000930e+00 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB03:CAV4_D1376:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB03:SOL2_D1383:B              with     5.300400e+00 which was     5.300000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB03:DCH_D1383:ANG             with    -1.458076e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB03:DCV_D1383:ANG             with     3.930138e-04 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB03:CAV5_D1388:PHA            with     3.389420e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB03:CAV5_D1388:AMP            with     9.996490e-01 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB03:CAV5_D1388:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB03:CAV6_D1392:PHA            with     3.389490e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB03:CAV6_D1392:AMP            with     9.993760e-01 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB03:CAV6_D1392:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB03:CAV7_D1396:PHA            with     3.392200e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB03:CAV7_D1396:AMP            with     1.000060e+00 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB03:CAV7_D1396:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB03:SOL3_D1403:B              with     6.120350e+00 which was     6.120000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB03:DCH_D1403:ANG             with     2.911475e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB03:DCV_D1403:ANG             with     3.554568e-04 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB03:CAV8_D1408:PHA            with     3.197410e+02 which was    -4.000000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB03:CAV8_D1408:AMP            with     1.000990e+00 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB03:CAV8_D1408:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB04:CAV1_D1420:PHA            with     3.200080e+02 which was    -4.000000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB04:CAV1_D1420:AMP            with     9.999830e-01 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB04:CAV1_D1420:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB04:SOL1_D1426:B              with     6.147550e+00 which was     6.150000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB04:DCH_D1426:ANG             with     1.241861e-06 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB04:DCV_D1426:ANG             with     2.759759e-04 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB04:CAV2_D1432:PHA            with     3.392600e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB04:CAV2_D1432:AMP            with     1.000270e+00 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB04:CAV2_D1432:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB04:CAV3_D1436:PHA            with     3.391660e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB04:CAV3_D1436:AMP            with     1.000800e+00 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB04:CAV3_D1436:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB04:CAV4_D1440:PHA            with     3.388100e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB04:CAV4_D1440:AMP            with     9.990240e-01 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB04:CAV4_D1440:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB04:SOL2_D1446:B              with     5.702140e+00 which was     5.700000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB04:DCH_D1446:ANG             with     2.757316e-06 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB04:DCV_D1446:ANG             with     2.655762e-04 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB04:CAV5_D1452:PHA            with     3.391260e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB04:CAV5_D1452:AMP            with     1.000380e+00 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB04:CAV5_D1452:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB04:CAV6_D1456:PHA            with     3.392570e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB04:CAV6_D1456:AMP            with     1.000580e+00 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB04:CAV6_D1456:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB04:CAV7_D1460:PHA            with     3.389070e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB04:CAV7_D1460:AMP            with     9.998240e-01 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB04:CAV7_D1460:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB04:SOL3_D1466:B              with     6.731440e+00 which was     6.730000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB04:DCH_D1466:ANG             with     1.858397e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB04:DCV_D1466:ANG             with     2.557104e-04 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB04:CAV8_D1472:PHA            with     3.200170e+02 which was    -4.000000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB04:CAV8_D1472:AMP            with     1.000980e+00 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB04:CAV8_D1472:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB05:CAV1_D1484:PHA            with     3.201240e+02 which was    -4.000000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB05:CAV1_D1484:AMP            with     1.000620e+00 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB05:CAV1_D1484:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB05:SOL1_D1490:B              with     6.752670e+00 which was     6.750000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB05:DCH_D1490:ANG             with     8.744746e-06 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB05:DCV_D1490:ANG             with     2.198508e-04 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB05:CAV2_D1496:PHA            with     3.389380e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB05:CAV2_D1496:AMP            with     9.999740e-01 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB05:CAV2_D1496:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB05:CAV3_D1500:PHA            with     3.388710e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB05:CAV3_D1500:AMP            with     9.990960e-01 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB05:CAV3_D1500:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB05:CAV4_D1504:PHA            with     3.390130e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB05:CAV4_D1504:AMP            with     9.998280e-01 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB05:CAV4_D1504:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB05:SOL2_D1510:B              with     6.104260e+00 which was     6.100000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB05:DCH_D1510:ANG             with     2.847134e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB05:DCV_D1510:ANG             with     2.182069e-04 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB05:CAV5_D1516:PHA            with     3.388490e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB05:CAV5_D1516:AMP            with     1.000180e+00 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB05:CAV5_D1516:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB05:CAV6_D1520:PHA            with     3.390100e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB05:CAV6_D1520:AMP            with     9.991480e-01 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB05:CAV6_D1520:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB05:CAV7_D1524:PHA            with     3.390020e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB05:CAV7_D1524:AMP            with     1.000860e+00 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB05:CAV7_D1524:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB05:SOL3_D1530:B              with     7.326710e+00 which was     7.330000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB05:DCH_D1530:ANG             with     5.045231e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB05:DCV_D1530:ANG             with     1.958347e-04 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB05:CAV8_D1536:PHA            with     3.201240e+02 which was    -4.000000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB05:CAV8_D1536:AMP            with     1.000830e+00 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB05:CAV8_D1536:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB06:CAV1_D1548:PHA            with     3.197880e+02 which was    -4.000000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB06:CAV1_D1548:AMP            with     9.992720e-01 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB06:CAV1_D1548:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB06:SOL1_D1554:B              with     7.343470e+00 which was     7.340000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB06:DCH_D1554:ANG             with     1.208387e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB06:DCV_D1554:ANG             with     1.532280e-04 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB06:CAV2_D1560:PHA            with     3.393280e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB06:CAV2_D1560:AMP            with     1.000950e+00 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB06:CAV2_D1560:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB06:CAV3_D1564:PHA            with     3.390330e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB06:CAV3_D1564:AMP            with     9.998570e-01 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB06:CAV3_D1564:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB06:CAV4_D1567:PHA            with     3.392350e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB06:CAV4_D1567:AMP            with     1.000480e+00 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB06:CAV4_D1567:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB06:SOL2_D1574:B              with     6.493830e+00 which was     6.500000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB06:DCH_D1574:ANG             with     8.392307e-06 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB06:DCV_D1574:ANG             with     1.785921e-04 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB06:CAV5_D1580:PHA            with     3.389820e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB06:CAV5_D1580:AMP            with     9.999750e-01 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB06:CAV5_D1580:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB06:CAV6_D1583:PHA            with     3.389250e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB06:CAV6_D1583:AMP            with     1.000210e+00 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB06:CAV6_D1583:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB06:CAV7_D1587:PHA            with     3.387080e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB06:CAV7_D1587:AMP            with     1.000030e+00 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB06:CAV7_D1587:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB06:SOL3_D1594:B              with     7.498980e+00 which was     7.500000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB06:DCH_D1594:ANG             with     4.846719e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB06:DCV_D1594:ANG             with     1.812818e-04 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB06:CAV8_D1599:PHA            with     3.200840e+02 which was    -4.000000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB06:CAV8_D1599:AMP            with     1.000320e+00 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB06:CAV8_D1599:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB07:CAV1_D1611:PHA            with     3.201350e+02 which was    -4.000000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB07:CAV1_D1611:AMP            with     1.000560e+00 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB07:CAV1_D1611:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB07:SOL1_D1618:B              with     7.500740e+00 which was     7.500000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB07:DCH_D1618:ANG             with     4.604899e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB07:DCV_D1618:ANG             with     1.264110e-04 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB07:CAV2_D1623:PHA            with     3.387040e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB07:CAV2_D1623:AMP            with     9.990830e-01 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB07:CAV2_D1623:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB07:CAV3_D1627:PHA            with     3.387840e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB07:CAV3_D1627:AMP            with     1.000480e+00 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB07:CAV3_D1627:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB07:CAV4_D1631:PHA            with     3.389140e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB07:CAV4_D1631:AMP            with     1.000870e+00 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB07:CAV4_D1631:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB07:SOL2_D1637:B              with     6.795600e+00 which was     6.800000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB07:DCH_D1637:ANG             with     2.166667e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB07:DCV_D1637:ANG             with     1.354626e-04 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB07:CAV5_D1643:PHA            with     3.391080e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB07:CAV5_D1643:AMP            with     9.992720e-01 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB07:CAV5_D1643:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB07:CAV6_D1647:PHA            with     3.390400e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB07:CAV6_D1647:AMP            with     9.991060e-01 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB07:CAV6_D1647:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB07:CAV7_D1651:PHA            with     3.388450e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB07:CAV7_D1651:AMP            with     1.001000e+00 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB07:CAV7_D1651:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB07:SOL3_D1657:B              with     7.255430e+00 which was     7.250000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB07:DCH_D1657:ANG             with     3.702705e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB07:DCV_D1657:ANG             with     1.585491e-04 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB07:CAV8_D1663:PHA            with     3.197310e+02 which was    -4.000000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB07:CAV8_D1663:AMP            with     9.998190e-01 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB07:CAV8_D1663:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB08:CAV1_D1675:PHA            with     3.202800e+02 which was    -4.000000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB08:CAV1_D1675:AMP            with     9.997450e-01 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB08:CAV1_D1675:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB08:SOL1_D1681:B              with     7.646670e+00 which was     7.650000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB08:DCH_D1681:ANG             with     4.961025e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB08:DCV_D1681:ANG             with     1.519776e-04 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB08:CAV2_D1687:PHA            with     3.393250e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB08:CAV2_D1687:AMP            with     9.995400e-01 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB08:CAV2_D1687:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB08:CAV3_D1691:PHA            with     3.387740e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB08:CAV3_D1691:AMP            with     9.997630e-01 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB08:CAV3_D1691:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB08:CAV4_D1695:PHA            with     3.387070e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB08:CAV4_D1695:AMP            with     9.992850e-01 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB08:CAV4_D1695:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB08:SOL2_D1701:B              with     6.993590e+00 which was     7.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB08:DCH_D1701:ANG             with     4.762310e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB08:DCV_D1701:ANG             with     1.555919e-04 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB08:CAV5_D1707:PHA            with     3.389850e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB08:CAV5_D1707:AMP            with     1.000160e+00 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB08:CAV5_D1707:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB08:CAV6_D1711:PHA            with     3.387730e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB08:CAV6_D1711:AMP            with     1.000820e+00 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB08:CAV6_D1711:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB08:CAV7_D1715:PHA            with     3.390830e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB08:CAV7_D1715:AMP            with     9.996280e-01 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB08:CAV7_D1715:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB08:SOL3_D1721:B              with     7.798280e+00 which was     7.800000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB08:DCH_D1721:ANG             with     5.211357e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB08:DCV_D1721:ANG             with     1.560799e-04 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB08:CAV8_D1727:PHA            with     3.199580e+02 which was    -4.000000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB08:CAV8_D1727:AMP            with     1.000980e+00 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB08:CAV8_D1727:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB09:CAV1_D1739:PHA            with     3.202540e+02 which was    -4.000000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB09:CAV1_D1739:AMP            with     9.998860e-01 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB09:CAV1_D1739:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB09:SOL1_D1745:B              with     7.845980e+00 which was     7.850000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB09:DCH_D1745:ANG             with     2.838925e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB09:DCV_D1745:ANG             with     1.355761e-04 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB09:CAV2_D1751:PHA            with     3.390060e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB09:CAV2_D1751:AMP            with     1.000900e+00 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB09:CAV2_D1751:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB09:CAV3_D1755:PHA            with     3.387610e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB09:CAV3_D1755:AMP            with     9.990020e-01 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB09:CAV3_D1755:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB09:CAV4_D1759:PHA            with     3.387710e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB09:CAV4_D1759:AMP            with     1.000430e+00 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB09:CAV4_D1759:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB09:SOL2_D1765:B              with     7.054600e+00 which was     7.050000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB09:DCH_D1765:ANG             with     1.141837e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB09:DCV_D1765:ANG             with     1.465475e-04 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB09:CAV5_D1771:PHA            with     3.388470e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB09:CAV5_D1771:AMP            with     1.000210e+00 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB09:CAV5_D1771:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB09:CAV6_D1775:PHA            with     3.390720e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB09:CAV6_D1775:AMP            with     1.000820e+00 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB09:CAV6_D1775:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB09:CAV7_D1779:PHA            with     3.390880e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB09:CAV7_D1779:AMP            with     9.997340e-01 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB09:CAV7_D1779:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB09:SOL3_D1785:B              with     8.001890e+00 which was     8.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB09:DCH_D1785:ANG             with     2.492767e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB09:DCV_D1785:ANG             with     1.570465e-04 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB09:CAV8_D1791:PHA            with     3.200360e+02 which was    -4.000000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB09:CAV8_D1791:AMP            with     1.000610e+00 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB09:CAV8_D1791:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB10:CAV1_D1802:PHA            with     3.203010e+02 which was    -4.000000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB10:CAV1_D1802:AMP            with     9.996000e-01 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB10:CAV1_D1802:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB10:SOL1_D1809:B              with     7.749010e+00 which was     7.750000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB10:DCH_D1809:ANG             with     3.655232e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB10:DCV_D1809:ANG             with     1.264144e-04 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB10:CAV2_D1814:PHA            with     3.393240e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB10:CAV2_D1814:AMP            with     1.000910e+00 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB10:CAV2_D1814:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB10:CAV3_D1818:PHA            with     3.390250e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB10:CAV3_D1818:AMP            with     9.994330e-01 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB10:CAV3_D1818:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB10:CAV4_D1822:PHA            with     3.388440e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB10:CAV4_D1822:AMP            with     9.994380e-01 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB10:CAV4_D1822:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB10:SOL2_D1829:B              with     6.994130e+00 which was     7.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB10:DCH_D1829:ANG             with     2.698156e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB10:DCV_D1829:ANG             with     1.175848e-04 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB10:CAV5_D1834:PHA            with     3.387830e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB10:CAV5_D1834:AMP            with     9.995520e-01 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB10:CAV5_D1834:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB10:CAV6_D1838:PHA            with     3.387250e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB10:CAV6_D1838:AMP            with     9.990580e-01 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB10:CAV6_D1838:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB10:CAV7_D1842:PHA            with     3.390490e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB10:CAV7_D1842:AMP            with     9.999340e-01 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB10:CAV7_D1842:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB10:SOL3_D1849:B              with     7.905410e+00 which was     7.900000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB10:DCH_D1849:ANG             with     2.113782e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB10:DCV_D1849:ANG             with     1.199720e-04 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB10:CAV8_D1854:PHA            with     3.197850e+02 which was    -4.000000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB10:CAV8_D1854:AMP            with     1.000070e+00 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB10:CAV8_D1854:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB11:CAV1_D1866:PHA            with     3.202250e+02 which was    -4.000000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB11:CAV1_D1866:AMP            with     9.990750e-01 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB11:CAV1_D1866:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB11:SOL1_D1872:B              with     8.007310e+00 which was     8.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB11:DCH_D1872:ANG             with     2.547615e-06 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB11:DCV_D1872:ANG             with     1.185693e-04 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB11:CAV2_D1878:PHA            with     3.390510e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB11:CAV2_D1878:AMP            with     9.992410e-01 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB11:CAV2_D1878:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB11:CAV3_D1882:PHA            with     3.391770e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB11:CAV3_D1882:AMP            with     1.000910e+00 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB11:CAV3_D1882:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB11:CAV4_D1886:PHA            with     3.392040e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB11:CAV4_D1886:AMP            with     1.000350e+00 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB11:CAV4_D1886:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB11:SOL2_D1892:B              with     6.804030e+00 which was     6.800000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB11:DCH_D1892:ANG             with     1.326001e-06 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB11:DCV_D1892:ANG             with     1.366346e-04 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB11:CAV5_D1898:PHA            with     3.388820e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB11:CAV5_D1898:AMP            with     1.000910e+00 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB11:CAV5_D1898:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB11:CAV6_D1902:PHA            with     3.390610e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB11:CAV6_D1902:AMP            with     1.000770e+00 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB11:CAV6_D1902:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB11:CAV7_D1906:PHA            with     3.389030e+02 which was    -2.100000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB11:CAV7_D1906:AMP            with     1.000920e+00 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB11:CAV7_D1906:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CB11:SOL3_D1912:B              with     8.199510e+00 which was     8.200000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB11:DCH_D1912:ANG             with     2.690965e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB11:DCV_D1912:ANG             with     1.371947e-04 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB11:CAV8_D1918:PHA            with     3.200170e+02 which was    -4.000000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CB11:CAV8_D1918:AMP            with     9.991860e-01 which was     1.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_CB11:CAV8_D1918:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_BTS:DCH_D1937:ANG              with     6.371497e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_BTS:DCV_D1937:ANG              with     5.264227e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_BTS:QH_D1942:GRAD              with    -2.589870e+01 which was    -2.591660e+01
+2017-01-25 14:47:16 [ model ] set LS1_BTS:QV_D1950:GRAD              with     2.329430e+01 which was     2.331490e+01
+2017-01-25 14:47:16 [ model ] set LS1_BTS:DCH_D1964:ANG              with     9.024803e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_BTS:DCV_D1964:ANG              with     9.118409e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_BTS:QH_D1969:GRAD              with    -2.156500e+01 which was    -2.158410e+01
+2017-01-25 14:47:16 [ model ] set LS1_BTS:QV_D1976:GRAD              with     2.241300e+01 which was     2.242750e+01
+2017-01-25 14:47:16 [ model ] set LS1_BTS:DCH_D1997:ANG              with     1.029333e-04 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_BTS:DCV_D1997:ANG              with     7.340509e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_BTS:QH_D2002:GRAD              with    -1.822420e+01 which was    -1.821570e+01
+2017-01-25 14:47:16 [ model ] set LS1_BTS:QV_D2013:GRAD              with     1.823180e+01 which was     1.821570e+01
+2017-01-25 14:47:16 [ model ] set LS1_BTS:DCH_D2024:ANG              with     7.814611e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_BTS:DCV_D2024:ANG              with     9.453954e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_BTS:QH_D2029:GRAD              with    -1.822060e+01 which was    -1.821570e+01
+2017-01-25 14:47:16 [ model ] set LS1_BTS:QV_D2042:GRAD              with     1.821200e+01 which was     1.821570e+01
+2017-01-25 14:47:16 [ model ] set LS1_BTS:DCH_D2061:ANG              with     8.913037e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_BTS:DCV_D2061:ANG              with     1.168848e-04 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_BTS:QV_D2066:GRAD              with    -1.541710e+01 which was    -1.543190e+01
+2017-01-25 14:47:16 [ model ] set LS1_BTS:QH_D2073:GRAD              with     1.490280e+01 which was     1.489850e+01
+2017-01-25 14:47:16 [ model ] set LS1_CH01:CAV1_D2085:PHA            with     2.700630e+02 which was    -9.000000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CH01:CAV1_D2085:AMP            with     4.699550e-01 which was     4.700000e-01
+2017-01-25 14:47:16 [ model ] set LS1_CH01:CAV1_D2085:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CH01:CAV2_D2089:PHA            with     2.701990e+02 which was    -9.000000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CH01:CAV2_D2089:AMP            with     4.699990e-01 which was     4.700000e-01
+2017-01-25 14:47:16 [ model ] set LS1_CH01:CAV2_D2089:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CH01:CAV3_D2096:PHA            with     2.702340e+02 which was    -9.000000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CH01:CAV3_D2096:AMP            with     4.695930e-01 which was     4.700000e-01
+2017-01-25 14:47:16 [ model ] set LS1_CH01:CAV3_D2096:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_CH01:CAV4_D2100:PHA            with     2.702350e+02 which was    -9.000000e+01
+2017-01-25 14:47:16 [ model ] set LS1_CH01:CAV4_D2100:AMP            with     4.701850e-01 which was     4.700000e-01
+2017-01-25 14:47:16 [ model ] set LS1_CH01:CAV4_D2100:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set LS1_BTS:DCH_D2114:ANG              with     1.037429e-04 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_BTS:DCV_D2114:ANG              with     1.731763e-04 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set LS1_BTS:QV_D2118:GRAD              with    -1.465780e+01 which was    -1.466490e+01
+2017-01-25 14:47:16 [ model ] set LS1_BTS:QH_D2126:GRAD              with     1.489180e+01 which was     1.488870e+01
+2017-01-25 14:47:16 [ model ] set FS1_CH02:CAV1_D2139:PHA            with     2.698620e+02 which was    -9.000000e+01
+2017-01-25 14:47:16 [ model ] set FS1_CH02:CAV1_D2139:AMP            with     4.704040e-01 which was     4.700000e-01
+2017-01-25 14:47:16 [ model ] set FS1_CH02:CAV1_D2139:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set FS1_CH02:CAV2_D2143:PHA            with     2.699440e+02 which was    -9.000000e+01
+2017-01-25 14:47:16 [ model ] set FS1_CH02:CAV2_D2143:AMP            with     4.698940e-01 which was     4.700000e-01
+2017-01-25 14:47:16 [ model ] set FS1_CH02:CAV2_D2143:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set FS1_CH02:CAV3_D2150:PHA            with     2.702330e+02 which was    -9.000000e+01
+2017-01-25 14:47:16 [ model ] set FS1_CH02:CAV3_D2150:AMP            with     4.703860e-01 which was     4.700000e-01
+2017-01-25 14:47:16 [ model ] set FS1_CH02:CAV3_D2150:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set FS1_CH02:CAV4_D2154:PHA            with     2.697460e+02 which was    -9.000000e+01
+2017-01-25 14:47:16 [ model ] set FS1_CH02:CAV4_D2154:AMP            with     4.701810e-01 which was     4.700000e-01
+2017-01-25 14:47:16 [ model ] set FS1_CH02:CAV4_D2154:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set FS1_CSS:DH_D2163:B                 with     1.905090e-01 which was     1.903700e-01
+2017-01-25 14:47:16 [ model ] set FS1_CSS:DH_D2163:ANG               with    -5.000000e+00 which was    -5.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_CSS:DH_D2163:ENTANG            with     0.000000e+00 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_CSS:DH_D2163:EXTANG            with    -5.000000e+00 which was    -5.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_CSS:DH_D2169:B                 with     1.903040e-01 which was     1.903700e-01
+2017-01-25 14:47:16 [ model ] set FS1_CSS:DH_D2169:ANG               with     5.000000e+00 which was     5.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_CSS:DH_D2169:ENTANG            with     5.000000e+00 which was     5.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_CSS:DH_D2169:EXTANG            with     0.000000e+00 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_CSS:DH_D2174:B                 with     1.904680e-01 which was     1.903700e-01
+2017-01-25 14:47:16 [ model ] set FS1_CSS:DH_D2174:ANG               with     5.000000e+00 which was     5.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_CSS:DH_D2174:ENTANG            with     0.000000e+00 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_CSS:DH_D2174:EXTANG            with     5.000000e+00 which was     5.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_CSS:DH_D2180:B                 with     1.902140e-01 which was     1.903700e-01
+2017-01-25 14:47:16 [ model ] set FS1_CSS:DH_D2180:ANG               with    -5.000000e+00 which was    -5.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_CSS:DH_D2180:ENTANG            with    -5.000000e+00 which was    -5.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_CSS:DH_D2180:EXTANG            with     0.000000e+00 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_CSS:DCH_D2189:ANG              with     1.695397e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_CSS:DCV_D2189:ANG              with     7.486326e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_CSS:QH_D2194:GRAD              with     3.459870e+00 which was     3.459800e+00
+2017-01-25 14:47:16 [ model ] set FS1_CSS:QV_D2202:GRAD              with    -1.228970e+01 which was    -1.228350e+01
+2017-01-25 14:47:16 [ model ] set FS1_CSS:DCH_D2210:ANG              with    -3.733697e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_CSS:DCV_D2210:ANG              with     6.529757e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_CSS:QH_D2215:GRAD              with     2.466510e+01 which was     2.464830e+01
+2017-01-25 14:47:16 [ model ] set FS1_CSS:QV_D2220:GRAD              with    -2.101640e+01 which was    -2.103410e+01
+2017-01-25 14:47:16 [ model ] set FS1_CSS:QV_D2254:GRAD              with    -6.890650e+00 which was    -6.884700e+00
+2017-01-25 14:47:16 [ model ] set FS1_CSS:DCH_D2257:ANG              with    -3.480023e-06 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_CSS:DCV_D2257:ANG              with     5.076802e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_CSS:QH_D2260:GRAD              with     8.496910e+00 which was     8.499800e+00
+2017-01-25 14:47:16 [ model ] set FS1_CSS:QV_D2272:GRAD              with    -4.887410e+00 which was    -4.884400e+00
+2017-01-25 14:47:16 [ model ] set FS1_CSS:DCH_D2275:ANG              with     5.830643e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_CSS:DCV_D2275:ANG              with     7.869388e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_CSS:QH_D2280:GRAD              with     1.685040e+00 which was     1.684800e+00
+2017-01-25 14:47:16 [ model ] set FS1_CSS:DH_D2293:B                 with     1.888310e-01 which was     1.887870e-01
+2017-01-25 14:47:16 [ model ] set FS1_CSS:DH_D2293:ANG               with    -5.000000e+00 which was    -5.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_CSS:DH_D2293:ENTANG            with     0.000000e+00 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_CSS:DH_D2293:EXTANG            with    -5.000000e+00 which was    -5.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_CSS:DH_D2298:B                 with     1.889020e-01 which was     1.887870e-01
+2017-01-25 14:47:16 [ model ] set FS1_CSS:DH_D2298:ANG               with     5.000000e+00 which was     5.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_CSS:DH_D2298:ENTANG            with     5.000000e+00 which was     5.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_CSS:DH_D2298:EXTANG            with     0.000000e+00 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_CSS:DH_D2305:B                 with     1.887500e-01 which was     1.887870e-01
+2017-01-25 14:47:16 [ model ] set FS1_CSS:DH_D2305:ANG               with     5.000000e+00 which was     5.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_CSS:DH_D2305:ENTANG            with     0.000000e+00 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_CSS:DH_D2305:EXTANG            with     5.000000e+00 which was     5.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_CSS:DH_D2310:B                 with     1.887250e-01 which was     1.887870e-01
+2017-01-25 14:47:16 [ model ] set FS1_CSS:DH_D2310:ANG               with    -5.000000e+00 which was    -5.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_CSS:DH_D2310:ENTANG            with    -5.000000e+00 which was    -5.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_CSS:DH_D2310:EXTANG            with     0.000000e+00 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_CH03:CAV1_D2321:PHA            with     2.702160e+02 which was    -9.000000e+01
+2017-01-25 14:47:16 [ model ] set FS1_CH03:CAV1_D2321:AMP            with     2.750390e-01 which was     2.750000e-01
+2017-01-25 14:47:16 [ model ] set FS1_CH03:CAV1_D2321:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set FS1_CH03:CAV2_D2325:PHA            with     2.697680e+02 which was    -9.000000e+01
+2017-01-25 14:47:16 [ model ] set FS1_CH03:CAV2_D2325:AMP            with     2.749760e-01 which was     2.750000e-01
+2017-01-25 14:47:16 [ model ] set FS1_CH03:CAV2_D2325:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set FS1_CH03:CAV3_D2332:PHA            with     2.702260e+02 which was    -9.000000e+01
+2017-01-25 14:47:16 [ model ] set FS1_CH03:CAV3_D2332:AMP            with     2.747710e-01 which was     2.750000e-01
+2017-01-25 14:47:16 [ model ] set FS1_CH03:CAV3_D2332:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set FS1_CH03:CAV4_D2336:PHA            with     2.698010e+02 which was    -9.000000e+01
+2017-01-25 14:47:16 [ model ] set FS1_CH03:CAV4_D2336:AMP            with     2.747770e-01 which was     2.750000e-01
+2017-01-25 14:47:16 [ model ] set FS1_CH03:CAV4_D2336:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set FS1_CSS:DCH_D2351:ANG              with     7.509116e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_CSS:DCV_D2351:ANG              with     8.308293e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_CSS:QH_D2356:GRAD              with     8.302380e+00 which was     8.302200e+00
+2017-01-25 14:47:16 [ model ] set FS1_CSS:QH_D2362:GRAD              with     1.185430e+00 which was     1.185800e+00
+2017-01-25 14:47:16 [ model ] set FS1_CSS:DCH_D2367:ANG              with     8.840517e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_CSS:DCV_D2367:ANG              with     1.856656e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_CSS:QV_D2372:GRAD              with    -1.112800e+01 which was    -1.112810e+01
+2017-01-25 14:47:16 [ model ] set FS1_CSS:QH_D2377:GRAD              with     1.169620e+01 which was     1.169920e+01
+2017-01-25 14:47:16 [ model ] set FS1_CSS:DCH_D2381:ANG              with     1.318737e-04 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_CSS:DCV_D2381:ANG              with     4.050864e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_BBS:DH_D2394:B                 with     1.910310e-01 which was     1.908750e-01
+2017-01-25 14:47:16 [ model ] set FS1_BBS:DH_D2394:ANG               with     4.500000e+01 which was     4.500000e+01
+2017-01-25 14:47:16 [ model ] set FS1_BBS:DH_D2394:ENTANG            with     7.000000e+00 which was     7.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_BBS:DH_D2394:EXTANG            with     7.000000e+00 which was     7.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_BBS:DCH_D2412:ANG              with     2.966974e-04 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_BBS:DCV_D2412:ANG              with     5.189363e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_BBS:QH_D2416:GRAD              with     8.970450e+00 which was     8.972500e+00
+2017-01-25 14:47:16 [ model ] set FS1_BBS:QV_D2424:GRAD              with    -4.073790e+00 which was    -4.076800e+00
+2017-01-25 14:47:16 [ model ] set FS1_BBS:DH_D2435:B                 with     1.910080e-01 which was     1.908750e-01
+2017-01-25 14:47:16 [ model ] set FS1_BBS:DH_D2435:ANG               with     4.500000e+01 which was     4.500000e+01
+2017-01-25 14:47:16 [ model ] set FS1_BBS:DH_D2435:ENTANG            with     7.000000e+00 which was     7.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_BBS:DH_D2435:EXTANG            with     7.000000e+00 which was     7.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_BBS:DH_D2453:B                 with     1.907060e-01 which was     1.908750e-01
+2017-01-25 14:47:16 [ model ] set FS1_BBS:DH_D2453:ANG               with     4.500000e+01 which was     4.500000e+01
+2017-01-25 14:47:16 [ model ] set FS1_BBS:DH_D2453:ENTANG            with     7.000000e+00 which was     7.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_BBS:DH_D2453:EXTANG            with     7.000000e+00 which was     7.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_BBS:QV_D2463:GRAD              with    -4.075530e+00 which was    -4.076800e+00
+2017-01-25 14:47:16 [ model ] set FS1_BBS:QH_D2472:GRAD              with     8.972170e+00 which was     8.972500e+00
+2017-01-25 14:47:16 [ model ] set FS1_BBS:DCH_D2476:ANG              with     3.269031e-04 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_BBS:DCV_D2476:ANG              with     4.539220e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_BBS:DH_D2494:B                 with     1.907190e-01 which was     1.908750e-01
+2017-01-25 14:47:16 [ model ] set FS1_BBS:DH_D2494:ANG               with     4.500000e+01 which was     4.500000e+01
+2017-01-25 14:47:16 [ model ] set FS1_BBS:DH_D2494:ENTANG            with     7.000000e+00 which was     7.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_BBS:DH_D2494:EXTANG            with     7.000000e+00 which was     7.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_BMS:DCH_D2507:ANG              with     1.225131e-04 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_BMS:DCV_D2507:ANG              with     1.272729e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_BMS:QV_D2511:GRAD              with    -5.377800e+00 which was    -5.372900e+00
+2017-01-25 14:47:16 [ model ] set FS1_BMS:QH_D2515:GRAD              with     7.159050e+00 which was     7.163900e+00
+2017-01-25 14:47:16 [ model ] set FS1_BMS:DCH_D2534:ANG              with     1.104537e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_BMS:DCV_D2534:ANG              with     1.475904e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_BMS:QV_D2539:GRAD              with    -4.117500e+00 which was    -4.120600e+00
+2017-01-25 14:47:16 [ model ] set FS1_BMS:QH_D2563:GRAD              with     2.479790e+00 which was     2.482000e+00
+2017-01-25 14:47:16 [ model ] set FS1_BMS:DCH_D2585:ANG              with    -5.681274e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_BMS:DCV_D2585:ANG              with     1.079859e-04 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_BMS:QV_D2590:GRAD              with    -7.030390e+00 which was    -7.031500e+00
+2017-01-25 14:47:16 [ model ] set FS1_BMS:QH_D2597:GRAD              with     5.061370e+00 which was     5.064400e+00
+2017-01-25 14:47:16 [ model ] set FS1_CH04:CAV1_D2608:PHA            with     2.697840e+02 which was    -9.000000e+01
+2017-01-25 14:47:16 [ model ] set FS1_CH04:CAV1_D2608:AMP            with     2.500650e-01 which was     2.500000e-01
+2017-01-25 14:47:16 [ model ] set FS1_CH04:CAV1_D2608:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set FS1_CH04:CAV2_D2612:PHA            with     2.702540e+02 which was    -9.000000e+01
+2017-01-25 14:47:16 [ model ] set FS1_CH04:CAV2_D2612:AMP            with     2.501290e-01 which was     2.500000e-01
+2017-01-25 14:47:16 [ model ] set FS1_CH04:CAV2_D2612:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set FS1_CH04:CAV3_D2619:PHA            with     2.701800e+02 which was    -9.000000e+01
+2017-01-25 14:47:16 [ model ] set FS1_CH04:CAV3_D2619:AMP            with     2.497850e-01 which was     2.500000e-01
+2017-01-25 14:47:16 [ model ] set FS1_CH04:CAV3_D2619:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set FS1_CH04:CAV4_D2623:PHA            with     2.701190e+02 which was    -9.000000e+01
+2017-01-25 14:47:16 [ model ] set FS1_CH04:CAV4_D2623:AMP            with     2.500290e-01 which was     2.500000e-01
+2017-01-25 14:47:16 [ model ] set FS1_CH04:CAV4_D2623:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set FS1_CH02:CAV4_D2630:PHA            with     2.702070e+02 which was    -9.000000e+01
+2017-01-25 14:47:16 [ model ] set FS1_CH02:CAV4_D2630:AMP            with     0.000000e+00 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_CH02:CAV4_D2630:FREQ           with     8.050000e+07 which was     8.050000e+07
+2017-01-25 14:47:16 [ model ] set FS1_BMS:DCH_D2640:ANG              with    -1.119162e-04 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_BMS:DCV_D2640:ANG              with     7.694050e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_BMS:QH_D2645:GRAD              with     3.583760e+00 which was     3.581900e+00
+2017-01-25 14:47:16 [ model ] set FS1_BMS:QV_D2654:GRAD              with    -5.373150e+00 which was    -5.372900e+00
+2017-01-25 14:47:16 [ model ] set FS1_BMS:DCH_D2662:ANG              with     3.657365e-06 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_BMS:DCV_D2662:ANG              with     6.064034e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_BMS:QH_D2666:GRAD              with     5.306460e+00 which was     5.310800e+00
+2017-01-25 14:47:16 [ model ] set FS1_BMS:QH_D2679:GRAD              with    -6.966740e+00 which was    -6.973700e+00
+2017-01-25 14:47:16 [ model ] set FS1_BMS:DCH_D2689:ANG              with     8.366061e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_BMS:DCV_D2689:ANG              with     7.502720e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [ model ] set FS1_BMS:QV_D2693:GRAD              with     1.025220e+01 which was     1.024300e+01
+2017-01-25 14:47:16 [ model ] set FS1_BMS:QH_D2698:GRAD              with    -1.155840e+01 which was    -1.155900e+01
+2017-01-25 14:47:16 [control] set V_1:LS1_CA01:CAV1_D1127:PHA_CSET   with     3.250260e+02 which was     3.250000e+02
+2017-01-25 14:47:16 [control] set V_1:LS1_CA01:CAV1_D1127:AMPL_CSET  with     6.405610e-01 which was     6.400000e-01
+2017-01-25 14:47:16 [control] set V_1:LS1_CA01:SOL1_D1131:B_CSET     with     5.340220e+00 which was     5.340000e+00
+2017-01-25 14:47:16 [control] set V_1:LS1_CA01:DCH_D1131:ANG_CSET    with     8.558077e-05 which was     1.000000e-03
+2017-01-25 14:47:16 [control] set V_1:LS1_CA01:DCV_D1131:ANG_CSET    with     2.114499e-04 which was     0.000000e+00
+2017-01-25 14:47:16 [control] set V_1:LS1_CA01:CAV2_D1135:PHA_CSET   with     3.251560e+02 which was     3.250000e+02
+2017-01-25 14:47:16 [control] set V_1:LS1_CA01:CAV2_D1135:AMPL_CSET  with     6.996910e-01 which was     7.000000e-01
+2017-01-25 14:47:16 [control] set V_1:LS1_CA01:CAV3_D1143:PHA_CSET   with     3.249820e+02 which was     3.250000e+02
+2017-01-25 14:47:16 [control] set V_1:LS1_CA01:CAV3_D1143:AMPL_CSET  with     7.604370e-01 which was     7.600000e-01
+2017-01-25 14:47:16 [control] set V_1:LS1_CA01:SOL2_D1147:B_CSET     with     5.900720e+00 which was     5.900000e+00
+2017-01-25 14:47:16 [control] set V_1:LS1_CA01:DCH_D1147:ANG_CSET    with     4.108329e-05 which was     0.000000e+00
+2017-01-25 14:47:16 [control] set V_1:LS1_CA01:DCV_D1147:ANG_CSET    with     2.316525e-04 which was     0.000000e+00
+2017-01-25 14:47:16 [control] set V_1:LS1_CA01:CAV4_D1150:PHA_CSET   with     3.250500e+02 which was     3.250000e+02
+2017-01-25 14:47:16 [control] set V_1:LS1_CA01:CAV4_D1150:AMPL_CSET  with     8.206650e-01 which was     8.200000e-01
+2017-01-25 14:47:16 [control] set V_1:LS1_CA02:CAV1_D1161:PHA_CSET   with     3.253170e+02 which was     3.250000e+02
+2017-01-25 14:47:16 [control] set V_1:LS1_CA02:CAV1_D1161:AMPL_CSET  with     8.806980e-01 which was     8.800000e-01
+2017-01-25 14:47:16 [control] set V_1:LS1_CA02:SOL1_D1165:B_CSET     with     6.498340e+00 which was     6.500000e+00
+2017-01-25 14:47:16 [control] set V_1:LS1_CA02:DCH_D1165:ANG_CSET    with    -2.918382e-05 which was     0.000000e+00
+2017-01-25 14:47:17 [control] set V_1:LS1_CA02:DCV_D1165:ANG_CSET    with     8.132171e-05 which was     0.000000e+00
+2017-01-25 14:47:17 [control] set V_1:LS1_CA02:CAV2_D1169:PHA_CSET   with     3.248840e+02 which was     3.250000e+02
+2017-01-25 14:47:17 [control] set V_1:LS1_CA02:CAV2_D1169:AMPL_CSET  with     9.401210e-01 which was     9.400000e-01
+2017-01-25 14:47:17 [control] set V_1:LS1_CA02:CAV3_D1176:PHA_CSET   with     3.253000e+02 which was     3.250000e+02
+2017-01-25 14:47:17 [control] set V_1:LS1_CA02:CAV3_D1176:AMPL_CSET  with     1.000810e+00 which was     1.000000e+00
+2017-01-25 14:47:17 [control] set V_1:LS1_CA02:SOL2_D1180:B_CSET     with     6.893670e+00 which was     6.900000e+00
+2017-01-25 14:47:17 [control] set V_1:LS1_CA02:DCH_D1180:ANG_CSET    with     3.665278e-05 which was     0.000000e+00
+2017-01-25 14:47:17 [control] set V_1:LS1_CA02:DCV_D1180:ANG_CSET    with     2.586874e-05 which was     0.000000e+00
+2017-01-25 14:47:17 [control] set V_1:LS1_CA02:CAV4_D1184:PHA_CSET   with     3.248370e+02 which was     3.250000e+02
+2017-01-25 14:47:17 [control] set V_1:LS1_CA02:CAV4_D1184:AMPL_CSET  with     9.996910e-01 which was     1.000000e+00
+2017-01-25 14:47:17 [control] set V_1:LS1_CA03:CAV1_D1194:PHA_CSET   with     3.247200e+02 which was     3.250000e+02
+2017-01-25 14:47:17 [control] set V_1:LS1_CA03:CAV1_D1194:AMPL_CSET  with     9.999850e-01 which was     1.000000e+00
+2017-01-25 14:47:17 [control] set V_1:LS1_CA03:SOL1_D1199:B_CSET     with     7.196490e+00 which was     7.200000e+00
+2017-01-25 14:47:17 [control] set V_1:LS1_CA03:DCH_D1199:ANG_CSET    with     1.956160e-04 which was     0.000000e+00
+2017-01-25 14:47:17 [control] set V_1:LS1_CA03:DCV_D1199:ANG_CSET    with    -5.627057e-05 which was     0.000000e+00
+2017-01-25 14:47:17 [control] set V_1:LS1_CA03:CAV2_D1202:PHA_CSET   with     3.247350e+02 which was     3.250000e+02
+2017-01-25 14:47:17 [control] set V_1:LS1_CA03:CAV2_D1202:AMPL_CSET  with     1.000810e+00 which was     1.000000e+00
+2017-01-25 14:47:17 [control] set V_1:LS1_CA03:CAV3_D1210:PHA_CSET   with     3.246870e+02 which was     3.250000e+02
+2017-01-25 14:47:17 [control] set V_1:LS1_CA03:CAV3_D1210:AMPL_CSET  with     1.000680e+00 which was     1.000000e+00
+2017-01-25 14:47:17 [control] set V_1:LS1_CA03:SOL2_D1214:B_CSET     with     7.697650e+00 which was     7.700000e+00
+2017-01-25 14:47:17 [control] set V_1:LS1_CA03:DCH_D1214:ANG_CSET    with     2.061395e-04 which was     0.000000e+00
+2017-01-25 14:47:17 [control] set V_1:LS1_CA03:DCV_D1214:ANG_CSET    with     1.039936e-04 which was     0.000000e+00
+2017-01-25 14:47:17 [control] set V_1:LS1_CA03:CAV4_D1218:PHA_CSET   with     3.147200e+02 which was     3.150000e+02
+2017-01-25 14:47:17 [control] set V_1:LS1_CA03:CAV4_D1218:AMPL_CSET  with     1.000400e+00 which was     1.000000e+00
+2017-01-25 14:47:17 [control] set V_1:LS1_CB01:CAV1_D1229:PHA_CSET   with     3.197780e+02 which was     3.200000e+02
+2017-01-25 14:47:17 [control] set V_1:LS1_CB01:CAV1_D1229:AMPL_CSET  with     9.999900e-01 which was     1.000000e+00
+2017-01-25 14:47:17 [control] set V_1:LS1_CB01:SOL1_D1235:B_CSET     with     5.002160e+00 which was     5.000000e+00
+2017-01-25 14:47:17 [control] set V_1:LS1_CB01:DCH_D1235:ANG_CSET    with     3.185674e-04 which was     0.000000e+00
+2017-01-25 14:47:17 [control] set V_1:LS1_CB01:DCV_D1235:ANG_CSET    with     4.660995e-04 which was     0.000000e+00
+2017-01-25 14:47:17 [control] set V_1:LS1_CB01:CAV2_D1241:PHA_CSET   with     3.390560e+02 which was     3.390000e+02
+2017-01-25 14:47:17 [control] set V_1:LS1_CB01:CAV2_D1241:AMPL_CSET  with     1.000220e+00 which was     1.000000e+00
+2017-01-25 14:47:17 [control] set V_1:LS1_CB01:CAV3_D1245:PHA_CSET   with     3.388440e+02 which was     3.390000e+02
+2017-01-25 14:47:17 [control] set V_1:LS1_CB01:CAV3_D1245:AMPL_CSET  with     9.998670e-01 which was     1.000000e+00
+2017-01-25 14:47:17 [control] set V_1:LS1_CB01:CAV4_D1249:PHA_CSET   with     3.390670e+02 which was     3.390000e+02
+2017-01-25 14:47:17 [control] set V_1:LS1_CB01:CAV4_D1249:AMPL_CSET  with     9.992470e-01 which was     1.000000e+00
+2017-01-25 14:47:17 [control] set V_1:LS1_CB01:SOL2_D1255:B_CSET     with     5.198390e+00 which was     5.200000e+00
+2017-01-25 14:47:18 [control] set V_1:LS1_CB01:DCH_D1255:ANG_CSET    with    -1.159787e-05 which was     0.000000e+00
+2017-01-25 14:47:18 [control] set V_1:LS1_CB01:DCV_D1255:ANG_CSET    with     3.778586e-04 which was     0.000000e+00
+2017-01-25 14:47:18 [control] set V_1:LS1_CB01:CAV5_D1261:PHA_CSET   with     3.387170e+02 which was     3.390000e+02
+2017-01-25 14:47:18 [control] set V_1:LS1_CB01:CAV5_D1261:AMPL_CSET  with     9.996430e-01 which was     1.000000e+00
+2017-01-25 14:47:18 [control] set V_1:LS1_CB01:CAV6_D1265:PHA_CSET   with     3.390800e+02 which was     3.390000e+02
+2017-01-25 14:47:18 [control] set V_1:LS1_CB01:CAV6_D1265:AMPL_CSET  with     1.000500e+00 which was     1.000000e+00
+2017-01-25 14:47:18 [control] set V_1:LS1_CB01:CAV7_D1269:PHA_CSET   with     3.391650e+02 which was     3.390000e+02
+2017-01-25 14:47:18 [control] set V_1:LS1_CB01:CAV7_D1269:AMPL_CSET  with     1.000180e+00 which was     1.000000e+00
+2017-01-25 14:47:18 [control] set V_1:LS1_CB01:SOL3_D1275:B_CSET     with     5.100610e+00 which was     5.100000e+00
+2017-01-25 14:47:18 [control] set V_1:LS1_CB01:DCH_D1275:ANG_CSET    with    -1.166574e-04 which was     0.000000e+00
+2017-01-25 14:47:18 [control] set V_1:LS1_CB01:DCV_D1275:ANG_CSET    with     5.915238e-04 which was     0.000000e+00
+2017-01-25 14:47:18 [control] set V_1:LS1_CB01:CAV8_D1281:PHA_CSET   with     3.203150e+02 which was     3.200000e+02
+2017-01-25 14:47:18 [control] set V_1:LS1_CB01:CAV8_D1281:AMPL_CSET  with     1.000580e+00 which was     1.000000e+00
+2017-01-25 14:47:18 [control] set V_1:LS1_CB02:CAV1_D1293:PHA_CSET   with     3.197740e+02 which was     3.200000e+02
+2017-01-25 14:47:18 [control] set V_1:LS1_CB02:CAV1_D1293:AMPL_CSET  with     9.992780e-01 which was     1.000000e+00
+2017-01-25 14:47:18 [control] set V_1:LS1_CB02:SOL1_D1299:B_CSET     with     4.997160e+00 which was     5.000000e+00
+2017-01-25 14:47:18 [control] set V_1:LS1_CB02:DCH_D1299:ANG_CSET    with    -2.742477e-05 which was     0.000000e+00
+2017-01-25 14:47:18 [control] set V_1:LS1_CB02:DCV_D1299:ANG_CSET    with     5.924082e-04 which was     0.000000e+00
+2017-01-25 14:47:18 [control] set V_1:LS1_CB02:CAV2_D1305:PHA_CSET   with     3.392420e+02 which was     3.390000e+02
+2017-01-25 14:47:18 [control] set V_1:LS1_CB02:CAV2_D1305:AMPL_CSET  with     1.000390e+00 which was     1.000000e+00
+2017-01-25 14:47:18 [control] set V_1:LS1_CB02:CAV3_D1309:PHA_CSET   with     3.387600e+02 which was     3.390000e+02
+2017-01-25 14:47:18 [control] set V_1:LS1_CB02:CAV3_D1309:AMPL_CSET  with     1.000940e+00 which was     1.000000e+00
+2017-01-25 14:47:18 [control] set V_1:LS1_CB02:CAV4_D1313:PHA_CSET   with     3.387740e+02 which was     3.390000e+02
+2017-01-25 14:47:18 [control] set V_1:LS1_CB02:CAV4_D1313:AMPL_CSET  with     1.000920e+00 which was     1.000000e+00
+2017-01-25 14:47:18 [control] set V_1:LS1_CB02:SOL2_D1319:B_CSET     with     4.897220e+00 which was     4.900000e+00
+2017-01-25 14:47:18 [control] set V_1:LS1_CB02:DCH_D1319:ANG_CSET    with     3.564029e-05 which was     0.000000e+00
+2017-01-25 14:47:18 [control] set V_1:LS1_CB02:DCV_D1319:ANG_CSET    with     5.131160e-04 which was     0.000000e+00
+2017-01-25 14:47:18 [control] set V_1:LS1_CB02:CAV5_D1325:PHA_CSET   with     3.387800e+02 which was     3.390000e+02
+2017-01-25 14:47:18 [control] set V_1:LS1_CB02:CAV5_D1325:AMPL_CSET  with     9.991720e-01 which was     1.000000e+00
+2017-01-25 14:47:18 [control] set V_1:LS1_CB02:CAV6_D1329:PHA_CSET   with     3.392820e+02 which was     3.390000e+02
+2017-01-25 14:47:18 [control] set V_1:LS1_CB02:CAV6_D1329:AMPL_CSET  with     1.000250e+00 which was     1.000000e+00
+2017-01-25 14:47:18 [control] set V_1:LS1_CB02:CAV7_D1333:PHA_CSET   with     3.386900e+02 which was     3.390000e+02
+2017-01-25 14:47:18 [control] set V_1:LS1_CB02:CAV7_D1333:AMPL_CSET  with     9.993460e-01 which was     1.000000e+00
+2017-01-25 14:47:18 [control] set V_1:LS1_CB02:SOL3_D1339:B_CSET     with     5.514460e+00 which was     5.510000e+00
+2017-01-25 14:47:18 [control] set V_1:LS1_CB02:DCH_D1339:ANG_CSET    with     1.696891e-05 which was     0.000000e+00
+2017-01-25 14:47:19 [control] set V_1:LS1_CB02:DCV_D1339:ANG_CSET    with     4.471688e-04 which was     0.000000e+00
+2017-01-25 14:47:19 [control] set V_1:LS1_CB02:CAV8_D1345:PHA_CSET   with     3.197660e+02 which was     3.200000e+02
+2017-01-25 14:47:19 [control] set V_1:LS1_CB02:CAV8_D1345:AMPL_CSET  with     9.997690e-01 which was     1.000000e+00
+2017-01-25 14:47:19 [control] set V_1:LS1_CB03:CAV1_D1356:PHA_CSET   with     3.201050e+02 which was     3.200000e+02
+2017-01-25 14:47:19 [control] set V_1:LS1_CB03:CAV1_D1356:AMPL_CSET  with     9.999660e-01 which was     1.000000e+00
+2017-01-25 14:47:19 [control] set V_1:LS1_CB03:SOL1_D1363:B_CSET     with     5.560730e+00 which was     5.560000e+00
+2017-01-25 14:47:19 [control] set V_1:LS1_CB03:DCH_D1363:ANG_CSET    with    -5.341783e-05 which was     0.000000e+00
+2017-01-25 14:47:19 [control] set V_1:LS1_CB03:DCV_D1363:ANG_CSET    with     3.959728e-04 which was     0.000000e+00
+2017-01-25 14:47:19 [control] set V_1:LS1_CB03:CAV2_D1368:PHA_CSET   with     3.386810e+02 which was     3.390000e+02
+2017-01-25 14:47:19 [control] set V_1:LS1_CB03:CAV2_D1368:AMPL_CSET  with     9.990920e-01 which was     1.000000e+00
+2017-01-25 14:47:19 [control] set V_1:LS1_CB03:CAV3_D1372:PHA_CSET   with     3.389850e+02 which was     3.390000e+02
+2017-01-25 14:47:19 [control] set V_1:LS1_CB03:CAV3_D1372:AMPL_CSET  with     1.000020e+00 which was     1.000000e+00
+2017-01-25 14:47:19 [control] set V_1:LS1_CB03:CAV4_D1376:PHA_CSET   with     3.388490e+02 which was     3.390000e+02
+2017-01-25 14:47:19 [control] set V_1:LS1_CB03:CAV4_D1376:AMPL_CSET  with     1.000930e+00 which was     1.000000e+00
+2017-01-25 14:47:19 [control] set V_1:LS1_CB03:SOL2_D1383:B_CSET     with     5.300400e+00 which was     5.300000e+00
+2017-01-25 14:47:19 [control] set V_1:LS1_CB03:DCH_D1383:ANG_CSET    with    -1.458076e-05 which was     0.000000e+00
+2017-01-25 14:47:19 [control] set V_1:LS1_CB03:DCV_D1383:ANG_CSET    with     3.930138e-04 which was     0.000000e+00
+2017-01-25 14:47:19 [control] set V_1:LS1_CB03:CAV5_D1388:PHA_CSET   with     3.389420e+02 which was     3.390000e+02
+2017-01-25 14:47:19 [control] set V_1:LS1_CB03:CAV5_D1388:AMPL_CSET  with     9.996490e-01 which was     1.000000e+00
+2017-01-25 14:47:19 [control] set V_1:LS1_CB03:CAV6_D1392:PHA_CSET   with     3.389490e+02 which was     3.390000e+02
+2017-01-25 14:47:19 [control] set V_1:LS1_CB03:CAV6_D1392:AMPL_CSET  with     9.993760e-01 which was     1.000000e+00
+2017-01-25 14:47:19 [control] set V_1:LS1_CB03:CAV7_D1396:PHA_CSET   with     3.392200e+02 which was     3.390000e+02
+2017-01-25 14:47:19 [control] set V_1:LS1_CB03:CAV7_D1396:AMPL_CSET  with     1.000060e+00 which was     1.000000e+00
+2017-01-25 14:47:19 [control] set V_1:LS1_CB03:SOL3_D1403:B_CSET     with     6.120350e+00 which was     6.120000e+00
+2017-01-25 14:47:19 [control] set V_1:LS1_CB03:DCH_D1403:ANG_CSET    with     2.911475e-05 which was     0.000000e+00
+2017-01-25 14:47:19 [control] set V_1:LS1_CB03:DCV_D1403:ANG_CSET    with     3.554568e-04 which was     0.000000e+00
+2017-01-25 14:47:19 [control] set V_1:LS1_CB03:CAV8_D1408:PHA_CSET   with     3.197410e+02 which was     3.200000e+02
+2017-01-25 14:47:19 [control] set V_1:LS1_CB03:CAV8_D1408:AMPL_CSET  with     1.000990e+00 which was     1.000000e+00
+2017-01-25 14:47:19 [control] set V_1:LS1_CB04:CAV1_D1420:PHA_CSET   with     3.200080e+02 which was     3.200000e+02
+2017-01-25 14:47:19 [control] set V_1:LS1_CB04:CAV1_D1420:AMPL_CSET  with     9.999830e-01 which was     1.000000e+00
+2017-01-25 14:47:19 [control] set V_1:LS1_CB04:SOL1_D1426:B_CSET     with     6.147550e+00 which was     6.150000e+00
+2017-01-25 14:47:19 [control] set V_1:LS1_CB04:DCH_D1426:ANG_CSET    with     1.241861e-06 which was     0.000000e+00
+2017-01-25 14:47:19 [control] set V_1:LS1_CB04:DCV_D1426:ANG_CSET    with     2.759759e-04 which was     0.000000e+00
+2017-01-25 14:47:19 [control] set V_1:LS1_CB04:CAV2_D1432:PHA_CSET   with     3.392600e+02 which was     3.390000e+02
+2017-01-25 14:47:19 [control] set V_1:LS1_CB04:CAV2_D1432:AMPL_CSET  with     1.000270e+00 which was     1.000000e+00
+2017-01-25 14:47:19 [control] set V_1:LS1_CB04:CAV3_D1436:PHA_CSET   with     3.391660e+02 which was     3.390000e+02
+2017-01-25 14:47:19 [control] set V_1:LS1_CB04:CAV3_D1436:AMPL_CSET  with     1.000800e+00 which was     1.000000e+00
+2017-01-25 14:47:19 [control] set V_1:LS1_CB04:CAV4_D1440:PHA_CSET   with     3.388100e+02 which was     3.390000e+02
+2017-01-25 14:47:20 [control] set V_1:LS1_CB04:CAV4_D1440:AMPL_CSET  with     9.990240e-01 which was     1.000000e+00
+2017-01-25 14:47:20 [control] set V_1:LS1_CB04:SOL2_D1446:B_CSET     with     5.702140e+00 which was     5.700000e+00
+2017-01-25 14:47:20 [control] set V_1:LS1_CB04:DCH_D1446:ANG_CSET    with     2.757316e-06 which was     0.000000e+00
+2017-01-25 14:47:20 [control] set V_1:LS1_CB04:DCV_D1446:ANG_CSET    with     2.655762e-04 which was     0.000000e+00
+2017-01-25 14:47:20 [control] set V_1:LS1_CB04:CAV5_D1452:PHA_CSET   with     3.391260e+02 which was     3.390000e+02
+2017-01-25 14:47:20 [control] set V_1:LS1_CB04:CAV5_D1452:AMPL_CSET  with     1.000380e+00 which was     1.000000e+00
+2017-01-25 14:47:20 [control] set V_1:LS1_CB04:CAV6_D1456:PHA_CSET   with     3.392570e+02 which was     3.390000e+02
+2017-01-25 14:47:20 [control] set V_1:LS1_CB04:CAV6_D1456:AMPL_CSET  with     1.000580e+00 which was     1.000000e+00
+2017-01-25 14:47:20 [control] set V_1:LS1_CB04:CAV7_D1460:PHA_CSET   with     3.389070e+02 which was     3.390000e+02
+2017-01-25 14:47:20 [control] set V_1:LS1_CB04:CAV7_D1460:AMPL_CSET  with     9.998240e-01 which was     1.000000e+00
+2017-01-25 14:47:20 [control] set V_1:LS1_CB04:SOL3_D1466:B_CSET     with     6.731440e+00 which was     6.730000e+00
+2017-01-25 14:47:20 [control] set V_1:LS1_CB04:DCH_D1466:ANG_CSET    with     1.858397e-05 which was     0.000000e+00
+2017-01-25 14:47:20 [control] set V_1:LS1_CB04:DCV_D1466:ANG_CSET    with     2.557104e-04 which was     0.000000e+00
+2017-01-25 14:47:20 [control] set V_1:LS1_CB04:CAV8_D1472:PHA_CSET   with     3.200170e+02 which was     3.200000e+02
+2017-01-25 14:47:20 [control] set V_1:LS1_CB04:CAV8_D1472:AMPL_CSET  with     1.000980e+00 which was     1.000000e+00
+2017-01-25 14:47:20 [control] set V_1:LS1_CB05:CAV1_D1484:PHA_CSET   with     3.201240e+02 which was     3.200000e+02
+2017-01-25 14:47:20 [control] set V_1:LS1_CB05:CAV1_D1484:AMPL_CSET  with     1.000620e+00 which was     1.000000e+00
+2017-01-25 14:47:20 [control] set V_1:LS1_CB05:SOL1_D1490:B_CSET     with     6.752670e+00 which was     6.750000e+00
+2017-01-25 14:47:20 [control] set V_1:LS1_CB05:DCH_D1490:ANG_CSET    with     8.744746e-06 which was     0.000000e+00
+2017-01-25 14:47:20 [control] set V_1:LS1_CB05:DCV_D1490:ANG_CSET    with     2.198508e-04 which was     0.000000e+00
+2017-01-25 14:47:20 [control] set V_1:LS1_CB05:CAV2_D1496:PHA_CSET   with     3.389380e+02 which was     3.390000e+02
+2017-01-25 14:47:20 [control] set V_1:LS1_CB05:CAV2_D1496:AMPL_CSET  with     9.999740e-01 which was     1.000000e+00
+2017-01-25 14:47:20 [control] set V_1:LS1_CB05:CAV3_D1500:PHA_CSET   with     3.388710e+02 which was     3.390000e+02
+2017-01-25 14:47:20 [control] set V_1:LS1_CB05:CAV3_D1500:AMPL_CSET  with     9.990960e-01 which was     1.000000e+00
+2017-01-25 14:47:20 [control] set V_1:LS1_CB05:CAV4_D1504:PHA_CSET   with     3.390130e+02 which was     3.390000e+02
+2017-01-25 14:47:20 [control] set V_1:LS1_CB05:CAV4_D1504:AMPL_CSET  with     9.998280e-01 which was     1.000000e+00
+2017-01-25 14:47:20 [control] set V_1:LS1_CB05:SOL2_D1510:B_CSET     with     6.104260e+00 which was     6.100000e+00
+2017-01-25 14:47:20 [control] set V_1:LS1_CB05:DCH_D1510:ANG_CSET    with     2.847134e-05 which was     0.000000e+00
+2017-01-25 14:47:20 [control] set V_1:LS1_CB05:DCV_D1510:ANG_CSET    with     2.182069e-04 which was     0.000000e+00
+2017-01-25 14:47:20 [control] set V_1:LS1_CB05:CAV5_D1516:PHA_CSET   with     3.388490e+02 which was     3.390000e+02
+2017-01-25 14:47:20 [control] set V_1:LS1_CB05:CAV5_D1516:AMPL_CSET  with     1.000180e+00 which was     1.000000e+00
+2017-01-25 14:47:20 [control] set V_1:LS1_CB05:CAV6_D1520:PHA_CSET   with     3.390100e+02 which was     3.390000e+02
+2017-01-25 14:47:20 [control] set V_1:LS1_CB05:CAV6_D1520:AMPL_CSET  with     9.991480e-01 which was     1.000000e+00
+2017-01-25 14:47:20 [control] set V_1:LS1_CB05:CAV7_D1524:PHA_CSET   with     3.390020e+02 which was     3.390000e+02
+2017-01-25 14:47:20 [control] set V_1:LS1_CB05:CAV7_D1524:AMPL_CSET  with     1.000860e+00 which was     1.000000e+00
+2017-01-25 14:47:20 [control] set V_1:LS1_CB05:SOL3_D1530:B_CSET     with     7.326710e+00 which was     7.330000e+00
+2017-01-25 14:47:20 [control] set V_1:LS1_CB05:DCH_D1530:ANG_CSET    with     5.045231e-05 which was     0.000000e+00
+2017-01-25 14:47:21 [control] set V_1:LS1_CB05:DCV_D1530:ANG_CSET    with     1.958347e-04 which was     0.000000e+00
+2017-01-25 14:47:21 [control] set V_1:LS1_CB05:CAV8_D1536:PHA_CSET   with     3.201240e+02 which was     3.200000e+02
+2017-01-25 14:47:21 [control] set V_1:LS1_CB05:CAV8_D1536:AMPL_CSET  with     1.000830e+00 which was     1.000000e+00
+2017-01-25 14:47:21 [control] set V_1:LS1_CB06:CAV1_D1548:PHA_CSET   with     3.197880e+02 which was     3.200000e+02
+2017-01-25 14:47:21 [control] set V_1:LS1_CB06:CAV1_D1548:AMPL_CSET  with     9.992720e-01 which was     1.000000e+00
+2017-01-25 14:47:21 [control] set V_1:LS1_CB06:SOL1_D1554:B_CSET     with     7.343470e+00 which was     7.340000e+00
+2017-01-25 14:47:21 [control] set V_1:LS1_CB06:DCH_D1554:ANG_CSET    with     1.208387e-05 which was     0.000000e+00
+2017-01-25 14:47:21 [control] set V_1:LS1_CB06:DCV_D1554:ANG_CSET    with     1.532280e-04 which was     0.000000e+00
+2017-01-25 14:47:21 [control] set V_1:LS1_CB06:CAV2_D1560:PHA_CSET   with     3.393280e+02 which was     3.390000e+02
+2017-01-25 14:47:21 [control] set V_1:LS1_CB06:CAV2_D1560:AMPL_CSET  with     1.000950e+00 which was     1.000000e+00
+2017-01-25 14:47:21 [control] set V_1:LS1_CB06:CAV3_D1564:PHA_CSET   with     3.390330e+02 which was     3.390000e+02
+2017-01-25 14:47:21 [control] set V_1:LS1_CB06:CAV3_D1564:AMPL_CSET  with     9.998570e-01 which was     1.000000e+00
+2017-01-25 14:47:21 [control] set V_1:LS1_CB06:CAV4_D1567:PHA_CSET   with     3.392350e+02 which was     3.390000e+02
+2017-01-25 14:47:21 [control] set V_1:LS1_CB06:CAV4_D1567:AMPL_CSET  with     1.000480e+00 which was     1.000000e+00
+2017-01-25 14:47:21 [control] set V_1:LS1_CB06:SOL2_D1574:B_CSET     with     6.493830e+00 which was     6.500000e+00
+2017-01-25 14:47:21 [control] set V_1:LS1_CB06:DCH_D1574:ANG_CSET    with     8.392307e-06 which was     0.000000e+00
+2017-01-25 14:47:21 [control] set V_1:LS1_CB06:DCV_D1574:ANG_CSET    with     1.785921e-04 which was     0.000000e+00
+2017-01-25 14:47:21 [control] set V_1:LS1_CB06:CAV5_D1580:PHA_CSET   with     3.389820e+02 which was     3.390000e+02
+2017-01-25 14:47:21 [control] set V_1:LS1_CB06:CAV5_D1580:AMPL_CSET  with     9.999750e-01 which was     1.000000e+00
+2017-01-25 14:47:21 [control] set V_1:LS1_CB06:CAV6_D1583:PHA_CSET   with     3.389250e+02 which was     3.390000e+02
+2017-01-25 14:47:21 [control] set V_1:LS1_CB06:CAV6_D1583:AMPL_CSET  with     1.000210e+00 which was     1.000000e+00
+2017-01-25 14:47:21 [control] set V_1:LS1_CB06:CAV7_D1587:PHA_CSET   with     3.387080e+02 which was     3.390000e+02
+2017-01-25 14:47:21 [control] set V_1:LS1_CB06:CAV7_D1587:AMPL_CSET  with     1.000030e+00 which was     1.000000e+00
+2017-01-25 14:47:21 [control] set V_1:LS1_CB06:SOL3_D1594:B_CSET     with     7.498980e+00 which was     7.500000e+00
+2017-01-25 14:47:21 [control] set V_1:LS1_CB06:DCH_D1594:ANG_CSET    with     4.846719e-05 which was     0.000000e+00
+2017-01-25 14:47:21 [control] set V_1:LS1_CB06:DCV_D1594:ANG_CSET    with     1.812818e-04 which was     0.000000e+00
+2017-01-25 14:47:21 [control] set V_1:LS1_CB06:CAV8_D1599:PHA_CSET   with     3.200840e+02 which was     3.200000e+02
+2017-01-25 14:47:21 [control] set V_1:LS1_CB06:CAV8_D1599:AMPL_CSET  with     1.000320e+00 which was     1.000000e+00
+2017-01-25 14:47:21 [control] set V_1:LS1_CB07:CAV1_D1611:PHA_CSET   with     3.201350e+02 which was     3.200000e+02
+2017-01-25 14:47:21 [control] set V_1:LS1_CB07:CAV1_D1611:AMPL_CSET  with     1.000560e+00 which was     1.000000e+00
+2017-01-25 14:47:21 [control] set V_1:LS1_CB07:SOL1_D1618:B_CSET     with     7.500740e+00 which was     7.500000e+00
+2017-01-25 14:47:21 [control] set V_1:LS1_CB07:DCH_D1618:ANG_CSET    with     4.604899e-05 which was     0.000000e+00
+2017-01-25 14:47:21 [control] set V_1:LS1_CB07:DCV_D1618:ANG_CSET    with     1.264110e-04 which was     0.000000e+00
+2017-01-25 14:47:21 [control] set V_1:LS1_CB07:CAV2_D1623:PHA_CSET   with     3.387040e+02 which was     3.390000e+02
+2017-01-25 14:47:21 [control] set V_1:LS1_CB07:CAV2_D1623:AMPL_CSET  with     9.990830e-01 which was     1.000000e+00
+2017-01-25 14:47:21 [control] set V_1:LS1_CB07:CAV3_D1627:PHA_CSET   with     3.387840e+02 which was     3.390000e+02
+2017-01-25 14:47:21 [control] set V_1:LS1_CB07:CAV3_D1627:AMPL_CSET  with     1.000480e+00 which was     1.000000e+00
+2017-01-25 14:47:22 [control] set V_1:LS1_CB07:CAV4_D1631:PHA_CSET   with     3.389140e+02 which was     3.390000e+02
+2017-01-25 14:47:22 [control] set V_1:LS1_CB07:CAV4_D1631:AMPL_CSET  with     1.000870e+00 which was     1.000000e+00
+2017-01-25 14:47:22 [control] set V_1:LS1_CB07:SOL2_D1637:B_CSET     with     6.795600e+00 which was     6.800000e+00
+2017-01-25 14:47:22 [control] set V_1:LS1_CB07:DCH_D1637:ANG_CSET    with     2.166667e-05 which was     0.000000e+00
+2017-01-25 14:47:22 [control] set V_1:LS1_CB07:DCV_D1637:ANG_CSET    with     1.354626e-04 which was     0.000000e+00
+2017-01-25 14:47:22 [control] set V_1:LS1_CB07:CAV5_D1643:PHA_CSET   with     3.391080e+02 which was     3.390000e+02
+2017-01-25 14:47:22 [control] set V_1:LS1_CB07:CAV5_D1643:AMPL_CSET  with     9.992720e-01 which was     1.000000e+00
+2017-01-25 14:47:22 [control] set V_1:LS1_CB07:CAV6_D1647:PHA_CSET   with     3.390400e+02 which was     3.390000e+02
+2017-01-25 14:47:22 [control] set V_1:LS1_CB07:CAV6_D1647:AMPL_CSET  with     9.991060e-01 which was     1.000000e+00
+2017-01-25 14:47:22 [control] set V_1:LS1_CB07:CAV7_D1651:PHA_CSET   with     3.388450e+02 which was     3.390000e+02
+2017-01-25 14:47:22 [control] set V_1:LS1_CB07:CAV7_D1651:AMPL_CSET  with     1.001000e+00 which was     1.000000e+00
+2017-01-25 14:47:22 [control] set V_1:LS1_CB07:SOL3_D1657:B_CSET     with     7.255430e+00 which was     7.250000e+00
+2017-01-25 14:47:22 [control] set V_1:LS1_CB07:DCH_D1657:ANG_CSET    with     3.702705e-05 which was     0.000000e+00
+2017-01-25 14:47:22 [control] set V_1:LS1_CB07:DCV_D1657:ANG_CSET    with     1.585491e-04 which was     0.000000e+00
+2017-01-25 14:47:22 [control] set V_1:LS1_CB07:CAV8_D1663:PHA_CSET   with     3.197310e+02 which was     3.200000e+02
+2017-01-25 14:47:22 [control] set V_1:LS1_CB07:CAV8_D1663:AMPL_CSET  with     9.998190e-01 which was     1.000000e+00
+2017-01-25 14:47:22 [control] set V_1:LS1_CB08:CAV1_D1675:PHA_CSET   with     3.202800e+02 which was     3.200000e+02
+2017-01-25 14:47:22 [control] set V_1:LS1_CB08:CAV1_D1675:AMPL_CSET  with     9.997450e-01 which was     1.000000e+00
+2017-01-25 14:47:22 [control] set V_1:LS1_CB08:SOL1_D1681:B_CSET     with     7.646670e+00 which was     7.650000e+00
+2017-01-25 14:47:22 [control] set V_1:LS1_CB08:DCH_D1681:ANG_CSET    with     4.961025e-05 which was     0.000000e+00
+2017-01-25 14:47:22 [control] set V_1:LS1_CB08:DCV_D1681:ANG_CSET    with     1.519776e-04 which was     0.000000e+00
+2017-01-25 14:47:22 [control] set V_1:LS1_CB08:CAV2_D1687:PHA_CSET   with     3.393250e+02 which was     3.390000e+02
+2017-01-25 14:47:22 [control] set V_1:LS1_CB08:CAV2_D1687:AMPL_CSET  with     9.995400e-01 which was     1.000000e+00
+2017-01-25 14:47:22 [control] set V_1:LS1_CB08:CAV3_D1691:PHA_CSET   with     3.387740e+02 which was     3.390000e+02
+2017-01-25 14:47:22 [control] set V_1:LS1_CB08:CAV3_D1691:AMPL_CSET  with     9.997630e-01 which was     1.000000e+00
+2017-01-25 14:47:22 [control] set V_1:LS1_CB08:CAV4_D1695:PHA_CSET   with     3.387070e+02 which was     3.390000e+02
+2017-01-25 14:47:22 [control] set V_1:LS1_CB08:CAV4_D1695:AMPL_CSET  with     9.992850e-01 which was     1.000000e+00
+2017-01-25 14:47:22 [control] set V_1:LS1_CB08:SOL2_D1701:B_CSET     with     6.993590e+00 which was     7.000000e+00
+2017-01-25 14:47:22 [control] set V_1:LS1_CB08:DCH_D1701:ANG_CSET    with     4.762310e-05 which was     0.000000e+00
+2017-01-25 14:47:22 [control] set V_1:LS1_CB08:DCV_D1701:ANG_CSET    with     1.555919e-04 which was     0.000000e+00
+2017-01-25 14:47:22 [control] set V_1:LS1_CB08:CAV5_D1707:PHA_CSET   with     3.389850e+02 which was     3.390000e+02
+2017-01-25 14:47:22 [control] set V_1:LS1_CB08:CAV5_D1707:AMPL_CSET  with     1.000160e+00 which was     1.000000e+00
+2017-01-25 14:47:22 [control] set V_1:LS1_CB08:CAV6_D1711:PHA_CSET   with     3.387730e+02 which was     3.390000e+02
+2017-01-25 14:47:22 [control] set V_1:LS1_CB08:CAV6_D1711:AMPL_CSET  with     1.000820e+00 which was     1.000000e+00
+2017-01-25 14:47:22 [control] set V_1:LS1_CB08:CAV7_D1715:PHA_CSET   with     3.390830e+02 which was     3.390000e+02
+2017-01-25 14:47:22 [control] set V_1:LS1_CB08:CAV7_D1715:AMPL_CSET  with     9.996280e-01 which was     1.000000e+00
+2017-01-25 14:47:22 [control] set V_1:LS1_CB08:SOL3_D1721:B_CSET     with     7.798280e+00 which was     7.800000e+00
+2017-01-25 14:47:23 [control] set V_1:LS1_CB08:DCH_D1721:ANG_CSET    with     5.211357e-05 which was     0.000000e+00
+2017-01-25 14:47:23 [control] set V_1:LS1_CB08:DCV_D1721:ANG_CSET    with     1.560799e-04 which was     0.000000e+00
+2017-01-25 14:47:23 [control] set V_1:LS1_CB08:CAV8_D1727:PHA_CSET   with     3.199580e+02 which was     3.200000e+02
+2017-01-25 14:47:23 [control] set V_1:LS1_CB08:CAV8_D1727:AMPL_CSET  with     1.000980e+00 which was     1.000000e+00
+2017-01-25 14:47:23 [control] set V_1:LS1_CB09:CAV1_D1739:PHA_CSET   with     3.202540e+02 which was     3.200000e+02
+2017-01-25 14:47:23 [control] set V_1:LS1_CB09:CAV1_D1739:AMPL_CSET  with     9.998860e-01 which was     1.000000e+00
+2017-01-25 14:47:23 [control] set V_1:LS1_CB09:SOL1_D1745:B_CSET     with     7.845980e+00 which was     7.850000e+00
+2017-01-25 14:47:23 [control] set V_1:LS1_CB09:DCH_D1745:ANG_CSET    with     2.838925e-05 which was     0.000000e+00
+2017-01-25 14:47:23 [control] set V_1:LS1_CB09:DCV_D1745:ANG_CSET    with     1.355761e-04 which was     0.000000e+00
+2017-01-25 14:47:23 [control] set V_1:LS1_CB09:CAV2_D1751:PHA_CSET   with     3.390060e+02 which was     3.390000e+02
+2017-01-25 14:47:23 [control] set V_1:LS1_CB09:CAV2_D1751:AMPL_CSET  with     1.000900e+00 which was     1.000000e+00
+2017-01-25 14:47:23 [control] set V_1:LS1_CB09:CAV3_D1755:PHA_CSET   with     3.387610e+02 which was     3.390000e+02
+2017-01-25 14:47:23 [control] set V_1:LS1_CB09:CAV3_D1755:AMPL_CSET  with     9.990020e-01 which was     1.000000e+00
+2017-01-25 14:47:23 [control] set V_1:LS1_CB09:CAV4_D1759:PHA_CSET   with     3.387710e+02 which was     3.390000e+02
+2017-01-25 14:47:23 [control] set V_1:LS1_CB09:CAV4_D1759:AMPL_CSET  with     1.000430e+00 which was     1.000000e+00
+2017-01-25 14:47:23 [control] set V_1:LS1_CB09:SOL2_D1765:B_CSET     with     7.054600e+00 which was     7.050000e+00
+2017-01-25 14:47:23 [control] set V_1:LS1_CB09:DCH_D1765:ANG_CSET    with     1.141837e-05 which was     0.000000e+00
+2017-01-25 14:47:23 [control] set V_1:LS1_CB09:DCV_D1765:ANG_CSET    with     1.465475e-04 which was     0.000000e+00
+2017-01-25 14:47:23 [control] set V_1:LS1_CB09:CAV5_D1771:PHA_CSET   with     3.388470e+02 which was     3.390000e+02
+2017-01-25 14:47:23 [control] set V_1:LS1_CB09:CAV5_D1771:AMPL_CSET  with     1.000210e+00 which was     1.000000e+00
+2017-01-25 14:47:23 [control] set V_1:LS1_CB09:CAV6_D1775:PHA_CSET   with     3.390720e+02 which was     3.390000e+02
+2017-01-25 14:47:23 [control] set V_1:LS1_CB09:CAV6_D1775:AMPL_CSET  with     1.000820e+00 which was     1.000000e+00
+2017-01-25 14:47:23 [control] set V_1:LS1_CB09:CAV7_D1779:PHA_CSET   with     3.390880e+02 which was     3.390000e+02
+2017-01-25 14:47:23 [control] set V_1:LS1_CB09:CAV7_D1779:AMPL_CSET  with     9.997340e-01 which was     1.000000e+00
+2017-01-25 14:47:23 [control] set V_1:LS1_CB09:SOL3_D1785:B_CSET     with     8.001890e+00 which was     8.000000e+00
+2017-01-25 14:47:23 [control] set V_1:LS1_CB09:DCH_D1785:ANG_CSET    with     2.492767e-05 which was     0.000000e+00
+2017-01-25 14:47:23 [control] set V_1:LS1_CB09:DCV_D1785:ANG_CSET    with     1.570465e-04 which was     0.000000e+00
+2017-01-25 14:47:23 [control] set V_1:LS1_CB09:CAV8_D1791:PHA_CSET   with     3.200360e+02 which was     3.200000e+02
+2017-01-25 14:47:23 [control] set V_1:LS1_CB09:CAV8_D1791:AMPL_CSET  with     1.000610e+00 which was     1.000000e+00
+2017-01-25 14:47:23 [control] set V_1:LS1_CB10:CAV1_D1802:PHA_CSET   with     3.203010e+02 which was     3.200000e+02
+2017-01-25 14:47:23 [control] set V_1:LS1_CB10:CAV1_D1802:AMPL_CSET  with     9.996000e-01 which was     1.000000e+00
+2017-01-25 14:47:23 [control] set V_1:LS1_CB10:SOL1_D1809:B_CSET     with     7.749010e+00 which was     7.750000e+00
+2017-01-25 14:47:23 [control] set V_1:LS1_CB10:DCH_D1809:ANG_CSET    with     3.655232e-05 which was     0.000000e+00
+2017-01-25 14:47:23 [control] set V_1:LS1_CB10:DCV_D1809:ANG_CSET    with     1.264144e-04 which was     0.000000e+00
+2017-01-25 14:47:23 [control] set V_1:LS1_CB10:CAV2_D1814:PHA_CSET   with     3.393240e+02 which was     3.390000e+02
+2017-01-25 14:47:23 [control] set V_1:LS1_CB10:CAV2_D1814:AMPL_CSET  with     1.000910e+00 which was     1.000000e+00
+2017-01-25 14:47:23 [control] set V_1:LS1_CB10:CAV3_D1818:PHA_CSET   with     3.390250e+02 which was     3.390000e+02
+2017-01-25 14:47:24 [control] set V_1:LS1_CB10:CAV3_D1818:AMPL_CSET  with     9.994330e-01 which was     1.000000e+00
+2017-01-25 14:47:24 [control] set V_1:LS1_CB10:CAV4_D1822:PHA_CSET   with     3.388440e+02 which was     3.390000e+02
+2017-01-25 14:47:24 [control] set V_1:LS1_CB10:CAV4_D1822:AMPL_CSET  with     9.994380e-01 which was     1.000000e+00
+2017-01-25 14:47:24 [control] set V_1:LS1_CB10:SOL2_D1829:B_CSET     with     6.994130e+00 which was     7.000000e+00
+2017-01-25 14:47:24 [control] set V_1:LS1_CB10:DCH_D1829:ANG_CSET    with     2.698156e-05 which was     0.000000e+00
+2017-01-25 14:47:24 [control] set V_1:LS1_CB10:DCV_D1829:ANG_CSET    with     1.175848e-04 which was     0.000000e+00
+2017-01-25 14:47:24 [control] set V_1:LS1_CB10:CAV5_D1834:PHA_CSET   with     3.387830e+02 which was     3.390000e+02
+2017-01-25 14:47:24 [control] set V_1:LS1_CB10:CAV5_D1834:AMPL_CSET  with     9.995520e-01 which was     1.000000e+00
+2017-01-25 14:47:24 [control] set V_1:LS1_CB10:CAV6_D1838:PHA_CSET   with     3.387250e+02 which was     3.390000e+02
+2017-01-25 14:47:24 [control] set V_1:LS1_CB10:CAV6_D1838:AMPL_CSET  with     9.990580e-01 which was     1.000000e+00
+2017-01-25 14:47:24 [control] set V_1:LS1_CB10:CAV7_D1842:PHA_CSET   with     3.390490e+02 which was     3.390000e+02
+2017-01-25 14:47:24 [control] set V_1:LS1_CB10:CAV7_D1842:AMPL_CSET  with     9.999340e-01 which was     1.000000e+00
+2017-01-25 14:47:24 [control] set V_1:LS1_CB10:SOL3_D1849:B_CSET     with     7.905410e+00 which was     7.900000e+00
+2017-01-25 14:47:24 [control] set V_1:LS1_CB10:DCH_D1849:ANG_CSET    with     2.113782e-05 which was     0.000000e+00
+2017-01-25 14:47:24 [control] set V_1:LS1_CB10:DCV_D1849:ANG_CSET    with     1.199720e-04 which was     0.000000e+00
+2017-01-25 14:47:24 [control] set V_1:LS1_CB10:CAV8_D1854:PHA_CSET   with     3.197850e+02 which was     3.200000e+02
+2017-01-25 14:47:24 [control] set V_1:LS1_CB10:CAV8_D1854:AMPL_CSET  with     1.000070e+00 which was     1.000000e+00
+2017-01-25 14:47:24 [control] set V_1:LS1_CB11:CAV1_D1866:PHA_CSET   with     3.202250e+02 which was     3.200000e+02
+2017-01-25 14:47:24 [control] set V_1:LS1_CB11:CAV1_D1866:AMPL_CSET  with     9.990750e-01 which was     1.000000e+00
+2017-01-25 14:47:24 [control] set V_1:LS1_CB11:SOL1_D1872:B_CSET     with     8.007310e+00 which was     8.000000e+00
+2017-01-25 14:47:24 [control] set V_1:LS1_CB11:DCH_D1872:ANG_CSET    with     2.547615e-06 which was     0.000000e+00
+2017-01-25 14:47:24 [control] set V_1:LS1_CB11:DCV_D1872:ANG_CSET    with     1.185693e-04 which was     0.000000e+00
+2017-01-25 14:47:24 [control] set V_1:LS1_CB11:CAV2_D1878:PHA_CSET   with     3.390510e+02 which was     3.390000e+02
+2017-01-25 14:47:24 [control] set V_1:LS1_CB11:CAV2_D1878:AMPL_CSET  with     9.992410e-01 which was     1.000000e+00
+2017-01-25 14:47:24 [control] set V_1:LS1_CB11:CAV3_D1882:PHA_CSET   with     3.391770e+02 which was     3.390000e+02
+2017-01-25 14:47:24 [control] set V_1:LS1_CB11:CAV3_D1882:AMPL_CSET  with     1.000910e+00 which was     1.000000e+00
+2017-01-25 14:47:24 [control] set V_1:LS1_CB11:CAV4_D1886:PHA_CSET   with     3.392040e+02 which was     3.390000e+02
+2017-01-25 14:47:24 [control] set V_1:LS1_CB11:CAV4_D1886:AMPL_CSET  with     1.000350e+00 which was     1.000000e+00
+2017-01-25 14:47:24 [control] set V_1:LS1_CB11:SOL2_D1892:B_CSET     with     6.804030e+00 which was     6.800000e+00
+2017-01-25 14:47:24 [control] set V_1:LS1_CB11:DCH_D1892:ANG_CSET    with     1.326001e-06 which was     0.000000e+00
+2017-01-25 14:47:24 [control] set V_1:LS1_CB11:DCV_D1892:ANG_CSET    with     1.366346e-04 which was     0.000000e+00
+2017-01-25 14:47:24 [control] set V_1:LS1_CB11:CAV5_D1898:PHA_CSET   with     3.388820e+02 which was     3.390000e+02
+2017-01-25 14:47:24 [control] set V_1:LS1_CB11:CAV5_D1898:AMPL_CSET  with     1.000910e+00 which was     1.000000e+00
+2017-01-25 14:47:24 [control] set V_1:LS1_CB11:CAV6_D1902:PHA_CSET   with     3.390610e+02 which was     3.390000e+02
+2017-01-25 14:47:24 [control] set V_1:LS1_CB11:CAV6_D1902:AMPL_CSET  with     1.000770e+00 which was     1.000000e+00
+2017-01-25 14:47:24 [control] set V_1:LS1_CB11:CAV7_D1906:PHA_CSET   with     3.389030e+02 which was     3.390000e+02
+2017-01-25 14:47:24 [control] set V_1:LS1_CB11:CAV7_D1906:AMPL_CSET  with     1.000920e+00 which was     1.000000e+00
+2017-01-25 14:47:25 [control] set V_1:LS1_CB11:SOL3_D1912:B_CSET     with     8.199510e+00 which was     8.200000e+00
+2017-01-25 14:47:25 [control] set V_1:LS1_CB11:DCH_D1912:ANG_CSET    with     2.690965e-05 which was     0.000000e+00
+2017-01-25 14:47:25 [control] set V_1:LS1_CB11:DCV_D1912:ANG_CSET    with     1.371947e-04 which was     0.000000e+00
+2017-01-25 14:47:25 [control] set V_1:LS1_CB11:CAV8_D1918:PHA_CSET   with     3.200170e+02 which was     3.200000e+02
+2017-01-25 14:47:25 [control] set V_1:LS1_CB11:CAV8_D1918:AMPL_CSET  with     9.991860e-01 which was     1.000000e+00
+2017-01-25 14:47:25 [control] set V_1:LS1_BTS:DCH_D1937:ANG_CSET     with     6.371497e-05 which was     0.000000e+00
+2017-01-25 14:47:25 [control] set V_1:LS1_BTS:DCV_D1937:ANG_CSET     with     5.264227e-05 which was     0.000000e+00
+2017-01-25 14:47:25 [control] set V_1:LS1_BTS:QH_D1942:GRAD_CSET     with    -2.589870e+01 which was    -2.591660e+01
+2017-01-25 14:47:25 [control] set V_1:LS1_BTS:QV_D1950:GRAD_CSET     with     2.329430e+01 which was     2.331490e+01
+2017-01-25 14:47:25 [control] set V_1:LS1_BTS:DCH_D1964:ANG_CSET     with     9.024803e-05 which was     0.000000e+00
+2017-01-25 14:47:25 [control] set V_1:LS1_BTS:DCV_D1964:ANG_CSET     with     9.118409e-05 which was     0.000000e+00
+2017-01-25 14:47:25 [control] set V_1:LS1_BTS:QH_D1969:GRAD_CSET     with    -2.156500e+01 which was    -2.158410e+01
+2017-01-25 14:47:25 [control] set V_1:LS1_BTS:QV_D1976:GRAD_CSET     with     2.241300e+01 which was     2.242750e+01
+2017-01-25 14:47:25 [control] set V_1:LS1_BTS:DCH_D1997:ANG_CSET     with     1.029333e-04 which was     0.000000e+00
+2017-01-25 14:47:25 [control] set V_1:LS1_BTS:DCV_D1997:ANG_CSET     with     7.340509e-05 which was     0.000000e+00
+2017-01-25 14:47:25 [control] set V_1:LS1_BTS:QH_D2002:GRAD_CSET     with    -1.822420e+01 which was    -1.821570e+01
+2017-01-25 14:47:25 [control] set V_1:LS1_BTS:QV_D2013:GRAD_CSET     with     1.823180e+01 which was     1.821570e+01
+2017-01-25 14:47:25 [control] set V_1:LS1_BTS:DCH_D2024:ANG_CSET     with     7.814611e-05 which was     0.000000e+00
+2017-01-25 14:47:25 [control] set V_1:LS1_BTS:DCV_D2024:ANG_CSET     with     9.453954e-05 which was     0.000000e+00
+2017-01-25 14:47:25 [control] set V_1:LS1_BTS:QH_D2029:GRAD_CSET     with    -1.822060e+01 which was    -1.821570e+01
+2017-01-25 14:47:25 [control] set V_1:LS1_BTS:QV_D2042:GRAD_CSET     with     1.821200e+01 which was     1.821570e+01
+2017-01-25 14:47:25 [control] set V_1:LS1_BTS:DCH_D2061:ANG_CSET     with     8.913037e-05 which was     0.000000e+00
+2017-01-25 14:47:25 [control] set V_1:LS1_BTS:DCV_D2061:ANG_CSET     with     1.168848e-04 which was     0.000000e+00
+2017-01-25 14:47:25 [control] set V_1:LS1_BTS:QV_D2066:GRAD_CSET     with    -1.541710e+01 which was    -1.543190e+01
+2017-01-25 14:47:25 [control] set V_1:LS1_BTS:QH_D2073:GRAD_CSET     with     1.490280e+01 which was     1.489850e+01
+2017-01-25 14:47:25 [control] set V_1:LS1_CH01:CAV1_D2085:PHA_CSET   with     2.700630e+02 which was     2.700000e+02
+2017-01-25 14:47:25 [control] set V_1:LS1_CH01:CAV1_D2085:AMPL_CSET  with     4.699550e-01 which was     4.700000e-01
+2017-01-25 14:47:25 [control] set V_1:LS1_CH01:CAV2_D2089:PHA_CSET   with     2.701990e+02 which was     2.700000e+02
+2017-01-25 14:47:25 [control] set V_1:LS1_CH01:CAV2_D2089:AMPL_CSET  with     4.699990e-01 which was     4.700000e-01
+2017-01-25 14:47:25 [control] set V_1:LS1_CH01:CAV3_D2096:PHA_CSET   with     2.702340e+02 which was     2.700000e+02
+2017-01-25 14:47:25 [control] set V_1:LS1_CH01:CAV3_D2096:AMPL_CSET  with     4.695930e-01 which was     4.700000e-01
+2017-01-25 14:47:25 [control] set V_1:LS1_CH01:CAV4_D2100:PHA_CSET   with     2.702350e+02 which was     2.700000e+02
+2017-01-25 14:47:25 [control] set V_1:LS1_CH01:CAV4_D2100:AMPL_CSET  with     4.701850e-01 which was     4.700000e-01
+2017-01-25 14:47:25 [control] set V_1:LS1_BTS:DCH_D2114:ANG_CSET     with     1.037429e-04 which was     0.000000e+00
+2017-01-25 14:47:25 [control] set V_1:LS1_BTS:DCV_D2114:ANG_CSET     with     1.731763e-04 which was     0.000000e+00
+2017-01-25 14:47:25 [control] set V_1:LS1_BTS:QV_D2118:GRAD_CSET     with    -1.465780e+01 which was    -1.466490e+01
+2017-01-25 14:47:25 [control] set V_1:LS1_BTS:QH_D2126:GRAD_CSET     with     1.489180e+01 which was     1.488870e+01
+2017-01-25 14:47:26 [control] set V_1:FS1_CH02:CAV1_D2139:PHA_CSET   with     2.698620e+02 which was     2.700000e+02
+2017-01-25 14:47:26 [control] set V_1:FS1_CH02:CAV1_D2139:AMPL_CSET  with     4.704040e-01 which was     4.700000e-01
+2017-01-25 14:47:26 [control] set V_1:FS1_CH02:CAV2_D2143:PHA_CSET   with     2.699440e+02 which was     2.700000e+02
+2017-01-25 14:47:26 [control] set V_1:FS1_CH02:CAV2_D2143:AMPL_CSET  with     4.698940e-01 which was     4.700000e-01
+2017-01-25 14:47:26 [control] set V_1:FS1_CH02:CAV3_D2150:PHA_CSET   with     2.702330e+02 which was     2.700000e+02
+2017-01-25 14:47:26 [control] set V_1:FS1_CH02:CAV3_D2150:AMPL_CSET  with     4.703860e-01 which was     4.700000e-01
+2017-01-25 14:47:26 [control] set V_1:FS1_CH02:CAV4_D2154:PHA_CSET   with     2.697460e+02 which was     2.700000e+02
+2017-01-25 14:47:26 [control] set V_1:FS1_CH02:CAV4_D2154:AMPL_CSET  with     4.701810e-01 which was     4.700000e-01
+2017-01-25 14:47:26 [control] set V_1:FS1_CSS:DH_D2163:B_CSET        with     1.905090e-01 which was     1.903700e-01
+2017-01-25 14:47:26 [control] set V_1:FS1_CSS:DH_D2169:B_CSET        with     1.903040e-01 which was     1.903700e-01
+2017-01-25 14:47:26 [control] set V_1:FS1_CSS:DH_D2174:B_CSET        with     1.904680e-01 which was     1.903700e-01
+2017-01-25 14:47:26 [control] set V_1:FS1_CSS:DH_D2180:B_CSET        with     1.902140e-01 which was     1.903700e-01
+2017-01-25 14:47:26 [control] set V_1:FS1_CSS:DCH_D2189:ANG_CSET     with     1.695397e-05 which was     0.000000e+00
+2017-01-25 14:47:26 [control] set V_1:FS1_CSS:DCV_D2189:ANG_CSET     with     7.486326e-05 which was     0.000000e+00
+2017-01-25 14:47:26 [control] set V_1:FS1_CSS:QH_D2194:GRAD_CSET     with     3.459870e+00 which was     3.459800e+00
+2017-01-25 14:47:26 [control] set V_1:FS1_CSS:QV_D2202:GRAD_CSET     with    -1.228970e+01 which was    -1.228350e+01
+2017-01-25 14:47:26 [control] set V_1:FS1_CSS:DCH_D2210:ANG_CSET     with    -3.733697e-05 which was     0.000000e+00
+2017-01-25 14:47:26 [control] set V_1:FS1_CSS:DCV_D2210:ANG_CSET     with     6.529757e-05 which was     0.000000e+00
+2017-01-25 14:47:26 [control] set V_1:FS1_CSS:QH_D2215:GRAD_CSET     with     2.466510e+01 which was     2.464830e+01
+2017-01-25 14:47:26 [control] set V_1:FS1_CSS:QV_D2220:GRAD_CSET     with    -2.101640e+01 which was    -2.103410e+01
+2017-01-25 14:47:26 [control] set V_1:FS1_CSS:QV_D2254:GRAD_CSET     with    -6.890650e+00 which was    -6.884700e+00
+2017-01-25 14:47:26 [control] set V_1:FS1_CSS:DCH_D2257:ANG_CSET     with    -3.480023e-06 which was     0.000000e+00
+2017-01-25 14:47:26 [control] set V_1:FS1_CSS:DCV_D2257:ANG_CSET     with     5.076802e-05 which was     0.000000e+00
+2017-01-25 14:47:26 [control] set V_1:FS1_CSS:QH_D2260:GRAD_CSET     with     8.496910e+00 which was     8.499800e+00
+2017-01-25 14:47:26 [control] set V_1:FS1_CSS:QV_D2272:GRAD_CSET     with    -4.887410e+00 which was    -4.884400e+00
+2017-01-25 14:47:26 [control] set V_1:FS1_CSS:DCH_D2275:ANG_CSET     with     5.830643e-05 which was     0.000000e+00
+2017-01-25 14:47:26 [control] set V_1:FS1_CSS:DCV_D2275:ANG_CSET     with     7.869388e-05 which was     0.000000e+00
+2017-01-25 14:47:26 [control] set V_1:FS1_CSS:QH_D2280:GRAD_CSET     with     1.685040e+00 which was     1.684800e+00
+2017-01-25 14:47:26 [control] set V_1:FS1_CSS:DH_D2293:B_CSET        with     1.888310e-01 which was     1.887870e-01
+2017-01-25 14:47:26 [control] set V_1:FS1_CSS:DH_D2298:B_CSET        with     1.889020e-01 which was     1.887870e-01
+2017-01-25 14:47:26 [control] set V_1:FS1_CSS:DH_D2305:B_CSET        with     1.887500e-01 which was     1.887870e-01
+2017-01-25 14:47:26 [control] set V_1:FS1_CSS:DH_D2310:B_CSET        with     1.887250e-01 which was     1.887870e-01
+2017-01-25 14:47:26 [control] set V_1:FS1_CH03:CAV1_D2321:PHA_CSET   with     2.702160e+02 which was     2.700000e+02
+2017-01-25 14:47:26 [control] set V_1:FS1_CH03:CAV1_D2321:AMPL_CSET  with     2.750390e-01 which was     2.750000e-01
+2017-01-25 14:47:26 [control] set V_1:FS1_CH03:CAV2_D2325:PHA_CSET   with     2.697680e+02 which was     2.700000e+02
+2017-01-25 14:47:26 [control] set V_1:FS1_CH03:CAV2_D2325:AMPL_CSET  with     2.749760e-01 which was     2.750000e-01
+2017-01-25 14:47:27 [control] set V_1:FS1_CH03:CAV3_D2332:PHA_CSET   with     2.702260e+02 which was     2.700000e+02
+2017-01-25 14:47:27 [control] set V_1:FS1_CH03:CAV3_D2332:AMPL_CSET  with     2.747710e-01 which was     2.750000e-01
+2017-01-25 14:47:27 [control] set V_1:FS1_CH03:CAV4_D2336:PHA_CSET   with     2.698010e+02 which was     2.700000e+02
+2017-01-25 14:47:27 [control] set V_1:FS1_CH03:CAV4_D2336:AMPL_CSET  with     2.747770e-01 which was     2.750000e-01
+2017-01-25 14:47:27 [control] set V_1:FS1_CSS:DCH_D2351:ANG_CSET     with     7.509116e-05 which was     0.000000e+00
+2017-01-25 14:47:27 [control] set V_1:FS1_CSS:DCV_D2351:ANG_CSET     with     8.308293e-05 which was     0.000000e+00
+2017-01-25 14:47:27 [control] set V_1:FS1_CSS:QH_D2356:GRAD_CSET     with     8.302380e+00 which was     8.302200e+00
+2017-01-25 14:47:27 [control] set V_1:FS1_CSS:QH_D2362:GRAD_CSET     with     1.185430e+00 which was     1.185800e+00
+2017-01-25 14:47:27 [control] set V_1:FS1_CSS:DCH_D2367:ANG_CSET     with     8.840517e-05 which was     0.000000e+00
+2017-01-25 14:47:27 [control] set V_1:FS1_CSS:DCV_D2367:ANG_CSET     with     1.856656e-05 which was     0.000000e+00
+2017-01-25 14:47:27 [control] set V_1:FS1_CSS:QV_D2372:GRAD_CSET     with    -1.112800e+01 which was    -1.112810e+01
+2017-01-25 14:47:27 [control] set V_1:FS1_CSS:QH_D2377:GRAD_CSET     with     1.169620e+01 which was     1.169920e+01
+2017-01-25 14:47:27 [control] set V_1:FS1_CSS:DCH_D2381:ANG_CSET     with     1.318737e-04 which was     0.000000e+00
+2017-01-25 14:47:27 [control] set V_1:FS1_CSS:DCV_D2381:ANG_CSET     with     4.050864e-05 which was     0.000000e+00
+2017-01-25 14:47:27 [control] set V_1:FS1_BBS:DH_D2394:B_CSET        with     1.910310e-01 which was     1.908750e-01
+2017-01-25 14:47:27 [control] set V_1:FS1_BBS:DCH_D2412:ANG_CSET     with     2.966974e-04 which was     0.000000e+00
+2017-01-25 14:47:27 [control] set V_1:FS1_BBS:DCV_D2412:ANG_CSET     with     5.189363e-05 which was     0.000000e+00
+2017-01-25 14:47:27 [control] set V_1:FS1_BBS:QH_D2416:GRAD_CSET     with     8.970450e+00 which was     8.972500e+00
+2017-01-25 14:47:27 [control] set V_1:FS1_BBS:QV_D2424:GRAD_CSET     with    -4.073790e+00 which was    -4.076800e+00
+2017-01-25 14:47:27 [control] set V_1:FS1_BBS:DH_D2435:B_CSET        with     1.910080e-01 which was     1.908750e-01
+2017-01-25 14:47:27 [control] set V_1:FS1_BBS:DH_D2453:B_CSET        with     1.907060e-01 which was     1.908750e-01
+2017-01-25 14:47:27 [control] set V_1:FS1_BBS:QV_D2463:GRAD_CSET     with    -4.075530e+00 which was    -4.076800e+00
+2017-01-25 14:47:27 [control] set V_1:FS1_BBS:QH_D2472:GRAD_CSET     with     8.972170e+00 which was     8.972500e+00
+2017-01-25 14:47:27 [control] set V_1:FS1_BBS:DCH_D2476:ANG_CSET     with     3.269031e-04 which was     0.000000e+00
+2017-01-25 14:47:27 [control] set V_1:FS1_BBS:DCV_D2476:ANG_CSET     with     4.539220e-05 which was     0.000000e+00
+2017-01-25 14:47:27 [control] set V_1:FS1_BBS:DH_D2494:B_CSET        with     1.907190e-01 which was     1.908750e-01
+2017-01-25 14:47:27 [control] set V_1:FS1_BMS:DCH_D2507:ANG_CSET     with     1.225131e-04 which was     0.000000e+00
+2017-01-25 14:47:27 [control] set V_1:FS1_BMS:DCV_D2507:ANG_CSET     with     1.272729e-05 which was     0.000000e+00
+2017-01-25 14:47:27 [control] set V_1:FS1_BMS:QV_D2511:GRAD_CSET     with    -5.377800e+00 which was    -5.372900e+00
+2017-01-25 14:47:27 [control] set V_1:FS1_BMS:QH_D2515:GRAD_CSET     with     7.159050e+00 which was     7.163900e+00
+2017-01-25 14:47:27 [control] set V_1:FS1_BMS:DCH_D2534:ANG_CSET     with     1.104537e-05 which was     0.000000e+00
+2017-01-25 14:47:27 [control] set V_1:FS1_BMS:DCV_D2534:ANG_CSET     with     1.475904e-05 which was     0.000000e+00
+2017-01-25 14:47:27 [control] set V_1:FS1_BMS:QV_D2539:GRAD_CSET     with    -4.117500e+00 which was    -4.120600e+00
+2017-01-25 14:47:27 [control] set V_1:FS1_BMS:QH_D2563:GRAD_CSET     with     2.479790e+00 which was     2.482000e+00
+2017-01-25 14:47:27 [control] set V_1:FS1_BMS:DCH_D2585:ANG_CSET     with    -5.681274e-05 which was     0.000000e+00
+2017-01-25 14:47:27 [control] set V_1:FS1_BMS:DCV_D2585:ANG_CSET     with     1.079859e-04 which was     0.000000e+00
+2017-01-25 14:47:27 [control] set V_1:FS1_BMS:QV_D2590:GRAD_CSET     with    -7.030390e+00 which was    -7.031500e+00
+2017-01-25 14:47:28 [control] set V_1:FS1_BMS:QH_D2597:GRAD_CSET     with     5.061370e+00 which was     5.064400e+00
+2017-01-25 14:47:28 [control] set V_1:FS1_CH04:CAV1_D2608:PHA_CSET   with     2.697840e+02 which was     2.700000e+02
+2017-01-25 14:47:28 [control] set V_1:FS1_CH04:CAV1_D2608:AMPL_CSET  with     2.500650e-01 which was     2.500000e-01
+2017-01-25 14:47:28 [control] set V_1:FS1_CH04:CAV2_D2612:PHA_CSET   with     2.702540e+02 which was     2.700000e+02
+2017-01-25 14:47:28 [control] set V_1:FS1_CH04:CAV2_D2612:AMPL_CSET  with     2.501290e-01 which was     2.500000e-01
+2017-01-25 14:47:28 [control] set V_1:FS1_CH04:CAV3_D2619:PHA_CSET   with     2.701800e+02 which was     2.700000e+02
+2017-01-25 14:47:28 [control] set V_1:FS1_CH04:CAV3_D2619:AMPL_CSET  with     2.497850e-01 which was     2.500000e-01
+2017-01-25 14:47:28 [control] set V_1:FS1_CH04:CAV4_D2623:PHA_CSET   with     2.701190e+02 which was     2.700000e+02
+2017-01-25 14:47:28 [control] set V_1:FS1_CH04:CAV4_D2623:AMPL_CSET  with     2.500290e-01 which was     2.500000e-01
+2017-01-25 14:47:28 [control] set V_1:FS1_CH02:CAV4_D2630:PHA_CSET   with     2.702070e+02 which was     2.700000e+02
+2017-01-25 14:47:28 [control] set V_1:FS1_CH02:CAV4_D2630:AMPL_CSET  with     0.000000e+00 which was     0.000000e+00
+2017-01-25 14:47:28 [control] set V_1:FS1_BMS:DCH_D2640:ANG_CSET     with    -1.119162e-04 which was     0.000000e+00
+2017-01-25 14:47:28 [control] set V_1:FS1_BMS:DCV_D2640:ANG_CSET     with     7.694050e-05 which was     0.000000e+00
+2017-01-25 14:47:28 [control] set V_1:FS1_BMS:QH_D2645:GRAD_CSET     with     3.583760e+00 which was     3.581900e+00
+2017-01-25 14:47:28 [control] set V_1:FS1_BMS:QV_D2654:GRAD_CSET     with    -5.373150e+00 which was    -5.372900e+00
+2017-01-25 14:47:28 [control] set V_1:FS1_BMS:DCH_D2662:ANG_CSET     with     3.657365e-06 which was     0.000000e+00
+2017-01-25 14:47:28 [control] set V_1:FS1_BMS:DCV_D2662:ANG_CSET     with     6.064034e-05 which was     0.000000e+00
+2017-01-25 14:47:28 [control] set V_1:FS1_BMS:QH_D2666:GRAD_CSET     with     5.306460e+00 which was     5.310800e+00
+2017-01-25 14:47:28 [control] set V_1:FS1_BMS:QH_D2679:GRAD_CSET     with    -6.966740e+00 which was    -6.973700e+00
+2017-01-25 14:47:28 [control] set V_1:FS1_BMS:DCH_D2689:ANG_CSET     with     8.366061e-05 which was     0.000000e+00
+2017-01-25 14:47:28 [control] set V_1:FS1_BMS:DCV_D2689:ANG_CSET     with     7.502720e-05 which was     0.000000e+00
+2017-01-25 14:47:28 [control] set V_1:FS1_BMS:QV_D2693:GRAD_CSET     with     1.025220e+01 which was     1.024300e+01
+2017-01-25 14:47:28 [control] set V_1:FS1_BMS:QH_D2698:GRAD_CSET     with    -1.155840e+01 which was    -1.155900e+01
