@@ -66,7 +66,7 @@ def get_readback(pv):
         pv = {'pv': pv}
         rtype = 'list'
     
-    rbk_dict = {k:caget(str(v)) for k,v in pv.iteritems()}
+    rbk_dict = {k:caget(v) for k,v in pv.iteritems()}
 
     if rtype == 'list':
         return rbk_dict['pv']
