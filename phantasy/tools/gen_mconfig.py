@@ -18,7 +18,7 @@ from argparse import ArgumentParser
 from phantasy.facility.frib import generate_inifile
 
 
-parser = ArgumentParser(prog=os.path.basename(sys.argv[0])+" gen_mconfig",
+parser = ArgumentParser(prog=os.path.basename(sys.argv[0])+" gen-mconfig",
                         description="Generate machine configuration files.")
 parser.add_argument("-v", dest="verbosity", nargs='?', type=int, const=1, default=0,
         help="set the amount of output")

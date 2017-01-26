@@ -10,6 +10,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import sys
+import os
 import logging
 import traceback
 from argparse import ArgumentParser
@@ -23,7 +24,8 @@ from .common import loadMachineConfig
 from phantasy.facility.frib.virtaccel import build_flame_virtaccel
 
 
-parser = ArgumentParser(description="Start the virtual accelerator using FLAME simulation")
+parser = ArgumentParser(prog=os.path.basename(sys.argv[0]) + " flame-vastart",
+                        description="Start the virtual accelerator using FLAME simulation")
 parser.add_argument("-v", dest="verbosity", nargs='?', type=int, const=1, default=0, help="set the amount of output")
 parser.add_argument("--mach", dest="machine", help="name of machine or path of machine directory")
 parser.add_argument("--subm", dest="submach", help="name of segment")
