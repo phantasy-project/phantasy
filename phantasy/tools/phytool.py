@@ -21,7 +21,9 @@ The support commands are:
   frib-layout      Generate layout file from FRIB Expanded Lattice File (XLF)
   frib-channels    Generate a channels data file with FRIB naming conventions
   cfutil-export    Export channel data to file or Channel Finder Service
-  gen_mconfig      Generate machine configuration template file
+  cfutil-mark      Mark channel data with more properties and tags
+  gen-mconfig      Generate machine configuration template file
+  admin            Admin commands only for development (requires permission)
   help             Show help information for a specified topic
 """
 
@@ -66,6 +68,10 @@ def main():
     elif cmd == "cfutil-export":
         from . import cfutil_export
         return cfutil_export.main()
+    
+    elif cmd == "cfutil-mark":
+        from .import cfutil_mark
+        return cfutil_mark.main()
 
     elif cmd == "frib-layout":
         from . import frib_layout
@@ -75,9 +81,13 @@ def main():
         from . import frib_channels
         return frib_channels.main()
 
-    elif cmd == "gen_mconfig":
+    elif cmd == "gen-mconfig":
         from . import gen_mconfig
         return gen_mconfig.main()
+
+    elif cmd == "admin":
+        from . import _admin
+        return _admin.main()
 
     elif cmd == "help":
         return print_help()
@@ -129,6 +139,14 @@ def print_help():
     elif cmd == "frib-channels":
         from . import frib_channels
         frib_channels.print_help()
+
+    elif cmd == "gen-mconfig":
+        from . import gen_mconfig
+        gen_mconfig.print_help()
+
+    elif cmd == "admin":
+        from . import _admin
+        _admin.print_help()
 
     else:
         print("No help available for command: {}".format(cmd), file=sys.stderr)

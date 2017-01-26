@@ -49,6 +49,9 @@ def main():
     """
     args = parser.parse_args(sys.argv[2:])
 
+    if len(sys.argv) == 2:
+        print_help()
+
     if args.verbosity == 1:
         logging.getLogger().setLevel(logging.INFO)
     elif args.verbosity > 1:

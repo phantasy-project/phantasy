@@ -24,6 +24,8 @@ parser.add_argument("-v", dest="verbosity", nargs='?', type=int, const=1, defaul
         help="set the amount of output")
 parser.add_argument("filename", nargs="?", help="name or path of configuration file")
 
+print_help = parser.print_help
+
 
 def main():
     args = parser.parse_args(sys.argv[2:])
