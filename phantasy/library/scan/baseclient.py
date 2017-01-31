@@ -1,29 +1,37 @@
-'''
-This module is built on top of PyScanClient library, which uses a RESTful based web service to perform a scan task.
-The scan server host and port could be configured in site configuration file, phyutil.ini. 
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
-The scan server is a RESTful based web service, which was developed at SNS.
-Its binary nightly build could be found at:
-https://ics-web.sns.ornl.gov/css/nightly/
-and source code is managed at github:
-https://github.com/ControlSystemStudio/cs-studio/tree/master/applications/plugins/org.csstudio.scan
+'''General Python client for SCAN service, built on top of PyScanClient
+library, which uses a RESTful web service to manage and proceed scan jobs.
+
+The scan server host and port could be configured in configuration file, e.g.:
+phyutil.ini. 
+
+The scan server was developed at SNS, its nightly built binary could be found
+at: https://ics-web.sns.ornl.gov/css/nightly/ and source code is managed on
+github: https://github.com/ControlSystemStudio/cs-studio/tree/master/applications/scan/scan-plugins/org.csstudio.scan.server
 
 The PyScanClient source code is managed at github:
 https://github.com/PythonScanClient/PyScanClient
-
-Created on Apr 21, 2015
-
-@author: shen
 '''
+
+from __future__ import print_function
+from __future__ import unicode_literals
+from __future__ import absolute_import
+from __future__ import division
 
 import re
 from urlparse import urlparse
+
+import scan
 
 from scan.client.scanclient import ScanClient
 from scan.commands import Set, Loop, Delay, Log, Comment
 
 from scan.client.logdata import createTable
 
+import logging
+_LOGGER = logging.getLogger(__name__)
 
 try:
     # Python 2.X
@@ -33,21 +41,111 @@ except NameError:
     basestring = str
 
 
-# TODO inherit ScanClient class
-class ScanLib():
-    """
-    """
-    def __init__(self, url=None):
-        self.SCAN_SRV_URL = url
-        self.scanclient = None
+class BaseScanClient(scan.ScanClient):
+    __NAME_ID = 1
+    def __init__(self, url=None, **kws):
+        self._url = None
+        if url is None:
+            self.url = 'http://localhost:4810'
+            host, port = 'localhost', 4810
+        else:
+            self.url = url
+            _, host, port = [s.strip('/') for s in re.split('[:]', self.url)]
+        self._host, self._port = host, port
+        scan.ScanClient.__init__(self, host=host, port=port)
+        self._post_init(**kws)
 
-    def updateurl(self, url):
-        if url is None or not re.match(r"https?://.*", url, re.I):
-            raise RuntimeError("machine is not properly initialized yet. Cannot find valid scan server url.")
-        self.SCAN_SRV_URL = url
-        self.scanclient =None
-        self._connectscanserver()
-        
+    @property
+    def url(self):
+        """str: URL of scan server, e.g. http://127.0.0.1:4810."""
+        return self._url
+    
+    @property
+    def host(self):
+        """str: Scan server address, e.g. 127.0.0.1."""
+        return self._host
+    
+    @host.setter
+    def host(self, host):
+        if host is None or host == self.host:
+            pass
+        else:
+            self._host = host
+            scan.ScanClient.__init__(self, host=self.host, port=self.port)
+
+    @property
+    def port(self):
+        """int: Scan server port, e.g. 4810."""
+        return self._port
+    
+    @port.setter
+    def port(self, port):
+        if port is None or port == self.port:
+            pass
+        else:
+            self._port = port
+            scan.ScanClient.__init__(self, host=self.host, port=self.port)
+
+    @url.setter
+    def url(self, url):
+        if url is not None and url == self.url:
+            pass
+        else:
+            urlp = urlparse(url)
+            if urlp.scheme in ['http', 'https']:
+                self._url = urlp.geturl()
+                _, host, port = [s.strip('/') for s in re.split('[:]', self._url)]
+                self._host, self._port = host, port
+                scan.ScanClient.__init__(self, host=self.host, port=self.port)
+            else:
+                raise TypeError("Invalid URL.")
+
+    @property
+    def name(self):
+        """str: Name of the scan task, 'Scan-###' by default, '###' is an
+        auto-incremental integer, ranging from 001-999."""
+        return self._name
+
+    @name.setter
+    def name(self, name):
+        if name is None:
+            self._name = "Scan-{0:03d}".format(BaseScanClient.__NAME_ID)
+            BaseScanClient.__NAME_ID += 1
+        else:
+            self._name = name
+
+    @property
+    def n_sample(self):
+        """int: Counter of DAQ for every *device_set* updating, 1 by default.
+        """
+        return self._n_sample
+    
+    @n_sample.setter
+    def n_sample(self, n):
+        if n is None:
+            self._n_sample = 1
+        elif isinstance(n, (int, float, long)):
+            self._n_sample = int(n)
+        else:
+            raise TypeError("Input should be an integer.")
+
+    def _post_init(self, **kws):
+        pass
+        #self.name = kws.get('name', None)
+        #self.host = kws.get('host', None)
+        #self.port = kws.get('port', None)
+        #self.n_sample = kws.get('n_sample', None)
+
+
+    def __repr__(self):
+        pass
+
+
+    def saveData(self):
+        """Save data
+        """
+        pass
+
     def scan1d(self, device, start, stop, step, meas_dev, **kwds):
         """ Perform a 1-D alignment scan, it checks the readback within given tolerance, 
         or waits callback completion if readback is `False`, for each setting.
@@ -171,14 +269,18 @@ class ScanLib():
                                  readback=readback, tolerance=tolerance, 
                                  timeout=timeout, errhandler=errhandler))
     
-        if self.scanclient is None:
-            self._connectscanserver()
+        #if self.scanclient is None:
+        #    self._connectscanserver()
               
-        scid =self.scanclient.submit(scan_cmds, name=comments)
-        if wait:
-            self.scanclient.waitUntilDone(scid)
+        client = ScanClient()
+        sim = client.simulate(scan_cmds)
+        print(sim.get('simulation'))
+        #scid = client.submit(scan_cmds, name=comments)
+        #scid =self.scanclient.submit(scan_cmds, name=comments)
+        #if wait:
+        #    self.scanclient.waitUntilDone(scid)
             
-        return scid
+        #return scid
     
     def scan2d(self, device1, device2, meas_dev, **kwds):
         """ Perform a 2-D alignment scan, it checks the readback within given tolerance, 
@@ -379,96 +481,4 @@ class ScanLib():
             
         return scid
     
-    def _connectscanserver(self):
-        """Connect to scan server using server information from configuration.
-        """
-        if self.SCAN_SRV_URL is None or not re.match(r"https?://.*", self.SCAN_SRV_URL, re.I):
-            raise RuntimeError("machine is not properly initialized yet. Cannot find valid scan server url.")
 
-        if self.scanclient is None:
-            ss_host = urlparse(self.SCAN_SRV_URL)
-            if ss_host.port is None:
-                self.scanclient = ScanClient(ss_host.hostname)
-            else:
-                self.scanclient = ScanClient(ss_host.hostname, ss_host.port)
-    
-    def deletescan(self, scanid):
-        """Delete a scan task
-        
-        :param scanid: scan id number
-        """
-        if self.scanclient is None:
-            self._connectscanserver()
-        # clean up this scan task          
-        self.scanclient.delete(scanid)
-    
-    def getscanstatus(self, scanid):
-        """Get status of a scan task.
-        Detailed status could be fetched by calling:
-            - state: like 'Idle', 'Running', 'Paused', 'Finished'
-            - name: scan instance name
-            - id: scan id
-            and
-            - isDone(): `True` or `False`
-            - percentage(): Percent of work done, 0...100
-        
-        see :class:`PyScanClient.scan.client.ScanInfo`
-        
-        :param scanid: scan id number
-        :return: ScanInfo object
-        """
-        if self.scanclient is None:
-            self._connectscanserver()
-        # clean up this scan task          
-        return self.scanclient.scanInfo(scanid)
-    
-    def abortscan(self, scanid):
-        """Abort a scan task
-        
-        :param scanid: scan id number
-        """
-        if self.scanclient is None:
-            self._connectscanserver()
-        self.scanclient.abort(scanid)
-    
-    def pausescan(self, scanid):
-        """Pause a scan task
-        
-        :param scanid: scan id number
-        """
-        if self.scanclient is None:
-            self._connectscanserver()
-        self.scanclient.pause(scanid)
-    
-    def resumescan(self, scanid):
-        """Resume a scan task
-        
-        :param scanid: scan id number
-        """
-        if self.scanclient is None:
-            self._connectscanserver()
-        self.scanclient.resume(scanid)
-    
-    def getscandata(self, scanid, devicelist, dtype="table"):
-        """Get scan results
-        
-        :param scanid:     scan id number
-        :param devicelist: a list of all wished device, which is used for table format
-        :param dtype:      returned data format, either "table" or "dict"
-        """
-    
-        if self.scanclient is None:
-            self._connectscanserver()
-        data = self.scanclient.getData(scanid)
-        
-        if dtype=="table":
-            # Create table
-            return createTable(data, *devicelist)
-        elif dtype=="dict":
-            # return dictionary
-            return data
-        else:
-            raise Exception("Unsupported return data type")
-    
-    # TODO add method to save scan data into database
-    
