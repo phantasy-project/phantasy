@@ -1,10 +1,9 @@
 """
 Channel finder serice source: database (sqlite)
 
-.. moduleauthor::
-
-    Guobao Shen <shen@frib.msu.edu>
-    Tong Zhang <zhangt@frib.msu.edu>
+.. Authors:
+..    Guobao Shen <shen@frib.msu.edu>
+..    Tong Zhang <zhangt@frib.msu.edu>
 """
 
 import getpass

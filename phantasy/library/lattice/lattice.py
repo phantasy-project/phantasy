@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""For original version of this model, see 'lattice_bak.py' in the present
-directory.
-
-Create Lattice object.
+"""Create high-level lattice object from machine configuration files.
 """
 
 from __future__ import absolute_import
@@ -379,7 +376,7 @@ class Lattice(object):
 
         Keyword Arguments
         -----------------
-        _source : str
+        source : str
             Three options available: 'all', 'control' and 'model', by default
             'all', i.e. update both 'control' and 'model' environment.
 
@@ -408,13 +405,13 @@ class Lattice(object):
             print("Element has not defined field.")
             return None
         
-        _source = kws.get('_source', 'all')
-        if _source == 'all':
+        source = kws.get('source', 'all')
+        if source == 'all':
             self._set_control_field(_elem, field, value)
             self._set_model_field(_elem, field, value)
-        elif _source == 'control':
+        elif source == 'control':
             self._set_control_field(_elem, field, value)
-        elif _source == 'model':
+        elif source == 'model':
             self._set_model_field(_elem, field, value)
         else:
             raise RuntimeError("Invalid source.")
@@ -503,7 +500,7 @@ class Lattice(object):
 
         Keyword Arguments
         -----------------
-        _source : str
+        source : str
             Two options available: 'control' and 'model', by default 'control'
             i.e. only get from 'control' environment.
 
@@ -523,11 +520,11 @@ class Lattice(object):
             print("Wrong field.")
             return None
 
-        _source = kws.get('_source', 'control')
+        source = kws.get('source', 'control')
 
-        if _source == 'control':
+        if source == 'control':
             retval = self._get_control_field(_elem, field)
-        elif _source == 'model':
+        elif source == 'model':
             retval = self._get_model_field(_elem, field)
         else:
             raise RuntimeError("Invalid source.")
@@ -812,7 +809,7 @@ class Lattice(object):
             for elem in self.getElementList('*'):
                 if elem.name in model_settings:
                     if not self._skip_elements(elem.name):
-                        for field,value in self.get(elem=elem, _source='control').iteritems():
+                        for field,value in self.get(elem=elem, source='control').iteritems():
                             if field in model_settings[elem.name]:
                                 self._set_model_field(elem, field, value)
                                 # model_settings[elem.name][field] = value

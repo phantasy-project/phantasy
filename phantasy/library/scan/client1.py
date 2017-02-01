@@ -14,6 +14,7 @@ import numpy as np
 import scan
 
 from .baseclient import BaseScanClient
+from .datautil import ScanDataFactory
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -382,8 +383,23 @@ class ScanClient1D(BaseScanClient):
         sim = self.simulate(self.scan_commands)
         return sim.get('simulation')
         
-        
-        
+    def get_data(self):
+        """Get scan result data.
 
-
-        
+        Returns
+        -------
+        ret :
+            ScanDataFactory object.
+        """
+        data = self.getData(self.scan_id)
+        return ScanDataFactory(data, self.n_sample)
+    
+    def __repr__(self):
+        try:
+            retval = str(self.scanInfo(self.scan_id))
+        except:
+            retval = str(self)
+        return retval
+    
+    def state(self):
+        return self.scanInfo(self.scan_id).state

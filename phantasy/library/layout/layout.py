@@ -10,7 +10,7 @@ It is used as intermediate data structure when converting between formats
 or generating lattice files for use with various simulation tools.
 
 The file format used by the accelerator layout data is a simple CSV format
-with mandatory columns 'name', 'tyle', 'L', 's', 'apx', 'apy' and then followed
+with mandatory columns 'name', 'type', 'L', 's', 'apx', 'apy' and then followed
 by the names of optional columns:
 
 name,type,L,s,apx,apy [, OPTIONAL COLUMN NAMES ]

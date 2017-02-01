@@ -302,7 +302,7 @@ class MachinePortal(object):
                      'last_machine_path', 'last_lattice_name',
                      #'last_lattice_conf',
                      'last_machine_conf']:
-            print(attr, getattr(self, attr))
+            print("{0:<17s} : {1}".format(attr, getattr(self, attr)))
 
     def _use_cached(self, segment, machine, **kws):
         """Test if continue parsing procedure is needed, if machine/segment
@@ -534,8 +534,8 @@ class MachinePortal(object):
 
     def next_elements(self, ref_elem, count=1, **kws):
         """Get elements w.r.t reference element, according to the defined
-        confinement, from given lattice name, if not given, use the current
-        working lattice.
+        confinement, from given lattice name, if not given *latname*, use
+        the current working lattice.
 
         Parameters
         ----------
@@ -562,7 +562,7 @@ class MachinePortal(object):
         latname : str
             Name of lattice to be investigated.
         ref_include : True or False
-            Include *ref_elem* in the returned list or not.
+            Include *ref_elem* in the returned list or not, False by default.
 
         Returns
         -------
@@ -891,7 +891,7 @@ class MachinePortal(object):
         Keyword Arguments
         -----------------
         handle : str
-            Handle of pv, 'readback' or'setpoint'
+            Handle of pv, 'readback' (default) or'setpoint'.
         
         Returns
         -------
