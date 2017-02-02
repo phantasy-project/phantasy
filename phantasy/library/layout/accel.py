@@ -474,18 +474,29 @@ class SolElement(Element):
         self.fields.field = "B"
 
 
-
-class SolCorElement(SolElement):
+class SolCorElement(Element):
     """
     SolenoidElement represents a solenoid magnet with correctors
     """
-
-    ETYPE="SOLCOR"
-
+    ETYPE = "SOLCOR"
     def __init__(self, z, length, aperture, name, desc="solenoid w correctors", **meta):
         super(SolCorElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
+        self.fields.field = "B"
         self.h = None
         self.v = None
+
+
+#class SolCorElement(SolElement):
+#    """
+#    SolenoidElement represents a solenoid magnet with correctors
+#    """
+#
+#    ETYPE="SOLCOR"
+#
+#    def __init__(self, z, length, aperture, name, desc="solenoid w correctors", **meta):
+#        super(SolCorElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
+#        self.h = None
+#        self.v = None
 
 
 class BendElement(Element):
