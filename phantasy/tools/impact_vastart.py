@@ -86,7 +86,7 @@ def main():
 
 
     try:
-        va = build_imapct_virtaccel(layout, config=config, channels=channels, settings=settings,
+        va = build_impact_virtaccel(layout, config=config, channels=channels, settings=settings,
                              start=args.start, end=args.end, data_dir=args.datapath, work_dir=args.workpath)
     except Exception as e:
         if args.verbosity > 0: traceback.print_exc()
