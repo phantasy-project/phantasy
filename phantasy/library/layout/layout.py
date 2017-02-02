@@ -96,6 +96,8 @@ def build_layout(layoutPath=None, **kwargs):
                 if header[idx] not in fixedkeys:
                     if row[idx] != "NONE":
                         meta[header[idx]] = row[idx]
+                    else:
+                        meta[header[idx]] = ''
             return ElemType(z, length, (apx,apy), name, **meta)
 
         while True:
