@@ -23,6 +23,8 @@ from phantasy.library.layout import BCMElement
 from phantasy.library.layout import BLElement
 from phantasy.library.layout import BLMElement
 from phantasy.library.layout import PMElement
+from phantasy.library.layout import PortElement
+
 
 
 _INDEX_PROPERTY = "elemIndex"
@@ -36,11 +38,24 @@ _TYPE_PROPERTY = "elemType"
 
 
 def build_channels(layout, machine=None):
-    """Build the channels using FRIB naming convention from the accelerator layout.
+    """Build channels using FRIB naming convention from the accelerator layout.
 
-       :param layout: accelerator layout object
-       :param machine: machine identifier and optional channel prefix
-       :return: list of tuples of (channel, properties, tags)
+    Parameters
+    ----------
+    layout :
+        Accelerator layout object
+    machine : str
+        Machine identifier and optional channel prefix.
+
+    Returns
+    -------
+    ret : list(tuple) 
+        List of tuples of (channel, properties, tags)
+
+    See Also
+    --------
+    :class:`~phantasy.library.layout.Layout`
+    :func:`~phantasy.library.misc.complicate_data`
     """
 
     if machine is None:
