@@ -21,7 +21,7 @@ Documentation
 URL: https://controls.frib.msu.edu/phantasy/
 
 
-Changelogs, see [here](https://stash.frib.msu.edu/projects/PHYAPP/repos/phantasy/browse/changelogs.md).
+Recent version: 0.1.0, [testing], changelogs see [here](https://stash.frib.msu.edu/projects/PHYAPP/repos/phantasy/browse/changelogs.md).
 
 ---------------------------------------------------------------------------
 
