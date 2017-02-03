@@ -8,12 +8,12 @@ Tong Zhang <zhangt@frib.msu.edu>
 
 import os
 
-from phyapps import flowutils
-from phyutil.phytool.common import loadSettings
-from phyutil.phylib.settings import Settings
+from phantasy import MachinePortal
+from phantasy.tools.common import loadSettings
+from phantasy import Settings
 
-mpath = os.path.abspath(os.path.join('./', 'FRIB_FLAME_example'))
-mp = flowutils.MachinePortal(facility=mpath, segment='LINAC')
+mpath = os.path.abspath(os.path.join('./', 'FRIB_FLAME'))
+mp = MachinePortal(machine=mpath, segment='LINAC')
 lat = mp.work_lattice_conf
 
 lattice_settings = Settings()
