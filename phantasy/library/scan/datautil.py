@@ -23,6 +23,16 @@ class ScanDataFactory(object):
         self._n = n_sample
         self._rebuild_data()
 
+    @property
+    def raw_data(self):
+        """dict: Dict of array, raw scan data."""
+        return self._raw_data
+
+    @property
+    def data(self):
+        """dict: Dict of array, raw scan data after postprocessing."""
+        return self._data
+
     def _rebuild_data(self):
         """Rebuild raw_data
         """
