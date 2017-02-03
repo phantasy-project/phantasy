@@ -67,26 +67,26 @@ class ScanClient1D(BaseScanClient):
         self.PV_SCAN_CNT = str('loc://i(0)') if kws.get('pv_scan_cnt', None) is None else kws.get('pv_scan_cnt')
         self._scan_cmds = []
         self._scan_id = None
+        self._pre_scan_cmds = None
+        self._post_scan_cmds = None
 
+    @property
     def pre_scan(self):
-        """Operations defined before scan routine.
-
-        Returns
-        -------
-        ret : list
-            List of scan commands.
-        """
-        return []
+        """list: List of operations defined before scan routine."""
+        return self._pre_scan_cmds
     
-    def post_scan(self):
-        """Operations defined after scan routine.
+    @pre_scan.setter
+    def pre_scan(self, cmds):
+        self._pre_scan_cmds = cmds
 
-        Returns
-        -------
-        ret : list
-            List of scan commands.
-        """
-        return []
+    @property
+    def post_scan(self):
+        """list: List of operations defined after scan routine."""
+        return self._post_scan_cmds
+
+    @post_scan.setter
+    def post_scan(self, cmds):
+        self._post_scan_cmds = cmds
 
     @property
     def device_set(self):
@@ -306,11 +306,11 @@ class ScanClient1D(BaseScanClient):
         errhandler = kws.get('errhandler', None)
 
         cmds = list()
-        pre_scan_cmds = self.pre_scan()
-        post_scan_cmds = self.post_scan()
+        pre_scan_cmds = self.pre_scan
+        post_scan_cmds = self.post_scan
 
         # PRE SCAN
-        if pre_scan_cmds != []:
+        if pre_scan_cmds is not None:
             [cmds.append(cmd) for cmd in pre_scan_cmds]
 
         # MAIN SCAN ROUTINES
@@ -356,7 +356,7 @@ class ScanClient1D(BaseScanClient):
         cmds.append(scan_cmd)
         
         # POST SCAN
-        if post_scan_cmds != []:
+        if post_scan_cmds is not None:
             [cmds.append(cmd) for cmd in post_scan_cmds]
         
         self.scan_commands = cmds
@@ -383,22 +383,36 @@ class ScanClient1D(BaseScanClient):
         sim = self.simulate(self.scan_commands)
         return sim.get('simulation')
         
-    def get_data(self):
+    def get_data(self, scan_id=None, n=None):
         """Get scan result data.
-
+        
+        Parameters
+        ----------
+        scan_id : int
+            ID of scan task, if not defined, try to get from current instance.
+        n : int
+            Counter of DAQ for every *device_set* updating, if not defined,
+            try to get from current instance.
+            
+    
         Returns
         -------
         ret :
             ScanDataFactory object.
         """
-        data = self.getData(self.scan_id)
-        return ScanDataFactory(data, self.n_sample)
+        scan_id = scan_id if scan_id is not None else self.scan_id
+        n = n if n is not None else self.n_sample
+        data = self.getData(scan_id)
+        return ScanDataFactory(data, n)
     
     def __repr__(self):
         try:
             retval = str(self.scanInfo(self.scan_id))
         except:
-            retval = str(self)
+            retval = "{0} at {1}".format(
+                        'ScanClient1D',
+                        self.url
+                    )
         return retval
     
     def state(self):
