@@ -34,6 +34,9 @@ from phantasy.library.settings import build_flame_settings
 from phantasy.library.pv import caget
 from phantasy.library.pv import caput
 from phantasy.library.misc import parse_dt
+from phantasy.library.model import MachineStates
+from phantasy.library.model import ModelFlame
+from flame import Machine
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -840,12 +843,14 @@ class Lattice(object):
                 return e.ETYPE in SKIP_TYPES
 
     def run(self):
-        """Run mchine with defined model, e.g. 'FLAME' or 'IMPACT'
+        """Run mchine with defined model, e.g. 'FLAME' or 'IMPACT',
+        update model settings, but not control settings.
         
         Returns
         -------
-        p : str
-            Path of the model data directory.
+        ret : tuple
+            tuple of (path, model), path of the model data directory and model
+            object.
         """
         if self.model == "IMPACT":
             lat = self._latticeFactory.build()
@@ -853,15 +858,26 @@ class Lattice(object):
             work_dir = run_impact_lattice(lat, config=config, work_dir=self.data_dir)
             if self.latticemodelmap is None:
                 self.createLatticeModelMap(os.path.join(work_dir, "model.map"))
-            return work_dir
+            return work_dir, None
         elif self.model == "FLAME":
             lat = self.model_factory.build()
             _, latpath = tempfile.mkstemp(prefix='model_', suffix='.lat', dir=self.data_dir)
             with open(latpath, 'w') as f:
                 lat.write(f)
-            return latpath
+            fm = self._flame_model(latpath)
+            return latpath, fm
         else:
             raise RuntimeError("Lattice: Simulation code '{}' not supported".format(self.model))
+    
+    def _flame_model(self, latfile):
+        """Create a new flame model
+        """
+        with open(latfile, 'r') as f:
+            m = Machine(f)
+        ms = MachineStates(machine=m)
+        fm = ModelFlame()
+        fm.mstates, fm.machine = ms, m
+        return fm
 
     def __getitem__(self, key):
         if isinstance(key, int):

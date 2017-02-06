@@ -984,4 +984,13 @@ class MachinePortal(object):
         pv_names = MachinePortal.get_pv_names(elem, field, handle='readback')
         pv_values = get_readback(pv_names)
         return pv_values
+
+    def syn_settings(self,):
+        pass
+    
+    def roll_back(self,):
+        pass
+
+    def update_model_settings(self,):
+        pass
  

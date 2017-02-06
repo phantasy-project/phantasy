@@ -27,8 +27,13 @@ installrequires = [
     'scipy',
     'matplotlib',
     'xlrd',
+    'tornado',
+    'motor==0.4',
+    'jinja2',
+    'humanize',
+    'jsonschema',
 ]
-extrarequires = {
+extrasrequire = {
     "LMS": [
         'tornado',
         'humanize',
@@ -37,8 +42,6 @@ extrarequires = {
         'jsonschema',
     ]
 }
-
-#install_requires
 
 app_scripts = glob.glob("bin/*")
 
@@ -61,6 +64,6 @@ setup(
             'Topic :: Scientific/Engineering :: Physics'],
         tests_require=['nose'],
         test_suite='nose.collector',
-        #install_requires=installrequires,
-        #extras_requires=extrarequires, 
+        install_requires=installrequires,
+        extras_require=extrasrequire, 
 )
