@@ -45,7 +45,7 @@ extrasrequire = {
     ]
 }
 
-app_scripts = [i for i in glob.glob("bin/*") if fnmatch(i, "bin/softIoc*")]
+app_scripts = [i for i in glob.glob("scripts/*") if not fnmatch(i, "scripts/softIoc")]
 
 setup(
         name=app_name,
