@@ -1,16 +1,18 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-#
-# Copyright (c) 2015-2016 Facility for Rare Isotope Beams
-#
 
 from setuptools import setup, find_packages
 import glob
 import versioneer
+from fnmatch import fnmatch
 
 
 def readme():
     with open('README.rst', 'r') as f:
+        return f.read()
+
+def read_license():
+    with open('LICENSE') as f:
         return f.read()
 
 app_name = "phantasy"
@@ -19,9 +21,9 @@ app_long_description = readme() + '\n\n'
 app_platform = ["Linux"]
 app_author = "Tong Zhang"
 app_author_email = "zhangt@frib.msu.edu"
-app_license = "FRIB"
-app_url = "STASH"
-app_keywords = "FRIB HLA high-level python FLAME IMPACT"
+app_license = read_license()
+app_url = "https://controls.frib.msu.edu/phantasy/"
+app_keywords = "phantasy FRIB HLA high-level python FLAME IMPACT"
 installrequires = [
     'numpy',
     'scipy',
@@ -43,7 +45,7 @@ extrasrequire = {
     ]
 }
 
-app_scripts = [i for i in glob.glob("bin/*") if i != "bin/softIoc"]
+app_scripts = [i for i in glob.glob("bin/*") if fnmatch(i, "bin/softIoc*")]
 
 setup(
         name=app_name,
@@ -52,9 +54,9 @@ setup(
         description=app_description,
         author=app_author,
         author_email=app_author_email,
-        #url = app_url,
+        url = app_url,
         platforms=app_platform,
-        #license=app_license,
+        license=app_license,
         keywords=app_keywords,
         scripts=app_scripts,
         packages=find_packages(exclude=['utest', 'demo', 'example']),
@@ -65,5 +67,5 @@ setup(
         tests_require=['nose'],
         test_suite='nose.collector',
         install_requires=installrequires,
-        extras_require=extrasrequire, 
+        #extras_require=extrasrequire, 
 )
