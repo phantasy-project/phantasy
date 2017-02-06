@@ -43,7 +43,7 @@ extrasrequire = {
     ]
 }
 
-app_scripts = glob.glob("bin/*")
+app_scripts = [i for i in glob.glob("bin/*") if i != "bin/softIoc"]
 
 setup(
         name=app_name,
