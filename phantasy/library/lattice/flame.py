@@ -34,6 +34,13 @@ from phantasy.library.layout import BendElement
 from phantasy.library.layout import QuadElement
 from phantasy.library.layout import StripElement
 from phantasy.library.layout import SextElement
+from phantasy.library.layout import EBendElement
+from phantasy.library.layout import EQuadElement
+from phantasy.library.layout import FCElement
+from phantasy.library.layout import VDElement
+from phantasy.library.layout import EMSElement
+from phantasy.library.layout import ElectrodeElement
+from phantasy.library.layout import SolElement
 
 
 CONFIG_FLAME_SIM_TYPE = "flame_sim_type"
@@ -561,6 +568,37 @@ class FlameLatticeFactory(BaseLatticeFactory):
                     lattice.append(nextDrift(), "drift",
                                    ('L',elem.length/2.0),
                                    ('aper',elem.aperture/2.0))
+
+            elif isinstance(elem, SolElement):
+                field = 0.0
+                if settings is not None:
+                    try:
+                        field = settings[elem.name][elem.fields.field]
+                    except KeyError:
+                        raise RuntimeError("FlameLatticeFactory: '{}' setting not found for element: {}".format(elem.fields.field, elem.name))
+
+                lattice.append(elem.name, "solenoid", ('L', elem.length),
+                               ('aper', elem.aperture/2.0), ('B', field),
+                               name=elem.name, etype='SOL')
+
+            elif isinstance(elem, ElectrodeElement):
+                lattice.append(elem.name, "drift", ('L', elem.length), ('aper', elem.aperture/2.0),
+                        name=elem.name, etype=elem.ETYPE)
+            elif isinstance(elem, FCElement):
+                lattice.append(elem.name, "drift", ('L', elem.length), ('aper', elem.aperture/2.0),
+                        name=elem.name, etype=elem.ETYPE)
+            elif isinstance(elem, VDElement):
+                lattice.append(elem.name, "drift", ('L', elem.length), ('aper', elem.aperture/2.0),
+                        name=elem.name, etype=elem.ETYPE)
+            elif isinstance(elem, EMSElement):
+                lattice.append(elem.name, "drift", ('L', elem.length), ('aper', elem.aperture/2.0),
+                        name=elem.name, etype=elem.ETYPE)
+            elif isinstance(elem, EBendElement):
+                lattice.append(elem.name, "drift", ('L', elem.length), ('aper', elem.aperture/2.0),
+                        name=elem.name, etype=elem.ETYPE)
+            elif isinstance(elem, EQuadElement):
+                lattice.append(elem.name, "drift", ('L', elem.length), ('aper', elem.aperture/2.0),
+                        name=elem.name, etype=elem.ETYPE)
 
             else:
                 raise Exception("Unsupported accelerator element: {}".format(elem))
