@@ -586,6 +586,7 @@ class EBendElement(Element):
 
     def __init__(self, z, length, aperture, name, desc="ebend", **meta):
         super(EBendElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
+        self.fields.field = "V"
 
 
 class EQuadElement(Element):
@@ -597,6 +598,7 @@ class EQuadElement(Element):
 
     def __init__(self, z, length, aperture, name, desc="equad", **meta):
         super(EQuadElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
+        self.fields.gradient = "V"
 
 
 # Accelerating Elements

@@ -21,6 +21,8 @@ from phantasy.library.layout import BendElement
 from phantasy.library.layout import HCorElement
 from phantasy.library.layout import VCorElement
 from phantasy.library.layout import QuadElement
+from phantasy.library.layout import EQuadElement
+from phantasy.library.layout import EBendElement
 
 
 def build_settings(latpath, start=None, end=None):
@@ -180,6 +182,20 @@ class SettingsFactory(object):
                 sol = QuadElement(0, 0, 0, name)
                 fields = OrderedDict()  
                 fields[sol.fields.gradient] = elem['B2']
+                settings[name] = fields
+
+            elif ftype == "equad":
+                name = parseName(elem['name'])
+                equad = EQuadElement(0, 0, 0, name)
+                fields = OrderedDict()
+                fields[equad.fields.gradient] = elem['V']
+                settings[name] = fields
+
+            elif ftype == "edipole":
+                name = parseName(elem['name'])
+                ebend = EBendElement(0, 0, 0, name)
+                fields = OrderedDict()
+                fields[ebend.fields.field] = elem['beta']
                 settings[name] = fields
 
             else:
