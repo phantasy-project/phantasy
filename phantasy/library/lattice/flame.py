@@ -57,6 +57,14 @@ CONFIG_FLAME_STRIPPER_COUNT = "flame_stripper_count"
 CONFIG_FLAME_INITIAL_POSITION_FILE = "flame_initial_position_file"
 CONFIG_FLAME_INITIAL_ENVELOPE_FILE = "flame_initial_envelope_file"
 CONFIG_FLAME_SPLIT = "flame_split"
+CONFIG_FLAME_EQUAD_RADIUS = "flame_radius"
+CONFIG_FLAME_EBEND_PHI = "flame_phi"
+CONFIG_FLAME_EBEND_FRINGEX = 'flame_fringe_x'
+CONFIG_FLAME_EBEND_FRINGEY = 'flame_fringe_y'
+CONFIG_FLAME_EBEND_VERBOOL = 'flame_ver'
+CONFIG_FLAME_EBEND_SPHERBOOL = 'flame_spher'
+CONFIG_FLAME_EBEND_ASYMFAC = 'flame_asym_fac'
+CONFIG_FLAME_BEND_FOCUSING = '2nd_order_component'
 
 # Constants used for IMPACT header parameters
 
@@ -388,7 +396,7 @@ class FlameLatticeFactory(BaseLatticeFactory):
 
                 cavType = self._get_config(elem.dtype, CONFIG_FLAME_CAV_TYPE, None)
                 if cavType is None:
-                    raise RuntimeError("FlameLatticeFactory: Cavity type not found: {}", elem.dtype)
+                    raise RuntimeError("FlameLatticeFactory: Cavity type not found: {}".format(elem.dtype))
 
                 lattice.append(elem.name, "rfcavity",
                                ('cavtype',cavType), ('f',frequency),
@@ -527,21 +535,46 @@ class FlameLatticeFactory(BaseLatticeFactory):
                 if split < 3:
                     raise RuntimeError("FlameLatticeFactory: '{}' split must be greater than 3.".format(elem.name))
 
-                lattice.append(elem.name + "_1", "sbend", ('L',elem.length/split),
-                               ('aper',elem.aperture/2.0), ('phi',angle/split),
-                               ('phi1',entrAngle), ('phi2',0.0), ('bg',field),
-                               name=elem.name, etype=elem.ETYPE)
+                second_order_comp = self._get_config(elem.dtype, CONFIG_FLAME_BEND_FOCUSING, None)
+                if second_order_comp is not None:
+                    _LOGGER.debug("FlameLatticeFactory: 2nd order component of {} is defined.".format(elem.name))
+                    k = float(second_order_comp)
 
-                for i in xrange(2, split):
-                    lattice.append(elem.name + "_" + str(i), "sbend", ('L',elem.length/split),
+                    lattice.append(elem.name + "_1", "sbend", ('L',elem.length/split),
                                    ('aper',elem.aperture/2.0), ('phi',angle/split),
-                                   ('phi1',0.0), ('phi2',0.0), ('bg',field),
+                                   ('phi1',entrAngle), ('phi2',0.0), ('bg',field),
+                                   ('K', k),
                                    name=elem.name, etype=elem.ETYPE)
 
-                lattice.append(elem.name + "_" + str(split), "sbend", ('L',elem.length/split),
-                               ('aper',elem.aperture/2.0), ('phi',angle/split),
-                               ('phi1',0.0), ('phi2',exitAngle), ('bg',field),
-                               name=elem.name, etype=elem.ETYPE)
+                    for i in xrange(2, split):
+                        lattice.append(elem.name + "_" + str(i), "sbend", ('L',elem.length/split),
+                                       ('aper',elem.aperture/2.0), ('phi',angle/split),
+                                       ('phi1',0.0), ('phi2',0.0), ('bg',field),
+                                       ('K', k),
+                                       name=elem.name, etype=elem.ETYPE)
+
+                    lattice.append(elem.name + "_" + str(split), "sbend", ('L',elem.length/split),
+                                   ('aper',elem.aperture/2.0), ('phi',angle/split),
+                                   ('phi1',0.0), ('phi2',exitAngle), ('bg',field),
+                                   ('K', k),
+                                   name=elem.name, etype=elem.ETYPE)
+
+                else:
+                    lattice.append(elem.name + "_1", "sbend", ('L',elem.length/split),
+                                   ('aper',elem.aperture/2.0), ('phi',angle/split),
+                                   ('phi1',entrAngle), ('phi2',0.0), ('bg',field),
+                                   name=elem.name, etype=elem.ETYPE)
+
+                    for i in xrange(2, split):
+                        lattice.append(elem.name + "_" + str(i), "sbend", ('L',elem.length/split),
+                                       ('aper',elem.aperture/2.0), ('phi',angle/split),
+                                       ('phi1',0.0), ('phi2',0.0), ('bg',field),
+                                       name=elem.name, etype=elem.ETYPE)
+
+                    lattice.append(elem.name + "_" + str(split), "sbend", ('L',elem.length/split),
+                                   ('aper',elem.aperture/2.0), ('phi',angle/split),
+                                   ('phi1',0.0), ('phi2',exitAngle), ('bg',field),
+                                   name=elem.name, etype=elem.ETYPE)
 
             elif isinstance(elem, StripElement):
                 stripper_charge = self._get_config_array(elem.name, CONFIG_FLAME_STRIPPER_CHARGE, None, conv=float)
@@ -593,12 +626,75 @@ class FlameLatticeFactory(BaseLatticeFactory):
             elif isinstance(elem, EMSElement):
                 lattice.append(elem.name, "drift", ('L', elem.length), ('aper', elem.aperture/2.0),
                         name=elem.name, etype=elem.ETYPE)
+
             elif isinstance(elem, EBendElement):
-                lattice.append(elem.name, "drift", ('L', elem.length), ('aper', elem.aperture/2.0),
-                        name=elem.name, etype=elem.ETYPE)
+                field = 0.0
+                if settings is not None:
+                    try:
+                        field = settings[elem.name][elem.fields.field]
+                    except KeyError:
+                        raise RuntimeError("FlameLatticeFactory: '{}' setting not found for element: {}".format(elem.fields.field, elem.name))
+
+                phi = self._get_config(elem.dtype, CONFIG_FLAME_EBEND_PHI, None)
+                if phi is None:
+                    raise RuntimeError("FlameLatticeFactory: EBend 'phi' not found for {}".format(elem.dtype))
+
+                fringe_x = self._get_config(elem.dtype, CONFIG_FLAME_EBEND_FRINGEX, None)
+                if fringe_x is None:
+                    raise RuntimeError("FlameLatticeFactory: EBend 'fringe_x' not found for {}".format(elem.dtype))
+
+                fringe_y = self._get_config(elem.dtype, CONFIG_FLAME_EBEND_FRINGEY, None)
+                if fringe_y is None:
+                    raise RuntimeError("FlameLatticeFactory: EBend 'fringe_y' not found for {}".format(elem.dtype))
+
+                ver = self._get_config(elem.dtype, CONFIG_FLAME_EBEND_VERBOOL, None)
+                if ver is None:
+                    raise RuntimeError("FlameLatticeFactory: EBend 'ver' not found for {}".format(elem.dtype))
+
+                spher = self._get_config(elem.dtype, CONFIG_FLAME_EBEND_SPHERBOOL, None)
+                if spher is None:
+                    raise RuntimeError("FlameLatticeFactory: EBend 'spher' not found for {}".format(elem.dtype))
+
+                asym_fac = self._get_config(elem.dtype, CONFIG_FLAME_EBEND_ASYMFAC, None)
+                if asym_fac is None:
+                    raise RuntimeError("FlameLatticeFactory: EBend 'asym_fac' not found for {}".format(elem.dtype))
+
+                lattice.append(elem.name, 'edipole', ('L', elem.length),
+                              ('aper', elem.aperture/2.0), ('phi', float(phi)),
+                              ('fringe_x', float(fringe_x)), ('fringe_y', float(fringe_y)),
+                              ('ver', int(ver)), ('spher', float(spher)),
+                              ('asym_fac', float(asym_fac)), ('beta', field),
+                              name=elem.name, etype=elem.ETYPE)
+
             elif isinstance(elem, EQuadElement):
-                lattice.append(elem.name, "drift", ('L', elem.length), ('aper', elem.aperture/2.0),
-                        name=elem.name, etype=elem.ETYPE)
+                try:
+                    gradient = 0.0
+                    if settings is not None:
+                        try:
+                            gradient = settings[elem.name][elem.fields.gradient]
+                        except KeyError:
+                            raise RuntimeError("FlameLatticeFactory: '{}' setting not found for element: {}".format(elem.fields.gradient, elem.name))
+
+                    radius = self._get_config(elem.dtype, CONFIG_FLAME_EQUAD_RADIUS, None)
+                    if radius is None:
+                        raise RuntimeError("FlameLatticeFactory: EQuad 'radius' not found for {}".format(elem.dtype))
+                    lattice.append(elem.name, "equad", ('L', elem.length),
+                                  ('aper', elem.aperture/2.0), ('V', gradient),
+                                  ('radius', float(radius)),
+                                  name=elem.name, etype=elem.ETYPE)
+                except:
+                    # treat it as QuadElement
+                    gradient = 0.0
+                    if settings is not None:
+                        try:
+                            gradient = settings[elem.name]['GRAD']
+                        except KeyError:
+                            raise RuntimeError("FlameLatticeFactory: '{}' setting not found for element: {}".format(elem.fields.gradient, elem.name))
+
+                    lattice.append(elem.name, "quadrupole", ('L',elem.length),
+                                   ('aper',elem.aperture/2.0), ('B2',gradient),
+                                   name=elem.name, etype=elem.ETYPE)
+
 
             else:
                 raise Exception("Unsupported accelerator element: {}".format(elem))
