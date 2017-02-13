@@ -44,6 +44,13 @@ from phantasy.library.layout import BLMElement
 from phantasy.library.layout import ValveElement
 from phantasy.library.layout import PortElement
 from phantasy.library.layout import DriftElement
+from phantasy.library.layout import EQuadElement
+from phantasy.library.layout import EBendElement
+from phantasy.library.layout import EMSElement
+from phantasy.library.layout import SolElement
+from phantasy.library.layout import VDElement
+from phantasy.library.layout import FCElement
+from phantasy.library.layout import ElectrodeElement
 from phantasy.library.lattice import FlameLatticeFactory
 
 
@@ -335,6 +342,13 @@ class VirtualAcceleratorFactory(object):
                              self._findChannel(elem.v.name, elem.v.fields.angle, "readback"),
                              (elem.v.name, elem.v.fields.angle), desc="Vertical Corrector", egu="radian", drvabs=0.001)
                 va.append_elem(elem)
+            
+            elif isinstance(elem, SolElement):
+                va.append_rw(self._findChannel(elem.name, elem.fields.field, "setpoint"),
+                             self._findChannel(elem.name, elem.fields.field, "readset"),
+                             self._findChannel(elem.name, elem.fields.field, "readback"),
+                             (elem.name, elem.fields.field), desc="Solenoid Field", egu="T", drvratio=0.10)
+                va.append_elem(elem)
 
             elif isinstance(elem, CorElement):
                 va.append_rw(self._findChannel(elem.h.name, elem.h.fields.angle, "setpoint"),
@@ -354,12 +368,33 @@ class VirtualAcceleratorFactory(object):
                              (elem.name, elem.fields.field), desc="Bend Relative Field", egu="none", drvratio=0.10)
                 va.append_elem(elem)
 
+            elif isinstance(elem, EBendElement):
+                va.append_rw(self._findChannel(elem.name, elem.fields.field, "setpoint"),
+                             self._findChannel(elem.name, elem.fields.field, "readset"),
+                             self._findChannel(elem.name, elem.fields.field, "readback"),
+                             (elem.name, elem.fields.field), desc="EBend Field", egu="V", drvratio=0.10)
+                va.append_elem(elem)
+
             elif isinstance(elem, QuadElement):
                 va.append_rw(self._findChannel(elem.name, elem.fields.gradient, "setpoint"),
                              self._findChannel(elem.name, elem.fields.gradient, "readset"),
                              self._findChannel(elem.name, elem.fields.gradient, "readback"),
                              (elem.name, elem.fields.gradient), desc="Quadrupole Gradient", egu="T/m", drvratio=0.10)
                 va.append_elem(elem)
+
+            elif isinstance(elem, EQuadElement):
+                try:
+                    va.append_rw(self._findChannel(elem.name, elem.fields.gradient, "setpoint"),
+                                 self._findChannel(elem.name, elem.fields.gradient, "readset"),
+                                 self._findChannel(elem.name, elem.fields.gradient, "readback"),
+                                 (elem.name, elem.fields.gradient), desc="EQuad Field", egu="V", drvratio=0.10)
+                    va.append_elem(elem)
+                except: # QUAD settings
+                    va.append_rw(self._findChannel(elem.name, "GRAD", "setpoint"),
+                                 self._findChannel(elem.name, "GRAD", "readset"),
+                                 self._findChannel(elem.name, "GRAD", "readback"),
+                                 (elem.name, "GRAD"), desc="EQuad Field", egu="V", drvratio=0.10)
+                    va.append_elem(elem)
 
             elif isinstance(elem, SextElement):
                 _LOGGER.warning("VirtAccelFactory: Hexapole magnet element support not implemented. Ignoring channels.")
@@ -401,6 +436,12 @@ class VirtualAcceleratorFactory(object):
 
             elif isinstance(elem, DriftElement):
                 # drift elements have no channels
+                pass
+
+            elif isinstance(elem, (EMSElement, VDElement, FCElement)):
+                pass
+
+            elif isinstance(elem, ElectrodeElement):
                 pass
 
             else:
