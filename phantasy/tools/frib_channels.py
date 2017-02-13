@@ -28,8 +28,8 @@ from phantasy.facility.frib.channels import build_channels
 parser = ArgumentParser(prog=os.path.basename(sys.argv[0])+" frib-channels",
                         description="Generate FRIB channel names from accelerator layout.")
 parser.add_argument("-v", dest="verbosity", nargs='?', type=int, const=1, default=0, help="set the amount of output")
-#parser.add_argument("--start", help="name of accelerator element to start processing")
-#parser.add_argument("--end", help="name of accelerator element to end processing")
+parser.add_argument("--start", help="name of accelerator element to start processing")
+parser.add_argument("--end", help="name of accelerator element to end processing")
 parser.add_argument("--tag", action="append", help="additional tag (can be used multiple times)")
 parser.add_argument("--machine", help="name of machine (used to indicate VA)")
 parser.add_argument("layoutPath", help="path to accelerator layout file")
@@ -67,7 +67,8 @@ def main():
         return 1
 
     try:
-        channels = build_channels(layout, machine=args.machine)
+        channels = build_channels(layout, machine=args.machine,
+                start=args.start, end=args.end)
     except Exception as e:
         if args.verbosity > 0: traceback.print_exc()
         print("Error building channels:", e, file=sys.stderr)

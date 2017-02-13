@@ -14,6 +14,7 @@ from phantasy.library.layout import DriftElement
 from phantasy.library.layout import CavityElement
 from phantasy.library.layout import StripElement
 from phantasy.library.layout import SolCorElement
+from phantasy.library.layout import SolElement
 from phantasy.library.layout import CorElement
 from phantasy.library.layout import BendElement
 from phantasy.library.layout import QuadElement
@@ -24,7 +25,11 @@ from phantasy.library.layout import BLElement
 from phantasy.library.layout import BLMElement
 from phantasy.library.layout import PMElement
 from phantasy.library.layout import PortElement
-
+from phantasy.library.layout import EBendElement
+from phantasy.library.layout import EQuadElement
+from phantasy.library.layout import EMSElement
+from phantasy.library.layout import VDElement
+from phantasy.library.layout import FCElement
 
 
 _INDEX_PROPERTY = "elemIndex"
@@ -37,7 +42,7 @@ _FIELD_PROPERTY = "elemField"
 _TYPE_PROPERTY = "elemType"
 
 
-def build_channels(layout, machine=None):
+def build_channels(layout, machine=None, **kws):
     """Build channels using FRIB naming convention from the accelerator layout.
 
     Parameters
@@ -46,6 +51,13 @@ def build_channels(layout, machine=None):
         Accelerator layout object
     machine : str
         Machine identifier and optional channel prefix.
+
+    Keyword Arguments
+    -----------------
+    start: str
+        Start element.
+    end: str
+        End element.
 
     Returns
     -------
@@ -68,7 +80,10 @@ def build_channels(layout, machine=None):
     index = 0
     offset = None
 
-    for elem in layout:
+    _start = kws.get('start', None)
+    _end = kws.get('end', None)
+    for elem in layout.iter(_start, _end):
+    #for elem in layout:
 
         index += 1
 
@@ -140,6 +155,16 @@ def build_channels(layout, machine=None):
             data.append((channel+":ANG_RSET", OrderedDict(props), list(tags)))
             props[_HANDLE_PROPERTY] = "readback"
             data.append((channel+":ANG_RD", OrderedDict(props), list(tags)))
+
+        elif isinstance(elem, SolElement):
+            props[_TYPE_PROPERTY] = "SOL"
+            props[_FIELD_PROPERTY] = elem.fields.field
+            props[_HANDLE_PROPERTY] = "setpoint"
+            data.append((channel+":B_CSET", OrderedDict(props), list(tags)))
+            props[_HANDLE_PROPERTY] = "readset"
+            data.append((channel+":B_RSET", OrderedDict(props), list(tags)))
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel+":B_RD", OrderedDict(props), list(tags)))
 
         elif isinstance(elem, CorElement):
             channel, props, tags = buildChannel(elem.h)
@@ -238,6 +263,26 @@ def build_channels(layout, machine=None):
             props[_HANDLE_PROPERTY] = "readback"
             data.append((channel+":XYRMS_RD", OrderedDict(props), list(tags)))
 
+        elif isinstance(elem, EBendElement):
+            props[_TYPE_PROPERTY] = "EBEND"
+            props[_FIELD_PROPERTY] = elem.fields.field
+            props[_HANDLE_PROPERTY] = "setpoint"
+            data.append((channel+":V_CSET", OrderedDict(props), list(tags)))
+            props[_HANDLE_PROPERTY] = "readset"
+            data.append((channel+":V_RSET", OrderedDict(props), list(tags)))
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel+":V_RD", OrderedDict(props), list(tags)))
+        
+        elif isinstance(elem, EQuadElement):
+            props[_TYPE_PROPERTY] = "EQUAD"
+            props[_FIELD_PROPERTY] = elem.fields.gradient
+            props[_HANDLE_PROPERTY] = "setpoint"
+            data.append((channel+":V_CSET", OrderedDict(props), list(tags)))
+            props[_HANDLE_PROPERTY] = "readset"
+            data.append((channel+":V_RSET", OrderedDict(props), list(tags)))
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel+":V_RD", OrderedDict(props), list(tags)))
+
         elif isinstance(elem, StripElement):
             # Charge Stripper has no channels
             pass
@@ -248,6 +293,15 @@ def build_channels(layout, machine=None):
 
         elif isinstance(elem, (DriftElement,ValveElement, PortElement)):
             # Passtive elements do not have defined channels
+            pass
+
+        elif isinstance(elem, EMSElement):
+            pass
+
+        elif isinstance(elem, VDElement):
+            pass
+
+        elif isinstance(elem, FCElement):
             pass
 
         else:
