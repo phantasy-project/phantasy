@@ -5,10 +5,6 @@ del get_versions
 import logging
 
 #
-from .apps import lmapp
-from .tools import phytool
-
-#
 from phantasy.library.model import flame as flameutils
 
 #
@@ -35,6 +31,12 @@ __contact__ = "Tong Zhang <zhangt@frib.msu.edu>"
 
 __doc__ = """PHANTASY:
 Physics high-level applications and toolkits for accelerator system.
+
+To import applications:
+    
+``from phantasy.apps import <app_name>``
+
+e.g. ``<app_name>`` could be ``lmapp``.
 
 :version: %s
 :authors: %s

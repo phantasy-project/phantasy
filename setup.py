@@ -29,11 +29,11 @@ installrequires = [
     'scipy',
     'matplotlib',
     'xlrd',
-    'tornado',
-    'motor==0.4',
-    'jinja2',
-    'humanize',
-    'jsonschema',
+#    'tornado',
+#    'motor==0.4',
+#    'jinja2',
+#    'humanize',
+#    'jsonschema',
     'cothread',
 ]
 extrasrequire = {
@@ -68,5 +68,5 @@ setup(
         tests_require=['nose'],
         test_suite='nose.collector',
         install_requires=installrequires,
-        #extras_require=extrasrequire, 
+        extras_require=extrasrequire, 
 )
