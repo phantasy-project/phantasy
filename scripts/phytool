@@ -1,0 +1,13 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""phytool sums up all available command line tools that 'phantasy'
+could provide.
+"""
+
+import sys
+
+if __name__ == '__main__':
+    from phantasy.tools import phytool
+    sys.exit(phytool.main())
+

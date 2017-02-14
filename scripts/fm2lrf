@@ -1,0 +1,48 @@
+#!/usr/bin/env python
+# encoding: UTF-8
+
+import sys, os.path, argparse
+
+from phyutil.phylib.fielddata import fmdata, lrfdata
+
+
+parser = argparse.ArgumentParser(description="Convert Field Map data to IMPACT linear RF data.",
+                                 usage="fm2lrf [[fmpath] [lrfpath]] [--pscale SCALE] [--fscale SCALE]")
+
+parser.add_argument("fmpath", nargs='?')
+parser.add_argument("rfpath", nargs='?')
+parser.add_argument("--pscale", type=float, default=1.0, help="Multiply position (x,y,z) by given scale.")
+parser.add_argument("--fscale", type=float, default=1.0, help="Multiply field (Ex,Ey,Ez) by given scale." )
+args = parser.parse_args()
+
+if args.fmpath != None:
+    if not os.path.exists(args.fmpath):
+        sys.stderr.write("Input file not found: %s\n" % (args.fmpath,))
+        sys.exit(-1)
+
+if args.rfpath != None:
+    if os.path.exists(args.rfpath):
+        sys.stderr.write("Output file exists: %s\n" % (args.rfpath,))
+        sys.exit(-1)
+
+if args.fmpath != None:
+    fmfile = open(args.fmpath, "r")
+else:
+    fmfile = sys.stdin
+
+try:
+    fm = fmdata.readFromDatFile(fmfile, pscale=args.pscale, fscale=args.fscale)
+finally:
+    if fmfile != sys.stdin: fmfile.close()
+
+rf = lrfdata.convertFromFMData(fm)
+
+if args.rfpath != None:
+    rffile = open(args.rfpath, "w")
+else:
+    rffile = sys.stdout
+
+try:
+    lrfdata.writeToImpactFile(rf, rffile)
+finally:
+    if rffile != sys.stdout: rffile.close()

@@ -1,0 +1,56 @@
+#!/usr/bin/env python
+# encoding: UTF-8
+
+import os.path, sys, argparse
+
+from phyutil.phylib.fielddata import fmdata, t7data
+
+parser = argparse.ArgumentParser(description="Convert Field Map data to IMPACT T7 data.",
+                                 usage="fm2t7 epath hpath [t7path] [--pscale SCALE] [--fscale SCALE]")
+
+parser.add_argument("epath", help="Path to electric field map data.")
+parser.add_argument("hpath", help="Path to magnetic field map data.")
+parser.add_argument("t7path", nargs="?", help="Destination path of IMPACT T7 data file.")
+parser.add_argument("--pscale", type=float, default=1.0, help="Multiply position (x,y,z) by given scale.")
+parser.add_argument("--fscale", type=float, default=1.0, help="Multiply field (Ex,Ey,Ez) by given scale." )
+args = parser.parse_args()
+
+
+if not os.path.exists(args.epath):
+    sys.stderr.write("Input E field data file not found: %s\n" % (args.epath,))
+    sys.exit(-1)
+
+if not os.path.exists(args.hpath):
+    sys.stderr.write("Input H field data file not found: %s\n" % (args.hpath,))
+    sys.exit(-1)
+
+if args.t7path != None:
+    if os.path.exists(args.t7path):
+        sys.stderr.write("Output file exists: %s\n" % (args.t7path,))
+        sys.exit(-1)
+
+efile = open(args.epath, "r")
+
+try:
+    edata = fmdata.readFromDatFile(efile, pscale=args.pscale, fscale=args.fscale)
+finally:
+    efile.close()
+
+hfile = open(args.hpath, "r")
+
+try:
+    hdata = fmdata.readFromDatFile(hfile, pscale=args.pscale, fscale=args.fscale)
+finally:
+    hfile.close()
+
+t7 = t7data.convertFromFMData(edata, hdata)
+
+if args.t7path != None:
+    t7file = open(args.t7path, "w")
+else:
+    t7file = sys.stdout
+
+try:
+    t7data.writeToImpactFile(t7, t7file)
+finally:
+    if t7file != sys.stdout: t7file.close()

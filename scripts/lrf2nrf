@@ -1,0 +1,47 @@
+#!/usr/bin/env python
+# encoding: UTF-8
+
+import sys, os, os.path, argparse
+
+from phyutil.phylib.fielddata import lrfdata, nrfdata
+
+parser = argparse.ArgumentParser(description="Convert IMPACT linear RF data to IMPACT nonlinear RF data.",
+                                 usage="lrf2nrf [lrfpath [nrfpath]]")
+
+parser.add_argument("lrfpath", nargs='?')
+parser.add_argument("nrfpath", nargs='?')
+parser.add_argument("--ncoefs", type=int, default=40, help="Specify the number of Fourier coefficients (default: 40)")
+args = parser.parse_args()
+
+if args.lrfpath != None:
+    if not os.path.exists(args.lrfpath):
+        sys.stderr.write("Input file not found: %s\n" % (args.lrfpath,))
+        sys.exit(-1)
+
+
+if args.nrfpath != None:
+    if os.path.exists(args.nrfpath):
+        sys.stderr.write("Output file exists: %s\n" % (args.nrfpath,))
+        sys.exit(-1)
+
+if args.lrfpath != None:
+    lrffile = open(args.lrfpath, "r")
+else:
+    lrffile = sys.stdin
+
+try:
+    lrf = lrfdata.readFromImpactFile(lrffile)
+finally:
+    if lrffile != sys.stdin: lrffile.close()
+
+nrf = nrfdata.convertFromLRFData(lrf, ncoefs=args.ncoefs)
+
+if args.nrfpath != None:
+    nrffile = open(args.nrfpath, "w")
+else:
+    nrffile = sys.stdout
+
+try:
+    nrfdata.writeToImpactFile(nrf, nrffile)
+finally:
+    if nrffile != sys.stdout: nrffile.close()

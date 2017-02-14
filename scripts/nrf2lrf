@@ -1,0 +1,49 @@
+#!/usr/bin/env python
+# encoding: UTF-8
+
+import sys, os, os.path, argparse
+
+from phyutil.phylib.fielddata import lrfdata, nrfdata
+
+parser = argparse.ArgumentParser(description="Convert IMPACT nonlinear RF data to IMPACT linear RF data.",
+                                 usage="nrf2lrf [nrfpath [lrfpath]]")
+
+parser.add_argument("lrfpath", nargs='?')
+parser.add_argument("nrfpath", nargs='?')
+parser.add_argument("--npoints", nargs=1, type=int, help="Specify the number of points")
+parser.add_argument("--start", nargs=1, type=float, help="Specify the start z-position")
+parser.add_argument("--end", nargs=1, type=float, help="Specify the end z-position")
+args = parser.parse_args()
+
+if args.nrfpath != None:
+    if not os.path.exists(args.nrfpath):
+        sys.stderr.write("Input file not found: %s\n" % (args.nrfpath,))
+        sys.exit(-1)
+
+
+if args.lrfpath != None:
+    if os.path.exists(args.lrfpath):
+        sys.stderr.write("Output file exists: %s\n" % (args.lrfpath,))
+        sys.exit(-1)
+
+if args.nrfpath != None:
+    nrffile = open(args.nrfpath, "r")
+else:
+    nrffile = sys.stdin
+
+try:
+    nrf = nrfdata.readFromImpactFile(nrffile)
+finally:
+    if nrffile != sys.stdin: nrffile.close()
+
+nrf = lrfdata.convertFromNRFData(lrf, start=args.start, end=args.end, npoints=args.npoints)
+
+if args.lrfpath != None:
+    lrffile = open(args.lrfpath, "w")
+else:
+    lrffile = sys.stdout
+
+try:
+    lrfdata.writeToImpactFile(lrf, lrffile)
+finally:
+    if lrffile != sys.stdout: lrffile.close()
