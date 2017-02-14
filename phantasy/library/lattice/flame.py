@@ -64,7 +64,7 @@ CONFIG_FLAME_EBEND_FRINGEY = 'flame_fringe_y'
 CONFIG_FLAME_EBEND_VERBOOL = 'flame_ver'
 CONFIG_FLAME_EBEND_SPHERBOOL = 'flame_spher'
 CONFIG_FLAME_EBEND_ASYMFAC = 'flame_asym_fac'
-CONFIG_FLAME_BEND_FOCUSING = '2nd_order_component'
+CONFIG_FLAME_BEND_FOCUSING = 'focusing_component'
 
 # Constants used for IMPACT header parameters
 
@@ -535,10 +535,10 @@ class FlameLatticeFactory(BaseLatticeFactory):
                 if split < 3:
                     raise RuntimeError("FlameLatticeFactory: '{}' split must be greater than 3.".format(elem.name))
 
-                second_order_comp = self._get_config(elem.dtype, CONFIG_FLAME_BEND_FOCUSING, None)
-                if second_order_comp is not None:
-                    _LOGGER.debug("FlameLatticeFactory: 2nd order component of {} is defined.".format(elem.name))
-                    k = float(second_order_comp)
+                focusing_comp = self._get_config(elem.dtype, CONFIG_FLAME_BEND_FOCUSING, None)
+                if focusing_comp is not None:
+                    _LOGGER.debug("FlameLatticeFactory: focusing component of {} is defined.".format(elem.name))
+                    k = float(focusing_comp)
 
                     lattice.append(elem.name + "_1", "sbend", ('L',elem.length/split),
                                    ('aper',elem.aperture/2.0), ('phi',angle/split),
