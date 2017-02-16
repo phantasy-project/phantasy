@@ -387,14 +387,15 @@ class VirtualAcceleratorFactory(object):
                     va.append_rw(self._findChannel(elem.name, elem.fields.gradient, "setpoint"),
                                  self._findChannel(elem.name, elem.fields.gradient, "readset"),
                                  self._findChannel(elem.name, elem.fields.gradient, "readback"),
-                                 (elem.name, elem.fields.gradient), desc="EQuad Field", egu="V", drvratio=0.10)
+                                 (elem.name, elem.fields.gradient), desc="EQuad Field", egu="V")
                     va.append_elem(elem)
                 except: # QUAD settings
-                    va.append_rw(self._findChannel(elem.name, "GRAD", "setpoint"),
-                                 self._findChannel(elem.name, "GRAD", "readset"),
-                                 self._findChannel(elem.name, "GRAD", "readback"),
-                                 (elem.name, "GRAD"), desc="EQuad Field", egu="V", drvratio=0.10)
-                    va.append_elem(elem)
+                    #va.append_rw(self._findChannel(elem.name, "GRAD", "setpoint"),
+                    #             self._findChannel(elem.name, "GRAD", "readset"),
+                    #             self._findChannel(elem.name, "GRAD", "readback"),
+                    #             (elem.name, "GRAD"), desc="EQuad Field", egu="V", drvratio=0.10)
+                    #va.append_elem(elem)
+                    pass
 
             elif isinstance(elem, SextElement):
                 _LOGGER.warning("VirtAccelFactory: Hexapole magnet element support not implemented. Ignoring channels.")
