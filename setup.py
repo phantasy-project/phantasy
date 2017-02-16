@@ -16,7 +16,7 @@ def read_license():
         return f.read()
 
 app_name = "phantasy"
-app_description = 'Physics High-level Applications aNd Toolkits for Accelerator SYstem'
+app_description = 'Physics high-level applications and toolkits for accelerator system'
 app_long_description = readme() + '\n\n'
 app_platform = ["Linux"]
 app_author = "Tong Zhang"
