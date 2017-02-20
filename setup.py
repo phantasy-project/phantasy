@@ -34,7 +34,7 @@ installrequires = [
 #    'jinja2',
 #    'humanize',
 #    'jsonschema',
-    'cothread',
+#    'cothread',
 ]
 extrasrequire = {
     "LMS": [
