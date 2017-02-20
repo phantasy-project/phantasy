@@ -665,35 +665,39 @@ def write_cfs(data, cfs_url, **kws):
             password = getpass.getpass("Enter password: ")
 
         cfc = ChannelFinderClient(BaseURL=cfs_url, username=username, password=password)
-        
-        ch_list = []
-        for ch in data:
-            ch_tags, ch_props = ch['tags'], ch['properties']
-            skip_ch = False
-
-            for t in ch_tags:
-                if not cfc.findTag(t['name']):
-                    _LOGGER.debug('Add new tag: {0}:{1}'.format(t['name'], t['owner']))
-                    if username == t['owner']:
-                        cfc.set(tag=t)
-                    else:
-                        _LOGGER.debug('Cannot add new tag, permission denied.')
-                        skip_ch = True
-
-            for p in ch_props:
-                p_dict = {'name': p['name'], 'owner': p['owner'], 'value': None}
-                if not cfc.findProperty(p['name']):
-                    _LOGGER.debug('Add new property: {0}:{1}'.format(t['name'], t['owner']))
-                    if username == t['owner']:
-                        cfc.set(property=p)
-                    else:
-                        _LOGGER.debug('Cannot add new property, permission denied.')
-                        skip_ch = True
-
-            if username == ch['owner'] and not skip_ch:
-                ch_list.append(ch)
-        
-        cfc.set(channels=ch_list)
+        tags, props = get_all_tags(data), get_all_properties(data)
+        cfc.set(tags=tags)
+        cfc.set(properties=props)
+        cfc.set(channels=data)
+ 
+#        ch_list = []
+#        for ch in data:
+#            ch_tags, ch_props = ch['tags'], ch['properties']
+#            skip_ch = False
+#
+#            for t in ch_tags:
+#                if not cfc.findTag(t['name']):
+#                    _LOGGER.debug('Add new tag: {0}:{1}'.format(t['name'], t['owner']))
+#                    if username == t['owner']:
+#                        cfc.set(tag=t)
+#                    else:
+#                        _LOGGER.debug('Cannot add new tag, permission denied.')
+#                        skip_ch = True
+#
+#            for p in ch_props:
+#                p_dict = {'name': p['name'], 'owner': p['owner'], 'value': None}
+#                if not cfc.findProperty(p['name']):
+#                    _LOGGER.debug('Add new property: {0}:{1}'.format(t['name'], t['owner']))
+#                    if username == t['owner']:
+#                        cfc.set(property=p)
+#                    else:
+#                        _LOGGER.debug('Cannot add new property, permission denied.')
+#                        skip_ch = True
+#
+#            if username == ch['owner'] and not skip_ch:
+#                ch_list.append(ch)
+#        
+#        cfc.set(channels=ch_list)
     else:
         if cfs_url is None:
             cfc = ChannelFinderClient()
