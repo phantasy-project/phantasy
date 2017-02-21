@@ -53,6 +53,7 @@ setup(
         version=versioneer.get_version(),
         cmdclass=versioneer.get_cmdclass(),
         description=app_description,
+        long_description=app_long_description,
         author=app_author,
         author_email=app_author_email,
         url = app_url,
