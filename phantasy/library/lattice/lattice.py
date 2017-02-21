@@ -36,6 +36,7 @@ from phantasy.library.pv import caput
 from phantasy.library.misc import parse_dt
 from phantasy.library.model import MachineStates
 from phantasy.library.model import ModelFlame
+from phantasy.library.layout import CavityElement
 from flame import Machine
 
 
@@ -426,6 +427,8 @@ class Lattice(object):
         """
         pv = elem.pv(field=field, handle='setpoint')[0]
         value0 = caget(pv)
+        if elem.family == "CAV" and field == 'PHA':
+            value = _normalize_phase(value)
         caput(pv, value)
         self._log_trace('control', element=elem.name, 
                 field=field, value0=value0, value=value, pv=pv)
@@ -1637,3 +1640,12 @@ class Lattice(object):
             ret.append(fmt.format(idx=i, name=e.name, family=e.family, 
                                   pos=e.sb, len=e.length))            
         return '\n'.join(ret)
+
+
+def _normalize_phase(x):
+    while x >= 360.0:
+        x -= 360.0
+    while x < 0.0:
+        x += 360.0
+    return x
+
