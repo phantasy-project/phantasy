@@ -1,3 +1,13 @@
+Version 0.2.0
+-------------
+
+2017-02-22 [Testing]
+
+Major changes:
+
+- Support modeling LEBT segment of front-end of FRIB linac.
+- New configurations from "FRIB_FE", which is in "machines" repo.
+
 Version 0.1.0
 -------------
 
