@@ -332,54 +332,54 @@ class VirtualAcceleratorFactory(object):
                 va.append_rw(self._findChannel(elem.name, elem.fields.field, "setpoint"),
                              self._findChannel(elem.name, elem.fields.field, "readset"),
                              self._findChannel(elem.name, elem.fields.field, "readback"),
-                             (elem.name, elem.fields.field), desc="Solenoid Field", egu="T", drvratio=0.10)
+                             (elem.name, elem.fields.field), desc="Solenoid Field", egu="T")#, drvratio=0.10)
                 va.append_rw(self._findChannel(elem.h.name, elem.h.fields.angle, "setpoint"),
                              self._findChannel(elem.h.name, elem.h.fields.angle, "readset"),
                              self._findChannel(elem.h.name, elem.h.fields.angle, "readback"),
-                             (elem.h.name, elem.h.fields.angle), desc="Horizontal Corrector", egu="radian", drvabs=0.001)
+                             (elem.h.name, elem.h.fields.angle), desc="Horizontal Corrector", egu="radian")#, drvabs=0.001)
                 va.append_rw(self._findChannel(elem.v.name, elem.v.fields.angle, "setpoint"),
                              self._findChannel(elem.v.name, elem.v.fields.angle, "readset"),
                              self._findChannel(elem.v.name, elem.v.fields.angle, "readback"),
-                             (elem.v.name, elem.v.fields.angle), desc="Vertical Corrector", egu="radian", drvabs=0.001)
+                             (elem.v.name, elem.v.fields.angle), desc="Vertical Corrector", egu="radian")#, drvabs=0.001)
                 va.append_elem(elem)
             
             elif isinstance(elem, SolElement):
                 va.append_rw(self._findChannel(elem.name, elem.fields.field, "setpoint"),
                              self._findChannel(elem.name, elem.fields.field, "readset"),
                              self._findChannel(elem.name, elem.fields.field, "readback"),
-                             (elem.name, elem.fields.field), desc="Solenoid Field", egu="T", drvratio=0.10)
+                             (elem.name, elem.fields.field), desc="Solenoid Field", egu="T")#, drvratio=0.10)
                 va.append_elem(elem)
 
             elif isinstance(elem, CorElement):
                 va.append_rw(self._findChannel(elem.h.name, elem.h.fields.angle, "setpoint"),
                              self._findChannel(elem.h.name, elem.h.fields.angle, "readset"),
                              self._findChannel(elem.h.name, elem.h.fields.angle, "readback"),
-                             (elem.h.name, elem.h.fields.angle), desc="Horizontal Corrector", egu="radian", drvabs=0.001)
+                             (elem.h.name, elem.h.fields.angle), desc="Horizontal Corrector", egu="radian")#, drvabs=0.001)
                 va.append_rw(self._findChannel(elem.v.name, elem.v.fields.angle, "setpoint"),
                              self._findChannel(elem.v.name, elem.v.fields.angle, "readset"),
                              self._findChannel(elem.v.name, elem.v.fields.angle, "readback"),
-                             (elem.v.name, elem.v.fields.angle), desc="Vertical Corrector", egu="radian", drvabs=0.001)
+                             (elem.v.name, elem.v.fields.angle), desc="Vertical Corrector", egu="radian")#, drvabs=0.001)
                 va.append_elem(elem)
 
             elif isinstance(elem, BendElement):
                 va.append_rw(self._findChannel(elem.name, elem.fields.field, "setpoint"),
                              self._findChannel(elem.name, elem.fields.field, "readset"),
                              self._findChannel(elem.name, elem.fields.field, "readback"),
-                             (elem.name, elem.fields.field), desc="Bend Relative Field", egu="none", drvratio=0.10)
+                             (elem.name, elem.fields.field), desc="Bend Relative Field", egu="none")#, drvratio=0.10)
                 va.append_elem(elem)
 
             elif isinstance(elem, EBendElement):
                 va.append_rw(self._findChannel(elem.name, elem.fields.field, "setpoint"),
                              self._findChannel(elem.name, elem.fields.field, "readset"),
                              self._findChannel(elem.name, elem.fields.field, "readback"),
-                             (elem.name, elem.fields.field), desc="EBend Field", egu="V", drvratio=0.10)
+                             (elem.name, elem.fields.field), desc="EBend Field", egu="V")#, drvratio=0.10)
                 va.append_elem(elem)
 
             elif isinstance(elem, QuadElement):
                 va.append_rw(self._findChannel(elem.name, elem.fields.gradient, "setpoint"),
                              self._findChannel(elem.name, elem.fields.gradient, "readset"),
                              self._findChannel(elem.name, elem.fields.gradient, "readback"),
-                             (elem.name, elem.fields.gradient), desc="Quadrupole Gradient", egu="T/m", drvratio=0.10)
+                             (elem.name, elem.fields.gradient), desc="Quadrupole Gradient", egu="T/m")#, drvratio=0.10)
                 va.append_elem(elem)
 
             elif isinstance(elem, EQuadElement):
