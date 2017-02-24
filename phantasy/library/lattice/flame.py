@@ -73,6 +73,7 @@ MPOLE_LEVEL_FOCUS_DEFOCUS = 0
 MPOLE_LEVEL_DIPOLE = 1
 MPOLE_LEVEL_QUADRUPOLE = 2
 HDIPOLE_FIT_MODE_BEAM_ENERGY = 1
+HDIPOLE_FIT_MODE_NONE = 0
 
 # Default values for IMPACT lattice generation
 
@@ -756,7 +757,7 @@ class FlameLattice(object):
 
     @hdipoleFitMode.setter
     def hdipoleFitMode(self, hdipoleFitMode):
-        if hdipoleFitMode not in [HDIPOLE_FIT_MODE_BEAM_ENERGY]:
+        if hdipoleFitMode not in [HDIPOLE_FIT_MODE_BEAM_ENERGY, HDIPOLE_FIT_MODE_NONE]:
             raise ValueError("FlameLattice: 'hdipoleFitMode' property must be supported value")
         self.variables['HdipoleFitMode'] = hdipoleFitMode
 
