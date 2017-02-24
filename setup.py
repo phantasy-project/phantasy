@@ -35,6 +35,9 @@ installrequires = [
 #    'humanize',
 #    'jsonschema',
 #    'cothread',
+#    'nose',
+#    'nose-exclude',
+#    'coverage',
 ]
 extrasrequire = {
     "LMS": [
