@@ -1,0 +1,4 @@
+python-phantasy binary: new-package-should-close-itp-bug
+python-phantasy binary: binary-without-manpage
+python-phantasy binary: script-with-language-extension
+python-phantasy binary: unusual-interpreter
