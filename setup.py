@@ -3,7 +3,6 @@
 
 from setuptools import setup, find_packages
 import glob
-import versioneer
 from fnmatch import fnmatch
 
 
@@ -53,8 +52,7 @@ app_scripts = [i for i in glob.glob("scripts/*") if not fnmatch(i, "scripts/soft
 
 setup(
         name=app_name,
-        version=versioneer.get_version(),
-        cmdclass=versioneer.get_cmdclass(),
+        version="0.2.0",
         description=app_description,
         long_description=app_long_description,
         author=app_author,
