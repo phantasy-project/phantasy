@@ -1,5 +1,0 @@
-PV,elemField,elemHandle,elemIndex,elemLength,elemName,elemPosition,elemType,machine
-V_1:LS1_CA01:CAV1_D1127:PHA_CSET,PHA,setpoint,3,0.24,LS1_CA01:CAV1_D1127,0.4470635,CAV,V_1,phyutil.sys.LS1,phyutil.sub.CA01,phyutil.sys.LINAC
-V_1:LS1_CA01:CAV1_D1127:AMPL_RD,AMP,readback,3,0.24,LS1_CA01:CAV1_D1127,0.4470635,CAV,V_1,phyutil.sys.LS1,phyutil.sub.CA01,phyutil.sys.LINAC
-V_1:LS1_CA01:BPM_D1129:X_RD,X,readback,6,0.0,LS1_CA01:BPM_D1129,0.51132684,BPM,V_1,phyutil.sys.LS1,phyutil.sub.CA01,phyutil.sys.LINAC
-V_1:LS1_CA01:BPM_D1129:Y_RD,Y,readback,6,0.0,LS1_CA01:BPM_D1129,0.51132684,BPM,V_1,phyutil.sys.LS1,phyutil.sub.CA01,phyutil.sys.LINAC
