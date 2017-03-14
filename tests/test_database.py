@@ -21,7 +21,7 @@ class TestDataBase(unittest.TestCase):
     def setUp(self):
         self.config_dir = os.path.join(curdir, 'config')
         self.db = os.path.join(self.config_dir, 
-                'FRIB1/baseline_channels_bak.sqlite')
+                'FRIB_TEST/baseline_channels_bak.sqlite')
 
     def test_init_valid(self):
         cfcd = CFCDatabase()

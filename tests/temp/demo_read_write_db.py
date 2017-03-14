@@ -11,7 +11,7 @@ from phantasy.library.channelfinder import write_db
 from phantasy.library.channelfinder import init_db
 
 # read data from database
-db = '../contrib/FRIB_FLAME/baseline_channels.sqlite'
+db = '../../contrib/FRIB_FLAME/baseline_channels.sqlite'
 data = get_data_from_db(db_name=db)
 
 # read data from cfs

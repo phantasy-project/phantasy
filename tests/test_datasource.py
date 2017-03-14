@@ -31,11 +31,11 @@ class TestDataSource(unittest.TestCase):
     def setUp(self):
         self.config_dir = os.path.join(curdir, 'config')
         self.db = os.path.join(self.config_dir, 
-                'FRIB1/baseline_channels_bak.sqlite')
+                'FRIB_TEST/baseline_channels_bak.sqlite')
         self.url = 'https://127.0.0.1:8181/ChannelFinder'
-        self.file1 = os.path.join(curdir, 'cfd_data_1.pkl')
-        self.file2 = os.path.join(curdir, 'cfd_data_2.pkl')
-        self.file3 = os.path.join(curdir, 'cfd_data_3.pkl')
+        self.file1 = os.path.join(curdir, 'data/cfd_data_1.pkl')
+        self.file2 = os.path.join(curdir, 'data/cfd_data_2.pkl')
+        self.file3 = os.path.join(curdir, 'data/cfd_data_3.pkl')
 
     def test_get_data_1(self):
         ds = DataSource()

@@ -1,4 +1,4 @@
-Eng_Data_Dir = "/home/tong1/work/FRIB/projects/machines/FRIB_FLAME/flame_data";
+Eng_Data_Dir = "/home/tong/Dropbox/FRIB/work/python-phantasy/tests/lattice/flame_data";
 HdipoleFitMode = 1.0;
 IonChargeStates = [0.138655];
 IonEk = 500000.0;
@@ -90,7 +90,7 @@ LS1_CA03:BPM_D1196: bpm;
 DRIFT_37: drift, L = 0.05588, aper = 0.02;
 DRIFT_38: drift, L = 0.0761235, aper = 0.02;
 LS1_CA03:SOL1_D1199_1: solenoid, B = 7.20044, L = 0.1, aper = 0.02;
-LS1_CA03:DCH_D1199: orbtrim, theta_x = 0.0;
+LS1_CA03:DCH_D1199: orbtrim, theta_x = 0.1;
 LS1_CA03:DCV_D1199: orbtrim, theta_y = 0.0;
 LS1_CA03:SOL1_D1199_2: solenoid, B = 7.20044, L = 0.1, aper = 0.02;
 DRIFT_39: drift, L = 0.0761235, aper = 0.02;
