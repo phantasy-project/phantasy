@@ -71,7 +71,8 @@ INI_DICT['DEFAULT_SIMULATION_CODE'] = DEFAULT_SIMULATION_CODE
 
 # model data dir, extra resources to support simulation
 KEYNAME_MODEL_DATA_DIR = 'model_data_dir'
-DEFAULT_MODEL_DATA_DIR = os.path.join(DEFAULT_ROOT_DATA_DIR, 'model_data')
+DEFAULT_MODEL_DATA_DIR = os.path.expanduser(
+        os.path.join(DEFAULT_ROOT_DATA_DIR, 'model_data'))
 
 INI_DICT['KEYNAME_MODEL_DATA_DIR'] = KEYNAME_MODEL_DATA_DIR
 INI_DICT['DEFAULT_MODEL_DATA_DIR'] = DEFAULT_MODEL_DATA_DIR
