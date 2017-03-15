@@ -6,6 +6,7 @@ Build-Depends: debhelper (>=9), dh-python, python-all,
                python-setuptools, python-xlrd, python-scipy,
                python-numpy, python-matplotlib, python-flame,
                python-cfclient, python-scanclient, python-cothread,
+               python-nose, python-nose-exclude, python-coverage
 Standards-Version: 3.9.6
 Homepage: https://controls.frib.msu.edu/phantasy/
 X-Python-Version: >= 2.7
