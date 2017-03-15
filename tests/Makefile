@@ -7,4 +7,4 @@ test:
 		--exclude-dir-file="skiptests" 
 
 clean:
-	[ -e phantasy_data ] && rm -rf phantasy_data
+	[ -e /tmp/phantasy_data ] && rm -rf /tmp/phantasy_data
