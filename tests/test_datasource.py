@@ -40,7 +40,7 @@ class TestDataSource(unittest.TestCase):
     def test_get_data_1(self):
         ds = DataSource()
         ds.source = self.db
-        data = ds.get_data()
+        data = ds.get_data(owner='tong')
         data_0 = load_data(self.file1)
         self.assertEqual(data, data_0)
 
@@ -48,7 +48,8 @@ class TestDataSource(unittest.TestCase):
         ds = DataSource()
         ds.source = self.db
         data = ds.get_data(tag_filter='phyutil.sub.CB09',
-                           prop_filter='elem*')
+                           prop_filter='elem*',
+                           owner='tong')
         data_0 = load_data(self.file2)
         self.assertEqual(data, data_0)
 
@@ -56,7 +57,8 @@ class TestDataSource(unittest.TestCase):
         ds = DataSource()
         ds.source = self.db
         data = ds.get_data(prop_filter=['elem*', 
-                            ('elemHandle', 'setpoint')])
+                            ('elemHandle', 'setpoint')],
+                           owner='tong')
         data_0 = load_data(self.file3)
         self.assertEqual(data, data_0)
 
@@ -65,7 +67,8 @@ class TestDataSource(unittest.TestCase):
         ds.source = self.db
         data = ds.get_data(name_filter='*',
                            prop_filter=['elem*', 
-                            ('elemHandle', 'setpoint')])
+                            ('elemHandle', 'setpoint')],
+                           owner='tong')
         data_0 = load_data(self.file3)
         self.assertEqual(data, data_0)
 
@@ -74,7 +77,8 @@ class TestDataSource(unittest.TestCase):
         ds.source = self.db
         data = ds.get_data(name_filter='*BPM*',
                            prop_filter=['elem*', 
-                            ('elemHandle', 'setp int')])
+                            ('elemHandle', 'setp int')],
+                           owner='tong')
         for d in data:
             self.assertTrue(fnmatch(d['name'], '*BPM*'))
             self.assertTrue(
@@ -84,8 +88,9 @@ class TestDataSource(unittest.TestCase):
     def test_get_data_6(self):
         ds = DataSource()
         ds.source = self.db
-        data1 = ds.get_data(name_filter='*PM*')
-        data2 = ds.get_data(name_filter='*BPM*', raw_data=data1)
+        data1 = ds.get_data(name_filter='*PM*', owner='tong')
+        data2 = ds.get_data(name_filter='*BPM*', raw_data=data1,
+                            owner='tong')
 
         self.assertTrue(len(data2)<=len(data1))
         for d in data1:
@@ -94,6 +99,3 @@ class TestDataSource(unittest.TestCase):
             dp = {p['name']:p['value'] for p in d['properties']}
             self.assertTrue(dp.get('elemType'), 'BPM')
         
-
-
-
