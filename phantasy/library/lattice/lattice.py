@@ -123,10 +123,12 @@ class Lattice(object):
         self.settings = kws.get('settings', None)
         self.model_factory = kws.get('model_factory', None)
 
+        self._viewer_settings = OrderedDict()
         self._trace_history = None
         self.trace = kws.get('trace', None)
 
 
+        ## clean up the following parameters
         self._twiss = None
         # group name and its element
         self._group = {}
@@ -509,6 +511,18 @@ class Lattice(object):
         source : str
             Two options available: 'control' and 'model', by default 'control'
             i.e. only get from 'control' environment.
+        mstate : bool
+            If True, return MachineStates instance, False by default, only
+            valid for viewer elements and ``source='model'``.
+
+        Note
+        ----
+        If ``source`` is defined as ``'model'``, settings will be retrieved
+        from model environment, there are two categories: one is devices that
+        accept new values settings, e.g. corrector, cavity, etc., the other is
+        devices that only can show readings, e.g. BPM, PM, etc. (so-called
+        *viewer elements*). For *viewer elements*, ``MachineStates`` could be
+        got after ``run()``, for flame model.
 
         Returns
         -------
@@ -531,7 +545,8 @@ class Lattice(object):
         if source == 'control':
             retval = self._get_control_field(_elem, field)
         elif source == 'model':
-            retval = self._get_model_field(_elem, field)
+            mstate_flag = kws.get('mstate', False)
+            retval = self._get_model_field(_elem, field, mstate=mstate_flag)
         else:
             raise RuntimeError("Invalid source.")
 
@@ -545,13 +560,25 @@ class Lattice(object):
         pv = {f:elem.pv(field=f, handle='readback') for f in field}
         return {k:caget(v)[0] for k,v in pv.iteritems()}
 
-    def _get_model_field(self, elem, field):
+    def _get_model_field(self, elem, field, **kws):
         """Get field value(s) from elment.
+
+        Keyword Arguments
+        -----------------
+        mstate : bool
+            If True, return MachineStates instance, False by default.
         """
         if not isinstance(field, (list, tuple)):
             field = field,
         elem_name = elem.name
-        return {k:v for k,v in self.settings[elem_name].items() if k in field}
+        if self._is_viewer(elem):
+            _settings = self._viewer_settings
+        else:
+            _settings = self.settings
+        retval = {k:v for k,v in _settings[elem_name].items() if k in field}
+        if kws.get('mstate', False) and self._is_viewer(elem):
+            retval['mstate'] = self._viewer_settings[elem_name]['mstate']
+        return retval
 
     def trace_history(self, rtype='human', **kws):
         """Inspect trace history of Lattice set actions, return data type with
@@ -867,20 +894,53 @@ class Lattice(object):
             _, latpath = tempfile.mkstemp(prefix='model_', suffix='.lat', dir=self.data_dir)
             with open(latpath, 'w') as f:
                 lat.write(f)
-            fm = self._flame_model(latpath)
+            fm = self._flame_model(latconf=lat.conf())
             return latpath, fm
         else:
             raise RuntimeError("Lattice: Simulation code '{}' not supported".format(self.model))
     
-    def _flame_model(self, latfile):
+    def _flame_model(self, **kws):
         """Create a new flame model
         """
-        with open(latfile, 'r') as f:
-            m = Machine(f)
+        latconf = kws.get('latconf', None)
+        latfile = kws.get('latfile', None)
+        
+        if latconf is not None:
+            m = Machine(latconf)
+        elif latfile is not None:
+            m = Machine(open(latfile, 'r'))
         ms = MachineStates(machine=m)
         fm = ModelFlame()
         fm.mstates, fm.machine = ms, m
+        obs = fm.get_index_by_type(type='bpm')['bpm']
+        r,s = fm.run(monitor=obs)
+        self._update_viewer_settings(fm, r)
         return fm
+    
+    def _update_viewer_settings(self, fm, r):
+        """Initially, all viewer settings are {}, after ``run()``,
+        new key-values will be added into.
+        
+        field : model environment
+        key   : flame model
+        +---------+----------+-----------+
+        |  Family | field    |  key      |
+        +---------+----------+-----------+
+        |  BPM    |   X [m]  |  x0 [mm]  |
+        |  BPM    |   Y [m]  |  y0 [mm]  |
+        +---------+----------+-----------+
+
+        """
+        for i,res in r:
+            elem_name = fm.get_element(index=i)[0]['properties']['name']
+            readings = {field:getattr(res, k)[0]*1e-3 for field,k in zip(['X','Y'], ['x0','y0'])}
+            readings['mstate'] = res
+            self._viewer_settings[elem_name] = readings
+    
+    def _is_viewer(self, elem):
+        """Test if elem is viewer, e.g. BPM, PM, ...
+        """
+        return elem.family in ['BPM']
 
     def __getitem__(self, key):
         if isinstance(key, int):
