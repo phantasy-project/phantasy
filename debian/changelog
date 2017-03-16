@@ -1,3 +1,9 @@
+python-phantasy (0.2.1-2) unstable; urgency=medium
+
+  * Fix phantasy version, should be 0.2.1.
+
+ -- Tong Zhang <zhangt@frib.msu.edu>  Thu, 16 Mar 2017 13:18:57 -0400
+
 python-phantasy (0.2.1-1) unstable; urgency=medium
 
   * New - Tidy up unittests.
