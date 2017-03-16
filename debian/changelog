@@ -1,7 +1,8 @@
 python-phantasy (0.2.1-1) unstable; urgency=medium
 
-  * Now unittest works.
-  * Fix several bugs.
+  * New - Tidy up unittests.
+  * New - Update Viewer elements settings after run() [only for FLAME model].
+  * Fix - Several bugs.
 
  -- Tong Zhang <zhangt@frib.msu.edu>  Wed, 15 Mar 2017 16:12:24 -0400
 
