@@ -25,7 +25,7 @@ def load_data(file):
         data = pickle.load(f)
     return data
 
-db = './config/FRIB1/baseline_channels_bak.sqlite'
+db = './config/FRIB_TEST/baseline_channels_bak.sqlite'
 url = 'https://127.0.0.1:8181/ChannelFinder'
 
 ds1 = DataSource(source=db)
@@ -33,13 +33,13 @@ ds1 = DataSource(source=db)
 
 # get_data()
 data1 = ds1.get_data()
-file1 = 'cfd_data_1.pkl'
+file1 = 'data/cfd_data_1.pkl'
 dump_data(data1, file1)
 
 data2 = ds1.get_data(tag_filter='phyutil.sub.CB09', prop_filter='elem*')
-file2 = 'cfd_data_2.pkl'
+file2 = 'data/cfd_data_2.pkl'
 dump_data(data2, file2)
 
 data3 = ds1.get_data(prop_filter=['elem*', ('elemHandle', 'setpoint')])
-file3 = 'cfd_data_3.pkl'
+file3 = 'data/cfd_data_3.pkl'
 dump_data(data3, file3)

@@ -125,8 +125,9 @@ def load_lattice(machine, segment=None, **kwargs):
             simulation_code = simulation_code.upper()
 
         # model: data
+        DEFAULT_MODEL_DATA_DIR = 'model_data'
         model_data_dir = d_msect.get(INI_DICT['KEYNAME_MODEL_DATA_DIR'],
-                                     INI_DICT['DEFAULT_MODEL_DATA_DIR'])
+                                     DEFAULT_MODEL_DATA_DIR)
         if model_data_dir is not None:
             model_data_dir = os.path.expanduser(
                 os.path.join(work_dir, model_data_dir))

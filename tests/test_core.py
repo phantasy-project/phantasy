@@ -16,7 +16,7 @@ curdir = os.path.dirname(__file__)
 class TestMachinePortal(unittest.TestCase):
     def setUp(self):
         self.config_dir = os.path.join(curdir, 'config')
-        mpath = os.path.join(self.config_dir, 'FRIB1')
+        mpath = os.path.join(self.config_dir, 'FRIB_TEST')
         mp = MachinePortal(machine=mpath)
         self.mp = mp
         self.machine = mpath
@@ -27,14 +27,14 @@ class TestMachinePortal(unittest.TestCase):
     #def test_init_with_environpath(self):
     #    val_bak = os.environ.get('PHYUTIL_CONFIG_DIR')
     #    os.environ['PHYUTIL_CONFIG_DIR'] = self.config_dir
-    #    mp = MachinePortal(machine='FRIB1')
-    #    self.assertEqual(mp.last_machine_name, 'FRIB1')
+    #    mp = MachinePortal(machine='FRIB_TEST')
+    #    self.assertEqual(mp.last_machine_name, 'FRIB_TEST')
     #    os.environ['PHYUTIL_CONFIG_DIR'] = val_bak
 
     def test_init_with_machinepath(self):
-        mpath = os.path.join(self.config_dir, 'FRIB1')
+        mpath = os.path.join(self.config_dir, 'FRIB_TEST')
         mp = MachinePortal(machine=mpath)
-        self.assertEqual(mp.last_machine_name, 'FRIB1')
+        self.assertEqual(mp.last_machine_name, 'FRIB_TEST')
         self.assertEqual(mp.last_machine_path, os.path.realpath(mpath))
         self.assertEqual(mp.last_lattice_name, 'LINAC')
         self.assertEqual(mp.work_lattice_name, 'LINAC')
@@ -211,9 +211,9 @@ class TestMachinePortal(unittest.TestCase):
     def test_inspect_mconf(self):
         mp = self.mp
         mconf = mp.inspect_mconf()
-        self.assertEqual(mconf.get('machine'), 'FRIB1')
+        self.assertEqual(mconf.get('machine'), 'FRIB_TEST')
         self.assertEqual(mconf.get('path'), 
-                os.path.join(self.config_dir, 'FRIB1/phyutil.ini'))
+                os.path.join(self.config_dir, 'FRIB_TEST/phyutil.ini'))
         self.assertEqual(mconf.get('lattices'), ['LINAC', 'LS1'])
 
     def test_get_pv_names(self):

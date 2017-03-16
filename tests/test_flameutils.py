@@ -12,14 +12,39 @@ import os
 from cStringIO import StringIO
 import random
 
+#from nose.tools import nottest
 
 curdir = os.path.dirname(__file__)
 
+FLAME_DATA = os.path.join(curdir, "lattice/flame_data")
+
+
+def make_latfile(latfile1):
+    f1 = latfile1
+    f1_pathname = os.path.dirname(f1)
+    f1_filename = os.path.basename(f1)
+    f2_filename = f1_filename.replace('0', '1')
+    f2_pathname = f1_pathname
+    f2 = os.path.join(f2_pathname, f2_filename)
+    fp2 = open(f2, 'w')
+    for line in open(f1, 'r'):
+        if line.startswith('Eng'):
+            name, _ = line.split('=')
+            line = '{0} = "{1}";\n'.format(name.strip(),
+                                           os.path.abspath(FLAME_DATA))
+        fp2.write(line)
+    fp2.close()
+    return f2
+
+
 class TestGenerateLatfile(unittest.TestCase):
     def setUp(self):
-        self.testfile = os.path.join(curdir, 'lattice/test.lat')
-        self.out1file = os.path.join(curdir, 'lattice/out1.lat')
-        self.out2file = os.path.join(curdir, 'lattice/out2.lat')
+        testfile = os.path.join(curdir, 'lattice/test_0.lat')
+        out1file = os.path.join(curdir, 'lattice/out1_0.lat')
+        out2file = os.path.join(curdir, 'lattice/out2_0.lat')
+        self.testfile = make_latfile(testfile)
+        self.out1file = make_latfile(out1file)
+        self.out2file = make_latfile(out2file)
 
         ftest = open(self.testfile)
         self.m = Machine(ftest)
@@ -35,8 +60,8 @@ class TestGenerateLatfile(unittest.TestCase):
         self.fout1_str = open(self.out1file).read().strip()
         self.fout2_str = open(self.out2file).read().strip()
 
-        self.latfile1 = 'out1_org.lat'
-        self.latfile2 = 'out1_mod.lat'
+        self.latfile1 = os.path.join(curdir, 'lattice/out1_org.lat')
+        self.latfile2 = os.path.join(curdir, 'lattice/out1_mod.lat')
 
     def tearDown(self):
         for f in [self.latfile1, self.latfile2]:
@@ -86,7 +111,8 @@ class TestGenerateLatfile(unittest.TestCase):
 
 class TestModelFlame(unittest.TestCase):
     def setUp(self):
-        self.testfile = os.path.join(curdir, 'lattice/test.lat')
+        testfile = os.path.join(curdir, 'lattice/test_0.lat')
+        self.testfile = make_latfile(testfile)
         self.fm = flameutils.ModelFlame(self.testfile)
 
     def test_set_latfile(self):
@@ -249,7 +275,8 @@ class TestModelFlame(unittest.TestCase):
         for attr in all_keys:
             left_val, right_val = getattr(ms, attr), getattr(s, attr)
             if isinstance(left_val, np.ndarray):
-                self.assertTrue((np.allclose(left_val, right_val, equal_nan=True) | (np.isnan(left_val) & np.isnan(right_val))).all())
+                #self.assertTrue((np.allclose(left_val, right_val, equal_nan=True) | (np.isnan(left_val) & np.isnan(right_val))).all())
+                self.assertTrue(((left_val == right_val) | (np.isnan(left_val) & np.isnan(right_val))).all())
             else:
                 self.assertAlmostEqual(left_val, right_val)
 
@@ -276,7 +303,8 @@ class TestModelFlame(unittest.TestCase):
 
 class TestMachineStates(unittest.TestCase):
     def setUp(self):
-        self.latfile = os.path.join(curdir, 'lattice/test.lat')
+        latfile = os.path.join(curdir, 'lattice/test_0.lat')
+        self.latfile = make_latfile(latfile)
 
     def test_init_with_s1(self):
         """ test_init_with_s1: s it not None
@@ -335,14 +363,16 @@ class TestMachineStates(unittest.TestCase):
         for attr in all_keys:
             left_val, right_val = getattr(ms, attr), getattr(s, attr)
             if isinstance(left_val, np.ndarray):
-                self.assertTrue((np.allclose(left_val, right_val, equal_nan=True) | (np.isnan(left_val) & np.isnan(right_val))).all())
+                #self.assertTrue((np.allclose(left_val, right_val, equal_nan=True) | (np.isnan(left_val) & np.isnan(right_val))).all())
+                self.assertTrue(((left_val == right_val) | (np.isnan(left_val) & np.isnan(right_val))).all())
             else:
                 self.assertAlmostEqual(left_val, right_val)
 
 
 class TestInspectLattice(unittest.TestCase):
     def setUp(self):
-        self.latfile = os.path.join(curdir, 'lattice/test.lat')
+        latfile = os.path.join(curdir, 'lattice/test_0.lat')
+        self.latfile = make_latfile(latfile)
         self.inslat = os.path.join(curdir, 'data/inslat.out')
 
     def test_wrong_file(self):
@@ -360,7 +390,8 @@ class TestInspectLattice(unittest.TestCase):
 
 class TestGetElement(unittest.TestCase):
     def setUp(self):
-        self.latfile = os.path.join(curdir, 'lattice/test.lat')
+        latfile = os.path.join(curdir, 'lattice/test_0.lat')
+        self.latfile = make_latfile(latfile)
         self.m = Machine(open(self.latfile, 'r'))
 
     def test_one_name(self):
@@ -464,7 +495,8 @@ class TestGetElement(unittest.TestCase):
 
 class TestGetIndexByType(unittest.TestCase):
     def setUp(self):
-        self.latfile = os.path.join(curdir, 'lattice/test.lat')
+        latfile = os.path.join(curdir, 'lattice/test_0.lat')
+        self.latfile = make_latfile(latfile)
         self.m = Machine(open(self.latfile, 'r'))
 
     def test_wrong_type(self):
@@ -493,7 +525,8 @@ class TestGetIndexByType(unittest.TestCase):
 
 class TestGetIndexByName(unittest.TestCase):
     def setUp(self):
-        self.latfile = os.path.join(curdir, 'lattice/test.lat')
+        latfile = os.path.join(curdir, 'lattice/test_0.lat')
+        self.latfile = make_latfile(latfile)
         self.m = Machine(open(self.latfile, 'r'))
 
     def test_wrong_name(self):
@@ -571,7 +604,8 @@ def t_modelflame():
     #import logging
     #logging.getLogger().setLevel(logging.INFO)
 
-    latfile = 'lattice/test.lat'
+    latfile0 = 'lattice/test_0.lat'
+    latfile = make_latfile(latfile0)
     # latfile is None
     fm1 = flameutils.ModelFlame()
     #print(fm1.latfile)
@@ -640,7 +674,8 @@ def t_modelflame():
     
 
 def t_machinestates():
-    latfile = os.path.join(curdir, 'lattice/test.lat')
+    latfile0 = os.path.join(curdir, 'lattice/test_0.lat')
+    latfile = make_latfile(latfile0)
     m = Machine(open(latfile, 'r'))
     s0 = m.allocState({})
     s1 = s0.clone()
@@ -671,7 +706,8 @@ def iter_all_attrs(ms, s):
     for attr in all_keys:
         left_val, right_val = getattr(ms, attr), getattr(s, attr)
         if isinstance(left_val, np.ndarray):
-            print(attr, (np.allclose(left_val, right_val, equal_nan=True) | (np.isnan(left_val) & np.isnan(right_val))).all())
+            #print(attr, (np.allclose(left_val, right_val, equal_nan=True) | (np.isnan(left_val) & np.isnan(right_val))).all())
+            print(attr, ((left_val == right_val) | (np.isnan(left_val) & np.isnan(right_val))).all())
         else:
             print(attr, left_val==right_val)
 

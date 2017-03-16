@@ -462,6 +462,8 @@ def get_data_from_db(db_name, db_type='sqlite', **kws):
         logical AND applies for multiple tags.
     raw_data : list
         List of PV data.
+    owner : str
+        Database owner, login username by default.
 
     Returns
     -------
@@ -476,9 +478,10 @@ def get_data_from_db(db_name, db_type='sqlite', **kws):
     tag_filter = kws.get('tag_filter', None)
     name_filter = kws.get('name_filter', None)
     raw_data = kws.get('raw_data', None)
+    owner = kws.get('owner', None)
 
     if db_type == 'sqlite': 
-        cfcd = CFCDatabase(db_name)
+        cfcd = CFCDatabase(db_name, owner=owner)
         if raw_data is None:
             raw_data = cfcd.find(name='*')
         all_prop_list = cfcd.getAllProperties(name_only=True)
@@ -488,7 +491,7 @@ def get_data_from_db(db_name, db_type='sqlite', **kws):
         _LOGGER.warn("{} will be implemented later.".format(db_type))
         raise NotImplementedError
 
-    new_kws = {k:v for k,v in kws.iteritems() if k != 'raw_data'} 
+    new_kws = {k:v for k,v in kws.iteritems() if k not in ('raw_data', 'owner')} 
     return _get_data(raw_data, all_prop_list, all_tag_list, **new_kws)
 
 
@@ -525,6 +528,8 @@ def get_data_from_tb(tb_name, tb_type='csv', **kws):
         logical AND applies for multiple tags.
     raw_data : list
         List of PV data.
+    owner : str
+        Database owner, login username by default.
 
     Returns
     -------
@@ -538,9 +543,10 @@ def get_data_from_tb(tb_name, tb_type='csv', **kws):
     tag_filter = kws.get('tag_filter', None)
     name_filter = kws.get('name_filter', None)
     raw_data = kws.get('raw_data', None)
+    owner = kws.get('owner', None)
 
     if tb_type == 'csv':
-        cfct = CFCTable(tb_name)
+        cfct = CFCTable(tb_name, owner=owner)
         if raw_data is None:
             raw_data = cfct.find(name='*')
         all_prop_list = cfct.getAllProperties(name_only=True)
@@ -549,7 +555,7 @@ def get_data_from_tb(tb_name, tb_type='csv', **kws):
         _LOGGER.warn("{} will be implemented later.".format(db_type))
         raise NotImplementedError
 
-    new_kws = {k:v for k,v in kws.iteritems() if k != 'raw_data'} 
+    new_kws = {k:v for k,v in kws.iteritems() if k not in ('raw_data', 'owner')} 
     return _get_data(raw_data, all_prop_list, all_tag_list, **new_kws)
 
 
