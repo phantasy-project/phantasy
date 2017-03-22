@@ -890,7 +890,7 @@ class VirtualAccelerator(object):
                         y_rms = S.moment0_rms[2]/1.0e3
                         _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
                                       self._readfieldmap[elem.name][elem.fields.yrms], y_rms)
-                        batch[self._readfieldmap[elem.name][elem.fields.xrms]] = y_rms
+                        batch[self._readfieldmap[elem.name][elem.fields.yrms]] = y_rms
 
             batch.caput()
 
