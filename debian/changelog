@@ -1,3 +1,10 @@
+python-phantasy (0.2.2-1) unstable; urgency=medium
+
+  * Fix - YRMS of PM issue.
+  * Update for 0.2.2.
+
+ -- Tong Zhang <zhangt@frib.msu.edu>  Wed, 22 Mar 2017 10:20:06 -0400
+
 python-phantasy (0.2.1-2) unstable; urgency=medium
 
   * Fix phantasy version, should be 0.2.1.
