@@ -267,7 +267,7 @@ class Point(object):
             return "INVALID index, could be 0 or 1."
 
     def __repr__(self):
-        return "Point ({0}, {1})".format(self._x, self._y)
+        return "Point ({0:.3f}, {1:.3f})".format(self._x, self._y)
 
     def move(self, angle, speed, count):
         """Move point to another place, with given direction.
@@ -385,7 +385,7 @@ class Line(object):
         return self._p_end
 
     def __repr__(self):
-        return "Line ({0}, {1}) from {2} to {3}".format(
+        return "Line ({0:.3f}, {1:.3f}) from {2} to {3}".format(
                 self._x, self._y, self._p_begin, self._p_end)
 
     def __eq__(self, other):
@@ -443,7 +443,6 @@ class Line(object):
 
     def __getitem__(self, i):
         return self._stackpoints[i]
-
 
 
 if __name__ == '__main__':
@@ -570,7 +569,5 @@ if __name__ == '__main__':
     print(line2)
 
     print(line2[:,1])
-    
-
     
     
