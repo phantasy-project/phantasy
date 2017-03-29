@@ -6,5 +6,6 @@
 
 from .geometry import Point
 from .geometry import Line
+from .particles import Distribution
 
-__all__ = ['Point', 'Line']
+__all__ = ['Point', 'Line', 'Distribution']
