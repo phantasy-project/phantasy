@@ -297,7 +297,7 @@ class Point(object):
 
 class Line(object):
     """Lines in 2D Cartesian coordinate system, if invalid input is detected,
-    return ``Line(0,1)``.
+    return ``Line(0,1) from Point(0,0) to Point(0,1)``.
 
     Initialization approaches:
 
@@ -357,9 +357,7 @@ class Line(object):
                 p1, p2 = Point(0,0), Point(p2)
             else:
                 print("Point should be defined by list, tuple, array or Point.")
-                self._x, self._y = 0, 1
-                self._p0 = Point(0,0)
-                return
+                p1, p2 = Point(0,0), Point(0,1)
         elif isinstance(p1, (list, tuple, np.ndarray, Point)):
             if p2 is None:
                 p1, p2 = Point(0,0), Point(p1)
@@ -367,30 +365,34 @@ class Line(object):
                 p1, p2 = Point(p1), Point(p2)
             else:
                 print("Point should be defined by list, tuple, array or Point.")
-                self._x, self._y = 0, 1
-                self._p0 = Point(0,0)
-                return
+                p1, p2 = Point(0,0), Point(0,1)
         else:
             print("Point should be defined by list, tuple, array or Point.")
-            self._x, self._y = 0, 1
-            self._p0 = Point(0,0)
-            return
+            p1, p2 = Point(0,0), Point(0,1)
 
         self._x, self._y = (p2 - p1).point
-        self._p0 = p1
+        self._p_begin, self._p_end = p1, p2
+        self._stackpoints = np.vstack([self._p_begin.point, self._p_end.point])
 
     @property
-    def p0(self):
+    def pbegin(self):
         """Point: Starting point of line."""
-        return self._p0
+        return self._p_begin
+
+    @property
+    def pend(self):
+        """Point: Ending point of line."""
+        return self._p_end
 
     def __repr__(self):
-        return "Line ({0}, {1}) from {2}".format(self._x, self._y, self._p0)
+        return "Line ({0}, {1}) from {2} to {3}".format(
+                self._x, self._y, self._p_begin, self._p_end)
 
     def __eq__(self, other):
         return ((self.x == other.x) 
                 and (self.y == other.y) 
-                and (self.p0 == other.p0))
+                and (self.pbegin == other.pbegin)
+                and (self.pend == other.pend))
 
     def __abs__(self):
         return np.sqrt(self.x * self.x + self.y * self.y)
@@ -417,10 +419,31 @@ class Line(object):
         """
         # line1 = p1 + t1 * d1
         # line2 = p2 + t2 * d2
-        p1, p2 = self.p0, other.p0
+        p1, p2 = self.pbegin, other.pbegin
         d1, d2 = self.vec, other.vec
         t1 = np.cross((p2 - p1).point, d2)/np.cross(d1, d2)
         return p1 + t1 * d1
+
+    def move(self, vec):
+        """Parallel move line by given vector.
+
+        Parameters
+        ----------
+        vec : array, list or tuple
+            Along vector ``(x, y)`` to move line.
+
+        Returns
+        -------
+        ret : Line
+            New *Line* object after moving.
+        """
+        new_p_begin = self._p_begin + vec
+        new_p_end = self._p_end + vec
+        return Line(new_p_begin, new_p_end)
+
+    def __getitem__(self, i):
+        return self._stackpoints[i]
+
 
 
 if __name__ == '__main__':
@@ -521,10 +544,6 @@ if __name__ == '__main__':
     print(op1.angle(ox))
     print(ox.angle(op2))
     print(ox.angle(op3))
-    print(ox.p0)
-    print(op1.p0)
-    print(op2.p0)
-    print(op3.p0)
 
 
     # line
@@ -543,6 +562,15 @@ if __name__ == '__main__':
     line1 = Line((1,2), (2,1))
     line2 = Line((3,3), (4,4))
     print(line1.cross(line2))
+
+    # move
+    line1 = Line((1,2), (2,1))
+    line2 = line1.move((1,1))
+    print(line1)
+    print(line2)
+
+    print(line2[:,1])
+    
 
     
     
