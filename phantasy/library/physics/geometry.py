@@ -269,35 +269,44 @@ class Point(object):
     def __repr__(self):
         return "Point ({0:.3f}, {1:.3f})".format(self._x, self._y)
 
-    def move(self, angle, speed, count):
-        """Move point to another place, with given direction.
+    def move(self, vec=None, **kws):
+        """Move point by given vector.
 
         Parameters
         ----------
-        angle : float
-            Moving direction angle w.r.t. ``x(+)`` axis, towards ``y(+)``,
-            in degree.
-        speed : float
-            Moving displacement per step.
-        count : int
-            Total moving steps, so the total moving displacement is
-            ``speed x count``
+        vec : array, list or tuple
+            Along vector ``(x, y)`` to move point.
+        
+        Keyword Arguments
+        -----------------
+        direction : tuple
+            Tuple of ``(theta, length)``, ``theta`` is anti-clockwised angle
+            from ``x(+)`` to vector in degree, ``length`` is moving length.
+            This argument will override *vec*.
 
         Returns
         -------
         ret : Point
-            New point after moving.
+            New *Point* object after moving.
         """
-        theta = angle/180.0*np.pi
-        unit_dv = np.array((np.cos(theta), np.sin(theta)))
-        p = self.point
-        p = p + unit_dv * speed * count
-        return Point(*p)
+        if kws.get('direction', None) is not None:
+            angle, length = kws.get('direction')
+            theta = angle/180.0*np.pi
+            m_vec = np.array((np.cos(theta), np.sin(theta))) * length
+        else:
+            m_vec = vec
+        if m_vec is None:
+            m_vec = (0, 0)
+        return Point(self.point + m_vec)
 
 
 class Line(object):
     """Lines in 2D Cartesian coordinate system, if invalid input is detected,
     return ``Line(0,1) from Point(0,0) to Point(0,1)``.
+
+    Note
+    ----
+    Always initilize with two points.
 
     Initialization approaches:
 
@@ -424,7 +433,7 @@ class Line(object):
         t1 = np.cross((p2 - p1).point, d2)/np.cross(d1, d2)
         return p1 + t1 * d1
 
-    def move(self, vec):
+    def move(self, vec=None, **kws):
         """Parallel move line by given vector.
 
         Parameters
@@ -432,13 +441,28 @@ class Line(object):
         vec : array, list or tuple
             Along vector ``(x, y)`` to move line.
 
+        Keyword Arguments
+        -----------------
+        direction : tuple
+            Tuple of ``(theta, length)``, ``theta`` is anti-clockwised angle
+            from ``x(+)`` to vector in degree, ``length`` is moving length.
+            This argument will override *vec*.
+
         Returns
         -------
         ret : Line
             New *Line* object after moving.
         """
-        new_p_begin = self._p_begin + vec
-        new_p_end = self._p_end + vec
+        if kws.get('direction', None) is not None:
+            angle, length = kws.get('direction')
+            theta = angle/180.0*np.pi
+            m_vec = np.array((np.cos(theta), np.sin(theta))) * length
+        else:
+            m_vec = vec
+        if m_vec is None:
+            m_vec = (0, 0)
+        new_p_begin = self._p_begin + m_vec
+        new_p_end = self._p_end + m_vec
         return Line(new_p_begin, new_p_end)
 
     def __getitem__(self, i):
