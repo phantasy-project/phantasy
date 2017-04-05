@@ -532,12 +532,9 @@ if __name__ == '__main__':
 
     ## move
     p = Point(0, 0)
-    direction1 = (30, 0.1, 10)
-    p_moveto1 = p.move(*direction1)
-    direction2 = (45, 0.1, 10)
-    p_moveto2 = p.move(*direction2)
-    direction3 = (60, 0.1, 10)
-    p_moveto3 = p.move(*direction3)
+    p_moveto1 = p.move(direction=(30,1))
+    p_moveto2 = p.move(direction=(45,1))
+    p_moveto3 = p.move(direction=(60,1))
 
     import matplotlib.pyplot as plt
     fig = plt.figure(1)
@@ -553,7 +550,7 @@ if __name__ == '__main__':
     ax.plot(line2[:,0], line2[:,1], '--')
     ax.plot(line3[:,0], line3[:,1], '--')
     ax.legend()
-    #plt.show()
+    plt.show()
 
     # check move
     x = Point(1, 0)
