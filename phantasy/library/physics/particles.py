@@ -36,8 +36,9 @@ class Distribution(object):
     rho : float
         Correlation between ``x`` and ``y``, should be within ``[-1, 1]``.
     distfile : string
-        Name of data file to load distribution, if *distfile* is valid,
-        the internal data generation would be ignored.
+        Name of data file to load distribution, contains x and y data,
+        if *distfile* is valid, the internal data generation would be
+        ignored.
     """
     def __init__(self, x0=0, y0=0, sx=0.1, sy=0.1, N=1000, **kws):
         self.distype = None
@@ -68,7 +69,11 @@ class Distribution(object):
 
     def load_distfile(self, distfile):
         try:
-            self._x, self._y = np.loadtxt(distfile)
+            data = np.loadtxt(distfile)
+            if data.shape[0] == 2:
+                self._x, self._y = data
+            else:
+                self._x, self._y = data.T
             self.distype = 'external'
             return True
         except:
@@ -105,6 +110,23 @@ class Distribution(object):
     @staticmethod
     def get_covariance(xarr, yarr, **kws):
         """Get covariance matrix of 'x' and 'y' array.
+
+        Parameters
+        ----------
+        xarr : array
+            X array.
+        yarr : array
+            Y array.
+
+        Keyword Arguments
+        -----------------
+        norm :
+            If set, return normalized covariance.
+
+        Returns
+        -------
+        ret : array
+            Covariance matrix.
         """
         if kws.get('norm', None) is not None:
             return np.corrcoef(xarr, yarr)
@@ -112,6 +134,9 @@ class Distribution(object):
             return np.cov(xarr, yarr)
 
     def get_cov(self, **kws):
+        """Return covariance of x and y of distribution,
+        if *norm* keyword is set, return normalized one.
+        """
         return Distribution.get_covariance(self._x, self._y, **kws)
 
     def resample(self):
