@@ -9,4 +9,4 @@ from phantasy.library.physics import *
 from phantasy.library.pv import *
 from phantasy.library.scan import *
 from phantasy.library.settings import *
-
+from phantasy.library.data import *

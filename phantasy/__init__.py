@@ -15,6 +15,7 @@ from phantasy.library import physics
 from phantasy.library import pv
 from phantasy.library import scan
 from phantasy.library import settings
+from phantasy.library import data
 
 from phantasy.library import *
 
