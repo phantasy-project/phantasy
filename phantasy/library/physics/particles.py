@@ -152,6 +152,17 @@ class Distribution(object):
         N = self._x.size
         return Distribution(mean=mean, cov=cov, N=N)
 
+    def __repr__(self):
+        x, y = self._x, self._y
+        cov = np.cov(x,y)
+        x0, y0 = x.mean(), y.mean()
+        sx, sy = x.std(ddof=1), y.std(ddof=1)
+        rho_xy = cov[0,1]/cov[0,0]**0.5/cov[1,1]**0.5
+        ret = '(x_0, y_0) = ({0:.3f},{1:.3f})\n'.format(x0, y0)
+        ret += 'sigma_x = {0:.3f}\n'.format(sx)
+        ret += 'sigma_y = {0:.3f}\n'.format(sy)
+        ret += '(x,y) correlation = {0:.3f}'.format(rho_xy)
+        return ret
 
 if __name__ == '__main__':
     # default
