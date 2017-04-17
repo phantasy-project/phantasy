@@ -1,9 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-""" Test points module
+""" Test geometry module
 
-Location: phantasy.library.physics.points
+Location: phantasy.library.physics.geometry
 
 Tong Zhang <zhangt@frib.msu.edu>
 2017-03-28 09:46:57 AM EDT
@@ -139,12 +139,12 @@ class TestPoint(unittest.TestCase):
     def test_move(self):
         ## move
         p = Point(0, 0)
-        direction1 = (30, 0.1, 10)
-        p_moveto1 = p.move(*direction1)
-        direction2 = (45, 0.1, 10)
-        p_moveto2 = p.move(*direction2)
-        direction3 = (60, 0.1, 10)
-        p_moveto3 = p.move(*direction3)
+        direction1 = (30, 1)
+        p_moveto1 = p.move(direction=direction1)
+        direction2 = (45, 1)
+        p_moveto2 = p.move(direction=direction2)
+        direction3 = (60, 1)
+        p_moveto3 = p.move(direction=direction3)
         
         self.assertEqual(p.distance_to_point(p_moveto1), 1.0)
         self.assertEqual(p.distance_to_point(p_moveto2), 1.0)
@@ -163,3 +163,26 @@ class TestPoint(unittest.TestCase):
         self.assertAlmostEqual(op1.angle(ox), direction1[0])
         self.assertAlmostEqual(op2.angle(ox), direction2[0])
         self.assertAlmostEqual(op3.angle(ox), direction3[0])
+    
+    def test_rotate(self):
+        p0 = Point(1, 0)
+        angle = 90
+        p1 = p0.rotate(angle)
+        self.assertAlmostEqual(p1.x, 0)
+        self.assertAlmostEqual(p1.y, 1)
+
+
+class TestLine(unittest.TestCase):
+    def test_rotate(self):
+        angle = 31
+        line1 = Line(Point(1, 1), Point(2, 4))
+        line2 = line1.rotate(angle)
+        self.assertAlmostEqual(angle, line2.angle(line1))
+
+    def test_angle(self):
+        line1 = Line(Point(0,0), Point(2,0))
+        angle = line1.angle(direction=(45, 1))
+        self.assertAlmostEqual(angle, 45)
+        
+
+
