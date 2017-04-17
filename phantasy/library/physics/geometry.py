@@ -261,10 +261,7 @@ class Point(object):
         return True#, 'within Line AB'
 
     def __getitem__(self, i):
-        if i in [0, 1]:
-            return self.point[i]
-        else:
-            return "INVALID index, could be 0 or 1."
+        return self.point[i]
 
     def __repr__(self):
         return "Point ({0:.3f}, {1:.3f})".format(self._x, self._y)
@@ -276,7 +273,7 @@ class Point(object):
         ----------
         vec : array, list or tuple
             Along vector ``(x, y)`` to move point.
-        
+
         Keyword Arguments
         -----------------
         direction : tuple
@@ -299,6 +296,30 @@ class Point(object):
             m_vec = (0, 0)
         return Point(self.point + m_vec)
 
+    def rotate(self, angle, p0=None):
+        """Rotate *angle* with *p0*.
+
+        Parameters
+        ----------
+        angle : float
+            Anti-clockwised rotating angle, degree.
+        p0 : Point
+            Rotating central point, ``(0,0)`` by default.
+
+        Returns
+        -------
+        ret : Point
+            New Point after rotation.
+        """
+        if p0 is None:
+            p0 = Point(0, 0)
+        p1 = self - p0
+        theta = angle/180.0*np.pi
+        m = np.array([[np.cos(theta), -np.sin(theta)],
+                      [np.sin(theta),  np.cos(theta)]])
+        p1_rot, = np.dot(m, np.vstack(p1[:])).T
+        return Point(p1_rot) + p0
+
 
 class Line(object):
     """Lines in 2D Cartesian coordinate system, if invalid input is detected,
@@ -319,7 +340,7 @@ class Line(object):
     >>> Line((0,0),(0,1))
     >>> Line(p1=(0,0), p2=(0,1))
     >>> Line(Point(0,0), Point(0,1))
-    
+
     """
     def __init__(self, p1=None, p2=None):
         self.vec = (p1, p2)
@@ -355,7 +376,7 @@ class Line(object):
     @property
     def vec(self):
         return np.array([self._x, self._y])
-    
+
     @vec.setter
     def vec(self, vec):
         p1, p2 = vec[0], vec[1]
@@ -398,25 +419,47 @@ class Line(object):
                 self._x, self._y, self._p_begin, self._p_end)
 
     def __eq__(self, other):
-        return ((self.x == other.x) 
-                and (self.y == other.y) 
+        return ((self.x == other.x)
+                and (self.y == other.y)
                 and (self.pbegin == other.pbegin)
                 and (self.pend == other.pend))
 
     def __abs__(self):
         return np.sqrt(self.x * self.x + self.y * self.y)
 
-    def angle(self, other):
+    def angle(self, other=None, **kws):
         """Angle between lines.
+
+        Parameters
+        ----------
+        other : Line
+            Another line.
+
+        Keyword Arguments
+        -----------------
+        direction : tuple
+            Tuple of ``(theta, length)``, ``theta`` is anti-clockwised angle
+            from ``x(+)`` to vector in degree, ``length`` is moving length.
+            This argument will override *vec*.
 
         Returns
         -------
         ret : float
             Angle in degree.
         """
-        tmp = np.dot(self.vec, other.vec)/abs(self)/abs(other)
+        if isinstance(other, Line):
+            # Line
+            tmp = np.dot(self.vec, other.vec)/abs(self)/abs(other)
+        else:
+            if kws.get('direction', None) is not None:
+                angle, length = kws.get('direction')
+                theta = angle/180.0*np.pi
+                m_vec = np.array((np.cos(theta), np.sin(theta)))*length
+                tmp = np.dot(self.vec, m_vec)/abs(self)/length
+        if np.allclose(-1, tmp):
+            tmp = -1.0
         return np.arccos(tmp)/np.pi*180.0
-    
+
     def cross(self, other):
         """Cross point of two lines.
 
@@ -464,6 +507,32 @@ class Line(object):
         new_p_begin = self._p_begin + m_vec
         new_p_end = self._p_end + m_vec
         return Line(new_p_begin, new_p_end)
+
+    def rotate(self, angle, p0=None):
+        """Rotate *angle* with *p0*.
+
+        Parameters
+        ----------
+        angle : float
+            Anti-clockwised rotating angle, degree.
+        p0 : Point
+            Rotating central point, middle point of line by default.
+
+        Returns
+        -------
+        ret : Line
+            New line after rotation
+        """
+        p1, p2 = self.pbegin, self.pend
+        if p0 is None:
+            p0 = (p1+p2)*0.5
+        p1, p2 = self.pbegin - p0, self.pend - p0
+        theta = angle/180.0*np.pi
+        m = np.array([[np.cos(theta), -np.sin(theta)],
+                      [np.sin(theta),  np.cos(theta)]])
+        p1_rot, p2_rot = np.dot(m, np.vstack((p1[:],p2[:])).T).T
+        new_p1, new_p2 = Point(p1_rot) + p0, Point(p2_rot) + p0
+        return Line(new_p1, new_p2)
 
     def __getitem__(self, i):
         return self._stackpoints[i]
@@ -590,5 +659,3 @@ if __name__ == '__main__':
     print(line2)
 
     print(line2[:,1])
-    
-    
