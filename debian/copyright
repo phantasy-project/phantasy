@@ -1,6 +1,6 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: phantasy
-Source: https://stash.frib.msu.edu/projects/PHYAPP/repos/phantasy
+Source: https://stash.frib.msu.edu/projects/PHYAPP/repos/python-phantasy/
 
 Files: *
 Copyright: 2016-2017 Tong Zhang <zhangt@frib.msu.edu> 
