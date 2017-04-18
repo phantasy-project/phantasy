@@ -1,3 +1,9 @@
+python-phantasy (0.3.1-1) unstable; urgency=medium
+
+  * Fix - wrong version number.
+
+ -- Tong Zhang <zhangt@frib.msu.edu>  Tue, 18 Apr 2017 16:49:38 -0400
+
 python-phantasy (0.3.0-3) unstable; urgency=medium
 
   * Fix- wrong URLs.
