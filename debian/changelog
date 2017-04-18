@@ -1,3 +1,10 @@
+python-phantasy (0.3.0-1) unstable; urgency=medium
+
+  * New - Support modules for wire-scanner application.
+  * Update interface with applications.
+
+ -- Tong Zhang <zhangt@frib.msu.edu>  Tue, 18 Apr 2017 14:00:09 -0400
+
 python-phantasy (0.2.2-1) unstable; urgency=medium
 
   * Fix - YRMS of PM issue.
