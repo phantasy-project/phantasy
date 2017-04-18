@@ -1,10 +1,6 @@
-"""
-Element
-~~~~~~~
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
-.. moduleauthor:: Lingyun Yang
-.. moduledate:: 2011-05-13 10:28
-"""
 
 import re
 import copy
@@ -22,6 +18,7 @@ UNSPECIFIED = 0
 ASCENDING   = 1
 DESCENDING  = 2
 RANDOM      = 3
+
 
 class AbstractElement(object):
     """The :class:`AbstractElement` contains most of the lattice properties,
@@ -600,14 +597,6 @@ class CaElement(AbstractElement):
     def convertible(self, field, src, dst, handle="readback"):
         """Check the unit conversion is possible or not.
 
-        Parameters
-        ----------
-        field :
-        src :
-        dst :
-        handle : ["readback"|"setpoint"|None]
-            Check readback, setpoint or all handle values.
-
         Returns
         -------
         ret : True or False
@@ -630,16 +619,7 @@ class CaElement(AbstractElement):
         return False
 
     def addUnitConversion(self, field, uc, src, dst, handle=None):
-        """Add unit conversion for field.
-
-        Parameters
-        ----------
-        field :
-        src :
-        dst :
-        handle : ["readback"|"setpoint"|None].
-            None means for every named handles.
-        """
+        """Add unit conversion for field."""
         # src, dst is unit system name, e.g. None for raw, phy
         if handle is None or handle == "readback":
             self._field[field].ucrb[(src, dst)] = uc

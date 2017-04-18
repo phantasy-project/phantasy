@@ -705,7 +705,7 @@ class Lattice(object):
     def roll_back(self, setting=None, type=None, retroaction=None):
         """Roll back PV setpoint by providing *setting* or log entries from
         trace history, which indicating high-level lattice object to proceed
-        some set action to roll it back into previous states..
+        some set action to roll it back into previous states.
 
         Parameters
         ----------
@@ -722,8 +722,8 @@ class Lattice(object):
         Note
         ----
         Possible input of *setting* parameter:
-        * (Default) Last trace history entry.
-        * Trace history entry or list of entries;
+        - (Default) Last trace history entry.
+        - Trace history entry or list of entries;
 
         Note
         ----
