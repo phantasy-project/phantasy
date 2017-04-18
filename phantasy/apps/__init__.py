@@ -8,3 +8,5 @@ Physics Applications
 """
 
 from .latticemodel import lmapp
+
+from phantasy_apps import *
