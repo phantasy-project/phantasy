@@ -458,6 +458,8 @@ class Line(object):
                 tmp = np.dot(self.vec, m_vec)/abs(self)/length
         if np.allclose(-1, tmp):
             tmp = -1.0
+        elif np.allclose(1, tmp):
+            tmp = 1.0
         return np.arccos(tmp)/np.pi*180.0
 
     def cross(self, other):
