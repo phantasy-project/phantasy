@@ -18,6 +18,7 @@ Package: python-phantasy
 Architecture: any
 Depends: ${python:Depends}, ${misc:Depends}, python-flame,
          python-cfclient, python-scanclient, python-cothread,
+         python-lmfit
 Suggests: python-phantasy-apps, python-genopt 
 Description: Software framework for high-level controls (Python 2)
  Physics high-level applications and toolkits for accelerator system,
