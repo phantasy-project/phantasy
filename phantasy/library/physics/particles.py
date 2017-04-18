@@ -7,6 +7,11 @@ Tong Zhang <zhangt@frib.msu.edu>
 2017-03-27 11:22:25 AM EDT
 """
 
+from __future__ import division
+from __future__ import print_function
+
+from phantasy.library.physics import Point
+
 import numpy as np
 
 
@@ -39,33 +44,42 @@ class Distribution(object):
         Name of data file to load distribution, contains x and y data,
         if *distfile* is valid, the internal data generation would be
         ignored.
+    distdata : array
+        Array with shape of ``(2,n)`` to initialize distribution.
     """
     def __init__(self, x0=0, y0=0, sx=0.1, sy=0.1, N=1000, **kws):
         self.distype = None
         distfile = kws.get('distfile', None)
-        if not self.load_distfile(distfile):
-            self._x, self._y = None, None
-
-            if kws.get('mean', None) is not None:
-                mean = kws.get('mean')
-            else:
-                mean = [x0, y0]
-
-            if kws.get('cov', None) is not None:
-                cov = kws.get('cov')
-            else:
-                rho = kws.get('rho', None)
-                if -1.0 <= rho <= 1.0:
-                    cxy = rho*sx*sy
-                else:
-                    cxy = 0
-                cov = [[sx**2, cxy], [cxy, sy**2]]
-
-            self.distype = 'gaussian'
-            self.particles = Distribution.generate_gaussian_distrubution(
-                    mean, cov, N)
+        distdata = kws.get('distdata', None)
+        # try to load data from array
+        if distdata is not None:
+            self.particles = distdata
         else:
-            print("Load distribution from '{}'".format(distfile))
+            # generate internally
+            if not self.load_distfile(distfile):
+                self._x, self._y = None, None
+
+                if kws.get('mean', None) is not None:
+                    mean = kws.get('mean')
+                else:
+                    mean = [x0, y0]
+
+                if kws.get('cov', None) is not None:
+                    cov = kws.get('cov')
+                else:
+                    rho = kws.get('rho', None)
+                    if -1.0 <= rho <= 1.0:
+                        cxy = rho*sx*sy
+                    else:
+                        cxy = 0
+                    cov = [[sx**2, cxy], [cxy, sy**2]]
+
+                self.distype = 'gaussian'
+                self.particles = Distribution.generate_gaussian_distrubution(
+                        mean, cov, N)
+            else:
+                # load from external file
+                print("Load distribution from '{}'".format(distfile))
 
     def load_distfile(self, distfile):
         try:
@@ -151,6 +165,34 @@ class Distribution(object):
         cov = np.cov(self._x, self._y)
         N = self._x.size
         return Distribution(mean=mean, cov=cov, N=N)
+
+    def rotate(self, angle, p0=None):
+        """Rotate particle distribution of *angle* w.r.t. *p0*.
+
+        Parameters
+        ----------
+        angle : float
+            Anti-clockwised rotating angle, degree.
+        p0 : Point
+            Rotating central point, ``(0,0)`` by default.
+
+        Returns
+        -------
+        ret : Distribution
+            New Distribution after rotation.
+        """
+        if p0 is None:
+            p0 = Point(0, 0)
+
+        data0 = np.array(self.particles)
+        disp = np.tile(p0[:], [int(data0.size/2),1]).T
+
+        theta = angle/180.0*np.pi
+        m = np.array([[np.cos(theta), -np.sin(theta)],
+                      [np.sin(theta),  np.cos(theta)]])
+        data1 = np.dot(m, data0-disp) + disp
+        return Distribution(distdata=data1)
+
 
     def __repr__(self):
         x, y = self._x, self._y
