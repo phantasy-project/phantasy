@@ -1,3 +1,9 @@
+python-phantasy (0.3.0-2) unstable; urgency=medium
+
+  * Fix - python-lmfit should be depends.
+
+ -- Tong Zhang <zhangt@frib.msu.edu>  Tue, 18 Apr 2017 14:53:29 -0400
+
 python-phantasy (0.3.0-1) unstable; urgency=medium
 
   * New - Support modules for wire-scanner application.
