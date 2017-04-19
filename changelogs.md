@@ -1,3 +1,14 @@
+Version 0.3.0
+-------------
+
+2017-04-18 [Testing]
+
+Major changes:
+
+- Support wire-scanner modeling and data analysis.
+- Application utilities are included in 'phantasy.apps', however provided
+  by another package called 'python-phantasy-apps'.
+
 Version 0.2.0
 -------------
 
