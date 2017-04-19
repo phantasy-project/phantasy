@@ -70,5 +70,5 @@ setup(
         tests_require=['nose'],
         test_suite='nose.collector',
         install_requires=installrequires,
-        extras_require=extrasrequire, 
+        #extras_require=extrasrequire, 
 )
