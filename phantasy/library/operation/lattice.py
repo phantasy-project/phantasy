@@ -355,8 +355,10 @@ def create_lattice(latname, pv_data, tag, **kwargs):
 
     See Also
     --------
-    :class:`~phantasy.library.lattice.Lattice`
-    :class:`~phantasy.library.pv.DataSource`
+    :class:`~phantasy.library.lattice.lattice.Lattice`
+        High-level lattice.
+    :class:`~phantasy.library.pv.datasource.DataSource`
+        Unified data source class for PVs.
     """
     src = kwargs.get('source', None)
     if src is None:

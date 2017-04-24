@@ -103,7 +103,8 @@ class Lattice(object):
 
     See Also
     --------
-    :class:`~phantasy.library.operation.create_lattice`
+    :func:`~phantasy.library.operation.lattice.create_lattice`
+        Create high-level lattice object.
     """
     # ignore those "element" when construct the lattice object
     def __init__(self, name, **kws):
@@ -1033,7 +1034,7 @@ class Lattice(object):
 
         See Also
         --------
-        appendElement
+        appendElement : Add element.
         :class:`~phantasy.library.lattice.CaElement`
         """
         if i is not None:
