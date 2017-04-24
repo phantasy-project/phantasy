@@ -52,7 +52,7 @@ app_scripts = [i for i in glob.glob("scripts/*") if not fnmatch(i, "scripts/soft
 
 setup(
         name=app_name,
-        version="0.3.1",
+        version="0.3.2",
         description=app_description,
         long_description=app_long_description,
         author=app_author,
@@ -70,5 +70,5 @@ setup(
         tests_require=['nose'],
         test_suite='nose.collector',
         install_requires=installrequires,
-        extras_require=extrasrequire, 
+        #extras_require=extrasrequire, 
 )
