@@ -3,8 +3,8 @@
 
 """Data fitting module.
 
-Tong Zhang <zhangt@frib.msu.edu>
-2017-04-03 15:25:36 PM EDT
+.. Tong Zhang <zhangt@frib.msu.edu>
+.. 2017-04-03 15:25:36 PM EDT
 """
 
 from __future__ import division

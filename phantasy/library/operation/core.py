@@ -121,7 +121,7 @@ class MachinePortal(object):
         
         See Also
         --------
-        :class:`~phantasy.library.parser.Configuration`
+        :class:`~phantasy.library.parser.config.Configuration`
         """
         return self._last_mach_conf
 
@@ -168,7 +168,9 @@ class MachinePortal(object):
         See Also
         --------
         :class:`~phantasy.library.lattice.CaElement`
-        use_lattice : Choose working lattice from loaded lattices.
+            Element object for channel access.
+        :func:`use_lattice`
+            Choose working lattice from loaded lattices.
         """
         return self._work_lattice_conf
 
@@ -483,9 +485,12 @@ class MachinePortal(object):
 
         See Also
         --------
-        get_virtual_elements : Get virtual elements.
-        next_elements : Get neighborhood of reference element.
-        :class:`~phantasy.library.lattice.element.CaElement` : Element class.
+        :func:`get_virtual_elements`
+            Get virtual elements.
+        :func:`next_elements`
+            Get neighborhood of reference element.
+        :class:`~phantasy.library.lattice.element.CaElement`
+            Element class.
         """
         latname = kws.get('latname')
         if latname in self._lattice_names:
@@ -831,7 +836,7 @@ class MachinePortal(object):
 
         See Also
         --------
-        :class:`~phantasy.library.parser.Configuration`
+        :class:`~phantasy.library.parser.config.Configuration`
         """
         if mconf is None:
             mconf = self._last_mach_conf
@@ -924,9 +929,12 @@ class MachinePortal(object):
 
         See Also
         --------
-        get_pv_values : Get PV values.
-        get_readback : Get PV readbacks.
-        :class:`~phantasy.library.lattice.element.CaElement` : Element class.
+        :func:`get_pv_values`
+            Get PV values.
+        :func:`~phantasy.library.pv.readback.get_readback`
+            Get PV readbacks.
+        :class:`~phantasy.library.lattice.element.CaElement`
+            Element class.
         """
         if not isinstance(elem, (list, tuple)):
             if not isinstance(elem, CaElement):
@@ -978,8 +986,10 @@ class MachinePortal(object):
 
         See Also
         --------
-        get_pv_names
-        get_readback
+        :func:`get_pv_names`
+            Get PV names.
+        :func:`~phantasy.library.pv.readback.get_readback`
+            Get PV readbacks.
         """
         pv_names = MachinePortal.get_pv_names(elem, field, handle='readback')
         pv_values = get_readback(pv_names)
