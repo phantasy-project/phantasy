@@ -66,6 +66,10 @@ CONFIG_FLAME_EBEND_SPHERBOOL = 'flame_spher'
 CONFIG_FLAME_EBEND_ASYMFAC = 'flame_asym_fac'
 CONFIG_FLAME_BEND_FOCUSING = 'focusing_component'
 
+# Position type for PM
+CONFIG_PM_ANGLE = 'pm_angle'
+DEFAULT_PM_ANGLE = "-45"
+
 # Constants used for IMPACT header parameters
 
 SIM_TYPE_MOMENT_MATRIX = "MomentMatrix"
@@ -353,24 +357,40 @@ class FlameLatticeFactory(BaseLatticeFactory):
 
             elif isinstance(elem, BPMElement):
                 if elem.length != 0.0:
-                    lattice.append(nextDrift(), "drift", 
+                    lattice.append(nextDrift(), "drift",
                                    ('L',elem.length/2.0), ('aper',elem.aperture/2.0))
 
                 lattice.append(elem.name, "bpm", name=elem.name, etype=elem.ETYPE)
 
                 if elem.length != 0.0:
-                    lattice.append(nextDrift(), "drift", 
+                    lattice.append(nextDrift(), "drift",
                                    ('L',elem.length/2.0), ('aper',elem.aperture/2.0))
 
-            elif isinstance(elem, (PMElement, BLMElement, BLElement, BCMElement)):
+            elif isinstance(elem, (BLMElement, BLElement, BCMElement)):
                 if elem.length != 0.0:
-                    lattice.append(nextDrift(), "drift", 
+                    lattice.append(nextDrift(), "drift",
                                    ('L',elem.length/2.0), ('aper',elem.aperture/2.0))
 
                 lattice.append(elem.name, "marker", name=elem.name, etype=elem.ETYPE)
 
                 if elem.length != 0.0:
-                    lattice.append(nextDrift(), "drift", 
+                    lattice.append(nextDrift(), "drift",
+                                   ('L',elem.length/2.0), ('aper',elem.aperture/2.0))
+
+            elif isinstance(elem, PMElement):
+                if elem.length != 0.0:
+                    lattice.append(nextDrift(), "drift",
+                                  ('L',elem.length/2.0), ('aper', elem.aperture/2.0))
+
+                pm_angle = self._get_config(elem.dtype, CONFIG_PM_ANGLE, DEFAULT_PM_ANGLE)
+                if pm_angle == '-45':
+                    elem.sign = -1.0
+                else:
+                    elem.sign = 1.0
+                lattice.append(elem.name, "marker", name=elem.name, etype=elem.ETYPE)
+
+                if elem.length != 0.0:
+                    lattice.append(nextDrift(), "drift",
                                    ('L',elem.length/2.0), ('aper',elem.aperture/2.0))
 
             elif isinstance(elem, CavityElement):

@@ -9,18 +9,20 @@ from __future__ import unicode_literals
 
 import logging
 import math
-import numpy
 import os.path
 import random
 import re
 import shutil
 import subprocess
 import tempfile
-import threading
 import time
 from copy import deepcopy
 from collections import OrderedDict
-from StringIO import StringIO
+
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 
 import cothread
 from flame import Machine
@@ -421,10 +423,14 @@ class VirtualAcceleratorFactory(object):
                              (elem.name, elem.fields.x), desc="Horizontal Position", egu="m")
                 va.append_ro(self._findChannel(elem.name, elem.fields.y, "readback"),
                              (elem.name, elem.fields.y), desc="Vertical Position", egu="m")
+                va.append_ro(self._findChannel(elem.name, elem.fields.xy, "readback"),
+                             (elem.name, elem.fields.xy), desc="Diagonal Position", egu="m")
                 va.append_ro(self._findChannel(elem.name, elem.fields.xrms, "readback"),
                              (elem.name, elem.fields.xrms), desc="Horizontal Size", egu="m")
                 va.append_ro(self._findChannel(elem.name, elem.fields.yrms, "readback"),
                              (elem.name, elem.fields.yrms), desc="Vertical Size", egu="m")
+                va.append_ro(self._findChannel(elem.name, elem.fields.xyrms, "readback"),
+                             (elem.name, elem.fields.xyrms), desc="Diagonal Size", egu="m")
                 va.append_elem(elem)
 
             elif isinstance(elem, (BLMElement, BLElement, BCMElement)):
@@ -892,6 +898,20 @@ class VirtualAccelerator(object):
                                       self._readfieldmap[elem.name][elem.fields.yrms], y_rms)
                         batch[self._readfieldmap[elem.name][elem.fields.yrms]] = y_rms
 
+                        sign = elem.sign
+                        xy_centroid = (sign*x_centroid + y_centroid)/math.sqrt(2.0) # convert mm to m
+                        _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
+                                      self._readfieldmap[elem.name][elem.fields.xy], xy_centroid)
+                        batch[self._readfieldmap[elem.name][elem.fields.xy]] = xy_centroid
+
+                        xy_rms = 1.0e-3*math.sqrt(
+                                (S.moment1_env[0,0] + S.moment1_env[2,2])*0.5
+                                + sign*S.moment1_env[0,2]
+                        )
+                        _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
+                                      self._readfieldmap[elem.name][elem.fields.xyrms], xy_rms)
+                        batch[self._readfieldmap[elem.name][elem.fields.xyrms]] = xy_rms
+
             batch.caput()
 
             _LOGGER.info("VirtualAccelerator: FLAME execution time: %f s", time.time()-start)
@@ -901,7 +921,7 @@ class VirtualAccelerator(object):
             cothread.Yield()
 
             batch = catools.CABatch()
-            for name, value in self._csetmap.iteritems():
+            for name, value in self._csetmap.items():
                 name, field = self._fieldmap[name]
                 _LOGGER.debug("VirtualAccelerator: Update read: %s to %s", value[1], settings[name][field])
                 batch[value[1]] = settings[name][field]
@@ -942,7 +962,7 @@ class VirtualAccelerator(object):
     def _write_epicsdb(self, buf):
         for record in self._epicsdb:
             buf.write("record({}, \"{}\") {{\r\n".format(record[0], record[1]))
-            for name, value in record[2].iteritems():
+            for name, value in record[2].items():
                 if value == None:
                     pass # ignore fields with value None
                 elif isinstance(value, int):
