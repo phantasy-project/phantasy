@@ -413,6 +413,7 @@ class PMElement(Element):
     """
     PMElement represents Beam Profile Monitor diagnostic device.
     """
+    # 'sign' to indicate -45 or 45 position for 'XY' and 'XYRMS' field.
 
     ETYPE="PM"
 
@@ -572,7 +573,7 @@ class SextElement(Element):
 
     def __init__(self, z, length, aperture, name, desc="hexapole magnet", **meta):
         super(SextElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
-        self.fields.field = "B"
+        self.fields.field = "B3"
 
 
 # Electrostatic Elements

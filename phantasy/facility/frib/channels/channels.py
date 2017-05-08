@@ -211,11 +211,11 @@ def build_channels(layout, machine=None, **kws):
             props[_TYPE_PROPERTY] = "SEXT"
             props[_FIELD_PROPERTY] = elem.fields.field
             props[_HANDLE_PROPERTY] = "setpoint"
-            data.append((channel+":B_CSET", OrderedDict(props), list(tags)))
+            data.append((channel+":B3_CSET", OrderedDict(props), list(tags)))
             props[_HANDLE_PROPERTY] = "readset"
-            data.append((channel+":B_RSET", OrderedDict(props), list(tags)))
+            data.append((channel+":B3_RSET", OrderedDict(props), list(tags)))
             props[_HANDLE_PROPERTY] = "readback"
-            data.append((channel+":B_RD", OrderedDict(props), list(tags)))
+            data.append((channel+":B3_RD", OrderedDict(props), list(tags)))
 
         elif isinstance(elem, BPMElement):
             props[_TYPE_PROPERTY] = "BPM"

@@ -66,6 +66,12 @@ CONFIG_FLAME_EBEND_SPHERBOOL = 'flame_spher'
 CONFIG_FLAME_EBEND_ASYMFAC = 'flame_asym_fac'
 CONFIG_FLAME_BEND_FOCUSING = 'focusing_component'
 
+# Sextupole
+CONFIG_FLAME_SEXT_STEP = 'step'
+CONFIG_FLAME_SEXT_DSTKICK = 'dstkick'
+DEFAULT_FLAME_SEXT_STEP = 10
+DEFAULT_FLAME_SEXT_DSTKICK = 1
+
 # Position type for PM
 CONFIG_PM_ANGLE = 'pm_angle'
 DEFAULT_PM_ANGLE = "-45"
@@ -485,11 +491,15 @@ class FlameLatticeFactory(BaseLatticeFactory):
                     except KeyError:
                         raise RuntimeError("FlameLatticeFactory: '{}' setting not found for element: {}".format(elem.fields.field, elem.name))
 
-                if field != 0.0:
-                    _LOGGER.warning("FlameLatticeFactory: Hexapole magnet element support not implemented. Ignoring field: %s T/m^2", field)
-
-                lattice.append(elem.name, "drift",
-                               ('L',elem.length), ('aper',elem.aperture/2.0))
+                step = self._get_config(elem.dtype, CONFIG_FLAME_SEXT_STEP,
+                                        DEFAULT_FLAME_SEXT_STEP)
+                dstkick = self._get_config(elem.dtype, CONFIG_FLAME_SEXT_DSTKICK,
+                                        DEFAULT_FLAME_SEXT_DSTKICK)
+                lattice.append(elem.name, "sextupole",
+                               ('L', elem.length), ('B3', field),
+                               ('dstkick', int(dstkick)), ('step', int(step)),
+                               ('aper', elem.aperture/2.0),
+                               name=elem.name, etype=elem.ETYPE)
 
             elif isinstance(elem, CorElement):
                 hkick = 0.0

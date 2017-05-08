@@ -400,12 +400,11 @@ class VirtualAcceleratorFactory(object):
                     pass
 
             elif isinstance(elem, SextElement):
-                _LOGGER.warning("VirtAccelFactory: Hexapole magnet element support not implemented. Ignoring channels.")
-                #va.append_rw(self._findChannel(elem.name, elem.fields.field, "setpoint"),
-                #             self._findChannel(elem.name, elem.fields.field, "readset"),
-                #             self._findChannel(elem.name, elem.fields.field, "readback"),
-                #             (elem.name, elem.fields.field), desc="Hexapole Field", egu="T/m^2", drvrel=0.05)
-                #va.append_elem(elem)
+                va.append_rw(self._findChannel(elem.name, elem.fields.field, "setpoint"),
+                             self._findChannel(elem.name, elem.fields.field, "readset"),
+                             self._findChannel(elem.name, elem.fields.field, "readback"),
+                             (elem.name, elem.fields.field), desc="Sextupole Gradient", egu="T/m^2")
+                va.append_elem(elem)
 
             elif isinstance(elem, BPMElement):
                 va.append_ro(self._findChannel(elem.name, elem.fields.x, "readback"),
