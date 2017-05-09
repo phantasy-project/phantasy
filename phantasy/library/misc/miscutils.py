@@ -20,11 +20,9 @@ import dateutil.relativedelta as relativedelta
 
 from flame import Machine
 
-
 __authors__ = "Tong Zhang"
 __copyright__ = "(c) 2016, Facility for Rare Isotope beams, Michigan State University"
 __contact__ = "Tong Zhang <zhangt@frib.msu.edu>"
-
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -45,9 +43,9 @@ def _flatten(nnn):
     for nn in nnn:
         if isinstance(nn, (list, tuple)):
             for n in flatten(nn):
-                yield(n)
+                yield (n)
         else:
-            yield(nn)
+            yield (nn)
 
 
 def flatten(nnn):
@@ -100,7 +98,7 @@ def get_intersection(**kws):
         else:
             s = s.intersection(v)
     return list(s)
-    
+
 
 def machine_setter(_latfile=None, _machine=None, _handle_name=None):
     """ set flame machine, prefer *_latfile*
@@ -244,9 +242,9 @@ def simplify_data(raw_data):
     retval = []
     for r in raw_data:
         new_rec = [
-                    r['name'], 
-                    {p['name']:p['value'] for p in r['properties']},
-                    [t['name'] for t in r['tags']]
+            r['name'],
+            {p['name']: p['value'] for p in r['properties']},
+            [t['name'] for t in r['tags']]
         ]
         retval.append(new_rec)
     return retval
@@ -260,6 +258,9 @@ def complicate_data(raw_data, **kws):
     raw_data : list(list)
         List of list, each list element is of the format:
         PV name (str), PV properties (dict), PV tags (list(str))
+    
+    Keyword Arguments
+    -----------------
     owner : str
         Owner of the data.
 
@@ -281,9 +282,9 @@ def complicate_data(raw_data, **kws):
         new_rec = {'name': pv_name,
                    'owner': owner,
                    'properties': [{'name': k, 'value': v, 'owner': owner}
-                                    for k,v in pv_props.items()],
+                                  for k, v in pv_props.items()],
                    'tags': [{'name': t, 'owner': owner} for t in pv_tags],
-        }
+                   }
         retval.append(new_rec)
     return retval
 
@@ -294,18 +295,19 @@ class SpecialDict(DictMixin):
     1: Initialize class with keyword arguments (meta) defined properties;
     2: New attributes could be dynamically added by assigning new k,v to (meta);
     """
+
     def __init__(self, meta, obj, *args, **kwargs):
         self.meta = meta
         self.obj = obj
         self.obj.__dict__.update(meta)
-    
+
     def __setitem__(self, k, v):
-        self.meta.update({k:v})
-        self.obj.__dict__.update({k:v})
+        self.meta.update({k: v})
+        self.obj.__dict__.update({k: v})
 
     def __getitem__(self, k):
         return self.meta.get(k, None)
-    
+
     def keys(self):
         return self.meta.keys()
 
@@ -353,15 +355,15 @@ def parse_dt(dt, ref_date=None, epoch=None):
         timenow = ref_date
     else:
         raise TypeError("Invalid date time variable.")
-    
+
     time_unit_table = {'years': 'years', 'months': 'months', 'weeks': 'weeks',
-            'days': 'days', 'hours': 'hours', 'minutes': 'minutes',
-            'seconds': 'seconds', 'microseconds': 'microseconds',
-            'year': 'years', 'month': 'months', 'week': 'weeks', 'day': 'days',
-            'hour': 'hours', 'minute': 'minutes', 'second': 'seconds',
-            'microsecond': 'microseconds', 'min': 'minutes', 'sec': 'seconds',
-            'msec': 'microseconds', 'mins': 'minutes', 'secs': 'seconds',
-            'msecs': 'microseconds'}
+                       'days': 'days', 'hours': 'hours', 'minutes': 'minutes',
+                       'seconds': 'seconds', 'microseconds': 'microseconds',
+                       'year': 'years', 'month': 'months', 'week': 'weeks', 'day': 'days',
+                       'hour': 'hours', 'minute': 'minutes', 'second': 'seconds',
+                       'microsecond': 'microseconds', 'min': 'minutes', 'sec': 'seconds',
+                       'msec': 'microseconds', 'mins': 'minutes', 'secs': 'seconds',
+                       'msecs': 'microseconds'}
 
     dt_dict = {}
     dt_tuple = dt.replace('and', ',').replace('ago', ',').strip(' ,').split(',')

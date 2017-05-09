@@ -7,7 +7,6 @@ Tong Zhang <zhangt@frib.msu.edu>
 2017-03-27 11:29:39 AM EDT
 """
 
-
 from __future__ import division
 from __future__ import print_function
 
@@ -27,7 +26,6 @@ class Point(object):
     The following ways are the same:
 
     >>> Point(x=1, y=2)
-    >>> Point(x=1, 2)
     >>> Point(1, y=2)
     >>> Point(1, 2)
     >>> Point((1, 2))
@@ -35,6 +33,7 @@ class Point(object):
     >>> Point(Point(1, 2))
     """
     __slot__ = ['_x', '_y']
+
     def __init__(self, x=None, y=None):
         self.point = (x, y)
 
@@ -99,16 +98,16 @@ class Point(object):
         return Point(self.x - other.x, self.y - other.y)
 
     def __mul__(self, other):
-        return Point(other*self.x, other*self.y)
+        return Point(other * self.x, other * self.y)
 
     def __rmul__(self, other):
-        return Point(other*self.x, other*self.y)
+        return Point(other * self.x, other * self.y)
 
     def __div__(self, other):
-        return Point(self.x/other, self.y/other)
+        return Point(self.x / other, self.y / other)
 
     def __rdiv__(self, other):
-        return Point(self.x/other, self.y/other)
+        return Point(self.x / other, self.y / other)
 
     def __radd__(self, other):
         if isinstance(other, int):
@@ -171,7 +170,7 @@ class Point(object):
             b = b.point
         elif isinstance(b, (tuple, list, np.ndarray)):
             b = np.array(b)
-        return Point(a + np.dot(p-a, b-a)/np.dot(b-a, b-a)*(b-a))
+        return Point(a + np.dot(p - a, b - a) / np.dot(b - a, b - a) * (b - a))
 
     @staticmethod
     def calc_distance_to_point(a, b):
@@ -189,7 +188,7 @@ class Point(object):
         ret: float
             Distance between two points.
         """
-        return np.sqrt((a[0]-b[0])**2 + (a[1]-b[1])**2)
+        return np.sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2)
 
     @staticmethod
     def calc_distance_to_line(p, a, b):
@@ -222,7 +221,7 @@ class Point(object):
             b = b.point
         elif isinstance(b, (tuple, list, np.ndarray)):
             b = np.array(b)
-        return abs(np.cross(p-a, b-a)/np.sqrt(np.dot(b-a, b-a)))
+        return abs(np.cross(p - a, b - a) / np.sqrt(np.dot(b - a, b - a)))
 
     @staticmethod
     def test_is_in_line(p, a, b):
@@ -251,14 +250,14 @@ class Point(object):
         elif isinstance(b, (tuple, list, np.ndarray)):
             b = np.array(b)
 
-        ap, ab = p-a, b-a
-        if abs(np.cross(ap, ab) - EPS) < 0.0: # out of line AB
-            return False#, 'out of Line AB'
-        if np.dot(ap, ab) < 0.0: # left of a
-            return False#, 'in Line AB, but left of a'
-        if np.dot(ap, ab) > np.dot(ab, ab): # right of b
-            return False#, 'in Line AB, but right of b'
-        return True#, 'within Line AB'
+        ap, ab = p - a, b - a
+        if abs(np.cross(ap, ab) - EPS) < 0.0:  # out of line AB
+            return False  # , 'out of Line AB'
+        if np.dot(ap, ab) < 0.0:  # left of a
+            return False  # , 'in Line AB, but left of a'
+        if np.dot(ap, ab) > np.dot(ab, ab):  # right of b
+            return False  # , 'in Line AB, but right of b'
+        return True  # , 'within Line AB'
 
     def __getitem__(self, i):
         return self.point[i]
@@ -288,7 +287,7 @@ class Point(object):
         """
         if kws.get('direction', None) is not None:
             angle, length = kws.get('direction')
-            theta = angle/180.0*np.pi
+            theta = angle / 180.0 * np.pi
             m_vec = np.array((np.cos(theta), np.sin(theta))) * length
         else:
             m_vec = vec
@@ -314,9 +313,9 @@ class Point(object):
         if p0 is None:
             p0 = Point(0, 0)
         p1 = self - p0
-        theta = angle/180.0*np.pi
+        theta = angle / 180.0 * np.pi
         m = np.array([[np.cos(theta), -np.sin(theta)],
-                      [np.sin(theta),  np.cos(theta)]])
+                      [np.sin(theta), np.cos(theta)]])
         p1_rot, = np.dot(m, np.vstack(p1[:])).T
         return Point(p1_rot) + p0
 
@@ -342,6 +341,7 @@ class Line(object):
     >>> Line(Point(0,0), Point(0,1))
 
     """
+
     def __init__(self, p1=None, p2=None):
         self.vec = (p1, p2)
 
@@ -382,23 +382,23 @@ class Line(object):
         p1, p2 = vec[0], vec[1]
         if p1 is None:
             if p2 is None:
-                p1, p2 = Point(0,0), Point(0,1)
+                p1, p2 = Point(0, 0), Point(0, 1)
             elif isinstance(p2, (list, tuple, np.ndarray, Point)):
-                p1, p2 = Point(0,0), Point(p2)
+                p1, p2 = Point(0, 0), Point(p2)
             else:
                 print("Point should be defined by list, tuple, array or Point.")
-                p1, p2 = Point(0,0), Point(0,1)
+                p1, p2 = Point(0, 0), Point(0, 1)
         elif isinstance(p1, (list, tuple, np.ndarray, Point)):
             if p2 is None:
-                p1, p2 = Point(0,0), Point(p1)
+                p1, p2 = Point(0, 0), Point(p1)
             elif isinstance(p2, (list, tuple, np.ndarray, Point)):
                 p1, p2 = Point(p1), Point(p2)
             else:
                 print("Point should be defined by list, tuple, array or Point.")
-                p1, p2 = Point(0,0), Point(0,1)
+                p1, p2 = Point(0, 0), Point(0, 1)
         else:
             print("Point should be defined by list, tuple, array or Point.")
-            p1, p2 = Point(0,0), Point(0,1)
+            p1, p2 = Point(0, 0), Point(0, 1)
 
         self._x, self._y = (p2 - p1).point
         self._p_begin, self._p_end = p1, p2
@@ -416,7 +416,7 @@ class Line(object):
 
     def __repr__(self):
         return "Line ({0:.3f}, {1:.3f}) from {2} to {3}".format(
-                self._x, self._y, self._p_begin, self._p_end)
+            self._x, self._y, self._p_begin, self._p_end)
 
     def __eq__(self, other):
         return ((self.x == other.x)
@@ -449,18 +449,18 @@ class Line(object):
         """
         if isinstance(other, Line):
             # Line
-            tmp = np.dot(self.vec, other.vec)/abs(self)/abs(other)
+            tmp = np.dot(self.vec, other.vec) / abs(self) / abs(other)
         else:
             if kws.get('direction', None) is not None:
                 angle, length = kws.get('direction')
-                theta = angle/180.0*np.pi
-                m_vec = np.array((np.cos(theta), np.sin(theta)))*length
-                tmp = np.dot(self.vec, m_vec)/abs(self)/length
+                theta = angle / 180.0 * np.pi
+                m_vec = np.array((np.cos(theta), np.sin(theta))) * length
+                tmp = np.dot(self.vec, m_vec) / abs(self) / length
         if np.allclose(-1, tmp):
             tmp = -1.0
         elif np.allclose(1, tmp):
             tmp = 1.0
-        return np.arccos(tmp)/np.pi*180.0
+        return np.arccos(tmp) / np.pi * 180.0
 
     def cross(self, other):
         """Cross point of two lines.
@@ -475,7 +475,7 @@ class Line(object):
         # line2 = p2 + t2 * d2
         p1, p2 = self.pbegin, other.pbegin
         d1, d2 = self.vec, other.vec
-        t1 = np.cross((p2 - p1).point, d2)/np.cross(d1, d2)
+        t1 = np.cross((p2 - p1).point, d2) / np.cross(d1, d2)
         return p1 + t1 * d1
 
     def move(self, vec=None, **kws):
@@ -500,7 +500,7 @@ class Line(object):
         """
         if kws.get('direction', None) is not None:
             angle, length = kws.get('direction')
-            theta = angle/180.0*np.pi
+            theta = angle / 180.0 * np.pi
             m_vec = np.array((np.cos(theta), np.sin(theta))) * length
         else:
             m_vec = vec
@@ -527,12 +527,12 @@ class Line(object):
         """
         p1, p2 = self.pbegin, self.pend
         if p0 is None:
-            p0 = (p1+p2)*0.5
+            p0 = (p1 + p2) * 0.5
         p1, p2 = self.pbegin - p0, self.pend - p0
-        theta = angle/180.0*np.pi
+        theta = angle / 180.0 * np.pi
         m = np.array([[np.cos(theta), -np.sin(theta)],
-                      [np.sin(theta),  np.cos(theta)]])
-        p1_rot, p2_rot = np.dot(m, np.vstack((p1[:],p2[:])).T).T
+                      [np.sin(theta), np.cos(theta)]])
+        p1_rot, p2_rot = np.dot(m, np.vstack((p1[:], p2[:])).T).T
         new_p1, new_p2 = Point(p1_rot) + p0, Point(p2_rot) + p0
         return Line(new_p1, new_p2)
 
@@ -546,7 +546,7 @@ if __name__ == '__main__':
     print(str(p1))
 
     # 1, None
-    p2 = Point(1,)
+    p2 = Point(1, )
     print(str(p2))
 
     # None, 1
@@ -566,15 +566,15 @@ if __name__ == '__main__':
     print(str(p6))
 
     # tuple
-    p7 = Point((1,2))
+    p7 = Point((1, 2))
     print(str(p7))
 
     # list
-    p8 = Point([1,2])
+    p8 = Point([1, 2])
     print(str(p8))
 
     # array
-    p9 = Point(np.array([1,2]))
+    p9 = Point(np.array([1, 2]))
     print(str(p9))
 
     # Point instance
@@ -583,12 +583,12 @@ if __name__ == '__main__':
     print(str(p10))
 
     # compare
-    print(Point(1, 2)==Point(x=1, y=2))
+    print(Point(1, 2) == Point(x=1, y=2))
 
     # projection
-    a = Point(1,1)
-    b = Point(5,3)
-    p = Point(2,5)
+    a = Point(1, 1)
+    b = Point(5, 3)
+    p = Point(2, 5)
     p_ab = p.proj_point(a, b)
     print(p_ab)
 
@@ -603,13 +603,14 @@ if __name__ == '__main__':
 
     ## move
     p = Point(0, 0)
-    p_moveto1 = p.move(direction=(30,1))
-    p_moveto2 = p.move(direction=(45,1))
-    p_moveto3 = p.move(direction=(60,1))
+    p_moveto1 = p.move(direction=(30, 1))
+    p_moveto2 = p.move(direction=(45, 1))
+    p_moveto3 = p.move(direction=(60, 1))
 
     import matplotlib.pyplot as plt
+
     fig = plt.figure(1)
-    ax = fig.add_subplot(111, aspect='equal', xlim=[0,1], ylim=[0,1])
+    ax = fig.add_subplot(111, aspect='equal', xlim=[0, 1], ylim=[0, 1])
     line1 = np.vstack([p.point, p_moveto1.point])
     line2 = np.vstack([p.point, p_moveto2.point])
     line3 = np.vstack([p.point, p_moveto3.point])
@@ -617,9 +618,9 @@ if __name__ == '__main__':
     ax.scatter(*p_moveto1.point, c='b', label='30')
     ax.scatter(*p_moveto2.point, c='m', label='45')
     ax.scatter(*p_moveto3.point, c='g', label='60')
-    ax.plot(line1[:,0], line1[:,1], '--')
-    ax.plot(line2[:,0], line2[:,1], '--')
-    ax.plot(line3[:,0], line3[:,1], '--')
+    ax.plot(line1[:, 0], line1[:, 1], '--')
+    ax.plot(line2[:, 0], line2[:, 1], '--')
+    ax.plot(line3[:, 0], line3[:, 1], '--')
     ax.legend()
     plt.show()
 
@@ -636,28 +637,27 @@ if __name__ == '__main__':
     print(ox.angle(op2))
     print(ox.angle(op3))
 
-
     # line
-    line = Line(0,0)
+    line = Line(0, 0)
     print(line)
 
-    line = Line((0,1), (1,0))
+    line = Line((0, 1), (1, 0))
     print(line)
 
-    line = Line(Point(1,0))
+    line = Line(Point(1, 0))
     print(line)
 
-    print(Line((0,1)) == Line((0,0), (0,1)))
+    print(Line((0, 1)) == Line((0, 0), (0, 1)))
 
     # cross
-    line1 = Line((1,2), (2,1))
-    line2 = Line((3,3), (4,4))
+    line1 = Line((1, 2), (2, 1))
+    line2 = Line((3, 3), (4, 4))
     print(line1.cross(line2))
 
     # move
-    line1 = Line((1,2), (2,1))
-    line2 = line1.move((1,1))
+    line1 = Line((1, 2), (2, 1))
+    line2 = line1.move((1, 1))
     print(line1)
     print(line2)
 
-    print(line2[:,1])
+    print(line2[:, 1])

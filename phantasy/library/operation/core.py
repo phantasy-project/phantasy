@@ -18,9 +18,9 @@ from __future__ import unicode_literals
 import logging
 import os
 import sys
+from functools import reduce
 
 from numpy import intersect1d
-
 from phantasy.library.lattice import CaElement
 from phantasy.library.misc import bisect_index
 from phantasy.library.misc import flatten
@@ -28,6 +28,7 @@ from phantasy.library.misc import get_intersection
 from phantasy.library.misc import pattern_filter
 from phantasy.library.parser import Configuration
 from phantasy.library.pv import get_readback
+
 from .lattice import load_lattice
 
 __authors__ = "Tong Zhang"
@@ -89,6 +90,7 @@ class MachinePortal(object):
     >>> os.path.relpath(mp.last_machine_path)
     'FRIB1'
     """
+
     def __init__(self, machine=None, segment=None, **kws):
         self._machine = "FRIB" if machine is None else machine
         if os.path.isdir(self._machine):
@@ -244,7 +246,7 @@ class MachinePortal(object):
 
         if os.path.isdir(machine):
             machine = os.path.realpath(machine)
-            
+
         if self._use_cached(segment, machine, re_load=kws.get('re_load', False)):
             mach_name = os.path.basename(machine)
             mach_conf = self._machines.get(mach_name)['conf']
@@ -265,9 +267,9 @@ class MachinePortal(object):
             self._work_lattice_conf = lat_conf
             return retval
 
-        #try:
+        # try:
         retval = load_lattice(machine=machine, segment=segment, **kws)
-        
+
         lat_all = retval['lattices']
         lat_name = retval['lat0name']
         lat_conf = lat_all.get(lat_name)
@@ -286,23 +288,23 @@ class MachinePortal(object):
         self._work_lattice_conf = lat_conf
 
         if lat_name is not None and lat_name not in self._lattice_names:
-            self._lattice_names.append(lat_name) 
+            self._lattice_names.append(lat_name)
 
         if mach_name is not None and mach_name not in self._machine_names:
-            self._machine_names.append(mach_name) 
-        #except:
-        #    _LOGGER.error("Cannot load machine: {} segment: {}".format(
-        #        machine, segment))
-        #    retval = None
+            self._machine_names.append(mach_name)
+            # except:
+        # _LOGGER.error("Cannot load machine: {} segment: {}".format(
+        #         machine, segment))
+        #     retval = None
         return retval
-    
+
     def print_all_properties(self):
         """Print all properties, for debug only.
         """
-        for attr in ['lattice_names', 'machine_names', 
+        for attr in ['lattice_names', 'machine_names',
                      'last_machine_name',
                      'last_machine_path', 'last_lattice_name',
-                     #'last_lattice_conf',
+                     # 'last_lattice_conf',
                      'last_machine_conf']:
             print("{0:<17s} : {1}".format(attr, getattr(self, attr)))
 
@@ -318,18 +320,18 @@ class MachinePortal(object):
         if machine in self._machine_names and segment in self._lattice_names:
             if _f_reload:
                 _LOGGER.warn("Force reload machine: {} segment: {}".format(
-                              machine, segment))
+                    machine, segment))
                 retval = False
             else:
                 _LOGGER.warn("Use cached results for machine: {} segment: {}".format(
-                              machine, segment))
+                    machine, segment))
                 retval = True
         else:
             _LOGGER.warn("Load new machine: {} segment: {}".format(
-                          machine, segment))
+                machine, segment))
             retval = False
         return retval
-    
+
     def reload_lattice(self, segment=None, machine=None, **kws):
         """Reload machine lattice, if parameters *machine* and *segment* are
         not defined, reload last loaded one.
@@ -386,7 +388,7 @@ class MachinePortal(object):
         else:
             _LOGGER.warn("Invalid lattice name, working lattice name unchanged.")
             return self._work_lattice_name
-    
+
     def get_elements(self, name=None, type=None, srange=None, **kws):
         """Get element(s) from working lattice.
 
@@ -499,7 +501,7 @@ class MachinePortal(object):
             lat = self._work_lattice_conf
 
         valid_types = self.get_all_types(virtual=False)
-        
+
         # name
         if isinstance(name, (str, unicode)):
             ele_names = lat.getElementList(name)
@@ -511,12 +513,12 @@ class MachinePortal(object):
         # group
         if type is not None:
             if isinstance(type, (str, unicode)):
-                type = type, 
+                type = type,
             _type_list = flatten(pattern_filter(valid_types, p) for p in type)
             ele_types = flatten(lat.getElementList(t) for t in _type_list)
         else:
             ele_types = []
-        
+
         # srange
         if isinstance(srange, (list, tuple)):
             pos_start, pos_end = srange[0], srange[1]
@@ -535,7 +537,7 @@ class MachinePortal(object):
         if sk == 'pos':
             sk = 'sb'
         return sorted([e for e in ret_elems if not MachinePortal.is_virtual(e)],
-                        key=lambda e: getattr(e, sk))
+                      key=lambda e: getattr(e, sk))
 
     def next_elements(self, ref_elem, count=1, **kws):
         """Get elements w.r.t reference element, according to the defined
@@ -671,33 +673,33 @@ class MachinePortal(object):
             lat = self._work_lattice_conf
 
         etype = kws.get('type', None)
-        
+
         elem_sorted = sorted([e for e in lat if e.virtual == 0],
                              key=lambda e: e.sb)
         spos_list = [e.sb for e in elem_sorted]
         ref_idx = spos_list.index(ref_elem.sb)
         if count_is_positive:
-            eslice0 = slice(ref_idx+1, ref_idx+count+1, 1)
+            eslice0 = slice(ref_idx + 1, ref_idx + count + 1, 1)
         else:
-            eslice0 = slice(ref_idx+count, ref_idx, 1)
+            eslice0 = slice(ref_idx + count, ref_idx, 1)
 
         if etype is None:
-            ret =  elem_sorted[eslice0][eslice]
+            ret = elem_sorted[eslice0][eslice]
         else:
             if isinstance(etype, (str, unicode)):
                 etype = etype,
             if count_is_positive:
-                ret = flatten([e for e in elem_sorted[ref_idx+1:]
-                            if e.family == t][:count]
-                                for t in etype)
+                ret = flatten([e for e in elem_sorted[ref_idx + 1:]
+                               if e.family == t][:count]
+                              for t in etype)
             else:
                 ret = flatten([e for e in elem_sorted[:ref_idx]
-                            if e.family == t][count:]
-                                for t in etype)
+                               if e.family == t][count:]
+                              for t in etype)
         if ref_include_flag:
             ret.append(ref_elem)
         return sorted(ret, key=lambda e: e.sb)
-            
+
     @staticmethod
     def is_virtual(elem):
         """Test if input element is virtual element.
@@ -767,7 +769,7 @@ class MachinePortal(object):
         else:
             lat = self._work_lattice_conf
         all_groups = lat.getGroups()
-        if virtual == True:
+        if virtual is True:
             return all_groups
         else:
             return [g for g in all_groups if g != 'HLA:VIRTUAL']
@@ -840,7 +842,7 @@ class MachinePortal(object):
         """
         if mconf is None:
             mconf = self._last_mach_conf
-        
+
         if isinstance(mconf, Configuration):
             retval = MachinePortal.get_inspect_mconf(mconf)
 
@@ -849,20 +851,20 @@ class MachinePortal(object):
                     out = sys.stdout
 
                 print('{0:<20s} : {1}'.format('machine config path', retval['path']),
-                        file=out, end='\n')
-                print('-'*22, file=out, end='\n')
+                      file=out, end='\n')
+                print('-' * 22, file=out, end='\n')
                 print('{0:<20s} : {1}'.format('machine name', retval['machine']),
-                        file=out, end='\n')
-                print('-'*22, file=out, end='\n')
+                      file=out, end='\n')
+                print('-' * 22, file=out, end='\n')
                 print('{0:<20s} : {1}'.format('All valid lattices', ' '.join(retval['lattices'])),
-                        file=out, end='\n')
+                      file=out, end='\n')
                 d = retval['config']
                 for sn in sorted(d):
-                    print('-'*22, file=out, end='\n')
+                    print('-' * 22, file=out, end='\n')
                     print("Section - " + sn, file=out, end='\n')
-                    print('-'*22, file=out, end='\n')
-                    for k,v in d[sn].items():
-                        print("{0:<20s} : {1}".format(k,v), file=out, end='\n')
+                    print('-' * 22, file=out, end='\n')
+                    for k, v in d[sn].items():
+                        print("{0:<20s} : {1}".format(k, v), file=out, end='\n')
             except:
                 _LOGGER.warn("Cannot output into stream defined by out.")
             finally:
@@ -876,8 +878,8 @@ class MachinePortal(object):
         m_path = mconf.config_path
         m_name = m_path.split(os.sep)[-2]
         m_lats = mconf.getarray('COMMON', 'segments')
-        m_dict = {sn:dict(mconf.items(sn)) for sn in mconf.sections()}
-        return {'path': m_path, 'lattices': m_lats, 
+        m_dict = {sn: dict(mconf.items(sn)) for sn in mconf.sections()}
+        return {'path': m_path, 'lattices': m_lats,
                 'machine': m_name, 'config': m_dict}
 
     @staticmethod
@@ -955,8 +957,8 @@ class MachinePortal(object):
             field = [f for f in field if f in all_fields]
 
         handle = kws.get('handle', 'readback')
-        return {f:[e.pv(field=f, handle=handle)[0] for e in elem] for f in field}
-        
+        return {f: [e.pv(field=f, handle=handle)[0] for e in elem] for f in field}
+
     @staticmethod
     def get_pv_values(elem, field=None, **kws):
         """Get PV readback values by given fields for defined elements.
@@ -995,12 +997,11 @@ class MachinePortal(object):
         pv_values = get_readback(pv_names)
         return pv_values
 
-    def syn_settings(self,):
-        pass
-    
-    def roll_back(self,):
+    def syn_settings(self, ):
         pass
 
-    def update_model_settings(self,):
+    def roll_back(self, ):
         pass
- 
+
+    def update_model_settings(self, ):
+        pass

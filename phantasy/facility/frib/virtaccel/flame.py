@@ -2,9 +2,9 @@
 
 """Library for running an EPICS-based virtual accelertor using FLAME evelope tracker."""
 
+from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
-from __future__ import absolute_import
 from __future__ import unicode_literals
 
 import logging
@@ -16,8 +16,8 @@ import shutil
 import subprocess
 import tempfile
 import time
-from copy import deepcopy
 from collections import OrderedDict
+from copy import deepcopy
 
 try:
     from StringIO import StringIO
@@ -57,9 +57,9 @@ from phantasy.library.lattice import FlameLatticeFactory
 
 
 try:
-    basestring # Python 2.X
+    basestring  # Python 2.X
 except NameError:
-    basestring = str # Python 3.X
+    basestring = str  # Python 3.X
 
 
 # configuration options
@@ -71,7 +71,7 @@ CONFIG_FLAME_DATA_DIR = "flame_data_dir"
 
 _TEMP_DIRECTORY_SUFFIX = "_va_flame"
 
-#_DEFAULT_ERROR_VALUE = 0.0
+# _DEFAULT_ERROR_VALUE = 0.0
 
 _VA_STATUS_GOOD = "OK"
 _VA_STATUS_BAD = "ERR"
@@ -110,7 +110,7 @@ def start(layout, **kwargs):
     """
 
     global _VIRTUAL_ACCELERATOR
-    if _VIRTUAL_ACCELERATOR == None:
+    if _VIRTUAL_ACCELERATOR is None:
         _VIRTUAL_ACCELERATOR = build_virtaccel(layout, **kwargs)
 
     if _VIRTUAL_ACCELERATOR.is_started():
@@ -123,7 +123,7 @@ def stop():
     """Stop the global virtual accelerator.
     """
     global _VIRTUAL_ACCELERATOR
-    if _VIRTUAL_ACCELERATOR == None or not _VIRTUAL_ACCELERATOR.is_started():
+    if _VIRTUAL_ACCELERATOR is None or not _VIRTUAL_ACCELERATOR.is_started():
         raise RuntimeError("Virtual Accelerator not started")
 
     _VIRTUAL_ACCELERATOR.stop()
@@ -225,7 +225,7 @@ class VirtualAcceleratorFactory(object):
 
     @settings.setter
     def settings(self, settings):
-        if not isinstance(settings, (dict)):
+        if not isinstance(settings, dict):
             raise TypeError("VirtAccelFactory: 'settings' property much be type dict")
         self._settings = settings
 
@@ -235,7 +235,7 @@ class VirtualAcceleratorFactory(object):
 
     @channels.setter
     def channels(self, channels):
-        if not isinstance(channels, (list)):
+        if not isinstance(channels, list):
             raise TypeError("VirtAccelFactory: 'channels' property much be type list")
         self._channels = channels
 
@@ -290,10 +290,10 @@ class VirtualAcceleratorFactory(object):
         settings = self.settings
 
         data_dir = self.data_dir
-        if (data_dir == None) and self.config.has_default(CONFIG_FLAME_DATA_DIR):
+        if (data_dir is None) and self.config.has_default(CONFIG_FLAME_DATA_DIR):
             data_dir = self.config.getabspath_default(CONFIG_FLAME_DATA_DIR)
 
-        if data_dir == None:
+        if data_dir is None:
             raise RuntimeError("VirtAccelFactory: No data directory provided, check the configuration")
 
         work_dir = self.work_dir
@@ -309,8 +309,8 @@ class VirtualAcceleratorFactory(object):
         if m.group(1) is None:
             chanprefix = None
         else:
-            #IMPORTANT: chanprefix must
-            #be converted from unicode
+            # IMPORTANT: chanprefix must
+            # be converted from unicode
             chanprefix = str(m.group(1))
 
         va = VirtualAccelerator(latfactory, settings, chanprefix, data_dir, work_dir)
@@ -334,70 +334,70 @@ class VirtualAcceleratorFactory(object):
                 va.append_rw(self._findChannel(elem.name, elem.fields.field, "setpoint"),
                              self._findChannel(elem.name, elem.fields.field, "readset"),
                              self._findChannel(elem.name, elem.fields.field, "readback"),
-                             (elem.name, elem.fields.field), desc="Solenoid Field", egu="T")#, drvratio=0.10)
+                             (elem.name, elem.fields.field), desc="Solenoid Field", egu="T") #, drvratio=0.10)
                 va.append_rw(self._findChannel(elem.h.name, elem.h.fields.angle, "setpoint"),
                              self._findChannel(elem.h.name, elem.h.fields.angle, "readset"),
                              self._findChannel(elem.h.name, elem.h.fields.angle, "readback"),
-                             (elem.h.name, elem.h.fields.angle), desc="Horizontal Corrector", egu="radian")#, drvabs=0.001)
+                             (elem.h.name, elem.h.fields.angle), desc="Horizontal Corrector", egu="radian") #, drvabs=0.001)
                 va.append_rw(self._findChannel(elem.v.name, elem.v.fields.angle, "setpoint"),
                              self._findChannel(elem.v.name, elem.v.fields.angle, "readset"),
                              self._findChannel(elem.v.name, elem.v.fields.angle, "readback"),
-                             (elem.v.name, elem.v.fields.angle), desc="Vertical Corrector", egu="radian")#, drvabs=0.001)
+                             (elem.v.name, elem.v.fields.angle), desc="Vertical Corrector", egu="radian") #, drvabs=0.001)
                 va.append_elem(elem)
             
             elif isinstance(elem, SolElement):
                 va.append_rw(self._findChannel(elem.name, elem.fields.field, "setpoint"),
                              self._findChannel(elem.name, elem.fields.field, "readset"),
                              self._findChannel(elem.name, elem.fields.field, "readback"),
-                             (elem.name, elem.fields.field), desc="Solenoid Field", egu="T")#, drvratio=0.10)
+                             (elem.name, elem.fields.field), desc="Solenoid Field", egu="T") #, drvratio=0.10)
                 va.append_elem(elem)
 
             elif isinstance(elem, CorElement):
                 va.append_rw(self._findChannel(elem.h.name, elem.h.fields.angle, "setpoint"),
                              self._findChannel(elem.h.name, elem.h.fields.angle, "readset"),
                              self._findChannel(elem.h.name, elem.h.fields.angle, "readback"),
-                             (elem.h.name, elem.h.fields.angle), desc="Horizontal Corrector", egu="radian")#, drvabs=0.001)
+                             (elem.h.name, elem.h.fields.angle), desc="Horizontal Corrector", egu="radian") #, drvabs=0.001)
                 va.append_rw(self._findChannel(elem.v.name, elem.v.fields.angle, "setpoint"),
                              self._findChannel(elem.v.name, elem.v.fields.angle, "readset"),
                              self._findChannel(elem.v.name, elem.v.fields.angle, "readback"),
-                             (elem.v.name, elem.v.fields.angle), desc="Vertical Corrector", egu="radian")#, drvabs=0.001)
+                             (elem.v.name, elem.v.fields.angle), desc="Vertical Corrector", egu="radian") #, drvabs=0.001)
                 va.append_elem(elem)
 
             elif isinstance(elem, BendElement):
                 va.append_rw(self._findChannel(elem.name, elem.fields.field, "setpoint"),
                              self._findChannel(elem.name, elem.fields.field, "readset"),
                              self._findChannel(elem.name, elem.fields.field, "readback"),
-                             (elem.name, elem.fields.field), desc="Bend Relative Field", egu="none")#, drvratio=0.10)
+                             (elem.name, elem.fields.field), desc="Bend Relative Field", egu="none") #, drvratio=0.10)
                 va.append_elem(elem)
 
             elif isinstance(elem, EBendElement):
                 va.append_rw(self._findChannel(elem.name, elem.fields.field, "setpoint"),
                              self._findChannel(elem.name, elem.fields.field, "readset"),
                              self._findChannel(elem.name, elem.fields.field, "readback"),
-                             (elem.name, elem.fields.field), desc="EBend Field", egu="V")#, drvratio=0.10)
+                             (elem.name, elem.fields.field), desc="EBend Field", egu="V") #, drvratio=0.10)
                 va.append_elem(elem)
 
             elif isinstance(elem, QuadElement):
                 va.append_rw(self._findChannel(elem.name, elem.fields.gradient, "setpoint"),
                              self._findChannel(elem.name, elem.fields.gradient, "readset"),
                              self._findChannel(elem.name, elem.fields.gradient, "readback"),
-                             (elem.name, elem.fields.gradient), desc="Quadrupole Gradient", egu="T/m")#, drvratio=0.10)
+                             (elem.name, elem.fields.gradient), desc="Quadrupole Gradient", egu="T/m") #, drvratio=0.10)
                 va.append_elem(elem)
 
             elif isinstance(elem, EQuadElement):
-                try:
-                    va.append_rw(self._findChannel(elem.name, elem.fields.gradient, "setpoint"),
-                                 self._findChannel(elem.name, elem.fields.gradient, "readset"),
-                                 self._findChannel(elem.name, elem.fields.gradient, "readback"),
-                                 (elem.name, elem.fields.gradient), desc="EQuad Field", egu="V")
-                    va.append_elem(elem)
-                except: # QUAD settings
-                    #va.append_rw(self._findChannel(elem.name, "GRAD", "setpoint"),
-                    #             self._findChannel(elem.name, "GRAD", "readset"),
-                    #             self._findChannel(elem.name, "GRAD", "readback"),
-                    #             (elem.name, "GRAD"), desc="EQuad Field", egu="V", drvratio=0.10)
-                    #va.append_elem(elem)
-                    pass
+                # try:
+                va.append_rw(self._findChannel(elem.name, elem.fields.gradient, "setpoint"),
+                             self._findChannel(elem.name, elem.fields.gradient, "readset"),
+                             self._findChannel(elem.name, elem.fields.gradient, "readback"),
+                             (elem.name, elem.fields.gradient), desc="EQuad Field", egu="V")
+                va.append_elem(elem)
+                # except: # QUAD settings
+                #     #va.append_rw(self._findChannel(elem.name, "GRAD", "setpoint"),
+                #     #             self._findChannel(elem.name, "GRAD", "readset"),
+                #     #             self._findChannel(elem.name, "GRAD", "readback"),
+                #     #             (elem.name, "GRAD"), desc="EQuad Field", egu="V", drvratio=0.10)
+                #     #va.append_elem(elem)
+                #     pass
 
             elif isinstance(elem, SextElement):
                 va.append_rw(self._findChannel(elem.name, elem.fields.field, "setpoint"),
@@ -552,7 +552,7 @@ class VirtualAccelerator(object):
         elif drvrel is not None:
             drvh = val + abs(drvabs)
             drvl = val - abs(drvabs)
-        elif drvratio != None:
+        elif drvratio is not None:
             drvh = val + abs(val*drvratio)
             drvl = val - abs(val*drvratio)
 
@@ -904,8 +904,8 @@ class VirtualAccelerator(object):
                         batch[self._readfieldmap[elem.name][elem.fields.xy]] = xy_centroid
 
                         xy_rms = 1.0e-3*math.sqrt(
-                                (S.moment1_env[0,0] + S.moment1_env[2,2])*0.5
-                                + sign*S.moment1_env[0,2]
+                                (S.moment1_env[0, 0] + S.moment1_env[2, 2])*0.5
+                                + sign*S.moment1_env[0, 2]
                         )
                         _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
                                       self._readfieldmap[elem.name][elem.fields.xyrms], xy_rms)
@@ -962,8 +962,8 @@ class VirtualAccelerator(object):
         for record in self._epicsdb:
             buf.write("record({}, \"{}\") {{\r\n".format(record[0], record[1]))
             for name, value in record[2].items():
-                if value == None:
-                    pass # ignore fields with value None
+                if value is None:
+                    pass  # ignore fields with value None
                 elif isinstance(value, int):
                     buf.write("    field(\"{}\", {})\r\n".format(name, value))
                 elif isinstance(value, float):

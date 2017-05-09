@@ -42,10 +42,11 @@ class FitModel(object):
     xmax : float
         Upper limit of fitting data range.
     """
+
     def __init__(self, model='gaussian', params=None, **kws):
         if params is None:
-           params = lmfit.Parameters()
-        self._model  = model
+            params = lmfit.Parameters()
+        self._model = model
         self._params = params
         try:
             self._x, self._y = kws['x'], kws['y']
@@ -54,8 +55,8 @@ class FitModel(object):
         try:
             self.n = kws['n']
         except:
-            self.n = 1 # when model is polynomial, highest order
-        self.n += 1 # range(n + 1): [0, n]
+            self.n = 1  # when model is polynomial, highest order
+        self.n += 1  # range(n + 1): [0, n]
 
         # data fitting window
         self.x_fit_min, self.x_fit_max = kws.get('xmin'), kws.get('xmax')
@@ -64,17 +65,17 @@ class FitModel(object):
         self._method = 'leastsq'
 
         self._set_params_func = {
-                'gaussian'  : self._set_params_gaussian,
-                'polynomial': self._set_params_polynomial,
-                }
+            'gaussian': self._set_params_gaussian,
+            'polynomial': self._set_params_polynomial,
+        }
         self._fitfunc = {
-                'gaussian'  : self._fit_gaussian,
-                'polynomial': self._fit_polynomial,
-                }
+            'gaussian': self._fit_gaussian,
+            'polynomial': self._fit_polynomial,
+        }
         self._gen_func_text = {
-                'gaussian'  : self._gen_func_text_gaussian,
-                'polynomial': self._gen_func_text_polynomial,
-                }
+            'gaussian': self._gen_func_text_gaussian,
+            'polynomial': self._gen_func_text_polynomial,
+        }
 
         self._fit_result = None
 
@@ -123,12 +124,12 @@ class FitModel(object):
         x0 = p['x0'].value
         y0 = p['y0'].value
         xstd = p['xstd'].value
-        return a * np.exp(-(x-x0)**2.0/2.0/xstd/xstd) + y0
+        return a * np.exp(-(x - x0) ** 2.0 / 2.0 / xstd / xstd) + y0
 
     def _fit_polynomial(self, p, x):
         f = 0
         for i in range(self.n):
-            f += p['a'+str(i)].value * x**i
+            f += p['a' + str(i)].value * x ** i
         return f
 
     def _errfunc(self, p, f, x, y):
@@ -147,17 +148,19 @@ class FitModel(object):
             Y data array.
         """
         if data is not None:
-            self._x, self._y = data[:,0], data[:,1]
+            self._x, self._y = data[:, 0], data[:, 1]
         else:
-            if x is not None: self._x = x
-            if y is not None: self._y = y
+            if x is not None:
+                self._x = x
+            if y is not None:
+                self._y = y
 
     def get_data(self):
         """Return raw data, tuple of array x and y.
         """
         return self._x, self._y
 
-    #def _set_fitfunc(self, type=None):
+    # def _set_fitfunc(self, type=None):
     #    """Type: gaussian, linear, quadratic, polynomial, power, sin
     #    """
     #    if type is not None:
@@ -167,14 +170,14 @@ class FitModel(object):
         a = p0['a'].value
         x0 = p0['x0'].value
         y0 = p0['y0'].value
-        xstd =p0['xstd'].value
+        xstd = p0['xstd'].value
         retfun = '$f(x) = a e^{-\\frac{(x-x_0)^2}{2\sigma_x^2}}+y_0$'
         retcoe = '$a = %.3f, x_0 = %.3f, \sigma_x = %.3f, y_0 = %.3f$' % (a, x0, xstd, y0)
         return {'func': retfun, 'fcoef': retcoe}
 
     def _gen_func_text_polynomial(self, p0):
         retfun = '$f(x) = \sum_{i=0}^{%s}\,a_i x^i$' % (self.n)
-        retcoe = ','.join(['$a_{%d} = %.3f$' % (i, p0['a'+str(i)].value) for i in range(self.n)])
+        retcoe = ','.join(['$a_{%d} = %.3f$' % (i, p0['a' + str(i)].value) for i in range(self.n)])
         return {'func': retfun, 'fcoef': retcoe}
 
     def set_params(self, **p0):
@@ -188,14 +191,14 @@ class FitModel(object):
         self._set_params_func[self._model](p0)
 
     def _set_params_gaussian(self, p0):
-        self._params.add('a',    value=p0['a']   )
-        self._params.add('x0',   value=p0['x0']  )
-        self._params.add('y0',   value=p0['y0']  )
+        self._params.add('a', value=p0['a'])
+        self._params.add('x0', value=p0['x0'])
+        self._params.add('y0', value=p0['y0'])
         self._params.add('xstd', value=p0['xstd'])
 
     def _set_params_polynomial(self, p0):
         for i in range(self.n):
-            pi_name = 'a'+str(i)
+            pi_name = 'a' + str(i)
             self._params.add(pi_name, value=p0[pi_name])
 
     def get_fitfunc(self, p0=None):
@@ -251,7 +254,7 @@ class FitModel(object):
                 retstr1 = "Fitting Function:" + "\n"
                 retstr2 = "a*exp(-(x-x0)^2/2/sx^2)+y0" + "\n"
                 retstr3 = "Fitting Output:" + "\n"
-                retstr4 = "{a0_k:<3s}: {a0_v:>10.4f}\n".format(a0_k='a' , a0_v=p['a'].value)
+                retstr4 = "{a0_k:<3s}: {a0_v:>10.4f}\n".format(a0_k='a', a0_v=p['a'].value)
                 retstr5 = "{x0_k:<3s}: {x0_v:>10.4f}\n".format(x0_k='x0', x0_v=p['x0'].value)
                 retstr6 = "{sx_k:<3s}: {sx_v:>10.4f}\n".format(sx_k='sx', sx_v=p['xstd'].value)
                 retstr7 = "{y0_k:<3s}: {y0_v:>10.4f}".format(y0_k='y0', y0_v=p['y0'].value)
@@ -261,7 +264,7 @@ class FitModel(object):
         elif self._model == 'polynomial':
             if self._fit_result is not None:
                 p = self._fit_result.params
-                retstr  = "Fitting Function:" + "\n"
+                retstr = "Fitting Function:" + "\n"
                 fstr = '+'.join(['a' + str(i) + '*x^' + str(i) for i in range(self.n)])
                 fstr = fstr.replace('*x^0', '')
                 fstr = fstr.replace('x^1', 'x')
@@ -280,13 +283,13 @@ class FitModel(object):
         if self._model == 'gaussian':
             x, xdata = self._x, self._y
             x0 = np.sum(x * xdata) / np.sum(xdata)
-            p0 = {'a'   : xdata.max(),
-                  'x0'  : x0,
-                  'xstd': (np.sum((x - x0)**2 * xdata) / np.sum(xdata))**0.5,
-                  'y0'  : 0,
+            p0 = {'a': xdata.max(),
+                  'x0': x0,
+                  'xstd': (np.sum((x - x0) ** 2 * xdata) / np.sum(xdata)) ** 0.5,
+                  'y0': 0,
                   }
         elif self._model == 'polynomial':
-            p0 = {'a'+str(i) : 1 for i in range(self.n)}
+            p0 = {'a' + str(i): 1 for i in range(self.n)}
         return p0
 
     @staticmethod
@@ -330,12 +333,12 @@ def gaussian_fit(x, xdata):
         Tuple of fitting function, x0 and xstd.
     """
     fm = FitModel()
-    x0 = np.sum(x*xdata)/np.sum(xdata)
-    p0 = {'a'   : xdata.max(),
-          'x0'  : x0,
-          'xstd': (np.sum((x-x0)**2*xdata)/np.sum(xdata))**0.5,
-          'y0'  : 0
-         }
+    x0 = np.sum(x * xdata) / np.sum(xdata)
+    p0 = {'a': xdata.max(),
+          'x0': x0,
+          'xstd': (np.sum((x - x0) ** 2 * xdata) / np.sum(xdata)) ** 0.5,
+          'y0': 0
+          }
     fm.set_data(x=x, y=xdata)
     fm.set_params(**p0)
     res = fm.fit()
@@ -345,4 +348,3 @@ def gaussian_fit(x, xdata):
         return fm.get_fitfunc(res.params)[0](res.params, x)
 
     return fit_func, x0, xstd
-

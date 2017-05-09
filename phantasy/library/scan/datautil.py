@@ -18,6 +18,7 @@ class ScanDataFactory(object):
     n_sample : int
         Sample number for every scan device setup.
     """
+
     def __init__(self, data, n_sample):
         self._raw_data = data
         self._n = n_sample
@@ -36,8 +37,8 @@ class ScanDataFactory(object):
     def _rebuild_data(self):
         """Rebuild raw_data
         """
-        self._data = {k:np.array(v.get('value')).reshape(-1, self._n)
-                        for k,v in self._raw_data.iteritems()}
+        self._data = {k: np.array(v.get('value')).reshape(-1, self._n)
+                      for k, v in self._raw_data.iteritems()}
 
     def get_average(self, name):
         """Get average.
@@ -68,9 +69,8 @@ class ScanDataFactory(object):
             List of keys.
         """
         return self._data.keys()
-    
+
     def save(self, ext='dat'):
         """
         """
         pass
-

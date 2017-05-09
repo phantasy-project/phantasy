@@ -13,7 +13,6 @@ import logging
 
 from cothread.catools import caget
 
-
 __authors__ = "Tong Zhang"
 __copyright__ = "(c) 2016, Facility for Rare Isotope beams, Michigan State University"
 __contact__ = "Tong Zhang <zhangt@frib.msu.edu>"
@@ -60,13 +59,13 @@ def get_readback(pv):
     """
     rtype = 'dict'
     if isinstance(pv, (str, unicode)):
-        pv = {'pv': pv,}
+        pv = {'pv': pv, }
         rtype = 'list'
     elif isinstance(pv, (list, tuple)):
         pv = {'pv': pv}
         rtype = 'list'
-    
-    rbk_dict = {k:caget(v) for k,v in pv.iteritems()}
+
+    rbk_dict = {k: caget(v) for k, v in pv.items()}
 
     if rtype == 'list':
         return rbk_dict['pv']

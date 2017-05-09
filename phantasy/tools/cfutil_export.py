@@ -6,38 +6,41 @@ Implement phytool command 'cfutil-export'.
 
 from __future__ import print_function
 
-import sys
-import os.path
-import logging
-import json
-import traceback
 import getpass
-
-from urlparse import urlparse
+import logging
+import os.path
+import sys
+import traceback
 from argparse import ArgumentParser
-from collections import OrderedDict
 
-from channelfinder import ChannelFinderClient
+try:
+    from urlparse import urlparse
+except ImportError:
+    from urllib.parse import urlparse
 
-from phantasy.library.channelfinder import write_db
-from phantasy.library.channelfinder import write_tb
-from phantasy.library.channelfinder import write_json
 from phantasy.library.channelfinder import write_cfs
+from phantasy.library.channelfinder import write_db
+from phantasy.library.channelfinder import write_json
+from phantasy.library.channelfinder import write_tb
 from phantasy.library.pv import DataSource
 
 _LOGGER = logging.getLogger(__name__)
 
+try:
+    r_input = raw_input
+except NameError:
+    r_input = input
 
-parser = ArgumentParser(prog=os.path.basename(sys.argv[0])+" cfutil-export",
+parser = ArgumentParser(prog=os.path.basename(sys.argv[0]) + " cfutil-export",
                         description="Export channel data (.csv, .sqlite, CFS) to \
                         file (.csv, .sqlite, .json) or \
                         Channel Finder Service (CFS)")
 parser.add_argument("-v", dest="verbosity", nargs='?', type=int, const=1, default=0,
-        help="set the amount of output")
+                    help="set the amount of output")
 parser.add_argument("--from", dest='from_path',
-        help="path to input file (.csv, .sqlite, CFS) as channel data source")
+                    help="path to input file (.csv, .sqlite, CFS) as channel data source")
 parser.add_argument("--to", dest='to_path',
-        help="path to output file (.csv, .sqlite, .json) or CFS URL")
+                    help="path to output file (.csv, .sqlite, .json) or CFS URL")
 parser.add_argument("--user", dest="username", help="specify CFS username")
 parser.add_argument("--pass", dest="password", help="specify CFS password")
 
@@ -55,8 +58,6 @@ def main():
     elif args.verbosity > 1:
         logging.getLogger().setLevel(logging.DEBUG)
 
-    channel_source = args.from_path
-
     channel_source = urlparse(args.from_path, "file")
     if channel_source.scheme == "file":
         sourcepath = channel_source.path
@@ -65,12 +66,12 @@ def main():
             return 1
     elif channel_source.scheme in ["http", "https"]:
         sourcepath = args.from_path
-        if args.username == None:
-            args.username = raw_input("Enter username: ")
-        if args.password == None:
+        if args.username is None:
+            args.username = r_input("Enter username: ")
+        if args.password is None:
             args.password = getpass.getpass("Enter password: ")
     else:
-        print("Unknown source.".format(arg.from_path), file=sys.stderr)
+        print("Unknown source.".format(args.from_path), file=sys.stderr)
         return 1
 
     try:
@@ -80,11 +81,10 @@ def main():
         print("Failed to get data from channel source:", e, file=sys.stderr)
         return 1
 
-
     cfsurl = urlparse(args.to_path, "file")
     if cfsurl.scheme == "file":
         (_, ext) = os.path.splitext(cfsurl.path)
-        if ext in [ ".csv", ".sqlite", ".json" ]:
+        if ext in [".csv", ".sqlite", ".json"]:
             if os.path.exists(cfsurl.path):
                 print("Destination file already exists: {}".format(args.to_path), file=sys.stderr)
                 return 1
@@ -92,14 +92,13 @@ def main():
             print("Destination file format not supported: {}".format(args.to_path), file=sys.stderr)
             return 1
 
-    elif cfsurl.scheme in [ "http", "https" ]:
+    elif cfsurl.scheme in ["http", "https"]:
         # TODO: check if server is available?
         pass
 
     else:
         print("Destination path not supported: {}".format(args.to_path), file=sys.stderr)
         return 1
-
 
     if cfsurl.scheme == "file":
         # local file
@@ -124,13 +123,13 @@ def main():
                 print("Failed export to JSON file: ", e, file=sys.stderr)
                 return 1
 
-    elif cfsurl.scheme in [ "http", "https" ]:
+    elif cfsurl.scheme in ["http", "https"]:
         # CFS
         try:
-            if args.username == None:
-                args.username = raw_input("Enter username: ")
+            if args.username is None:
+                args.username = r_input("Enter username: ")
 
-            if args.password == None:
+            if args.password is None:
                 args.password = getpass.getpass("Enter password: ")
 
             # Channel Finder Client does not
@@ -142,7 +141,8 @@ def main():
 
             _export_to_cfweb(channels, uri, args.username, args.password)
         except Exception as e:
-            if args.verbosity > 0: traceback.print_exc()
+            if args.verbosity > 0:
+                traceback.print_exc()
             print("Failed export to Channel Finder Service: ", e, file=sys.stderr)
             return 1
 
@@ -226,4 +226,3 @@ def _export_to_cfweb(channels, uri, username, password):
 
     client.set(channels=data)
     """
-

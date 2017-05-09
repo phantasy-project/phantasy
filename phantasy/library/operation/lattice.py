@@ -35,6 +35,9 @@ __contact__ = "Tong Zhang <zhangt@frib.msu.edu>"
 _LOGGER = logging.getLogger(__name__)
 
 
+DEFAULT_MODEL_DATA_DIR = 'model_data'
+
+
 def load_lattice(machine, segment=None, **kwargs):
     """Load segment lattice(s) from machine.
 
@@ -125,7 +128,6 @@ def load_lattice(machine, segment=None, **kwargs):
             simulation_code = simulation_code.upper()
 
         # model: data
-        DEFAULT_MODEL_DATA_DIR = 'model_data'
         model_data_dir = d_msect.get(INI_DICT['KEYNAME_MODEL_DATA_DIR'],
                                      DEFAULT_MODEL_DATA_DIR)
         if model_data_dir is not None:
@@ -220,9 +222,9 @@ def load_lattice(machine, segment=None, **kwargs):
         #             lat.createLatticeModelMap(IMPACT_ELEMENT_MAP)
 
         lat.s_begin = float(d_msect.get(INI_DICT['KEYNAME_SBEGIN'],
-                                   INI_DICT['DEFAULT_SBEGIN']))
+                                        INI_DICT['DEFAULT_SBEGIN']))
         lat.s_end = float(d_msect.get(INI_DICT['KEYNAME_SEND'],
-                                   INI_DICT['DEFAULT_SEND']))
+                                      INI_DICT['DEFAULT_SEND']))
         lat.loop = bool(d_msect.get(INI_DICT['KEYNAME_MTYPE'],
                                     INI_DICT['DEFAULT_MTYPE']))
         if not os.path.exists(model_data_dir):
@@ -284,7 +286,7 @@ def load_lattice(machine, segment=None, **kwargs):
                    len(lat.getElementList('SOL')),
                    len(lat.getElementList('CAV'))))
 
-    ## set the default segment, if None, use the first one
+    # #set the default segment, if None, use the first one
     # lat0 = lat_dict.get(default_segment, None)
     # if lat0 is None and len(lat_dict) > 0:
     #    _k = sorted(lat_dict.keys())[0]
@@ -417,7 +419,7 @@ def create_lattice(latname, pv_data, tag, **kwargs):
             elem.virtual = 1
 
         handle = pv_props.get('handle', '').lower()
-        ## legacy code, present code will not be 'get' or 'put'
+        # legacy code, present code will not be 'get' or 'put'
         if handle == 'get':
             pv_props['handle'] = 'readback'
         elif handle == 'put':
@@ -434,7 +436,7 @@ def create_lattice(latname, pv_data, tag, **kwargs):
     lat.sortElements()
     lat.length = lat[-1].se if lat.size() > 0 else 0.0
 
-    #_LOGGER.debug("Mode {0}".format(lat.mode))
+    # _LOGGER.debug("Mode {0}".format(lat.mode))
     _LOGGER.info("'{0:s}' has {1:d} elements".format(lat.name, lat.size()))
     # noinspection PyProtectedMember
     for g in sorted(lat._group.keys()):

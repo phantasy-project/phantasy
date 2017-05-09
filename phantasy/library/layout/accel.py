@@ -20,6 +20,11 @@ import sys
 
 from phantasy.library.misc import SpecialDict
 
+try:
+    basestring
+except:
+    basestring = str
+
 
 # Base Elements
 
@@ -33,8 +38,9 @@ class Fields(object):
     kwargs :
         All keyword arguments become object attributes.
     """
+
     def __init__(self, **kwargs):
-        for key, value in kwargs.iteritems():
+        for key, value in kwargs.items():
             setattr(key, value)
 
     def __iter__(self):
@@ -47,21 +53,22 @@ class Fields(object):
 class Element(object):
     """Element is the base for the layout element class heirarchy.
 
-    Parameters
-    ----------
-    z : float
-        Position of this accelerator element.
-    length : float
-        Length of this accelerator element.
-    aperture : float
-        Minimum size of this accelerator element.
-    name : str
-        Name of this accelerator element.
+	Parameters
+	----------
+	z : float
+		Position of this accelerator element.
+	length : float
+		Length of this accelerator element.
+	aperture : float
+		Minimum size of this accelerator element.
+	name : str
+		Name of this accelerator element.
 
-    Keyword Arguments:
-    **meta :
-        Meta data describing this accelerator element.
-    """
+	Keyword Arguments:
+	**meta :
+		Meta data describing this accelerator element.
+	"""
+
     def __init__(self, z, length, aperture, name, **meta):
         self._z = z
         self._length = length
@@ -96,7 +103,7 @@ class Element(object):
 
     @aperture.setter
     def aperture(self, aperture):
-        if isinstance(aperture, (tuple,list)):
+        if isinstance(aperture, (tuple, list)):
             if isinstance(aperture[0], (int, float)):
                 self._apertureX = float(aperture[0])
             else:
@@ -145,34 +152,35 @@ class Element(object):
             raise ValueError("Element: 'name' property must not be empty")
         self._name = name
 
-    #def __getattr__(self, name):
-    #    return self.meta.get(name, "")
+    # def __getattr__(self, name):
+    #     return self.meta.get(name, "")
 
     def __str__(self):
-        s = "{{ name:'{elem.name}', z:{elem.z}, length:{elem.length}, aperture:{elem.aperture}, meta={elem.meta}, fields={elem.fields} }}"
+        s = "{{ name:'{elem.name}', z:{elem.z}, length:{elem.length}, aperture:{elem.aperture}, \
+													  meta={elem.meta}, fields={elem.fields} }}"
         return type(self).__name__ + s.format(elem=self)
 
 
 class SeqElement(Element):
     """SeqElement is a composite accelerator element containing a sequence
-    of elements.
+	of elements.
 
-    Parameters
-    ----------
-    name : str
-        Name of this accelerator element.
-    desc : str
-        Description of this accelerator element.
-    elements : list
-        List of elements contained by this sequence.
-    """
+	Parameters
+	----------
+	name : str
+		Name of this accelerator element.
+	desc : str
+		Description of this accelerator element.
+	elements : list
+		List of elements contained by this sequence.
+	"""
+
     def __init__(self, name, elements=None, desc="sequence", **meta):
         super(SeqElement, self).__init__(None, None, None, name, desc=desc, **meta)
-        if elements == None:
+        if elements is None:
             self._elements = []
         else:
             self._elements = elements
-
 
     @property
     def elements(self):
@@ -182,7 +190,6 @@ class SeqElement(Element):
     def elements(self, elements):
         self._elements = list(elements)
 
-
     @property
     def z(self):
         if len(self.elements) == 0:
@@ -191,9 +198,8 @@ class SeqElement(Element):
 
     @z.setter
     def z(self, z):
-        if z != None:
+        if z is not None:
             raise NotImplementedError("SeqElement: Setting z not implemented")
-
 
     @property
     def length(self):
@@ -204,9 +210,8 @@ class SeqElement(Element):
 
     @length.setter
     def length(self, length):
-        if length != None:
+        if length is not None:
             raise NotImplementedError("SeqElement: Setting length not implemented")
-
 
     @property
     def aperture(self):
@@ -214,9 +219,8 @@ class SeqElement(Element):
 
     @aperture.setter
     def aperture(self, aperture):
-        if aperture != None:
+        if aperture is not None:
             raise NotImplementedError("SeqElement: Setting aperture not implemented")
-
 
     @property
     def apertureX(self):
@@ -227,9 +231,8 @@ class SeqElement(Element):
 
     @apertureX.setter
     def apertureX(self, apertureX):
-        if apertureX != None:
+        if apertureX is not None:
             raise NotImplementedError("SeqElement: Setting apertureX not implemented")
-
 
     @property
     def apertureY(self):
@@ -240,16 +243,15 @@ class SeqElement(Element):
 
     @apertureY.setter
     def apertureY(self, apertureY):
-        if apertureY != None:
+        if apertureY is not None:
             raise NotImplementedError("SeqElement: Setting apertureY not implemented")
 
     def append(self, elem):
         self._elements.append(elem)
 
-
     def write(self, indent=2, stream=sys.stdout):
         level = 0
-        iterators = [ iter(self.elements) ]
+        iterators = [iter(self.elements)]
 
         while len(iterators) > 0:
             it = iterators[-1]
@@ -260,21 +262,18 @@ class SeqElement(Element):
                 level -= 1
                 continue
 
-            stream.write(" "*(indent*level) + str(elem) + "\n")
+            stream.write(" " * (indent * level) + str(elem) + "\n")
 
             if isinstance(elem, SeqElement):
                 iterators.append(iter(elem.elements))
                 level += 1
                 continue
 
-
     def __iter__(self):
         return _SeqElementIterator(self)
 
-
     def iter(self, start=None, end=None):
         return _SeqElementIterator(self, start, end)
-
 
     def __str__(self):
         s = "{{ name:'{elem.name}', desc:'{elem.desc}', nelements:{nelements} }}"
@@ -283,17 +282,16 @@ class SeqElement(Element):
 
 class _SeqElementIterator(object):
     """
-    Deep iterator for SeqElements.
-    """
+	Deep iterator for SeqElements.
+	"""
+
     def __init__(self, seq, start=None, end=None):
-        self._iterators = [ iter(seq.elements) ]
+        self._iterators = [iter(seq.elements)]
         self._start = start
         self._end = end
 
-
     def __iter__(self):
         return self
-
 
     def next(self):
         while len(self._iterators) > 0:
@@ -304,11 +302,11 @@ class _SeqElementIterator(object):
                 del self._iterators[-1]
                 continue
 
-            if self._start != None and isinstance(elem, Element):
+            if self._start is not None and isinstance(elem, Element):
                 if self._start == elem.name:
                     self._start = None
 
-            if self._end != None and isinstance(elem, Element):
+            if self._end is not None and isinstance(elem, Element):
                 if self._end == elem.name:
                     self._iterators = []
                     self._end = None
@@ -317,7 +315,7 @@ class _SeqElementIterator(object):
                 self._iterators.append(iter(elem))
                 continue
 
-            if self._start == None:
+            if self._start is None:
                 return elem
 
         raise StopIteration()
@@ -327,10 +325,10 @@ class _SeqElementIterator(object):
 
 class DriftElement(Element):
     """
-    DriftElement represents a drift tube, drift space, bellows or other passive element.
-    """
+	DriftElement represents a drift tube, drift space, bellows or other passive element.
+	"""
 
-    ETYPE="DRIFT"
+    ETYPE = "DRIFT"
 
     def __init__(self, z, length, aperture, name="DRIFT", desc="drift", **meta):
         super(DriftElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
@@ -338,10 +336,10 @@ class DriftElement(Element):
 
 class ValveElement(Element):
     """
-    ValveElement represents a vaccuum valve or other similar valve.
-    """
+	ValveElement represents a vaccuum valve or other similar valve.
+	"""
 
-    ETYPE="VALVE"
+    ETYPE = "VALVE"
 
     def __init__(self, z, length, aperture, name, desc="valve", **meta):
         super(ValveElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
@@ -349,10 +347,10 @@ class ValveElement(Element):
 
 class PortElement(Element):
     """
-    PortElement represents a attachment point for pump or other device.
-    """
+	PortElement represents a attachment point for pump or other device.
+	"""
 
-    ETYPE="PORT"
+    ETYPE = "PORT"
 
     def __init__(self, z, length, aperture, name, desc="port", **meta):
         super(PortElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
@@ -362,10 +360,10 @@ class PortElement(Element):
 
 class BLMElement(Element):
     """
-    BLMElement represents Beam Loss Monitor diagnostic device.
-    """
+	BLMElement represents Beam Loss Monitor diagnostic device.
+	"""
 
-    ETYPE="BLM"
+    ETYPE = "BLM"
 
     def __init__(self, z, length, aperture, name, desc="beam loss monitor", **meta):
         super(BLMElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
@@ -373,13 +371,13 @@ class BLMElement(Element):
 
 class BPMElement(Element):
     """
-    BPMElement represents Beam Position Monitor diagnostic device.
-    """
+	BPMElement represents Beam Position Monitor diagnostic device.
+	"""
 
-    ETYPE="BPM"
+    ETYPE = "BPM"
 
     def __init__(self, z, length, aperture, name, desc="beam positon monitor", **meta):
-        super(BPMElement,self).__init__(z, length, aperture, name, desc=desc, **meta)
+        super(BPMElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
         self.fields.x = "X"
         self.fields.y = "Y"
         self.fields.phase = "PHA"
@@ -388,22 +386,22 @@ class BPMElement(Element):
 
 class BCMElement(Element):
     """
-    BCMElement represents Beam Current Monitor diagnostic device.
-    """
+	BCMElement represents Beam Current Monitor diagnostic device.
+	"""
 
-    ETYPE="BCM"
+    ETYPE = "BCM"
 
     def __init__(self, z, length, aperture, name, desc="beam current monitor", **meta):
-        super(BCMElement,self).__init__(z, length, aperture, name, desc=desc, **meta)
+        super(BCMElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
         self.fields.current = "I"
 
 
 class BLElement(Element):
     """
-    BLElement represents Bunch Length Monitor diagnostic device.
-    """
+	BLElement represents Bunch Length Monitor diagnostic device.
+	"""
 
-    ETYPE="BL"
+    ETYPE = "BL"
 
     def __init__(self, z, length, aperture, name, desc="bunch length monitor", **meta):
         super(BLElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
@@ -411,11 +409,11 @@ class BLElement(Element):
 
 class PMElement(Element):
     """
-    PMElement represents Beam Profile Monitor diagnostic device.
-    """
+	PMElement represents Beam Profile Monitor diagnostic device.
+	"""
     # 'sign' to indicate -45 or 45 position for 'XY' and 'XYRMS' field.
 
-    ETYPE="PM"
+    ETYPE = "PM"
 
     def __init__(self, z, length, aperture, name, desc="beam profile monitor", **meta):
         super(PMElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
@@ -429,10 +427,10 @@ class PMElement(Element):
 
 class EMSElement(Element):
     """
-    EMSElement represents an Emittance Scanner device.
-    """
+	EMSElement represents an Emittance Scanner device.
+	"""
 
-    ETYPE="EMS"
+    ETYPE = "EMS"
 
     def __init__(self, z, length, aperture, name, desc="emittance scanner", **meta):
         super(EMSElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
@@ -440,10 +438,10 @@ class EMSElement(Element):
 
 class FCElement(Element):
     """
-    FCElement represents an Faraday Cup device.
-    """
+	FCElement represents an Faraday Cup device.
+	"""
 
-    ETYPE="FC"
+    ETYPE = "FC"
 
     def __init__(self, z, length, aperture, name, desc="faraday cup", **meta):
         super(FCElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
@@ -451,10 +449,10 @@ class FCElement(Element):
 
 class VDElement(Element):
     """
-    VDElement represents a Viewer Detector device.
-    """
+	VDElement represents a Viewer Detector device.
+	"""
 
-    ETYPE="VD"
+    ETYPE = "VD"
 
     def __init__(self, z, length, aperture, name, desc="viewer detector", **meta):
         super(VDElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
@@ -465,10 +463,10 @@ class VDElement(Element):
 
 class SolElement(Element):
     """
-    SolenoidElement represents a solenoid magnet.
-    """
+	SolenoidElement represents a solenoid magnet.
+	"""
 
-    ETYPE="SOL"
+    ETYPE = "SOL"
 
     def __init__(self, z, length, aperture, name, desc="solenoid", **meta):
         super(SolElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
@@ -477,9 +475,10 @@ class SolElement(Element):
 
 class SolCorElement(Element):
     """
-    SolenoidElement represents a solenoid magnet with correctors
-    """
+	SolenoidElement represents a solenoid magnet with correctors
+	"""
     ETYPE = "SOLCOR"
+
     def __init__(self, z, length, aperture, name, desc="solenoid w correctors", **meta):
         super(SolCorElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
         self.fields.field = "B"
@@ -487,7 +486,7 @@ class SolCorElement(Element):
         self.v = None
 
 
-#class SolCorElement(SolElement):
+# class SolCorElement(SolElement):
 #    """
 #    SolenoidElement represents a solenoid magnet with correctors
 #    """
@@ -502,10 +501,10 @@ class SolCorElement(Element):
 
 class BendElement(Element):
     """
-    BendElement represents a bending (dipole) magnet.
-    """
+	BendElement represents a bending (dipole) magnet.
+	"""
 
-    ETYPE="BEND"
+    ETYPE = "BEND"
 
     def __init__(self, z, length, aperture, name, desc="bend magnet", **meta):
         super(BendElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
@@ -517,10 +516,10 @@ class BendElement(Element):
 
 class HCorElement(Element):
     """
-    HCorElement represents a horizontal corrector magnet or coil.
-    """
+	HCorElement represents a horizontal corrector magnet or coil.
+	"""
 
-    ETYPE="HCOR"
+    ETYPE = "HCOR"
 
     def __init__(self, z, length, aperture, name, desc="horiz. corrector magnet", **meta):
         super(HCorElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
@@ -529,10 +528,10 @@ class HCorElement(Element):
 
 class VCorElement(Element):
     """
-    VCorElement represents a vertical corrector magnet or coil.
-    """
+	VCorElement represents a vertical corrector magnet or coil.
+	"""
 
-    ETYPE="VCOR"
+    ETYPE = "VCOR"
 
     def __init__(self, z, length, aperture, name, desc="vert. corrector magnet", **meta):
         super(VCorElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
@@ -541,10 +540,10 @@ class VCorElement(Element):
 
 class CorElement(Element):
     """
-    CorElement represents an element with horizontal and vertical corrector elements.
-    """
+	CorElement represents an element with horizontal and vertical corrector elements.
+	"""
 
-    ETYPE="COR"
+    ETYPE = "COR"
 
     def __init__(self, z, length, aperture, name, desc="corrector magnet", **meta):
         super(CorElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
@@ -554,10 +553,10 @@ class CorElement(Element):
 
 class QuadElement(Element):
     """
-    QuadElement represents a quadrupole magnet.
-    """
+	QuadElement represents a quadrupole magnet.
+	"""
 
-    ETYPE="QUAD"
+    ETYPE = "QUAD"
 
     def __init__(self, z, length, aperture, name, desc="quadrupole magnet", **meta):
         super(QuadElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
@@ -566,10 +565,10 @@ class QuadElement(Element):
 
 class SextElement(Element):
     """
-    SectElement represents a sextapole magnet.
-    """
+	SectElement represents a sextapole magnet.
+	"""
 
-    ETYPE="SEXT"
+    ETYPE = "SEXT"
 
     def __init__(self, z, length, aperture, name, desc="hexapole magnet", **meta):
         super(SextElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
@@ -580,10 +579,10 @@ class SextElement(Element):
 
 class EBendElement(Element):
     """
-    EBendElement represents an electrostatic bending element.
-    """
+	EBendElement represents an electrostatic bending element.
+	"""
 
-    ETYPE="EBEND"
+    ETYPE = "EBEND"
 
     def __init__(self, z, length, aperture, name, desc="ebend", **meta):
         super(EBendElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
@@ -592,10 +591,10 @@ class EBendElement(Element):
 
 class EQuadElement(Element):
     """
-    EQuadElement represents and electrostatic quadrupole element.
-    """
+	EQuadElement represents and electrostatic quadrupole element.
+	"""
 
-    ETYPE="EQUAD"
+    ETYPE = "EQUAD"
 
     def __init__(self, z, length, aperture, name, desc="equad", **meta):
         super(EQuadElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
@@ -606,10 +605,10 @@ class EQuadElement(Element):
 
 class CavityElement(Element):
     """
-    CavityElement represents a RF cavity.
-    """
+	CavityElement represents a RF cavity.
+	"""
 
-    ETYPE="CAV"
+    ETYPE = "CAV"
 
     def __init__(self, z, length, aperture, name, desc="cavity", **meta):
         super(CavityElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
@@ -620,10 +619,10 @@ class CavityElement(Element):
 
 class ColumnElement(Element):
     """
-    ColumnElement represents an DC column.
-    """
+	ColumnElement represents an DC column.
+	"""
 
-    ETYPE="COL"
+    ETYPE = "COL"
 
     def __init__(self, z, length, aperture, name, desc="column", **meta):
         super(ColumnElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
@@ -633,10 +632,10 @@ class ColumnElement(Element):
 
 class StripElement(Element):
     """
-    StripElement represents a charge stripper.
-    """
+	StripElement represents a charge stripper.
+	"""
 
-    ETYPE="STRIP"
+    ETYPE = "STRIP"
 
     def __init__(self, z, length, aperture, name, desc="charge stripper", **meta):
         super(StripElement, self).__init__(z, length, aperture, name, desc=desc, **meta)
@@ -646,8 +645,8 @@ class StripElement(Element):
 
 class ElectrodeElement(Element):
     """
-    ElectrodeElement represents an source electrode.
-    """
+	ElectrodeElement represents an source electrode.
+	"""
 
     ETYPE = "ELCD"
 
@@ -659,8 +658,8 @@ class ElectrodeElement(Element):
 
 class Accelerator(SeqElement):
     """
-    Accelerator represents a complete particle accelerator.
-    """
+	Accelerator represents a complete particle accelerator.
+	"""
+
     def __init__(self, name, desc="accelerator", elements=None):
         super(Accelerator, self).__init__(name, desc=desc, elements=elements)
-

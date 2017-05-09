@@ -43,6 +43,7 @@ from phantasy.library.misc import simplify_data
 
 _LOGGER = logging.getLogger(__name__)
 
+
 def __read_csv_1(csvdata):
     """Load data from CSV file with headers like:
     PV, machine, elemIndex, elemPosition, elemName, elemHandle, elemField, elemType, tags
@@ -93,13 +94,13 @@ def __read_csv_1(csvdata):
         tags = [data[i].strip() for i in tags_idx]
         for i in range(len(keys), len(data)):
             tags.append(data[i].strip())
-        #print s[ipv], prpts, tags
+        # print s[ipv], prpts, tags
         results.append([data[pv_idx], prpts, tags])
 
     return results
 
 
-def __read_csv_2 (csvdata):
+def __read_csv_2(csvdata):
     """Load data from CSV file without headers, that the first column is for PV, like:
     PV,machine=xxx,elemIndex=xxx,elemPosition=xxx,elemName=xxx,elemHandle=xxx,elemField=xxx,elemType=xxx, tag1,tag2,tag3
 
@@ -225,7 +226,7 @@ def _save_csv_explicit(data, csvname):
     # find out all the property names
     with open(csvname, 'w') as f:
         for r in data:
-            p = ",".join(["%s=%s" % (k,v) for k,v in r[1].items()])
+            p = ",".join(["%s=%s" % (k, v) for k, v in r[1].items()])
             f.write(",".join([r[0], p, ",".join(r[2])]) + "\n")
 
 
@@ -250,7 +251,7 @@ def write_csv(data, csvname, frmt="table"):
         _save_csv_explicit(data, csvname)
     else:
         raise CSVFormatError("CSV file format {0} not supported yet.".format(format))
-    
+
 
 def write_tb(data, tb_name, overwrite=False, **kwargs):
     """Write PV/channels data into spreadsheet, overwrite if *tb_name* is
@@ -280,7 +281,7 @@ def write_tb(data, tb_name, overwrite=False, **kwargs):
     get_data_from_cf : Get PV data from Channel Finder Service.
     """
     tb_type = kwargs.get('tb_type', 'csv')
-    
+
     if os.path.isfile(tb_name):
         if not overwrite:
             _LOGGER.warn("{} already exists, overwrite it by passing overwrite=True".format(tb_name))
@@ -304,6 +305,7 @@ class CFCTable(object):
     2. Use ``CFCDatabase`` to initialize.
     3. If spreadsheet data source is required, generate from ``CFCDatabase``.
     """
+
     def __init__(self, tb_name=None, owner=None):
         self._tb_name = tb_name
         self.owner = owner
@@ -314,7 +316,7 @@ class CFCTable(object):
                 self._csv_data = data
             except:
                 _LOGGER.warn("Cannot read data from {}.".format(tb_name))
-        
+
     @property
     def owner(self):
         """Str: owner of the table source."""
@@ -347,20 +349,20 @@ class CFCTable(object):
         """
         if self._csv_data is None:
             return None
-        
+
         _owner = self.owner
         retval = []
         for rec in self._csv_data:
             new_rec = {'name': rec[0],
                        'owner': _owner,
                        'properties': [{'name': k, 'value': v, 'owner': _owner}
-                                        for k,v in rec[1].iteritems()],
+                                      for k, v in rec[1].items()],
                        'tags': [{'name': t, 'owner': _owner} for t in rec[2]],
-            }
+                       }
             retval.append(new_rec)
-            
+
         return retval
-    
+
     def getAllTags(self, **kws):
         """Get all tags.
 
@@ -382,7 +384,7 @@ class CFCTable(object):
 
         _owner = self.owner
         tag_set = set()
-        for _,_,t in self._csv_data:
+        for _, _, t in self._csv_data:
             [tag_set.add(i) for i in t]
 
         if kws.get('name_only', False):
@@ -408,7 +410,7 @@ class CFCTable(object):
 
         _owner = self.owner
         p_set = set()
-        for _,p,_ in self._csv_data:
+        for _, p, _ in self._csv_data:
             [p_set.add(i) for i in p]
 
         if kws.get('name_only', False):

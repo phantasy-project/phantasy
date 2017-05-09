@@ -54,15 +54,16 @@ class DataSource(object):
     password : str
         Password of username.
     """
+
     def __init__(self, source=None, **kws):
         # source and source type is None by default or failed to set source
         self.source = source
 
         self._get_data = {
-                'cfs': self._get_cfs_data,
-                'csv': self._get_csv_data,
-                'sql': self._get_sql_data,
-                }
+            'cfs': self._get_cfs_data,
+            'csv': self._get_csv_data,
+            'sql': self._get_sql_data,
+        }
 
         self._pvdata = None
         if source is not None:
@@ -219,12 +220,12 @@ class DataSource(object):
         if ret is not None:
             self.pvdata = ret
         return ret
-    
+
     def _get_cfs_data(self, **kws):
         """Get PV data from ChannelFinderService (URL)
         """
         return get_data_from_cf(self.source, **kws)
-        
+
     def _get_csv_data(self, **kws):
         """Get PV data from spreadsheet (CSV)
         """
@@ -275,7 +276,7 @@ class DataSource(object):
         for r in self._pvdata:
             p_list = []
             for p in r['properties']:
-                for k,v in name_map.iteritems():
+                for k, v in name_map.items():
                     if k == p['name']:
                         p['name'] = v
                 p_list.append(p)
@@ -303,7 +304,7 @@ def dump_data(data, fname, ftype, **kws):
     ftype : str
         Dumped file type, supported types: sql*, *csv*, *json*, *cfs*.
     """
-    dump_meth = {'csv': write_tb, 
+    dump_meth = {'csv': write_tb,
                  'sql': write_db,
                  'json': write_json,
                  'cfs': write_cfs}

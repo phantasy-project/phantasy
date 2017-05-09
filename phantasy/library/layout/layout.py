@@ -76,7 +76,7 @@ def build_layout(layoutPath=None, **kwargs):
 
         csvstream = csv.reader(layoutFile, delimiter=',', skipinitialspace=True)
 
-        fixedkeys = [ "name", "type", "L", "s", "apx", "apy" ]
+        fixedkeys = ["name", "type", "L", "s", "apx", "apy"]
 
         elements = []
 
@@ -98,13 +98,13 @@ def build_layout(layoutPath=None, **kwargs):
                         meta[header[idx]] = row[idx]
                     else:
                         meta[header[idx]] = ''
-            return ElemType(z, length, (apx,apy), name, **meta)
+            return ElemType(z, length, (apx, apy), name, **meta)
 
         while True:
             try:
                 row = csvstream.next()
             except StopIteration:
-                break;
+                break
 
             etype = buildEtype(row)
 
@@ -156,7 +156,7 @@ def build_layout(layoutPath=None, **kwargs):
                 else:
                     elem = buildElement(row, CorElement)
 
-                for _ in xrange(2):
+                for _ in range(2):
                     row = csvstream.next()
                     etype = buildEtype(row)
                     if etype == HCorElement.ETYPE:
@@ -240,13 +240,13 @@ class Layout(SeqElement):
         metakeys = set()
         elemdicts = []
 
-        for element in self.iter(start,end):
+        for element in self.iter(start, end):
             elemdicts.append(buildElemDict(element))
             if isinstance(element, (CorElement, SolCorElement)):
                 elemdicts.append(buildElemDict(element.h))
                 elemdicts.append(buildElemDict(element.v))
 
-        fixedkeys = [ "name", "type", "L", "s", "apx", "apy" ]
+        fixedkeys = ["name", "type", "L", "s", "apx", "apy"]
 
         metakeys = list(metakeys)
 

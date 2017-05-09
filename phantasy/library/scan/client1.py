@@ -16,8 +16,8 @@ import scan
 from .baseclient import BaseScanClient
 from .datautil import ScanDataFactory
 
-
 _LOGGER = logging.getLogger(__name__)
+
 
 class ScanClient1D(BaseScanClient):
     """Scan task for scanning one device.
@@ -45,17 +45,17 @@ class ScanClient1D(BaseScanClient):
 
     pv_scan_cnt: PV name of scan counter
     """
+
     def __init__(self, url=None, **kws):
         BaseScanClient.__init__(self, url=url, **kws)
         self._post_init(**kws)
-
 
     def _post_init(self, **kws):
         self.name = kws.get('name', None)
         self.host = kws.get('host', None)
         self.port = kws.get('port', None)
         self.n_sample = kws.get('n_sample', None)
-        
+
         self.delay = kws.get('delay', None)
         self.timeout = kws.get('timeout', None)
         self.tolerance = kws.get('tolerance', None)
@@ -74,7 +74,7 @@ class ScanClient1D(BaseScanClient):
     def pre_scan(self):
         """list: List of operations defined before scan routine."""
         return self._pre_scan_cmds
-    
+
     @pre_scan.setter
     def pre_scan(self, cmds):
         self._pre_scan_cmds = cmds
@@ -109,21 +109,21 @@ class ScanClient1D(BaseScanClient):
 
     @device_read.setter
     def device_read(self, dev):
-        if dev == False:
+        if dev is False:
             self._device_read = False
-        elif dev == True:
+        elif dev is True:
             self._device_read = True
         else:
             # check dev is readable()
             self._device_read = dev
-    
+
     @property
     def log_devices(self):
         """list[str]: Interested device names to be read and logged when scan
         routine is processing, *device_read* is alway included in this list.
         """
         return self._log_devices
-    
+
     @log_devices.setter
     def log_devices(self, dev):
         self._log_devices = dev
@@ -163,7 +163,7 @@ class ScanClient1D(BaseScanClient):
         """float: Numerical difference allowed between device set value and
         readback, 0.0 by default."""
         return self._tolerance
-    
+
     @tolerance.setter
     def tolerance(self, t):
         if t is None:
@@ -195,7 +195,7 @@ class ScanClient1D(BaseScanClient):
     def scan_stop(self):
         """float: Final value of *device_set*, 1.0 by default."""
         return self._scan_stop
-    
+
     @scan_stop.setter
     def scan_stop(self, x):
         if x is None:
@@ -222,9 +222,9 @@ class ScanClient1D(BaseScanClient):
             self._scan_step = float(x)
         else:
             raise TypeError("Input should be a float number.")
-        self._scan_num = 1 + int((self._scan_stop - self._scan_start)/self._scan_step)
+        self._scan_num = 1 + int((self._scan_stop - self._scan_start) / self._scan_step)
         _range_tmp = self._scan_start \
-                   + self._scan_step * np.arange(0, self._scan_num)
+                     + self._scan_step * np.arange(0, self._scan_num)
         self._scan_range = _range_tmp[np.where(_range_tmp <= self._scan_stop)]
         self._scan_num = len(self._scan_range)
 
@@ -251,7 +251,7 @@ class ScanClient1D(BaseScanClient):
         """Array: Range of values for scan device, if non-equidistant array is
         assigned, *scan_step* is insignificant."""
         return self._scan_range
-    
+
     @scan_range.setter
     def scan_range(self, arr):
         if isinstance(arr, (np.ndarray, list, tuple)):
@@ -261,12 +261,12 @@ class ScanClient1D(BaseScanClient):
         self._scan_start = self._scan_range.min()
         self._scan_stop = self._scan_range.max()
         self.scan_num = len(self._scan_range)
-    
+
     @property
     def scan_commands(self):
         """list: List of scan commands."""
         return self._scan_cmds
-    
+
     @scan_commands.setter
     def scan_commands(self, cmds):
         if isinstance(cmds, list):
@@ -281,11 +281,11 @@ class ScanClient1D(BaseScanClient):
             return self._scan_id
         else:
             raise RuntimeError("Scan id is not assigned, invoke submit_scan() to generate.")
-        
+
     def _setup_scan_params(self):
-        self._scan_step = (self._scan_stop - self._scan_start)/(self._scan_num - 1)
+        self._scan_step = (self._scan_stop - self._scan_start) / (self._scan_num - 1)
         _range_tmp = self._scan_start \
-                   + self._scan_step * np.arange(0, self._scan_num)
+                     + self._scan_step * np.arange(0, self._scan_num)
         self._scan_range = _range_tmp[np.where(_range_tmp <= self._scan_stop)]
         self._scan_num = len(self._scan_range)
 
@@ -315,53 +315,53 @@ class ScanClient1D(BaseScanClient):
 
         # MAIN SCAN ROUTINES
         set_start_cmd = scan.Set(self.device_set, self.scan_start,
-                completion=completion, readback=self.device_read,
-                tolerance=self.tolerance, timeout=self.timeout,
-                errhandler=errhandler)
+                                 completion=completion, readback=self.device_read,
+                                 tolerance=self.tolerance, timeout=self.timeout,
+                                 errhandler=errhandler)
         cmds.append(set_start_cmd)
 
         if self._n_sample == 1:
             scan_cmd = scan.Loop(
-                            self.device_set,
-                            self.scan_start, self.scan_stop, self.scan_step,
-                            body=[
-                                scan.Delay(self.delay),
-                                scan.Log(self.log_devices),
-                            ],
-                            completion=completion,
-                            readback=self.device_read,
-                            tolerance=self.tolerance,
-                            timeout=self.timeout,
-                            errhandler=errhandler,
-                        )
-        else: # n_sample > 1
+                self.device_set,
+                self.scan_start, self.scan_stop, self.scan_step,
+                body=[
+                    scan.Delay(self.delay),
+                    scan.Log(self.log_devices),
+                ],
+                completion=completion,
+                readback=self.device_read,
+                tolerance=self.tolerance,
+                timeout=self.timeout,
+                errhandler=errhandler,
+            )
+        else:  # n_sample > 1
             scan_cmd = scan.Loop(
-                            self.device_set,
-                            self.scan_start, self.scan_stop, self.scan_step,
-                            body=[
-                                scan.Loop(
-                                    self.PV_SCAN_CNT, 1, self._n_sample, 1,
-                                    body=[
-                                        scan.Delay(self.delay),
-                                        scan.Log(self.log_devices + [self.PV_SCAN_CNT]),
-                                    ]
-                                )
-                            ],
-                            completion=completion,
-                            readback=self.device_read,
-                            tolerance=self.tolerance,
-                            timeout=self.timeout,
-                            errhandler=errhandler,
-                        )
+                self.device_set,
+                self.scan_start, self.scan_stop, self.scan_step,
+                body=[
+                    scan.Loop(
+                        self.PV_SCAN_CNT, 1, self._n_sample, 1,
+                        body=[
+                            scan.Delay(self.delay),
+                            scan.Log(self.log_devices + [self.PV_SCAN_CNT]),
+                        ]
+                    )
+                ],
+                completion=completion,
+                readback=self.device_read,
+                tolerance=self.tolerance,
+                timeout=self.timeout,
+                errhandler=errhandler,
+            )
         cmds.append(scan_cmd)
-        
+
         # POST SCAN
         if post_scan_cmds is not None:
             [cmds.append(cmd) for cmd in post_scan_cmds]
-        
+
         self.scan_commands = cmds
         return cmds
-    
+
     def submit_scan(self, wait=False):
         """Submit scan task to server, if *wait* if True, wait until scan task
         is done.
@@ -376,13 +376,13 @@ class ScanClient1D(BaseScanClient):
         if wait:
             self.waitUntilDone(scan_id)
         return scan_id
-    
+
     def simulate_scan(self):
         """Simulate scan routine, for reviewing scan task setup only.
         """
         sim = self.simulate(self.scan_commands)
         return sim.get('simulation')
-        
+
     def get_data(self, scan_id=None, n=None):
         """Get scan result data.
         
@@ -404,16 +404,16 @@ class ScanClient1D(BaseScanClient):
         n = n if n is not None else self.n_sample
         data = self.getData(scan_id)
         return ScanDataFactory(data, n)
-    
+
     def __repr__(self):
         try:
             retval = str(self.scanInfo(self.scan_id))
         except:
             retval = "{0} at {1}".format(
-                        'ScanClient1D',
-                        self.url
-                    )
+                'ScanClient1D',
+                self.url
+            )
         return retval
-    
+
     def state(self):
         return self.scanInfo(self.scan_id).state

@@ -4,37 +4,49 @@
 
 from __future__ import print_function
 
+import cothread
+import logging
+import math
+import numpy
+import os.path
+import random
+import re
+import shutil
+import subprocess
+import tempfile
+import threading
+import time
+from collections import OrderedDict
+from copy import deepcopy
+
+from cothread import catools
+from phantasy.library.lattice.impact import LatticeFactory, OUTPUT_MODE_DIAG
+from phantasy.library.layout import BCMElement
+from phantasy.library.layout import BLElement
+from phantasy.library.layout import BLMElement
+from phantasy.library.layout import BPMElement
+from phantasy.library.layout import BendElement
+from phantasy.library.layout import CavityElement
+from phantasy.library.layout import CorElement
+from phantasy.library.layout import DriftElement
+from phantasy.library.layout import PMElement
+from phantasy.library.layout import PortElement
+from phantasy.library.layout import QuadElement
+from phantasy.library.layout import SeqElement
+from phantasy.library.layout import SextElement
+from phantasy.library.layout import SolCorElement
+from phantasy.library.layout import StripElement
+from phantasy.library.layout import ValveElement
+from phantasy.library.parser import Configuration
+
+try:
+    basestring  # Python 2.X
+except NameError:
+    basestring = str  # Python 3.X
+
 __copyright__ = "Copyright (c) 2015, Facility for Rare Isotope Beams"
 
 __author__ = "Dylan Maxwell"
-
-import os.path, tempfile, random, shutil, numpy, re, math
-import subprocess, cothread, threading, logging, time
-
-from cothread import catools
-
-from copy import deepcopy
-from collections import OrderedDict
-
-from phantasy.library.parser import Configuration
-from phantasy.library.layout import SeqElement
-from phantasy.library.layout import CavityElement
-from phantasy.library.layout import SolCorElement
-from phantasy.library.layout import CorElement
-from phantasy.library.layout import QuadElement
-from phantasy.library.layout import BendElement
-from phantasy.library.layout import SextElement
-from phantasy.library.layout import StripElement
-from phantasy.library.layout import BPMElement
-from phantasy.library.layout import PMElement
-from phantasy.library.layout import BLElement
-from phantasy.library.layout import BCMElement
-from phantasy.library.layout import BLMElement
-from phantasy.library.layout import ValveElement
-from phantasy.library.layout import PortElement
-from phantasy.library.layout import DriftElement
-from phantasy.library.lattice.impact import LatticeFactory, OUTPUT_MODE_DIAG
-
 
 # configuration options
 
@@ -66,6 +78,9 @@ def start(layout, **kwargs):
     ----------
     layout :
         Accelerator layout object.
+
+    Keyword Arguments
+    -----------------
     settings :
         Dictionary of machine settings.
     channels :
@@ -81,7 +96,7 @@ def start(layout, **kwargs):
     """
 
     global _VIRTUAL_ACCELERATOR
-    if _VIRTUAL_ACCELERATOR == None:
+    if _VIRTUAL_ACCELERATOR is None:
         _VIRTUAL_ACCELERATOR = build_virtaccel(layout, **kwargs)
 
     if _VIRTUAL_ACCELERATOR.is_started():
@@ -94,7 +109,7 @@ def stop():
     """Stop the global virtual accelerator.
     """
     global _VIRTUAL_ACCELERATOR
-    if _VIRTUAL_ACCELERATOR == None or not _VIRTUAL_ACCELERATOR.is_started():
+    if _VIRTUAL_ACCELERATOR is None or not _VIRTUAL_ACCELERATOR.is_started():
         raise RuntimeError("Virtual Accelerator not started")
 
     _VIRTUAL_ACCELERATOR.stop()
@@ -103,14 +118,30 @@ def stop():
 def build_virtaccel(layout, **kwargs):
     """Convenience method to build a virtual accelerator.
 
-       :param layout: accelerator layout object
-       :param settings: dictionary of machine settings
-       :param channels: list of channel tuples with (name, properties, tags)
-       :param start: name of accelerator element to start simulation
-       :param end: name of accelerator element to end simulation
-       :param data_dir: path of directory containing IMPACT data files
-       :param work_dir: path of directory for execution of IMPACT
-       :return: VirtualAccelerator instance
+    Parameters
+    ----------
+    layout :
+        Accelerator layout object
+
+    Keyword Arguments
+    -----------------
+    settings :
+        Dictionary of machine settings
+    channels :
+        List of channel tuples with (name, properties, tags)
+    start :
+        Name of accelerator element to start simulation
+    end :
+        Name of accelerator element to end simulation
+    data_dir :
+        Path of directory containing IMPACT data files
+    work_dir :
+        Path of directory for execution of IMPACT
+
+    Returns
+    -------
+    ret :
+        VirtualAccelerator instance
     """
     va_factory = VirtualAcceleratorFactory(layout, **kwargs)
 
@@ -135,7 +166,6 @@ class VirtualAcceleratorFactory(object):
         self.data_dir = kwargs.get("data_dir", None)
         self.work_dir = kwargs.get("work_dir", None)
 
-
     @property
     def layout(self):
         return self._layout
@@ -146,17 +176,15 @@ class VirtualAcceleratorFactory(object):
             raise TypeError("VirtAccelFactory: 'layout' property much be type SeqElement")
         self._layout = layout
 
-
     @property
     def start(self):
         return self._start
 
     @start.setter
     def start(self, start):
-        if (start != None) and not isinstance(start, basestring):
+        if (start is not None) and not isinstance(start, basestring):
             raise TypeError("VirtAccelFactory: 'start' property much be type string or None")
         self._start = start
-
 
     @property
     def end(self):
@@ -164,10 +192,9 @@ class VirtualAcceleratorFactory(object):
 
     @end.setter
     def end(self, end):
-        if (end != None) and not isinstance(end, basestring):
+        if (end is not None) and not isinstance(end, basestring):
             raise TypeError("VirtAccelFactory: 'end' property much be type string or None")
         self._end = end
-
 
     @property
     def config(self):
@@ -179,17 +206,15 @@ class VirtualAcceleratorFactory(object):
             raise TypeError("LatticeFactory: 'config' property must be type Configuration")
         self._config = config
 
-
     @property
     def settings(self):
         return self._settings
 
     @settings.setter
     def settings(self, settings):
-        if not isinstance(settings, (dict)):
+        if not isinstance(settings, dict):
             raise TypeError("VirtAccelFactory: 'settings' property much be type dict")
         self._settings = settings
-
 
     @property
     def channels(self):
@@ -197,10 +222,9 @@ class VirtualAcceleratorFactory(object):
 
     @channels.setter
     def channels(self, channels):
-        if not isinstance(channels, (list)):
+        if not isinstance(channels, list):
             raise TypeError("VirtAccelFactory: 'channels' property much be type list")
         self._channels = channels
-
 
     @property
     def machine(self):
@@ -208,10 +232,9 @@ class VirtualAcceleratorFactory(object):
 
     @machine.setter
     def machine(self, machine):
-        if (machine != None) and not isinstance(machine, basestring):
+        if (machine is not None) and not isinstance(machine, basestring):
             raise TypeError("VirtAccelFactory: 'machine' property much be type string or None")
         self._machine = machine
-
 
     @property
     def data_dir(self):
@@ -219,10 +242,9 @@ class VirtualAcceleratorFactory(object):
 
     @data_dir.setter
     def data_dir(self, data_dir):
-        if (data_dir != None) and not isinstance(data_dir, basestring):
+        if (data_dir is not None) and not isinstance(data_dir, basestring):
             raise TypeError("VirtAccelFactory: 'data_dir' property much be type string or None")
         self._data_dir = data_dir
-
 
     @property
     def work_dir(self):
@@ -230,10 +252,9 @@ class VirtualAcceleratorFactory(object):
 
     @work_dir.setter
     def work_dir(self, work_dir):
-        if (work_dir != None) and not isinstance(work_dir, basestring):
+        if (work_dir is not None) and not isinstance(work_dir, basestring):
             raise TypeError("VirtAccelFactory: 'work_dir' property much be type string or None")
         self._work_dir = work_dir
-
 
     def _get_config_impact_exe(self):
         if self.config.has_default(CONFIG_IMPACT_EXE_FILE):
@@ -256,17 +277,16 @@ class VirtualAcceleratorFactory(object):
 
         raise RuntimeError("VirtAccelFactory: channel not found: '{}', '{}', '{}'".format(name, field, handle))
 
-
     def build(self):
         """Process the accelerator description and configure the Virtual Accelerator.
         """
         settings = self.settings
 
         data_dir = self.data_dir
-        if (data_dir == None) and self.config.has_default(CONFIG_IMPACT_DATA_DIR):
+        if (data_dir is None) and self.config.has_default(CONFIG_IMPACT_DATA_DIR):
             data_dir = self.config.getabspath_default(CONFIG_IMPACT_DATA_DIR)
 
-        if data_dir == None:
+        if data_dir is None:
             raise RuntimeError("VirtAccelFactory: No data directory provided, check the configuration")
 
         work_dir = self.work_dir
@@ -285,8 +305,8 @@ class VirtualAcceleratorFactory(object):
         if m.group(1) is None:
             chanprefix = None
         else:
-            #IMPORTANT: chanprefix must 
-            #be converted from unicode
+            # IMPORTANT: chanprefix must
+            # be converted from unicode
             chanprefix = str(m.group(1))
 
         va = VirtualAccelerator(latfactory, settings, chanprefix, impact_exe, data_dir, work_dir)
@@ -310,49 +330,54 @@ class VirtualAcceleratorFactory(object):
                 va.append_rw(self._findChannel(elem.name, elem.fields.field, "setpoint"),
                              self._findChannel(elem.name, elem.fields.field, "readset"),
                              self._findChannel(elem.name, elem.fields.field, "readback"),
-                             (elem.name, elem.fields.field), desc="Solenoid Field", egu="T")#, drvratio=0.10)
+                             (elem.name, elem.fields.field), desc="Solenoid Field", egu="T")  # , drvratio=0.10)
                 va.append_rw(self._findChannel(elem.h.name, elem.h.fields.angle, "setpoint"),
                              self._findChannel(elem.h.name, elem.h.fields.angle, "readset"),
                              self._findChannel(elem.h.name, elem.h.fields.angle, "readback"),
-                             (elem.h.name, elem.h.fields.angle), desc="Horizontal Corrector", egu="radian")#, drvabs=0.001)
+                             (elem.h.name, elem.h.fields.angle), desc="Horizontal Corrector",
+                             egu="radian")  # , drvabs=0.001)
                 va.append_rw(self._findChannel(elem.v.name, elem.v.fields.angle, "setpoint"),
                              self._findChannel(elem.v.name, elem.v.fields.angle, "readset"),
                              self._findChannel(elem.v.name, elem.v.fields.angle, "readback"),
-                             (elem.v.name, elem.v.fields.angle), desc="Vertical Corrector", egu="radian")#, drvabs=0.001)
+                             (elem.v.name, elem.v.fields.angle), desc="Vertical Corrector",
+                             egu="radian")  # , drvabs=0.001)
                 va.append_elem(elem)
 
             elif isinstance(elem, CorElement):
                 va.append_rw(self._findChannel(elem.h.name, elem.h.fields.angle, "setpoint"),
                              self._findChannel(elem.h.name, elem.h.fields.angle, "readset"),
                              self._findChannel(elem.h.name, elem.h.fields.angle, "readback"),
-                             (elem.h.name, elem.h.fields.angle), desc="Horizontal Corrector", egu="radian")#, drvabs=0.001)
+                             (elem.h.name, elem.h.fields.angle), desc="Horizontal Corrector",
+                             egu="radian")  # , drvabs=0.001)
                 va.append_rw(self._findChannel(elem.v.name, elem.v.fields.angle, "setpoint"),
                              self._findChannel(elem.v.name, elem.v.fields.angle, "readset"),
                              self._findChannel(elem.v.name, elem.v.fields.angle, "readback"),
-                             (elem.v.name, elem.v.fields.angle), desc="Vertical Corrector", egu="radian")#, drvabs=0.001)
+                             (elem.v.name, elem.v.fields.angle), desc="Vertical Corrector",
+                             egu="radian")  # , drvabs=0.001)
                 va.append_elem(elem)
 
             elif isinstance(elem, BendElement):
                 va.append_rw(self._findChannel(elem.name, elem.fields.field, "setpoint"),
                              self._findChannel(elem.name, elem.fields.field, "readset"),
                              self._findChannel(elem.name, elem.fields.field, "readback"),
-                             (elem.name, elem.fields.field), desc="Bend Relative Field", egu="none")#, drvratio=0.10)
+                             (elem.name, elem.fields.field), desc="Bend Relative Field", egu="none")  # , drvratio=0.10)
                 va.append_elem(elem)
 
             elif isinstance(elem, QuadElement):
                 va.append_rw(self._findChannel(elem.name, elem.fields.gradient, "setpoint"),
                              self._findChannel(elem.name, elem.fields.gradient, "readset"),
                              self._findChannel(elem.name, elem.fields.gradient, "readback"),
-                             (elem.name, elem.fields.gradient), desc="Quadrupole Gradient", egu="T/m")#, drvratio=0.10)
+                             (elem.name, elem.fields.gradient), desc="Quadrupole Gradient",
+                             egu="T/m")  # , drvratio=0.10)
                 va.append_elem(elem)
 
             elif isinstance(elem, SextElement):
                 _LOGGER.warning("VirtAccelFactory: Hexapole magnet element support not implemented. Ignoring channels.")
-                #va.append_rw(self._findChannel(elem.name, elem.fields.field, "setpoint"),
+                # va.append_rw(self._findChannel(elem.name, elem.fields.field, "setpoint"),
                 #             self._findChannel(elem.name, elem.fields.field, "readset"),
                 #             self._findChannel(elem.name, elem.fields.field, "readback"),
                 #             (elem.name, elem.fields.field), desc="Hexapole Field", egu="T/m^2", drvrel=0.05)
-                #va.append_elem(elem)
+                # va.append_elem(elem)
 
             elif isinstance(elem, BPMElement):
                 va.append_ro(self._findChannel(elem.name, elem.fields.x, "readback"),
@@ -362,7 +387,7 @@ class VirtualAcceleratorFactory(object):
                 va.append_ro(self._findChannel(elem.name, elem.fields.phase, "readback"),
                              (elem.name, elem.fields.phase), desc="Beam Phase", egu="degree")
                 va.append_ro(self._findChannel(elem.name, elem.fields.energy, "readback"),
-                            (elem.name, elem.fields.energy), desc="Beam Energy", egu="MeV")
+                             (elem.name, elem.fields.energy), desc="Beam Energy", egu="MeV")
                 va.append_elem(elem)
 
             elif isinstance(elem, PMElement):
@@ -398,6 +423,7 @@ class VirtualAccelerator(object):
     """VirtualAccelerator executes and manages the
        EPICS IOC process and IMPACT simulation process.
     """
+
     def __init__(self, latfactory, settings, chanprefix, impact_exe, data_dir, work_dir=None):
         if not isinstance(latfactory, LatticeFactory):
             raise TypeError("VirtualAccelerator: Invalid type for LatticeFactory")
@@ -430,7 +456,6 @@ class VirtualAccelerator(object):
         self._subscriptions = None
         self._lock = cothread.Event(False)
 
-
     @property
     def impact_exe(self):
         return self._impact_exe
@@ -440,7 +465,6 @@ class VirtualAccelerator(object):
         if not isinstance(impact_exe, basestring):
             raise TypeError("VirtualAccelerator: 'impact_exe' property much be type string")
         self._impact_exe = impact_exe
-
 
     @property
     def data_dir(self):
@@ -452,19 +476,18 @@ class VirtualAccelerator(object):
             raise TypeError("VirtualAccelerator: 'data_dir' property much be type string")
         self._data_dir = data_dir
 
-
     @property
     def work_dir(self):
         return self._work_dir
 
     @work_dir.setter
     def work_dir(self, work_dir):
-        if (work_dir != None) and not isinstance(work_dir, basestring):
+        if (work_dir is not None) and not isinstance(work_dir, basestring):
             raise TypeError("VirtualAccelerator: 'work_dir' property much be type string or None")
         self._work_dir = work_dir
 
-
-    def append_rw(self, cset, rset, read, field, desc="Element", egu="", prec=5, drvh=None, drvl=None, drvabs=None, drvrel=None, drvratio=None):
+    def append_rw(self, cset, rset, read, field, desc="Element", egu="", prec=5, drvh=None, drvl=None, drvabs=None,
+                  drvrel=None, drvratio=None):
         """Append a set of read/write channels to this virtual accelerator.
         The algorithm to set EPICS DRVH/DRVK is as:
             - if absolute limit (drvabs) is given, use absolute
@@ -492,38 +515,36 @@ class VirtualAccelerator(object):
             drvl = - abs(drvabs)
         elif drvrel is not None:
             drvh = val + abs(drvabs)
-            drvl = val - abs(drvabs)            
-        elif drvratio != None:
-            drvh = val + abs(val*drvratio)
-            drvl = val - abs(val*drvratio)
+            drvl = val - abs(drvabs)
+        elif drvratio is not None:
+            drvh = val + abs(val * drvratio)
+            drvl = val - abs(val * drvratio)
 
         self._epicsdb.append(("ao", cset, OrderedDict([
-                ("DESC", "{} Set Point".format(desc)),
-                ("VAL", val),
-                ("DRVH", drvh),
-                ("DRVL", drvl),
-                ("PREC", prec),
-                ("EGU", egu)
-            ])))
+            ("DESC", "{} Set Point".format(desc)),
+            ("VAL", val),
+            ("DRVH", drvh),
+            ("DRVL", drvl),
+            ("PREC", prec),
+            ("EGU", egu)
+        ])))
 
         self._epicsdb.append(("ai", rset, OrderedDict([
-                ("DESC", "{} Set Point Read Back".format(desc)),
-                ("VAL", val),
-                ("PREC", prec),
-                ("EGU", egu)
-            ])))
+            ("DESC", "{} Set Point Read Back".format(desc)),
+            ("VAL", val),
+            ("PREC", prec),
+            ("EGU", egu)
+        ])))
 
         self._epicsdb.append(("ai", read, OrderedDict([
-                ("DESC", "{} Read Back"),
-                ("VAL", val),
-                ("PREC", prec),
-                ("EGU", egu)
-            ])))
+            ("DESC", "{} Read Back"),
+            ("VAL", val),
+            ("PREC", prec),
+            ("EGU", egu)
+        ])))
 
         self._csetmap[cset] = (rset, read)
         self._fieldmap[cset] = field
-
-
 
     def append_ro(self, read, field, desc="Element", egu="", prec=5):
         """Append a read-only channel to this virtual accelerator.
@@ -538,16 +559,15 @@ class VirtualAccelerator(object):
             raise RuntimeError("VirtualAccelerator: Cannot append RO channel when started")
 
         self._epicsdb.append(("ai", read, OrderedDict([
-                ("DESC", "{} Read Back".format(desc)),
-                ("VAL", "0.0"),
-                ("PREC", prec),
-                ("EGU", egu)
-            ])))
+            ("DESC", "{} Read Back".format(desc)),
+            ("VAL", "0.0"),
+            ("PREC", prec),
+            ("EGU", egu)
+        ])))
 
         if field[0] not in self._readfieldmap:
             self._readfieldmap[field[0]] = OrderedDict()
         self._readfieldmap[field[0]][field[1]] = read
-
 
     def append_elem(self, elem):
         """Append an accelerator element to this virtual accelerator.
@@ -556,18 +576,15 @@ class VirtualAccelerator(object):
             raise RuntimeError("VirtualAccelerator: Cannot append element when started")
         self._elemmap[elem.name] = elem
 
-
     def is_started(self):
         """Check is virtual accelerator has been started."""
         return self._started
-
 
     def start(self, raise_on_wait=False):
         """Start the virtual accelerator. Spawn a new cothread to handle execution.
         """
         _LOGGER.debug("VirtualAccelerator: Start")
         cothread.Spawn(self._starter, raise_on_wait, raise_on_wait=True).Wait()
-
 
     def _starter(self, raise_on_wait):
         _LOGGER.debug("VirtualAccelerator: Start (cothread)")
@@ -577,13 +594,12 @@ class VirtualAccelerator(object):
         if not os.path.isdir(self.data_dir):
             raise RuntimeError("VirtualAccelerator: Data directory not found: {}".format(self.data_dir))
 
-        if self.work_dir != None and os.path.exists(self.work_dir):
+        if self.work_dir is not None and os.path.exists(self.work_dir):
             raise RuntimeError("VirtualAccelerator: Working directory already exists: {}".format(self.work_dir))
 
         self._started = True
         self._continue = True
         self._executer = cothread.Spawn(self._executer, raise_on_wait=raise_on_wait)
-
 
     def stop(self):
         """Stop the virtual accelerator.
@@ -592,21 +608,18 @@ class VirtualAccelerator(object):
         _LOGGER.debug("VirtualAccelerator: Stop")
         cothread.Spawn(self._stopper, raise_on_wait=True).Wait()
 
-
     def _stopper(self):
         _LOGGER.debug("VirtualAccelerator: Stop (cothread)")
         if self._started:
             _LOGGER.debug("VirtualAccelerator: Initiate shutdown")
             self._continue = False
-            #self._executer.Wait()
-
+            # self._executer.Wait()
 
     def wait(self, timeout=None):
         """Wait for the virtual accelerator to stop
         """
         if self._started:
             self._executer.Wait(timeout)
-
 
     def _executer(self):
         """Executer method wraps the call to _execute and ensure that
@@ -617,19 +630,19 @@ class VirtualAccelerator(object):
             self._execute()
         finally:
             _LOGGER.info("VirtualAccelerator: Cleanup")
-            if self._subscriptions != None:
+            if self._subscriptions is not None:
                 _LOGGER.debug("VirtualAccelerator: Cleanup: close connections")
                 for sub in self._subscriptions:
                     sub.close()
                 self._subscriptions = None
 
-            if self._ioc_process != None:
+            if self._ioc_process is not None:
                 _LOGGER.debug("VirtualAccelerator: Cleanup: terminate IOC process")
                 self._ioc_process.terminate()
                 self._ioc_process.wait()
                 self._ioc_process = None
 
-            if self._ioc_logfile != None:
+            if self._ioc_logfile is not None:
                 _LOGGER.debug("VirtualAccelerator: Cleanup: close IOC log file")
                 self._ioc_logfile.close()
                 self._ioc_logfile = None
@@ -641,7 +654,6 @@ class VirtualAccelerator(object):
             self._executer = None
             self._continue = False
             self._started = False
-
 
     def _execute(self):
         """Execute the virtual accelerator. This includes the following:
@@ -669,36 +681,36 @@ class VirtualAccelerator(object):
         self._epicsdb.append(("ai", sample_cnt, OrderedDict([
             ("DESC", "Sample counter for scan client"),
             ("VAL", 0)
-            ])))
+        ])))
 
         # Add channel for VA configuration and control
-        channoise = chanprefix+"SVR:NOISE"
+        channoise = chanprefix + "SVR:NOISE"
 
         self._epicsdb.append(("ao", channoise, OrderedDict([
-                ("DESC", "Noise level of Virtual Accelerator"),
-                ("VAL", 0.001),
-                ("PREC", 5)
-            ])))
+            ("DESC", "Noise level of Virtual Accelerator"),
+            ("VAL", 0.001),
+            ("PREC", 5)
+        ])))
 
-        chanstat = chanprefix+"SVR:STATUS"
+        chanstat = chanprefix + "SVR:STATUS"
 
         self._epicsdb.append(("bi", chanstat, OrderedDict([
-                ("DESC", "Status of Virtual Accelerator"),
-                ("VAL", 1),
-                ("ZNAM", "ERR"),
-                ("ONAM", "OK"),
-                ("PINI", "1")
-            ])))
+            ("DESC", "Status of Virtual Accelerator"),
+            ("VAL", 1),
+            ("ZNAM", "ERR"),
+            ("ONAM", "OK"),
+            ("PINI", "1")
+        ])))
 
-        chancharge = chanprefix+"SVR:CHARGE"
+        chancharge = chanprefix + "SVR:CHARGE"
 
         self._epicsdb.append(("ai", chancharge, OrderedDict([
-                ("DESC", "Q/M of Virtual Accelerator"),
-                ("VAL", 0.0),
-                ("PREC", 5)
-            ])))
+            ("DESC", "Q/M of Virtual Accelerator"),
+            ("VAL", 0.0),
+            ("PREC", 5)
+        ])))
 
-        if self.work_dir != None:
+        if self.work_dir is not None:
             os.makedirs(self.work_dir)
             self._rm_work_dir = False
         else:
@@ -712,7 +724,7 @@ class VirtualAccelerator(object):
         latticepath = os.path.join(self.work_dir, "test.in")
         modelmappath = os.path.join(self.work_dir, "model.map")
 
-        #output file paths
+        # output file paths
         fort18path = os.path.join(self.work_dir, "fort.18")
         fort24path = os.path.join(self.work_dir, "fort.24")
         fort25path = os.path.join(self.work_dir, "fort.25")
@@ -735,7 +747,7 @@ class VirtualAccelerator(object):
 
         self._ioc_logfile = open(epicslogpath, "w")
         self._ioc_process = _Cothread_Popen(["softIoc", "-d", "va.db"], cwd=self.work_dir,
-                                             stdout=self._ioc_logfile, stderr=subprocess.STDOUT)
+                                            stdout=self._ioc_logfile, stderr=subprocess.STDOUT)
 
         self._subscriptions = []
 
@@ -770,17 +782,18 @@ class VirtualAccelerator(object):
             if os.path.isfile(fort25path):
                 os.remove(fort25path)
 
-            impact_process = _Cothread_Popen(["mpirun", "-np", str(lattice.nprocessors), 
+            impact_process = _Cothread_Popen(["mpirun", "-np", str(lattice.nprocessors),
                                               str(self.impact_exe)], cwd=self.work_dir,
-                                               stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
             (stdout, _, status) = impact_process.communicate()
 
             # The virtual accelerator shutdown is likely to occur while IMPACT is executing,
             # so check if virtual accelerator has been stopped before proceeding.
-            if not self._continue: break
+            if not self._continue:
+                break
 
-            _LOGGER.info("VirtualAccelerator: IMPACT execution time: %f s", time.time()-start)
+            _LOGGER.info("VirtualAccelerator: IMPACT execution time: %f s", time.time() - start)
 
             if status == 0:
                 catools.caput(chanstat, _VA_STATUS_GOOD)
@@ -814,30 +827,30 @@ class VirtualAccelerator(object):
 
             output_map = []
             for elem in lattice.elements:
-                if elem.itype in [ -28 ]:
+                if elem.itype in [-28]:
                     output_map.append(elem.name)
 
             output_length = len(output_map)
 
-            if(fort18length < output_length):
+            if fort18length < output_length:
                 _LOGGER.warning("VirtualAccelerator: IMPACT fort.18 length %s, expecting %s",
-                                 fort18length, output_length)
+                                fort18length, output_length)
                 catools.caput(chanstat, _VA_STATUS_BAD)
 
-            if(fort24length < output_length):
+            if fort24length < output_length:
                 _LOGGER.warning("VirtualAccelerator: IMPACT fort.24 length %s, expecting %s",
-                                 fort24length, output_length)
+                                fort24length, output_length)
                 catools.caput(chanstat, _VA_STATUS_BAD)
 
-            if(fort25length < output_length):
-                _LOGGER.warning("VirtualAccelerator: IMPACT fort.25 length %s, expecting %s", 
+            if fort25length < output_length:
+                _LOGGER.warning("VirtualAccelerator: IMPACT fort.25 length %s, expecting %s",
                                 fort25length, output_length)
                 catools.caput(chanstat, _VA_STATUS_BAD)
 
             def get_phase(idx):
                 # IMPACT computes the phase in radians,
                 # need to convert to degrees for PV.
-                return _normalize_phase(2.0 * fort18[idx,1] * (180.0 / math.pi))
+                return _normalize_phase(2.0 * fort18[idx, 1] * (180.0 / math.pi))
 
             for idx in xrange(min(fort18length, fort24length, fort25length)):
 
@@ -845,39 +858,39 @@ class VirtualAccelerator(object):
 
                 if isinstance(elem, BPMElement):
                     _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
-                                  self._readfieldmap[elem.name][elem.fields.x], fort24[idx,0])
-                    catools.caput(self._readfieldmap[elem.name][elem.fields.x], fort24[idx,0])
+                                  self._readfieldmap[elem.name][elem.fields.x], fort24[idx, 0])
+                    catools.caput(self._readfieldmap[elem.name][elem.fields.x], fort24[idx, 0])
                     _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
-                                  self._readfieldmap[elem.name][elem.fields.y], fort25[idx,0])
-                    catools.caput(self._readfieldmap[elem.name][elem.fields.y], fort25[idx,0])
+                                  self._readfieldmap[elem.name][elem.fields.y], fort25[idx, 0])
+                    catools.caput(self._readfieldmap[elem.name][elem.fields.y], fort25[idx, 0])
                     _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
                                   self._readfieldmap[elem.name][elem.fields.phase], get_phase(idx))
                     catools.caput(self._readfieldmap[elem.name][elem.fields.phase], get_phase(idx))
                     _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
-                                  self._readfieldmap[elem.name][elem.fields.energy], fort18[idx,2])
-                    catools.caput(self._readfieldmap[elem.name][elem.fields.energy], fort18[idx,2])
+                                  self._readfieldmap[elem.name][elem.fields.energy], fort18[idx, 2])
+                    catools.caput(self._readfieldmap[elem.name][elem.fields.energy], fort18[idx, 2])
                 elif isinstance(elem, PMElement):
                     _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
-                                  self._readfieldmap[elem.name][elem.fields.x], fort24[idx,0])
-                    catools.caput(self._readfieldmap[elem.name][elem.fields.x], fort24[idx,0])
+                                  self._readfieldmap[elem.name][elem.fields.x], fort24[idx, 0])
+                    catools.caput(self._readfieldmap[elem.name][elem.fields.x], fort24[idx, 0])
                     _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
-                                  self._readfieldmap[elem.name][elem.fields.y], fort25[idx,0])
-                    catools.caput(self._readfieldmap[elem.name][elem.fields.y], fort25[idx,0])
+                                  self._readfieldmap[elem.name][elem.fields.y], fort25[idx, 0])
+                    catools.caput(self._readfieldmap[elem.name][elem.fields.y], fort25[idx, 0])
                     _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
-                                  self._readfieldmap[elem.name][elem.fields.xrms], fort24[idx,1])
-                    catools.caput(self._readfieldmap[elem.name][elem.fields.xrms], fort24[idx,1])
+                                  self._readfieldmap[elem.name][elem.fields.xrms], fort24[idx, 1])
+                    catools.caput(self._readfieldmap[elem.name][elem.fields.xrms], fort24[idx, 1])
                     _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
-                                  self._readfieldmap[elem.name][elem.fields.yrms], fort25[idx,1])
-                    catools.caput(self._readfieldmap[elem.name][elem.fields.yrms], fort25[idx,1])
+                                  self._readfieldmap[elem.name][elem.fields.yrms], fort25[idx, 1])
+                    catools.caput(self._readfieldmap[elem.name][elem.fields.yrms], fort25[idx, 1])
                 else:
-                    _LOGGER.warning("VirtualAccelerator: Output from element type not supported: %s", 
+                    _LOGGER.warning("VirtualAccelerator: Output from element type not supported: %s",
                                     type(elem).__name__)
- 
+
             # Write the default error value to the remaing output PVs.
             for idx in xrange(min(fort18length, fort24length, fort25length), output_length):
- 
+
                 elem = self._elemmap[output_map[idx]]
- 
+
                 if isinstance(elem, BPMElement):
                     _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
                                   self._readfieldmap[elem.name][elem.fields.x], _DEFAULT_ERROR_VALUE)
@@ -905,14 +918,14 @@ class VirtualAccelerator(object):
                                   self._readfieldmap[elem.name][elem.fields.yrms], _DEFAULT_ERROR_VALUE)
                     catools.caput(self._readfieldmap[elem.name][elem.fields.yrms], _DEFAULT_ERROR_VALUE)
                 else:
-                    _LOGGER.warning("VirtualAccelerator: Output from element type not supported: %s", 
+                    _LOGGER.warning("VirtualAccelerator: Output from element type not supported: %s",
                                     type(elem).__name__)
 
             # Allow the BPM, PM, etc. readbacks to update
             # before the device setting readbacks PVs.
             cothread.Yield()
 
-            for name, value in self._csetmap.iteritems():
+            for name, value in self._csetmap.items():
                 name, field = self._fieldmap[name]
                 _LOGGER.debug("VirtualAccelerator: Update read: %s to %s", value[1], settings[name][field])
                 catools.caput(value[1], settings[name][field])
@@ -923,11 +936,10 @@ class VirtualAccelerator(object):
             # If a scan is being done on this virtual accelerator,
             # then the scan server has a period of time to update
             # setpoints before the next run of IMPACT.
-            if (time.time()-start) > 0.50:
-                cothread.Sleep((time.time()-start)*0.1)
+            if (time.time() - start) > 0.50:
+                cothread.Sleep((time.time() - start) * 0.1)
             else:
-                cothread.Sleep(1.0 - (time.time()-start))
-
+                cothread.Sleep(1.0 - (time.time() - start))
 
     def _handle_cset_monitor(self, value, idx):
         """Handle updates of CSET channels by updating
@@ -938,28 +950,24 @@ class VirtualAccelerator(object):
         name, field = self._fieldmap[cset[0]]
         self._settings[name][field] = float(value)
 
-
-
     def _handle_noise_monitor(self, value):
         """Handle updates of the NOISE channel.
         """
         _LOGGER.debug("VirtualAccelerator: Update noise: %s", value)
         self._noise = float(value)
 
-
     def _copy_settings_with_noise(self):
         s = deepcopy(self._settings)
         for name, field in self._fieldmap.values():
-            s[name][field] = s[name][field] + s[name][field] * self._noise * 2.0*(random.random()-0.5)
+            s[name][field] = s[name][field] + s[name][field] * self._noise * 2.0 * (random.random() - 0.5)
         return s
-
 
     def _write_epicsdb(self, buf):
         for record in self._epicsdb:
             buf.write("record({}, \"{}\") {{\r\n".format(record[0], record[1]))
-            for name, value in record[2].iteritems():
-                if value == None:
-                    pass # ignore fields with value None
+            for name, value in record[2].items():
+                if value is None:
+                    pass  # ignore fields with value None
                 elif isinstance(value, int):
                     buf.write("    field(\"{}\", {})\r\n".format(name, value))
                 elif isinstance(value, float):
@@ -987,27 +995,24 @@ class _Cothread_Popen(object):
         self._output = None
         self._event = None
 
-
-    def communicate(self, input=None): # @ReservedAssignment
+    def communicate(self, input=None):  # @ReservedAssignment
         """Start a real OS thread to wait for process communication.
         """
-        if self._event == None:
+        if self._event is None:
             self._event = cothread.Event()
             threading.Thread(target=self._communicate_thread, args=(input,)).start()
-        elif input != None:
+        elif input is not None:
             raise RuntimeError("_Cothread_Popen: Communicate method already called")
 
         self._event.Wait()
         return (self._output[0], self._output[1], self._process.poll())
 
-
-    def _communicate_thread(self, input): # @ReservedAssignment
+    def _communicate_thread(self, input):  # @ReservedAssignment
         """Executes in separate OS thread. Wait for communication
            then return the output to the cothread context.
         """
         output = self._process.communicate(input)
         cothread.Callback(self._communicate_callback, output)
-
 
     def _communicate_callback(self, output):
         """Record the output and then signal other cothreads.
@@ -1015,19 +1020,16 @@ class _Cothread_Popen(object):
         self._output = output
         self._event.Signal()
 
-
     def wait(self):
         """Wait for the process to complete and result the exit code.
         """
         self.communicate()
         return self._process.poll()
 
-
     def terminate(self):
         """Send the terminate signal. See subprocess.Popen.terminate()
         """
         self._process.terminate()
-
 
     def kill(self):
         """Send the kill signal.  See subprocess.Popen.kill()

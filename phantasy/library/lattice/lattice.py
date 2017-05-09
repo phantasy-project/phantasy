@@ -5,42 +5,42 @@
 """
 
 from __future__ import absolute_import
-from __future__ import unicode_literals
 from __future__ import division
 from __future__ import print_function
+from __future__ import unicode_literals
 
 import logging
 import os
-import sys
 import re
-import numpy as np
 import shelve
+import sys
 import tempfile
 import time
-from fnmatch import fnmatch
-from math import log10
 from collections import OrderedDict
 from datetime import datetime
+from fnmatch import fnmatch
+from math import log10
 
-from .element import AbstractElement
-from .element import CaElement
-from .impact import LatticeFactory as ImpactLatticeFactory
-from .impact import run_lattice as run_impact_lattice
-from .flame import FlameLatticeFactory
+import numpy as np
+from flame import Machine
 from phantasy.library.layout import Layout
-from phantasy.library.parser import Configuration
-from phantasy.library.settings import Settings
-from phantasy.library.settings import build_flame_settings
-from phantasy.library.pv import caget
-from phantasy.library.pv import caput
 from phantasy.library.misc import parse_dt
 from phantasy.library.model import MachineStates
 from phantasy.library.model import ModelFlame
-from phantasy.library.layout import CavityElement
-from flame import Machine
+from phantasy.library.parser import Configuration
+from phantasy.library.pv import caget
+from phantasy.library.pv import caput
+from phantasy.library.settings import Settings
+from phantasy.library.settings import build_flame_settings
 
+from .element import AbstractElement
+from .element import CaElement
+from .flame import FlameLatticeFactory
+from .impact import LatticeFactory as ImpactLatticeFactory
+from .impact import run_lattice as run_impact_lattice
 
 _LOGGER = logging.getLogger(__name__)
+
 
 class Lattice(object):
     """Machine high-level lattice object, all elements inside this lattice
@@ -106,6 +106,7 @@ class Lattice(object):
     :func:`~phantasy.library.operation.lattice.create_lattice`
         Create high-level lattice object.
     """
+
     # ignore those "element" when construct the lattice object
     def __init__(self, name, **kws):
         self.name = name
@@ -127,7 +128,6 @@ class Lattice(object):
         self._viewer_settings = OrderedDict()
         self._trace_history = None
         self.trace = kws.get('trace', None)
-
 
         ## clean up the following parameters
         self._twiss = None
@@ -177,7 +177,7 @@ class Lattice(object):
     def layout(self):
         """Obj: Accelerator layout object."""
         return self._layout
-    
+
     @layout.setter
     def layout(self, layout):
         if layout is not None and isinstance(layout, Layout):
@@ -212,7 +212,7 @@ class Lattice(object):
             self._model_factory = mf
         else:
             raise TypeError("Wrong input model factory.")
-            
+
     @property
     def s_begin(self):
         """float: Start position along beam trajectory, [m]."""
@@ -223,7 +223,7 @@ class Lattice(object):
         if s is None:
             self._s_begin = 0.0
         else:
-            self._s_begin= s
+            self._s_begin = s
 
     @property
     def s_end(self):
@@ -235,7 +235,7 @@ class Lattice(object):
         if s is None:
             self._s_end = sys.float_info.max
         else:
-            self._s_end = s 
+            self._s_end = s
 
     @property
     def mname(self):
@@ -260,7 +260,7 @@ class Lattice(object):
             self._mpath = ''
         else:
             self._mpath = path
-    
+
     @property
     def mconf(self):
         """Obj: Machine configuration object."""
@@ -277,7 +277,7 @@ class Lattice(object):
     def mtype(self):
         """int: Machine type, linear (0) or circular (1)."""
         return self._mtype
-    
+
     @mtype.setter
     def mtype(self, i):
         if i is None:
@@ -289,7 +289,7 @@ class Lattice(object):
     def source(self):
         """str: Source of PV data."""
         return self._source
-    
+
     @source.setter
     def source(self, src):
         if src is None:
@@ -313,7 +313,7 @@ class Lattice(object):
     def model(self):
         """str: Simulation code name to simulate online model type."""
         return self._model
-    
+
     @model.setter
     def model(self, code):
         if code is None:
@@ -357,7 +357,7 @@ class Lattice(object):
         else:
             layout = None
         return layout
-    
+
     def _set_model_factory(self):
         if self.model == "IMPACT":
             mf = ImpactLatticeFactory(self.layout, config=self.config, settings=self.settings)
@@ -398,7 +398,7 @@ class Lattice(object):
         _elem = elems[0]
 
         all_fields = _elem.fields()
-        
+
         if len(all_fields) > 1:
             if field is None:
                 print("Please specify field from [{}]".format(','.join(all_fields)))
@@ -411,7 +411,7 @@ class Lattice(object):
         else:
             print("Element has not defined field.")
             return None
-        
+
         source = kws.get('source', 'all')
         if source == 'all':
             self._set_control_field(_elem, field, value)
@@ -433,8 +433,8 @@ class Lattice(object):
         if elem.family == "CAV" and field == 'PHA':
             value = _normalize_phase(value)
         caput(pv, value)
-        self._log_trace('control', element=elem.name, 
-                field=field, value0=value0, value=value, pv=pv)
+        self._log_trace('control', element=elem.name,
+                        field=field, value0=value0, value=value, pv=pv)
 
     def _set_model_field(self, elem, field, value):
         """Set value to element field.
@@ -476,21 +476,21 @@ class Lattice(object):
             if type == 'control':
                 pv = kws.get('pv')
                 log_entry = OrderedDict((
-                            ('timestamp', time.time()),
-                            ('type', type),
-                            ('element', name),
-                            ('field', field),
-                            ('value0', value0),
-                            ('value', value),
-                            ('pv', pv)))
+                    ('timestamp', time.time()),
+                    ('type', type),
+                    ('element', name),
+                    ('field', field),
+                    ('value0', value0),
+                    ('value', value),
+                    ('pv', pv)))
             elif type == 'model':
                 log_entry = OrderedDict((
-                            ('timestamp', time.time()),
-                            ('type', type),
-                            ('element', name),
-                            ('field', field),
-                            ('value0', value0),
-                            ('value', value)))
+                    ('timestamp', time.time()),
+                    ('type', type),
+                    ('element', name),
+                    ('field', field),
+                    ('value0', value0),
+                    ('value', value)))
 
             self._trace_history.append(log_entry)
         else:
@@ -558,8 +558,8 @@ class Lattice(object):
         """
         if not isinstance(field, (list, tuple)):
             field = field,
-        pv = {f:elem.pv(field=f, handle='readback') for f in field}
-        return {k:caget(v)[0] for k,v in pv.iteritems()}
+        pv = {f: elem.pv(field=f, handle='readback') for f in field}
+        return {k: caget(v)[0] for k, v in pv.iteritems()}
 
     def _get_model_field(self, elem, field, **kws):
         """Get field value(s) from elment.
@@ -576,7 +576,7 @@ class Lattice(object):
             _settings = self._viewer_settings
         else:
             _settings = self.settings
-        retval = {k:v for k,v in _settings[elem_name].items() if k in field}
+        retval = {k: v for k, v in _settings[elem_name].items() if k in field}
         if kws.get('mstate', False) and self._is_viewer(elem):
             retval['mstate'] = self._viewer_settings[elem_name]['mstate']
         return retval
@@ -644,14 +644,14 @@ class Lattice(object):
                 if type == 'control':
                     pv = log_entry['pv']
                     log_str = "{time} [{type:^7s}] set {pv:<34s} with {value:>16.6e} which was {value0:>16.6e}".format(
-                            time=datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S'),
-                            type=type, pv=pv, value=value, value0=value0)
+                        time=datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S'),
+                        type=type, pv=pv, value=value, value0=value0)
                 elif type == 'model':
                     name = log_entry['element']
                     field = log_entry['field']
                     log_str = "{time} [{type:^7s}] set {name:<34s} with {value:>16.6e} which was {value0:>16.6e}".format(
-                            time=datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S'),
-                            type=type, name="{0}:{1}".format(name,field), value=value, value0=value0)
+                        time=datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S'),
+                        type=type, name="{0}:{1}".format(name, field), value=value, value0=value0)
                 retval.append(log_str)
                 print(log_str)
             return "\n".join(retval)
@@ -686,18 +686,18 @@ class Lattice(object):
             _field_name = d.get('field')
             _value = d.get('value')
             if Lattice._fnmatch(_pv_name, pv_name) and fnmatch(_elem_name, elem_name) \
-                and fnmatch(_entry_type, entry_type) \
-                and fnmatch(_field_name, field_name) \
-                and val_min <= _value <= val_max:
-                    retval.append(d)
-        
+                    and fnmatch(_entry_type, entry_type) \
+                    and fnmatch(_field_name, field_name) \
+                    and val_min <= _value <= val_max:
+                retval.append(d)
+
         return retval
 
     @staticmethod
     def _fnmatch(name, pattern):
-        if pattern == None: # pv pattern is not defined
+        if pattern is None:  # pv pattern is not defined
             return True
-        else: # pv pattern is defined
+        else:  # pv pattern is defined
             if name is None:
                 return False
             else:
@@ -756,7 +756,7 @@ class Lattice(object):
 
         if retroaction is not None:
             setting = self._get_retroactive_trace_history(_history, retroaction)
-        
+
         if not isinstance(setting, (list, tuple)):
             setting = setting,
 
@@ -818,9 +818,9 @@ class Lattice(object):
         # apply settings
         for e_name, e_setting in settings.iteritems():
             if e_name in self.settings:
-                for field,value in e_setting.iteritems():
-                        self._set_model_field(e_name, field, value)
-                        _LOGGER.debug("Update model: {e}:{f} to be {v}.".format(e=e_name, f=field, v=value))
+                for field, value in e_setting.iteritems():
+                    self._set_model_field(e_name, field, value)
+                    _LOGGER.debug("Update model: {e}:{f} to be {v}.".format(e=e_name, f=field, v=value))
             else:
                 _LOGGER.debug('Model settings does not have field: {e}:{f}.'.format(e=e_name, f=field))
 
@@ -836,20 +836,21 @@ class Lattice(object):
             'control' by default.
         """
         data_source = 'control' if data_source is None else data_source
-        
+
         if data_source == 'control':
             _LOGGER.info("Sync settings from 'control' to 'model'.")
             model_settings = self.settings
             for elem in self.getElementList('*'):
                 if elem.name in model_settings:
                     if not self._skip_elements(elem.name):
-                        for field,value in self.get(elem=elem, source='control').iteritems():
+                        for field, value in self.get(elem=elem, source='control').iteritems():
                             if field in model_settings[elem.name]:
                                 self._set_model_field(elem, field, value)
                                 # model_settings[elem.name][field] = value
                                 # _LOGGER.debug("Update model: {e}:{f} to be {v}.".format(e=elem.name, f=field, v=value))
                             else:
-                                _LOGGER.debug('Model settings does not have field: {e}:{f}.'.format(e=elem.name, f=field))
+                                _LOGGER.debug(
+                                    'Model settings does not have field: {e}:{f}.'.format(e=elem.name, f=field))
                 else:
                     _LOGGER.debug('Model settings does not have element: {e}.'.format(e=elem.name))
         elif data_source == 'model':
@@ -859,7 +860,7 @@ class Lattice(object):
                 if elem == []:
                     _LOGGER.debug('Control settings does not have element {0}.'.format(e_name))
                     continue
-                for field,value in e_setting.iteritems():
+                for field, value in e_setting.iteritems():
                     if not self._skip_elements(elem[0].name):
                         if field in elem[0].fields():
                             self._set_control_field(elem[0], field, value)
@@ -899,13 +900,13 @@ class Lattice(object):
             return latpath, fm
         else:
             raise RuntimeError("Lattice: Simulation code '{}' not supported".format(self.model))
-    
+
     def _flame_model(self, **kws):
         """Create a new flame model
         """
         latconf = kws.get('latconf', None)
         latfile = kws.get('latfile', None)
-        
+
         if latconf is not None:
             m = Machine(latconf)
         elif latfile is not None:
@@ -914,10 +915,10 @@ class Lattice(object):
         fm = ModelFlame()
         fm.mstates, fm.machine = ms, m
         obs = fm.get_index_by_type(type='bpm')['bpm']
-        r,s = fm.run(monitor=obs)
+        r, s = fm.run(monitor=obs)
         self._update_viewer_settings(fm, r)
         return fm
-    
+
     def _update_viewer_settings(self, fm, r):
         """Initially, all viewer settings are {}, after ``run()``,
         new key-values will be added into.
@@ -932,12 +933,12 @@ class Lattice(object):
         +---------+----------+-----------+
 
         """
-        for i,res in r:
+        for i, res in r:
             elem_name = fm.get_element(index=i)[0]['properties']['name']
-            readings = {field:getattr(res, k)[0]*1e-3 for field,k in zip(['X','Y'], ['x0','y0'])}
+            readings = {field: getattr(res, k)[0] * 1e-3 for field, k in zip(['X', 'Y'], ['x0', 'y0'])}
             readings['mstate'] = res
             self._viewer_settings[elem_name] = readings
-    
+
     def _is_viewer(self, elem):
         """Test if elem is viewer, e.g. BPM, PM, ...
         """
@@ -968,26 +969,29 @@ class Lattice(object):
         If this is drift space, find the element at 'left' or 'right' of the
         given point.
         """
-        if not loc in ['left', 'right']:
+        if loc not in ['left', 'right']:
             raise ValueError('loc must be in ["left", "right"]')
 
         # normalize s into [0, C]
         sn = s
-        if s > self.length: sn = s - self.length
-        if s < 0: sn = s + self.length
+        if s > self.length:
+            sn = s - self.length
+        if s < 0:
+            sn = s + self.length
 
         if sn < 0 or sn > self.length:
             raise ValueError("s= %f out of boundary ([%f, %f])"
                              % (s, -self.length, self.length))
         ileft, eleft = -1, self.length
         iright, eright = -1, self.length
-        for i,e in enumerate(self._elements):
-            if e.virtual > 0: continue
+        for i, e in enumerate(self._elements):
+            if e.virtual > 0:
+                continue
             # assuming elements is in order
-            if abs(e.sb-s) <= eleft:
-                ileft, eleft = i, abs(e.sb-s)
-            if abs(e.se-s) <= eright:
-                iright, eright = i, abs(e.se-s)
+            if abs(e.sb - s) <= eleft:
+                ileft, eleft = i, abs(e.sb - s)
+            if abs(e.se - s) <= eright:
+                iright, eright = i, abs(e.se - s)
         if loc == 'left':
             return ileft
         elif loc == 'right':
@@ -1003,7 +1007,7 @@ class Lattice(object):
         if self.latticemodelmap is not None:
             self.latticemodelmap.clear()
         else:
-            self.latticemodelmap={}
+            self.latticemodelmap = {}
         for idx, mp in enumerate(mapping):
             if mp[0] == "NONE":
                 continue
@@ -1045,7 +1049,7 @@ class Lattice(object):
             else:
                 k = 0
                 for e in self._elements:
-                    if e.sb < elem.sb: 
+                    if e.sb < elem.sb:
                         k += 1
                         continue
                 if k == len(self._elements):
@@ -1054,7 +1058,7 @@ class Lattice(object):
                     self._elements.insert(k, elem)
         if groups is not None:
             for g in groups:
-                if self._group.has_key(g):
+                if g in self._group:
                     self._group[g].append(elem)
                 else:
                     self._group[g] = [elem]
@@ -1077,7 +1081,8 @@ class Lattice(object):
             i = i + 1
         if ret:
             return ret
-        else: return None
+        else:
+            return None
 
     def appendElement(self, elem):
         """append a new element to lattice. 
@@ -1095,7 +1100,7 @@ class Lattice(object):
 
     def remove(self, elemname):
         """remove the element, return None if not find the element."""
-        for i,e in enumerate(self._elements):
+        for i, e in enumerate(self._elements):
             if e.name != elemname:
                 continue
             return self._elements.pop(i)
@@ -1108,12 +1113,12 @@ class Lattice(object):
         """
         f = shelve.open(fname, dbmode)
         pref = "lat.%s." % self.mode
-        f[pref+'group']   = self._group
-        f[pref+'elements'] = self._elements
-        f[pref+'mode']    = self.mode
-        f[pref+"source"]  = self.source
-        f[pref+'tune']    = self.tune
-        f[pref+'chromaticity'] = self.chromaticity
+        f[pref + 'group'] = self._group
+        f[pref + 'elements'] = self._elements
+        f[pref + 'mode'] = self.mode
+        f[pref + "source"] = self.source
+        f[pref + 'tune'] = self.tune
+        f[pref + 'chromaticity'] = self.chromaticity
         f.close()
 
     def load(self, fname):
@@ -1126,12 +1131,12 @@ class Lattice(object):
         """
         f = shelve.open(fname, 'r')
         pref = "lat."
-        self._group  = f[pref+'group']
-        self._elements  = f[pref+'elements']
-        self.mode     = f[pref+'mode']
-        self.source   = f[pref+"source"]
-        self.tune     = f[pref+'tune']
-        self.chromaticity = f[pref+'chromaticity']
+        self._group = f[pref + 'group']
+        self._elements = f[pref + 'elements']
+        self.mode = f[pref + 'mode']
+        self.source = f[pref + "source"]
+        self.tune = f[pref + 'tune']
+        self.chromaticity = f[pref + 'chromaticity']
         if self._elements:
             self.length = self._elements[-1].se
         f.close()
@@ -1156,18 +1161,19 @@ class Lattice(object):
         else:
             raise ValueError("children can be string or list of string")
 
-        #if not self._group.has_key(parent):
+        # if not self._group.has_key(parent):
         pl = []
 
         for child in chlist:
-            if not self._group.has_key(child):
+            if child not in self._group:
                 _LOGGER.warn("WARNING: no %s group found" % child)
                 continue
             for elem in self._group[child]:
-                if elem in pl: continue
+                if elem in pl:
+                    continue
                 pl.append(elem)
         self._group[parent] = pl
-            
+
     def sortElements(self, namelist=None):
         """sort the element list to the order of *s*
 
@@ -1180,7 +1186,7 @@ class Lattice(object):
             self._elements = sorted(self._elements)
             self.buildGroups()
             return
-        
+
         ret = []
         for e in self._elements:
             if e.name in ret:
@@ -1193,7 +1199,7 @@ class Lattice(object):
             raise ValueError("Some elements are missing in the results")
         elif len(ret) > len(namelist):
             raise ValueError("something wrong on sorting element list")
- 
+
         return ret[:]
 
     def getLocations(self, elemsname):
@@ -1232,10 +1238,10 @@ class Lattice(object):
         for elem in self._elements:
             if elem.virtual:
                 continue
-            if isinstance(elem.sb, (int, float)): 
+            if isinstance(elem.sb, (int, float)):
                 s0 = elem.sb
                 break
-        for i in range(1, 1+len(self._elements)):
+        for i in range(1, 1 + len(self._elements)):
             elem = self._elements[-i]
             if elem.virtual:
                 continue
@@ -1244,7 +1250,7 @@ class Lattice(object):
                 break
         return s0, s1
 
-    def getLine(self, srange, eps = 1e-9):
+    def getLine(self, srange, eps=1e-9):
         """
         get a list of element within range=(s0, s1).
 
@@ -1260,15 +1266,15 @@ class Lattice(object):
         i0 = self._find_element_s(s0, loc='right')
         i1 = self._find_element_s(s1, loc='left')
 
-        if i0 == None or i1 == None:
+        if i0 is None or i1 is None:
             return None
         elif i0 == i1:
             return self._elements[i0]
         elif i0 < i1:
-            ret = self._elements[i0:i1+1]
+            ret = self._elements[i0:i1 + 1]
         else:
             ret = self._elements[i0:]
-            ret.extend(self._elements[:i1+1])
+            ret.extend(self._elements[:i1 + 1])
         return ret
 
     def getElementList(self, group, **kwargs):
@@ -1302,7 +1308,7 @@ class Lattice(object):
         virtual = kwargs.get('virtual', True)
         # do exact element name match first
         elem = self._find_exact_element(group)
-        if elem is not None: 
+        if elem is not None:
             return [elem]
 
         # do exact group name match
@@ -1324,7 +1330,7 @@ class Lattice(object):
         elif isinstance(group, list):
             # exact one-by-one match, None if not found
             return [self._find_exact_element(e) for e in group]
-            
+
     def _matchElementCgs(self, elem, **kwargs):
         """check properties of an element
         
@@ -1334,21 +1340,21 @@ class Lattice(object):
         """
 
         cell = kwargs.get("cell", None)
-        
+
         if isinstance(cell, str) and elem.cell != cell:
             return False
         elif hasattr(cell, "__iter__") and not elem.cell in cell:
             return False
 
         girder = kwargs.get("girder", None)
-        
+
         if isinstance(girder, str) and elem.girder != girder:
             return False
         elif hasattr(girder, "__iter__") and not elem.girder in girder:
             return False
 
         symmetry = kwargs.get("symmetry", None)
-        
+
         if isinstance(symmetry, str) and elem.symmetry != symmetry:
             return False
         elif hasattr(symmetry, "__iter__") and not elem.symmetry in symmetry:
@@ -1356,7 +1362,7 @@ class Lattice(object):
 
         return True
 
-    def _getElementsCgs(self, group = '*', **kwargs):
+    def _getElementsCgs(self, group='*', **kwargs):
         """
         call signature::
         
@@ -1385,7 +1391,7 @@ class Lattice(object):
 
         # return empty set if not specified the group
         if not group: return None
-        
+
         elem = []
         for e in self._elements:
             # skip for duplicate
@@ -1393,27 +1399,29 @@ class Lattice(object):
 
             if not self._matchElementCgs(e, **kwargs):
                 continue
-            
+
             if e.name in self._group.get(group, []):
                 elem.append(e.name)
             elif fnmatch(e.name, group):
                 elem.append(e.name)
             else:
                 pass
-                
-            #if cell and not e.cell in cell: continue
-            #if girder and not e.girder in girder: continue
-            #if symmetry and not e.symmetry in symmetry: continue
-        
+
+                # if cell and not e.cell in cell: continue
+                # if girder and not e.girder in girder: continue
+                # if symmetry and not e.symmetry in symmetry: continue
+
         return elem
 
     def _illegalGroupName(self, group):
         # found character not in [a-zA-Z0-9_]
-        if not group: return True
-        elif re.search(r'[^\w:]+', group):
-            #raise ValueError("Group name must be in [a-zA-Z0-9_]+")
+        if not group:
             return True
-        else: return False
+        elif re.search(r'[^\w:]+', group):
+            # raise ValueError("Group name must be in [a-zA-Z0-9_]+")
+            return True
+        else:
+            return False
 
     def buildGroups(self):
         """
@@ -1428,7 +1436,7 @@ class Lattice(object):
             for g in e.group:
                 if self._illegalGroupName(g):
                     continue
-                #self.addGroupMember(g, e.name, newgroup=True)
+                # self.addGroupMember(g, e.name, newgroup=True)
                 lst = self._group.setdefault(g, [])
                 lst.append(e)
 
@@ -1481,7 +1489,7 @@ class Lattice(object):
             if elem in self._group[group]:
                 return
             elem.group.add(group)
-            for i,e in enumerate(self._group[group]):
+            for i, e in enumerate(self._group[group]):
                 if e.sb < elem.sb:
                     continue
                 self._group[group].insert(i, elem)
@@ -1561,10 +1569,9 @@ class Lattice(object):
             ret[g] = []
             imatched = 0
             for k, elems in self._group.items():
-                if fnmatch(k, g): 
+                if fnmatch(k, g):
                     imatched += 1
                     ret[g].extend([e.name for e in elems])
-
 
         r = set(ret[groups[0]])
         if op.lower() == 'union':
@@ -1575,7 +1582,7 @@ class Lattice(object):
                 r = r.intersection(set(v))
         else:
             raise ValueError("%s not defined" % op)
-        
+
         return self.getElementList(self.sortElements(r))
 
     def getNeighbors(self, elemname, groups, n, elemself=True):
@@ -1616,7 +1623,7 @@ class Lattice(object):
 
         i0 = len(el)
         for i, e in enumerate(el):
-            if e.sb < e0.sb: 
+            if e.sb < e0.sb:
                 continue
             i0 = i
             break
@@ -1637,7 +1644,7 @@ class Lattice(object):
             else:
                 ret.append(None)
         return ret
-        
+
     def getClosest(self, elemname, groups):
         """
         Assuming self._elements is in s order
@@ -1667,7 +1674,7 @@ class Lattice(object):
         if not el: raise ValueError("elements/group %s does not exist" % groups)
 
         idx, ds = 0, el[-1].sb
-        for i,e in enumerate(el):
+        for i, e in enumerate(el):
             if e == e0: continue
             if isinstance(e.sb, (list, tuple)):
                 ds0 = abs(e.sb[0] - e0.sb)
@@ -1678,12 +1685,12 @@ class Lattice(object):
             ds = ds0
 
         return el[idx]
-        
+
     def __repr__(self):
         s0 = '#name of segment: {}'.format(self.name)
         s1 = '#{0:<6s}{1:^20s} {2:<10s} {3:<10s} {4:<10s}'.format(
-                'index', 'name', 'family', 'position', 'length'
-                )
+            'index', 'name', 'family', 'position', 'length'
+        )
         ret = [s0, s1]
 
         ml_name, ml_family = 0, 0
@@ -1694,12 +1701,12 @@ class Lattice(object):
 
         idx = 1
         if len(self._elements) >= 10:
-            idx = int(1.0+log10(len(self._elements)))
-        fmt = "{idx:<6d} {name:<20s} {family:<10s} {pos:<10.4f} {len:<10.4f}" 
+            idx = int(1.0 + log10(len(self._elements)))
+        fmt = "{idx:<6d} {name:<20s} {family:<10s} {pos:<10.4f} {len:<10.4f}"
         for i, e in enumerate(self._elements):
             if e.virtual: continue
-            ret.append(fmt.format(idx=i, name=e.name, family=e.family, 
-                                  pos=e.sb, len=e.length))            
+            ret.append(fmt.format(idx=i, name=e.name, family=e.family,
+                                  pos=e.sb, len=e.length))
         return '\n'.join(ret)
 
 
@@ -1709,4 +1716,3 @@ def _normalize_phase(x):
     while x < 0.0:
         x += 360.0
     return x
-

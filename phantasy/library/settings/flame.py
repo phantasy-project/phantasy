@@ -24,20 +24,25 @@ from phantasy.library.layout import QuadElement
 from phantasy.library.layout import EQuadElement
 from phantasy.library.layout import EBendElement
 
+try:
+    basestring
+except:
+    basestring = str
+
 
 def build_settings(latpath, start=None, end=None):
     """Convenience method to initialize SettingsFactory and generate settings
-    from lattice file.
+	from lattice file.
 
-    Parameters
-    ----------
-    latpath :
-        Path to lattice file.
-    start : str
-        Name of accelerator element to start processing.
-    end : str
-        Name of accelerator element to end processing.
-    """
+	Parameters
+	----------
+	latpath :
+		Path to lattice file.
+	start : str
+		Name of accelerator element to start processing.
+	end : str
+		Name of accelerator element to end processing.
+	"""
     settings_factory = SettingsFactory(latpath)
 
     if start is None:
@@ -51,16 +56,16 @@ def build_settings(latpath, start=None, end=None):
 
 class SettingsFactory(object):
     """SettingsFactory is a factory class to build a settings dictionary from
-    a FLAME lattice file (test.lat).
+	a FLAME lattice file (test.lat).
 
-    Parameters
-    ----------
-    latpath :
-        Path to lattice file (test.lat)
-    """
+	Parameters
+	----------
+	latpath :
+		Path to lattice file (test.lat)
+	"""
 
     def __init__(self, latpath=None):
-        #self.accel = accel
+        # self.accel = accel
         self._latpath = latpath
         self._start = None
         self._end = None
@@ -75,7 +80,6 @@ class SettingsFactory(object):
             raise TypeError("AccelFactory: 'latpath' property much be type string")
         self._latpath = latpath
 
-
     @property
     def start(self):
         return self._start
@@ -85,7 +89,6 @@ class SettingsFactory(object):
         if (start is not None) and not isinstance(start, basestring):
             raise TypeError("AccelFactory: 'start' property much be type string or None")
         self._start = start
-
 
     @property
     def end(self):
@@ -97,10 +100,9 @@ class SettingsFactory(object):
             raise TypeError("AccelFactory: 'end' property much be type string or None")
         self._end = end
 
-
     def build(self):
         """Generate the settings dictionary from the FLAME lattice file.
-        """
+		"""
         if not os.path.isfile(self._latpath):
             raise RuntimeError("SettingsFactory: FLAME lattice file not found: {}".format(self._latpath))
 
@@ -122,10 +124,10 @@ class SettingsFactory(object):
             elem = OrderedDict(celem)
             ftype = elem['type'].lower()
 
-            if ftype in [ 'source', 'drift', 'marker' ]:
+            if ftype in ['source', 'drift', 'marker']:
                 continue
 
-            elif ftype in [ 'bpm', 'stripper' ]:
+            elif ftype in ['bpm', 'stripper']:
                 name = parseName(elem['name'])
                 settings[name] = OrderedDict()
 
@@ -180,7 +182,7 @@ class SettingsFactory(object):
             elif ftype == "quadrupole":
                 name = parseName(elem['name'])
                 sol = QuadElement(0, 0, 0, name)
-                fields = OrderedDict()  
+                fields = OrderedDict()
                 fields[sol.fields.gradient] = elem['B2']
                 settings[name] = fields
 
