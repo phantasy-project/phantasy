@@ -41,7 +41,7 @@ class Fields(object):
 
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
-            setattr(key, value)
+            setattr(self, key, value)
 
     def __iter__(self):
         return iter(dir(self))
