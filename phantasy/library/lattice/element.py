@@ -1,152 +1,276 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""Build elements with Channel Access support.
+"""
 
 import re
 import copy
 import logging
 
-# from unitconv import *
+try:
+    from UserDict import DictMixin
+except ImportError:
+    from collections import MutableMapping as DictMixin
 
-# public symbols
-_logger = logging.getLogger(__name__)
+try:
+    basestring
+except NameError:
+    basestring = str
 
-# flags bit pattern
-_DISABLED = 0x01
-_READONLY = 0x02
+try:
+    import epics
+    from epics import PV
+except ImportError:
+    import cothread
+    from cothread.pv import PV
+
+_LOGGER = logging.getLogger(__name__)
 
 UNSPECIFIED = 0
 ASCENDING = 1
 DESCENDING = 2
 RANDOM = 3
 
+VALID_STATIC_KEYS = ['name', 'family', 'index', 'se', 'length']
+VALID_CA_KEYS = ['field', 'handle']
+
 
 class AbstractElement(object):
-    """The :class:`AbstractElement` contains most of the lattice properties,
+    """``AbstractElement`` contains most of the lattice properties,
     such as element name, length, location and family. It also keeps a list of
-    groups which belongs to. The default group list contains cell, girder,
-    family and symmetry information if they are valid.
+    groups which belongs to.
 
-    AbstractElement has no Channel Access abilities. The AbstractElement can
-    be created with the following optional parameters
-    
-    ==========  ===================================================
-    Variable    Meaning
-    ==========  ===================================================
-    *name*      element name
-    *index*     index
-    *devname*   device name
-    *phylen*    physical(yoke) length
-    *family*    family
-    *sb*        s position of the entrance
-    *se*        s position of the exit
-    *length*    effective(magnetic) length 
-    *cell*      cell name
-    *girder*    girder name
-    *symmetry*  symmetry type
-    *sequence*  sequence tuple
-    *group*     list of groups the element belongs to
-    ==========  ===================================================
+    ``AbstractElement`` does not support Channel Access.
 
-    *index* is used for sorting elements in a list if it is not
-    None. Otherwise sorted according to *sb*.
+    Keyword Arguments
+    -----------------
+    name : str
+        Element name.
+    family : str
+        Element type.
+    index : int
+        Element index, default sort key, otherwise, ``sb`` is used as sort key.
+    length : float
+        Effective element length.
+    sb : float
+        Longitudinal position at the beginning point, unit: *m*.
+    se : float
+        Longitudinal position at the end point, unit: *m*.
+    enable : True or False
+        Element is enabled or not, ``True`` is controllable, default is True.
+
+    ##
+    The default group list contains cell, girder, family and symmetry
+    information if they are valid.
+    ##
+    #*devname*   device name
+    #*phylen*    physical(yoke) length
+    #*cell*      cell name
+    #*girder*    girder name
+    #*symmetry*  symmetry type
+    #*sequence*  sequence tuple
+    #*group*     list of groups the element belongs to
     """
+    def __init__(self, **kws):
+        self.name = kws.get('name', None)
+        self.index = kws.get('index', None)
+        self.family = kws.get('family', None)
+        self.se = kws.get('se', None)
+        self.sb = kws.get('sb', None)
+        self.length = kws.get('length', None)
+        self._active = kws.get('enable', True)
+        self.group = kws.get('group', None)
 
-    # format string for __str__
-    _STR_FORMAT = "{0} {1} {2} {3} {4} {5} {6} {7} {8} {9}"
+    @property
+    def group(self):
+        """set: Groups element belongs to."""
+        return self._group
 
-    # __slots__ = []
-    def __init__(self, **kwargs):
-        """
-        create an element from Channel Finder Service data or explicit
-        parameters.
-
-        :param str name: element name
-        """
-        # print kwargs
-        self.name = kwargs.get('name', None)
-        self.devname = kwargs.get('devname', None)
-        self.phylen = float(kwargs.get('phylen', '0.0'))
-        self.index = int(kwargs.get('index', '-1'))
-        self.family = kwargs.get('family', None)
-        self.se = float(kwargs.get('se', 'inf'))
-        self.sb = float(kwargs.get('sb', 'inf'))
-        self.length = float(kwargs.get('length', '0.0'))
-        self.cell = kwargs.get('cell', None)
-        self.girder = kwargs.get('girder', None)
-        self.symmetry = kwargs.get('symmetry', None)
-        self.sequence = kwargs.get('sequence', (0, 0))
-        self.flag = 0
-
-        self.group = {self.family, self.cell, self.girder, self.symmetry}
-        for g in kwargs.get('group', []):
-            self.group.add(g)
-
-    def profile(self, vscale=1.0):
-        """the profile for drawing the lattice.
-
-        The return is a tuple of (x, y, color) where (*x*, *y) are coordinates
-        and *color* is one of the ['k', 'r', 'b'] depending its family.
-        
-        It recognize the following *family*:
-
-        - 'QUAD', quadrupole, box height *vscale*, no negative
-        - 'BEND', dipole. box height vscale both positive and negative.
-        - 'SEXT', sextupole. box height 1.4*vscale
-        - 'SOL', solenoid, box height 0.8*vscale
-        - 'CAV', RF cavity,  box height 1.8*vscale
-        - ['HCOR' | 'VCOR' | 'TRIMX' | 'TRIMY' | 'DCH' | 'DCV'], corrector, thin line
-        - ['BPM' | 'BPMX' | 'BPMY' | 'PM'], beam position monitor, profile monitor, thin line
-        - The rest unrecognized element, it returns a box with height 
-          0.2*vscale and color 'k'.
-
-        """
-        b, e = self.sb, max(self.sb + self.length, self.se)
-        h = vscale
-        if self.family == 'CAV':
-            return [b, b, e, e], [0, 1.8 * h, 1.8 * h, 0], 'k'
-        elif self.family == 'SOL':
-            return [b, b, e, e], [0, 0.8 * h, 0.8 * h, 0], 'k'
-        elif self.family == 'QUAD':
-            return [b, b, e, e], [0, h, h, 0], 'k'
-        elif self.family == 'BEND':
-            return [b, b, e, e, b, b, e, e], [0, h, h, -h, -h, h, h, 0], 'k'
-        elif self.family == 'SEXT':
-            return [b, b, e, e], [0, 1.4 * h, 1.4 * h, 0], 'k'
-        elif self.family in ['HCOR', 'VCOR', 'TRIMX', 'TRIMY', 'DCH', 'DCV']:
-            return [b, (b + e) / 2.0, (b + e) / 2.0, (b + e) / 2.0, e], \
-                   [0, 0, h, 0, 0], 'r'
-        elif self.family in ['BPM', 'BPMX', 'BPMY', 'PM']:
-            return [b, (b + e) / 2.0, (b + e) / 2.0, (b + e) / 2.0, e], \
-                   [0, 0, h, 0, 0], 'b'
+    @group.setter
+    def group(self, g):
+        if g is None:
+            self._group = set()
+        elif isinstance(g, (list, tuple, set)):
+            self._group = set(g)
         else:
-            return [b, b, e, e], [0, 0.2 * h, 0.2 * h, 0], 'k'
+            _LOGGER.warn("'group': Input should be a set.")
+
+    @property
+    def name(self):
+        """str: Element name, empty string if not given."""
+        return self._name
+    
+    @name.setter
+    def name(self, name):
+        if name is None:
+            self._name = ''
+        elif isinstance(name, basestring):
+            self._name = name
+        else:
+            _LOGGER.warn("'name': Input should be a string.")
+
+    @property
+    def index(self):
+        """int: Element index, ``-1`` if not given."""
+        return self._index
+    
+    @index.setter
+    def index(self, i):
+        if i is None:
+            self._index = -1
+        elif isinstance(i, int):
+            self._index = i
+        elif isinstance(i, basestring):
+            try:
+                self._index = int(i)
+            except ValueError:
+                _LOGGER.error("'index': Invalid string to integer.")
+        else:
+            _LOGGER.warn("'index': Input should be an integer.")
+    
+    @property
+    def family(self):
+        """str: Element family, i.e. device type, empty string if not given."""
+        return self._family
+
+    @family.setter
+    def family(self, t):
+        if t is None:
+            self._family = ''
+        elif isinstance(t, basestring):
+            self._family = t
+        else:
+            _LOGGER.warn("'family': Input should be a string.")
+
+    @property
+    def length(self):
+        """float: Element length, unit: *m*, 0.0 if not given."""
+        return self._length
+    
+    @length.setter
+    def length(self, x):
+        if x is None:
+            self._length = 0.0
+        elif isinstance(x, (int, float)):
+            self._length = float(x)
+        elif isinstance(x, basestring):
+            try:
+                self._length = float(x)
+            except ValueError:
+                _LOGGER.error("'length': Invalid string to float.")
+        else:
+            _LOGGER.warn("'length': Input should be a float number.")
+
+    @property
+    def sb(self):
+        """float: Longitudinal position at the beginning point, unit: *m*."""
+        return self._sb
+
+    @sb.setter
+    def sb(self, x):
+        if x is None:
+            self._sb = float('inf')
+        elif isinstance(x, (int, float)):
+            self._sb = float(x)
+        elif isinstance(x, basestring):
+            try:
+                self._sb = float(x)
+            except ValueError:
+                _LOGGER.error("'sb': Invalid string to float.")
+        else:
+            _LOGGER.warn("'sb': Input should be a float number.")
+    
+    @property
+    def se(self):
+        """float: Longitudinal position at the end point, unit: *m*."""
+        return self._se
+
+    @se.setter
+    def se(self, x):
+        if x is None:
+            self._se = float('inf')
+        elif isinstance(x, (int, float)):
+            self._se = float(x)
+        elif isinstance(x, basestring):
+            try:
+                self._se = float(x)
+            except ValueError:
+                _LOGGER.error("'se': Invalid string to float.")
+        else:
+            _LOGGER.warn("'se': Input should be a float number.")
+    
+    @property
+    def active(self):
+        """Bool: Element is controllable or not, ``True`` by default."""
+        return self._active
+
+    @active.setter
+    def active(self, b):
+        new_flag = bool(b)
+        if self._active != new_flag:
+            self._active = new_flag
+        else:
+            _LOGGER.warn("Active status: {} is not changed.".format(new_flag))
+
+    ##
+    # def profile(self, vscale=1.0):
+    #     """the profile for drawing the lattice.
+    #
+    #     The return is a tuple of (x, y, color) where (*x*, *y) are coordinates
+    #     and *color* is one of the ['k', 'r', 'b'] depending its family.
+    #
+    #     It recognize the following *family*:
+    #
+    #     - 'QUAD', quadrupole, box height *vscale*, no negative
+    #     - 'BEND', dipole. box height vscale both positive and negative.
+    #     - 'SEXT', sextupole. box height 1.4*vscale
+    #     - 'SOL', solenoid, box height 0.8*vscale
+    #     - 'CAV', RF cavity,  box height 1.8*vscale
+    #     - ['HCOR' | 'VCOR' | 'TRIMX' | 'TRIMY' | 'DCH' | 'DCV'], corrector, thin line
+    #     - ['BPM' | 'BPMX' | 'BPMY' | 'PM'], beam position monitor, profile monitor, thin line
+    #     - The rest unrecognized element, it returns a box with height
+    #       0.2*vscale and color 'k'.
+    #
+    #     """
+    #     b, e = self.sb, max(self.sb + self.length, self.se)
+    #     h = vscale
+    #     if self.family == 'CAV':
+    #         return [b, b, e, e], [0, 1.8 * h, 1.8 * h, 0], 'k'
+    #     elif self.family == 'SOL':
+    #         return [b, b, e, e], [0, 0.8 * h, 0.8 * h, 0], 'k'
+    #     elif self.family == 'QUAD':
+    #         return [b, b, e, e], [0, h, h, 0], 'k'
+    #     elif self.family == 'BEND':
+    #         return [b, b, e, e, b, b, e, e], [0, h, h, -h, -h, h, h, 0], 'k'
+    #     elif self.family == 'SEXT':
+    #         return [b, b, e, e], [0, 1.4 * h, 1.4 * h, 0], 'k'
+    #     elif self.family in ['HCOR', 'VCOR', 'TRIMX', 'TRIMY', 'DCH', 'DCV']:
+    #         return [b, (b + e) / 2.0, (b + e) / 2.0, (b + e) / 2.0, e], \
+    #                [0, 0, h, 0, 0], 'r'
+    #     elif self.family in ['BPM', 'BPMX', 'BPMY', 'PM']:
+    #         return [b, (b + e) / 2.0, (b + e) / 2.0, (b + e) / 2.0, e], \
+    #                [0, 0, h, 0, 0], 'b'
+    #     else:
+    #         return [b, b, e, e], [0, 0.2 * h, 0.2 * h, 0], 'k'
 
     def __str__(self):
-        return AbstractElement._STR_FORMAT.format(
-            self.index, self.name, self.family, self.sb, self.length,
-            self.devname, self.cell, self.girder, self.symmetry, self.sequence)
+        return "{0:<4d} | {1:^20s} {2:<8s} {3:^6.2f} {4:^6.6f}".format(
+                int(self.index), self.name, self.family,
+                float(self.sb), float(self.length)
+        )
 
     def __repr__(self):
-        return "%s:%s @ sb=%f" % (self.name, self.family, self.sb)
+        return "%s [%s] @ sb=%f" % (self.name, self.family, self.sb)
 
     def __lt__(self, other):
         """use *index* if not None, otherwise use *sb*"""
-        if self.index is None and other.index is None:
-            return True
-        elif self.index is None:
-            return False
-        elif other.index is None:
-            return True
-        elif self.index > 0 and other.index > 0:
+        if self.index != other.index:
+            return self.index < other.index
+        elif self.sb != other.sb:
             return self.sb < other.sb
-        elif self.index > 0:
-            return True
-        elif other.index > 0:
-            return False
         else:
-            # both less than 0
-            return self.index > other.index
+            _LOGGER.warn('{} and {} may be the same one'.format(self, other))
 
     def __eq__(self, other):
         """compares location, length and name"""
@@ -154,894 +278,1159 @@ class AbstractElement(object):
                self.length == other.length and \
                self.index == other.index and \
                self.name == other.name
+    
+    def _update_static_props(self, props):
+        """Non-CA"""
+        [setattr(self, k, v) for k, v in props.items()]
 
-    def update_properties(self, prpt):
+    def update_properties(self, props, **kws):
+        raise NotImplementedError("Not implemented.")
+
+
+class CaField(object):
+    """Channel Access support for element field.
+    
+    For valid fields, *readback*, *readset* and *setpoint* PVs are linked,
+    each PV has its own stepsize and value range.
+
+    ### IMPLEMENTED IN HIGH-LEVEL LATTICE RIGHT NOW
+    ### THIS WAY KEEP MULTIPLE SETTINGS FOR DIFFERENT LATTICES.
+    ###
+    If *trace* is True, every readback/setpoint will be recorded for later
+    reset/revert whenever the get/put functions are called. Extra history
+    point can be recorded by calling *mark*.
+    ###
+    """
+    def __init__(self, name='', **kws):
+        self.name = name
+        self.readback = kws.get('readback', None)
+        self.readset = kws.get('readset', None)
+        self.setpoint = kws.get('setpoint', None)
+        self.readback_pv = None
+        self.readset_pv = None
+        self.setpoint_pv = None
+        self.init_pvs()
+
+        #################################################################
+        # self.golden = []  # some setpoint can saved as golden value
+        # self.pvh = []  # step size
+        # self.pvlim = []  # lower/upper limit
+        #
+        # # buffer the initial value and last setting/reading
+        # self.rb = []  # bufferred readback value
+        # self.sp = []  # bufferred setpoint value
+        # self._sp1 = []  # the last bufferred sp value when sp dimension changes.
+        # self.field = ''
+        # self.desc = kws.get('desc', None)
+        # self.order = ASCENDING
+        # self.opflags = 0
+        # self.trace = kws.get('trace', False)
+        # self.trace_limit = 200
+        # self.timeout = 2
+        # self.sprb_epsilon = 0
+
+    @property
+    def name(self):
+        """str: Field name, empty string if not given."""
+        return self._name
+
+    @name.setter
+    def name(self, s):
+        if s is None:
+            self._name = ''
+        elif isinstance(s, basestring):
+            self._name = s
+        else:
+            _LOGGER.warn("Field name should be a valid string.")
+
+    @property
+    def readback(self):
+        """str: Readback PV name, usually ends with *_RD*."""
+        return self._rdbk_pv_name
+
+    @readback.setter
+    def readback(self, s):
+        if s is None:
+            self._rdbk_pv_name = None
+        elif isinstance(s, basestring):
+            self._rdbk_pv_name = s
+        else:
+            self._rdbk_pv_name = None
+            _LOGGER.warn("Readback PV name should a valid string.")
+
+    @property
+    def readset(self):
+        """str: Readset PV name, usually ends with *_RSET*."""
+        return self._rset_pv_name
+
+    @readset.setter
+    def readset(self, s):
+        if s is None:
+            self._rset_pv_name = None
+        elif isinstance(s, basestring):
+            self._rset_pv_name = s
+        else:
+            self._rset_pv_name = None
+            _LOGGER.warn("Readset PV name should a valid string.")
+
+    @property
+    def setpoint(self):
+        """str: Setpoint PV name, usually ends with *_CSET*."""
+        return self._cset_pv_name
+
+    @setpoint.setter
+    def setpoint(self, s):
+        if s is None:
+            self._cset_pv_name = None
+        elif isinstance(s, basestring):
+            self._cset_pv_name = s
+        else:
+            self._cset_pv_name = None
+            _LOGGER.warn("Setpoint PV name should a valid string.")
+
+    @property
+    def readback_pv(self):
+        """PV: Readback PV object."""
+        return self._rdbk_pv
+
+    @readback_pv.setter
+    def readback_pv(self, pvobj):
+        if pvobj is None:
+            self._rdbk_pv = None
+        elif isinstance(pvobj, PV):
+            self._rdbk_pv = pvobj
+        else:
+            _LOGGER.warn("Input PV should be PV object.")
+
+    @property
+    def readset_pv(self):
+        """PV: Readset PV object."""
+        return self._rset_pv
+
+    @readset_pv.setter
+    def readset_pv(self, pvobj):
+        if pvobj is None:
+            self._rset_pv = None
+        elif isinstance(pvobj, PV):
+            self._rset_pv = pvobj
+        else:
+            _LOGGER.warn("Input PV should be PV object.")
+
+    @property
+    def setpoint_pv(self):
+        """PV: Setpoint PV object."""
+        return self._cset_pv
+
+    @setpoint_pv.setter
+    def setpoint_pv(self, pvobj):
+        if pvobj is None:
+            self._cset_pv = None
+        elif isinstance(pvobj, PV):
+            self._cset_pv = pvobj
+        else:
+            _LOGGER.warn("Input PV should be PV object.")
+
+    def __eq__(self, other):
+        return self.readback == other.readback and \
+               self.setpoint == other.setpoint and \
+               self.readset == other.readset and \
+               self.name == other.name
+
+    @property
+    def value(self):
+        """Get value of PV, returned from CA request.
+
+        pv type:
+        - readback :
+        - readset :
+        - setpoint :
+        """
+        if self.readback is not None:
+            pv = self.readback_pv
+        elif self.setpoint is not None:
+            pv = self.setpoint_pv
+        elif self.readset is not None:
+            pv = self.readset_pv
+        else:
+            _LOGGER.error("Error: Invalid PV configuration.")
+            raise
+
+        if isinstance(pv, epics.pv.PV):
+            val = pv.value
+        elif isinstance(pv, cothread.pv.PV):
+            val = pv.caget()
+        return val
+
+    @value.setter
+    def value(self, v):
+
+        def _setval(pv, v):
+            if isinstance(pv, epics.pv.PV):
+                pv.value = v
+            elif isinstance(pv, cothread.pv.PV):
+                pv.caput(v)
+
+        warn_msg = "Warning: Readback PV is readonly, non-effective set operation."
+        if self.readback is not None:
+            pv = self.readback_pv
+            _setval(pv, v)
+            _setval(pv, v)
+            print(warn_msg)
+        elif self.setpoint is not None:
+            pv = self.setpoint_pv
+            _setval(pv, v)
+        elif self.readset is not None:
+            pv = self.readset_pv
+            _setval(pv, v)
+            print(warn_msg)
+            _LOGGER.warn(warn_msg)
+        else:
+            _LOGGER.error("Error: Invalid PV configuration.")
+            raise
+
+    def init_pvs(self, **kws):
+        """PV initialization."""
+        rdbk_pv_name, rset_pv_name, cset_pv_name = self._rdbk_pv_name, \
+                                                   self._rset_pv_name, \
+                                                   self._cset_pv_name
+        if rdbk_pv_name is not None:
+            self._init_rdbk_pv(rdbk_pv_name, **kws)
+        if rset_pv_name is not None:
+            self._init_rset_pv(rset_pv_name, **kws)
+        if cset_pv_name is not None:
+            self._init_cset_pv(cset_pv_name, **kws)
+
+    def _init_rdbk_pv(self, pv, **kws):
+        self.readback_pv = PV(pv, **kws)
+
+    def _init_rset_pv(self, pv, **kws):
+        self.readset_pv = PV(pv, **kws)
+
+    def _init_cset_pv(self, pv, **kws):
+        self.setpoint_pv = PV(pv, **kws)
+
+    def update(self, **kws):
+        """Update PV with defined handle."""
+        rdbk_pv_name = kws.get('readback', None)
+        if rdbk_pv_name is not None:
+            self._rdbk_pv_name = rdbk_pv_name
+        rset_pv_name = kws.get('readset', None)
+        if rset_pv_name is not None:
+            self._rset_pv_name = rset_pv_name
+        cset_pv_name = kws.get('setpoint', None)
+        if cset_pv_name is not None:
+            self._cset_pv_name = cset_pv_name
+
+    def pvs(self):
+        """Return dict of valid pv type and names."""
+        pv_types = ('readback', 'readset', 'setpoint')
+        pv_names = (self.readback, self.readset, self.setpoint)
+        pv_dict = dict(zip(pv_types, pv_names))
+        return {k: v for k, v in pv_dict.items() if v is not None}
+
+
+################################################################################
+
+    # def _insert_in_order(self, lst, v):
+    #     """
+    #     insert `v` to an ordered list `lst`
+    #     """
+    #     if len(lst) == 0 or self.order == UNSPECIFIED:
+    #         if isinstance(v, (tuple, list)):
+    #             lst.extend(v)
+    #         else:
+    #             lst.append(v)
+    #         return 0
+    #
+    #     if self.order == ASCENDING:
+    #         for i, x in enumerate(lst):
+    #             if x < v:
+    #                 continue
+    #             lst.insert(i, v)
+    #             return i
+    #     elif self.order == DESCENDING:
+    #         for i, x in enumerate(lst):
+    #             if x > v:
+    #                 continue
+    #             lst.insert(i, v)
+    #             return i
+    #
+    #     lst.append(v)
+    #     return len(lst) - 1
+    #
+    # def _all_within_range(self, v, lowhigh):
+    #     """if lowhigh is not valid, returns true"""
+    #     # did not check for string type
+    #     if isinstance(v, basestring):
+    #         return True
+    #     if lowhigh is None:
+    #         return True
+    #
+    #     low, high = lowhigh
+    #     if isinstance(v, (float, int)):
+    #         if low is None:
+    #             return v <= high
+    #         elif high is None:
+    #             return v >= low
+    #         elif high <= low:
+    #             return True
+    #         elif v > high or v < low:
+    #             return False
+    #         else:
+    #             return True
+    #     elif isinstance(v, (list, tuple)):
+    #         for vi in v:
+    #             if not self._all_within_range(vi, lowhigh):
+    #                 return False
+    #         return True
+    #     else:
+    #         raise RuntimeError("unknow data type '{0}:{1}'".format(v, type(v)))
+    #
+    # def setReadbackPv(self, pv, idx=None):
+    #     """
+    #     set/replace the PV for readback.
+    #
+    #     :param str pv: PV name
+    #     :param int idx: index in the PV list
+    #
+    #     `idx` is needed if such readback has a list
+    #     of PVs.  if idx is None, replace the original one. if idx is an index
+    #     integer and pv is not a list, then replace the one with this index.
+    #     """
+    #     if idx is None:
+    #         if isinstance(pv, basestring):
+    #             self.pvrb = [pv]
+    #         elif isinstance(pv, (tuple, list)):
+    #             self.pvrb = [p for p in pv]
+    #         while len(self.golden) < len(self.pvrb):
+    #             self.golden.append(None)
+    #     elif not isinstance(pv, (tuple, list)):
+    #         while idx >= len(self.pvrb):
+    #             self.pvrb.append(None)
+    #         while idx >= len(self.golden):
+    #             self.golden.append(None)
+    #         self.pvrb[idx] = pv
+    #     else:
+    #         raise RuntimeError("invalid readback pv '%s' for position '%s'" %
+    #                            (str(pv), str(idx)))
+    #
+    # def setSetpointPv(self, pv, idx=None, **kwargs):
+    #     """
+    #     set the PV for setpoint at position idx.
+    #
+    #     :param str pv: PV name
+    #     :param int idx: index in the PV list.
+    #
+    #     if idx is None, replace the original one. if idx is an index integer
+    #     and pv is not a list, then replace the one with this index.
+    #
+    #     seealso :func:`setStepSize`, :func:`setBoundary`
+    #     """
+    #     # lim = kwargs.get("boundary", None)
+    #     # h = kwargs.get("step_size", None)
+    #     if idx is None:
+    #         if isinstance(pv, basestring):
+    #             self.pvsp = [pv]
+    #         elif isinstance(pv, (tuple, list)):
+    #             self.pvsp = [p for p in pv]
+    #         # lim_h = [self._get_sp_lim_h(pvi) for pvi in self.pvsp]
+    #         # None means not checked yet. (None, None) checked but no limit
+    #         self.pvlim = [None] * len(self.pvsp)
+    #         self.pvh = [None] * len(self.pvsp)
+    #         self.golden = [None] * len(self.pvsp)
+    #     elif not isinstance(pv, (tuple, list)):
+    #         while idx >= len(self.pvsp):
+    #             self.pvsp.append(None)
+    #             self.pvh.append(None)
+    #             self.pvlim.append(None)
+    #             self.golden.append(None)
+    #         self.pvsp[idx] = pv
+    #         self.pvlim[idx] = None
+    #         self.pvh[idx] = None
+    #         self.golden[idx] = None
+    #     else:
+    #         raise RuntimeError("invalid setpoint pv '%s' for position '%s'" %
+    #                            (str(pv), str(idx)))
+    #
+    #     # roll the buffer.
+    #     self._sp1 = self.sp
+    #     self.sp = []
+
+
+class CaElement(AbstractElement):
+    """Element with Channel Access support.
+
+    This class could be used to create an element with data from Channel Finder Service
+    or input keyword parameters.
+
+    Parameters
+    ----------
+    enable : True or False
+        Element is enabled or not, ``True`` is controllable, default is True.
+
+    Keyword Arguments
+    -----------------
+    name : str
+        Element name.
+    family : str
+        Element type.
+    index : int
+        Element index, default sort key, otherwise, ``sb`` is used as sort key.
+    length : float
+        Effective element length.
+    sb : float
+        Longitudinal position at the beginning point, unit: *m*.
+    se : float
+        Longitudinal position at the end point, unit: *m*.
+    virtual : bool
+        pass
+    tags : dict
+        pass
+    fields : dict
+        pass
+    enable : True or False
+        Element is enabled or not, ``True`` is controllable, default is True.
+    """
+    def __init__(self, **kws):
+        self.__dict__['_fields'] = dict()
+        self.virtual = kws.get('virtual', None)
+        self.tags = kws.get('tags', None)
+        super(CaElement, self).__init__(**kws)
+        ###
+        # self._golden = {}  # the golden values for fields.
+        # self._pvarchive = []
+        # self.trace = kws.get('trace', False)
+        # self.alias = []
+        ###
+
+    @property
+    def tags(self):
+        """dict: Tags that element has been assigned."""
+        return self._tags
+
+    @tags.setter
+    def tags(self, t):
+        if t is None:
+            self._tags = dict()
+        elif isinstance(t, dict):
+            self._tags = t
+        else:
+            _LOGGER.warn("'tags' should be a valid dict.")
+
+    @property
+    def virtual(self):
+        """bool: Virtual element or not."""
+        return self._virtual
+
+    @virtual.setter
+    def virtual(self, b):
+        if b is None:
+            self._virtual = False
+        else:
+            self._virtual = bool(b)
+
+    @property
+    def fields(self):
+        """list: Valid Channel Access field names.
+
+        Warnings
+        --------
+        *fields* can only accept dict, with CA field name as key and ``CaField`` as value.
+        """
+        return self._fields.keys()
+
+    @fields.setter
+    def fields(self, f):
+        if f is None:
+            self._fields = dict()
+        elif isinstance(f, dict):
+            self._fields = f
+        else:
+            _LOGGER.warn("'fields' should be a valid dict.")
+
+    def _update_ca_props(self, props, **kws):
+        """CA"""
+        handle_name = props.get('handle', None)
+        field_name = props.get('field', None)
+        pv = kws.get('pv', None)
+        if field_name is not None:
+            self.set_field(field_name, pv, handle_name)
+
+    def set_field(self, field, pv, handle=None):
+        """Set element field with CA support.
+
+        Parameters
+        ----------
+        field : str
+            Field name.
+        pv : str
+            Valid PV name.
+        handle : str
+            PV channel type, valid options: ``readback``, ``readset``,
+            ``setpoint``, default is ``readback``.
+        """
+        if handle is None:
+            handle = 'readback'
+        if field not in self._fields:
+            new_field = CaField(name=field, **{handle: pv})
+            self._fields[field] = new_field
+        else:
+            self._fields[field].update(**{handle: pv})
+        _LOGGER.debug("Process '{0}' PV: {1}.".format(handle, pv))
+
+    def update_properties(self, props, **kws):
         """Update element properties.
 
         Parameters
         ----------
-        prpt : dict
-            Dictionary of properties, valid keys:
-            
-            - *devname*: device name
-            - *cell*: cell
-            - *girder*: girder
-            - *symmetry*: symmetry
-            - *phylen*: physical length
-            - *length*: effective/magnetic length
-            - *sb*: s-loc of the entrance (effective length)
-            - *se*: s-loc of the exit (effective length)
-            - *index*: index in lattice
+        props : dict
+            Dictionary of properties, two categories:
+            - static properties: without CA features
+                + *name*
+                + *family*
+                + *index*
+                + *se*
+                + *length*
+            - dynamic properties: with CA features
+                + *handle*
+                + *field*
 
-        This update will not synchronize element properties, e.g. calculate
-        length from sb and se, or se from sb and length.
+        Keyword Arguments
+        -----------------
+        pv : str
+            Valid PV name.
         """
+        prop_st = {k:v for k,v in props.items() if k in VALID_STATIC_KEYS}
+        prop_ca = {k:v for k,v in props.items() if k in VALID_CA_KEYS}
+        self._update_static_props(prop_st)
+        self._update_ca_props(prop_ca, **kws)
 
-        if 'family' in prpt:
-            # rename the family name, append to group. The family name is kept
-            # unique, but "pushed" old family name to group name
-            newfam = prpt['family']
-            if newfam not in self.group:
-                # TODO more proper way to handle family 
-                self.group.add(newfam)
-            self.family = newfam
+    def update_tags(self, tags, **kws):
+        """Update element tags.
 
-        if 'devname' in prpt:
-            self.devname = prpt['devname']
-        if 'cell' in prpt:
-            self.cell = prpt['cell']
-        if 'girder' in prpt:
-            self.girder = prpt['girder']
-        if 'symmetry' in prpt:
-            self.symmetry = prpt['symmetry']
+        Parameters
+        ----------
+        tags : list
+            List of tags.
 
-        if 'phylen' in prpt:
-            self.phylen = float(prpt['phylen'])
-        if 'length' in prpt:
-            self.length = float(prpt['length'])
-        if 'se' in prpt:
-            self.se = float(prpt['se'])
-        if 'sb' in prpt:
-            self.sb = float(prpt['sb'])
-        if 'index' in prpt:
-            self.index = int(prpt['index'])
-
-    def isEnabled(self):
-        return not (self.flag & _DISABLED)
-
-    def setEnabled(self, b):
-        if b:
-            self.flag = self.flag & ~_DISABLED
+        Keyword Arguments
+        -----------------
+        pv : str
+            Valid PV name.
+        """
+        pv_name = kws.get('pv', None)
+        if pv_name is None:
+            return None
+        if pv_name in self._tags:
+            self._tags[pv_name].update(tags)
         else:
-            self.flag = self.flag | _DISABLED
+            self._tags[pv_name] = set(tags)
 
+    def process_pv(self, pv_name, pv_props, pv_tags=None):
+        """Process PV record to update element with properties and tags.
 
-class CaAction(object):
-    """Manages channel access for an element field.
-
-    it manages a list of readback and setpoint PVs. Each PV has its own
-    stepsize and value range.
-
-    If *trace* is True, every readback/setpoint will be recorded for later
-    reset/revert whenever the get/put functions are called. Extra history
-    point can be recorded by calling *mark*.
-
-    None in unit conversion means the lower level unit, like the PV in EPICS.
-    """
-    ALLDATA = 0
-    READBACK = 1
-    SETPOINT = 2
-    GOLDEN = 3
-
-    def __init__(self, **kwargs):
-        self.pvrb = []  # readback pv
-        self.pvsp = []  # setpoint pv
-        # self.unitconv = {}
-        self.ucrb = {}  # unit conversion for readback
-        self.ucsp = {}  # unit conversion for setpoint
-        self.golden = []  # some setpoint can saved as golden value
-        self.pvh = []  # step size
-        self.pvlim = []  # lower/upper limit
-        # buffer the initial value and last setting/reading
-        self.pvrbunit = ''  # unit for readback PVs
-        self.pvspunit = ''  # overwrite unit in unit conversions
-        self.rb = []  # bufferred readback value
-        self.sp = []  # bufferred setpoint value
-        self._sp1 = []  # the last bufferred sp value when sp dimension changes.
-        self.field = ''
-        self.desc = kwargs.get('desc', None)
-        self.order = ASCENDING
-        self.opflags = 0
-        self.trace = kwargs.get('trace', False)
-        self.trace_limit = 200
-        self.timeout = 2
-        self.sprb_epsilon = 0
-
-    def __eq__(self, other):
-        return self.pvrb == other.pvrb and \
-               self.pvsp == other.pvsp and \
-               self.field == other.field and \
-               self.desc == other.desc
-
-    def _insert_in_order(self, lst, v):
+        Parameters
+        ----------
+        pv_name : str
+            PV name.
+        pv_props : dict
+            PV properties, key-value pairs.
+        pv_tags : list
+            PV tag list.
         """
-        insert `v` to an ordered list `lst`
-        """
-        if len(lst) == 0 or self.order == UNSPECIFIED:
-            if isinstance(v, (tuple, list)):
-                lst.extend(v)
-            else:
-                lst.append(v)
-            return 0
+        if not isinstance(pv_name, basestring):
+            raise TypeError("{} is not a valid type".format(type(pv_name)))
 
-        if self.order == ASCENDING:
-            for i, x in enumerate(lst):
-                if x < v:
-                    continue
-                lst.insert(i, v)
-                return i
-        elif self.order == DESCENDING:
-            for i, x in enumerate(lst):
-                if x > v:
-                    continue
-                lst.insert(i, v)
-                return i
+        # properties
+        self.update_properties(pv_props, pv=pv_name)
+        # tags
+        self.update_tags(pv_tags, pv=pv_name)
+        self.update_groups(pv_props, pv=pv_name)
 
-        lst.append(v)
-        return len(lst) - 1
+    def update_groups(self, props, **kws):
+        """Update new group with *family* name.
 
-    def _unit_conv(self, x, src, dst, unitconv):
-        if (src, dst) == (None, None):
-            return x
-
-        # try (src, dst) first
-        uc = unitconv.get((src, dst), None)
-        if uc is not None:
-            return uc.eval(x)
-
-        # then inverse (dst, src)
-        uc = unitconv.get((dst, src), None)
-        if uc is not None and uc.invertible:
-            return uc.eval(x, True)
-        else:
-            raise RuntimeError("no method for unit conversion from "
-                               "'%s' to '%s'" % (src, dst))
-
-    def _all_within_range(self, v, lowhigh):
-        """if lowhigh is not valid, returns true"""
-        # did not check for string type
-        if isinstance(v, (str, unicode)):
-            return True
-        if lowhigh is None:
-            return True
-
-        low, high = lowhigh
-        if isinstance(v, (float, int)):
-            if low is None:
-                return v <= high
-            elif high is None:
-                return v >= low
-            elif high <= low:
-                return True
-            elif v > high or v < low:
-                return False
-            else:
-                return True
-        elif isinstance(v, (list, tuple)):
-            for vi in v:
-                if not self._all_within_range(vi, lowhigh):
-                    return False
-            return True
-        else:
-            raise RuntimeError("unknow data type '{0}:{1}'".format(v, type(v)))
-
-    def setReadbackPv(self, pv, idx=None):
-        """
-        set/replace the PV for readback.
- 
-        :param str pv: PV name
-        :param int idx: index in the PV list
- 
-        `idx` is needed if such readback has a list
-        of PVs.  if idx is None, replace the original one. if idx is an index
-        integer and pv is not a list, then replace the one with this index.
-        """
-        if idx is None:
-            if isinstance(pv, (str, unicode)):
-                self.pvrb = [pv]
-            elif isinstance(pv, (tuple, list)):
-                self.pvrb = [p for p in pv]
-            while len(self.golden) < len(self.pvrb):
-                self.golden.append(None)
-        elif not isinstance(pv, (tuple, list)):
-            while idx >= len(self.pvrb):
-                self.pvrb.append(None)
-            while idx >= len(self.golden):
-                self.golden.append(None)
-            self.pvrb[idx] = pv
-        else:
-            raise RuntimeError("invalid readback pv '%s' for position '%s'" %
-                               (str(pv), str(idx)))
-
-    def setSetpointPv(self, pv, idx=None, **kwargs):
-        """
-        set the PV for setpoint at position idx.
- 
-        :param str pv: PV name
-        :param int idx: index in the PV list.
- 
-        if idx is None, replace the original one. if idx is an index integer
-        and pv is not a list, then replace the one with this index.
- 
-        seealso :func:`setStepSize`, :func:`setBoundary`
-        """
-        # lim = kwargs.get("boundary", None)
-        # h = kwargs.get("step_size", None)
-        if idx is None:
-            if isinstance(pv, (str, unicode)):
-                self.pvsp = [pv]
-            elif isinstance(pv, (tuple, list)):
-                self.pvsp = [p for p in pv]
-            # lim_h = [self._get_sp_lim_h(pvi) for pvi in self.pvsp]
-            # None means not checked yet. (None, None) checked but no limit
-            self.pvlim = [None] * len(self.pvsp)
-            self.pvh = [None] * len(self.pvsp)
-            self.golden = [None] * len(self.pvsp)
-        elif not isinstance(pv, (tuple, list)):
-            while idx >= len(self.pvsp):
-                self.pvsp.append(None)
-                self.pvh.append(None)
-                self.pvlim.append(None)
-                self.golden.append(None)
-            self.pvsp[idx] = pv
-            self.pvlim[idx] = None
-            self.pvh[idx] = None
-            self.golden[idx] = None
-        else:
-            raise RuntimeError("invalid setpoint pv '%s' for position '%s'" %
-                               (str(pv), str(idx)))
-
-        # roll the buffer.
-        self._sp1 = self.sp
-        self.sp = []
-
-
-class CaElement(AbstractElement):
-    """Element with Channel Access ability.
-
-    'field' -> Object Attr.
-    """
-
-    # __slots__ = []
-    def __init__(self, **kwargs):
-        """
-        An element is homogeneous means, it use same get/put function on a
-        list of variables to speed up.        
-        """
-        # AbstractElement.__init__(self, **kwargs)
-        self.__dict__['_field'] = {}
-        self.__dict__['_golden'] = {}  # the golden values for fields.
-        self.__dict__['_pvtags'] = {}
-        self.__dict__['_pvarchive'] = []
-        self.__dict__['virtual'] = kwargs.get('virtual', 0)
-        self.__dict__['trace'] = kwargs.get('trace', False)
-        # the linked element, alias
-        self.__dict__['alias'] = []
-
-        # update all element properties
-        super(CaElement, self).__init__(**kwargs)
-
-    def __setstate__(self, data):
-        for (name, value) in data.items():
-            if name in ['_field', '_pvtags']:
-                self.__dict__[name] = value
-            else:
-                super(CaElement, self).__setattr__(name, value)
-
-    def _pv_1(self, **kwargs):
-        """Find the pv when len(kwargs)==1.
-        
-        - tag: 
-        - tags: all tags are met
-        - field: return pvrb + pvsp
-        """
-        if kwargs.get('tag', None):
-            return self._pv_tags([kwargs['tag']])
-        elif kwargs.get('tags', None):
-            return self._pv_tags(kwargs['tags'])
-        elif kwargs.get('field', None):
-            att = kwargs['field']
-            if att in self._field:
-                decr = self._field[att]
-                return decr.pvrb + decr.pvsp
-            else:
-                return []
-        elif kwargs.get('handle', None):
-            pvl = []
-            if kwargs["handle"] == "setpoint":
-                for _, act in self._field.items():
-                    pvl.extend(act.pvsp)
-            elif kwargs["handle"] == "readback":
-                for _, act in self._field.items():
-                    pvl.extend(act.pvrb)
-            return pvl
-        return []
-
-    def _pv_tags(self, tags):
-        """
-        return pv list which has all the *tags*.
-        """
-        tagset = set(tags)
-        return [pv for pv, ts in self._pvtags.items()
-                if tagset.issubset(ts) and ts]
-
-    def _pv_fields(self, fields):
-        """
-        return pv list which has all fields in the input
-        """
-        fieldset = set(fields)
-        ret = []
-        for k, v in self._field.items():
-            # print k, v
-            if k in fieldset:
-                ret.extend(v['eget'])
-                ret.extend(v['eput'])
-        return ret
-
-    def pv(self, **kwargs):
-        """Search for pv with specified *tag*, *tags*, *field*, *handle* or a
-        combinatinon of *field* and *handle*.
-
-        Returns
-        -------
-        ret : list
-            List of PV names.
-
-        Examples
-        --------
-        >>> pv() # returns all pvs.
-        >>> pv(tag='phyutil.sys.LS1')
-        >>> pv(tag='aphla.X')
-        >>> pv(tags=['aphla.EGET', 'aphla.Y'])
-        >>> pv(field = "x")
-        >>> pv(field="x", handle='readback')
+        Parameters
+        ----------
+        props : dict
+            Element properties.
 
         See Also
         --------
-        :class:`CaAction`
+        update_properties
         """
-        if len(kwargs) == 0:
-            return self._pvtags.keys()
-        elif len(kwargs) == 1:
-            return self._pv_1(**kwargs)
-        elif len(kwargs) == 2:
-            handle = kwargs.get('handle', None)
-            fd = kwargs.get('field', None)
-            if fd not in self._field:
-                return []
-            if handle == 'readback':
-                return self._field[kwargs['field']].pvrb
-            elif handle == 'setpoint':
-                return self._field[kwargs['field']].pvsp
-            else:
-                return []
+        new_group = self.family
+        if new_group not in self._group:
+            self._group.add(new_group)
+
+    def __getattr__(self, key):
+        if key in self._fields:
+            return self._fields[key].value
         else:
-            return []
+            raise AttributeError(
+                "element {} does not have field {}.".format(self.name, key)
+            )
 
-    def hasPv(self, pv, inalias=False):
-        """Check if this element has pv.
-
-        inalias=True will also check its alias elements. 
-
-        If the alias (child) has its aliases (grand children), they are not
-        checked. (no infinite loop)
-        """
-        if pv in self._pvtags:
-            return True
-        if inalias is True:
-            for e in self.alias:
-                # if e.hasPv(pv): return True
-                if pv in e._pvtags:
-                    return True
-        return False
-
-    def addAliasField(self, newfld, fld):
-        self._field[newfld] = copy.deepcopy(self._field[fld])
-
-    def status(self):
-        """String representation of value, golden setpoint, range for each
-        field.
-        """
-        ret = self.name
-        if not self._field.keys():
-            return ret
-
-        maxlen = max([len(att) for att in self._field.keys()])
-        head = '\n%%%ds: ' % (maxlen + 2)
-        for att in self._field.keys():
-            decr = self._field[att]
-            if not decr:
-                continue
-            val = decr.getReadback()
-            val1 = decr.getGolden()
-            val2 = decr.boundary()
-            ret = ret + head % att + str(val) + " (%s) " % str(val1) + " [%s]" % str(val2)
-        return ret
-
-    def __getattr__(self, att):
-        # called after checking __dict__
-        if att not in self._field:
-            raise AttributeError("element '%s' has no field '%s'" %
-                                 (self.name, att))
+    def __setattr__(self, key, value):
+        if key in self._fields:
+            self._fields[key].value = value
         else:
-            decr = self._field.get(att, None)
-            if decr is None:
-                raise AttributeError("field %s of %s is not defined" \
-                                     % (att, self.name))
-            x = decr.getReadback()
-            if x is not None:
-                return x
-            x = decr.getSetpoint()
-            if x is not None:
-                return x
-            raise AttributeError("error when reading field %s" % att)
-
-    def __setattr__(self, att, val):
-        # this could be called by AbstractElement.__init__ or Element.__init__
-        # Note: the quick way has wait=False
-        if hasattr(super(CaElement, self), att):
-            super(CaElement, self).__setattr__(att, val)
-        elif att in self.__dict__['_field']:
-            decr = self.__dict__['_field'][att]
-            if not decr:
-                raise AttributeError("field '%s' is not defined for '%s'" % (
-                    att, self.name))
-            if not decr.pvsp:
-                raise ValueError("field '%s' in '%s' is not writable" % (
-                    att, self.name))
-            decr.putSetpoint(val, wait=False)
-            # if _field_trig exists, trig it, do not wait
-            decr_trig = self.__dict__['_field'].get(att + "_trig", None)
-            if decr_trig:
-                decr_trig.putSetpoint(1, wait=False)
-        elif att in self.__dict__.keys():
-            self.__dict__[att] = val
-        else:
-            # new attribute for superclass
-            super(CaElement, self).__setattr__(att, val)
-            # raise AttributeError("Error")
-        for e in self.alias:
-            e.__setattr__(att, val)
-
-    def _get_unitconv(self, field, handle):
-        if field not in self._field:
-            return {}
-        if handle == "readback":
-            return self._field[field].ucrb
-        elif handle == "setpoint":
-            return self._field[field].ucsp
-        else:
-            return {}
-
-    def convertible(self, field, src, dst, handle="readback"):
-        """Check the unit conversion is possible or not.
-
-        Returns
-        -------
-        ret : True or False
-            If no specified handle, returns False.
-        """
-        if field not in self._field:
-            return False
-
-        if src is None and dst is None:
-            return True
-
-        unitconv = self._get_unitconv(field, handle)
-
-        if (src, dst) in unitconv:
-            return True
-
-        uc = unitconv.get((dst, src), None)
-        if uc is not None and uc.invertible:
-            return True
-        return False
-
-    def addUnitConversion(self, field, uc, src, dst, handle=None):
-        """Add unit conversion for field."""
-        # src, dst is unit system name, e.g. None for raw, phy
-        if handle is None or handle == "readback":
-            self._field[field].ucrb[(src, dst)] = uc
-            if src is None:
-                self._field[field].pvrbunit = uc.srcunit
-            elif dst is None:
-                self._field[field].pvrbunit = uc.dstunit
-        if handle is None or handle == "setpoint":
-            self._field[field].ucsp[(src, dst)] = uc
-            if src is None:
-                self._field[field].pvspunit = uc.srcunit
-            elif dst is None:
-                self._field[field].pvspunit = uc.dstunit
-
-    def convertUnit(self, field, x, src, dst, handle="readback"):
-        """Convert value x between units without setting hardware"""
-        uc = self._get_unitconv(field, handle)
-        return self._field[field]._unit_conv(x, src, dst, uc)
-
-    def get_unit_systems(self, field, handle="readback"):
-        """Get a list of all unit systems for field. 
-
-        None is the lower level unit, e.g. in EPICS channel. Use convertible
-        to see if the conversion is possible between any two unit systems.
-        """
-        unitconv = self._get_unitconv(field, handle)
-        if not unitconv:
-            return [None]
-
-        src, dst = zip(*(unitconv.keys()))
-
-        ret = set(src).union(set(dst))
-        return list(ret)
-
-    def getUnitSystems(self, field=None, handle="readback"):
-        """Return a list of available unit systems for field. 
-
-        If no field specified, return a dictionary for all fields and their
-        unit systems.
-
-        None means the unit used in the lower level control system, e.g. EPICS.
-        """
-        if field is None:
-            return dict([(f, self.get_unit_systems(f, handle)) for f \
-                         in self._field.keys()])
-        else:
-            return self.get_unit_systems(field, handle)
-
-    def getUnit(self, field, unitsys='phy', handle="readback"):
-        """Get the unit symbol of a unit system, e.g. unitsys='phy'
-
-        The unit name, e.g. "T/m" for integrated quadrupole strength, is
-        helpful for plotting routines.
-
-        return '' if no such unit system. A tuple of all handles when *handle*
-        is None
-        """
-        if field in self._field and unitsys is None:
-            if handle == "readback":
-                return self._field[field].pvrbunit
-            elif handle == "setpoint":
-                return self._field[field].pvspunit
-            else:
-                return ""
-
-        unitconv = self._get_unitconv(field, handle)
-        for k, v in unitconv.items():
-            if k[0] == unitsys:
-                return v.srcunit
-            elif k[1] == unitsys:
-                return v.dstunit
-
-        return ""
-
-    def setUnit(self, field, u, unitsys='phy', handle="readback"):
-        """Set the unit symbol for a unit system.
-        """
-        if field not in self._field.keys():
-            raise RuntimeError("element '%s' has no '%s' field" % \
-                               self.name, field)
-
-        if unitsys is None:
-            self._field[field].pvunit = u
-
-        for k, v in self._get_unitconv(field, handle).items():
-            if k[0] == unitsys:
-                v.srcunit = u
-            elif k[1] == unitsys:
-                v.dstunit = u
-
-    def getEpsilon(self, field):
-        return self._field[field].sprb_epsilon
-
-    def setEpsilon(self, field, eps):
-        self._field[field].sprb_epsilon = eps
-
-    def update_pv_record(self, pvname, properties, tags=[]):
-        """Update PV with properties (dict) and tags(list).
-        """
-        if not isinstance(pvname, (str, unicode)):
-            raise TypeError("%s is not a valid type" % (type(pvname)))
-
-        # update the properties
-        if properties is not None:
-            self.update_properties(properties)
-
-        # the default handle is 'readback'
-        if properties is not None:
-            elemhandle = properties.get('handle', 'readback')
-            fieldfname = properties.get('field', None)
-            pvunit = properties.get('unit', '')
-            if fieldfname is not None:
-                g = re.match(r'([\w\d]+)(\[\d+\])?', fieldfname)
-                if g is None:
-                    raise ValueError("invalid field '%s'" % fieldfname)
-                fieldname, idx = g.group(1), g.group(2)
-                if idx is not None:
-                    idx = int(idx[1:-1])
-                if elemhandle == 'readback':
-                    self.set_get_action(pvname, fieldname, idx)
-                elif elemhandle == 'setpoint':
-                    self.set_put_action(pvname, fieldname, idx)
-                elif elemhandle == 'readset':
-                    # TODO Add support for read set pvs
-                    # slient ignore that handle for now
-                    pass
-                else:
-                    raise ValueError("invalid handle value '%s' for pv '%s'" %
-                                     (elemhandle, pvname))
-                if pvunit:
-                    self._field[fieldname].pvunit = pvunit
-                _logger.debug("'%s' field '%s'[%s] = '%s'" % (
-                    elemhandle, fieldname, idx, pvname))
-                if "epsilon" in properties:
-                    self.setEpsilon(fieldname, properties["epsilon"])
-
-        # check element field
-        # for t in tags:
-        #    g = re.match(r'aphla.elemfield.([\w\d]+)(\[\d+\])?', t)
-        #    if g is None: continue
-        #
-        #    fieldname, idx = g.group(1), g.group(2)
-        #    if idx is not None: 
-        #        idx = int(idx[1:-1])
-        #        _logger.info("%s %s[%d]" % (pvname, fieldname, idx))
-
-        # update the (pv, tags) dictionary
-        if pvname in self._pvtags.keys():
-            self._pvtags[pvname].update(tags)
-        else:
-            self._pvtags[pvname] = set(tags)
-
-    def set_get_action(self, v, field, idx=None, desc=''):
-        """Set the action when reading *field*.
-    
-        The previous action will be replaced if it was defined.
-        *v* is single PV or a list/tuple
-        """
-        if field not in self._field:
-            # TODO later how to set channel access
-            # should not handle in this library
-            self._field[field] = CaAction(trace=self.trace)
-
-        self._field[field].setReadbackPv(v, idx)
-
-    def set_put_action(self, v, field, idx=None, desc=''):
-        """Set the action for writing *field*.
-    
-        The previous action will be replaced if it was define.
-        *v* is a single PV or a list/tuple
-        """
-        if field not in self._field:
-            # TODO later how to set channel access
-            self._field[field] = CaAction(trace=self.trace)
-
-        self._field[field].setSetpointPv(v, idx)
-
-    def fields(self):
-        """Return element's fields, not sorted."""
-        return self._field.keys()
-
-    def stepSize(self, field):
-        """Return the stepsize of field (hardware unit)"""
-        return self._field[field].stepSize()
-
-    def updateBoundary(self, field=None, lowhi=None, r=None):
-        """Update the boundary for field.
-        
-        Parameters
-        ----------
-        field :
-        lowhi : tuple
-            Low(low) and high(hi) boundary. e.g. (0, 1) 
-        r : int
-            Divide the range (hi-low) by r to get the stepsize.
-
-        Examples
-        --------
-        >>> updateBoundary('b1', (0, 2), 10) 
-
-        The above example sets 'b1' range to (0, 2) and stepsize 0.2
-
-        If this field has been set once, its boundary has been updated at the
-        first time putting a value to it. Since putting a value needs to know
-        the boundary and check if the value is inside.
-        """
-        if field is None:
-            fields = self._field.keys()
-        else:
-            fields = [field]
-
-        kw = {}
-        if lowhi is not None:
-            kw['low'] = lowhi[0]
-            kw['high'] = lowhi[1]
-
-        if r is not None:
-            kw['r'] = r
-        for fld in fields:
-            self._field[fld].setBoundary(**kw)
-
-    def boundary(self, field=None):
-        """Return the (low, high) range of *field* or all fields (raw unit)"""
-        if field is not None:
-            return self._field[field].boundary()
-        else:
-            return dict([(fld, act.boundary())
-                         for fld, act in self._field.items()])
+            super(CaElement, self).__setattr__(key, value)
 
     def __dir__(self):
-        return dir(CaElement) + list(self.__dict__) + self._field.keys()
+        return dir(CaElement) + self._fields.keys() + self.__dict__.keys()
 
     def __repr__(self):
         if self.virtual:
             return "%s [%s] (virtual)" % (self.name, self.family)
         else:
-            return AbstractElement.__repr__(self)
+            return super(CaElement, self).__repr__()
 
-    def enableTrace(self, fieldname):
-        if not self._field[fieldname].trace:
-            self._field[fieldname].trace = True
-            self._field[fieldname].sp = []
-            self._field[fieldname].mark('setpoint')
-
-    def disableTrace(self, fieldname):
-        if self._field[fieldname].trace:
-            self._field[fieldname].trace = False
-            self._field[fieldname].sp = []
-
-    def disableField(self, fieldname):
-        self._field[fieldname].opflags |= _DISABLED
-
-    def enableField(self, fieldname):
-        self._field[fieldname].opflags &= ~_DISABLED
-
-    def setFieldReadonly(self, fieldname):
-        self._field[fieldname].opflags |= _READONLY
-
-    def resetFieldReadonly(self, fieldname):
-        self._field[fieldname].opflags &= ~_READONLY
-
-    def revert(self, fieldname):
-        """undo the field value to its previous one"""
-        self._field[fieldname].revert()
-        for e in self.alias:
-            e._field[fieldname].revert()
-
-    def mark(self, fieldname, handle='setpoint'):
-        self._field[fieldname].mark(handle)
-        for e in self.alias:
-            e._field[fieldname].mark(handle)
-
-    def reset(self, fieldname, data='golden'):
-        """data='golden' or 'origin'. see CaAction::reset()"""
-        self._field[fieldname].reset(data)
-        for e in self.alias:
-            e._field[fieldname].reset(data)
-
-    def get(self, fields, handle='readback', unitsys='phy'):
-        """Get the values for given fields. None if not exists.
+    def pv(self, field=None, handle=None, **kws):
+        """Get PV names with defined *field* and *handle*, if none of them is defined,
+        return all PV names.
 
         Parameters
         ----------
-        fields : str, list
-            field.
+        field : str or list
+            Channel access field name, all available fields will be used
+            if not defined, ignore invalid field.
         handle : str
-            'readback', 'setpoint' or 'golden'.
-        unitsys : the unit system
-            None for lower level unit.
+            Channel access protocol type, could be one of *readback*, *readset*
+            and *setpoint*.
 
-        Examples
-        --------
-        >>> get('x')
-        >>> get(['x', 'y'])
-        >>> get(['x', 'unknown'])
-        [ 0, None]
+        Note
+        ----
+        1. All Valid field names could be retrieved by ``fields`` attribute.
+        2. If more than one field is defined with *field*, i.e. *field* is a list
+           of string, return PV names binding with these fields, may apply *handle*
+           as a filter, e.g. if *handle* is not defined, return all PVs.
+
+        Returns
+        -------
+        ret : list
+            List of valid PVs as request.
         """
-        kw = {'handle': handle, 'unitsys': unitsys}
-        if isinstance(fields, (str, unicode)):
-            return self._get_field(fields, **kw)
+        pvs = list()
+        if field is None and handle is None:
+            for _,v in self._fields.items():
+                pvs.extend(v.pvs().values())
         else:
-            # a list of fields
-            return [self._get_field(v, **kw) for v in fields]
+            f_pv = list()
+            if field is None:
+                field = self.fields
+            elif isinstance(field, basestring):
+                field = field,
 
-    def _put_field(self, field, val, unitsys, **kwargs):
-        """Set *val* to *field*. handle='golden' will set value as golden.
+            for f in [k for k in field if k in self.fields]:
+                f_pv.append(self._fields.get(f).pvs())
 
-        See Also
-        --------
-        :func:`pv(field=field)`
-        """
-        att = field
-        if att not in self.__dict__['_field']:
-            raise RuntimeError("field '%s' is not defined for '%s'" % (
-                att, self.name))
+            for pv_i in f_pv:
+                if handle is None:
+                    pvs.extend([v for k,v in pv_i.items() if v is not None])
+                elif handle in ['readback', 'setpoint', 'readset']:
+                    pvs.extend([v for k,v in pv_i.items() if v is not None and k == handle])
+                else:
+                    print("Invalid handle, valid options: " +
+                          "'readback', 'readset', 'setpoint'.")
+                    break
+        return pvs
 
-        decr = self.__dict__['_field'][att]
-        if not decr:
-            raise AttributeError("field '%s' is not defined for '%s'" % (
-                att, self.name))
-        if not decr.pvsp:
-            raise ValueError("field '%s' in '%s' is not writable" % (
-                att, self.name))
 
-        bc = kwargs.get('bc', 'exception')
-        wait = kwargs.get("wait", True)
-        timeout = kwargs.get("timeout", 5)
-        decr.putSetpoint(val, unitsys, bc=bc, wait=wait, timeout=timeout)
+#     def _pv_1(self, **kwargs):
+#         """Find the pv when len(kwargs)==1.
+#
+#         - tag:
+#         - tags: all tags are met
+#         - field: return pvrb + pvsp
+#         """
+#         if kwargs.get('tag', None):
+#             return self._pv_tags([kwargs['tag']])
+#         elif kwargs.get('tags', None):
+#             return self._pv_tags(kwargs['tags'])
+#         elif kwargs.get('field', None):
+#             att = kwargs['field']
+#             if att in self._field:
+#                 decr = self._field[att]
+#                 return decr.pvrb + decr.pvsp
+#             else:
+#                 return []
+#         elif kwargs.get('handle', None):
+#             pvl = []
+#             if kwargs["handle"] == "setpoint":
+#                 for _, act in self._field.items():
+#                     pvl.extend(act.pvsp)
+#             elif kwargs["handle"] == "readback":
+#                 for _, act in self._field.items():
+#                     pvl.extend(act.pvrb)
+#             return pvl
+#         return []
+#
+#     def _pv_tags(self, tags):
+#         """
+#         return pv list which has all the *tags*.
+#         """
+#         tagset = set(tags)
+#         return [pv for pv, ts in self._pvtags.items()
+#                 if tagset.issubset(ts) and ts]
+#
+#     def _pv_fields(self, fields):
+#         """
+#         return pv list which has all fields in the input
+#         """
+#         fieldset = set(fields)
+#         ret = []
+#         for k, v in self._field.items():
+#             # print k, v
+#             if k in fieldset:
+#                 ret.extend(v['eget'])
+#                 ret.extend(v['eput'])
+#         return ret
+#
+#     def pv(self, **kwargs):
+#         """Search for PV names with specified *tag*, *tags*, *field*, *handle* or a
+#         combinatinon of *field* and *handle*.
+#
+#         Returns
+#         -------
+#         ret : list
+#             List of PV names.
+#
+#         Examples
+#         --------
+#         >>> pv() # returns all pvs.
+#         >>> pv(tag='phyutil.sys.LS1')
+#         >>> pv(tag='aphla.X')
+#         >>> pv(tags=['aphla.EGET', 'aphla.Y'])
+#         >>> pv(field = "x")
+#         >>> pv(field="x", handle='readback')
+#
+#         See Also
+#         --------
+#         :class:`CaAction`
+#         """
+#         if len(kwargs) == 0:
+#             return self._pvtags.keys()
+#         elif len(kwargs) == 1:
+#             return self._pv_1(**kwargs)
+#         elif len(kwargs) == 2:
+#             handle = kwargs.get('handle', None)
+#             fd = kwargs.get('field', None)
+#             if fd not in self._field:
+#                 return []
+#             if handle == 'readback':
+#                 return self._field[kwargs['field']].pvrb
+#             elif handle == 'setpoint':
+#                 return self._field[kwargs['field']].pvsp
+#             else:
+#                 return []
+#         else:
+#             return []
+#
+#     def hasPv(self, pv, inalias=False):
+#         """Check if this element has pv.
+#
+#         inalias=True will also check its alias elements.
+#
+#         If the alias (child) has its aliases (grand children), they are not
+#         checked. (no infinite loop)
+#         """
+#         if pv in self._pvtags:
+#             return True
+#         if inalias is True:
+#             for e in self.alias:
+#                 # if e.hasPv(pv): return True
+#                 if pv in e._pvtags:
+#                     return True
+#         return False
+#
+#     def addAliasField(self, newfld, fld):
+#         self._field[newfld] = copy.deepcopy(self._field[fld])
+#
+#     def status(self):
+#         """String representation of value, golden setpoint, range for each
+#         field.
+#         """
+#         ret = self.name
+#         if not self._field.keys():
+#             return ret
+#
+#         maxlen = max([len(att) for att in self._field.keys()])
+#         head = '\n%%%ds: ' % (maxlen + 2)
+#         for att in self._field.keys():
+#             decr = self._field[att]
+#             if not decr:
+#                 continue
+#             val = decr.getReadback()
+#             val1 = decr.getGolden()
+#             val2 = decr.boundary()
+#             ret = ret + head % att + str(val) + " (%s) " % str(val1) + " [%s]" % str(val2)
+#         return ret
+#
 
-    def put(self, field, val, **kwargs):
-        """Set *val* to *field*.
 
-        Parameters
-        ----------
-        field : str
-            Element field
-        val : float, int
-            The new value.
+# #    def __setattr__(self, att, val):
+# #        # this could be called by AbstractElement.__init__ or Element.__init__
+# #        # Note: the quick way has wait=False
+# #        if hasattr(super(CaElement, self), att):
+# #            super(CaElement, self).__setattr__(att, val)
+# #        elif att in self._field:
+# #            decr = self._field[att]
+# #            if not decr:
+# #                raise AttributeError("field '%s' is not defined for '%s'" % (
+# #                    att, self.name))
+# #            if not decr.pvsp:
+# #                raise ValueError("field '%s' in '%s' is not writable" % (
+# #                    att, self.name))
+# #            decr.putSetpoint(val, wait=False)
+# #            # if _field_trig exists, trig it, do not wait
+# #            decr_trig = self._field.get(att + "_trig", None)
+# #            if decr_trig:
+# #                decr_trig.putSetpoint(1, wait=False)
+# #        elif att in self.__dict__.keys():
+# #            self.__dict__[att] = val
+# #        else:
+# #            # new attribute for superclass
+# #            super(CaElement, self).__setattr__(att, val)
+# #            # raise AttributeError("Error")
+# #        for e in self.alias:
+# #            e.__setattr__(att, val)
+#
+#     def _get_unitconv(self, field, handle):
+#         if field not in self._field:
+#             return {}
+#         if handle == "readback":
+#             return self._field[field].ucrb
+#         elif handle == "setpoint":
+#             return self._field[field].ucsp
+#         else:
+#             return {}
+#
+#     def convertible(self, field, src, dst, handle="readback"):
+#         """Check the unit conversion is possible or not.
+#
+#         Returns
+#         -------
+#         ret : True or False
+#             If no specified handle, returns False.
+#         """
+#         if field not in self._field:
+#             return False
+#
+#         if src is None and dst is None:
+#             return True
+#
+#         unitconv = self._get_unitconv(field, handle)
+#
+#         if (src, dst) in unitconv:
+#             return True
+#
+#         uc = unitconv.get((dst, src), None)
+#         if uc is not None and uc.invertible:
+#             return True
+#         return False
+#
+#     def addUnitConversion(self, field, uc, src, dst, handle=None):
+#         """Add unit conversion for field."""
+#         # src, dst is unit system name, e.g. None for raw, phy
+#         if handle is None or handle == "readback":
+#             self._field[field].ucrb[(src, dst)] = uc
+#             if src is None:
+#                 self._field[field].pvrbunit = uc.srcunit
+#             elif dst is None:
+#                 self._field[field].pvrbunit = uc.dstunit
+#         if handle is None or handle == "setpoint":
+#             self._field[field].ucsp[(src, dst)] = uc
+#             if src is None:
+#                 self._field[field].pvspunit = uc.srcunit
+#             elif dst is None:
+#                 self._field[field].pvspunit = uc.dstunit
+#
+#     def convertUnit(self, field, x, src, dst, handle="readback"):
+#         """Convert value x between units without setting hardware"""
+#         uc = self._get_unitconv(field, handle)
+#         return self._field[field]._unit_conv(x, src, dst, uc)
+#
+#     def get_unit_systems(self, field, handle="readback"):
+#         """Get a list of all unit systems for field.
+#
+#         None is the lower level unit, e.g. in EPICS channel. Use convertible
+#         to see if the conversion is possible between any two unit systems.
+#         """
+#         unitconv = self._get_unitconv(field, handle)
+#         if not unitconv:
+#             return [None]
+#
+#         src, dst = zip(*(unitconv.keys()))
+#
+#         ret = set(src).union(set(dst))
+#         return list(ret)
+#
+#     def getUnitSystems(self, field=None, handle="readback"):
+#         """Return a list of available unit systems for field.
+#
+#         If no field specified, return a dictionary for all fields and their
+#         unit systems.
+#
+#         None means the unit used in the lower level control system, e.g. EPICS.
+#         """
+#         if field is None:
+#             return dict([(f, self.get_unit_systems(f, handle)) for f \
+#                          in self._field.keys()])
+#         else:
+#             return self.get_unit_systems(field, handle)
+#
+#     def getUnit(self, field, unitsys='phy', handle="readback"):
+#         """Get the unit symbol of a unit system, e.g. unitsys='phy'
+#
+#         The unit name, e.g. "T/m" for integrated quadrupole strength, is
+#         helpful for plotting routines.
+#
+#         return '' if no such unit system. A tuple of all handles when *handle*
+#         is None
+#         """
+#         if field in self._field and unitsys is None:
+#             if handle == "readback":
+#                 return self._field[field].pvrbunit
+#             elif handle == "setpoint":
+#                 return self._field[field].pvspunit
+#             else:
+#                 return ""
+#
+#         unitconv = self._get_unitconv(field, handle)
+#         for k, v in unitconv.items():
+#             if k[0] == unitsys:
+#                 return v.srcunit
+#             elif k[1] == unitsys:
+#                 return v.dstunit
+#
+#         return ""
+#
+#     def setUnit(self, field, u, unitsys='phy', handle="readback"):
+#         """Set the unit symbol for a unit system.
+#         """
+#         if field not in self._field.keys():
+#             raise RuntimeError("element '%s' has no '%s' field" % \
+#                                self.name, field)
+#
+#         if unitsys is None:
+#             self._field[field].pvunit = u
+#
+#         for k, v in self._get_unitconv(field, handle).items():
+#             if k[0] == unitsys:
+#                 v.srcunit = u
+#             elif k[1] == unitsys:
+#                 v.dstunit = u
+#
+#     def getEpsilon(self, field):
+#         return self._field[field].sprb_epsilon
+#
+#     def setEpsilon(self, field, eps):
+#         self._field[field].sprb_epsilon = eps
+   # def stepSize(self, field):
+    #     """Return the stepsize of field (hardware unit)"""
+    #     return self._field[field].stepSize()
+    #
+    # def updateBoundary(self, field=None, lowhi=None, r=None):
+    #     """Update the boundary for field.
+    #
+    #     Parameters
+    #     ----------
+    #     field :
+    #     lowhi : tuple
+    #         Low(low) and high(hi) boundary. e.g. (0, 1)
+    #     r : int
+    #         Divide the range (hi-low) by r to get the stepsize.
+    #
+    #     Examples
+    #     --------
+    #     >>> updateBoundary('b1', (0, 2), 10)
+    #
+    #     The above example sets 'b1' range to (0, 2) and stepsize 0.2
+    #
+    #     If this field has been set once, its boundary has been updated at the
+    #     first time putting a value to it. Since putting a value needs to know
+    #     the boundary and check if the value is inside.
+    #     """
+    #     if field is None:
+    #         fields = self._field.keys()
+    #     else:
+    #         fields = [field]
+    #
+    #     kw = {}
+    #     if lowhi is not None:
+    #         kw['low'] = lowhi[0]
+    #         kw['high'] = lowhi[1]
+    #
+    #     if r is not None:
+    #         kw['r'] = r
+    #     for fld in fields:
+    #         self._field[fld].setBoundary(**kw)
+    #
+    # def boundary(self, field=None):
+    #     """Return the (low, high) range of *field* or all fields (raw unit)"""
+    #     if field is not None:
+    #         return self._field[field].boundary()
+    #     else:
+    #         return dict([(fld, act.boundary())
+    #                      for fld, act in self._field.items()])
+    #
 
-        Keyword Arguments
-        -----------------
-        unitsys : str
-            Unit system.
-        bc : str
-            Bounds checking: "exception" will raise a ValueError. 
-            "ignore" will abort the whole setting. "boundary" will use the 
-            boundary value it is crossing.
-        wait : 
-            The same as in caput
-        timeout : 
-        
-        See Also
-        --------
-        :func:`pv(field=field)`
-        """
-        unitsys = kwargs.get("unitsys", 'phy')
-        bc = kwargs.get("bc", 'exception')
-        wait = kwargs.get("wait", True)
-        trig = kwargs.get("trig", None)
-        timeout = kwargs.get("timeout", 5)
-
-        self._put_field(field, val, timeout=timeout, unitsys=unitsys, bc=bc, wait=wait)
-        for e in self.alias:
-            e._put_field(field, val, timeout=timeout, unitsys=unitsys, bc=bc, wait=wait)
-
-        trig_fld = field + "_trig"
-        if trig_fld in self.fields() and trig is not None:
-            self._put_field(field + "_trig", trig,
-                            unitsys=None, timeout=timeout, wait=True)
-
-    def settable(self, field):
-        """check if the field can be changed. not disabled, nor readonly."""
-        if field not in self._field:
-            return False
-        if self._field[field].opflags & _DISABLED:
-            return False
-        if self._field[field].opflags & _READONLY:
-            return False
-
-        return self._field[field].settable()
-
-    def readable(self, field):
-        """check if the field readable (not disabled)."""
-        if field not in self._field:
-            return False
-        if self._field[field].opflags & _DISABLED:
-            return False
-        return True
+    # def enableTrace(self, fieldname):
+    #     if not self._field[fieldname].trace:
+    #         self._field[fieldname].trace = True
+    #         self._field[fieldname].sp = []
+    #         self._field[fieldname].mark('setpoint')
+    #
+    # def disableTrace(self, fieldname):
+    #     if self._field[fieldname].trace:
+    #         self._field[fieldname].trace = False
+    #         self._field[fieldname].sp = []
+    #
+    # def disableField(self, fieldname):
+    #     self._field[fieldname].opflags |= _DISABLED
+    #
+    # def enableField(self, fieldname):
+    #     self._field[fieldname].opflags &= ~_DISABLED
+    #
+    # def setFieldReadonly(self, fieldname):
+    #     self._field[fieldname].opflags |= _READONLY
+    #
+    # def resetFieldReadonly(self, fieldname):
+    #     self._field[fieldname].opflags &= ~_READONLY
+    #
+    # def revert(self, fieldname):
+    #     """undo the field value to its previous one"""
+    #     self._field[fieldname].revert()
+    #     for e in self.alias:
+    #         e._field[fieldname].revert()
+    #
+    # def mark(self, fieldname, handle='setpoint'):
+    #     self._field[fieldname].mark(handle)
+    #     for e in self.alias:
+    #         e._field[fieldname].mark(handle)
+    #
+    # def reset(self, fieldname, data='golden'):
+    #     """data='golden' or 'origin'. see CaAction::reset()"""
+    #     self._field[fieldname].reset(data)
+    #     for e in self.alias:
+    #         e._field[fieldname].reset(data)
+    #
+    # def get(self, fields, handle='readback', unitsys='phy'):
+    #     """Get the values for given fields. None if not exists.
+    #
+    #     Parameters
+    #     ----------
+    #     fields : str, list
+    #         field.
+    #     handle : str
+    #         'readback', 'setpoint' or 'golden'.
+    #     unitsys : the unit system
+    #         None for lower level unit.
+    #
+    #     Examples
+    #     --------
+    #     >>> get('x')
+    #     >>> get(['x', 'y'])
+    #     >>> get(['x', 'unknown'])
+    #     [ 0, None]
+    #     """
+    #     kw = {'handle': handle, 'unitsys': unitsys}
+    #     if isinstance(fields, basestring):
+    #         return self._get_field(fields, **kw)
+    #     else:
+    #         # a list of fields
+    #         return [self._get_field(v, **kw) for v in fields]
+    #
+    # def _put_field(self, field, val, unitsys, **kwargs):
+    #     """Set *val* to *field*. handle='golden' will set value as golden.
+    #
+    #     See Also
+    #     --------
+    #     :func:`pv(field=field)`
+    #     """
+    #     att = field
+    #     if att not in self._field:
+    #         raise RuntimeError("field '%s' is not defined for '%s'" % (
+    #             att, self.name))
+    #
+    #     decr = self._field[att]
+    #     if not decr:
+    #         raise AttributeError("field '%s' is not defined for '%s'" % (
+    #             att, self.name))
+    #     if not decr.pvsp:
+    #         raise ValueError("field '%s' in '%s' is not writable" % (
+    #             att, self.name))
+    #
+    #     bc = kwargs.get('bc', 'exception')
+    #     wait = kwargs.get("wait", True)
+    #     timeout = kwargs.get("timeout", 5)
+    #     decr.putSetpoint(val, unitsys, bc=bc, wait=wait, timeout=timeout)
+    #
+    # def put(self, field, val, **kwargs):
+    #     """Set *val* to *field*.
+    #
+    #     Parameters
+    #     ----------
+    #     field : str
+    #         Element field
+    #     val : float, int
+    #         The new value.
+    #
+    #     Keyword Arguments
+    #     -----------------
+    #     unitsys : str
+    #         Unit system.
+    #     bc : str
+    #         Bounds checking: "exception" will raise a ValueError.
+    #         "ignore" will abort the whole setting. "boundary" will use the
+    #         boundary value it is crossing.
+    #     wait :
+    #         The same as in caput
+    #     timeout :
+    #
+    #     See Also
+    #     --------
+    #     :func:`pv(field=field)`
+    #     """
+    #     unitsys = kwargs.get("unitsys", 'phy')
+    #     bc = kwargs.get("bc", 'exception')
+    #     wait = kwargs.get("wait", True)
+    #     trig = kwargs.get("trig", None)
+    #     timeout = kwargs.get("timeout", 5)
+    #
+    #     self._put_field(field, val, timeout=timeout, unitsys=unitsys, bc=bc, wait=wait)
+    #     for e in self.alias:
+    #         e._put_field(field, val, timeout=timeout, unitsys=unitsys, bc=bc, wait=wait)
+    #
+    #     trig_fld = field + "_trig"
+    #     if trig_fld in self.fields() and trig is not None:
+    #         self._put_field(field + "_trig", trig,
+    #                         unitsys=None, timeout=timeout, wait=True)
+    #
+    # def settable(self, field):
+    #     """check if the field can be changed. not disabled, nor readonly."""
+    #     if field not in self._field:
+    #         return False
+    #     if self._field[field].opflags & _DISABLED:
+    #         return False
+    #     if self._field[field].opflags & _READONLY:
+    #         return False
+    #
+    #     return self._field[field].settable()
+    #
+    # def readable(self, field):
+    #     """check if the field readable (not disabled)."""
+    #     if field not in self._field:
+    #         return False
+    #     if self._field[field].opflags & _DISABLED:
+    #         return False
+    #     return True
 
 
 def merge(elems, field=None, **kwargs):
     """Merge the fields for all elements in a list return it as a single
-    element. 
+    element.
 
     Parameters
     ----------
@@ -1054,7 +1443,7 @@ def merge(elems, field=None, **kwargs):
 
     Examples
     --------
-    >>> bpm = getElements('BPM') 
+    >>> bpm = getElements('BPM')
     >>> vpar = { 'virtual': 1, 'name': 'VBPM' }
     >>> vbpm = merge(bpm, **vpar)
 
@@ -1090,7 +1479,7 @@ def merge(elems, field=None, **kwargs):
     if field is None:
         for k, v in count.items():
             if v < len(elems):
-                _logger.warn("field '%s' has %d < %d" % (k, v, len(elems)))
+                _LOGGER.warn("field '%s' has %d < %d" % (k, v, len(elems)))
                 pvdict.pop(k)
         # print pvdict.keys()
         for fld, pvs in pvdict.items():
@@ -1114,7 +1503,7 @@ def merge(elems, field=None, **kwargs):
         elem._name = [e.name for e in elemgrp]
         # print pvsp
     else:
-        _logger.warn("no pv merged for {0}".format([
+        _LOGGER.warn("no pv merged for {0}".format([
             e.name for e in elems]))
     # if all raw units are the same, so are the merged element
     for fld in elem.fields():
@@ -1123,3 +1512,17 @@ def merge(elems, field=None, **kwargs):
             elem.setUnit(fld, units[0], unitsys=None)
 
     return elem
+
+
+def main():
+    pv_props = {
+        'field': 'ANG', 'handle': 'setpoint',
+        'length': 0.0, 'se': 0.1, 'family': 'HCOR',
+        'index': 10,
+    }
+
+    elem = CaElement(**pv_props)
+    print(elem.family)
+
+if __name__ == '__main__':
+    main()
