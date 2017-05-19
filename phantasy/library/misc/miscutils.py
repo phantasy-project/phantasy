@@ -13,8 +13,12 @@ import logging
 from bisect import bisect
 from fnmatch import fnmatch
 import getpass
-from UserDict import DictMixin
 from datetime import datetime
+
+try:
+    from UserDict import DictMixin
+except ImportError:
+    from collections import MutableMapping as DictMixin
 
 import dateutil.relativedelta as relativedelta
 
@@ -313,6 +317,15 @@ class SpecialDict(DictMixin):
 
     def __repr__(self):
         return str(self.meta)
+
+    def __iter__(self):
+        return iter(self.meta)
+
+    def __len__(self):
+        return len(self.meta)
+
+    def __delitem__(self, k):
+        del self.meta[k]
 
 
 def parse_dt(dt, ref_date=None, epoch=None):
