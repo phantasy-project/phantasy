@@ -25,7 +25,8 @@ import dateutil.relativedelta as relativedelta
 from flame import Machine
 
 __authors__ = "Tong Zhang"
-__copyright__ = "(c) 2016, Facility for Rare Isotope beams, Michigan State University"
+__copyright__ = "(c) 2016-2017, Facility for Rare Isotope beams, " \
+                "Michigan State University"
 __contact__ = "Tong Zhang <zhangt@frib.msu.edu>"
 
 _LOGGER = logging.getLogger(__name__)
@@ -114,10 +115,12 @@ def machine_setter(_latfile=None, _machine=None, _handle_name=None):
             m = Machine(open(_latfile, 'r'))
         except:
             if _machine is None:
-                _LOGGER.error("{}: Failed to initialize flame machine".format(_handle_name))
+                _LOGGER.error("{}: Failed to initialize flame machine".format(
+                    _handle_name))
                 return None
             else:
-                _LOGGER.warning("{}: Failed to initialize flame machine, use _machine instead".format(_handle_name))
+                _LOGGER.warning("{}: Failed to initialize flame machine, "
+                                "use _machine instead".format(_handle_name))
                 m = _machine
     else:
         if _machine is None:
@@ -223,34 +226,45 @@ def expand_list_to_dict(x, keys):
 
 
 def simplify_data(raw_data):
-    """Convert CFS formated data into simple tuple.
+    """Convert CFS formatted data into simple tuple.
     
     Parameters
     ----------
-    raw_data : list(dict)
-        List of dict, each dict element is of the format:
+    raw_data : dict or list(dict)
+        Each dict element is of the following format:
         {'name': PV name (str), 'owner': str,
          'properties': PV properties (list(dict)),
          'tags': PV tags (list(dict))]
 
     Returns
     -------
-    ret : list(list)
-        List of list, each list element is of the format:
+    ret : list or list(list)
+        Each list element is of the following format:
         PV name (str), PV properties (dict), PV tags (list(str))
+
+    Note
+    ----
+    If the input *raw_data* is a single dict, the returned on is a single list.
 
     See Also
     --------
     get_data_from_tb, get_data_from_db, get_data_from_cf
     """
-    retval = []
-    for r in raw_data:
-        new_rec = [
-            r['name'],
-            {p['name']: p['value'] for p in r['properties']},
-            [t['name'] for t in r['tags']]
+    if isinstance(raw_data, dict):
+        retval = [
+            raw_data['name'],
+            {p['name']: p['value'] for p in raw_data['properties']},
+            [t['name'] for t in raw_data['tags']]
         ]
-        retval.append(new_rec)
+    else:
+        retval = []
+        for r in raw_data:
+            new_rec = [
+                r['name'],
+                {p['name']: p['value'] for p in r['properties']},
+                [t['name'] for t in r['tags']]
+            ]
+            retval.append(new_rec)
     return retval
 
 
@@ -372,11 +386,12 @@ def parse_dt(dt, ref_date=None, epoch=None):
     time_unit_table = {'years': 'years', 'months': 'months', 'weeks': 'weeks',
                        'days': 'days', 'hours': 'hours', 'minutes': 'minutes',
                        'seconds': 'seconds', 'microseconds': 'microseconds',
-                       'year': 'years', 'month': 'months', 'week': 'weeks', 'day': 'days',
-                       'hour': 'hours', 'minute': 'minutes', 'second': 'seconds',
-                       'microsecond': 'microseconds', 'min': 'minutes', 'sec': 'seconds',
-                       'msec': 'microseconds', 'mins': 'minutes', 'secs': 'seconds',
-                       'msecs': 'microseconds'}
+                       'year': 'years', 'month': 'months', 'week': 'weeks',
+                       'day': 'days', 'hour': 'hours', 'minute': 'minutes',
+                       'second': 'seconds', 'microsecond': 'microseconds',
+                       'min': 'minutes', 'sec': 'seconds',
+                       'msec': 'microseconds', 'mins': 'minutes',
+                       'secs': 'seconds', 'msecs': 'microseconds'}
 
     dt_dict = {}
     dt_tuple = dt.replace('and', ',').replace('ago', ',').strip(' ,').split(',')
