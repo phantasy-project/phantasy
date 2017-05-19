@@ -22,20 +22,23 @@ from functools import reduce
 
 from numpy import intersect1d
 from phantasy.library.lattice import CaElement
-from phantasy.library.misc import bisect_index
 from phantasy.library.misc import flatten
-from phantasy.library.misc import get_intersection
-from phantasy.library.misc import pattern_filter
 from phantasy.library.parser import Configuration
 from phantasy.library.pv import get_readback
 
 from .lattice import load_lattice
 
 __authors__ = "Tong Zhang"
-__copyright__ = "(c) 2016, Facility for Rare Isotope beams, Michigan State University"
+__copyright__ = "(c) 2016-2017, Facility for Rare Isotope beams, \
+        Michigan State University"
 __contact__ = "Tong Zhang <zhangt@frib.msu.edu>"
 
 _LOGGER = logging.getLogger(__name__)
+
+try:
+    basestring
+except NameError:
+    basestring = str
 
 
 class MachinePortal(object):
@@ -109,7 +112,6 @@ class MachinePortal(object):
         self._work_lattice_name = ''
         self._work_lattice_conf = None
 
-        print(self._machine, segment)
         self.load_lattice(segment=segment, machine=self._machine, **kws)
 
     @property
@@ -389,11 +391,15 @@ class MachinePortal(object):
             _LOGGER.warn("Invalid lattice name, working lattice name unchanged.")
             return self._work_lattice_name
 
-    def get_elements(self, name=None, type=None, srange=None, **kws):
+    def get_elements(self, latname=None, name=None, type=None, srange=None,
+                     **kws):
         """Get element(s) from working lattice.
 
         Parameters
         ----------
+        latname : str
+            Use the (valid) defined lattice name instead of current working
+            lattice name, maybe useful to inspect non-working lattices.
         name : str or list[str]
             (List of) Element names or Unix shell style patterns.
         type : str or list[str]
@@ -404,9 +410,6 @@ class MachinePortal(object):
 
         Keyword Arguments
         -----------------
-        latname : str
-            Use the (valid) defined lattice name instead of current working
-            lattice name, maybe useful to inspect non-working lattices.
         sort_key : str
             Ascendingly sort key of the returned list, ``name`` or ``pos``,
             ``pos`` by default, or other attributes valid for ``CaElement``.
@@ -494,50 +497,11 @@ class MachinePortal(object):
         :class:`~phantasy.library.lattice.element.CaElement`
             Element class.
         """
-        latname = kws.get('latname')
         if latname in self._lattice_names:
             lat = self._lattices.get(latname)
         else:
             lat = self._work_lattice_conf
-
-        valid_types = self.get_all_types(virtual=False)
-
-        # name
-        if isinstance(name, (str, unicode)):
-            ele_names = lat.getElementList(name)
-        elif isinstance(name, (list, tuple)):
-            ele_names = flatten(lat.getElementList(n) for n in name)
-        else:
-            ele_names = []
-
-        # group
-        if type is not None:
-            if isinstance(type, (str, unicode)):
-                type = type,
-            _type_list = flatten(pattern_filter(valid_types, p) for p in type)
-            ele_types = flatten(lat.getElementList(t) for t in _type_list)
-        else:
-            ele_types = []
-
-        # srange
-        if isinstance(srange, (list, tuple)):
-            pos_start, pos_end = srange[0], srange[1]
-            # by default elems is sorted, if not, sort it before using.
-            elems = lat.getElementList('*', virtual=False)
-            s = [e.sb for e in elems]
-            index0 = bisect_index(s, pos_start)
-            index1 = bisect_index(s, pos_end)
-            ele_srange = elems[index0:index1]
-        else:
-            ele_srange = []
-
-        ret_elems = get_intersection(c1=ele_names, c2=ele_types, c3=ele_srange)
-
-        sk = kws.get('sort_key', 'sb')
-        if sk == 'pos':
-            sk = 'sb'
-        return sorted([e for e in ret_elems if not MachinePortal.is_virtual(e)],
-                      key=lambda e: getattr(e, sk))
+        return lat.get_elements(name=name, type=type, srange=srange, **kws)
 
     def next_elements(self, ref_elem, count=1, **kws):
         """Get elements w.r.t reference element, according to the defined
@@ -686,7 +650,7 @@ class MachinePortal(object):
         if etype is None:
             ret = elem_sorted[eslice0][eslice]
         else:
-            if isinstance(etype, (str, unicode)):
+            if isinstance(etype, basestring):
                 etype = etype,
             if count_is_positive:
                 ret = flatten([e for e in elem_sorted[ref_idx + 1:]
@@ -740,18 +704,15 @@ class MachinePortal(object):
             lat = self._work_lattice_conf
         return [e for e in lat.getElementList('*') if e.virtual == 1]
 
-    def get_all_types(self, virtual=False, **kws):
+    def get_all_types(self, latname=None, virtual=False, **kws):
         """Get names of element types (groups/families) from given lattice.
 
         Parameters
         ----------
-        virtual : True or False
-            Return virtual group or not, ``False`` by default.
-
-        Keyword Arguments
-        -----------------
         latname : str
             Name of lattice to be investigated.
+        virtual : True or False
+            Return virtual group or not, ``False`` by default.
 
         Returns
         -------
@@ -763,29 +724,21 @@ class MachinePortal(object):
         lattice_names : Names of all loaded lattices.
         get_all_names : Get all element names from given lattice.
         """
-        latname = kws.get('latname')
         if latname in self._lattice_names:
             lat = self._lattices.get(latname)
         else:
             lat = self._work_lattice_conf
-        all_groups = lat.getGroups()
-        if virtual is True:
-            return all_groups
-        else:
-            return [g for g in all_groups if g != 'HLA:VIRTUAL']
+        return lat.get_all_types(virtual, **kws)
 
-    def get_all_names(self, virtual=False, **kws):
+    def get_all_names(self, latname=None, virtual=False, **kws):
         """Get names of all elements from  given lattice.
 
         Parameters
         ----------
-        virtual : True or False
-            Return virtual elements or not, ``False`` by default.
-
-        Keyword Arguments
-        -----------------
         latname : str
             Name of lattice to be investigated.
+        virtual : True or False
+            Return virtual elements or not, ``False`` by default.
 
         Returns
         -------
@@ -797,12 +750,11 @@ class MachinePortal(object):
         lattice_names : Names of all loaded lattices.
         get_all_types : Get all element types from given lattice.
         """
-        latname = kws.get('latname')
         if latname in self._lattice_names:
             lat = self._lattices.get(latname)
         else:
             lat = self._work_lattice_conf
-        return [e.name for e in lat.getElementList('*', virtual=virtual)]
+        return lat.get_all_names(virtual, **kws)
 
     def inspect_mconf(self, mconf=None, out=None):
         """Inspect given machine configuration.
@@ -948,7 +900,7 @@ class MachinePortal(object):
                 _LOGGER.warn("Invalid CaElements.")
                 return None
 
-        all_fields = reduce(intersect1d, [e.fields() for e in elem])
+        all_fields = reduce(intersect1d, [e.fields for e in elem])
         if field is None:
             field = all_fields
         else:

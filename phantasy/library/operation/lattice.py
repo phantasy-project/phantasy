@@ -29,11 +29,11 @@ from phantasy.library.pv import DataSource
 from phantasy.library.settings import Settings
 
 __authors__ = "Tong Zhang"
-__copyright__ = "(c) 2016, Facility for Rare Isotope beams, Michigan State University"
+__copyright__ = "(c) 2016-2017, Facility for Rare Isotope beams, \
+        Michigan State University"
 __contact__ = "Tong Zhang <zhangt@frib.msu.edu>"
 
 _LOGGER = logging.getLogger(__name__)
-
 
 DEFAULT_MODEL_DATA_DIR = 'model_data'
 
@@ -269,22 +269,22 @@ def load_lattice(machine, segment=None, **kwargs):
         # if show more informaion
         if verbose:
             n_elems = len(
-                [e for e in lat.getElementList('*') if e.virtual == 0])
+                [e for e in lat._get_element_list('*') if e.virtual == 0])
             if msect == default_segment:
                 print("%s (*): %d elements" % (msect, n_elems))
             else:
                 print("%s: %d elements" % (msect, n_elems))
             print(
                 "  BPM: %d, PM: %s, HCOR: %d, VCOR: %d, BEND: %d, QUAD: %d, SEXT: %d, SOL: %d, CAV: %d"
-                % (len(lat.getElementList('BPM')),
-                   len(lat.getElementList('PM')),
-                   len(lat.getElementList('HCOR')),
-                   len(lat.getElementList('VCOR')),
-                   len(lat.getElementList('BEND')),
-                   len(lat.getElementList('QUAD')),
-                   len(lat.getElementList('SEXT')),
-                   len(lat.getElementList('SOL')),
-                   len(lat.getElementList('CAV'))))
+                % (len(lat._get_element_list('BPM')),
+                   len(lat._get_element_list('PM')),
+                   len(lat._get_element_list('HCOR')),
+                   len(lat._get_element_list('VCOR')),
+                   len(lat._get_element_list('BEND')),
+                   len(lat._get_element_list('QUAD')),
+                   len(lat._get_element_list('SEXT')),
+                   len(lat._get_element_list('SOL')),
+                   len(lat._get_element_list('CAV'))))
 
     # #set the default segment, if None, use the first one
     # lat0 = lat_dict.get(default_segment, None)
@@ -326,7 +326,8 @@ def create_lattice(latname, pv_data, tag, **kwargs):
         List of PV data, for each PV data, should be of list as: 
         ``string of PV name, dict of properties, list of tags``.
     tag : str
-        Only select PV data according to defined tag. e.g. `phyutil.sys.LS1`.
+        Only select PV data according to defined tag. e.g.
+        `phyutil.sys.LS1`.
 
     Keyword Arguments
     -----------------
@@ -367,14 +368,14 @@ def create_lattice(latname, pv_data, tag, **kwargs):
         _LOGGER.warn("PV data source type should be explicitly defined.")
         return
 
-    _LOGGER.debug("Creating lattice {0} from {1}".format(latname, src))
-    _LOGGER.info("Found {0:d} PVs in {1}".format(len(pv_data), latname))
+    _LOGGER.debug("Creating lattice {0} from {1}.".format(latname, src))
+    _LOGGER.info("Found {0:d} PVs in {1}.".format(len(pv_data), latname))
 
     # create a new lattice
     lat = Lattice(latname, **kwargs)
     # set up lattice
     for pv_name, pv_props, pv_tags in pv_data:
-        _LOGGER.debug("Processing {0}".format(pv_name))
+        _LOGGER.debug("Processing {0}.".format(pv_name))
 
         # skip if property is None
         if pv_props is None:
@@ -382,7 +383,7 @@ def create_lattice(latname, pv_data, tag, **kwargs):
 
         # skip if tag does not match
         if pv_name and tag not in pv_tags:
-            _LOGGER.debug("{0} is not tagged as {1}".format(pv_name, tag))
+            _LOGGER.debug("{0} is not tagged as {1}.".format(pv_name, tag))
             continue
 
         # element name is mandatory ('elemName' -> 'name')
@@ -392,48 +393,47 @@ def create_lattice(latname, pv_data, tag, **kwargs):
 
         # begin and end s position
         if 'se' in pv_props:
-            pv_props['sb'] = float(pv_props['se']) - float(pv_props.get(
-                'length', 0))
+            pv_props['sb'] = float(pv_props['se']) \
+                    - float(pv_props.get('length', 0.0))
 
-        # add element only if the element does not exist
-        # noinspection PyProtectedMember
+        # add new element
         elem = lat._find_exact_element(name=name)
         if elem is None:
             try:
                 elem = CaElement(**pv_props)
-                gl = [g.strip() for g in pv_props.get('groups', [])]
+                gl = [g.strip() for g in pv_props.get('group', [])]
                 elem.group.update(gl)
             except:
                 _LOGGER.error(
-                    "Error: creating element '{0}' with '{1}'".format(
+                    "Error: creating element '{0}' with '{1}'.".format(
                         name, pv_props))
                 raise
-
             _LOGGER.debug("Created new element: '{0}'".format(name))
-            lat.insertElement(elem)
+            lat.insert(elem, trust=True)
         else:
-            _LOGGER.debug("Using existed element '{0}'".format(name))
+            _LOGGER.debug("Skip existing element '{0}'.".format(name))
 
-        # mark element virtual (1) or not (0, default)
+        # mark element virtual (True) or not (False, default)
         if INI_DICT['HLA_VFAMILY'] in pv_props.get('group', []):
-            elem.virtual = 1
+            elem.virtual = True
 
-        handle = pv_props.get('handle', '').lower()
         # legacy code, present code will not be 'get' or 'put'
-        if handle == 'get':
-            pv_props['handle'] = 'readback'
-        elif handle == 'put':
-            pv_props['handle'] = 'setpoint'
+        #handle = pv_props.get('handle', '').lower()
+        #if handle == 'get':
+        #    pv_props['handle'] = 'readback'
+        #elif handle == 'put':
+        #    pv_props['handle'] = 'setpoint'
 
         # update elment attributes
+        # only process valid pv record
         if pv_name:
-            elem.update_pv_record(pv_name, pv_props, pv_tags)
+            elem.process_pv(pv_name, pv_props, pv_tags)
 
-    # group info is a redundant info, needs rebuild based on each element
-    lat.buildGroups()
+    lat.build_groups()
 
+    """
     # !IMPORTANT! since Channel finder has no order, but lat class has
-    lat.sortElements()
+    lat.sort(inplace=True)
     lat.length = lat[-1].se if lat.size() > 0 else 0.0
 
     # _LOGGER.debug("Mode {0}".format(lat.mode))
@@ -443,5 +443,6 @@ def create_lattice(latname, pv_data, tag, **kwargs):
         # noinspection PyProtectedMember
         _LOGGER.debug("Lattice '%s' group %s(%d)" % (lat.name, g,
                                                      len(lat._group[g])))
+    """
 
     return lat

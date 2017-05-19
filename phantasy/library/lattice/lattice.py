@@ -24,7 +24,11 @@ from math import log10
 import numpy as np
 from flame import Machine
 from phantasy.library.layout import Layout
+from phantasy.library.misc import bisect_index
 from phantasy.library.misc import parse_dt
+from phantasy.library.misc import flatten
+from phantasy.library.misc import pattern_filter
+from phantasy.library.misc import get_intersection
 from phantasy.library.model import MachineStates
 from phantasy.library.model import ModelFlame
 from phantasy.library.parser import Configuration
@@ -41,10 +45,15 @@ from .impact import run_lattice as run_impact_lattice
 
 _LOGGER = logging.getLogger(__name__)
 
+try:
+    basestring
+except NameError:
+    basestring = str
+
 
 class Lattice(object):
     """Machine high-level lattice object, all elements inside this lattice
-    has a unique name.
+    has an unique name.
     
     Parameters
     ----------
@@ -89,6 +98,8 @@ class Lattice(object):
     trace : str
         If 'on', history of PV set actions could be traced back, or ('off')
         set action cannot be reverted, by default, trace feature is on.
+    group : dict
+        Initial group configuration.
     
 
     - *tune* [nux, nuy], mainly for circular machine
@@ -97,7 +108,7 @@ class Lattice(object):
 
     Note
     ----
-    :class:`~phantasy.library.operation.create_lattice` method could be used
+    :class:`~phantasy.library.operation.create_lattice` could be used to
     set up lattice created by this class by provided information like: PV data,
     lattice layout, configuration and settings, etc.
 
@@ -106,8 +117,6 @@ class Lattice(object):
     :func:`~phantasy.library.operation.lattice.create_lattice`
         Create high-level lattice object.
     """
-
-    # ignore those "element" when construct the lattice object
     def __init__(self, name, **kws):
         self.name = name
         self.source = kws.get('source', None)
@@ -124,6 +133,7 @@ class Lattice(object):
         self.config = kws.get('config', None)
         self.settings = kws.get('settings', None)
         self.model_factory = kws.get('model_factory', None)
+        self.group = kws.get('group', None)
 
         self._viewer_settings = OrderedDict()
         self._trace_history = None
@@ -131,8 +141,6 @@ class Lattice(object):
 
         ## clean up the following parameters
         self._twiss = None
-        # group name and its element
-        self._group = {}
         # guaranteed in the order of s.
         self._elements = []
         # data set
@@ -144,6 +152,20 @@ class Lattice(object):
         self.Ek = None
         self.arpvs = None
         self.latticemodelmap = None
+
+    @property
+    def group(self):
+        """dict: Group configuration."""
+        return self._group
+
+    @group.setter
+    def group(self, g):
+        if g is None:
+            self._group = dict()
+        elif isinstance(g, dict):
+            self._group = g
+        else:
+            _LOGGER.warn("'group' attribute is always initialized with {}.")
 
     @property
     def trace(self):
@@ -311,7 +333,7 @@ class Lattice(object):
 
     @property
     def model(self):
-        """str: Simulation code name to simulate online model type."""
+        """str: Code name to simulate online model type, *FLAME* by default."""
         return self._model
 
     @model.setter
@@ -392,7 +414,7 @@ class Lattice(object):
         ret :
             None if failed, or 0.
         """
-        elems = self.getElementList(elem)
+        elems = self._get_element_list(elem)
         if len(elems) != 1:
             raise RuntimeError("Lattice: Multiple elements found with the specified name.")
         _elem = elems[0]
@@ -530,7 +552,7 @@ class Lattice(object):
         ret : dict 
             Field value, {field: value}.
         """
-        elems = self.getElementList(elem)
+        elems = self._get_element_list(elem)
         if len(elems) != 1:
             raise RuntimeError("Lattice: Multiple elements found with the specified name.")
         _elem = elems[0]
@@ -840,7 +862,7 @@ class Lattice(object):
         if data_source == 'control':
             _LOGGER.info("Sync settings from 'control' to 'model'.")
             model_settings = self.settings
-            for elem in self.getElementList('*'):
+            for elem in self._get_element_list('*'):
                 if elem.name in model_settings:
                     if not self._skip_elements(elem.name):
                         for field, value in self.get(elem=elem, source='control').iteritems():
@@ -856,7 +878,7 @@ class Lattice(object):
         elif data_source == 'model':
             _LOGGER.info("Sync settings from 'model' to 'control'.")
             for e_name, e_setting in self.settings.iteritems():
-                elem = self.getElementList(e_name)
+                elem = self._get_element_list(e_name)
                 if elem == []:
                     _LOGGER.debug('Control settings does not have element {0}.'.format(e_name))
                     continue
@@ -931,7 +953,6 @@ class Lattice(object):
         |  BPM    |   X [m]  |  x0 [mm]  |
         |  BPM    |   Y [m]  |  y0 [mm]  |
         +---------+----------+-----------+
-
         """
         for i, res in r:
             elem_name = fm.get_element(index=i)[0]['properties']['name']
@@ -944,23 +965,343 @@ class Lattice(object):
         """
         return elem.family in ['BPM']
 
-    def __getitem__(self, key):
-        if isinstance(key, int):
-            return self._elements[key]
-        elif isinstance(key, str) or isinstance(key, unicode):
-            return self._find_exact_element(name=key)
+    def __getitem__(self, i):
+        if isinstance(i, basestring):
+            return self._find_exact_element(i)
         else:
-            return None
+            return self._elements[i]
 
     def _find_exact_element(self, name):
-        """Exact matching of element name, None if not.
+        """Return element object if *name* is fully matched, or return None.
         """
         if isinstance(name, AbstractElement):
-            return name
+            name = name.name
         for e in self._elements:
             if str(e.name) == str(name):
                 return e
         return None
+
+    def get_elements(self, name=None, type=None, srange=None, **kws):
+        """Get element(s) with defined filter rules.
+
+        Parameters
+        ----------
+        name : str or list[str]
+            (List of) Element names or Unix shell style patterns.
+        type : str or list[str]
+            (List of) Element type/group/family, or Unix shell style patterns.
+        srange : tuple
+            Start and end points (tuple of float) of elements' longitudinal
+            position.
+
+        Keyword Arguments
+        -----------------
+        sort_key : str
+            Ascendingly sort key of the returned list, ``name`` or ``pos``,
+            ``pos`` by default, or other attributes valid for ``CaElement``.
+
+        Returns
+        -------
+        ret : List
+            List of elements (``CaElement``), excluding virtual elements.
+            
+        Note
+        ----
+        1. The pattern here used is Unix shell style, slightly different
+           from regex, e.g. pattern 'BP' matches 'BPM' in regex, but matches
+           nothing in Unix shell style, 'BP*' works;
+        2. If more than one positional parameters (*name*, *type*, *srange*)
+           are defined, return elements that meet all definitions;
+        3. By default, the returned elements are ascendingly sorted according
+           to element position values.
+
+        Examples
+        --------
+        1. Define *name* with an invalid name:
+
+        >>> get_elements(name='NOEXISTS')
+        []
+
+        2. Define *name* with name or name patterns:
+
+        >>> get_elements(name='FS1_BMS:DCV_D2662')
+        [FS1_BMS:DCV_D2662:VCOR @ sb=153.794690]
+        >>> get_elements(name=['FS1_B?*D266?', 'LS1_B*DCV*'])
+        [LS1_BTS:DCV_D1937:VCOR @ sb=81.365954,
+         LS1_BTS:DCV_D1964:VCOR @ sb=84.013954,
+         LS1_BTS:DCV_D1997:VCOR @ sb=87.348954,
+         LS1_BTS:DCV_D2024:VCOR @ sb=90.055166,
+         LS1_BTS:DCV_D2061:VCOR @ sb=93.710487,
+         LS1_BTS:DCV_D2114:VCOR @ sb=98.985556,
+         FS1_BMS:DCV_D2662:VCOR @ sb=153.794690,
+         FS1_BMS:DCH_D2662:HCOR @ sb=153.794690,
+         FS1_BMS:BPM_D2664:BPM @ sb=153.963690,
+         FS1_BMS:QH_D2666:QUAD @ sb=154.144690]
+
+        3. Filter BPMs from the above result:
+
+        >>> get_elements(name=['FS1_B?*D266?', 'LS1_B*DCV*'], type='BPM')
+        [FS1_BMS:BPM_D2664:BPM @ sb=153.963690]
+        >>> # type='BPM' also could be pattern
+        
+        4. Filter hybrid types:
+
+        >>> get_elements(name=['FS1_B?*D266?', 'LS1_B*DCV*'],
+        >>>              type=['BPM', 'QUAD'])
+        [FS1_BMS:BPM_D2664:BPM @ sb=153.963690,
+         FS1_BMS:QH_D2666:QUAD @ sb=154.144690]
+        
+        5. Get subsection from lattice according to s-position range:
+        
+        >>> get_elements(srange=(10, 11))
+        [LS1_CB01:CAV1_D1229:CAV @ sb=10.366596,
+         LS1_CB01:BPM_D1231:BPM @ sb=10.762191,
+         LS1_CB01:SOL1_D1235:SOL @ sb=10.894207]
+        
+        6. Continue filter with *srange* parameter
+
+        >>> get_elements(name=['FS1_B?*D266?', 'LS1_B*DCV*'],
+        >>>              type=['BPM', 'QUAD'], srange=(154, 155))
+        [FS1_BMS:QH_D2666:QUAD @ sb=154.144690]
+
+        Note
+        ----
+        Select subsection by ``srange`` parameter is realized by new approach,
+        other than ``~phantasy.library.Lattice.getLine()``, e.g. the result of
+        ``getLine((10,11))`` contains element before the start range: i.e.
+        ``LS1_WA03:PM_D1223:PM @ sb=9.929284``, which is beyond the range.
+
+        See Also
+        --------
+        :func:`get_virtual_elements`
+            Get virtual elements.
+        :func:`next_elements`
+            Get neighborhood of reference element.
+        :class:`~phantasy.library.lattice.element.CaElement`
+            Element class.
+        """
+        valid_types = self.get_all_types(virtual=False)
+
+        # name
+        if isinstance(name, basestring):
+            ele_names = self._get_element_list(name)
+        elif isinstance(name, (list, tuple)):
+            ele_names = flatten(self._get_element_list(n) for n in name)
+        else:
+            ele_names = []
+
+        # group
+        if type is not None:
+            if isinstance(type, basestring):
+                type = type,
+            _type_list = flatten(pattern_filter(valid_types, p) for p in type)
+            ele_types = flatten(self._get_element_list(t) for t in _type_list)
+        else:
+            ele_types = []
+
+        # srange
+        if isinstance(srange, (list, tuple)):
+            pos_start, pos_end = srange[0], srange[1]
+            # by default elems is sorted, if not, sort it before using.
+            elems = self._get_element_list('*', virtual=False)
+            s = [e.sb for e in elems]
+            index0 = bisect_index(s, pos_start)
+            index1 = bisect_index(s, pos_end)
+            ele_srange = elems[index0:index1]
+        else:
+            ele_srange = []
+
+        ret_elems = get_intersection(c1=ele_names, c2=ele_types, c3=ele_srange)
+
+        sk = kws.get('sort_key', 'sb')
+        if sk == 'pos':
+            sk = 'sb'
+        return sorted([e for e in ret_elems if not e.virtual],
+                      key=lambda e: getattr(e, sk))
+
+    def get_all_types(self, virtual=False, **kws):
+        """Get names of element types (groups/families).
+
+        Parameters
+        ----------
+        virtual : True or False
+            Return virtual group or not, ``False`` by default.
+
+        Returns
+        -------
+        ret : List(str)
+            List of type names.
+
+        See Also
+        --------
+        lattice_names : Names of all loaded lattices.
+        get_all_names : Get all element names from given lattice.
+        """
+        all_groups = self.get_groups('*', empty=True)
+        if virtual is True:
+            return all_groups
+        else:
+            return [g for g in all_groups if g != 'HLA:VIRTUAL']
+
+    def get_all_names(self, virtual=False, **kws):
+        """Get names of all elements from  given lattice.
+
+        Parameters
+        ----------
+        virtual : True or False
+            Return virtual elements or not, ``False`` by default.
+
+        Returns
+        -------
+        ret : List(str)
+            List of element names.
+
+        See Also
+        --------
+        lattice_names : Names of all loaded lattices.
+        get_all_types : Get all element types from given lattice.
+        """
+        return [e.name for e in self._get_element_list('*', virtual=virtual)]
+
+    def has_element(self, name):
+        """If lattice has element or not.
+        
+        Parameters
+        ----------
+        name : str or CaElement
+            Name of element or element itself.
+        
+        Returns
+        -------
+        ret : True or False
+            True if lattice has element, or False.
+        """
+        if self._find_exact_element(name):
+            return True
+        else:
+            return False
+
+    def insert(self, elem, i=None, groups=None, **kws):
+        """Ascendingly insert element regarding s-position, if *i* is defined,
+        insert at *i*-th place.
+
+        If *groups* is defined, add element into each group.
+
+        Parameters
+        ----------
+        elem : str or CaElement
+            CaElement object or element name.
+        i : int
+            Index to insert, append if None.
+        groups : list or str
+            Group name(s) the element belongs to.
+
+        Keyword Arguments
+        -----------------
+        trust : True or False
+            Trust input *elem* if True, else test first, False by default.
+
+        See Also
+        --------
+        append : Add element at the end of lattice.
+        :class:`~phantasy.library.lattice.CaElement`
+        """
+        if not kws.get('trust', False):
+            elem = self._find_exact_element(elem)
+            if elem is None:
+                _LOGGER.warn("insert: not a valid element.")
+                return
+
+        if i is not None:
+            self._elements.insert(i, elem)
+        else:
+            if len(self._elements) == 0:
+                self._elements.append(elem)
+            else:
+                k = 0
+                for e in self._elements:
+                    if e.sb < elem.sb:
+                        k += 1
+                        continue
+                if k == len(self._elements):
+                    self._elements.append(elem)
+                else:
+                    self._elements.insert(k, elem)
+
+        if isinstance(groups, basestring):
+            groups = groups,
+        if groups is not None:
+            for g in groups:
+                if g in self._group:
+                    self._group[g].append(elem)
+                else:
+                    self._group[g] = [elem]
+
+    def append(self, elem):
+        """Append new element to lattice.
+        
+        Parameters
+        ----------
+        elem : CaElement
+            Element object.
+        """
+        if not self.has_element(elem.name):
+            self._elements.append(elem)
+
+    def sort(self, elements=None, **kws):
+        """Return sorted list of elements with defined key.
+
+        Parameters
+        ----------
+        elements : List
+            List of elements, could be returned from
+            func:`~phantasy.library.lattice.Lattice.get_elements`, if not
+            defined, entire lattice will be sorted.
+        
+        Keyword Arguments
+        -----------------
+        sort_key : str
+            Ascendingly sort key for element list, ``name`` or ``pos``,
+            ``pos`` by default, or other attributes valid for ``CaElement``.
+        inplace : True or False
+            If *inplace* is True, the original element list will be replaced
+            with sorted one, False by default.
+
+        Warning 
+        -------
+        Inplace sort only supports the case of ``elements=None``.
+
+        Returns
+        -------
+        ret : List
+            Sorted list of elements.
+
+        ##
+        The group needs to be rebuild, since *_get_element_list* relies on a 
+        sorted group dict.
+        """
+        if elements is None:
+            elem0 = self._elements
+        else:
+            elem0 = elements
+        if not isinstance(elem0, list):
+            _LOGGER.warn("'elements' is not a list.")
+            return []
+
+        sk = kws.get('sort_key', 'sb')
+        if sk == 'pos':
+            sk = 'sb'
+        sorted_elemlist = sorted([em for em in elem0],
+                                 key=lambda e: getattr(e, sk))
+
+        if kws.get('inplace', False) and elements is None:
+            self._elements = sorted_elemlist
+        
+        return sorted_elemlist
+
+
+###############################################################################
+
 
     def _find_element_s(self, s, eps=1e-9, loc='left'):
         """Given s location, find an element at this location, mostly return
@@ -1017,51 +1358,6 @@ class Lattice(object):
                 self.latticemodelmap[mp[0]][mp[1]] = []
             self.latticemodelmap[mp[0]][mp[1]].append(idx)
 
-    def hasElement(self, name):
-        """has the named element"""
-        if self._find_exact_element(name):
-            return True
-        else:
-            return False
-
-    def insertElement(self, elem, i=None, groups=None):
-        """Insert an element at index *i* or append it.
-
-        Parameters
-        ------------
-        elem : 
-            CaElement object. 
-        i : int
-            Index to insert, append if None.
-        groups : 
-            Group names the element belongs to.
-
-        See Also
-        --------
-        appendElement : Add element.
-        :class:`~phantasy.library.lattice.CaElement`
-        """
-        if i is not None:
-            self._elements.insert(i, elem)
-        else:
-            if len(self._elements) == 0:
-                self._elements.append(elem)
-            else:
-                k = 0
-                for e in self._elements:
-                    if e.sb < elem.sb:
-                        k += 1
-                        continue
-                if k == len(self._elements):
-                    self._elements.append(elem)
-                else:
-                    self._elements.insert(k, elem)
-        if groups is not None:
-            for g in groups:
-                if g in self._group:
-                    self._group[g].append(elem)
-                else:
-                    self._group[g] = [elem]
 
     def getOverlapped(self):
         ret = []
@@ -1083,16 +1379,6 @@ class Lattice(object):
             return ret
         else:
             return None
-
-    def appendElement(self, elem):
-        """append a new element to lattice. 
-
-        callers are responsible for avoiding duplicate elements (call
-        hasElement before).
-
-        seealso :func:`insertElement`
-        """
-        self._elements.append(elem)
 
     def size(self):
         """total number of elements."""
@@ -1174,33 +1460,6 @@ class Lattice(object):
                 pl.append(elem)
         self._group[parent] = pl
 
-    def sortElements(self, namelist=None):
-        """sort the element list to the order of *s*
-
-        use sorted() for a list of element object.
-
-        The group needs to be rebuild, since *getElementList* relies on a 
-        sorted group dict.
-        """
-        if namelist is None:
-            self._elements = sorted(self._elements)
-            self.buildGroups()
-            return
-
-        ret = []
-        for e in self._elements:
-            if e.name in ret:
-                continue
-            if e.name in namelist:
-                ret.append(e.name)
-
-        #
-        if len(ret) < len(namelist):
-            raise ValueError("Some elements are missing in the results")
-        elif len(ret) > len(namelist):
-            raise ValueError("something wrong on sorting element list")
-
-        return ret[:]
 
     def getLocations(self, elemsname):
         """
@@ -1277,7 +1536,7 @@ class Lattice(object):
             ret.extend(self._elements[:i1 + 1])
         return ret
 
-    def getElementList(self, group, **kwargs):
+    def _get_element_list(self, group, **kwargs):
         """Get a list of element objects.
 
         Parameters
@@ -1290,32 +1549,26 @@ class Lattice(object):
             When the input *group* is a list, each string in this list will
             be treated as exact string instead of pattern.
 
-        virtual : bool. optional(True). Including virtual element or not.
+        Keyword Arguments
+        -----------------
+        virtual : bool
+            Including virtual element or not, False by default.
 
         Returns
         --------
         elemlst : a list of element objects.
-
-        Examples
-        ----------
-        >>> getElementList('BPM')
-        >>> getElementList('PL*')
-        >>> getElementList('C02')
-        >>> getElementList(['BPM1', 'BPM2'])
-
         """
-
-        virtual = kwargs.get('virtual', True)
+        virtual = kwargs.get('virtual', False)
         # do exact element name match first
         elem = self._find_exact_element(group)
         if elem is not None:
             return [elem]
 
         # do exact group name match
-        if group in self._group.keys():
+        if group in self._group:
             return self._group[group][:]
 
-        if isinstance(group, str) or isinstance(group, unicode):
+        if isinstance(group, basestring):
             # do pattern match on element name
             ret, names = [], []
             for e in self._elements:
@@ -1413,7 +1666,7 @@ class Lattice(object):
 
         return elem
 
-    def _illegalGroupName(self, group):
+    def _illegal_group_name(self, group):
         # found character not in [a-zA-Z0-9_]
         if not group:
             return True
@@ -1423,18 +1676,16 @@ class Lattice(object):
         else:
             return False
 
-    def buildGroups(self):
-        """
-        clear the old groups, fill with new data by collecting group name
+    def build_groups(self):
+        """Clear the old groups, fill with new data by collecting group name
         that each element belongs to.
 
         - the elements must be in s order
         """
-        # cleanr everything
         self._group = {}
         for e in self._elements:
             for g in e.group:
-                if self._illegalGroupName(g):
+                if self._illegal_group_name(g):
                     continue
                 # self.addGroupMember(g, e.name, newgroup=True)
                 lst = self._group.setdefault(g, [])
@@ -1520,28 +1771,44 @@ class Lattice(object):
         else:
             raise ValueError("%s not in group %s" % (member, group))
 
-    def getGroups(self, element=None):
-        """
-        return a list of groups this element belongs to
+    def get_groups(self, name=None, element=None, **kws):
+        """Get groups filtered by *name*, if *element* is given, a list of
+        groups that *element* belongs to would return.
 
-        :Example:
+        Parameters
+        ----------
+        name : str
+            Group name string, could be Unix shell style pattern.
+        element : str
+            Element name.
 
-            >>> getGroups() # list all groups, including the empty groups
-            >>> getGroups('*') # all groups, not including empty ones
-            >>> getGroups('Q?')
-          
-        The input string is wildcard matched against each element.
+        Keyword Arguments
+        -----------------
+        empty : True or False
+            If *empty* is True, also return name the empty groups, else not,
+            True by default.
+
+        Returns
+        -------
+        ret : list
+            List of group names.
+
+        Examples
+        --------
+        >>> get_groups() # list all groups, including the empty groups
+        >>> get_groups('*') # all groups, not including empty ones
+        >>> get_groups('Q?')
         """
         if element is None:
-            return self._group.keys()
-
-        ret = []
-        for k, elems in self._group.items():
-            for e in elems:
-                if fnmatch(e.name, element):
-                    ret.append(k)
-                    break
-        return ret
+            if kws.get('empty', True):
+                g = [k for k,v in self._group.items() if fnmatch(k, name)]
+            else:
+                g = [k for k,v in self._group.items() if fnmatch(k, name)
+                        and v != []]
+            return g
+        else:
+            return [k for k,v in self._group.items()
+                    if fnmatch(k, name) and element in [el.name for el in v]]
 
     def getGroupMembers(self, groups, op, **kwargs):
         """
@@ -1583,7 +1850,7 @@ class Lattice(object):
         else:
             raise ValueError("%s not defined" % op)
 
-        return self.getElementList(self.sortElements(r))
+        return self._get_element_list(self.sort(r))
 
     def getNeighbors(self, elemname, groups, n, elemself=True):
         """
@@ -1611,8 +1878,8 @@ class Lattice(object):
             raise ValueError("element %s does not exist" % elemname)
 
         el = []
-        if isinstance(groups, (str, unicode)):
-            el = self.getElementList(groups, virtual=0)
+        if isinstance(groups, basestring):
+            el = self._get_element_list(groups, virtual=0)
         elif isinstance(groups, (list, tuple)):
             el = self.getGroupMembers(groups, op="union")
 
@@ -1666,8 +1933,8 @@ class Lattice(object):
             raise ValueError("element %s does not exist" % elemname)
 
         el = []
-        if isinstance(groups, (str, unicode)):
-            el = self.getElementList(groups, virtual=0)
+        if isinstance(groups, basestring):
+            el = self._get_element_list(groups, virtual=0)
         elif isinstance(groups, (list, tuple)):
             el = self.getGroupMembers(groups, op="union")
 
