@@ -147,6 +147,7 @@ _cf_map = {'elemName' : 'name',
            'elemIndex' : 'index',
            'elemPosition' : 'se',
            'elemLength' : 'length',
+
            'system' : 'system',
            'devName' : 'devname',
            'elemGroups' : 'groups',

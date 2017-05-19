@@ -4,28 +4,40 @@
 
 from __future__ import print_function
 
-__copyright__ = "Copyright (c) 2015, Facility for Rare Isotope Beams"
-
-__author__ = "Dylan Maxwell"
-
-import os.path, re, logging, xlrd
-
+import logging
+import os.path
+import re
+import xlrd
 from collections import OrderedDict
 
-from phantasy.library.parser import Configuration
-from phantasy.library.layout import ElectrodeElement, SeqElement
-from phantasy.library.layout import HCorElement, VCorElement, CorElement
-from phantasy.library.layout import BendElement, QuadElement, SextElement
-from phantasy.library.layout import DriftElement, PortElement
-from phantasy.library.layout import ValveElement
-from phantasy.library.layout import StripElement, ColumnElement
+from phantasy.library.layout import BCMElement
+from phantasy.library.layout import BLElement
+from phantasy.library.layout import BLMElement
+from phantasy.library.layout import BPMElement
+from phantasy.library.layout import BendElement
 from phantasy.library.layout import CavityElement
-from phantasy.library.layout import EBendElement, EQuadElement
-from phantasy.library.layout import SolElement, SolCorElement
-from phantasy.library.layout import BPMElement, BLMElement
-from phantasy.library.layout import BCMElement, PMElement, BLElement
-from phantasy.library.layout import EMSElement, FCElement, VDElement
+from phantasy.library.layout import ColumnElement
+from phantasy.library.layout import CorElement
+from phantasy.library.layout import DriftElement
+from phantasy.library.layout import EBendElement
+from phantasy.library.layout import EMSElement
+from phantasy.library.layout import EQuadElement
+from phantasy.library.layout import ElectrodeElement
+from phantasy.library.layout import FCElement
+from phantasy.library.layout import HCorElement
 from phantasy.library.layout import Layout
+from phantasy.library.layout import PMElement
+from phantasy.library.layout import PortElement
+from phantasy.library.layout import QuadElement
+from phantasy.library.layout import SeqElement
+from phantasy.library.layout import SextElement
+from phantasy.library.layout import SolCorElement
+from phantasy.library.layout import SolElement
+from phantasy.library.layout import StripElement
+from phantasy.library.layout import VCorElement
+from phantasy.library.layout import VDElement
+from phantasy.library.layout import ValveElement
+from phantasy.library.parser import Configuration
 
 # configuration options
 
@@ -52,8 +64,15 @@ _XLF_LAYOUT_DIAMETER_IDX = 7
 _XLF_LAYOUT_EFFECTIVE_LENGTH_IDX = 10
 _XLF_LAYOUT_CENTER_POSITION_IDX = 14
 
+__copyright__ = "Copyright (c) 2015, Facility for Rare Isotope Beams"
+__author__ = "Dylan Maxwell"
 
 _LOGGER = logging.getLogger(__name__)
+
+try:
+    basestring
+except NameError:
+    basestring = str
 
 
 def build_accel(xlfpath=None, machine=None):
@@ -63,10 +82,10 @@ def build_accel(xlfpath=None, machine=None):
 
     accel_factory = AccelFactory()
 
-    if xlfpath != None:
+    if xlfpath is not None:
         accel_factory.xlfpath = xlfpath
 
-    if machine != None:
+    if machine is not None:
         accel_factory.machine = machine
 
     return accel_factory.build()
@@ -87,6 +106,7 @@ class AccelFactory(object):
     """
     Read the Accelerator Design Description from FRIB Expanded Lattice File.
     """
+
     def __init__(self, **kwargs):
         if kwargs.get("config", None) is not None:
             self.config = kwargs.get("config")
@@ -103,7 +123,7 @@ class AccelFactory(object):
 
     @xlfpath.setter
     def xlfpath(self, xlfpath):
-        if (xlfpath != None) and not isinstance(xlfpath, basestring):
+        if (xlfpath is not None) and not isinstance(xlfpath, basestring):
             raise TypeError("AccelFactory: 'xlfpath' property must be type a string or None")
         self._xlfpath = xlfpath
 
@@ -113,7 +133,7 @@ class AccelFactory(object):
 
     @machine.setter
     def machine(self, machine):
-        if (machine != None) and not isinstance(machine, basestring):
+        if (machine is not None) and not isinstance(machine, basestring):
             raise TypeError("AccelFactory: 'machine' property must be type string or None")
         self._machine = machine
 
@@ -123,7 +143,7 @@ class AccelFactory(object):
 
     @diameter.setter
     def diameter(self, diameter):
-        if (diameter != None) and not isinstance(diameter, (int, float)):
+        if (diameter is not None) and not isinstance(diameter, (int, float)):
             raise TypeError("AccelFactory: 'diameter' property must be type a number or None")
         self._diameter = diameter
 
@@ -133,7 +153,7 @@ class AccelFactory(object):
 
     @config.setter
     def config(self, config):
-        if not isinstance(config, (Configuration)):
+        if not isinstance(config, Configuration):
             raise TypeError("AccelFactory: 'config' property must be type Configuration")
         self._config = config
 
@@ -151,7 +171,7 @@ class AccelFactory(object):
 
     def _has_config_aperture(self, elem):
         return self.config.has_option(elem.name, CONFIG_APERTURE, False) \
-                or self.config.has_option(elem.dtype, CONFIG_APERTURE, False)
+               or self.config.has_option(elem.dtype, CONFIG_APERTURE, False)
 
     def _get_config_aperture_x(self, elem):
         if self.config.has_option(elem.name, CONFIG_APERTURE_X, False):
@@ -161,7 +181,7 @@ class AccelFactory(object):
 
     def _has_config_aperture_x(self, elem):
         return self.config.has_option(elem.name, CONFIG_APERTURE_X, False) \
-                or self.config.has_option(elem.dtype, CONFIG_APERTURE_X, False)
+               or self.config.has_option(elem.dtype, CONFIG_APERTURE_X, False)
 
     def _get_config_aperture_y(self, elem):
         if self.config.has_option(elem.name, CONFIG_APERTURE_Y, False):
@@ -171,7 +191,7 @@ class AccelFactory(object):
 
     def _has_config_aperture_y(self, elem):
         return self.config.has_option(elem.name, CONFIG_APERTURE_Y, False) \
-                or self.config.has_option(elem.dtype, CONFIG_APERTURE_Y, False)
+               or self.config.has_option(elem.dtype, CONFIG_APERTURE_Y, False)
 
     def _apply_config(self, elem):
         if self._has_config_aperture(elem):
@@ -188,30 +208,28 @@ class AccelFactory(object):
 
     def build(self):
         xlfpath = self.xlfpath
-        if (xlfpath == None) and self.config.has_default(CONFIG_XLF_DATA_FILE):
+        if (xlfpath is None) and self.config.has_default(CONFIG_XLF_DATA_FILE):
             xlfpath = self.config.getabspath_default(CONFIG_XLF_DATA_FILE)
 
-        if xlfpath == None:
+        if xlfpath is None:
             raise ValueError("AccelFactory: Expanded Lattice File not specified, check the configuration.")
 
         if not os.path.isfile(xlfpath):
             raise ValueError("AccelFactory: Expanded Lattice File not found: '{}'".format(xlfpath))
 
-
         machine = self.machine
-        if (machine == None) and self.config.has_default(CONFIG_MACHINE):
+        if (machine is None) and self.config.has_default(CONFIG_MACHINE):
             machine = self.config.get_default(CONFIG_MACHINE)
 
-
         diameter = self.diameter
-        if (diameter == None) and self.config.has_default(CONFIG_XLF_DIAMETER):
+        if (diameter is None) and self.config.has_default(CONFIG_XLF_DIAMETER):
             diameter = _parse_diameter(self.config.get_default(CONFIG_XLF_DIAMETER))
-
 
         wkbk = xlrd.open_workbook(xlfpath)
 
         if _XLF_LAYOUT_SHEET_NAME not in wkbk.sheet_names():
-            raise RuntimeError("AccelFactory: Expanded Lattice File layout not found: '{}'".format(_XLF_LAYOUT_SHEET_NAME))
+            raise RuntimeError(
+                "AccelFactory: Expanded Lattice File layout not found: '{}'".format(_XLF_LAYOUT_SHEET_NAME))
 
         layout = wkbk.sheet_by_name(_XLF_LAYOUT_SHEET_NAME)
 
@@ -231,73 +249,74 @@ class AccelFactory(object):
                 raise RuntimeError("AccelFactory: previous element type invalid")
             return elements[-1]
 
-        for ridx in xrange(_XLF_LAYOUT_SHEET_START, layout.nrows):
+        for ridx in range(_XLF_LAYOUT_SHEET_START, layout.nrows):
             row = _LayoutRow(layout.row(ridx))
 
             # skip rows without length
-            if row.eff_length == None:
+            if row.eff_length is None:
                 continue
 
             # clear lines with comments
-            if row.system != None:
-                for prefix in [  "dump", "SEGMENT", "LINAC", "Target" ]:
+            if row.system is not None:
+                for prefix in ["dump", "SEGMENT", "LINAC", "Target"]:
                     if row.system.startswith(prefix):
                         row.system = None
                         break
 
             # apply default values
-            if row.diameter == None:
-                if (subsequence != None) and (len(subsequence.elements) > 0):
+            if row.diameter is None:
+                if (subsequence is not None) and (len(subsequence.elements) > 0):
                     # diameter from the aperture of the previous element
                     row.diameter = [subsequence.elements[-1].apertureX * 1000.0,
-                                       subsequence.elements[-1].apertureY * 1000.0]
-                elif diameter != None:
+                                    subsequence.elements[-1].apertureY * 1000.0]
+                elif diameter is not None:
                     # diameter from the configuration default
                     row.diameter = diameter
                 else:
-                    raise RuntimeError("AccelFactory: Layout data missing diameter (row:{}): {}".format(ridx+1,row))
+                    raise RuntimeError("AccelFactory: Layout data missing diameter (row:{}): {}".format(ridx + 1, row))
 
             # unit conversion
             row.diameter[0] *= 0.001
             row.diameter[1] *= 0.001
 
-
-            if sequence == None:
-                if row.system != None:
+            if sequence is None:
+                if row.system is not None:
                     sequence = SeqElement(row.system)
                     accelerator.append(sequence)
                 else:
-                    raise RuntimeError("AccelFactory: Initial layout data must specifiy system (row:{}): {}".format(ridx+1,row))
+                    raise RuntimeError(
+                        "AccelFactory: Initial layout data must specifiy system (row:{}): {}".format(ridx + 1, row))
 
-            elif (row.system != None) and (row.system != sequence.name):
+            elif (row.system is not None) and (row.system != sequence.name):
                 sequence = SeqElement(row.system)
                 accelerator.append(sequence)
                 subsequence = None
 
-            if subsequence == None:
-                if row.subsystem != None:
+            if subsequence is None:
+                if row.subsystem is not None:
                     subsequence = SeqElement(row.subsystem)
                     sequence.append(subsequence)
                 else:
-                    raise RuntimeError("AccelFactory: Initial layout data must specify subsystem (row:{}): {}".format(ridx+1,row))
+                    raise RuntimeError(
+                        "AccelFactory: Initial layout data must specify subsystem (row:{}): {}".format(ridx + 1, row))
 
-            elif (row.subsystem != None) and (row.subsystem != subsequence.name):
+            elif (row.subsystem is not None) and (row.subsystem != subsequence.name):
                 subsequence = SeqElement(row.subsystem)
                 sequence.append(subsequence)
 
-
             try:
-                if row.device != None:
+                if row.device is not None:
 
                     if (drift_delta != 0.0) and (row.eff_length != 0.0):
                         # these 'named' elements do not support non-zero drift delta
                         raise RuntimeError("Unsupported drift delta on element: {}".format(row.element_name))
 
-                    elif row.device in [ "GV", "FVS", "FAV"  ]:
+                    elif row.device in ["GV", "FVS", "FAV"]:
                         subsequence.append(ValveElement(row.center_position, row.eff_length, row.diameter, row.name,
-                                            desc=row.element_name, system=row.system, subsystem=row.subsystem, device=row.device))
+                                                        desc=row.element_name, system=row.system,
+                                                        subsystem=row.subsystem, device=row.device))
 
-                    elif row.device in [ "CAV1", "CAV2", "CAV3", "CAV4", "CAV5", "CAV6", "CAV7", "CAV8", "CAV" ]:
+                    elif row.device in ["CAV1", "CAV2", "CAV3", "CAV4", "CAV5", "CAV6", "CAV7", "CAV8", "CAV"]:
                         m = re.match("(b\\d{2}) cavity", row.element_name)
                         if m:
                             dtype = "CAV_{}".format(m.group(1).upper())
@@ -306,8 +325,10 @@ class AccelFactory(object):
 
                         inst = "D{:d}".format(int(row.position))
 
-                        elem = CavityElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
-                                                    system=row.system, subsystem=row.subsystem, device=row.device, dtype=dtype, inst=inst)
+                        elem = CavityElement(row.center_position, row.eff_length, row.diameter, row.name,
+                                             desc=row.element_name,
+                                             system=row.system, subsystem=row.subsystem, device=row.device, dtype=dtype,
+                                             inst=inst)
 
                         if self._has_config_length(dtype):
                             drift_delta = (elem.length - self._get_config_length(dtype)) / 2.0
@@ -317,21 +338,25 @@ class AccelFactory(object):
 
                         subsequence.append(elem)
 
-                    elif row.device in [ "SOLR" ]:
+                    elif row.device in ["SOLR"]:
                         dtype = "SOL_{}".format(row.device_type)
                         inst = "D{:d}".format(int(row.position))
 
-                        elem = SolElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
-                                                    system=row.system, subsystem=row.subsystem, device=row.device, dtype=dtype, inst=inst)
+                        elem = SolElement(row.center_position, row.eff_length, row.diameter, row.name,
+                                          desc=row.element_name,
+                                          system=row.system, subsystem=row.subsystem, device=row.device, dtype=dtype,
+                                          inst=inst)
 
                         subsequence.append(elem)
 
-                    elif row.device in [ "SOL1", "SOL2", "SOL3", "SOLS" ]:
+                    elif row.device in ["SOL1", "SOL2", "SOL3", "SOLS"]:
                         dtype = "SOL_{}".format(row.device_type)
                         inst = "D{:d}".format(int(row.position))
 
-                        elem = SolCorElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
-                                                    system=row.system, subsystem=row.subsystem, device=row.device, dtype=dtype, inst=inst)
+                        elem = SolCorElement(row.center_position, row.eff_length, row.diameter, row.name,
+                                             desc=row.element_name,
+                                             system=row.system, subsystem=row.subsystem, device=row.device, dtype=dtype,
+                                             inst=inst)
 
                         if self._has_config_length(dtype):
                             drift_delta = (elem.length - self._get_config_length(dtype)) / 2.0
@@ -339,158 +364,199 @@ class AccelFactory(object):
                             get_prev_element().z += drift_delta
                             elem.length -= drift_delta * 2.0
 
-                        elem.h = HCorElement(elem.z, 0.0, elem.aperture, "{elem.system}_{elem.subsystem}:DCH_{elem.inst}".format(elem=elem),
-                                                   system=row.system, subsystem=row.subsystem, device="DCH", dtype=row.device_type, inst=inst)
+                        elem.h = HCorElement(elem.z, 0.0, elem.aperture,
+                                             "{elem.system}_{elem.subsystem}:DCH_{elem.inst}".format(elem=elem),
+                                             system=row.system, subsystem=row.subsystem, device="DCH",
+                                             dtype=row.device_type, inst=inst)
 
-                        elem.v = VCorElement(elem.z, 0.0, elem.aperture, "{elem.system}_{elem.subsystem}:DCV_{elem.inst}".format(elem=elem),
-                                                   system=row.system, subsystem=row.subsystem, device="DCV", dtype=row.device_type, inst=inst)
+                        elem.v = VCorElement(elem.z, 0.0, elem.aperture,
+                                             "{elem.system}_{elem.subsystem}:DCV_{elem.inst}".format(elem=elem),
+                                             system=row.system, subsystem=row.subsystem, device="DCV",
+                                             dtype=row.device_type, inst=inst)
 
                         subsequence.append(elem)
 
-                    elif row.device in [ "BPM" ]:
+                    elif row.device in ["BPM"]:
 
                         inst = "D{:d}".format(int(row.position))
 
-                        elem = BPMElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
-                                                            system=row.system, subsystem=row.subsystem, device=row.device, dtype=row.device_type, inst=inst)
+                        elem = BPMElement(row.center_position, row.eff_length, row.diameter, row.name,
+                                          desc=row.element_name,
+                                          system=row.system, subsystem=row.subsystem, device=row.device,
+                                          dtype=row.device_type, inst=inst)
 
                         subsequence.append(elem)
 
-                    elif row.device in [ "PM" ]:
+                    elif row.device in ["PM"]:
 
                         inst = "D{:d}".format(int(row.position))
 
-                        elem = PMElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
-                                                           system=row.system, subsystem=row.subsystem, device=row.device, dtype=row.device_type, inst=inst)
+                        elem = PMElement(row.center_position, row.eff_length, row.diameter, row.name,
+                                         desc=row.element_name,
+                                         system=row.system, subsystem=row.subsystem, device=row.device,
+                                         dtype=row.device_type, inst=inst)
 
                         subsequence.append(elem)
 
-                    elif row.device in [ "BL" ]:
-                        subsequence.append(BLElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
-                                                            system=row.system, subsystem=row.subsystem, device=row.device, dtype=row.device_type))
+                    elif row.device in ["BL"]:
+                        subsequence.append(BLElement(row.center_position, row.eff_length, row.diameter, row.name,
+                                                     desc=row.element_name,
+                                                     system=row.system, subsystem=row.subsystem, device=row.device,
+                                                     dtype=row.device_type))
 
-                    elif row.device in [ "BLM" ]:
-                        subsequence.append(BLMElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
-                                                            system=row.system, subsystem=row.subsystem, device=row.device))
+                    elif row.device in ["BLM"]:
+                        subsequence.append(BLMElement(row.center_position, row.eff_length, row.diameter, row.name,
+                                                      desc=row.element_name,
+                                                      system=row.system, subsystem=row.subsystem, device=row.device))
 
-                    elif row.device in [ "BCM" ]:
-                        subsequence.append(BCMElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
-                                                            system=row.system, subsystem=row.subsystem, device=row.device, dtype=row.device_type))
+                    elif row.device in ["BCM"]:
+                        subsequence.append(BCMElement(row.center_position, row.eff_length, row.diameter, row.name,
+                                                      desc=row.element_name,
+                                                      system=row.system, subsystem=row.subsystem, device=row.device,
+                                                      dtype=row.device_type))
 
-                    elif row.device in [ "EMS" ]:
-                        subsequence.append(EMSElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
-                                                            system=row.system, subsystem=row.subsystem, device=row.device, dtype=row.device_type))
+                    elif row.device in ["EMS"]:
+                        subsequence.append(EMSElement(row.center_position, row.eff_length, row.diameter, row.name,
+                                                      desc=row.element_name,
+                                                      system=row.system, subsystem=row.subsystem, device=row.device,
+                                                      dtype=row.device_type))
 
-                    elif row.device in [ "FC", "FFC" ]:
-                        subsequence.append(FCElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
-                                                            system=row.system, subsystem=row.subsystem, device=row.device, dtype=row.device_type))
+                    elif row.device in ["FC", "FFC"]:
+                        subsequence.append(FCElement(row.center_position, row.eff_length, row.diameter, row.name,
+                                                     desc=row.element_name,
+                                                     system=row.system, subsystem=row.subsystem, device=row.device,
+                                                     dtype=row.device_type))
 
-                    elif row.device in [ "VD" ]:
-                        subsequence.append(VDElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
-                                                            system=row.system, subsystem=row.subsystem, device=row.device, dtype=row.device_type))
+                    elif row.device in ["VD"]:
+                        subsequence.append(VDElement(row.center_position, row.eff_length, row.diameter, row.name,
+                                                     desc=row.element_name,
+                                                     system=row.system, subsystem=row.subsystem, device=row.device,
+                                                     dtype=row.device_type))
 
-                    elif row.device in [ "PORT" ]:
-                        dtype = "" if row.device_type == None else row.device_type
-                        subsystem = "" if row.subsystem == None else row.subsystem
-                        subsequence.append(PortElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
-                                                                system=row.system, subsystem=subsystem, device=row.device, dtype=dtype))
+                    elif row.device in ["PORT"]:
+                        dtype = "" if row.device_type is None else row.device_type
+                        subsystem = "" if row.subsystem is None else row.subsystem
+                        subsequence.append(PortElement(row.center_position, row.eff_length, row.diameter, row.name,
+                                                       desc=row.element_name,
+                                                       system=row.system, subsystem=subsystem, device=row.device,
+                                                       dtype=dtype))
 
-                    elif row.device in [ "DC", "DC0", "CH", "DCHV" ]:
+                    elif row.device in ["DC", "DC0", "CH", "DCHV"]:
 
                         inst = "D{:d}".format(int(row.position))
 
-                        elem = CorElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
-                                                    system=row.system, subsystem=row.subsystem, device=row.device, dtype=row.device_type, inst=inst)
+                        elem = CorElement(row.center_position, row.eff_length, row.diameter, row.name,
+                                          desc=row.element_name,
+                                          system=row.system, subsystem=row.subsystem, device=row.device,
+                                          dtype=row.device_type, inst=inst)
 
-                        elem.h = HCorElement(elem.z, 0.0, elem.aperture, "{elem.system}_{elem.subsystem}:DCH_{elem.inst}".format(elem=elem),
-                                                   system=row.system, subsystem=row.subsystem, device="DCH", dtype=row.device_type, inst=inst)
+                        elem.h = HCorElement(elem.z, 0.0, elem.aperture,
+                                             "{elem.system}_{elem.subsystem}:DCH_{elem.inst}".format(elem=elem),
+                                             system=row.system, subsystem=row.subsystem, device="DCH",
+                                             dtype=row.device_type, inst=inst)
 
-                        elem.v = VCorElement(elem.z, 0.0, elem.aperture, "{elem.system}_{elem.subsystem}:DCV_{elem.inst}".format(elem=elem),
-                                                   system=row.system, subsystem=row.subsystem, device="DCV", dtype=row.device_type, inst=inst)
+                        elem.v = VCorElement(elem.z, 0.0, elem.aperture,
+                                             "{elem.system}_{elem.subsystem}:DCV_{elem.inst}".format(elem=elem),
+                                             system=row.system, subsystem=row.subsystem, device="DCV",
+                                             dtype=row.device_type, inst=inst)
 
                         subsequence.append(elem)
 
-                    elif row.device in [ "DH" ]:
+                    elif row.device in ["DH"]:
 
                         dtype = "BEND_{}".format(row.device_type)
                         inst = "D{:d}".format(int(row.position))
 
-                        elem = BendElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
-                                                    system=row.system, subsystem=row.subsystem, device=row.device, dtype=dtype, inst=inst)
+                        elem = BendElement(row.center_position, row.eff_length, row.diameter, row.name,
+                                           desc=row.element_name,
+                                           system=row.system, subsystem=row.subsystem, device=row.device, dtype=dtype,
+                                           inst=inst)
 
                         self._apply_config(elem)
 
                         subsequence.append(elem)
 
-
-                    elif row.device in [ "QH", "QV", "Q" ]:
+                    elif row.device in ["QH", "QV", "Q"]:
 
                         dtype = "QUAD_{}".format(row.device_type)
                         inst = "D{:d}".format(int(row.position))
 
-                        elem = QuadElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
-                                                    system=row.system, subsystem=row.subsystem, device=row.device, dtype=dtype, inst=inst)
+                        elem = QuadElement(row.center_position, row.eff_length, row.diameter, row.name,
+                                           desc=row.element_name,
+                                           system=row.system, subsystem=row.subsystem, device=row.device, dtype=dtype,
+                                           inst=inst)
 
                         subsequence.append(elem)
 
-                    elif row.device in [ "S" ]:
+                    elif row.device in ["S"]:
 
                         inst = "D{:d}".format(int(row.position))
 
-                        elem = SextElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
-                                                   system=row.system, subsystem=row.subsystem, device=row.device, dtype=row.device_type, inst=inst)
+                        elem = SextElement(row.center_position, row.eff_length, row.diameter, row.name,
+                                           desc=row.element_name,
+                                           system=row.system, subsystem=row.subsystem, device=row.device,
+                                           dtype=row.device_type, inst=inst)
 
                         subsequence.append(elem)
 
-                    elif row.device in [ "ELC1", "ELC2", "ELC3" ]:
+                    elif row.device in ["ELC1", "ELC2", "ELC3"]:
 
                         inst = "D{:d}".format(int(row.position))
 
-                        elem = ElectrodeElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
-                                                   system=row.system, subsystem=row.subsystem, device=row.device, dtype=row.device_type, inst=inst)
+                        elem = ElectrodeElement(row.center_position, row.eff_length, row.diameter, row.name,
+                                                desc=row.element_name,
+                                                system=row.system, subsystem=row.subsystem, device=row.device,
+                                                dtype=row.device_type, inst=inst)
 
                         subsequence.append(elem)
 
-                    elif row.device in [ "ACC" ]:
+                    elif row.device in ["ACC"]:
 
                         inst = "D{:d}".format(int(row.position))
 
-                        elem = ColumnElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
-                                                   system=row.system, subsystem=row.subsystem, device=row.device, dtype=row.device_type, inst=inst)
+                        elem = ColumnElement(row.center_position, row.eff_length, row.diameter, row.name,
+                                             desc=row.element_name,
+                                             system=row.system, subsystem=row.subsystem, device=row.device,
+                                             dtype=row.device_type, inst=inst)
 
                         subsequence.append(elem)
 
-                    elif row.device in [ "DVE" ]:
+                    elif row.device in ["DVE"]:
 
                         dtype = "BEND_{}".format(row.device_type)
                         inst = "D{:d}".format(int(row.position))
 
-                        elem = EBendElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
-                                                    system=row.system, subsystem=row.subsystem, device=row.device, dtype=dtype, inst=inst)
+                        elem = EBendElement(row.center_position, row.eff_length, row.diameter, row.name,
+                                            desc=row.element_name,
+                                            system=row.system, subsystem=row.subsystem, device=row.device, dtype=dtype,
+                                            inst=inst)
 
-                        #self._apply_config(elem)
+                        # self._apply_config(elem)
 
                         subsequence.append(elem)
 
-                    elif row.device in [ "QHE", "QVE" ]:
+                    elif row.device in ["QHE", "QVE"]:
 
                         dtype = "QUAD_{}".format(row.device_type)
                         inst = "D{:d}".format(int(row.position))
 
-                        elem = EQuadElement(row.center_position, row.eff_length, row.diameter, row.name, desc=row.element_name,
-                                                    system=row.system, subsystem=row.subsystem, device=row.device, dtype=dtype, inst=inst)
+                        elem = EQuadElement(row.center_position, row.eff_length, row.diameter, row.name,
+                                            desc=row.element_name,
+                                            system=row.system, subsystem=row.subsystem, device=row.device, dtype=dtype,
+                                            inst=inst)
 
                         subsequence.append(elem)
 
-
-                    elif row.device in [ "SLH", "SLT", "CHP", "AP", "ATT" ]:
+                    elif row.device in ["SLH", "SLT", "CHP", "AP", "ATT"]:
                         # use dift to represent slits, chopper, apertures and attenuators
-                        subsequence.append(DriftElement(row.center_position, row.eff_length, row.diameter, desc=row.element_name))
+                        subsequence.append(
+                            DriftElement(row.center_position, row.eff_length, row.diameter, desc=row.element_name))
 
-                    elif row.device in [ "dump", "DUMP" ]:
-                        subsequence.append(DriftElement(row.center_position, row.eff_length, row.diameter, desc=row.element_name))
+                    elif row.device in ["dump", "DUMP"]:
+                        subsequence.append(
+                            DriftElement(row.center_position, row.eff_length, row.diameter, desc=row.element_name))
 
-                    elif row.device in [ "STRIP" ]:
+                    elif row.device in ["STRIP"]:
                         elem = get_prev_element((StripElement))
                         elem.z = row.center_position
                         elem.name = row.name
@@ -501,31 +567,38 @@ class AccelFactory(object):
                     else:
                         raise Exception("Unsupported layout with device: '{}'".format(row.device))
 
-                elif row.element_name != None:
+                elif row.element_name is not None:
 
-                    if row.element_name in [ "bellow", "bellows", "bellow+tube", "2 bellows + tube", "bellow+box", "bellow+tube/box", "tube", "reducer flange", "bellow ?", "4 way cross ??", "BPM bellow", "bellow?", "bellow+tube ??", "6 way cross ??" ]:
+                    if row.element_name in ["bellow", "bellows", "bellow+tube", "2 bellows + tube", "bellow+box",
+                                            "bellow+tube/box", "tube", "reducer flange", "bellow ?", "4 way cross ??",
+                                            "BPM bellow", "bellow?", "bellow+tube ??", "6 way cross ??"]:
                         if drift_delta != 0.0:
                             row.eff_length += drift_delta
                             row.center_position -= drift_delta
                             drift_delta = 0.0
-                        subsequence.append(DriftElement(row.center_position, row.eff_length, row.diameter, desc=row.element_name))
+                        subsequence.append(
+                            DriftElement(row.center_position, row.eff_length, row.diameter, desc=row.element_name))
 
-                    elif row.element_name in [ "solenoid-entry", "solenoid-exit" ]:
+                    elif row.element_name in ["solenoid-entry", "solenoid-exit"]:
                         if drift_delta != 0.0:
                             row.eff_length += drift_delta
                             row.center_position -= drift_delta
                             drift_delta = 0.0
-                        subsequence.append(DriftElement(row.center_position, row.eff_length, row.diameter, desc=row.element_name))
+                        subsequence.append(
+                            DriftElement(row.center_position, row.eff_length, row.diameter, desc=row.element_name))
 
-                    elif row.element_name in [ "coil-out", "coil-out (assumed)", "coil out", "coil out + leads" ]:
+                    elif row.element_name in ["coil-out", "coil-out (assumed)", "coil out", "coil out + leads"]:
                         if drift_delta != 0.0:
                             raise Exception("Unsupported drift delta on element: {}".format(row.element_name))
-                        subsequence.append(DriftElement(row.center_position, row.eff_length, row.diameter, desc=row.element_name))
+                        subsequence.append(
+                            DriftElement(row.center_position, row.eff_length, row.diameter, desc=row.element_name))
 
-                    elif row.element_name in [ "BPM-box", "diagnostic box", "vacuum box", "box", "box+tube", "mhb box", "mhb box & bellows", "4 way cross", "6 way cross" ]:
+                    elif row.element_name in ["BPM-box", "diagnostic box", "vacuum box", "box", "box+tube", "mhb box",
+                                              "mhb box & bellows", "4 way cross", "6 way cross"]:
                         if drift_delta != 0.0:
                             raise Exception("Unsupported drift delta on element: {}".format(row.element_name))
-                        subsequence.append(DriftElement(row.center_position, row.eff_length, row.diameter, desc=row.element_name))
+                        subsequence.append(
+                            DriftElement(row.center_position, row.eff_length, row.diameter, desc=row.element_name))
 
                     elif row.element_name == "stripper module":
                         if drift_delta != 0.0:
@@ -533,7 +606,9 @@ class AccelFactory(object):
                         try:
                             get_prev_element((StripElement)).length += row.eff_length
                         except:
-                            subsequence.append(StripElement(row.center_position, row.eff_length, row.diameter, "CHARGE STRIPPER", desc=row.element_name))
+                            subsequence.append(
+                                StripElement(row.center_position, row.eff_length, row.diameter, "CHARGE STRIPPER",
+                                             desc=row.element_name))
 
                     elif row.element_name == "lithium film stripper":
                         if drift_delta != 0.0:
@@ -546,29 +621,34 @@ class AccelFactory(object):
                         elem.subsystem = row.subsystem
                         elem.device = "STRIP"
 
-                    elif row.element_name in [ "artemis_b extraction/puller", "artemis_b extraction wall", "extraction mounting plate", "extraction box", "gap (puller & extraction hole)", "gap (puller main & bias)", "puller tube" ]:
+                    elif row.element_name in ["artemis_b extraction/puller", "artemis_b extraction wall",
+                                              "extraction mounting plate", "extraction box",
+                                              "gap (puller & extraction hole)", "gap (puller main & bias)",
+                                              "puller tube"]:
                         if drift_delta != 0.0:
                             raise Exception("Unsupported drift delta on element: {}".format(row.element_name))
-                        subsequence.append(DriftElement(row.center_position, row.eff_length, row.diameter, desc=row.element_name))
+                        subsequence.append(
+                            DriftElement(row.center_position, row.eff_length, row.diameter, desc=row.element_name))
 
-                    elif row.element_name in [ "RFQ end wall", "RFQ inn-wall (match point)", "RFQ inn-wall" ]:
+                    elif row.element_name in ["RFQ end wall", "RFQ inn-wall (match point)", "RFQ inn-wall"]:
                         if drift_delta != 0.0:
                             raise Exception("Unsupported drift delta on element: {}".format(row.element_name))
-                        subsequence.append(DriftElement(row.center_position, row.eff_length, row.diameter, desc=row.element_name))
+                        subsequence.append(
+                            DriftElement(row.center_position, row.eff_length, row.diameter, desc=row.element_name))
 
                     else:
                         raise Exception("Unsupported layout with name: '{}'".format(row.element_name))
 
                 elif row.eff_length != 0.0:
                     if drift_delta != 0.0:
-                            row.eff_length += drift_delta
-                            row.center_position -= drift_delta
-                            drift_delta = 0.0
-                    desc = "drift_{}".format(ridx+1) if row.element_name == None else row.element_name
+                        row.eff_length += drift_delta
+                        row.center_position -= drift_delta
+                        drift_delta = 0.0
+                    desc = "drift_{}".format(ridx + 1) if row.element_name is None else row.element_name
                     subsequence.append(DriftElement(row.center_position, row.eff_length, row.diameter, desc=desc))
 
             except Exception as e:
-                raise RuntimeError("AccelFactory: {}: row {}: {}".format(str(e), ridx+1, row))
+                raise RuntimeError("AccelFactory: {}: row {}: {}".format(str(e), ridx + 1, row))
 
         return accelerator
 
@@ -579,7 +659,7 @@ class AccelFactory(object):
         d["system"] = system
         d["subsystem"] = subsystem
         d["device"] = device
-        #d["deviceType"] = elem.dtype
+        # d["deviceType"] = elem.dtype
         d["z"] = z
         d["elemName"] = name
         d["elemHandle"] = handle
@@ -594,7 +674,7 @@ def _parse_diameter(d):
         try:
             return [float(s[0]), float(s[0])]
         except:
-            pass # ignore exception
+            pass  # ignore exception
 
     elif len(s) == 2:
         try:
@@ -603,7 +683,7 @@ def _parse_diameter(d):
             # which means we need to reverse the order.
             return [float(s[1]), float(s[0])]
         except:
-            pass # ignore exception
+            pass  # ignore exception
 
     return None
 
@@ -632,20 +712,18 @@ class _LayoutRow(object):
 
         return None
 
-
     @staticmethod
     def _cell_to_float(cell):
         if cell.ctype == xlrd.XL_CELL_TEXT:
             try:
                 return float(cell.value)
             except:
-                pass # ignore exception
+                pass  # ignore exception
 
         elif cell.ctype == xlrd.XL_CELL_NUMBER:
             return cell.value
 
         return None
-
 
     def __init__(self, row):
         self.system = self._cell_to_string(row[_XLF_LAYOUT_SYSTEM_IDX])
@@ -659,6 +737,5 @@ class _LayoutRow(object):
         self.eff_length = self._cell_to_float(row[_XLF_LAYOUT_EFFECTIVE_LENGTH_IDX])
         self.center_position = self._cell_to_float(row[_XLF_LAYOUT_CENTER_POSITION_IDX])
 
-
     def __str__(self):
-        return type(self).__name__+str(self.__dict__)
+        return type(self).__name__ + str(self.__dict__)

@@ -8,29 +8,27 @@
 
 from collections import OrderedDict
 
-from phantasy.library.layout import DriftElement
-from phantasy.library.layout import ValveElement
-from phantasy.library.layout import DriftElement
-from phantasy.library.layout import CavityElement
-from phantasy.library.layout import StripElement
-from phantasy.library.layout import SolCorElement
-from phantasy.library.layout import SolElement
-from phantasy.library.layout import CorElement
-from phantasy.library.layout import BendElement
-from phantasy.library.layout import QuadElement
-from phantasy.library.layout import SextElement
-from phantasy.library.layout import BPMElement
 from phantasy.library.layout import BCMElement
 from phantasy.library.layout import BLElement
 from phantasy.library.layout import BLMElement
+from phantasy.library.layout import BPMElement
+from phantasy.library.layout import BendElement
+from phantasy.library.layout import CavityElement
+from phantasy.library.layout import CorElement
+from phantasy.library.layout import DriftElement
+from phantasy.library.layout import EBendElement
+from phantasy.library.layout import EMSElement
+from phantasy.library.layout import EQuadElement
+from phantasy.library.layout import FCElement
 from phantasy.library.layout import PMElement
 from phantasy.library.layout import PortElement
-from phantasy.library.layout import EBendElement
-from phantasy.library.layout import EQuadElement
-from phantasy.library.layout import EMSElement
+from phantasy.library.layout import QuadElement
+from phantasy.library.layout import SextElement
+from phantasy.library.layout import SolCorElement
+from phantasy.library.layout import SolElement
+from phantasy.library.layout import StripElement
 from phantasy.library.layout import VDElement
-from phantasy.library.layout import FCElement
-
+from phantasy.library.layout import ValveElement
 
 _INDEX_PROPERTY = "elemIndex"
 _POSITION_PROPERTY = "elemPosition"
@@ -40,6 +38,11 @@ _NAME_PROPERTY = "elemName"
 _HANDLE_PROPERTY = "elemHandle"
 _FIELD_PROPERTY = "elemField"
 _TYPE_PROPERTY = "elemType"
+
+_PHYTYPE_PROPERTY = "physicsType"
+_PHYNAME_PROPERTY = "physicsName"
+_MISC_PROPERTY = "misc"
+
 
 
 def build_channels(layout, machine=None, **kws):
@@ -74,7 +77,7 @@ def build_channels(layout, machine=None, **kws):
         machine = "LIVE"
         prefix = ""
     else:
-        prefix = machine+":"
+        prefix = machine + ":"
 
     data = []
     index = 0
@@ -83,27 +86,29 @@ def build_channels(layout, machine=None, **kws):
     _start = kws.get('start', None)
     _end = kws.get('end', None)
     for elem in layout.iter(_start, _end):
-    #for elem in layout:
+        # for elem in layout:
 
         index += 1
 
         if offset is None:
-            offset = elem.z - (elem.length/2.0)
+            offset = elem.z - (elem.length / 2.0)
 
         def buildChannel(element):
-            channel = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}".format(prefix,elem=element)
+            channel = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}".format(prefix, elem=element)
             props = OrderedDict()
             props[_INDEX_PROPERTY] = index
-            props[_POSITION_PROPERTY] = str(element.z+(element.length/2.0)-offset)
+            props[_POSITION_PROPERTY] = str(element.z + (element.length / 2.0) - offset)
             props[_LENGTH_PROPERTY] = str(element.length)
             props[_MACHINE_PROPERTY] = machine
             props[_NAME_PROPERTY] = element.name
             props[_HANDLE_PROPERTY] = ""
             props[_FIELD_PROPERTY] = ""
             props[_TYPE_PROPERTY] = ""
+            props[_PHYTYPE_PROPERTY] = element.dtype
+            props[_PHYNAME_PROPERTY] = element.desc
             tags = []
-            tags.append("phyutil.sys."+element.system)
-            tags.append("phyutil.sub."+element.subsystem)
+            tags.append("phyutil.sys." + element.system)
+            tags.append("phyutil.sub." + element.subsystem)
             return channel, props, tags
 
         channel, props, tags = buildChannel(elem)
@@ -112,185 +117,176 @@ def build_channels(layout, machine=None, **kws):
             props[_TYPE_PROPERTY] = "CAV"
             props[_FIELD_PROPERTY] = elem.fields.phase
             props[_HANDLE_PROPERTY] = "setpoint"
-            data.append((channel+":PHA_CSET", OrderedDict(props), list(tags)))
+            data.append((channel + ":PHA_CSET", OrderedDict(props), list(tags)))
             props[_HANDLE_PROPERTY] = "readset"
-            data.append((channel+":PHA_RSET", OrderedDict(props), list(tags))) 
+            data.append((channel + ":PHA_RSET", OrderedDict(props), list(tags)))
             props[_HANDLE_PROPERTY] = "readback"
-            data.append((channel+":PHA_RD",OrderedDict(props), list(tags)))
+            data.append((channel + ":PHA_RD", OrderedDict(props), list(tags)))
 
             props[_FIELD_PROPERTY] = elem.fields.amplitude
             props[_HANDLE_PROPERTY] = "setpoint"
-            data.append((channel+":AMPL_CSET", OrderedDict(props), list(tags)))
+            data.append((channel + ":AMPL_CSET", OrderedDict(props), list(tags)))
             props[_HANDLE_PROPERTY] = "readset"
-            data.append((channel+":AMPL_RSET", OrderedDict(props), list(tags)))
+            data.append((channel + ":AMPL_RSET", OrderedDict(props), list(tags)))
             props[_HANDLE_PROPERTY] = "readback"
-            data.append((channel+":AMPL_RD", OrderedDict(props), list(tags)))
+            data.append((channel + ":AMPL_RD", OrderedDict(props), list(tags)))
 
         elif isinstance(elem, SolCorElement):
             props[_TYPE_PROPERTY] = "SOL"
             props[_FIELD_PROPERTY] = elem.fields.field
             props[_HANDLE_PROPERTY] = "setpoint"
-            data.append((channel+":B_CSET", OrderedDict(props), list(tags)))
+            data.append((channel + ":B_CSET", OrderedDict(props), list(tags)))
             props[_HANDLE_PROPERTY] = "readset"
-            data.append((channel+":B_RSET", OrderedDict(props), list(tags)))
+            data.append((channel + ":B_RSET", OrderedDict(props), list(tags)))
             props[_HANDLE_PROPERTY] = "readback"
-            data.append((channel+":B_RD", OrderedDict(props), list(tags)))
+            data.append((channel + ":B_RD", OrderedDict(props), list(tags)))
 
             channel, props, tags = buildChannel(elem.h)
             props[_TYPE_PROPERTY] = "HCOR"
             props[_FIELD_PROPERTY] = elem.h.fields.angle
             props[_HANDLE_PROPERTY] = "setpoint"
-            data.append((channel+":ANG_CSET", OrderedDict(props), list(tags)))
+            data.append((channel + ":ANG_CSET", OrderedDict(props), list(tags)))
             props[_HANDLE_PROPERTY] = "readset"
-            data.append((channel+":ANG_RSET", OrderedDict(props), list(tags)))
+            data.append((channel + ":ANG_RSET", OrderedDict(props), list(tags)))
             props[_HANDLE_PROPERTY] = "readback"
-            data.append((channel+":ANG_RD", OrderedDict(props), list(tags)))
-            
+            data.append((channel + ":ANG_RD", OrderedDict(props), list(tags)))
+
             channel, props, tags = buildChannel(elem.v)
             props[_TYPE_PROPERTY] = "VCOR"
             props[_FIELD_PROPERTY] = elem.v.fields.angle
             props[_HANDLE_PROPERTY] = "setpoint"
-            data.append((channel+":ANG_CSET", OrderedDict(props), list(tags)))
+            data.append((channel + ":ANG_CSET", OrderedDict(props), list(tags)))
             props[_HANDLE_PROPERTY] = "readset"
-            data.append((channel+":ANG_RSET", OrderedDict(props), list(tags)))
+            data.append((channel + ":ANG_RSET", OrderedDict(props), list(tags)))
             props[_HANDLE_PROPERTY] = "readback"
-            data.append((channel+":ANG_RD", OrderedDict(props), list(tags)))
+            data.append((channel + ":ANG_RD", OrderedDict(props), list(tags)))
 
         elif isinstance(elem, SolElement):
             props[_TYPE_PROPERTY] = "SOL"
             props[_FIELD_PROPERTY] = elem.fields.field
             props[_HANDLE_PROPERTY] = "setpoint"
-            data.append((channel+":B_CSET", OrderedDict(props), list(tags)))
+            data.append((channel + ":B_CSET", OrderedDict(props), list(tags)))
             props[_HANDLE_PROPERTY] = "readset"
-            data.append((channel+":B_RSET", OrderedDict(props), list(tags)))
+            data.append((channel + ":B_RSET", OrderedDict(props), list(tags)))
             props[_HANDLE_PROPERTY] = "readback"
-            data.append((channel+":B_RD", OrderedDict(props), list(tags)))
+            data.append((channel + ":B_RD", OrderedDict(props), list(tags)))
 
         elif isinstance(elem, CorElement):
             channel, props, tags = buildChannel(elem.h)
             props[_TYPE_PROPERTY] = "HCOR"
             props[_FIELD_PROPERTY] = elem.h.fields.angle
             props[_HANDLE_PROPERTY] = "setpoint"
-            data.append((channel+":ANG_CSET", OrderedDict(props), list(tags)))
+            data.append((channel + ":ANG_CSET", OrderedDict(props), list(tags)))
             props[_HANDLE_PROPERTY] = "readset"
-            data.append((channel+":ANG_RSET", OrderedDict(props), list(tags)))
+            data.append((channel + ":ANG_RSET", OrderedDict(props), list(tags)))
             props[_HANDLE_PROPERTY] = "readback"
-            data.append((channel+":ANG_RD", OrderedDict(props), list(tags)))
+            data.append((channel + ":ANG_RD", OrderedDict(props), list(tags)))
 
             channel, props, tags = buildChannel(elem.v)
             props[_TYPE_PROPERTY] = "VCOR"
             props[_FIELD_PROPERTY] = elem.v.fields.angle
             props[_HANDLE_PROPERTY] = "setpoint"
-            data.append((channel+":ANG_CSET", OrderedDict(props), list(tags)))
+            data.append((channel + ":ANG_CSET", OrderedDict(props), list(tags)))
             props[_HANDLE_PROPERTY] = "readset"
-            data.append((channel+":ANG_RSET", OrderedDict(props), list(tags)))
+            data.append((channel + ":ANG_RSET", OrderedDict(props), list(tags)))
             props[_HANDLE_PROPERTY] = "readback"
-            data.append((channel+":ANG_RD", OrderedDict(props), list(tags)))
+            data.append((channel + ":ANG_RD", OrderedDict(props), list(tags)))
 
         elif isinstance(elem, QuadElement):
             props[_TYPE_PROPERTY] = "QUAD"
             props[_FIELD_PROPERTY] = elem.fields.gradient
             props[_HANDLE_PROPERTY] = "setpoint"
-            data.append((channel+":GRAD_CSET", OrderedDict(props), list(tags)))
+            data.append((channel + ":GRAD_CSET", OrderedDict(props), list(tags)))
             props[_HANDLE_PROPERTY] = "readset"
-            data.append((channel+":GRAD_RSET", OrderedDict(props), list(tags)))
+            data.append((channel + ":GRAD_RSET", OrderedDict(props), list(tags)))
             props[_HANDLE_PROPERTY] = "readback"
-            data.append((channel+":GRAD_RD", OrderedDict(props), list(tags)))
+            data.append((channel + ":GRAD_RD", OrderedDict(props), list(tags)))
 
         elif isinstance(elem, BendElement):
             props[_TYPE_PROPERTY] = "BEND"
             props[_FIELD_PROPERTY] = elem.fields.field
             props[_HANDLE_PROPERTY] = "setpoint"
-            data.append((channel+":B_CSET", OrderedDict(props), list(tags)))
+            data.append((channel + ":B_CSET", OrderedDict(props), list(tags)))
             props[_HANDLE_PROPERTY] = "readset"
-            data.append((channel+":B_RSET", OrderedDict(props), list(tags)))
+            data.append((channel + ":B_RSET", OrderedDict(props), list(tags)))
             props[_HANDLE_PROPERTY] = "readback"
-            data.append((channel+":B_RD", OrderedDict(props), list(tags)))
+            data.append((channel + ":B_RD", OrderedDict(props), list(tags)))
 
         elif isinstance(elem, SextElement):
             props[_TYPE_PROPERTY] = "SEXT"
             props[_FIELD_PROPERTY] = elem.fields.field
             props[_HANDLE_PROPERTY] = "setpoint"
-            data.append((channel+":B3_CSET", OrderedDict(props), list(tags)))
+            data.append((channel + ":B3_CSET", OrderedDict(props), list(tags)))
             props[_HANDLE_PROPERTY] = "readset"
-            data.append((channel+":B3_RSET", OrderedDict(props), list(tags)))
+            data.append((channel + ":B3_RSET", OrderedDict(props), list(tags)))
             props[_HANDLE_PROPERTY] = "readback"
-            data.append((channel+":B3_RD", OrderedDict(props), list(tags)))
+            data.append((channel + ":B3_RD", OrderedDict(props), list(tags)))
 
         elif isinstance(elem, BPMElement):
             props[_TYPE_PROPERTY] = "BPM"
 
             props[_FIELD_PROPERTY] = elem.fields.x
             props[_HANDLE_PROPERTY] = "readback"
-            data.append((channel+":X_RD", OrderedDict(props), list(tags)))
+            data.append((channel + ":X_RD", OrderedDict(props), list(tags)))
 
             props[_FIELD_PROPERTY] = elem.fields.y
             props[_HANDLE_PROPERTY] = "readback"
-            data.append((channel+":Y_RD", OrderedDict(props), list(tags)))
+            data.append((channel + ":Y_RD", OrderedDict(props), list(tags)))
 
             props[_FIELD_PROPERTY] = elem.fields.phase
             props[_HANDLE_PROPERTY] = "readback"
-            data.append((channel+":PHA_RD", OrderedDict(props), list(tags)))
+            data.append((channel + ":PHA_RD", OrderedDict(props), list(tags)))
 
             props[_FIELD_PROPERTY] = elem.fields.energy
             props[_HANDLE_PROPERTY] = "readback"
-            data.append((channel+":ENG_RD", OrderedDict(props), list(tags)))
+            data.append((channel + ":ENG_RD", OrderedDict(props), list(tags)))
 
         elif isinstance(elem, PMElement):
             props[_TYPE_PROPERTY] = "PM"
 
             props[_FIELD_PROPERTY] = elem.fields.x
             props[_HANDLE_PROPERTY] = "readback"
-            data.append((channel+":X_RD", OrderedDict(props), list(tags)))
+            data.append((channel + ":X_RD", OrderedDict(props), list(tags)))
 
             props[_FIELD_PROPERTY] = elem.fields.y
             props[_HANDLE_PROPERTY] = "readback"
-            data.append((channel+":Y_RD", OrderedDict(props), list(tags)))
+            data.append((channel + ":Y_RD", OrderedDict(props), list(tags)))
 
             props[_FIELD_PROPERTY] = elem.fields.xy
             props[_HANDLE_PROPERTY] = "readback"
-            data.append((channel+":XY_RD", OrderedDict(props), list(tags)))
+            data.append((channel + ":XY_RD", OrderedDict(props), list(tags)))
 
             props[_FIELD_PROPERTY] = elem.fields.xrms
             props[_HANDLE_PROPERTY] = "readback"
-            data.append((channel+":XRMS_RD", OrderedDict(props), list(tags)))
+            data.append((channel + ":XRMS_RD", OrderedDict(props), list(tags)))
 
             props[_FIELD_PROPERTY] = elem.fields.yrms
             props[_HANDLE_PROPERTY] = "readback"
-            data.append((channel+":YRMS_RD", OrderedDict(props), list(tags)))
+            data.append((channel + ":YRMS_RD", OrderedDict(props), list(tags)))
 
             props[_FIELD_PROPERTY] = elem.fields.xyrms
             props[_HANDLE_PROPERTY] = "readback"
-            data.append((channel+":XYRMS_RD", OrderedDict(props), list(tags)))
+            data.append((channel + ":XYRMS_RD", OrderedDict(props), list(tags)))
 
         elif isinstance(elem, EBendElement):
             props[_TYPE_PROPERTY] = "EBEND"
             props[_FIELD_PROPERTY] = elem.fields.field
             props[_HANDLE_PROPERTY] = "setpoint"
-            data.append((channel+":V_CSET", OrderedDict(props), list(tags)))
+            data.append((channel + ":V_CSET", OrderedDict(props), list(tags)))
             props[_HANDLE_PROPERTY] = "readset"
-            data.append((channel+":V_RSET", OrderedDict(props), list(tags)))
+            data.append((channel + ":V_RSET", OrderedDict(props), list(tags)))
             props[_HANDLE_PROPERTY] = "readback"
-            data.append((channel+":V_RD", OrderedDict(props), list(tags)))
-        
+            data.append((channel + ":V_RD", OrderedDict(props), list(tags)))
+
         elif isinstance(elem, EQuadElement):
             props[_TYPE_PROPERTY] = "EQUAD"
             props[_FIELD_PROPERTY] = elem.fields.gradient
             props[_HANDLE_PROPERTY] = "setpoint"
-            data.append((channel+":V_CSET", OrderedDict(props), list(tags)))
+            data.append((channel + ":V_CSET", OrderedDict(props), list(tags)))
             props[_HANDLE_PROPERTY] = "readset"
-            data.append((channel+":V_RSET", OrderedDict(props), list(tags)))
+            data.append((channel + ":V_RSET", OrderedDict(props), list(tags)))
             props[_HANDLE_PROPERTY] = "readback"
-            data.append((channel+":V_RD", OrderedDict(props), list(tags)))
-
-            ## QUAD
-            #props[_FIELD_PROPERTY] = "GRAD"
-            #props[_HANDLE_PROPERTY] = "setpoint"
-            #data.append((channel+":GRAD_CSET", OrderedDict(props), list(tags)))
-            #props[_HANDLE_PROPERTY] = "readset"
-            #data.append((channel+":GRAD_RSET", OrderedDict(props), list(tags)))
-            #props[_HANDLE_PROPERTY] = "readback"
-            #data.append((channel+":GRAD_RD", OrderedDict(props), list(tags)))
+            data.append((channel + ":V_RD", OrderedDict(props), list(tags)))
 
         elif isinstance(elem, StripElement):
             # Charge Stripper has no channels
@@ -300,7 +296,7 @@ def build_channels(layout, machine=None, **kws):
             # Diagnostic elements do not have defined channels
             pass
 
-        elif isinstance(elem, (DriftElement,ValveElement, PortElement)):
+        elif isinstance(elem, (DriftElement, ValveElement, PortElement)):
             # Passtive elements do not have defined channels
             pass
 
@@ -317,4 +313,3 @@ def build_channels(layout, machine=None, **kws):
             raise RuntimeError("read_layout: Element type '{}' not supported".format(elem.ETYPE))
 
     return data
-
