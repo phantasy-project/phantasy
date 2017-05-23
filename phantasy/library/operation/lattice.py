@@ -29,8 +29,8 @@ from phantasy.library.pv import DataSource
 from phantasy.library.settings import Settings
 
 __authors__ = "Tong Zhang"
-__copyright__ = "(c) 2016-2017, Facility for Rare Isotope beams, \
-        Michigan State University"
+__copyright__ = "(c) 2016-2017, Facility for Rare Isotope beams, "\
+                "Michigan State University"
 __contact__ = "Tong Zhang <zhangt@frib.msu.edu>"
 
 _LOGGER = logging.getLogger(__name__)
@@ -38,7 +38,7 @@ _LOGGER = logging.getLogger(__name__)
 DEFAULT_MODEL_DATA_DIR = 'model_data'
 
 
-def load_lattice(machine, segment=None, **kwargs):
+def load_lattice(machine, segment=None, **kws):
     """Load segment lattice(s) from machine.
 
     Parameters
@@ -57,6 +57,8 @@ def load_lattice(machine, segment=None, **kwargs):
         Save cache or not, ``False`` by default.
     verbose : int
         If not 0, show output, 0 by default.
+    sort : True or False
+        Sort lattice with s-position or not, default is False.
 
     Returns
     -------
@@ -74,9 +76,10 @@ def load_lattice(machine, segment=None, **kwargs):
     """
     lat_dict = {}
 
-    use_cache = kwargs.get('use_cache', False)
-    save_cache = kwargs.get('save_cache', False)
-    verbose = kwargs.get('verbose', 0)
+    use_cache = kws.get('use_cache', False)
+    save_cache = kws.get('save_cache', False)
+    verbose = kws.get('verbose', 0)
+    sort_flag = kws.get('sort', False)
 
     # if use_cache:
     #    try:
@@ -216,7 +219,8 @@ def load_lattice(machine, segment=None, **kwargs):
                              model=simulation_code,
                              layout=layout,
                              config=config,
-                             settings=settings)
+                             settings=settings,
+                             sort=sort_flag)
 
         #         if IMPACT_ELEMENT_MAP is not None:
         #             lat.createLatticeModelMap(IMPACT_ELEMENT_MAP)
@@ -315,7 +319,7 @@ def load_lattice(machine, segment=None, **kwargs):
             'machconf': mconfig}
 
 
-def create_lattice(latname, pv_data, tag, **kwargs):
+def create_lattice(latname, pv_data, tag, **kws):
     """Create high-level lattice object from PV data source.
 
     Parameters
@@ -323,7 +327,7 @@ def create_lattice(latname, pv_data, tag, **kwargs):
     latname : str
         Name of segment of machine, e.g. 'LINAC', 'LS1'.
     pv_data : list
-        List of PV data, for each PV data, should be of list as: 
+        List of PV data, for each PV data, should be of list as:
         ``string of PV name, dict of properties, list of tags``.
     tag : str
         Only select PV data according to defined tag. e.g.
@@ -344,10 +348,12 @@ def create_lattice(latname, pv_data, tag, **kwargs):
         Lattice configuration object.
     settings :
         Lattice settings object.
+    sort : True or False
+        Sort lattice with s-position or not, default is False.
 
     Returns
     ---------
-    lat : 
+    lat :
         High-level lattice object.
 
     Note
@@ -363,7 +369,7 @@ def create_lattice(latname, pv_data, tag, **kwargs):
     :class:`~phantasy.library.pv.datasource.DataSource`
         Unified data source class for PVs.
     """
-    src = kwargs.get('source', None)
+    src = kws.get('source', None)
     if src is None:
         _LOGGER.warn("PV data source type should be explicitly defined.")
         return
@@ -372,7 +378,7 @@ def create_lattice(latname, pv_data, tag, **kwargs):
     _LOGGER.info("Found {0:d} PVs in {1}.".format(len(pv_data), latname))
 
     # create a new lattice
-    lat = Lattice(latname, **kwargs)
+    lat = Lattice(latname, **kws)
     # set up lattice
     for pv_name, pv_props, pv_tags in pv_data:
         _LOGGER.debug("Processing {0}.".format(pv_name))
@@ -396,13 +402,10 @@ def create_lattice(latname, pv_data, tag, **kwargs):
             pv_props['sb'] = float(pv_props['se']) \
                     - float(pv_props.get('length', 0.0))
 
-        # add new element
         elem = lat._find_exact_element(name=name)
         if elem is None:
             try:
                 elem = CaElement(**pv_props)
-                gl = [g.strip() for g in pv_props.get('group', [])]
-                elem.group.update(gl)
             except:
                 _LOGGER.error(
                     "Error: creating element '{0}' with '{1}'.".format(
@@ -411,38 +414,27 @@ def create_lattice(latname, pv_data, tag, **kwargs):
             _LOGGER.debug("Created new element: '{0}'".format(name))
             lat.insert(elem, trust=True)
         else:
-            _LOGGER.debug("Skip existing element '{0}'.".format(name))
+            _LOGGER.debug(
+                "Element '{0}' exists, only update properties.".format(name))
 
-        # mark element virtual (True) or not (False, default)
-        if INI_DICT['HLA_VFAMILY'] in pv_props.get('group', []):
-            elem.virtual = True
+        ## mark element virtual (True) or not (False, default)
+        #if INI_DICT['HLA_VFAMILY'] in pv_props.get('group', []):
+        #    elem.virtual = True
 
-        # legacy code, present code will not be 'get' or 'put'
-        #handle = pv_props.get('handle', '').lower()
-        #if handle == 'get':
-        #    pv_props['handle'] = 'readback'
-        #elif handle == 'put':
-        #    pv_props['handle'] = 'setpoint'
-
-        # update elment attributes
-        # only process valid pv record
+        # update element
         if pv_name:
             elem.process_pv(pv_name, pv_props, pv_tags)
 
-    lat.build_groups()
+    # update group
+    lat.update_groups()
 
-    """
-    # !IMPORTANT! since Channel finder has no order, but lat class has
-    lat.sort(inplace=True)
-    lat.length = lat[-1].se if lat.size() > 0 else 0.0
+    # sort lattice or not
+    if kws.get('sort', False):
+        lat.sort(inplace=True)
 
-    # _LOGGER.debug("Mode {0}".format(lat.mode))
+    # lattice length
+    lat.length = (lat[-1].se - lat[0].sb) if lat.size() > 0 else 0.0
+
     _LOGGER.info("'{0:s}' has {1:d} elements".format(lat.name, lat.size()))
-    # noinspection PyProtectedMember
-    for g in sorted(lat._group.keys()):
-        # noinspection PyProtectedMember
-        _LOGGER.debug("Lattice '%s' group %s(%d)" % (lat.name, g,
-                                                     len(lat._group[g])))
-    """
 
     return lat
