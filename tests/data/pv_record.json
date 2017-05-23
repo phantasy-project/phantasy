@@ -1,0 +1,18 @@
+{
+  "pv_name": "VA:LS1_CA01:BPM_D1129:X_RD",
+  "pv_props": {
+    "index": "6",
+    "handle": "readback",
+    "name": "LS1_CA01:BPM_D1129",
+    "family": "BPM",
+    "field": "X",
+    "length": "0.0",
+    "sb": "0.51132684",
+    "se": "0.51132684"
+  },
+  "pv_tags": [
+    "phyutil.sys.LS1",
+    "phyutil.sub.CA01",
+    "FRIB.LINAC"
+  ]
+}
