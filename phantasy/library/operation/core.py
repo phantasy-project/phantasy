@@ -74,7 +74,7 @@ class MachinePortal(object):
         - Environmental variable: ``PHYUTIL_CONFIG_DIR``;
         - Current user's home folder: ``~/.phyutil``;
        If the found directory is ``MPATH``, then the naming rule of *machine*:
-       ``MPATH`` + machine name, e.g. ``MPATH=/home/user/develop``, 
+       ``MPATH`` + machine name, e.g. ``MPATH=/home/user/develop``,
        machine name is ``FRIB``, then *machine* could be defined as:
        ``/home/user/develop/FRIB``, all configuration files of ``FRIB`` should
        be in that directory.
@@ -122,7 +122,7 @@ class MachinePortal(object):
     @property
     def last_machine_conf(self):
         """Configuration: Last loaded configuration object.
-        
+
         See Also
         --------
         :class:`~phantasy.library.parser.config.Configuration`
@@ -153,7 +153,7 @@ class MachinePortal(object):
     @property
     def last_lattice_conf(self):
         """list: Configuration of last loaded lattice, composed of caElements.
-        
+
         See Also
         --------
         :class:`~phantasy.library.lattice.element.CaElement`
@@ -168,7 +168,7 @@ class MachinePortal(object):
     @property
     def work_lattice_conf(self):
         """list: Configuration of working lattice, composed of CaElements.
-        
+
         See Also
         --------
         :class:`~phantasy.library.lattice.CaElement`
@@ -211,7 +211,7 @@ class MachinePortal(object):
             Configuration of loaded segment of machine, with the keys of
             ``lat_name``, ``lat_conf``, ``mach_name``, ``mach_path`` and
             ``mach_conf``.
-        
+
         Examples
         --------
         >>> mp.load_lattice('LS1')
@@ -220,7 +220,7 @@ class MachinePortal(object):
         >>> mp.work_lattice_name # 'LINAC'
         # Note working lattice is changed from 'LS1' to 'LINAC', although
         # not actually loaded the lattice, see use_lattice().
-        
+
         The cached tricky could improve performance, e.g. in ipython:
 
         >>> %%timeit
@@ -344,7 +344,7 @@ class MachinePortal(object):
             Name of segment of machine.
         machine : str
             Name of machine, or path of configuration files.
-        
+
         See Also
         --------
         load_lattice : Load machine/lattice from configuration files.
@@ -418,7 +418,7 @@ class MachinePortal(object):
         -------
         ret : List
             List of elements (``CaElement``), excluding virtual elements.
-            
+
         Note
         ----
         1. The pattern here used is Unix shell style, slightly different
@@ -459,21 +459,21 @@ class MachinePortal(object):
         >>>                 latname='LINAC')
         [FS1_BMS:BPM_D2664:BPM @ sb=153.963690]
         >>> # type='BPM' also could be be pattern
-        
+
         4. Filter hybrid types:
 
         >>> mp.get_elements(name=['FS1_B?*D266?', 'LS1_B*DCV*'],
         >>>                 type=['BPM', 'QUAD'], latname='LINAC')
         [FS1_BMS:BPM_D2664:BPM @ sb=153.963690,
          FS1_BMS:QH_D2666:QUAD @ sb=154.144690]
-        
+
         5. Get subsection from lattice according to s-position range:
-        
+
         >>> mp.get_elements(srange=(10, 11))
         [LS1_CB01:CAV1_D1229:CAV @ sb=10.366596,
          LS1_CB01:BPM_D1231:BPM @ sb=10.762191,
          LS1_CB01:SOL1_D1235:SOL @ sb=10.894207]
-        
+
         6. Continue filter with *srange* parameter
 
         >>> mp.get_elements(name=['FS1_B?*D266?', 'LS1_B*DCV*'],
@@ -512,14 +512,13 @@ class MachinePortal(object):
         ----------
         ref_elem :
             ``CaElement`` object, reference element.
-
         count : int
             Skip element number after *ref_elem*, negative input means before,
-            e.g. ``count=1`` will locate the next one of *ref_elem* in the 
+            e.g. ``count=1`` will locate the next one of *ref_elem* in the
             investigated lattice, if keyword parameter *type* is given, will
             locate the next one element of the defined type; ``count=-1`` will
             locate in the opposite direction.
-            
+
         Keyword Arguments
         -----------------
         type : str or list(str)
@@ -573,21 +572,21 @@ class MachinePortal(object):
         >>> ref_elem = all_e[5]
 
         2. Get next element of *ref_elem*:
-        
+
         >>> mp.next_elements(ref_elem)
         [LS1_CA01:CAV3_D1143:CAV @ sb=1.766370]
-        
+
         3. Get last of the next two element:
 
         >>> mp.next_elements(ref_elem, count=2)
         [LS1_CA01:BPM_D1144:BPM @ sb=2.070634]
-        
+
         4. Get all of the next two elements:
 
         >>> mp.next_elements(ref_elem, count=2, range='0::1')
         [LS1_CA01:CAV3_D1143:CAV @ sb=1.766370,
          LS1_CA01:BPM_D1144:BPM @ sb=2.070634]
-        
+
         5. Get all of the two elements before *ref_elem*:
 
         >>> mp.next_elements(ref_elem, count=-2, range='0::1')
@@ -601,7 +600,7 @@ class MachinePortal(object):
         [LS1_CA01:CAV2_D1135:CAV @ sb=0.986724,
          LS1_CA01:BPM_D1144:BPM @ sb=2.070634,
          LS1_WA01:BPM_D1155:BPM @ sb=3.109095]
-        
+
         7. Get with hybrid types:
 
         >>> mp.next_elements(ref_elem, count=2, type=['BPM', 'CAV'],
@@ -611,58 +610,12 @@ class MachinePortal(object):
          LS1_CA01:CAV4_D1150:CAV @ sb=2.546031,
          LS1_WA01:BPM_D1155:BPM @ sb=3.109095]
         """
-        ref_include_flag = kws.get('ref_include', False)
-        if not isinstance(ref_elem, CaElement):
-            _LOGGER.warn("{} is not a valid CaElement.".format(str(ref_elem)))
-            if ref_include_flag:
-                return [ref_elem]
-            else:
-                return []
-
-        if count == 0:
-            return [ref_elem]
-
-        count_is_positive = True if count > 0 else False
-        if count_is_positive:
-            eslice = kws.get('range', '-1::1')
-        else:
-            eslice = kws.get('range', '0:1:1')
-        slice_tuple = [int(i) if i != '' else None for i in eslice.split(':')]
-        eslice = slice(*slice_tuple)
-
         latname = kws.get('latname')
         if latname in self._lattice_names:
             lat = self._lattices.get(latname)
         else:
             lat = self._work_lattice_conf
-
-        etype = kws.get('type', None)
-
-        elem_sorted = sorted([e for e in lat if e.virtual == 0],
-                             key=lambda e: e.sb)
-        spos_list = [e.sb for e in elem_sorted]
-        ref_idx = spos_list.index(ref_elem.sb)
-        if count_is_positive:
-            eslice0 = slice(ref_idx + 1, ref_idx + count + 1, 1)
-        else:
-            eslice0 = slice(ref_idx + count, ref_idx, 1)
-
-        if etype is None:
-            ret = elem_sorted[eslice0][eslice]
-        else:
-            if isinstance(etype, basestring):
-                etype = etype,
-            if count_is_positive:
-                ret = flatten([e for e in elem_sorted[ref_idx + 1:]
-                               if e.family == t][:count]
-                              for t in etype)
-            else:
-                ret = flatten([e for e in elem_sorted[:ref_idx]
-                               if e.family == t][count:]
-                              for t in etype)
-        if ref_include_flag:
-            ret.append(ref_elem)
-        return sorted(ret, key=lambda e: e.sb)
+        return lat.next_elements(ref_elem, count, **kws)
 
     @staticmethod
     def is_virtual(elem):
@@ -670,9 +623,9 @@ class MachinePortal(object):
 
         Parameters
         ----------
-        elem : 
+        elem :
             ``CaElement`` object.
-        
+
         Returns
         -------
         ret : True or False
@@ -766,19 +719,19 @@ class MachinePortal(object):
             loaded machine.
         out :
             Output stream, if not given, only return results, or besides
-            returning results, also print into defined stream, 
+            returning results, also print into defined stream,
             could be ``stdout``, ``file``(valid file object), or``StringIO``.
 
         Returns
         -------
         ret : dict or StringIO or None
-            Inspection results, retur a dict when *out* is None, 
+            Inspection results, retur a dict when *out* is None,
             or StringIO object when *out* is ``sio``, or None;
-            keys of dict: 
+            keys of dict:
              * ``path`` : (str), phyutil.ini fullpath
              * ``lattices`` : (list), all defined lattices
              * ``machine`` : (str), defined machine name
-             * ``config`` : (dict), all configurations 
+             * ``config`` : (dict), all configurations
 
         Examples
         --------
@@ -840,7 +793,7 @@ class MachinePortal(object):
 
         Parameters
         ----------
-        elem : 
+        elem :
             (List of) CaElement objects.
         field : str or List(str)
             (List of) Field name of PV, if list of names is defined, only
@@ -850,8 +803,8 @@ class MachinePortal(object):
         Keyword Arguments
         -----------------
         handle : str
-            Handle of pv, 'readback' (default) or'setpoint'.
-        
+            Handle of pv, 'readback' (default), 'setpoint' or 'readset'.
+
         Returns
         -------
         ret : dict
@@ -860,18 +813,18 @@ class MachinePortal(object):
         Examples
         --------
         1. Get all BPM and PM elements:
-        
+
         >>> elem = mp.get_elements(type='*PM')
-        
+
         2. Get all pv names with same field:
 
         >>> pv1 = mp.get_pv_names(elem) # {'X':[...], 'Y':[...]}
-        
+
         3. Get define field(s):
-        
+
         >>> pv2 = mp.get_pv_names(elem, 'X')
         >>> pv2 = mp.get_pv_names(elem, ['X'])
-        
+
         4. Get all PV names from one elements:
 
         >>> pv3 = mp.get_pv_names(elem[0])
@@ -892,7 +845,7 @@ class MachinePortal(object):
         """
         if not isinstance(elem, (list, tuple)):
             if not isinstance(elem, CaElement):
-                LOGGER.warn("Invalid CaElement.")
+                _LOGGER.warn("Invalid CaElement.")
                 return None
             elem = elem,
         else:
@@ -909,7 +862,8 @@ class MachinePortal(object):
             field = [f for f in field if f in all_fields]
 
         handle = kws.get('handle', 'readback')
-        return {f: [e.pv(field=f, handle=handle)[0] for e in elem] for f in field}
+        return {f: [e.pv(field=f, handle=handle)[0] for e in elem]
+                for f in field}
 
     @staticmethod
     def get_pv_values(elem, field=None, **kws):
@@ -917,7 +871,7 @@ class MachinePortal(object):
 
         Parameters
         ----------
-        elem : 
+        elem :
             (List of) CaElement objects.
         field : str or List(str)
             (List of) Field name of PV, if list of names is defined, only
