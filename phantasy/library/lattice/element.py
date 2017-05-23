@@ -4,14 +4,8 @@
 """Build elements with Channel Access support.
 """
 
-import re
-import copy
 import logging
-
-try:
-    from UserDict import DictMixin
-except ImportError:
-    from collections import MutableMapping as DictMixin
+from phantasy.library.misc import simplify_data
 
 try:
     basestring
@@ -32,7 +26,7 @@ ASCENDING = 1
 DESCENDING = 2
 RANDOM = 3
 
-VALID_STATIC_KEYS = ['name', 'family', 'index', 'se', 'length']
+VALID_STATIC_KEYS = ['name', 'family', 'index', 'se', 'length', 'sb']
 VALID_CA_KEYS = ['field', 'handle']
 
 
@@ -59,18 +53,6 @@ class AbstractElement(object):
         Longitudinal position at the end point, unit: *m*.
     enable : True or False
         Element is enabled or not, ``True`` is controllable, default is True.
-
-    ##
-    The default group list contains cell, girder, family and symmetry
-    information if they are valid.
-    ##
-    #*devname*   device name
-    #*phylen*    physical(yoke) length
-    #*cell*      cell name
-    #*girder*    girder name
-    #*symmetry*  symmetry type
-    #*sequence*  sequence tuple
-    #*group*     list of groups the element belongs to
     """
     def __init__(self, **kws):
         self.name = kws.get('name', None)
@@ -81,6 +63,8 @@ class AbstractElement(object):
         self.length = kws.get('length', None)
         self._active = kws.get('enable', True)
         self.group = kws.get('group', None)
+        if self._family is not None:
+            self._group.add(self._family)
 
     @property
     def group(self):
@@ -98,13 +82,13 @@ class AbstractElement(object):
 
     @property
     def name(self):
-        """str: Element name, empty string if not given."""
+        """str: Element name, None if not given."""
         return self._name
     
     @name.setter
     def name(self, name):
         if name is None:
-            self._name = ''
+            self._name = None
         elif isinstance(name, basestring):
             self._name = name
         else:
@@ -131,13 +115,13 @@ class AbstractElement(object):
     
     @property
     def family(self):
-        """str: Element family, i.e. device type, empty string if not given."""
+        """str: Element family, i.e. device type, None if not given."""
         return self._family
 
     @family.setter
     def family(self, t):
         if t is None:
-            self._family = ''
+            self._family = None
         elif isinstance(t, basestring):
             self._family = t
         else:
@@ -685,11 +669,28 @@ class CaElement(AbstractElement):
     virtual : bool
         pass
     tags : dict
-        pass
+        Tags for each PV as key name and set of strings as tag names.
     fields : dict
         pass
     enable : True or False
         Element is enabled or not, ``True`` is controllable, default is True.
+    pv_data : list or dict
+        PV record data to build an element, should be of a list of:
+        ``string of PV name, dict of properties, list of tags``, or
+        with dict of keys of: ``pv_name``, ``pv_props`` and ``pv_tags``.
+
+    Note
+    ----
+    If *pv_data* is defined, element will be initialized with data from
+    *pv_data*, if *pv_data* is CFS formatted, ``simplify_data`` should be used
+    first to convert data structure.
+
+    See Also
+    --------
+    :func:`~phantasy.library.misc.miscutils.simplify_data`
+        Convert CFS formatted data into simple tuple.
+    :class:`phantasy.library.pv.datasource.DataSource`
+        PV data source.
     """
     def __init__(self, **kws):
         self.__dict__['_fields'] = dict()
@@ -702,10 +703,16 @@ class CaElement(AbstractElement):
         # self.trace = kws.get('trace', False)
         # self.alias = []
         ###
+        pv_data = kws.get('pv_data', None)
+        if pv_data is not None:
+            if isinstance(pv_data, list):
+                self.process_pv(*pv_data)
+            elif isinstance(pv_data, dict):
+                self.process_pv(**pv_data)
 
     @property
     def tags(self):
-        """dict: Tags that element has been assigned."""
+        """dict: Tags that element PVs have been assigned."""
         return self._tags
 
     @tags.setter
@@ -790,6 +797,7 @@ class CaElement(AbstractElement):
                 + *family*
                 + *index*
                 + *se*
+                + *sb* (optional)
                 + *length*
             - dynamic properties: with CA features
                 + *handle*
@@ -859,9 +867,13 @@ class CaElement(AbstractElement):
         --------
         update_properties
         """
-        new_group = self.family
-        if new_group not in self._group:
-            self._group.add(new_group)
+        new_groups = props.get('group', None)
+        if new_groups is not None:
+            if isinstance(new_groups, basestring):
+                new_groups = new_groups,
+            [self._group.add(g) for g in new_groups]
+        if self._family is not None:
+            self._group.add(self._family)
 
     def __getattr__(self, key):
         if key in self._fields:
