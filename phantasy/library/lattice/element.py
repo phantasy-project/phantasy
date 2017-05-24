@@ -12,12 +12,8 @@ try:
 except NameError:
     basestring = str
 
-try:
-    import epics
-    from epics import PV
-except ImportError:
-    import cothread
-    from cothread.pv import PV
+import epics
+from epics import PV
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -439,20 +435,13 @@ class CaField(object):
             _LOGGER.error("Error: Invalid PV configuration.")
             raise
 
-        if isinstance(pv, epics.pv.PV):
-            val = pv.value
-        elif isinstance(pv, cothread.pv.PV):
-            val = pv.caget()
-        return val
+        return pv.value
 
     @value.setter
     def value(self, v):
 
         def _setval(pv, v):
-            if isinstance(pv, epics.pv.PV):
-                pv.value = v
-            elif isinstance(pv, cothread.pv.PV):
-                pv.caput(v)
+            pv.value = v
 
         warn_msg = "Warning: Readback PV is readonly, non-effective set operation."
         if self.readback is not None:
@@ -485,25 +474,30 @@ class CaField(object):
             self._init_cset_pv(cset_pv_name, **kws)
 
     def _init_rdbk_pv(self, pv, **kws):
-        self.readback_pv = PV(pv, **kws)
+        self.readback_pv = PV(pv)
 
     def _init_rset_pv(self, pv, **kws):
-        self.readset_pv = PV(pv, **kws)
+        self.readset_pv = PV(pv)
 
     def _init_cset_pv(self, pv, **kws):
-        self.setpoint_pv = PV(pv, **kws)
+        self.setpoint_pv = PV(pv)
 
     def update(self, **kws):
         """Update PV with defined handle."""
         rdbk_pv_name = kws.get('readback', None)
         if rdbk_pv_name is not None:
             self._rdbk_pv_name = rdbk_pv_name
+            self._init_rdbk_pv(rdbk_pv_name, **kws)
+
         rset_pv_name = kws.get('readset', None)
         if rset_pv_name is not None:
             self._rset_pv_name = rset_pv_name
+            self._init_rset_pv(rset_pv_name, **kws)
+
         cset_pv_name = kws.get('setpoint', None)
         if cset_pv_name is not None:
             self._cset_pv_name = cset_pv_name
+            self._init_cset_pv(cset_pv_name, **kws)
 
     def pvs(self):
         """Return dict of valid pv type and names."""
