@@ -80,7 +80,7 @@ class AbstractElement(object):
     def name(self):
         """str: Element name, None if not given."""
         return self._name
-    
+
     @name.setter
     def name(self, name):
         if name is None:
@@ -94,7 +94,7 @@ class AbstractElement(object):
     def index(self):
         """int: Element index, ``-1`` if not given."""
         return self._index
-    
+
     @index.setter
     def index(self, i):
         if i is None:
@@ -108,7 +108,7 @@ class AbstractElement(object):
                 _LOGGER.error("'index': Invalid string to integer.")
         else:
             _LOGGER.warn("'index': Input should be an integer.")
-    
+
     @property
     def family(self):
         """str: Element family, i.e. device type, None if not given."""
@@ -125,9 +125,9 @@ class AbstractElement(object):
 
     @property
     def length(self):
-        """float: Element length, unit: *m*, 0.0 if not given."""
+        """float: Element length, *m*, 0.0 if not given."""
         return self._length
-    
+
     @length.setter
     def length(self, x):
         if x is None:
@@ -144,7 +144,7 @@ class AbstractElement(object):
 
     @property
     def sb(self):
-        """float: Longitudinal position at the beginning point, unit: *m*."""
+        """float: Longitudinal position at the beginning point, *m*."""
         return self._sb
 
     @sb.setter
@@ -160,10 +160,10 @@ class AbstractElement(object):
                 _LOGGER.error("'sb': Invalid string to float.")
         else:
             _LOGGER.warn("'sb': Input should be a float number.")
-    
+
     @property
     def se(self):
-        """float: Longitudinal position at the end point, unit: *m*."""
+        """float: Longitudinal position at the end point, *m*."""
         return self._se
 
     @se.setter
@@ -179,7 +179,7 @@ class AbstractElement(object):
                 _LOGGER.error("'se': Invalid string to float.")
         else:
             _LOGGER.warn("'se': Input should be a float number.")
-    
+
     @property
     def active(self):
         """Bool: Element is controllable or not, ``True`` by default."""
@@ -258,7 +258,7 @@ class AbstractElement(object):
                self.length == other.length and \
                self.index == other.index and \
                self.name == other.name
-    
+
     def _update_static_props(self, props):
         """Non-CA"""
         [setattr(self, k, v) for k, v in props.items()]
@@ -269,9 +269,16 @@ class AbstractElement(object):
 
 class CaField(object):
     """Channel Access support for element field.
-    
-    For valid fields, *readback*, *readset* and *setpoint* PVs are linked,
-    each PV has its own stepsize and value range.
+
+    Usually, ``CaField`` instance has at most three types of PV names:
+    *readback*, *readset* and *setpoint*, each PV should linked with valid
+    PV connection.
+
+    There are two approaches to retrieve the PV values, one is through
+    ``value`` attribute, another one is by explicitly calling ``get()``;
+
+    The same rule applies to set values, i.e. by ``value`` attribute and
+    by calling ``put()`` method.
 
     ### IMPLEMENTED IN HIGH-LEVEL LATTICE RIGHT NOW
     ### THIS WAY KEEP MULTIPLE SETTINGS FOR DIFFERENT LATTICES.
@@ -419,18 +426,14 @@ class CaField(object):
     @property
     def value(self):
         """Get value of PV, returned from CA request.
-
-        pv type:
-        - readback :
-        - readset :
-        - setpoint :
+        Priority of accessed PV: 'readback' > 'readset' > 'setpoint'.
         """
         if self.readback is not None:
             pv = self.readback_pv
-        elif self.setpoint is not None:
-            pv = self.setpoint_pv
         elif self.readset is not None:
             pv = self.readset_pv
+        elif self.setpoint is not None:
+            pv = self.setpoint_pv
         else:
             _LOGGER.error("Error: Invalid PV configuration.")
             raise
@@ -443,20 +446,20 @@ class CaField(object):
         def _setval(pv, v):
             pv.value = v
 
-        warn_msg = "Warning: Readback PV is readonly, non-effective set operation."
+        warn_msg = "Warning: {} PV is readonly, non-effective set operation."
         if self.readback is not None:
             pv = self.readback_pv
             _setval(pv, v)
-            _setval(pv, v)
-            print(warn_msg)
+            print(warn_msg.format('READBACK'))
+            _LOGGER.warn(warn_msg.format('READBACK'))
         elif self.setpoint is not None:
             pv = self.setpoint_pv
             _setval(pv, v)
         elif self.readset is not None:
             pv = self.readset_pv
             _setval(pv, v)
-            print(warn_msg)
-            _LOGGER.warn(warn_msg)
+            print(warn_msg.format('READSET'))
+            _LOGGER.warn(warn_msg.format('READSET'))
         else:
             _LOGGER.error("Error: Invalid PV configuration.")
             raise
@@ -506,6 +509,51 @@ class CaField(object):
         pv_dict = dict(zip(pv_types, pv_names))
         return {k: v for k, v in pv_dict.items() if v is not None}
 
+    def get(self, handle, **kws):
+        """Get value of PV with specified *handle*.
+
+        Parameters
+        ----------
+        handle : str
+            PV handle, 'readback', 'readset' or 'setpoint'.
+
+        Keyword Arguments
+        -----------------
+
+        """
+        if handle == 'readback':
+            pv = self._rdbk_pv
+        elif handle == 'readset':
+            pv = self._rset_pv
+        elif hanle == 'setpoint':
+            pv = self._cset_pv
+        if pv is not None:
+            return pv.get(**kws)
+        else:
+            return None
+
+    def put(self, value, handle, **kws):
+        """Set value of PV with specified *handle*.
+
+        Parameters
+        ----------
+        handle : str
+            PV handle, 'readback', 'readset' or 'setpoint'.
+
+        Keyword Arguments
+        -----------------
+
+        """
+        if handle == 'readback':
+            pv = self._rdbk_pv
+        elif handle == 'readset':
+            pv = self._rset_pv
+        elif hanle == 'setpoint':
+            pv = self._cset_pv
+        if pv is not None:
+            pv.put(value, **kws)
+        else:
+            pass
 
 ################################################################################
 
@@ -786,16 +834,11 @@ class CaElement(AbstractElement):
         ----------
         props : dict
             Dictionary of properties, two categories:
-            - static properties: without CA features
-                + *name*
-                + *family*
-                + *index*
-                + *se*
-                + *sb* (optional)
-                + *length*
-            - dynamic properties: with CA features
-                + *handle*
-                + *field*
+
+            - static properties: without CA features:
+              *name*, *family*, *index*, *se*, *sb* (optional), *length*
+            - dynamic properties: with CA features:
+              *handle*, *field*
 
         Keyword Arguments
         -----------------
@@ -868,6 +911,30 @@ class CaElement(AbstractElement):
             [self._group.add(g) for g in new_groups]
         if self._family is not None:
             self._group.add(self._family)
+
+    def get_field(self, field):
+        """Get element field of CA support.
+
+        Parameters
+        ----------
+        field : str
+            Field name.
+
+        Note
+        ----
+        All valid field names could be retrieved by ``fields`` attribute.
+
+        Returns
+        -------
+        ret :
+            CaField or None.
+        """
+        if field in self._fields:
+            return self._fields[field]
+        else:
+            print("INVALID field, could be one of ({}).".format(
+                ', '.join(sorted(self.fields))))
+            return None
 
     def __getattr__(self, key):
         if key in self._fields:
