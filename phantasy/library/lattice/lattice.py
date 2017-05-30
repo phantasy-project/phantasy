@@ -411,7 +411,7 @@ class Lattice(object):
                 "Lattice: Multiple elements found with the specified name.")
         _elem = elems[0]
 
-        all_fields = _elem.fields()
+        all_fields = _elem.fields
 
         if len(all_fields) > 1:
             if field is None:
@@ -557,7 +557,7 @@ class Lattice(object):
             raise RuntimeError(
                 "Lattice: Multiple elements found with the specified name.")
         _elem = elems[0]
-        all_fields = _elem.fields()
+        all_fields = _elem.fields
         if field is None:
             field = all_fields
         elif field not in all_fields:
@@ -797,7 +797,7 @@ class Lattice(object):
 
     def update_model_settings(self, model_lattice, **kws):
         """Update model lattice settings with external lattice file, prefer
-        keyword argument *sdict* or *sjson* if anyone is defined.
+        keyword argument *sdict* or *sjson* if any one is defined.
 
         Parameters
         ----------
@@ -881,7 +881,7 @@ class Lattice(object):
                     continue
                 for field, value in e_setting.items():
                     if not self._skip_elements(elem[0].name):
-                        if field in elem[0].fields():
+                        if field in elem[0].fields:
                             self._set_control_field(elem[0], field, value)
 
     def _skip_elements(self, name):
