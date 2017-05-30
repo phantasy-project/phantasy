@@ -23,6 +23,7 @@ from phantasy.library.layout import VCorElement
 from phantasy.library.layout import QuadElement
 from phantasy.library.layout import EQuadElement
 from phantasy.library.layout import EBendElement
+from phantasy.library.layout import SextElement
 
 try:
     basestring
@@ -198,6 +199,13 @@ class SettingsFactory(object):
                 ebend = EBendElement(0, 0, 0, name)
                 fields = OrderedDict()
                 fields[ebend.fields.field] = elem['beta']
+                settings[name] = fields
+
+            elif ftype == "sextupole":
+                name = parseName(elem['name'])
+                sextupole = SextElement(0, 0, 0, name)
+                fields = OrderedDict()
+                fields[sextupole.fields.field] = elem['B3']
                 settings[name] = fields
 
             else:
