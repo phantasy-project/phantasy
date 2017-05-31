@@ -1030,44 +1030,44 @@ class Lattice(object):
         2. Define *name* with name or name patterns:
 
         >>> get_elements(name='FS1_BMS:DCV_D2662')
-        [FS1_BMS:DCV_D2662:VCOR @ sb=153.794690]
+        [FS1_BMS:DCV_D2662 [VCOR] @ sb=153.794690]
         >>> get_elements(name=['FS1_B?*D266?', 'LS1_B*DCV*'])
-        [LS1_BTS:DCV_D1937:VCOR @ sb=81.365954,
-         LS1_BTS:DCV_D1964:VCOR @ sb=84.013954,
-         LS1_BTS:DCV_D1997:VCOR @ sb=87.348954,
-         LS1_BTS:DCV_D2024:VCOR @ sb=90.055166,
-         LS1_BTS:DCV_D2061:VCOR @ sb=93.710487,
-         LS1_BTS:DCV_D2114:VCOR @ sb=98.985556,
-         FS1_BMS:DCV_D2662:VCOR @ sb=153.794690,
-         FS1_BMS:DCH_D2662:HCOR @ sb=153.794690,
-         FS1_BMS:BPM_D2664:BPM @ sb=153.963690,
-         FS1_BMS:QH_D2666:QUAD @ sb=154.144690]
+        [LS1_BTS:DCV_D1937 [VCOR] @ sb=81.365954,
+         LS1_BTS:DCV_D1964 [VCOR] @ sb=84.013954,
+         LS1_BTS:DCV_D1997 [VCOR] @ sb=87.348954,
+         LS1_BTS:DCV_D2024 [VCOR] @ sb=90.055166,
+         LS1_BTS:DCV_D2061 [VCOR] @ sb=93.710487,
+         LS1_BTS:DCV_D2114 [VCOR] @ sb=98.985556,
+         FS1_BMS:DCV_D2662 [VCOR] @ sb=153.794690,
+         FS1_BMS:DCH_D2662 [HCOR] @ sb=153.794690,
+         FS1_BMS:BPM_D2664 [BPM] @ sb=153.963690,
+         FS1_BMS:QH_D2666 [QUAD] @ sb=154.144690]
 
         3. Filter BPMs from the above result:
 
         >>> get_elements(name=['FS1_B?*D266?', 'LS1_B*DCV*'], type='BPM')
-        [FS1_BMS:BPM_D2664:BPM @ sb=153.963690]
+        [FS1_BMS:BPM_D2664 [BPM] @ sb=153.963690]
         >>> # type='BPM' also could be pattern
         
         4. Filter hybrid types:
 
         >>> get_elements(name=['FS1_B?*D266?', 'LS1_B*DCV*'],
         >>>              type=['BPM', 'QUAD'])
-        [FS1_BMS:BPM_D2664:BPM @ sb=153.963690,
-         FS1_BMS:QH_D2666:QUAD @ sb=154.144690]
+        [FS1_BMS:BPM_D2664 [BPM] @ sb=153.963690,
+         FS1_BMS:QH_D2666 [QUAD] @ sb=154.144690]
         
         5. Get subsection from lattice according to s-position range:
         
         >>> get_elements(srange=(10, 11))
-        [LS1_CB01:CAV1_D1229:CAV @ sb=10.366596,
-         LS1_CB01:BPM_D1231:BPM @ sb=10.762191,
-         LS1_CB01:SOL1_D1235:SOL @ sb=10.894207]
+        [LS1_CB01:CAV1_D1229 [CAV] @ sb=10.366596,
+         LS1_CB01:BPM_D1231 [BPM] @ sb=10.762191,
+         LS1_CB01:SOL1_D1235 [SOL] @ sb=10.894207]
         
         6. Continue filter with *srange* parameter
 
         >>> get_elements(name=['FS1_B?*D266?', 'LS1_B*DCV*'],
         >>>              type=['BPM', 'QUAD'], srange=(154, 155))
-        [FS1_BMS:QH_D2666:QUAD @ sb=154.144690]
+        [FS1_BMS:QH_D2666 [QUAD] @ sb=154.144690]
 
         Note
         ----
@@ -1164,67 +1164,67 @@ class Lattice(object):
         1. Select an element as reference element:
 
         >>> print(all_e)
-        [LS1_CA01:CAV1_D1127:CAV @ sb=0.207064,
-         LS1_CA01:BPM_D1129:BPM @ sb=0.511327,
-         LS1_CA01:SOL1_D1131:SOL @ sb=0.643330,
-         LS1_CA01:DCV_D1131:VCOR @ sb=0.743330,
-         LS1_CA01:DCH_D1131:HCOR @ sb=0.743330,
-         LS1_CA01:CAV2_D1135:CAV @ sb=0.986724,
-         LS1_CA01:CAV3_D1143:CAV @ sb=1.766370,
-         LS1_CA01:BPM_D1144:BPM @ sb=2.070634,
-         LS1_CA01:SOL2_D1147:SOL @ sb=2.202637,
-         LS1_CA01:DCV_D1147:VCOR @ sb=2.302637,
-         LS1_CA01:DCH_D1147:HCOR @ sb=2.302637,
-         LS1_CA01:CAV4_D1150:CAV @ sb=2.546031,
-         LS1_WA01:BPM_D1155:BPM @ sb=3.109095,
-         LS1_CA02:CAV1_D1161:CAV @ sb=3.580158,
-         LS1_CA02:BPM_D1163:BPM @ sb=3.884422,
-         LS1_CA02:SOL1_D1165:SOL @ sb=4.016425,
-         LS1_CA02:DCV_D1165:VCOR @ sb=4.116425,
-         LS1_CA02:DCH_D1165:HCOR @ sb=4.116425,
-         LS1_CA02:CAV2_D1169:CAV @ sb=4.359819,
-         LS1_CA02:CAV3_D1176:CAV @ sb=5.139465,
-         LS1_CA02:BPM_D1178:BPM @ sb=5.443728]
+        [LS1_CA01:CAV1_D1127 [CAV] @ sb=0.207064,
+         LS1_CA01:BPM_D1129 [BPM] @ sb=0.511327,
+         LS1_CA01:SOL1_D1131 [SOL] @ sb=0.643330,
+         LS1_CA01:DCV_D1131 [VCOR] @ sb=0.743330,
+         LS1_CA01:DCH_D1131 [HCOR] @ sb=0.743330,
+         LS1_CA01:CAV2_D1135 [CAV] @ sb=0.986724,
+         LS1_CA01:CAV3_D1143 [CAV] @ sb=1.766370,
+         LS1_CA01:BPM_D1144 [BPM] @ sb=2.070634,
+         LS1_CA01:SOL2_D1147 [SOL] @ sb=2.202637,
+         LS1_CA01:DCV_D1147 [VCOR] @ sb=2.302637,
+         LS1_CA01:DCH_D1147 [HCOR] @ sb=2.302637,
+         LS1_CA01:CAV4_D1150 [CAV] @ sb=2.546031,
+         LS1_WA01:BPM_D1155 [BPM] @ sb=3.109095,
+         LS1_CA02:CAV1_D1161 [CAV] @ sb=3.580158,
+         LS1_CA02:BPM_D1163 [BPM] @ sb=3.884422,
+         LS1_CA02:SOL1_D1165 [SOL] @ sb=4.016425,
+         LS1_CA02:DCV_D1165 [VCOR] @ sb=4.116425,
+         LS1_CA02:DCH_D1165 [HCOR] @ sb=4.116425,
+         LS1_CA02:CAV2_D1169 [CAV] @ sb=4.359819,
+         LS1_CA02:CAV3_D1176 [CAV] @ sb=5.139465,
+         LS1_CA02:BPM_D1178 [BPM] @ sb=5.443728]
         >>> ref_elem = all_e[5]
 
         2. Get next element of *ref_elem*:
 
         >>> lat.next_elements(ref_elem)
-        [LS1_CA01:CAV3_D1143:CAV @ sb=1.766370]
+        [LS1_CA01:CAV3_D1143 [CAV] @ sb=1.766370]
 
         3. Get last of the next two element:
 
         >>> lat.next_elements(ref_elem, count=2)
-        [LS1_CA01:BPM_D1144:BPM @ sb=2.070634]
+        [LS1_CA01:BPM_D1144 [BPM] @ sb=2.070634]
 
         4. Get all of the next two elements:
 
         >>> lat.next_elements(ref_elem, count=2, range='0::1')
-        [LS1_CA01:CAV3_D1143:CAV @ sb=1.766370,
-         LS1_CA01:BPM_D1144:BPM @ sb=2.070634]
+        [LS1_CA01:CAV3_D1143 [CAV] @ sb=1.766370,
+         LS1_CA01:BPM_D1144 [BPM] @ sb=2.070634]
 
         5. Get all of the two elements before *ref_elem*:
 
         >>> lat.next_elements(ref_elem, count=-2, range='0::1')
-        [LS1_CA01:DCV_D1131:VCOR @ sb=0.743330,
-         LS1_CA01:DCH_D1131:HCOR @ sb=0.743330]
+        [LS1_CA01:DCV_D1131 [VCOR] @ sb=0.743330,
+         LS1_CA01:DCH_D1131 [HCOR] @ sb=0.743330]
 
         6. Get next two BPM elements after *ref_elem*, including itself:
 
         >>> lat.next_elements(ref_elem, count=2, type=['BPM'],
         >>>                   ref_include=True, range='0::1')
         [LS1_CA01:CAV2_D1135:CAV @ sb=0.986724,
-         LS1_CA01:BPM_D1144:BPM @ sb=2.070634,
-         LS1_WA01:BPM_D1155:BPM @ sb=3.109095]
+         LS1_CA01:BPM_D1144 [BPM] @ sb=2.070634,
+         LS1_WA01:BPM_D1155 [BPM] @ sb=3.109095]
 
         7. Get with hybrid types:
 
         >>> lat.next_elements(ref_elem, count=2, type=['BPM', 'CAV'],
         >>>                   range='0::1')
-        [LS1_CA01:CAV3_D1143:CAV @ sb=1.766370,
-         LS1_CA01:BPM_D1144:BPM @ sb=2.070634,
-         LS1_CA01:CAV4_D1150:CAV @ sb=2.546031,
-         LS1_WA01:BPM_D1155:BPM @ sb=3.109095]
+        [LS1_CA01:CAV3_D1143 [CAV] @ sb=1.766370,
+         LS1_CA01:BPM_D1144 [BPM] @ sb=2.070634,
+         LS1_CA01:CAV4_D1150 [CAV] @ sb=2.546031,
+         LS1_WA01:BPM_D1155 [BPM] @ sb=3.109095]
         """
         ref_include_flag = kws.get('ref_include', False)
         if not isinstance(ref_elem, CaElement):
