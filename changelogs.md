@@ -1,3 +1,14 @@
+Version 0.6.0
+-------------
+2017-05-31 [Testing]
+
+- Fix docstrings after API changes.
+- Fix FLAME settings for sextupole element.
+- Fix 'fields' is attribute instead of method now.
+- New physics module: orm for orbit correction.
+- New attribute 'orm', correct orbit by orm method.
+- Fix bugs.
+
 Version 0.5.1
 -------------
 2017-05-24 [Testing]
@@ -14,7 +25,6 @@ Version 0.5.1
 - Refactor element module with CA support.
 - API changed:
   - CaElement: fields() -> fields
-
 
 Version 0.4.0
 -------------
