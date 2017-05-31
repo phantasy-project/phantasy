@@ -5,14 +5,12 @@
 """
 
 import logging
-from phantasy.library.misc import simplify_data
 
 try:
     basestring
 except NameError:
     basestring = str
 
-import epics
 from epics import PV
 
 _LOGGER = logging.getLogger(__name__)
@@ -50,6 +48,7 @@ class AbstractElement(object):
     enable : True or False
         Element is enabled or not, ``True`` is controllable, default is True.
     """
+
     def __init__(self, **kws):
         self.name = kws.get('name', None)
         self.index = kws.get('index', None)
@@ -236,8 +235,8 @@ class AbstractElement(object):
 
     def __str__(self):
         return "{0:<4d} | {1:^20s} {2:<8s} {3:^6.2f} {4:^6.6f}".format(
-                int(self.index), self.name, self.family,
-                float(self.sb), float(self.length)
+            int(self.index), self.name, self.family,
+            float(self.sb), float(self.length)
         )
 
     def __repr__(self):
@@ -288,6 +287,7 @@ class CaField(object):
     point can be recorded by calling *mark*.
     ###
     """
+
     def __init__(self, name='', **kws):
         self.name = name
         self.readback = kws.get('readback', None)
@@ -436,33 +436,16 @@ class CaField(object):
             pv = self.setpoint_pv
         else:
             _LOGGER.error("Error: Invalid PV configuration.")
-            raise
+            raise RuntimeError("Invalid PV configuration.")
 
         return pv.value
 
     @value.setter
     def value(self, v):
-
-        def _setval(pv, v):
-            pv.value = v
-
-        warn_msg = "Warning: {} PV is readonly, non-effective set operation."
-        if self.readback is not None:
-            pv = self.readback_pv
-            _setval(pv, v)
-            print(warn_msg.format('READBACK'))
-            _LOGGER.warn(warn_msg.format('READBACK'))
-        elif self.setpoint is not None:
-            pv = self.setpoint_pv
-            _setval(pv, v)
-        elif self.readset is not None:
-            pv = self.readset_pv
-            _setval(pv, v)
-            print(warn_msg.format('READSET'))
-            _LOGGER.warn(warn_msg.format('READSET'))
+        if self.setpoint is not None:
+            self.set(v, 'setpoint')
         else:
-            _LOGGER.error("Error: Invalid PV configuration.")
-            raise
+            raise RuntimeError("Invalid PV configuration.")
 
     def init_pvs(self, **kws):
         """PV initialization."""
@@ -525,18 +508,20 @@ class CaField(object):
             pv = self._rdbk_pv
         elif handle == 'readset':
             pv = self._rset_pv
-        elif hanle == 'setpoint':
+        elif handle == 'setpoint':
             pv = self._cset_pv
         if pv is not None:
             return pv.get(**kws)
         else:
             return None
 
-    def put(self, value, handle, **kws):
+    def set(self, value, handle, **kws):
         """Set value of PV with specified *handle*.
 
         Parameters
         ----------
+        value :
+            New value to be set.
         handle : str
             PV handle, 'readback', 'readset' or 'setpoint'.
 
@@ -548,139 +533,139 @@ class CaField(object):
             pv = self._rdbk_pv
         elif handle == 'readset':
             pv = self._rset_pv
-        elif hanle == 'setpoint':
+        elif handle == 'setpoint':
             pv = self._cset_pv
         if pv is not None:
             pv.put(value, **kws)
         else:
             pass
 
-################################################################################
+        ################################################################################
 
-    # def _insert_in_order(self, lst, v):
-    #     """
-    #     insert `v` to an ordered list `lst`
-    #     """
-    #     if len(lst) == 0 or self.order == UNSPECIFIED:
-    #         if isinstance(v, (tuple, list)):
-    #             lst.extend(v)
-    #         else:
-    #             lst.append(v)
-    #         return 0
-    #
-    #     if self.order == ASCENDING:
-    #         for i, x in enumerate(lst):
-    #             if x < v:
-    #                 continue
-    #             lst.insert(i, v)
-    #             return i
-    #     elif self.order == DESCENDING:
-    #         for i, x in enumerate(lst):
-    #             if x > v:
-    #                 continue
-    #             lst.insert(i, v)
-    #             return i
-    #
-    #     lst.append(v)
-    #     return len(lst) - 1
-    #
-    # def _all_within_range(self, v, lowhigh):
-    #     """if lowhigh is not valid, returns true"""
-    #     # did not check for string type
-    #     if isinstance(v, basestring):
-    #         return True
-    #     if lowhigh is None:
-    #         return True
-    #
-    #     low, high = lowhigh
-    #     if isinstance(v, (float, int)):
-    #         if low is None:
-    #             return v <= high
-    #         elif high is None:
-    #             return v >= low
-    #         elif high <= low:
-    #             return True
-    #         elif v > high or v < low:
-    #             return False
-    #         else:
-    #             return True
-    #     elif isinstance(v, (list, tuple)):
-    #         for vi in v:
-    #             if not self._all_within_range(vi, lowhigh):
-    #                 return False
-    #         return True
-    #     else:
-    #         raise RuntimeError("unknow data type '{0}:{1}'".format(v, type(v)))
-    #
-    # def setReadbackPv(self, pv, idx=None):
-    #     """
-    #     set/replace the PV for readback.
-    #
-    #     :param str pv: PV name
-    #     :param int idx: index in the PV list
-    #
-    #     `idx` is needed if such readback has a list
-    #     of PVs.  if idx is None, replace the original one. if idx is an index
-    #     integer and pv is not a list, then replace the one with this index.
-    #     """
-    #     if idx is None:
-    #         if isinstance(pv, basestring):
-    #             self.pvrb = [pv]
-    #         elif isinstance(pv, (tuple, list)):
-    #             self.pvrb = [p for p in pv]
-    #         while len(self.golden) < len(self.pvrb):
-    #             self.golden.append(None)
-    #     elif not isinstance(pv, (tuple, list)):
-    #         while idx >= len(self.pvrb):
-    #             self.pvrb.append(None)
-    #         while idx >= len(self.golden):
-    #             self.golden.append(None)
-    #         self.pvrb[idx] = pv
-    #     else:
-    #         raise RuntimeError("invalid readback pv '%s' for position '%s'" %
-    #                            (str(pv), str(idx)))
-    #
-    # def setSetpointPv(self, pv, idx=None, **kwargs):
-    #     """
-    #     set the PV for setpoint at position idx.
-    #
-    #     :param str pv: PV name
-    #     :param int idx: index in the PV list.
-    #
-    #     if idx is None, replace the original one. if idx is an index integer
-    #     and pv is not a list, then replace the one with this index.
-    #
-    #     seealso :func:`setStepSize`, :func:`setBoundary`
-    #     """
-    #     # lim = kwargs.get("boundary", None)
-    #     # h = kwargs.get("step_size", None)
-    #     if idx is None:
-    #         if isinstance(pv, basestring):
-    #             self.pvsp = [pv]
-    #         elif isinstance(pv, (tuple, list)):
-    #             self.pvsp = [p for p in pv]
-    #         # lim_h = [self._get_sp_lim_h(pvi) for pvi in self.pvsp]
-    #         # None means not checked yet. (None, None) checked but no limit
-    #         self.pvlim = [None] * len(self.pvsp)
-    #         self.pvh = [None] * len(self.pvsp)
-    #         self.golden = [None] * len(self.pvsp)
-    #     elif not isinstance(pv, (tuple, list)):
-    #         while idx >= len(self.pvsp):
-    #             self.pvsp.append(None)
-    #             self.pvh.append(None)
-    #             self.pvlim.append(None)
-    #             self.golden.append(None)
-    #         self.pvsp[idx] = pv
-    #         self.pvlim[idx] = None
-    #         self.pvh[idx] = None
-    #         self.golden[idx] = None
-    #     else:
-    #         raise RuntimeError("invalid setpoint pv '%s' for position '%s'" %
-    #                            (str(pv), str(idx)))
-    #
-    #     # roll the buffer.
-    #     self._sp1 = self.sp
-    #     self.sp = []
+        # def _insert_in_order(self, lst, v):
+        #     """
+        #     insert `v` to an ordered list `lst`
+        #     """
+        #     if len(lst) == 0 or self.order == UNSPECIFIED:
+        #         if isinstance(v, (tuple, list)):
+        #             lst.extend(v)
+        #         else:
+        #             lst.append(v)
+        #         return 0
+        #
+        #     if self.order == ASCENDING:
+        #         for i, x in enumerate(lst):
+        #             if x < v:
+        #                 continue
+        #             lst.insert(i, v)
+        #             return i
+        #     elif self.order == DESCENDING:
+        #         for i, x in enumerate(lst):
+        #             if x > v:
+        #                 continue
+        #             lst.insert(i, v)
+        #             return i
+        #
+        #     lst.append(v)
+        #     return len(lst) - 1
+        #
+        # def _all_within_range(self, v, lowhigh):
+        #     """if lowhigh is not valid, returns true"""
+        #     # did not check for string type
+        #     if isinstance(v, basestring):
+        #         return True
+        #     if lowhigh is None:
+        #         return True
+        #
+        #     low, high = lowhigh
+        #     if isinstance(v, (float, int)):
+        #         if low is None:
+        #             return v <= high
+        #         elif high is None:
+        #             return v >= low
+        #         elif high <= low:
+        #             return True
+        #         elif v > high or v < low:
+        #             return False
+        #         else:
+        #             return True
+        #     elif isinstance(v, (list, tuple)):
+        #         for vi in v:
+        #             if not self._all_within_range(vi, lowhigh):
+        #                 return False
+        #         return True
+        #     else:
+        #         raise RuntimeError("unknow data type '{0}:{1}'".format(v, type(v)))
+        #
+        # def setReadbackPv(self, pv, idx=None):
+        #     """
+        #     set/replace the PV for readback.
+        #
+        #     :param str pv: PV name
+        #     :param int idx: index in the PV list
+        #
+        #     `idx` is needed if such readback has a list
+        #     of PVs.  if idx is None, replace the original one. if idx is an index
+        #     integer and pv is not a list, then replace the one with this index.
+        #     """
+        #     if idx is None:
+        #         if isinstance(pv, basestring):
+        #             self.pvrb = [pv]
+        #         elif isinstance(pv, (tuple, list)):
+        #             self.pvrb = [p for p in pv]
+        #         while len(self.golden) < len(self.pvrb):
+        #             self.golden.append(None)
+        #     elif not isinstance(pv, (tuple, list)):
+        #         while idx >= len(self.pvrb):
+        #             self.pvrb.append(None)
+        #         while idx >= len(self.golden):
+        #             self.golden.append(None)
+        #         self.pvrb[idx] = pv
+        #     else:
+        #         raise RuntimeError("invalid readback pv '%s' for position '%s'" %
+        #                            (str(pv), str(idx)))
+        #
+        # def setSetpointPv(self, pv, idx=None, **kwargs):
+        #     """
+        #     set the PV for setpoint at position idx.
+        #
+        #     :param str pv: PV name
+        #     :param int idx: index in the PV list.
+        #
+        #     if idx is None, replace the original one. if idx is an index integer
+        #     and pv is not a list, then replace the one with this index.
+        #
+        #     seealso :func:`setStepSize`, :func:`setBoundary`
+        #     """
+        #     # lim = kwargs.get("boundary", None)
+        #     # h = kwargs.get("step_size", None)
+        #     if idx is None:
+        #         if isinstance(pv, basestring):
+        #             self.pvsp = [pv]
+        #         elif isinstance(pv, (tuple, list)):
+        #             self.pvsp = [p for p in pv]
+        #         # lim_h = [self._get_sp_lim_h(pvi) for pvi in self.pvsp]
+        #         # None means not checked yet. (None, None) checked but no limit
+        #         self.pvlim = [None] * len(self.pvsp)
+        #         self.pvh = [None] * len(self.pvsp)
+        #         self.golden = [None] * len(self.pvsp)
+        #     elif not isinstance(pv, (tuple, list)):
+        #         while idx >= len(self.pvsp):
+        #             self.pvsp.append(None)
+        #             self.pvh.append(None)
+        #             self.pvlim.append(None)
+        #             self.golden.append(None)
+        #         self.pvsp[idx] = pv
+        #         self.pvlim[idx] = None
+        #         self.pvh[idx] = None
+        #         self.golden[idx] = None
+        #     else:
+        #         raise RuntimeError("invalid setpoint pv '%s' for position '%s'" %
+        #                            (str(pv), str(idx)))
+        #
+        #     # roll the buffer.
+        #     self._sp1 = self.sp
+        #     self.sp = []
 
 
 class CaElement(AbstractElement):
@@ -734,6 +719,7 @@ class CaElement(AbstractElement):
     :class:`phantasy.library.pv.datasource.DataSource`
         PV data source.
     """
+
     def __init__(self, **kws):
         self.__dict__['_fields'] = dict()
         self.virtual = kws.get('virtual', None)
@@ -845,8 +831,8 @@ class CaElement(AbstractElement):
         pv : str
             Valid PV name.
         """
-        prop_st = {k:v for k,v in props.items() if k in VALID_STATIC_KEYS}
-        prop_ca = {k:v for k,v in props.items() if k in VALID_CA_KEYS}
+        prop_st = {k: v for k, v in props.items() if k in VALID_STATIC_KEYS}
+        prop_ca = {k: v for k, v in props.items() if k in VALID_CA_KEYS}
         self._update_static_props(prop_st)
         self._update_ca_props(prop_ca, **kws)
 
@@ -986,7 +972,7 @@ class CaElement(AbstractElement):
         """
         pvs = list()
         if field is None and handle is None:
-            for _,v in self._fields.items():
+            for _, v in self._fields.items():
                 pvs.extend(v.pvs().values())
         else:
             f_pv = list()
@@ -1000,307 +986,306 @@ class CaElement(AbstractElement):
 
             for pv_i in f_pv:
                 if handle is None:
-                    pvs.extend([v for k,v in pv_i.items() if v is not None])
+                    pvs.extend([v for k, v in pv_i.items() if v is not None])
                 elif handle in ['readback', 'setpoint', 'readset']:
-                    pvs.extend([v for k,v in pv_i.items() if v is not None and k == handle])
+                    pvs.extend([v for k, v in pv_i.items() if v is not None and k == handle])
                 else:
                     print("Invalid handle, valid options: " +
                           "'readback', 'readset', 'setpoint'.")
                     break
         return pvs
 
+    #     def _pv_1(self, **kwargs):
+    #         """Find the pv when len(kwargs)==1.
+    #
+    #         - tag:
+    #         - tags: all tags are met
+    #         - field: return pvrb + pvsp
+    #         """
+    #         if kwargs.get('tag', None):
+    #             return self._pv_tags([kwargs['tag']])
+    #         elif kwargs.get('tags', None):
+    #             return self._pv_tags(kwargs['tags'])
+    #         elif kwargs.get('field', None):
+    #             att = kwargs['field']
+    #             if att in self._field:
+    #                 decr = self._field[att]
+    #                 return decr.pvrb + decr.pvsp
+    #             else:
+    #                 return []
+    #         elif kwargs.get('handle', None):
+    #             pvl = []
+    #             if kwargs["handle"] == "setpoint":
+    #                 for _, act in self._field.items():
+    #                     pvl.extend(act.pvsp)
+    #             elif kwargs["handle"] == "readback":
+    #                 for _, act in self._field.items():
+    #                     pvl.extend(act.pvrb)
+    #             return pvl
+    #         return []
+    #
+    #     def _pv_tags(self, tags):
+    #         """
+    #         return pv list which has all the *tags*.
+    #         """
+    #         tagset = set(tags)
+    #         return [pv for pv, ts in self._pvtags.items()
+    #                 if tagset.issubset(ts) and ts]
+    #
+    #     def _pv_fields(self, fields):
+    #         """
+    #         return pv list which has all fields in the input
+    #         """
+    #         fieldset = set(fields)
+    #         ret = []
+    #         for k, v in self._field.items():
+    #             # print k, v
+    #             if k in fieldset:
+    #                 ret.extend(v['eget'])
+    #                 ret.extend(v['eput'])
+    #         return ret
+    #
+    #     def pv(self, **kwargs):
+    #         """Search for PV names with specified *tag*, *tags*, *field*, *handle* or a
+    #         combinatinon of *field* and *handle*.
+    #
+    #         Returns
+    #         -------
+    #         ret : list
+    #             List of PV names.
+    #
+    #         Examples
+    #         --------
+    #         >>> pv() # returns all pvs.
+    #         >>> pv(tag='phyutil.sys.LS1')
+    #         >>> pv(tag='aphla.X')
+    #         >>> pv(tags=['aphla.EGET', 'aphla.Y'])
+    #         >>> pv(field = "x")
+    #         >>> pv(field="x", handle='readback')
+    #
+    #         See Also
+    #         --------
+    #         :class:`CaAction`
+    #         """
+    #         if len(kwargs) == 0:
+    #             return self._pvtags.keys()
+    #         elif len(kwargs) == 1:
+    #             return self._pv_1(**kwargs)
+    #         elif len(kwargs) == 2:
+    #             handle = kwargs.get('handle', None)
+    #             fd = kwargs.get('field', None)
+    #             if fd not in self._field:
+    #                 return []
+    #             if handle == 'readback':
+    #                 return self._field[kwargs['field']].pvrb
+    #             elif handle == 'setpoint':
+    #                 return self._field[kwargs['field']].pvsp
+    #             else:
+    #                 return []
+    #         else:
+    #             return []
+    #
+    #     def hasPv(self, pv, inalias=False):
+    #         """Check if this element has pv.
+    #
+    #         inalias=True will also check its alias elements.
+    #
+    #         If the alias (child) has its aliases (grand children), they are not
+    #         checked. (no infinite loop)
+    #         """
+    #         if pv in self._pvtags:
+    #             return True
+    #         if inalias is True:
+    #             for e in self.alias:
+    #                 # if e.hasPv(pv): return True
+    #                 if pv in e._pvtags:
+    #                     return True
+    #         return False
+    #
+    #     def addAliasField(self, newfld, fld):
+    #         self._field[newfld] = copy.deepcopy(self._field[fld])
+    #
+    #     def status(self):
+    #         """String representation of value, golden setpoint, range for each
+    #         field.
+    #         """
+    #         ret = self.name
+    #         if not self._field.keys():
+    #             return ret
+    #
+    #         maxlen = max([len(att) for att in self._field.keys()])
+    #         head = '\n%%%ds: ' % (maxlen + 2)
+    #         for att in self._field.keys():
+    #             decr = self._field[att]
+    #             if not decr:
+    #                 continue
+    #             val = decr.getReadback()
+    #             val1 = decr.getGolden()
+    #             val2 = decr.boundary()
+    #             ret = ret + head % att + str(val) + " (%s) " % str(val1) + " [%s]" % str(val2)
+    #         return ret
+    #
 
-#     def _pv_1(self, **kwargs):
-#         """Find the pv when len(kwargs)==1.
-#
-#         - tag:
-#         - tags: all tags are met
-#         - field: return pvrb + pvsp
-#         """
-#         if kwargs.get('tag', None):
-#             return self._pv_tags([kwargs['tag']])
-#         elif kwargs.get('tags', None):
-#             return self._pv_tags(kwargs['tags'])
-#         elif kwargs.get('field', None):
-#             att = kwargs['field']
-#             if att in self._field:
-#                 decr = self._field[att]
-#                 return decr.pvrb + decr.pvsp
-#             else:
-#                 return []
-#         elif kwargs.get('handle', None):
-#             pvl = []
-#             if kwargs["handle"] == "setpoint":
-#                 for _, act in self._field.items():
-#                     pvl.extend(act.pvsp)
-#             elif kwargs["handle"] == "readback":
-#                 for _, act in self._field.items():
-#                     pvl.extend(act.pvrb)
-#             return pvl
-#         return []
-#
-#     def _pv_tags(self, tags):
-#         """
-#         return pv list which has all the *tags*.
-#         """
-#         tagset = set(tags)
-#         return [pv for pv, ts in self._pvtags.items()
-#                 if tagset.issubset(ts) and ts]
-#
-#     def _pv_fields(self, fields):
-#         """
-#         return pv list which has all fields in the input
-#         """
-#         fieldset = set(fields)
-#         ret = []
-#         for k, v in self._field.items():
-#             # print k, v
-#             if k in fieldset:
-#                 ret.extend(v['eget'])
-#                 ret.extend(v['eput'])
-#         return ret
-#
-#     def pv(self, **kwargs):
-#         """Search for PV names with specified *tag*, *tags*, *field*, *handle* or a
-#         combinatinon of *field* and *handle*.
-#
-#         Returns
-#         -------
-#         ret : list
-#             List of PV names.
-#
-#         Examples
-#         --------
-#         >>> pv() # returns all pvs.
-#         >>> pv(tag='phyutil.sys.LS1')
-#         >>> pv(tag='aphla.X')
-#         >>> pv(tags=['aphla.EGET', 'aphla.Y'])
-#         >>> pv(field = "x")
-#         >>> pv(field="x", handle='readback')
-#
-#         See Also
-#         --------
-#         :class:`CaAction`
-#         """
-#         if len(kwargs) == 0:
-#             return self._pvtags.keys()
-#         elif len(kwargs) == 1:
-#             return self._pv_1(**kwargs)
-#         elif len(kwargs) == 2:
-#             handle = kwargs.get('handle', None)
-#             fd = kwargs.get('field', None)
-#             if fd not in self._field:
-#                 return []
-#             if handle == 'readback':
-#                 return self._field[kwargs['field']].pvrb
-#             elif handle == 'setpoint':
-#                 return self._field[kwargs['field']].pvsp
-#             else:
-#                 return []
-#         else:
-#             return []
-#
-#     def hasPv(self, pv, inalias=False):
-#         """Check if this element has pv.
-#
-#         inalias=True will also check its alias elements.
-#
-#         If the alias (child) has its aliases (grand children), they are not
-#         checked. (no infinite loop)
-#         """
-#         if pv in self._pvtags:
-#             return True
-#         if inalias is True:
-#             for e in self.alias:
-#                 # if e.hasPv(pv): return True
-#                 if pv in e._pvtags:
-#                     return True
-#         return False
-#
-#     def addAliasField(self, newfld, fld):
-#         self._field[newfld] = copy.deepcopy(self._field[fld])
-#
-#     def status(self):
-#         """String representation of value, golden setpoint, range for each
-#         field.
-#         """
-#         ret = self.name
-#         if not self._field.keys():
-#             return ret
-#
-#         maxlen = max([len(att) for att in self._field.keys()])
-#         head = '\n%%%ds: ' % (maxlen + 2)
-#         for att in self._field.keys():
-#             decr = self._field[att]
-#             if not decr:
-#                 continue
-#             val = decr.getReadback()
-#             val1 = decr.getGolden()
-#             val2 = decr.boundary()
-#             ret = ret + head % att + str(val) + " (%s) " % str(val1) + " [%s]" % str(val2)
-#         return ret
-#
 
-
-# #    def __setattr__(self, att, val):
-# #        # this could be called by AbstractElement.__init__ or Element.__init__
-# #        # Note: the quick way has wait=False
-# #        if hasattr(super(CaElement, self), att):
-# #            super(CaElement, self).__setattr__(att, val)
-# #        elif att in self._field:
-# #            decr = self._field[att]
-# #            if not decr:
-# #                raise AttributeError("field '%s' is not defined for '%s'" % (
-# #                    att, self.name))
-# #            if not decr.pvsp:
-# #                raise ValueError("field '%s' in '%s' is not writable" % (
-# #                    att, self.name))
-# #            decr.putSetpoint(val, wait=False)
-# #            # if _field_trig exists, trig it, do not wait
-# #            decr_trig = self._field.get(att + "_trig", None)
-# #            if decr_trig:
-# #                decr_trig.putSetpoint(1, wait=False)
-# #        elif att in self.__dict__.keys():
-# #            self.__dict__[att] = val
-# #        else:
-# #            # new attribute for superclass
-# #            super(CaElement, self).__setattr__(att, val)
-# #            # raise AttributeError("Error")
-# #        for e in self.alias:
-# #            e.__setattr__(att, val)
-#
-#     def _get_unitconv(self, field, handle):
-#         if field not in self._field:
-#             return {}
-#         if handle == "readback":
-#             return self._field[field].ucrb
-#         elif handle == "setpoint":
-#             return self._field[field].ucsp
-#         else:
-#             return {}
-#
-#     def convertible(self, field, src, dst, handle="readback"):
-#         """Check the unit conversion is possible or not.
-#
-#         Returns
-#         -------
-#         ret : True or False
-#             If no specified handle, returns False.
-#         """
-#         if field not in self._field:
-#             return False
-#
-#         if src is None and dst is None:
-#             return True
-#
-#         unitconv = self._get_unitconv(field, handle)
-#
-#         if (src, dst) in unitconv:
-#             return True
-#
-#         uc = unitconv.get((dst, src), None)
-#         if uc is not None and uc.invertible:
-#             return True
-#         return False
-#
-#     def addUnitConversion(self, field, uc, src, dst, handle=None):
-#         """Add unit conversion for field."""
-#         # src, dst is unit system name, e.g. None for raw, phy
-#         if handle is None or handle == "readback":
-#             self._field[field].ucrb[(src, dst)] = uc
-#             if src is None:
-#                 self._field[field].pvrbunit = uc.srcunit
-#             elif dst is None:
-#                 self._field[field].pvrbunit = uc.dstunit
-#         if handle is None or handle == "setpoint":
-#             self._field[field].ucsp[(src, dst)] = uc
-#             if src is None:
-#                 self._field[field].pvspunit = uc.srcunit
-#             elif dst is None:
-#                 self._field[field].pvspunit = uc.dstunit
-#
-#     def convertUnit(self, field, x, src, dst, handle="readback"):
-#         """Convert value x between units without setting hardware"""
-#         uc = self._get_unitconv(field, handle)
-#         return self._field[field]._unit_conv(x, src, dst, uc)
-#
-#     def get_unit_systems(self, field, handle="readback"):
-#         """Get a list of all unit systems for field.
-#
-#         None is the lower level unit, e.g. in EPICS channel. Use convertible
-#         to see if the conversion is possible between any two unit systems.
-#         """
-#         unitconv = self._get_unitconv(field, handle)
-#         if not unitconv:
-#             return [None]
-#
-#         src, dst = zip(*(unitconv.keys()))
-#
-#         ret = set(src).union(set(dst))
-#         return list(ret)
-#
-#     def getUnitSystems(self, field=None, handle="readback"):
-#         """Return a list of available unit systems for field.
-#
-#         If no field specified, return a dictionary for all fields and their
-#         unit systems.
-#
-#         None means the unit used in the lower level control system, e.g. EPICS.
-#         """
-#         if field is None:
-#             return dict([(f, self.get_unit_systems(f, handle)) for f \
-#                          in self._field.keys()])
-#         else:
-#             return self.get_unit_systems(field, handle)
-#
-#     def getUnit(self, field, unitsys='phy', handle="readback"):
-#         """Get the unit symbol of a unit system, e.g. unitsys='phy'
-#
-#         The unit name, e.g. "T/m" for integrated quadrupole strength, is
-#         helpful for plotting routines.
-#
-#         return '' if no such unit system. A tuple of all handles when *handle*
-#         is None
-#         """
-#         if field in self._field and unitsys is None:
-#             if handle == "readback":
-#                 return self._field[field].pvrbunit
-#             elif handle == "setpoint":
-#                 return self._field[field].pvspunit
-#             else:
-#                 return ""
-#
-#         unitconv = self._get_unitconv(field, handle)
-#         for k, v in unitconv.items():
-#             if k[0] == unitsys:
-#                 return v.srcunit
-#             elif k[1] == unitsys:
-#                 return v.dstunit
-#
-#         return ""
-#
-#     def setUnit(self, field, u, unitsys='phy', handle="readback"):
-#         """Set the unit symbol for a unit system.
-#         """
-#         if field not in self._field.keys():
-#             raise RuntimeError("element '%s' has no '%s' field" % \
-#                                self.name, field)
-#
-#         if unitsys is None:
-#             self._field[field].pvunit = u
-#
-#         for k, v in self._get_unitconv(field, handle).items():
-#             if k[0] == unitsys:
-#                 v.srcunit = u
-#             elif k[1] == unitsys:
-#                 v.dstunit = u
-#
-#     def getEpsilon(self, field):
-#         return self._field[field].sprb_epsilon
-#
-#     def setEpsilon(self, field, eps):
-#         self._field[field].sprb_epsilon = eps
-   # def stepSize(self, field):
+    # #    def __setattr__(self, att, val):
+    # #        # this could be called by AbstractElement.__init__ or Element.__init__
+    # #        # Note: the quick way has wait=False
+    # #        if hasattr(super(CaElement, self), att):
+    # #            super(CaElement, self).__setattr__(att, val)
+    # #        elif att in self._field:
+    # #            decr = self._field[att]
+    # #            if not decr:
+    # #                raise AttributeError("field '%s' is not defined for '%s'" % (
+    # #                    att, self.name))
+    # #            if not decr.pvsp:
+    # #                raise ValueError("field '%s' in '%s' is not writable" % (
+    # #                    att, self.name))
+    # #            decr.putSetpoint(val, wait=False)
+    # #            # if _field_trig exists, trig it, do not wait
+    # #            decr_trig = self._field.get(att + "_trig", None)
+    # #            if decr_trig:
+    # #                decr_trig.putSetpoint(1, wait=False)
+    # #        elif att in self.__dict__.keys():
+    # #            self.__dict__[att] = val
+    # #        else:
+    # #            # new attribute for superclass
+    # #            super(CaElement, self).__setattr__(att, val)
+    # #            # raise AttributeError("Error")
+    # #        for e in self.alias:
+    # #            e.__setattr__(att, val)
+    #
+    #     def _get_unitconv(self, field, handle):
+    #         if field not in self._field:
+    #             return {}
+    #         if handle == "readback":
+    #             return self._field[field].ucrb
+    #         elif handle == "setpoint":
+    #             return self._field[field].ucsp
+    #         else:
+    #             return {}
+    #
+    #     def convertible(self, field, src, dst, handle="readback"):
+    #         """Check the unit conversion is possible or not.
+    #
+    #         Returns
+    #         -------
+    #         ret : True or False
+    #             If no specified handle, returns False.
+    #         """
+    #         if field not in self._field:
+    #             return False
+    #
+    #         if src is None and dst is None:
+    #             return True
+    #
+    #         unitconv = self._get_unitconv(field, handle)
+    #
+    #         if (src, dst) in unitconv:
+    #             return True
+    #
+    #         uc = unitconv.get((dst, src), None)
+    #         if uc is not None and uc.invertible:
+    #             return True
+    #         return False
+    #
+    #     def addUnitConversion(self, field, uc, src, dst, handle=None):
+    #         """Add unit conversion for field."""
+    #         # src, dst is unit system name, e.g. None for raw, phy
+    #         if handle is None or handle == "readback":
+    #             self._field[field].ucrb[(src, dst)] = uc
+    #             if src is None:
+    #                 self._field[field].pvrbunit = uc.srcunit
+    #             elif dst is None:
+    #                 self._field[field].pvrbunit = uc.dstunit
+    #         if handle is None or handle == "setpoint":
+    #             self._field[field].ucsp[(src, dst)] = uc
+    #             if src is None:
+    #                 self._field[field].pvspunit = uc.srcunit
+    #             elif dst is None:
+    #                 self._field[field].pvspunit = uc.dstunit
+    #
+    #     def convertUnit(self, field, x, src, dst, handle="readback"):
+    #         """Convert value x between units without setting hardware"""
+    #         uc = self._get_unitconv(field, handle)
+    #         return self._field[field]._unit_conv(x, src, dst, uc)
+    #
+    #     def get_unit_systems(self, field, handle="readback"):
+    #         """Get a list of all unit systems for field.
+    #
+    #         None is the lower level unit, e.g. in EPICS channel. Use convertible
+    #         to see if the conversion is possible between any two unit systems.
+    #         """
+    #         unitconv = self._get_unitconv(field, handle)
+    #         if not unitconv:
+    #             return [None]
+    #
+    #         src, dst = zip(*(unitconv.keys()))
+    #
+    #         ret = set(src).union(set(dst))
+    #         return list(ret)
+    #
+    #     def getUnitSystems(self, field=None, handle="readback"):
+    #         """Return a list of available unit systems for field.
+    #
+    #         If no field specified, return a dictionary for all fields and their
+    #         unit systems.
+    #
+    #         None means the unit used in the lower level control system, e.g. EPICS.
+    #         """
+    #         if field is None:
+    #             return dict([(f, self.get_unit_systems(f, handle)) for f \
+    #                          in self._field.keys()])
+    #         else:
+    #             return self.get_unit_systems(field, handle)
+    #
+    #     def getUnit(self, field, unitsys='phy', handle="readback"):
+    #         """Get the unit symbol of a unit system, e.g. unitsys='phy'
+    #
+    #         The unit name, e.g. "T/m" for integrated quadrupole strength, is
+    #         helpful for plotting routines.
+    #
+    #         return '' if no such unit system. A tuple of all handles when *handle*
+    #         is None
+    #         """
+    #         if field in self._field and unitsys is None:
+    #             if handle == "readback":
+    #                 return self._field[field].pvrbunit
+    #             elif handle == "setpoint":
+    #                 return self._field[field].pvspunit
+    #             else:
+    #                 return ""
+    #
+    #         unitconv = self._get_unitconv(field, handle)
+    #         for k, v in unitconv.items():
+    #             if k[0] == unitsys:
+    #                 return v.srcunit
+    #             elif k[1] == unitsys:
+    #                 return v.dstunit
+    #
+    #         return ""
+    #
+    #     def setUnit(self, field, u, unitsys='phy', handle="readback"):
+    #         """Set the unit symbol for a unit system.
+    #         """
+    #         if field not in self._field.keys():
+    #             raise RuntimeError("element '%s' has no '%s' field" % \
+    #                                self.name, field)
+    #
+    #         if unitsys is None:
+    #             self._field[field].pvunit = u
+    #
+    #         for k, v in self._get_unitconv(field, handle).items():
+    #             if k[0] == unitsys:
+    #                 v.srcunit = u
+    #             elif k[1] == unitsys:
+    #                 v.dstunit = u
+    #
+    #     def getEpsilon(self, field):
+    #         return self._field[field].sprb_epsilon
+    #
+    #     def setEpsilon(self, field, eps):
+    #         self._field[field].sprb_epsilon = eps
+    # def stepSize(self, field):
     #     """Return the stepsize of field (hardware unit)"""
     #     return self._field[field].stepSize()
     #
@@ -1596,6 +1581,7 @@ def main():
 
     elem = CaElement(**pv_props)
     print(elem.family)
+
 
 if __name__ == '__main__':
     main()

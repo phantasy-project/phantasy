@@ -38,6 +38,8 @@ from phantasy.library.pv import caget
 from phantasy.library.pv import caput
 from phantasy.library.settings import Settings
 from phantasy.library.settings import build_flame_settings
+from phantasy.library.physics import get_orbit
+from phantasy.library.physics import inverse_matrix
 from .element import AbstractElement
 from .element import CaElement
 from .flame import FlameLatticeFactory
@@ -50,6 +52,11 @@ try:
     basestring
 except NameError:
     basestring = str
+
+try:
+    r_input = raw_input
+except NameError:
+    r_input = input
 
 
 class Lattice(object):
@@ -136,6 +143,7 @@ class Lattice(object):
         self._trace_history = None
         self.trace = kws.get('trace', None)
         self._elements = []
+        self._orm = None
 
         ## clean up the following parameters
         self.isring = bool(self.mtype)
@@ -1660,6 +1668,82 @@ class Lattice(object):
         else:  # op = 'or'
             return list(set(flatten(elem_dict.values())))
 
+    @property
+    def orm(self):
+        """Array: Orbit response matrix.
+
+        See Also
+        --------
+        :func:`~phantasy.library.physics.orm.get_orm`
+            Calculator orbit response matrix.
+        """
+        return self._orm
+
+    @orm.setter
+    def orm(self, m):
+        self._orm = m
+
+    def correct_orbit(self, correctors, bpms, **kws):
+        """Correct orbit by using ORM.
+
+        Parameters
+        ----------
+        correctors : list
+            List of corrector elements.
+        bpms : list
+            List of BPM elements.
+
+        Keyword Arguments
+        -----------------
+        cor_field : str
+            Field name for correctors, ``'ANG'`` by default.
+        orb_field : tuple[str]
+            Field names for monitors to retrieve orbit data, ``('X', 'Y')`` for
+            *x* and *y* directions by default.
+        xoy : str
+            'x'('y') for monitoring 'x'('y') direction,'xy' for both (default).
+        damping_factor : float
+            Factor to correct orbit, default is 0.05, which would decrease beam
+            orbit (BPM readings) by 5% for every correction.
+        iteration : int
+            Iteration numbers of correction, default is 1.
+        wait : float
+            Wait time after set value, in *sec*, 1.0 by default.
+
+        Returns
+        -------
+        """
+        itern = kws.get('iteration', 1)
+        cor_field = kws.get('cor_field', 'ANG')
+        damp_fac = kws.get('damping_factor', 0.05)
+        wait = kws.get('wait', 1.0)
+
+        if self._orm is None:
+            _LOGGER.error("correct_orbit: ORM is not available, set ORM first.")
+            raise RuntimeError("INVALID ORM data.")
+        m = self._orm
+        m_inv = inverse_matrix(m)
+
+        n_cor = len(correctors)
+        for i in range(1, itern+1):
+            bpm_readings = get_orbit(bpms, **kws)
+            delt_cor = np.dot(m_inv, -bpm_readings * damp_fac)
+            for ic, (e, v) in enumerate(zip(correctors, delt_cor)):
+                print("Correct cor[{0:>2d}/{1:>2d}]: {2:<20s} with {3:>10.4e} mrad.".format(
+                    ic+1, n_cor, e.name, v*1e3))
+                v0 = getattr(e, cor_field)
+                setattr(e, cor_field, v0 + v)
+                time.sleep(wait)
+            next_iter = r_input(
+                "Continue correction iteration: {0}/{1}? ([Y]/N)".format(i+1, itern)
+            )
+            if next_iter.upper() in ['Y', '']:
+                continue
+            else:
+                break
+
+    def measure_orm(self):
+        pass
 
     ###############################################################################
 
