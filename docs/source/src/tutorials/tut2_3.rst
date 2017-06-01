@@ -1,2 +1,0 @@
-Modeling Accelerator with ModelFlame
-====================================
