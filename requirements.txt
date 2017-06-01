@@ -1,2 +1,4 @@
 sphinx_bootstrap_theme
 nbsphinx
+
+dist/phantasy-0.6.0-py2.py3-none-any.whl
