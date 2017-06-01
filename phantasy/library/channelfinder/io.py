@@ -55,13 +55,18 @@ def get_data_from_cf(url, **kws):
         property configurations (list(tuple)),
         could be Unix shell patterns, e.g.:
         List of str pattern(s), to filter property names:
+
         - ``prop_filter='elem*'``
         - ``prop_filter=['elemHandle', 'send']``
+
         List of tuple(s), to filter property configurations,
         (ignore invalid property names):
+
         - ``prop_filter=[('elemHandle', 'setpoint')]``
         - ``prop_filter=[('elemHandle', 'setpoint'), ('INVALID', 'ABC')]``
+
         Or mixture of the above two:
+
         - ``prop_filter=['elem*', ('elemHandle', 'setpoint')]``
     tag_filter : str or list(str)
         Only get PVs with defined tags, could be Unix shell patterns,
@@ -77,9 +82,7 @@ def get_data_from_cf(url, **kws):
     -------
     ret : list(dict)
         List of dict, each dict element is of the format:
-        {'name': PV name (str), 'owner': str,
-         'properties': PV properties (list(dict)),
-         'tags': PV tags (list(dict))]
+        ``{'name': PV name (str), 'owner': str, 'properties': PV properties (list[dict]), 'tags': PV tags (list[dict])}``.
     """
     raw_data = kws.get('raw_data', None)
     username = kws.get('username', None)
@@ -116,13 +119,18 @@ def get_data_from_db(db_name, db_type='sqlite', **kws):
         property configurations (list(tuple)),
         could be Unix shell patterns, e.g.:
         List of str pattern(s), to filter property names:
+
         - ``prop_filter='elem*'``
         - ``prop_filter=['elemHandle', 'send']``
+
         List of tuple(s), to filter property configurations,
         (ignore invalid property names):
+
         - ``prop_filter=[('elemHandle', 'setpoint')]``
         - ``prop_filter=[('elemHandle', 'setpoint'), ('INVALID', 'ABC')]``
+
         Or mixture of the above two:
+
         - ``prop_filter=['elem*', ('elemHandle', 'setpoint')]``
     tag_filter : str or list(str)
         Only get PVs with defined tags, could be Unix shell patterns,
@@ -136,9 +144,7 @@ def get_data_from_db(db_name, db_type='sqlite', **kws):
     -------
     ret : list(dict)
         List of dict, each dict element is of the format:
-        {'name': PV name (str), 'owner': str,
-         'properties': PV properties (list(dict)),
-         'tags': PV tags (list(dict))]
+        ``{'name': PV name (str), 'owner': str, 'properties': PV properties (list[dict]), 'tags': PV tags (list[dict])}``.
     """
     tag_delimiter = kws.get('tag_delimiter', ';')
     prop_filter = kws.get('prop_filter', None)
@@ -182,13 +188,18 @@ def get_data_from_tb(tb_name, tb_type='csv', **kws):
         property configurations (list(tuple)),
         could be Unix shell patterns, e.g.:
         List of str pattern(s), to filter property names:
+
         - ``prop_filter='elem*'``
         - ``prop_filter=['elemHandle', 'send']``
+
         List of tuple(s), to filter property configurations,
         (ignore invalid property names):
+
         - ``prop_filter=[('elemHandle', 'setpoint')]``
         - ``prop_filter=[('elemHandle', 'setpoint'), ('INVALID', 'ABC')]``
+
         Or mixture of the above two:
+
         - ``prop_filter=['elem*', ('elemHandle', 'setpoint')]``
     tag_filter : str or list(str)
         Only get PVs with defined tags, could be Unix shell patterns,
@@ -202,9 +213,7 @@ def get_data_from_tb(tb_name, tb_type='csv', **kws):
     -------
     ret : list(dict)
         List of dict, each dict element is of the format:
-        {'name': PV name (str), 'owner': str,
-         'properties': PV properties (list(dict)),
-         'tags': PV tags (list(dict))]
+        ``{'name': PV name (str), 'owner': str, 'properties': PV properties (list[dict]), 'tags': PV tags (list[dict])}``.
     """
     prop_filter = kws.get('prop_filter', None)
     tag_filter = kws.get('tag_filter', None)
@@ -311,9 +320,7 @@ def write_cfs(data, cfs_url, **kws):
     ----------
     data : list(dict)
         List of dict, each dict element is of the format:
-        {'name': PV name (str), 'owner': str,
-         'properties': PV properties (list(dict)),
-         'tags': PV tags (list(dict))]
+        ``{'name': PV name (str), 'owner': str, 'properties': PV properties (list[dict]), 'tags': PV tags (list[dict])}``.
     cfs_url : str
         URL of channel Finder Service.
 
@@ -393,9 +400,7 @@ def write_json(data, json_name, overwrite=False, **kws):
     ----------
     data : list(dict)
         List of dict, each dict element is of the format:
-        {'name': PV name (str), 'owner': str,
-         'properties': PV properties (list(dict)),
-         'tags': PV tags (list(dict))]
+        ``{'name': PV name (str), 'owner': str, 'properties': PV properties (list[dict]), 'tags': PV tags (list[dict])}``.
     json_name : str
         Filename of JSON file.
     overwrite : bool
@@ -445,9 +450,7 @@ def get_all_tags(data, **kws):
     ----------
     data : list(dict)
         List of dict, each dict element is of the format:
-        {'name': PV name (str), 'owner': str,
-         'properties': PV properties (list(dict)),
-         'tags': PV tags (list(dict))]
+        ``{'name': PV name (str), 'owner': str, 'properties': PV properties (list[dict]), 'tags': PV tags (list[dict])}``.
 
     Keyword Arguments
     -----------------
@@ -480,9 +483,7 @@ def get_all_properties(data, **kws):
     ----------
     data : list(dict)
         List of dict, each dict element is of the format:
-        {'name': PV name (str), 'owner': str,
-         'properties': PV properties (list(dict)),
-         'tags': PV tags (list(dict))]
+        ``{'name': PV name (str), 'owner': str, 'properties': PV properties (list[dict]), 'tags': PV tags (list[dict])}``.
 
     Keyword Arguments
     -----------------

@@ -17,10 +17,10 @@ import numpy as np
 class FitModel(object):
     """Data fitting model:
 
-    - *gaussuan*  : :math:`a exp(-(x-x_0)^2/2/x_{std}^2) + y_0`
-    - *polynomial*: :math:`\Sigma_i=0^n x^i * a_i`
-    - *power*     : :math:`a x ^ b`
-    - *sin*       : :math:`a \sin(b x + c) + d`
+    - *gaussuan*: :math:`a exp(-(x-x_0)^2/2/x_{std}^2) + y_0`
+    - *polynomial*: :math:`\Sigma_{i=0}^n x^i a_i`
+    - *power*: :math:`a x ^ b`
+    - *sin*: :math:`a \sin(b x + c) + d`
 
     Parameters
     ----------
@@ -97,6 +97,7 @@ class FitModel(object):
         """str: Fitting method name, *leastsq* by default.
 
         Available options:
+
         - *leastsq*: Levenberg-Marquardt
         - *least_squares*: Least-Squares minimization, using Trust Region
           Reflective method by default

@@ -757,6 +757,7 @@ class Lattice(object):
         Note
         ----
         About *retroaction* parameter, following input types will be supported:
+
         - Absolute timestamp indicated by a float number, i.e. time in seconds
           since Epoch: entries with logging timestamp newer (bigger) than
           *retroaction* will be rolled back;

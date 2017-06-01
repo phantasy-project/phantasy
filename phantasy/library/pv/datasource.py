@@ -2,8 +2,10 @@
 # -*- coding: utf-8 -*-
 
 """PV data source could be:
+
 1. Channel finder service
 2. Local data file:
+
     - csv
     - sqlite
 """
@@ -26,7 +28,8 @@ from phantasy.library.channelfinder import write_json
 from phantasy.library.channelfinder import write_tb
 
 __authors__ = "Tong Zhang"
-__copyright__ = "(c) 2016, Facility for Rare Isotope beams, Michigan State University"
+__copyright__ = "(c) 2016-2017, Facility for Rare Isotope beams, " \
+                "Michigan State University"
 __contact__ = "Tong Zhang <zhangt@frib.msu.edu>"
 
 _LOGGER = logging.getLogger(__name__)
@@ -34,8 +37,8 @@ _LOGGER = logging.getLogger(__name__)
 
 class DataSource(object):
     """ class represents PV data sources,
-    valid data sources: 
-    
+    valid data sources:
+
     - *cfs*: channel finder service
     - *csv*: csv sheet
     - *sql*: sqlite database
@@ -46,7 +49,7 @@ class DataSource(object):
         PV data source, channel finder server url or name of *csv*/*sql* file,
         source type would be automatically detected as one of *cfs*, *csv* and
         *sql*.
-    
+
     Keyword Arguments
     -----------------
     username : str
@@ -115,7 +118,7 @@ class DataSource(object):
 
     def get_data(self, **kws):
         """Get PV data from specific source.
-        
+
         Keyword Arguments
         -----------------
         name_filter : str or list(str)
@@ -126,13 +129,18 @@ class DataSource(object):
             property configurations (list(tuple)),
             could be Unix shell patterns, e.g.:
             List of str pattern(s), to filter property names:
+
             - ``prop_filter='elem*'``
             - ``prop_filter=['elemHandle', 'send']``
+
             List of tuple(s), to filter property configurations,
             (ignore invalid property names):
+
             - ``prop_filter=[('elemHandle', 'setpoint')]``
             - ``prop_filter=[('elemHandle', 'setpoint'), ('INVALID', 'ABC')]``
+
             Or mixture of the above two:
+
             - ``prop_filter=['elem*', ('elemHandle', 'setpoint')]``
         tag_filter : str or list(str)
             Only get PVs with defined tags, could be Unix shell patterns,
@@ -148,9 +156,7 @@ class DataSource(object):
         -------
         ret : list(dict) or None
             List of dict, each dict element is of the format:
-            {'name': PV name (str), 'owner': str,
-             'properties': PV properties (list(dict)),
-             'tags': PV tags (list(dict))]
+            ``{'name': PV name (str), 'owner': str, 'properties': PV properties (list[dict]), 'tags': PV tags (list[dict])}``.
 
         Examples
         --------
@@ -204,7 +210,7 @@ class DataSource(object):
         properties
 
         >>> get_data(prop_filter=['elem*', ('elemHandle', 'setpoint')])
-        
+
         Note
         ----
         Always keep precise property configuration filter followed by property
@@ -295,10 +301,7 @@ def dump_data(data, fname, ftype, **kws):
     ----------
     data : list(dict)
         List of dict, each dict element is of the format:
-        {'name': PV name (str), 'owner': str,
-         'properties': PV properties (list(dict)),
-         'tags': PV tags (list(dict))
-        }
+        ``{'name': PV name (str), 'owner': str, 'properties': PV properties (list[dict]), 'tags': PV tags (list[dict])}``.
     fname : str
         File name or CFS url.
     ftype : str

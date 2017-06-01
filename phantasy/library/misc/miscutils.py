@@ -191,6 +191,7 @@ def pattern_filter(x, pattern):
 
 def expand_list_to_dict(x, keys):
     """Expand list to dict according to following rule:
+
     1. If list element is string, treat it as Unix shell pattern,
        to match *keys*, and expand it as tuple like ``(k, None)``;
     2. If list element is tuple, test if the first element of tuple
@@ -232,9 +233,7 @@ def simplify_data(raw_data):
     ----------
     raw_data : dict or list(dict)
         Each dict element is of the following format:
-        {'name': PV name (str), 'owner': str,
-         'properties': PV properties (list(dict)),
-         'tags': PV tags (list(dict))]
+        ``{'name': PV name (str), 'owner': str, 'properties': PV properties (list[dict]), 'tags': PV tags (list[dict])}``.
 
     Returns
     -------
@@ -286,13 +285,13 @@ def complicate_data(raw_data, **kws):
     -------
     ret : list(dict)
         List of dict, each dict element is of the format:
-        {'name': PV name (str), 'owner': str,
-         'properties': PV properties (list(dict)),
-         'tags': PV tags (list(dict))]
+        ``{'name': PV name (str), 'owner': str, 'properties': PV properties (list[dict]), 'tags': PV tags (list[dict])}``.
 
     See Also
     --------
-    get_data_from_tb, get_data_from_db, get_data_from_cf
+    :func:`~phantasy.library.channelfinder.io.get_data_from_tb`
+    :func:`~phantasy.library.channelfinder.io.get_data_from_db`
+    :func:`~phantasy.library.channelfinder.io.get_data_from_cf`
     """
     owner = kws.get('owner', getpass.getuser())
     retval = []

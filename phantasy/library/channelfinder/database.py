@@ -14,6 +14,7 @@ from fnmatch import fnmatch
 
 _LOGGER = logging.getLogger(__name__)
 
+
 class CFCDatabase(object):
     """Channel finder client using SQLite database as service data source.
     CFCDatabase provide uniform interface as ``ChannelFinderClient``, which
@@ -37,6 +38,7 @@ class CFCDatabase(object):
     --------
     :class:`~channelfidner.ChannelFinderClient`
     """
+
     def __init__(self, db_name=None, owner=None):
         self._db_name = db_name
         self.owner = owner
@@ -91,7 +93,7 @@ class CFCDatabase(object):
         self.dbconn.close()
 
     def find(self, **kwargs):
-        '''
+        """
         Note
         ----
         More complex filter logic is provided in ``get_data_from_db`` and
@@ -109,9 +111,10 @@ class CFCDatabase(object):
             {'name': PV name (str), 'owner': str,
             'properties': PV properties (list(dict)),
             'tags': PV tags (list(dict))]
-        '''
+        """
         if len(kwargs) == 0:
-            raise Exception, 'Incorrect usage: at least one parameter must be specified.'
+            raise Exception(
+                'Incorrect usage: at least one parameter must be specified.')
 
         channames = kwargs.get("name", "*")
         properties = kwargs.get("property", None)
@@ -137,7 +140,8 @@ class CFCDatabase(object):
             first = True
             for prpts in properties:
                 for pts in prpts[1].split(","):
-                    querycons.append(pts.strip().replace("*", "%").replace("?", "_"))
+                    querycons.append(
+                        pts.strip().replace("*", "%").replace("?", "_"))
                     if first:
                         first = False
                     else:
@@ -145,7 +149,8 @@ class CFCDatabase(object):
                     sql += """ {0} like ? """.format(prpts[0])
             sql += """ ) """
         if tags is not None:
-            tags = ",".join((tag.strip() for tag in tags.replace("*", "%").replace("?", "_")))
+            tags = ",".join((tag.strip() for tag in
+                             tags.replace("*", "%").replace("?", "_")))
             querycons.append(tags)
             sql += """ and tags like ? """
 
@@ -154,7 +159,7 @@ class CFCDatabase(object):
         cur.execute(sql, querycons)
 
         properties = [prpts[0] for prpts in cur.description]
-        
+
         return self.convert_data(properties, cur.fetchall(), owner=self.owner)
 
     @staticmethod
@@ -196,14 +201,16 @@ class CFCDatabase(object):
                     pv_name = rec[idx]
                 elif props == "tags":
                     if rec[idx] is not None:
-                        pv_tags = [{'name': t, 'owner': owner} for t in rec[idx].split(tag_delimiter)]
+                        pv_tags = [{'name': t, 'owner': owner} for t in
+                                   rec[idx].split(tag_delimiter)]
                 elif rec[idx] is not None:
-                    pv_props.append({'name': props, 'value': rec[idx], 'owner': owner})
+                    pv_props.append(
+                        {'name': props, 'value': rec[idx], 'owner': owner})
             if pv_name is not None:
                 retval.append({'name': pv_name, 'owner': owner,
                                'properties': pv_props,
                                'tags': pv_tags})
-        
+
         return retval
 
     def findProperty(self, propertyName):
@@ -219,8 +226,9 @@ class CFCDatabase(object):
         ret : list
             List of properties.
         """
-        return [p for p in self.getAllProperties() if fnmatch(p['name'], propertyName)]
-    
+        return [p for p in self.getAllProperties() if
+                fnmatch(p['name'], propertyName)]
+
     def findTag(self, tagName):
         """Searches for the tag name or pattern.
 
@@ -283,14 +291,16 @@ class CFCDatabase(object):
         cur = self.dbconn.cursor()
         cur.execute("""SELECT * FROM pvs JOIN elements__pvs ON pvs.pv_id=elements__pvs.pv_id 
                        JOIN elements ON elements__pvs.elem_id=elements.elem_id""")
-        properties = [{'name': prpts[0],'value': None, 'owner': owner} for prpts in cur.description
-                            if prpts[0] not in ["elem_id", "pv_id", "tags", 'pv', 'elem_pvs_id']]
+        properties = [{'name': prpts[0], 'value': None, 'owner': owner} for
+                      prpts in cur.description
+                      if prpts[0] not in ["elem_id", "pv_id", "tags", 'pv',
+                                          'elem_pvs_id']]
 
         if kws.get('name_only', False):
             return sorted([p['name'] for p in properties])
         else:
             return properties
- 
+
     def delete(self, **kwargs):
         """Delete channel, property and tag.
 
@@ -338,14 +348,16 @@ class CFCDatabase(object):
         property = kwargs.get("property", None)
         tag = kwargs.get("tag", None)
 
-        if isinstance(property, (list, tuple)) or isinstance(tag, (list, tuple)):
-            raise Exception("Handling multiple properties or tags not support yet.")
+        if isinstance(property, (list, tuple)) or isinstance(tag,
+                                                             (list, tuple)):
+            raise Exception(
+                "Handling multiple properties or tags not support yet.")
 
         if channels is None:
             # handle property and tags only
             if property is not None:
                 # set all value to NULL to delete
-                cur=self.dbconn.cursor()
+                cur = self.dbconn.cursor()
                 try:
                     cur.execute("BEGIN")
                     self.dbconn("UPDATE elements SET {0}=NULL".format(property))
@@ -377,20 +389,23 @@ class CFCDatabase(object):
                 else:
                     # single channel
                     with self.dbconn:
-                        self.dbconn.execute("DELETE from pvs where pv = ?", (channels,))
+                        self.dbconn.execute("DELETE from pvs where pv = ?",
+                                            (channels,))
             else:
                 # delete both property and tags of pv(s)
                 if tag is None:
                     # delete a property of pv(s)
-                    cur=self.dbconn.cursor()
+                    cur = self.dbconn.cursor()
                     if isinstance(channels, (list, tuple)):
                         for chan in channels:
-                            self._deleteSingleChannelProperty(cur, property, chan)
+                            self._deleteSingleChannelProperty(cur, property,
+                                                              chan)
                     else:
-                        self._deleteSingleChannelProperty(cur, property, channels)
+                        self._deleteSingleChannelProperty(cur, property,
+                                                          channels)
                 if property is None:
                     # delete a tag of pv(s)
-                    cur=self.dbconn.cursor()
+                    cur = self.dbconn.cursor()
                     if isinstance(channels, (list, tuple)):
                         for chan in channels:
                             self._deleteSingleChannelTag(cur, tag, channel=chan)
@@ -407,7 +422,8 @@ class CFCDatabase(object):
         :return:
         """
         if channel is None:
-            cur.execute("SELECT pv_id, tags FROM pvs WHERE tags like ? ", ("%"+tag+"%",))
+            cur.execute("SELECT pv_id, tags FROM pvs WHERE tags like ? ",
+                        ("%" + tag + "%",))
             tmp = cur.fetchall()
             if len(tmp) == 0:
                 # no tag found
@@ -421,9 +437,12 @@ class CFCDatabase(object):
                     # only handle those have exact same tag name
                     new_tags.append([";".join(tags, r[0])])
             with self.dbconn:
-                cur.executemany("""UPDATE pvs SET tags = ? WHERE pv_id = ? )""", new_tags)
+                cur.executemany("""UPDATE pvs SET tags = ? WHERE pv_id = ? )""",
+                                new_tags)
         else:
-            cur.execute("SELECT pv_id, tags FROM pvs WHERE tags like ? and pv = ?", ("%"+tag+"%", channel))
+            cur.execute(
+                "SELECT pv_id, tags FROM pvs WHERE tags like ? and pv = ?",
+                ("%" + tag + "%", channel))
             tmp = cur.fetchall()
             if len(tmp) == 0:
                 # no tag found
@@ -437,7 +456,8 @@ class CFCDatabase(object):
                     # only handle those have exact same tag name
                     new_tags.append([";".join(tags, r[0])])
             with self.dbconn:
-                cur.executemany("""UPDATE pvs SET tags = ? WHERE pv_id = ? )""", new_tags)
+                cur.executemany("""UPDATE pvs SET tags = ? WHERE pv_id = ? )""",
+                                new_tags)
 
     def _deleteSingleChannelProperty(self, cur, property, channel):
         """Delete property from a channel.
@@ -454,12 +474,15 @@ class CFCDatabase(object):
         elem_id = tmp[0][0]
         try:
             cur.execute("BEGIN")
-            self.dbconn("UPDATE elements SET {0}=NULL WHERE elem_id = ?".format(property), (elem_id,))
+            self.dbconn("UPDATE elements SET {0}=NULL WHERE elem_id = ?".format(
+                property), (elem_id,))
             self.dbconn.commit()
         except self.dbconn.Error:
             self.dbconn.rollback()
             cur.execute("BEGIN")
-            self.dbconn("UPDATE pvs SET {0}=NULL WHERE elem_id = ?".format(property), (elem_id,))
+            self.dbconn(
+                "UPDATE pvs SET {0}=NULL WHERE elem_id = ?".format(property),
+                (elem_id,))
             self.dbconn.commit()
         except self.dbconn.Error:
             self.dbconn.rollback()
@@ -507,23 +530,28 @@ class CFCDatabase(object):
         originalProperty = kwargs.get("originalProperty", None)
         originalTag = kwargs.get("originalTag", None)
         tag = kwargs.get("tag", None)
-        prpt_names = [k for k in kwargs.keys() if k not in ['channel', "originalChannel",
-                                                            'originalProperty', 'originalTag',
-                                                            'tag']]
+        prpt_names = [k for k in kwargs.keys() if
+                      k not in ['channel', "originalChannel",
+                                'originalProperty', 'originalTag',
+                                'tag']]
 
         if originalChannel is not None:
             # update old channel name to new channel name
             if channels is None or isinstance(channels, (list, tuple)):
-                raise Exception("Invalid new channel name. Cannot update channel name.")
+                raise Exception(
+                    "Invalid new channel name. Cannot update channel name.")
             with self.dbconn:
-                self.dbconn.execute("""UPDATE pvs SET pv = ? WHERE pv = ?""", (channels, originalChannel))
+                self.dbconn.execute("""UPDATE pvs SET pv = ? WHERE pv = ?""",
+                                    (channels, originalChannel))
         elif originalProperty is not None:
             # update old property value to new one for all channels
             if len(prpt_names) != 1:
-                raise Exception("Update multiple property values not supported yet.")
+                raise Exception(
+                    "Update multiple property values not supported yet.")
             new_prpt_value = kwargs.get(prpt_names[0], None)
             if new_prpt_value is None:
-                raise Exception("Invalid property value. Cannot update property value.")
+                raise Exception(
+                    "Invalid property value. Cannot update property value.")
 
             cur = self.dbconn.cursor()
             cur.execute("PRAGMA table_info(elements)")
@@ -534,11 +562,15 @@ class CFCDatabase(object):
             # get all property value
             delimiter = ";"
             if prpt_names[0] in tbl_elements_cols:
-                cur.execute("""SELECT {0}, elem_id FROM elements where {1} like ?""".format(prpt_names[0]),
-                            (originalProperty,))
+                cur.execute(
+                    """SELECT {0}, elem_id FROM elements where {1} like ?""".format(
+                        prpt_names[0]),
+                    (originalProperty,))
             elif prpt_names[0] in tbl_pvs_cols:
-                cur.execute("""SELECT {0}, pv_id FROM pvs where {1} like ?""".format(prpt_names[0]),
-                            (originalProperty,))
+                cur.execute(
+                    """SELECT {0}, pv_id FROM pvs where {1} like ?""".format(
+                        prpt_names[0]),
+                    (originalProperty,))
             else:
                 raise Exception("Unknown property {}".format(prpt_names[0]))
 
@@ -548,30 +580,39 @@ class CFCDatabase(object):
                 if delimiter in p[0]:
                     if originalProperty in p[0].split(delimiter):
                         # keep order
-                        xxx = delimiter.join([new_prpt_value if x == originalProperty else x for x in p[0].split(delimiter)])
+                        xxx = delimiter.join(
+                            [new_prpt_value if x == originalProperty else x for
+                             x in p[0].split(delimiter)])
                         new_values.append((xxx, p[1]))
                 elif originalProperty == p[0]:
                     new_values.append((new_prpt_value, p[1]))
             if prpt_names[0] in tbl_elements_cols:
                 with self.dbconn:
-                    self.dbconn.executemany("""UPDATE elements SET {0} = ? WHERE pv_id = ?""".format(prpt_names[0]),
-                                            new_values)
+                    self.dbconn.executemany(
+                        """UPDATE elements SET {0} = ? WHERE pv_id = ?""".format(
+                            prpt_names[0]),
+                        new_values)
             elif prpt_names[0] in tbl_pvs_cols:
                 with self.dbconn:
-                    self.dbconn.executemany("""UPDATE pvs SET {0} = ? WHERE pv_id = ?""".format(prpt_names[0]),
-                                            new_values)
+                    self.dbconn.executemany(
+                        """UPDATE pvs SET {0} = ? WHERE pv_id = ?""".format(
+                            prpt_names[0]),
+                        new_values)
         elif originalTag is not None:
             # update old tag to new tag
             if len(prpt_names) != 1:
-                raise Exception("Update multiple property values not supported yet.")
+                raise Exception(
+                    "Update multiple property values not supported yet.")
             new_prpt_value = kwargs.get(prpt_names[0], None)
             if new_prpt_value is None:
-                raise Exception("Invalid property value. Cannot update property value.")
+                raise Exception(
+                    "Invalid property value. Cannot update property value.")
 
             cur = self.dbconn.cursor()
             # get all property value
             delimiter = ";"
-            cur.execute("""SELECT tags, pv_id FROM pvs where tags like ?""", (originalTag,))
+            cur.execute("""SELECT tags, pv_id FROM pvs where tags like ?""",
+                        (originalTag,))
 
             # has format like [(id, value)]
             new_values = []
@@ -579,12 +620,15 @@ class CFCDatabase(object):
                 if delimiter in p[0]:
                     if originalProperty in p[0].split(delimiter):
                         # keep order
-                        xxx = delimiter.join([new_prpt_value if x == originalProperty else x for x in p[0].split(delimiter)])
+                        xxx = delimiter.join(
+                            [new_prpt_value if x == originalProperty else x for
+                             x in p[0].split(delimiter)])
                         new_values.append((xxx, p[1]))
                 elif originalProperty == p[0]:
                     new_values.append((new_prpt_value, p[1]))
             with self.dbconn:
-                self.dbconn.executemany("""UPDATE pvs SET tags = ? WHERE pv_id = ?""", new_values)
+                self.dbconn.executemany(
+                    """UPDATE pvs SET tags = ? WHERE pv_id = ?""", new_values)
         else:
             # update property and tag for given channel(s)
             # if property or tag does not exist, append as new
@@ -605,7 +649,9 @@ class CFCDatabase(object):
                     sql = sql[:-1] + """)"""
                     cur.execute(sql, channels)
                 else:
-                    cur.execute("""SELECT tags, pv_id FROM pvs where pv like ?""", (channels,))
+                    cur.execute(
+                        """SELECT tags, pv_id FROM pvs where pv like ?""",
+                        (channels,))
 
                 # has format like [(id, value)]
                 new_values = []
@@ -613,18 +659,24 @@ class CFCDatabase(object):
                     if delimiter in p[0]:
                         if originalTag in p[0].split(delimiter):
                             # keep order
-                            xxx = delimiter.join([new_tag_value if x == originalTag else x for x in p[0].split(delimiter)])
+                            xxx = delimiter.join(
+                                [new_tag_value if x == originalTag else x for x
+                                 in p[0].split(delimiter)])
                             new_values.append((xxx, p[1]))
                     elif originalTag == p[0]:
                         new_values.append((new_tag_value, p[1]))
                     else:
-                        new_values.append((delimiter.join((p[0], new_tag_value)), p[1]))
+                        new_values.append(
+                            (delimiter.join((p[0], new_tag_value)), p[1]))
                 with self.dbconn:
-                    self.dbconn.executemany("""UPDATE pvs SET tags = ? WHERE pv_id = ?""", new_values)
+                    self.dbconn.executemany(
+                        """UPDATE pvs SET tags = ? WHERE pv_id = ?""",
+                        new_values)
             else:
                 # update old property value to new one for all channels
                 if len(prpt_names) != 1:
-                    raise Exception("Update multiple property values not supported yet.")
+                    raise Exception(
+                        "Update multiple property values not supported yet.")
                 new_prpt_value = kwargs.get(prpt_names[0], None)
                 if new_prpt_value is None:
                     # None property value, do nothing
@@ -654,14 +706,17 @@ class CFCDatabase(object):
                         cur.execute(sql, (channels,))
                 elif prpt_names[0] in tbl_pvs_cols:
                     if isinstance(channels, (list, tuple)):
-                        sql = """SELECT {0}, pv_id FROM pvs where pv in (""".format(prpt_names[0])
+                        sql = """SELECT {0}, pv_id FROM pvs where pv in (""".format(
+                            prpt_names[0])
                         for _ in channels:
                             sql += "?,"
                         sql = sql[:-1] + """)"""
                         cur.execute(sql, channels)
                     else:
-                        cur.execute("""SELECT {0}, pv_id FROM pvs where pv like ?""".format(prpt_names[0]),
-                                    (channels,))
+                        cur.execute(
+                            """SELECT {0}, pv_id FROM pvs where pv like ?""".format(
+                                prpt_names[0]),
+                            (channels,))
                 else:
                     raise Exception("Unknown property {}".format(prpt_names[0]))
 
@@ -671,20 +726,27 @@ class CFCDatabase(object):
                     if delimiter in p[0]:
                         if originalProperty in p[0].split(delimiter):
                             # keep original order if multiple properties
-                            xxx = delimiter.join([new_prpt_value if x == originalProperty else x for x in p[0].split(delimiter)])
+                            xxx = delimiter.join(
+                                [new_prpt_value if x == originalProperty else x
+                                 for x in p[0].split(delimiter)])
                             new_values.append((xxx, p[1]))
                     elif originalProperty == p[0]:
                         new_values.append((new_prpt_value, p[1]))
                     else:
-                        new_values.append((delimiter.join((p[0], new_prpt_value)), p[1]))
+                        new_values.append(
+                            (delimiter.join((p[0], new_prpt_value)), p[1]))
                 if prpt_names[0] in tbl_elements_cols:
                     with self.dbconn:
-                        self.dbconn.executemany("""UPDATE elements SET {0} = ? WHERE elem_id = ?""".format(prpt_names[0]),
-                                                new_values)
+                        self.dbconn.executemany(
+                            """UPDATE elements SET {0} = ? WHERE elem_id = ?""".format(
+                                prpt_names[0]),
+                            new_values)
                 elif prpt_names[0] in tbl_pvs_cols:
                     with self.dbconn:
-                        self.dbconn.executemany("""UPDATE pvs SET {0} = ? WHERE pv_id = ?""".format(prpt_names[0]),
-                                                new_values)
+                        self.dbconn.executemany(
+                            """UPDATE pvs SET {0} = ? WHERE pv_id = ?""".format(
+                                prpt_names[0]),
+                            new_values)
 
     def set(self, **kwargs):
         """Add new properties/tags/channels.
@@ -703,9 +765,7 @@ def write_db(data, db_name, overwrite=False, **kwargs):
     ----------
     data : list(dict)
         List of dict, each dict element is of the format:
-        {'name': PV name (str), 'owner': str,
-         'properties': PV properties (list(dict)),
-         'tags': PV tags (list(dict))]
+        ``{'name': PV name (str), 'owner': str, 'properties': PV properties (list[dict]), 'tags': PV tags (list[dict])}``
     db_name : str
         Filename of database.
     overwrite : bool
@@ -732,7 +792,9 @@ def write_db(data, db_name, overwrite=False, **kwargs):
     elif overwrite:
         init_db(db_name, overwrite=overwrite)
     else:
-        _LOGGER.warn("{} already exists, overwrite it by passing overwrite=True.".format(db_name))
+        _LOGGER.warn(
+            "{} already exists, overwrite it by passing overwrite=True.".format(
+                db_name))
         return None
 
     # delimeter to separate tags in database
@@ -754,12 +816,12 @@ def write_db(data, db_name, overwrite=False, **kwargs):
     # process elements table and pvs table
     for rec in data:
         pv_name, pv_tags = rec['name'], rec['tags']
-        pv_props = {p['name']:p['value'] for p in rec['properties']}
+        pv_props = {p['name']: p['value'] for p in rec['properties']}
 
         ukey = (
-                pv_props.get("elemIndex", None),
-                pv_props.get("elemType", ""),
-                pv_props.get("elemName", ""),
+            pv_props.get("elemIndex", None),
+            pv_props.get("elemType", ""),
+            pv_props.get("elemName", ""),
         )
 
         # skip if already in the to-be-inserted list
@@ -767,31 +829,34 @@ def write_db(data, db_name, overwrite=False, **kwargs):
         # elemIndex has to be unique since one element might be split into many pieces
         elem_index, elem_type, elem_name = ukey
         if elem_index and elem_index not in elem_sets_key:
-            cur.execute("""SELECT EXISTS(SELECT * FROM elements WHERE elemIndex=? AND elemType=? AND elemName=? LIMIT 1)""", 
-                        (elem_index, elem_type, elem_name))
+            cur.execute(
+                """SELECT EXISTS(SELECT * FROM elements WHERE elemIndex=? AND elemType=? AND elemName=? LIMIT 1)""",
+                (elem_index, elem_type, elem_name))
             res, = cur.fetchone()
             # no need to insert if exists
             if res == 0:
                 # element index does not exist yet.
                 elem_sets.append(ukey)
                 # avoid element index + name, which has been added already
-                #elem_sets_key.append((ukey[0], ukey[1], ukey[2]))
+                # elem_sets_key.append((ukey[0], ukey[1], ukey[2]))
                 elem_sets_key.append(ukey)
 
         ukey = (
-                pv_name,
-                pv_props.get("elemField", ""), 
-                pv_props.get("elemHandle", "")
+            pv_name,
+            pv_props.get("elemField", ""),
+            pv_props.get("elemHandle", "")
         )
         if pv_name and pv_name not in pv_sets_pvs:
-            cur.execute("""SELECT EXISTS(SELECT * from pvs where pv=? LIMIT 1)""", (pv_name,))
+            cur.execute(
+                """SELECT EXISTS(SELECT * FROM pvs WHERE pv=? LIMIT 1)""",
+                (pv_name,))
             res, = cur.fetchone()
             if res == 0:
                 # pv name does not exist yet.
                 pv_sets.append(ukey)
                 # not to add the pv name again
-                pv_sets_pvs.append(pv_name) 
-        
+                pv_sets_pvs.append(pv_name)
+
     for ielem in elem_sets:
         _LOGGER.debug("Adding new element: {0}".format(ielem))
 
@@ -799,19 +864,23 @@ def write_db(data, db_name, overwrite=False, **kwargs):
         _LOGGER.debug("Adding new PV: {0}".format(ipv))
 
     # insert new entries, distinguished by (elemIndex, elemType, elemName)
-    #with conn:
-    #for elem in elem_sets:
+    # with conn:
+    # for elem in elem_sets:
     #    print(elem)
     #    conn.execute("""INSERT INTO elements (elemIndex, elemType, elemName) VALUES (?,?,?)""", elem)
 
-    conn.executemany("""INSERT INTO elements (elemIndex, elemType, elemName) VALUES (?,?,?)""", elem_sets)
-    conn.executemany("""INSERT INTO pvs (pv, elemField, elemHandle) VALUES (?,?,?)""", pv_sets)
+    conn.executemany(
+        """INSERT INTO elements (elemIndex, elemType, elemName) VALUES (?,?,?)""",
+        elem_sets)
+    conn.executemany(
+        """INSERT INTO pvs (pv, elemField, elemHandle) VALUES (?,?,?)""",
+        pv_sets)
 
     _LOGGER.debug("Added {0} elements".format(len(elem_sets)))
     _LOGGER.debug("Added {0} pvs".format(len(pv_sets)))
 
     # update elements table
-    cur.execute("begin")
+    cur.execute("BEGIN")
     cur.execute("PRAGMA table_info(elements)")
     tbl_elements_cols = [v[1] for v in cur.fetchall()]
 
@@ -823,25 +892,31 @@ def write_db(data, db_name, overwrite=False, **kwargs):
         vals = []
         for rec in data:
             pv_name, pv_tags = rec['name'], rec['tags']
-            pv_props = {p['name']:p['value'] for p in rec['properties']}
+            pv_props = {p['name']: p['value'] for p in rec['properties']}
             if col not in pv_props:
                 # only update rec whose cols are defined in schema 
                 continue
             try:
-                vals.append((pv_props[col], pv_props["elemIndex"], pv_props["elemType"], pv_props["elemName"]))
+                vals.append((pv_props[col], pv_props["elemIndex"],
+                             pv_props["elemType"], pv_props["elemName"]))
             except:
                 cur.execute("""INSERT INTO log (timestamp, message) 
-                        VALUES (datetime('now', 'localtime'), 'Incomplete record for pv={}')""".format(pv_name)) 
+                        VALUES (datetime('now', 'localtime'), 'Incomplete record for pv={}')""".format(
+                    pv_name))
         if len(vals) == 0:
-            _LOGGER.debug("Table(elements): no data for column '{0}'.".format(col))
+            _LOGGER.debug(
+                "Table(elements): no data for column '{0}'.".format(col))
             continue
         try:
-            cur.executemany("UPDATE elements SET {0}=? WHERE elemIndex=? AND elemType=? AND elemName=?".format(col), vals)
+            cur.executemany(
+                "UPDATE elements SET {0}=? WHERE elemIndex=? AND elemType=? AND elemName=?".format(
+                    col), vals)
         except:
             raise RuntimeError("Error at updating {0} {1}".format(col, vals))
 
         # conn.commit()
-        _LOGGER.debug("Table(elements): update column '{0}' with {1} records.".format(
+        _LOGGER.debug(
+            "Table(elements): update column '{0}' with {1} records.".format(
                 col, len(vals)))
 
     # update pvs table
@@ -855,15 +930,16 @@ def write_db(data, db_name, overwrite=False, **kwargs):
         vals = []
         for rec in data:
             pv_name, pv_tags = rec['name'], rec['tags']
-            pv_props = {p['name']:p['value'] for p in rec['properties']}
+            pv_props = {p['name']: p['value'] for p in rec['properties']}
             if col not in pv_props:
                 # only update rec whose cols are defined in schema 
                 continue
-            if not pv_props.has_key("elemField") or not pv_props.has_key("elemIndex"):
-                #print("Incomplete record for pv={0}: {1} {2}".format(
+            if ("elemField" not in pv_props) or ("elemIndex" not in pv_props):
+                # print("Incomplete record for pv={0}: {1} {2}".format(
                 #    pv, prpts, tags))
                 cur.execute("""INSERT INTO log (timestamp, message) 
-                        VALUES (datetime('now', 'localtime'), 'Incomplete record for pv={}')""".format(pv_name)) 
+                        VALUES (datetime('now', 'localtime'), 'Incomplete record for pv={}')""".format(
+                    pv_name))
                 continue
             # elemGroups is a list
             vals.append((pv_props[col], pv_name, pv_props["elemField"]))
@@ -871,35 +947,45 @@ def write_db(data, db_name, overwrite=False, **kwargs):
         if len(vals) == 0:
             _LOGGER.debug("Table(pvs): no data for column '{0}'.".format(col))
             continue
-        cur.executemany("UPDATE pvs SET {0}=? WHERE pv=? and elemField=?".format(col), vals)
- 
+        cur.executemany(
+            "UPDATE pvs SET {0}=? WHERE pv=? and elemField=?".format(col), vals)
+
         # conn.commit()
-        _LOGGER.debug("Table(pvs): update column '{0}' with {1} records.".format(col, len(vals)))
+        _LOGGER.debug(
+            "Table(pvs): update column '{0}' with {1} records.".format(col, len(
+                vals)))
 
     # update tags
     vals = []
     for rec in data:
         pv_name, pv_tags = rec['name'], rec['tags']
-        pv_props = {p['name']:p['value'] for p in rec['properties']}
-        if pv_tags is None: 
+        pv_props = {p['name']: p['value'] for p in rec['properties']}
+        if pv_tags is None:
             continue
-        if not pv_props.has_key("elemField") or not pv_props.has_key("elemIndex"):
-            #print("Incomplete record for pv={0}: {1} {2}. IGNORED".format(
+        if not pv_props.has_key("elemField") or not pv_props.has_key(
+                "elemIndex"):
+            # print("Incomplete record for pv={0}: {1} {2}. IGNORED".format(
             #    pv, prpts, tags))
             cur.execute("""INSERT INTO log (timestamp, message)
-                    VALUES (datetime('now', 'localtime'), "Incomplete record for pv={}")""".format(pv_name))
+                    VALUES (datetime('now', 'localtime'), "Incomplete record for pv={}")""".format(
+                pv_name))
             continue
         pv_tags_str = tag_delimeter.join(sorted([t['name'] for t in pv_tags]))
         vals.append((pv_tags_str, pv_name, pv_props["elemField"]))
     if len(vals) > 0:
-        cur.executemany("""UPDATE pvs SET tags=? WHERE pv=? AND elemField=?""", vals)
+        cur.executemany("""UPDATE pvs SET tags=? WHERE pv=? AND elemField=?""",
+                        vals)
         # conn.commit()
-        _LOGGER.debug("Table(pvs): update tags for {0} records.".format(len(vals)))
+        _LOGGER.debug(
+            "Table(pvs): update tags for {0} records.".format(len(vals)))
 
     # write log if not *quiet*
     if not quiet:
-        msg = "Local database for Channel Finder Service processed {0:<3d} records, added {1:<3d} elements and {2:<3d} PVs".format(len(data), len(elem_sets), len(pv_sets))
-        cur.execute("""Insert into log(timestamp, message) VALUES (datetime('now', 'localtime'), ? )""", (msg,))
+        msg = "Local database for Channel Finder Service processed {0:<3d} records, added {1:<3d} elements and {2:<3d} PVs".format(
+            len(data), len(elem_sets), len(pv_sets))
+        cur.execute(
+            """INSERT INTO log(timestamp, message) VALUES (datetime('now', 'localtime'), ? )""",
+            (msg,))
 
     # update table elements__pvs
     cur.execute("DELETE FROM elements__pvs")
@@ -912,7 +998,7 @@ def write_db(data, db_name, overwrite=False, **kwargs):
     values = []
     for rec in data:
         pv_name = rec['name']
-        pv_props = {p['name']:p['value'] for p in rec['properties']}
+        pv_props = {p['name']: p['value'] for p in rec['properties']}
 
         if 'elemName' not in pv_props or 'elemType' not in pv_props or 'elemIndex' not in pv_props:
             continue
@@ -931,17 +1017,20 @@ def write_db(data, db_name, overwrite=False, **kwargs):
             pre_elem_name = pv_props['elemName']
             pre_elem_index = pv_props['elemIndex']
             pre_elem_type = pv_props['elemType']
-            cur.execute("SELECT elem_id FROM elements WHERE elemName=? and elemType=? and elemIndex=?", 
-                        (pre_elem_name, pre_elem_type, pre_elem_index))
+            cur.execute(
+                "SELECT elem_id FROM elements WHERE elemName=? AND elemType=? AND elemIndex=?",
+                (pre_elem_name, pre_elem_type, pre_elem_index))
             elemid = cur.fetchone()
             if elemid is None:
-                raise ValueError("Cannot find elem_id for element (name: {0}, index: {1}) in elements table.".
-                                 format(pre_elem_name, pre_elem_index))
+                raise ValueError(
+                    "Cannot find elem_id for element (name: {0}, index: {1}) in elements table.".
+                        format(pre_elem_name, pre_elem_index))
             else:
                 elemid = elemid[0]
         values.append([pvid, elemid])
 
-    cur.executemany("INSERT INTO elements__pvs (pv_id, elem_id) VALUES (?, ?)", values)
+    cur.executemany("INSERT INTO elements__pvs (pv_id, elem_id) VALUES (?, ?)",
+                    values)
 
     try:
         conn.commit()
@@ -1068,7 +1157,9 @@ def init_db(db_name, overwrite=False, extra_cols=None):
         or None.
     """
     if os.path.isfile(db_name) and not overwrite:
-        _LOGGER.warn("{} already exists, overwrite it by pass overwrite=True.".format(db_name))
+        _LOGGER.warn(
+            "{} already exists, overwrite it by pass overwrite=True.".format(
+                db_name))
         return db_name
 
     sqlcmd = """DROP TABLE IF EXISTS log;
@@ -1169,10 +1260,10 @@ def init_db(db_name, overwrite=False, extra_cols=None):
 if __name__ == "__main__":
     # see contrib
     pass
-    #from phyutil.phylib.common import read_csv
-    #results = read_csv('../../../demo/impact_va.csv')
-    #create_cf_localdb(db_name='example.sqlite', overwrite=True, extra_cols=results[0][1].keys())
+    # from phyutil.phylib.common import read_csv
+    # results = read_csv('../../../demo/impact_va.csv')
+    # create_cf_localdb(db_name='example.sqlite', overwrite=True, extra_cols=results[0][1].keys())
 
     # print results
 
-    #importCfLocalData(results, "example.sqlite", overwrite=True)
+    # importCfLocalData(results, "example.sqlite", overwrite=True)

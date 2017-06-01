@@ -70,9 +70,11 @@ class MachinePortal(object):
     1. Lattice if created from segment of machine.
     2. Directory searching rule for the machine configuration files:
        (list by searching priority)
-        - User-defined directory;
-        - Environmental variable: ``PHYUTIL_CONFIG_DIR``;
-        - Current user's home folder: ``~/.phyutil``;
+       
+       - User-defined directory;
+       - Environmental variable: ``PHYUTIL_CONFIG_DIR``;
+       - Current user's home folder: ``~/.phyutil``;
+
        If the found directory is ``MPATH``, then the naming rule of *machine*:
        ``MPATH`` + machine name, e.g. ``MPATH=/home/user/develop``,
        machine name is ``FRIB``, then *machine* could be defined as:
@@ -728,10 +730,11 @@ class MachinePortal(object):
             Inspection results, retur a dict when *out* is None,
             or StringIO object when *out* is ``sio``, or None;
             keys of dict:
-             * ``path`` : (str), phyutil.ini fullpath
-             * ``lattices`` : (list), all defined lattices
-             * ``machine`` : (str), defined machine name
-             * ``config`` : (dict), all configurations
+            
+            - ``path`` : (str), phyutil.ini fullpath
+            - ``lattices`` : (list), all defined lattices
+            - ``machine`` : (str), defined machine name
+            - ``config`` : (dict), all configurations
 
         Examples
         --------

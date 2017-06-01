@@ -140,18 +140,25 @@ def __read_csv_2(csvdata):
 
 def read_csv(csvfile):
     """Support 2 different CSV file formats.
-    Format 1 (table format):
-        PV, machine, elemIndex, elemPosition, elemName, elemHandle, elemField, elemType, tags
-        xxx, xxx,    xxx,       xxx,          xxx,      xxx,        xxx,       xxx,      tag1,tag2
-    Format 2:
-        PV,machine=xxx,elemIndex=xxx,elemPosition=xxx,elemName=xxx,elemHandle=xxx,elemField=xxx,elemType=xxx,tag1,tag2
+    *Format 1 (table format)*:
+
+    PV, machine, elemIndex, elemPosition, elemName, elemHandle, elemField, elemType, tags
+    xxx, xxx,    xxx,       xxx,          xxx,      xxx,        xxx,       xxx,      tag1,tag2
+
+    *Format 2*:
+    PV,machine=xxx,elemIndex=xxx,elemPosition=xxx,elemName=xxx,elemHandle=xxx,elemField=xxx,elemType=xxx,tag1,tag2
 
     In format 2, any column does not have a header label is treated as a tag.
 
-    :param csvfile:
-    :return: list of [pv, properties, tags]
+    Parameters
+    ----------
+    csvfile : str
+        CSV file name.
 
-    :raise: RuntimeError
+    Returns
+    --------
+    ret : List
+        List of ``[pv, properties, tags]``.
     """
     if not os.path.isfile(csvfile):
         raise RuntimeError("Invalid CSV file {0}".format(csvfile))
@@ -232,18 +239,23 @@ def _save_csv_explicit(data, csvname):
 
 def write_csv(data, csvname, frmt="table"):
     """Write data into CSV file.
-    Format 1 (table):
-        PV, machine, elemIndex, elemPosition, elemName, elemHandle, elemField, elemType, tags
-        xxx, xxx,    xxx,       xxx,          xxx,      xxx,        xxx,       xxx,      tag1,tag2
+    *Format 1 (table)*:
+    PV, machine, elemIndex, elemPosition, elemName, elemHandle, elemField, elemType, tags
+    xxx, xxx,    xxx,       xxx,          xxx,      xxx,        xxx,       xxx,      tag1,tag2
+
     In format 1, any column does not have a header label is treated as a tag.
 
-    Format 2 (explicit):
-        PV,machine=xxx,elemIndex=xxx,elemPosition=xxx,elemName=xxx,elemHandle=xxx,elemField=xxx,elemType=xxx,tag1,tag2
+    *Format 2 (explicit)*:
+    PV,machine=xxx,elemIndex=xxx,elemPosition=xxx,elemName=xxx,elemHandle=xxx,elemField=xxx,elemType=xxx,tag1,tag2
 
-    :param data:
-    :param csvname: output file name
-    :param frmt:    output file format as described above.
-    :return:
+    Parameters
+    ----------
+    data :
+        data.
+    csvname : str
+        Output file name.
+    frmt : str
+        Output file format as described above.
     """
     if frmt == "table":
         _save_csv_table(data, csvname)
@@ -261,9 +273,7 @@ def write_tb(data, tb_name, overwrite=False, **kwargs):
     ----------
     data : list(dict)
         List of dict, each dict element is of the format:
-        {'name': PV name (str), 'owner': str,
-         'properties': PV properties (list(dict)),
-         'tags': PV tags (list(dict))]
+        ``{'name': PV name (str), 'owner': str, 'properties': PV properties (list[dict]), 'tags': PV tags (list[dict])}``.
     tb_name : str
         Filename of spreadsheet
     overwrite : bool
