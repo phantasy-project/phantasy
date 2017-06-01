@@ -29,7 +29,7 @@ Welcome to phantasy's documentation!
 
 .. only:: html
 
-    PDF documentation: :download:`Download <../build/latex/phantasy.pdf>`
+..   PDF documentation: :download:`Download <../build/latex/phantasy.pdf>`
 
 
 Indices and tables
@@ -37,6 +37,4 @@ Indices and tables
 
 * :ref:`genindex`
 * :ref:`modindex`
-
-.. * :ref:`search`
 
