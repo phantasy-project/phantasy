@@ -1,4 +1,4 @@
-## PHANTASY
+## PHANTASY [![Build Status](https://travis-ci.org/archman/phantasy.svg?branch=upstream)](https://travis-ci.org/archman/phantasy)
 
 **P**hysics **H**igh-level **A**pplications a**N**d **T**oolkits for **A**ccelerator **SY**stem.
 

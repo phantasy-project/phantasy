@@ -1,0 +1,18 @@
+[report]
+
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    raise NameError
+    raise NotImplementedError
+    raise RuntimeError
+    _LOGGER
+    continue]
+    raise
+    if __name__ == '__main__'
+
+omit =
+    */virtaccel/*
+    */tools/*
+    */frib/*
+    */apps/*

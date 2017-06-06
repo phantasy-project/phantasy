@@ -45,7 +45,7 @@ class TestElement(unittest.TestCase):
         self.assertEqual(elem.group, set())
 
     def test_init_with_data_dict(self):
-        with open('data/pv_record.json', 'r') as f:
+        with open(os.path.join(curdir, 'data/pv_record.json'), 'r') as f:
             pv_record = json.load(f)
         pv_name = pv_record['pv_name']
         pv_props = pv_record['pv_props']
@@ -63,7 +63,7 @@ class TestElement(unittest.TestCase):
         self.assertEqual(elem.tags[pv_name], set(pv_tags))
 
     def test_init_with_data_list(self):
-        with open('data/pv_record.json', 'r') as f:
+        with open(os.path.join(curdir, 'data/pv_record.json'), 'r') as f:
             pv_record = json.load(f)
         pv_name = pv_record['pv_name']
         pv_props = pv_record['pv_props']
@@ -81,7 +81,7 @@ class TestElement(unittest.TestCase):
         self.assertEqual(elem.tags[pv_name], set(pv_tags))
 
     def test_init_with_data_props(self):
-        with open('data/pv_record.json', 'r') as f:
+        with open(os.path.join(curdir, 'data/pv_record.json'), 'r') as f:
             pv_record = json.load(f)
         pv_props = pv_record['pv_props']
         elem = CaElement(**pv_props)

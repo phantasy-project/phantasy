@@ -1,0 +1,61 @@
+language: python
+
+sudo: required
+dist: trusty
+
+python:
+    - 2.7
+
+cache:
+    directories:
+    - $HOME/.cache/pip
+
+virtualenv:
+    system_site_packages: true
+
+before_install:
+    - cwd=$(pwd)
+    - cd ci
+    - bash pre_install.sh
+#    - bash ci/build_epics.sh
+    - bash install_epics.sh
+    - cd ${cwd}
+
+install:
+    - cwd=$(pwd)
+    - cd ci
+    - bash setup_flame.sh
+    - bash setup_pycfc.sh
+    - bash setup_pyscan.sh
+    - bash install_scipy.sh
+#    - travis_wait pip install scipy==0.18.1
+    - cd ${cwd}
+    - pip install -r requirements.txt
+    - pip install nose nose-exclude
+    - pip install coverage coveralls
+    - pip install python-dateutil==2.6.0
+    - pip install requests==2.17.3
+    - pip install lmfit==0.9.5
+
+script:
+#    - export PYEPICS_LIBCA=$HOME/base-3.14.12.6/lib/linux-x86_64/libca.so
+#    - export CATOOLS_LIBCA_PATH=$HOME/base-3.14.12.6/lib/linux-x86_64/
+#    - export PATH=$HOME/base-3.14.12.6/bin/linux-x86_64/:${PATH}
+    - export EPICS_BASE=/usr/lib/epics/
+    - export EPICS_HOST_ARCH=linux-x86_64
+    - export PATH=${EPICS_BASE}/bin/${EPICS_HOST_ARCH}:${PATH}
+    - export PYEPICS_LIBCA=${EPICS_BASE}/lib/${EPICS_HOST_ARCH}/libca.so
+    - export CATOOLS_LIBCA_PATH=${EPICS_BASE}/lib/${EPICS_HOST_ARCH}
+    - export PYTHONPATH=$HOME/pyCFClient:$HOME/PyScanClient:${PYTHONPATH}
+    - cd tests
+    - make test
+
+after_success:
+    - coveralls
+
+#deploy:
+#    provider: pages
+#    skip_cleanup: true
+#    github_token: $GITHUB_TOKEN
+#    on:
+#        branch: master
