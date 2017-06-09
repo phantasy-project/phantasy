@@ -30,7 +30,7 @@ commit_files() {
 
 push_files() {
     git remote add pages https://${GITHUB_TOKEN}@github.com/archman/phantasy.git
-    git push --quite --set-upstream pages gh-pages
+    git push --quiet --set-upstream pages gh-pages
 }
 
 setup_git

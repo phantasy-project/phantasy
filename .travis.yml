@@ -45,14 +45,12 @@ script:
     - export PYTHONPATH=$HOME/pyCFClient:$HOME/PyScanClient:${PYTHONPATH}
     - cd tests
     - make test
+    - cd ${cwd}/docs
+    - make clean html
     - cd ${cwd}
 
 after_success:
     - coveralls
-    - cwd=$(pwd)
-    - cd docs
-    - make clean html
-    - cd ${cwd}
     - bash ci/deploy_gh.sh
 
 #deploy:
