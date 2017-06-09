@@ -17,7 +17,6 @@ before_install:
     - cwd=$(pwd)
     - cd ci
     - bash pre_install.sh
-#    - bash ci/build_epics.sh
     - bash install_epics.sh
     - cd ${cwd}
 
@@ -27,8 +26,7 @@ install:
     - bash setup_flame.sh
     - bash setup_pycfc.sh
     - bash setup_pyscan.sh
-    - bash install_scipy.sh
-#    - travis_wait pip install scipy==0.18.1
+    - bash install_scipy.sh #(travis wait)
     - cd ${cwd}
     - pip install -r requirements.txt
     - pip install nose nose-exclude
@@ -38,9 +36,7 @@ install:
     - pip install lmfit==0.9.5
 
 script:
-#    - export PYEPICS_LIBCA=$HOME/base-3.14.12.6/lib/linux-x86_64/libca.so
-#    - export CATOOLS_LIBCA_PATH=$HOME/base-3.14.12.6/lib/linux-x86_64/
-#    - export PATH=$HOME/base-3.14.12.6/bin/linux-x86_64/:${PATH}
+    - cwd=$(pwd)
     - export EPICS_BASE=/usr/lib/epics/
     - export EPICS_HOST_ARCH=linux-x86_64
     - export PATH=${EPICS_BASE}/bin/${EPICS_HOST_ARCH}:${PATH}
@@ -49,9 +45,15 @@ script:
     - export PYTHONPATH=$HOME/pyCFClient:$HOME/PyScanClient:${PYTHONPATH}
     - cd tests
     - make test
+    - cd $(cwd)
 
 after_success:
     - coveralls
+    - cwd=$(pwd)
+    - cd docs
+    - make clean html
+    - cd $(cwd)
+    - bash ci/deploy_gh.sh
 
 #deploy:
 #    provider: pages
