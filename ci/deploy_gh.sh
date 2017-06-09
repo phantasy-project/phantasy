@@ -22,6 +22,7 @@ add_files() {
 }
 
 commit_files() {
+    git stash
     git checkout -b gh-pages
     add_files
     git commit -m "Update docs by Travis build: $TRAVIS_BUILD_NUMBER"
