@@ -19,6 +19,7 @@ add_files() {
     do
         git add ${ifile}
     done
+    ! [ -e .nojekyll ] && touch .nojekyll && git add .nojekyll
 }
 
 commit_files() {
