@@ -13,7 +13,7 @@ setup_git() {
 add_files() {
     cp -arv docs/build/html/* . \
         | awk -F'->' '{print $2}' \
-        | sed "s/[\’\ \‘]//g" > /tmp/filelist
+        | sed "s/[\'\’\ \‘]//g" > /tmp/filelist
     
     for ifile in `cat /tmp/filelist`
     do
@@ -25,7 +25,7 @@ add_files() {
 commit_files() {
     git stash
     git checkout --orphan gh-pages
-    git checkout -- *
+    git rm -rf .
     add_files
     git commit -m "Update docs by Travis build: $TRAVIS_BUILD_NUMBER"
 }
