@@ -23,14 +23,15 @@ add_files() {
 
 commit_files() {
     git stash
-    git checkout -b gh-pages
+    git checkout --orphan gh-pages
+    git checkout -- . *
     add_files
     git commit -m "Update docs by Travis build: $TRAVIS_BUILD_NUMBER"
 }
 
 push_files() {
     git remote add pages https://${GITHUB_TOKEN}@github.com/archman/phantasy.git
-    git push --quiet --set-upstream pages gh-pages --force
+    git push --quiet --set-upstream pages gh-pages
 }
 
 setup_git
