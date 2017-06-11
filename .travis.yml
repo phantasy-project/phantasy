@@ -53,7 +53,7 @@ script:
     - cd ${cwd}
 
 after_success:
-    - coveralls
+#    - coveralls
     - bash ci/deploy_gh.sh
 
 #deploy:
