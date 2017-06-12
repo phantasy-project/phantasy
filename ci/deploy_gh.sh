@@ -24,8 +24,15 @@ add_files() {
 
 commit_files() {
     git stash
-    git checkout --orphan gh-pages
-    git rm -rf .
+    git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
+    git fetch
+    git ls-remote | grep -i "refs/heads/gh-pages"
+    if [ $? -ne 0 ]; then
+        git checkout --orphan gh-pages
+        git rm -rf .
+    else
+        git checkout -b gh-pages origin/gh-pages
+    fi
     add_files
     git commit -m "Update docs by Travis build: $TRAVIS_BUILD_NUMBER"
 }
