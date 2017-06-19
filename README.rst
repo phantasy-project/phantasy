@@ -1,7 +1,7 @@
 PHANTASY
 ========
 
-Physics High-level Applications and Toolkits for Accelerator SYstem.
+Physics High-level Applications and Toolkit for Accelerator SYstem.
 
 Main features of ``phantasy``:
 
