@@ -3,7 +3,7 @@ language: python
 sudo: required
 dist: trusty
 
-group: deprecated-2017Q2
+#group: deprecated-2017Q2
 
 python:
     - 2.7
@@ -26,6 +26,7 @@ install:
     - cwd=$(pwd)
     - cd ci
     - bash setup_flame.sh
+    - ls -lhtr /usr/lib/python2.7/dist-packages/
     - python -c "import flame;print(flame.__version__)"
     - bash setup_pycfc.sh
     - bash setup_pyscan.sh
