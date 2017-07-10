@@ -211,7 +211,7 @@ class TestMachinePortal(unittest.TestCase):
         mconf = mp.inspect_mconf()
         self.assertEqual(mconf.get('machine'), TEST_MACH)
         self.assertEqual(mconf.get('path'),
-                         os.path.join(self.config_dir, TEST_MACH, 'phyutil.ini'))
+                         os.path.join(self.config_dir, TEST_MACH, 'phantasy.ini'))
         self.assertEqual(mconf.get('lattices'), ['LINAC', 'LS1'])
 
     def test_get_pv_names(self):
