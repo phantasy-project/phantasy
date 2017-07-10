@@ -20,14 +20,12 @@ before_install:
     - cd ci
     - bash pre_install.sh
     - bash install_epics.sh
+    - bash setup_flame.sh
     - cd ${cwd}
 
 install:
     - cwd=$(pwd)
     - cd ci
-    - bash setup_flame.sh
-    - ls -lhtr /usr/lib/python2.7/dist-packages/
-    - python -c "import flame;print(flame.__version__)"
     - bash setup_pycfc.sh
     - bash setup_pyscan.sh
     - bash install_scipy.sh #(travis wait)
