@@ -47,7 +47,7 @@ script:
     - export PATH=${EPICS_BASE}/bin/${EPICS_HOST_ARCH}:${PATH}
     - export PYEPICS_LIBCA=${EPICS_BASE}/lib/${EPICS_HOST_ARCH}/libca.so
     - export CATOOLS_LIBCA_PATH=${EPICS_BASE}/lib/${EPICS_HOST_ARCH}
-    - export PYTHONPATH=${cwd}:/usr/lib/python2.7/dist-packages:$HOME/pyCFClient:$HOME/PyScanClient:${PYTHONPATH}
+    - export PYTHONPATH=${cwd}:/usr/lib/python2.7/dist-packages:/usr/local/lib/python2.7/dist-packages:$HOME/pyCFClient:$HOME/PyScanClient:${PYTHONPATH}
     - cd tests
     - make test
     - cd ${cwd}/docs
