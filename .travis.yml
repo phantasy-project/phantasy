@@ -3,7 +3,7 @@ language: python
 sudo: required
 dist: trusty
 
-#group: deprecated-2017Q2
+group: deprecated-2017Q2
 
 python:
     - 2.7
@@ -47,7 +47,8 @@ script:
     - export PATH=${EPICS_BASE}/bin/${EPICS_HOST_ARCH}:${PATH}
     - export PYEPICS_LIBCA=${EPICS_BASE}/lib/${EPICS_HOST_ARCH}/libca.so
     - export CATOOLS_LIBCA_PATH=${EPICS_BASE}/lib/${EPICS_HOST_ARCH}
-    - export PYTHONPATH=${cwd}:/usr/lib/python2.7/dist-packages:/usr/local/lib/python2.7/dist-packages:$HOME/pyCFClient:$HOME/PyScanClient:${PYTHONPATH}
+    - export PYTHONPATH=${cwd}:$HOME/pyCFClient:$HOME/PyScanClient:${PYTHONPATH}
+    #/usr/lib/python2.7/dist-packages:/usr/local/lib/python2.7/dist-packages:
     - cd tests
     - make test
     - cd ${cwd}/docs
