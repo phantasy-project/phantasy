@@ -27,8 +27,8 @@ _LOGGER = logging.getLogger(__name__)
 
 # HOME = os.environ['HOME'] will NOT work on Windows,
 # unless %HOME% is set on Windows, which is not the case by default.
-_home_hla = os.path.join(os.path.expanduser('~'), '.phyutil')
-PHYUTIL_CONFIG_DIR = os.environ.get("PHYUTIL_CONFIG_DIR", _home_hla)
+_home_hla = os.path.join(os.path.expanduser('~'), '.phantasy')
+PHANTASY_CONFIG_DIR = os.environ.get("PHANTASY_CONFIG_DIR", _home_hla)
 
 
 class Configuration(SafeConfigParser):
@@ -219,7 +219,7 @@ def _find_machine_path(machine):
     
     It searches 3 different ways:
       - a absolute path from parameter
-      - environment variable: PHYUTIL_CONFIG_DIR,
+      - environment variable: PHANTASY_CONFIG_DIR,
       - the package directory
     
     Parameters
@@ -241,9 +241,9 @@ def _find_machine_path(machine):
         mname = os.path.basename(machine)
         return machine, mname
 
-    # try "machine" in PHYUTIL_CONFIG_DIR and ~/.phyutil/ (default)
-    _LOGGER.info("Searching configuration under path: '%s' '%s'" % (PHYUTIL_CONFIG_DIR, machine))
-    home_machine = os.path.join(PHYUTIL_CONFIG_DIR, machine)
+    # try "machine" in PHANTASY_CONFIG_DIR and ~/.phantasy/ (default)
+    _LOGGER.info("Searching configuration under path: '%s' '%s'" % (PHANTASY_CONFIG_DIR, machine))
+    home_machine = os.path.join(PHANTASY_CONFIG_DIR, machine)
     if os.path.isdir(home_machine):
         mname = os.path.basename(os.path.realpath(machine))
         return home_machine, mname
@@ -261,7 +261,7 @@ def _find_machine_path(machine):
 
 def find_machine_config(machine, **kwargs):
     """Find the configuration (ini) file for the specified machine, by default
-    the name of configuration file should be 'phyutil.ini'.
+    the name of configuration file should be 'phantasy.ini'.
 
     Parameters
     ----------
@@ -273,7 +273,7 @@ def find_machine_config(machine, **kwargs):
     verbose : True or False
         Display more information, False by default.
     filename : str
-        File name of target configuration file, 'phyutil.ini' by default.
+        File name of target configuration file, 'phantasy.ini' by default.
 
     Returns
     -------
@@ -284,14 +284,14 @@ def find_machine_config(machine, **kwargs):
 
     Examples
     --------
-    >>> # PHYUTIL_CONFIG_DIR: /home/tong1/work/FRIB/projects/machines
+    >>> # PHANTASY_CONFIG_DIR: /home/tong1/work/FRIB/projects/machines
     >>> print(find_machine_config("FRIB"))
     (<config.Configuration instance at 0x7fcaf20650e0>,
      '/home/tong1/work/FRIB/projects/machines/FRIB',
      'FRIB')
     """
     verbose = kwargs.get('verbose', 0)
-    filename = kwargs.get('filename', 'phyutil.ini')
+    filename = kwargs.get('filename', 'phantasy.ini')
 
     machdir, machname = _find_machine_path(machine)
     if verbose:

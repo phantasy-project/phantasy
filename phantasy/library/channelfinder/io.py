@@ -1,13 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-"""
-Input and output functions about CFS.
-
-.. Authors: 
-..    Lingyun Yang <lyyang@bnl.gov>
-..    Guobao Shen <shen@frib.msu.edu>
-..    Tong Zhang <zhangt@frib.msu.edu>
+"""Input and output functions about CFS.
 """
 
 from __future__ import print_function
@@ -42,9 +36,9 @@ def get_data_from_cf(url, **kws):
     Parameters
     ----------
     url : str
-        URL address of channel finder server, e.g. 
+        URL address of channel finder server, e.g.
         ``https://127.0.0.1:8181/ChannelFinder``.
-    
+
     Keyword Arguments
     -----------------
     name_filter : str or list(str)
@@ -301,7 +295,7 @@ def _get_data(raw_data, all_prop_list, all_tag_list, **kws):
         rec['properties'] = pv_props_selected
 
         # pv_props_selected = [p for p in rec.get('properties')
-        #                     if p['name'] in prop_selected and 
+        #                     if p['name'] in prop_selected and
         #                     fnmatch(str(p['value']), str(prop_selected[p['name']]))]
         # new_rec = copy(rec)
         # new_rec['properties'] = pv_props_selected
@@ -313,7 +307,7 @@ def _get_data(raw_data, all_prop_list, all_tag_list, **kws):
 
 
 def write_cfs(data, cfs_url, **kws):
-    """Write PV/channels data into Channel Finder Service, only the owner of 
+    """Write PV/channels data into Channel Finder Service, only the owner of
     tags/properties/channels can manipulate CFS.
 
     Parameters
@@ -405,7 +399,7 @@ def write_json(data, json_name, overwrite=False, **kws):
         Filename of JSON file.
     overwrite : bool
         Overwrite existing database file or not, False by default.
-    
+
     Keyword Arguments
     -----------------
     tag_delimiter : str

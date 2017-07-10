@@ -1,7 +1,7 @@
-# encoding: UTF-8
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
-"""
-Implement phytool command 'cfutil-export'.
+"""Implement phytool command 'cfutil-export'.
 """
 
 from __future__ import print_function
@@ -163,66 +163,3 @@ def _export_to_json(channels, path):
 
 def _export_to_cfweb(channels, uri, username, password):
     write_cfs(channels, uri, username=username, password=password, force=True)
-    """
-    # Channel data with the following structure:
-    #
-    # {
-    #    "CH:NAME1": {
-    #           "properties":{
-    #                 "system":"SEG1",
-    #                 "device":"DEV1"
-    #            },
-    #            "tags":[
-    #                "phyutil.sys.LS1",
-    #                "phyutil.sub.CA01"
-    #            ]
-    #    },
-    #    "CH:NAME2: {
-    #            "properties":{
-    #                 "system":"SEG1",
-    #                 "device":"DEV2"
-    #            }
-    #            "tags":[
-    #                "phyutil.sys.LS1",
-    #                "phyutil.sub.BTS"
-    #            ]
-    #    }
-    # }
-    #
-    client = ChannelFinderClient(BaseURL=uri, username=username, password=password)
-
-    data = []
-    existing_tags = []
-    existing_properties = []
-    for name, properties, tags in channels:
-        c = {'name':name, 'owner':username, 'properties':[], 'tags':[]}
-
-        for tname in tags:
-             t = {'name':tname, 'owner':username}
-             if tname not in existing_tags:
-                 if not client.findTag(tname):
-                     client.set(tag=t)
-                     _LOGGER.debug("Tag created in Channel Finder: %s", tname)
-                 else:
-                     _LOGGER.debug("Tag exists in Channel Finder: %s", tname)
-                 existing_tags.append(tname)
-             _LOGGER.debug("Add tag '%s' to channel: %s", tname, name)
-             c['tags'].append(t)
-
-        for pname, pvalue in properties.iteritems():
-             p = {'name':pname, 'owner':username}
-             if pname not in existing_properties:
-                 if not client.findProperty(pname):
-                     client.set(property=p)
-                     _LOGGER.debug("Property created in Channel Finder: %s", pname)
-                 else:
-                     _LOGGER.debug("Property exists in Channel Finder: %s", pname)
-                 existing_properties.append(pname)
-             p['value'] = pvalue
-             _LOGGER.debug("Add property '%s' with value '%s' to channel: %s", pname, pvalue, name)
-             c['properties'].append(p)
-
-        data.append(c)
-
-    client.set(channels=data)
-    """

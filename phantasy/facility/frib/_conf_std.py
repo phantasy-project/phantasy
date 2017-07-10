@@ -17,17 +17,17 @@ from collections import OrderedDict
 
 _LOGGER = logging.getLogger(__name__)
 
-# namelist of machine configuration file, e.g. phyutil.ini
+# namelist of machine configuration file, e.g. phantasy.ini
 # INI_DICT is designed to be highly configurable.
 INI_DICT = dict()
 
-INI_DICT['INI_NAME'] = 'phyutil.ini'
+INI_DICT['INI_NAME'] = 'phantasy.ini'
 INI_DICT['COMMON_SECTION_NAME'] = 'COMMON'
 INI_DICT['KEYNAME_CONTROLS_PROTOCOL'] = 'controls_protocol'
 INI_DICT['DEFAULT_CONTROLS_PROTOCOL'] = 'EPICS'
 
 # HLA MARCOs
-HLA_TAG_PREFIX = 'phyutil'
+HLA_TAG_PREFIX = 'phantasy'
 HLA_TAG_SYS_PREFIX = HLA_TAG_PREFIX + '.sys'
 HLA_VFAMILY = 'HLA:VIRTUAL'
 
@@ -35,7 +35,7 @@ INI_DICT['HLA_TAG_PREFIX'] = HLA_TAG_PREFIX
 INI_DICT['HLA_TAG_SYS_PREFIX'] = HLA_TAG_SYS_PREFIX
 INI_DICT['HLA_VFAMILY'] = HLA_VFAMILY
 
-## namelist defined in phyutil.ini
+## namelist defined in phantasy.ini
 
 # segment and default_segment
 KEYNAME_SEGMENTS = "segments"
@@ -77,7 +77,7 @@ KEYNAME_MODEL_DATA_DIR = 'model_data_dir'
 INI_DICT['KEYNAME_MODEL_DATA_DIR'] = KEYNAME_MODEL_DATA_DIR
 #INI_DICT['DEFAULT_MODEL_DATA_DIR'] = DEFAULT_MODEL_DATA_DIR
 
-# config file, e.g. phyutil.cfg
+# config file, e.g. phantasy.cfg
 KEYNAME_CONFIG_FILE = 'config_file'
 DEFAULT_CONFIG_FILE = None
 
@@ -106,7 +106,7 @@ INI_DICT['KEYNAME_CF_SVR_URL'] = KEYNAME_CF_SVR_URL
 INI_DICT['DEFAULT_CF_SVR_URL'] = DEFAULT_CF_SVR_URL
 
 # channel finder tag
-# tagging rule: phyutil.sys.{LATTICE}, e.g. phyutil.sys.LINAC
+# tagging rule: phantasy.sys.{LATTICE}, e.g. phantasy.sys.LINAC
 KEYNAME_CF_SVR_TAG = 'cfs_tag'
 DEFAULT_CF_SVR_TAG =  lambda x: '{0}.{1}'.format(HLA_TAG_SYS_PREFIX, x)
 
@@ -172,9 +172,9 @@ dsect_linac[INI_DICT['KEYNAME_SIMULATION_CODE']] = 'flame'
 dsect_linac[INI_DICT['KEYNAME_MODEL_DATA_DIR']] = 'model_data'
 dsect_linac[INI_DICT['KEYNAME_SETTINGS_FILE']] = 'baseline_settings.json'
 dsect_linac[INI_DICT['KEYNAME_LAYOUT_FILE']] = 'baseline_layout.csv'
-dsect_linac[INI_DICT['KEYNAME_CONFIG_FILE']] = 'phyutil.cfg'
+dsect_linac[INI_DICT['KEYNAME_CONFIG_FILE']] = 'phantasy.cfg'
 dsect_linac[INI_DICT['KEYNAME_CF_SVR_URL']] = 'https://localhost:8181/ChannelFinder'
-dsect_linac[INI_DICT['KEYNAME_CF_SVR_TAG']] = 'phyutil.sys.LINAC'
+dsect_linac[INI_DICT['KEYNAME_CF_SVR_TAG']] = 'phantasy.sys.LINAC'
 dsect_linac[INI_DICT['KEYNAME_CF_SVR_PROP']] = 'elem*'
 dsect_linac[INI_DICT['KEYNAME_SCAN_SVR_URL']] = 'http://localhost:4810'
 INI_DCONF['LINAC'] = dsect_linac
@@ -194,7 +194,7 @@ def generate_inifile(dconf=None, out=None):
     --------
     1. Generate default config file:
     
-    >>> with open('phyutil.ini', 'w') as f: 
+    >>> with open('phantasy.ini', 'w') as f: 
     >>>     generate_inifile(out=f)
     """
     try:

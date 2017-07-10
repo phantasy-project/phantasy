@@ -1260,10 +1260,3 @@ def init_db(db_name, overwrite=False, extra_cols=None):
 if __name__ == "__main__":
     # see contrib
     pass
-    # from phyutil.phylib.common import read_csv
-    # results = read_csv('../../../demo/impact_va.csv')
-    # create_cf_localdb(db_name='example.sqlite', overwrite=True, extra_cols=results[0][1].keys())
-
-    # print results
-
-    # importCfLocalData(results, "example.sqlite", overwrite=True)

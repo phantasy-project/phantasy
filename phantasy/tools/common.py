@@ -1,12 +1,8 @@
-# encoding: UTF-8
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
+"""Common utilities used by phytool commands.
 """
-Common utilities used by phytool commands.
-
-:author: Dylan Maxwell <maxwelld@frib.msu.edu>
-:date: 2015-06-18
-"""
-
 
 import os.path
 import logging
@@ -19,19 +15,12 @@ from phantasy.library.layout import build_layout
 from phantasy.library.channelfinder import read_csv
 from phantasy.library.pv import DataSource
 
-
 _CONFIG_COMMON_SECTION = "COMMON"
-
 _CONFIG_DEFAULT_SEGMENT = "default_segment"
-
 _CONFIG_CONFIG_FILE = "config_file"
-
 _CONFIG_SETTINGS_FILE = "settings_file"
-
 _CONFIG_LAYOUT_FILE = "layout_file"
-
 _CONFIG_CFS_URL = "cfs_url"
-
 _CONFIG_CFS_TAG = "cfs_tag"
 
 _LOGGER = logging.getLogger(__name__)
@@ -200,7 +189,7 @@ def loadChannels(source, cfstag, mconfig, segment):
                     and mconfig.has_option(segment, _CONFIG_CFS_TAG):
                 cfstag = mconfig.get(segment, _CONFIG_CFS_TAG)
             else:
-                cfstag = "phyutil.sys.%s" % segment
+                cfstag = "phantasy.sys.%s" % segment
         ds = DataSource(source=cfsurl)
         data = ds.get_data(tag_filter=cfstag)
         pvdata = [

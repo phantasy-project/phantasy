@@ -54,7 +54,7 @@ class MachinePortal(object):
         be the path of the configuration folder, "FRIB" by default.
     segment : str
         All machine segments are defined in *segments* field in the
-        configuration file "phyutil.ini", separated by space, e.g.
+        configuration file "phantasy.ini", separated by space, e.g.
         ``segments: LINAC LS1`` defines two segments ``LINAC`` and ``LS1``,
         the ``default_segment`` field in that file is used to define the
         default segment to use. If *segment* parameter is not defined, use
@@ -72,8 +72,8 @@ class MachinePortal(object):
        (list by searching priority)
        
        - User-defined directory;
-       - Environmental variable: ``PHYUTIL_CONFIG_DIR``;
-       - Current user's home folder: ``~/.phyutil``;
+       - Environmental variable: ``PHANTASY_CONFIG_DIR``;
+       - Current user's home folder: ``~/.phantasy``;
 
        If the found directory is ``MPATH``, then the naming rule of *machine*:
        ``MPATH`` + machine name, e.g. ``MPATH=/home/user/develop``,
@@ -133,7 +133,7 @@ class MachinePortal(object):
 
     @property
     def last_machine_path(self):
-        """str: Full path of the last loaded *phyutils.ini* file
+        """str: Full path of the last loaded *phantasys.ini* file
         """
         return self._last_mach_path
 
@@ -191,7 +191,7 @@ class MachinePortal(object):
         return self._machines
 
     def load_lattice(self, segment=None, machine=None, **kws):
-        """Load machine segment from *phyutil.ini* file.
+        """Load machine segment from *phantasy.ini* file.
 
         Parameters
         ----------
@@ -731,7 +731,7 @@ class MachinePortal(object):
             or StringIO object when *out* is ``sio``, or None;
             keys of dict:
             
-            - ``path`` : (str), phyutil.ini fullpath
+            - ``path`` : (str), phantasy.ini fullpath
             - ``lattices`` : (list), all defined lattices
             - ``machine`` : (str), defined machine name
             - ``config`` : (dict), all configurations

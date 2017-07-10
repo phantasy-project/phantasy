@@ -1,9 +1,7 @@
-# encoding: UTF-8
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 """Build channels names based on FRIB naming convention.
-
-   :author: Dylan Maxwell <maxwelld@frib.msu.edu>
-   :date: 2015-06-16
 """
 
 from collections import OrderedDict
@@ -44,9 +42,8 @@ _PHYNAME_PROPERTY = "physicsName"
 _MISC_PROPERTY = "misc"
 
 
-
 def build_channels(layout, machine=None, **kws):
-    """Build channels using FRIB naming convention from the accelerator layout.
+    """Build channels using FRIB naming convention from accelerator layout.
 
     Parameters
     ----------
@@ -86,8 +83,6 @@ def build_channels(layout, machine=None, **kws):
     _start = kws.get('start', None)
     _end = kws.get('end', None)
     for elem in layout.iter(_start, _end):
-        # for elem in layout:
-
         index += 1
 
         if offset is None:
@@ -107,8 +102,8 @@ def build_channels(layout, machine=None, **kws):
             props[_PHYTYPE_PROPERTY] = element.dtype
             props[_PHYNAME_PROPERTY] = element.desc
             tags = []
-            tags.append("phyutil.sys." + element.system)
-            tags.append("phyutil.sub." + element.subsystem)
+            tags.append("phantasy.sys." + element.system)
+            tags.append("phantasy.sub." + element.subsystem)
             return channel, props, tags
 
         channel, props, tags = buildChannel(elem)

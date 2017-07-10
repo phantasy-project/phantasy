@@ -105,7 +105,7 @@ def load_lattice(machine, segment=None, **kws):
         os.makedirs(today_dir_name)
     work_dir = today_dir_name
 
-    # default segment and all segments defined in phyutil.ini file
+    # default segment and all segments defined in phantasy.ini file
     default_segment = d_common.get(INI_DICT['KEYNAME_DEFAULT_SEGMENT'],
                                    INI_DICT['DEFAULT_DEFAULT_SEGMENT'])
     all_segments = d_common.get(INI_DICT['KEYNAME_SEGMENTS'],
@@ -331,7 +331,7 @@ def create_lattice(latname, pv_data, tag, **kws):
         ``string of PV name, dict of properties, list of tags``.
     tag : str
         Only select PV data according to defined tag. e.g.
-        `phyutil.sys.LS1`.
+        `phantasy.sys.LS1`.
 
     Keyword Arguments
     -----------------

@@ -5,7 +5,7 @@
 library, which uses a RESTful web service to manage and proceed scan jobs.
 
 The scan server host and port could be configured in configuration file, e.g.:
-phyutil.ini. 
+phantasy.ini. 
 
 The scan server was developed at SNS, its nightly built binary could be found
 at: https://ics-web.sns.ornl.gov/css/nightly/ and source code is managed on
