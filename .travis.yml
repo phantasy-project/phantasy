@@ -12,15 +12,14 @@ cache:
     directories:
     - $HOME/.cache/pip
 
-virtualenv:
-    system_site_packages: true
+#virtualenv:
+#    system_site_packages: true
 
 before_install:
     - cwd=$(pwd)
     - cd ci
     - bash pre_install.sh
     - bash install_epics.sh
-    - bash setup_flame.sh
     - cd ${cwd}
 
 install:
@@ -28,6 +27,7 @@ install:
     - cd ci
     - bash setup_pycfc.sh
     - bash setup_pyscan.sh
+    - bash setup_flame.sh
     - bash install_scipy.sh #(travis wait)
     - cd ${cwd}
     - pip install -r requirements.txt
@@ -48,7 +48,7 @@ script:
     - export PATH=${EPICS_BASE}/bin/${EPICS_HOST_ARCH}:${PATH}
     - export PYEPICS_LIBCA=${EPICS_BASE}/lib/${EPICS_HOST_ARCH}/libca.so
     - export CATOOLS_LIBCA_PATH=${EPICS_BASE}/lib/${EPICS_HOST_ARCH}
-    - export SYSPYPATH=/usr/local/lib/python2.7/site-packages:/usr/local/lib/python2.7/dist-packages:/usr/lib/python2.7/dist-packages:/usr/lib/pymodules/python2.7
+    - export SYSPYPATH=/usr/lib/python2.7/dist-packages
     - export PYTHONPATH=${cwd}:$HOME/pyCFClient:$HOME/PyScanClient:${SYSPYPATH}:${PYTHONPATH}
     - python --version
     - python -c "import sys;print(sys.path)"
