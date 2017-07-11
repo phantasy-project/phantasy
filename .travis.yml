@@ -50,7 +50,7 @@ script:
     - export PYEPICS_LIBCA=${EPICS_BASE}/lib/${EPICS_HOST_ARCH}/libca.so
     - export CATOOLS_LIBCA_PATH=${EPICS_BASE}/lib/${EPICS_HOST_ARCH}
     - export FLAMEPATH=/usr/lib/python2.7/dist-packages
-    - export PYTHONPATH=${cwd}:${PYTHONPATH}:$HOME/pyCFClient:$HOME/PyScanClient:${FLAMEPATH}
+    - export PYTHONPATH=${cwd}:${PYTHONPATH}:$HOME/pyCFClient:$HOME/PyScanClient
     - cd tests
     - echo $PYTHONPATH
     - python -c "import sys;print(sys.path)"
