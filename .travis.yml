@@ -49,12 +49,11 @@ script:
     - export PATH=${EPICS_BASE}/bin/${EPICS_HOST_ARCH}:${PATH}
     - export PYEPICS_LIBCA=${EPICS_BASE}/lib/${EPICS_HOST_ARCH}/libca.so
     - export CATOOLS_LIBCA_PATH=${EPICS_BASE}/lib/${EPICS_HOST_ARCH}
-    - export SYSPYPATH=/usr/lib/python2.7/dist-packages
-    - export PYTHONPATH=${cwd}:${PYTHONPATH}:$HOME/pyCFClient:$HOME/PyScanClient:${SYSPYPATH}
-    - python --version
-    - python -c "import sys;print(sys.path)"
-    - echo $PYTHONPATH
+    - export FLAMEPATH=/usr/lib/python2.7/dist-packages
+    - export PYTHONPATH=${cwd}:${PYTHONPATH}:$HOME/pyCFClient:$HOME/PyScanClient:${FLAMEPATH}
     - cd tests
+    - echo $PYTHONPATH
+    - python -c "import sys;print(sys.path)"
     - make test
     - cd ${cwd}/docs
     - make clean html
