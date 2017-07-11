@@ -3,14 +3,14 @@ language: python
 sudo: required
 dist: trusty
 
-group: deprecated-2017Q2
+#group: deprecated-2017Q2
 
 python:
     - 2.7
 
-cache:
-    directories:
-    - $HOME/.cache/pip
+#cache:
+#    directories:
+#    - $HOME/.cache/pip
 
 virtualenv:
     system_site_packages: true
