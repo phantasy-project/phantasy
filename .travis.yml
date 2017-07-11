@@ -49,6 +49,8 @@ script:
     - export CATOOLS_LIBCA_PATH=${EPICS_BASE}/lib/${EPICS_HOST_ARCH}
     - export PYTHONPATH=${cwd}:$HOME/pyCFClient:$HOME/PyScanClient:${PYTHONPATH}
     #/usr/lib/python2.7/dist-packages:/usr/local/lib/python2.7/dist-packages:
+    - python --version
+    - python -c "import sys;print(sys.path)"
     - cd tests
     - make test
     - cd ${cwd}/docs
