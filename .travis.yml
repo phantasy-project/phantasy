@@ -39,7 +39,7 @@ install:
     - sudo apt install -y pandoc
     - pip install pip --upgrade
     - pip install ipython
-    - python -c "import requests;print(requests.__file__)"
+    - python -c "import requests;print(requests.__file__);print(requests.__version__)"
 
 script:
     - cwd=$(pwd)
