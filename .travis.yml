@@ -40,6 +40,7 @@ install:
     - pip install pip --upgrade
     - pip install ipython
     - python -c "import requests;print(requests.__file__);print(requests.__version__)"
+    - python -c "import nose_exclude;print(nose_exclude.__file__)"
 
 script:
     - cwd=$(pwd)
