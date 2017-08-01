@@ -29,6 +29,11 @@ try:
 except NameError:
     r_input = input
 
+try:
+    basestring
+except NameError:
+    basestring = str
+
 
 def get_data_from_cf(url, **kws):
     """Get PV data from Channel Finder Service (URL).
@@ -238,14 +243,14 @@ def _get_data(raw_data, all_prop_list, all_tag_list, **kws):
     name_filter = kws.get('name_filter', None)
 
     if name_filter is not None:
-        if isinstance(name_filter, (str, unicode)):
+        if isinstance(name_filter, basestring):
             name_filter = name_filter,
     else:
         name_filter = ('*',)
 
     prop_default = dict(zip(all_prop_list, ['*'] * len(all_prop_list)))
     if prop_filter is not None:
-        if isinstance(prop_filter, (str, unicode)):
+        if isinstance(prop_filter, basestring):
             prop_filter = prop_filter,
         prop_tmp = expand_list_to_dict(prop_filter, all_prop_list)  # dict
         if prop_tmp == {}:
@@ -257,7 +262,7 @@ def _get_data(raw_data, all_prop_list, all_tag_list, **kws):
 
     tag_selected = []
     if tag_filter is not None:
-        if isinstance(tag_filter, (str, unicode)):
+        if isinstance(tag_filter, basestring):
             tag_filter = tag_filter,
         tag_selected = flatten(
             [pattern_filter(all_tag_list, tn_i)
