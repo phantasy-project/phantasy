@@ -272,9 +272,9 @@ def complicate_data(raw_data, **kws):
 
     Parameters
     ----------
-    raw_data : list(list)
-        List of list, each list element is of the format:
-        PV name (str), PV properties (dict), PV tags (list(str))
+    raw_data : list or list(list)
+        Each list element is of the format:
+        ``PV name (str), PV properties (dict), PV tags (list(str))``
     
     Keyword Arguments
     -----------------
@@ -294,15 +294,24 @@ def complicate_data(raw_data, **kws):
     :func:`~phantasy.library.channelfinder.io.get_data_from_cf`
     """
     owner = kws.get('owner', getpass.getuser())
-    retval = []
-    for pv_name, pv_props, pv_tags in raw_data:
-        new_rec = {'name': pv_name,
-                   'owner': owner,
-                   'properties': [{'name': k, 'value': v, 'owner': owner}
-                                  for k, v in pv_props.items()],
-                   'tags': [{'name': t, 'owner': owner} for t in pv_tags],
-                   }
-        retval.append(new_rec)
+    if isinstance(raw_data, list):
+        pv_name, pv_props, pv_tags = raw_data
+        retval = {'name': pv_name,
+                  'owner': owner,
+                  'properties': [{'name': k, 'value': v, 'owner': owner}
+                                 for k, v in pv_props.items()],
+                  'tags': [{'name': t, 'owner': owner} for t in pv_tags]
+                  }
+    else:
+        retval = []
+        for pv_name, pv_props, pv_tags in raw_data:
+            new_rec = {'name': pv_name,
+                       'owner': owner,
+                       'properties': [{'name': k, 'value': v, 'owner': owner}
+                                      for k, v in pv_props.items()],
+                       'tags': [{'name': t, 'owner': owner} for t in pv_tags],
+                       }
+            retval.append(new_rec)
     return retval
 
 
