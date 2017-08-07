@@ -11,9 +11,12 @@ from .miscutils import complicate_data
 from .miscutils import SpecialDict
 from .miscutils import parse_dt
 
+from .httputils import cofetch
+
 __all__ = [
     'flatten', 'get_intersection', 'machine_setter', 'bisect_index',
     'pattern_filter', 'expand_list_to_dict', 'simplify_data',
     'complicate_data', 'SpecialDict', 'parse_dt',
+    'cofetch',
 ]
 
