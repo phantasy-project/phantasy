@@ -17,6 +17,8 @@ from __future__ import unicode_literals
 
 import logging
 import os
+import requests
+from channelfinder import ChannelFinderClient
 from fnmatch import fnmatch
 
 from phantasy.library.channelfinder import get_data_from_cf
@@ -26,6 +28,8 @@ from phantasy.library.channelfinder import write_cfs
 from phantasy.library.channelfinder import write_db
 from phantasy.library.channelfinder import write_json
 from phantasy.library.channelfinder import write_tb
+from phantasy.library.misc import cofetch
+
 
 __authors__ = "Tong Zhang"
 __copyright__ = "(c) 2016-2017, Facility for Rare Isotope beams, " \
@@ -36,7 +40,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class DataSource(object):
-    """ class represents PV data sources,
+    """PV data sources,
     valid data sources:
 
     - *cfs*: channel finder service
@@ -68,9 +72,22 @@ class DataSource(object):
             'sql': self._get_sql_data,
         }
 
+        self._init_data = {
+            'cfs': self._init_cfs_data,
+            'csv': self._init_csv_data,
+            'sql': self._init_sql_data,
+        }
+
         self._pvdata = None
+        self._tag_list = None
+        self._prop_list = None
         if source is not None:
-            self._pvdata = self.get_data()
+            self.init_data()
+
+    def init_data(self, **kws):
+        """Initialize data source.
+        """
+        self._init_data.get(self._src_type)(**kws)
 
     @property
     def source(self):
@@ -106,6 +123,7 @@ class DataSource(object):
                     csv file.".format(s=s))
             self._src_type = None
         self._source = s
+        self.init_data()
 
     @property
     def pvdata(self):
@@ -115,6 +133,24 @@ class DataSource(object):
     @pvdata.setter
     def pvdata(self, data):
         self._pvdata = data
+
+    @property
+    def prop_list(self):
+        """List(str): Properties list."""
+        return self._prop_list
+
+    @prop_list.setter
+    def prop_list(self, l):
+        self._prop_list = l
+
+    @property
+    def tag_list(self):
+        """List(str): Tags list."""
+        return self._tag_list
+
+    @tag_list.setter
+    def tag_list(self, l):
+        self._tag_list = l
 
     def get_data(self, **kws):
         """Get PV data from specific source.
@@ -145,12 +181,28 @@ class DataSource(object):
         tag_filter : str or list(str)
             Only get PVs with defined tags, could be Unix shell patterns,
             logical AND applies for multiple tags.
+        prop_list : list
+            Properties list.
+        tag_list : list
+            Tags list.
+        raw_data : list
+            Lsit of PV data.
+        size : int
+            Length of returned list.
+        ifrom : int
+            Starting index of list.
 
         Note
         ----
-        When *tag_filter* (after pattern expanding) is a list, the data
-        extraction policy should be logical AND, that is returned data should
-        meet all filtering conditions, rules for *prop_filter* see below.
+        1. When *tag_filter* (after pattern expanding) is a list, the data
+           extraction policy should be logical AND, that is returned data
+           should meet all filtering conditions, rules for *prop_filter* see
+           below.
+        2. If *prop_list* and *tag_list* are not given, the ones created at
+           ``init_data`` will be used.
+        3. *size* and *ifrom* are only valid when source type if ``cfs``, and
+           *raw_data* is not defined.
+        4. If *raw_data* is defined, apply filters on *raw_data*.
 
         Returns
         -------
@@ -218,8 +270,11 @@ class DataSource(object):
         will filter PVs of ``elemHandle`` is ``setpoint``, but
         ``prop_filter=[('elemHandle', 'setpoint'), 'elem*']`` will not work.
         """
+        prop_list = kws.get('prop_list', self.prop_list)
+        tag_list = kws.get('tag_list', self.prop_list)
         if self._src_type is not None:
-            ret = self._get_data.get(self._src_type)(**kws)
+            ret = self._get_data.get(self._src_type)(prop_list=prop_list,
+                    tag_list=tag_list, **kws)
         else:
             _LOGGER.warn("Failed to get PV data from invalid source.")
             ret = None
@@ -288,6 +343,31 @@ class DataSource(object):
                 p_list.append(p)
             r['properties'] = p_list
 
+    def _init_cfs_data(self, **kws):
+        username = kws.get('username', None)
+        password = kws.get('password', None)
+        cfc = ChannelFinderClient(BaseURL=self.source,
+                                  username=username,
+                                  password=password)
+        c_url = cfc.get_resource('channel')
+        t_url = cfc.get_resource('tag')
+        p_url = cfc.get_resource('property')
+        
+        resource_data = _cofetch_data([c_url, t_url, p_url])
+
+        all_prop_list = sorted([p['name'] for p in resource_data[p_url]])
+        all_tag_list = sorted([t['name'] for t in resource_data[t_url]])
+        raw_data = resource_data[c_url]
+
+        self._prop_list = all_prop_list
+        self._tag_list = all_tag_list
+        self._pvdata = raw_data
+
+    def _init_csv_data(self, **kws):
+        pass
+
+    def _init_sql_data(self, **kws):
+        pass
 
 def dump_data(data, fname, ftype, **kws):
     """Dump PV data to file or CFS, defined by *ftype*, support types:
@@ -312,3 +392,8 @@ def dump_data(data, fname, ftype, **kws):
                  'json': write_json,
                  'cfs': write_cfs}
     dump_meth.get(ftype)(data, fname, **kws)
+
+
+@cofetch
+def _cofetch_data(url):
+    return requests.get(url, verify=False).json()
