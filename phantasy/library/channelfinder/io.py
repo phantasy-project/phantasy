@@ -13,11 +13,13 @@ import logging
 import os
 from collections import OrderedDict
 from fnmatch import fnmatch
+import requests
 
 from channelfinder import ChannelFinderClient
 from phantasy.library.misc import expand_list_to_dict
 from phantasy.library.misc import flatten
 from phantasy.library.misc import pattern_filter
+from phantasy.library.misc import cofetch
 
 from .database import CFCDatabase
 from .table import CFCTable
@@ -76,6 +78,14 @@ def get_data_from_cf(url, **kws):
         Username of channel finder service.
     password :
         Password of channel finder service username.
+    prop_list : list
+        Properties list.
+    tag_list : list
+        Tags list.
+    size : int
+        Length of returned list.
+    ifrom : int
+        Starting index of returned list (see find()).
 
     Returns
     -------
@@ -86,14 +96,15 @@ def get_data_from_cf(url, **kws):
     raw_data = kws.get('raw_data', None)
     username = kws.get('username', None)
     password = kws.get('password', None)
-    cfc = ChannelFinderClient(BaseURL=url, username=username, password=password)
-    all_prop_list = sorted([p['name'] for p in cfc.getAllProperties()])
-    all_tag_list = sorted([t['name'] for t in cfc.getAllTags()])
+    prop_list = kws.get('prop_list', None)
+    tag_list = kws.get('tag_list', None)
+    new_kws = {k: v for k, v in kws.items() if k not in ['raw_data', 'prop_list', 'tag_list']}
+    #
     if raw_data is None:
-        raw_data = cfc.find(name='*')
-
-    new_kws = {k: v for k, v in kws.items() if k != 'raw_data'}
-    return _get_data(raw_data, all_prop_list, all_tag_list, **new_kws)
+        cfc = ChannelFinderClient(BaseURL=url, username=username, password=password)
+        return _get_cf_data(cfc, prop_list, tag_list, **new_kws)
+    else:
+        return _get_data(raw_data, prop_list, tag_list, **new_kws)
 
 
 def get_data_from_db(db_name, db_type='sqlite', **kws):
@@ -138,6 +149,10 @@ def get_data_from_db(db_name, db_type='sqlite', **kws):
         List of PV data.
     owner : str
         Database owner, login username by default.
+    prop_list : list
+        Properties list.
+    tag_list : list
+        Tags list.
 
     Returns
     -------
@@ -207,6 +222,10 @@ def get_data_from_tb(tb_name, tb_type='csv', **kws):
         List of PV data.
     owner : str
         Database owner, login username by default.
+    prop_list : list
+        Properties list.
+    tag_list : list
+        Tags list.
 
     Returns
     -------
@@ -309,6 +328,55 @@ def _get_data(raw_data, all_prop_list, all_tag_list, **kws):
             retval.append(rec)
 
     return retval
+
+def _get_cf_data(cfc, prop_list, tag_list, **kws):
+    """Get data from CFS.
+    """
+    kargs = {}
+    name_filter = kws.get('name_filter', None)
+    prop_filter = kws.get('prop_filter', None)
+    tag_filter = kws.get('tag_filter', None)
+    size = kws.get('size', None)
+    ifrom = kws.get('ifrom', None)
+    if name_filter is not None:
+        if isinstance(name_filter, list):
+            kargs['name'] = '|'.join(name_filter)
+        else:
+            kargs['name'] = name_filter
+
+    tag_selected = []
+    if tag_filter is not None:
+        if isinstance(tag_filter, basestring):
+            tag_filter = tag_filter,
+        tag_selected = flatten([pattern_filter(tag_list, tn_i)
+            for tn_i in tag_filter])
+        if tag_selected == []:
+            _LOGGER.warn('Invalid tags defined, tag_filter will be inactived.')
+    if tag_selected != []:
+        kargs['tagName'] = ','.join(tag_selected)
+
+    if prop_filter is not None:
+        if isinstance(prop_filter, basestring):
+            prop_filter = prop_filter,
+        prop_tmp = expand_list_to_dict(prop_filter, all_prop_list)  # dict
+        if prop_tmp == {}:
+            prop_selected = None
+        else:
+            prop_selected = prop_tmp
+    else:
+        prop_selected = None
+
+    if prop_selected is not None:
+        kargs['property'] = prop_selected.items()
+
+    if size is not None:
+        kargs['size'] = int(size)
+    if ifrom is not None:
+        kargs['from'] = int(ifrom)
+
+    if kargs == {}:
+        kargs = {'name': '*'}  # add to ChannelFinderClient.find()?
+    return cfc.find(**kargs)
 
 
 def write_cfs(data, cfs_url, **kws):
@@ -506,3 +574,7 @@ def get_all_properties(data, **kws):
         return sorted([p['name'] for p in p_list])
     else:
         return p_list
+
+@cofetch
+def _cofetch_data(url):
+    return requests.get(url, verify=False).json()
