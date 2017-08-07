@@ -3,6 +3,8 @@ language: python
 sudo: required
 dist: trusty
 
+group: deprecated-2017Q2
+
 python:
     - 2.7
 
@@ -23,9 +25,9 @@ before_install:
 install:
     - cwd=$(pwd)
     - cd ci
-    - bash setup_flame.sh
     - bash setup_pycfc.sh
     - bash setup_pyscan.sh
+    - bash setup_flame.sh
     - bash install_scipy.sh #(travis wait)
     - cd ${cwd}
     - pip install -r requirements.txt
@@ -37,6 +39,8 @@ install:
     - sudo apt install -y pandoc
     - pip install pip --upgrade
     - pip install ipython
+    - python -c "import requests;print(requests.__file__);print(requests.__version__)"
+    - python -c "import nose_exclude;print(nose_exclude.__file__)"
 
 script:
     - cwd=$(pwd)
@@ -45,8 +49,11 @@ script:
     - export PATH=${EPICS_BASE}/bin/${EPICS_HOST_ARCH}:${PATH}
     - export PYEPICS_LIBCA=${EPICS_BASE}/lib/${EPICS_HOST_ARCH}/libca.so
     - export CATOOLS_LIBCA_PATH=${EPICS_BASE}/lib/${EPICS_HOST_ARCH}
-    - export PYTHONPATH=${cwd}:$HOME/pyCFClient:$HOME/PyScanClient:${PYTHONPATH}
+    - export FLAMEPATH=/usr/lib/python2.7/dist-packages
+    - export PYTHONPATH=${cwd}:${PYTHONPATH}:$HOME/pyCFClient:$HOME/PyScanClient
     - cd tests
+    - echo $PYTHONPATH
+    - python -c "import sys;print(sys.path)"
     - make test
     - cd ${cwd}/docs
     - make clean html
