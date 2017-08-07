@@ -64,8 +64,6 @@ class DataSource(object):
 
     def __init__(self, source=None, **kws):
         # source and source type is None by default or failed to set source
-        self.source = source
-
         self._get_data = {
             'cfs': self._get_cfs_data,
             'csv': self._get_csv_data,
@@ -78,11 +76,11 @@ class DataSource(object):
             'sql': self._init_sql_data,
         }
 
+        self.source = source
+
         self._pvdata = None
         self._tag_list = None
         self._prop_list = None
-        if source is not None:
-            self.init_data()
 
     def init_data(self, **kws):
         """Initialize data source.
@@ -123,6 +121,7 @@ class DataSource(object):
                     csv file.".format(s=s))
             self._src_type = None
         self._source = s
+        # init data
         self.init_data()
 
     @property
@@ -368,6 +367,7 @@ class DataSource(object):
 
     def _init_sql_data(self, **kws):
         pass
+
 
 def dump_data(data, fname, ftype, **kws):
     """Dump PV data to file or CFS, defined by *ftype*, support types:
