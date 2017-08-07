@@ -53,7 +53,7 @@ app_scripts = [i for i in glob.glob("scripts/*") if not fnmatch(i, "scripts/soft
 
 setup(
         name=app_name,
-        version="0.6.0",
+        version="0.6.1",
         description=app_description,
         long_description=app_long_description,
         author=app_author,
