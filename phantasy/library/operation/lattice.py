@@ -192,7 +192,7 @@ def load_lattice(machine, segment=None, **kws):
                          (cf_svr_url, msect))
             ds = DataSource(source=cf_svr_url)
         elif os.path.isfile(ds_sql_path):
-            # pv data source is sqlite
+            # pv data source is sqlite/csv file
             _LOGGER.info("Using SQlite instead of CFS '%s'" % ds_sql_path)
             ds = DataSource(source=ds_sql_path)
         else:
