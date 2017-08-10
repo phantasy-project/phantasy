@@ -171,15 +171,15 @@ def get_data_from_db(db_name, db_type='sqlite', **kws):
         cfcd = CFCDatabase(db_name, owner=owner)
         if raw_data is None:
             raw_data = cfcd.find(name='*')
-        all_prop_list = cfcd.getAllProperties(name_only=True)
-        all_tag_list = cfcd.getAllTags(name_only=True)
+        prop_list = cfcd.getAllProperties(name_only=True)
+        tag_list = cfcd.getAllTags(name_only=True)
         cfcd.close()
     else:
         _LOGGER.warn("{} will be implemented later.".format(db_type))
         raise NotImplementedError
 
-    new_kws = {k: v for k, v in kws.items() if k not in ('raw_data', 'owner')}
-    return _get_data(raw_data, all_prop_list, all_tag_list, **new_kws)
+    new_kws = {k: v for k, v in kws.items() if k not in ('raw_data', 'owner', 'tag_list', 'prop_list')}
+    return _get_data(raw_data, prop_list, tag_list, **new_kws)
 
 
 def get_data_from_tb(tb_name, tb_type='csv', **kws):
@@ -243,17 +243,17 @@ def get_data_from_tb(tb_name, tb_type='csv', **kws):
         cfct = CFCTable(tb_name, owner=owner)
         if raw_data is None:
             raw_data = cfct.find(name='*')
-        all_prop_list = cfct.getAllProperties(name_only=True)
-        all_tag_list = cfct.getAllTags(name_only=True)
+        prop_list = cfct.getAllProperties(name_only=True)
+        tag_list = cfct.getAllTags(name_only=True)
     else:
         _LOGGER.warn("{} will be implemented later.".format(tb_type))
         raise NotImplementedError
 
-    new_kws = {k: v for k, v in kws.items() if k not in ('raw_data', 'owner')}
-    return _get_data(raw_data, all_prop_list, all_tag_list, **new_kws)
+    new_kws = {k: v for k, v in kws.items() if k not in ('raw_data', 'owner', 'tag_list', 'prop_list')}
+    return _get_data(raw_data, prop_list, tag_list, **new_kws)
 
 
-def _get_data(raw_data, all_prop_list, all_tag_list, **kws):
+def _get_data(raw_data, prop_list, tag_list, **kws):
     """Filter data from *raw_data* by applying filters, which are
     defined by keyword arguments.
     """
@@ -267,11 +267,11 @@ def _get_data(raw_data, all_prop_list, all_tag_list, **kws):
     else:
         name_filter = ('*',)
 
-    prop_default = dict(zip(all_prop_list, ['*'] * len(all_prop_list)))
+    prop_default = dict(zip(prop_list, ['*'] * len(prop_list)))
     if prop_filter is not None:
         if isinstance(prop_filter, basestring):
             prop_filter = prop_filter,
-        prop_tmp = expand_list_to_dict(prop_filter, all_prop_list)  # dict
+        prop_tmp = expand_list_to_dict(prop_filter, prop_list)  # dict
         if prop_tmp == {}:
             prop_selected = prop_default
         else:
@@ -284,7 +284,7 @@ def _get_data(raw_data, all_prop_list, all_tag_list, **kws):
         if isinstance(tag_filter, basestring):
             tag_filter = tag_filter,
         tag_selected = flatten(
-            [pattern_filter(all_tag_list, tn_i)
+            [pattern_filter(tag_list, tn_i)
              for tn_i in tag_filter]
         )
         if tag_selected == []:
@@ -358,16 +358,16 @@ def _get_cf_data(cfc, prop_list, tag_list, **kws):
     if prop_filter is not None:
         if isinstance(prop_filter, basestring):
             prop_filter = prop_filter,
-        prop_tmp = expand_list_to_dict(prop_filter, all_prop_list)  # dict
+        prop_tmp = expand_list_to_dict(prop_filter, prop_list)  # dict
         if prop_tmp == {}:
             prop_selected = None
         else:
             prop_selected = prop_tmp
     else:
         prop_selected = None
-
+    
     if prop_selected is not None:
-        kargs['property'] = prop_selected.items()
+        kargs['property'] = _none_to_star(prop_selected).items()
 
     if size is not None:
         kargs['size'] = int(size)
@@ -377,6 +377,16 @@ def _get_cf_data(cfc, prop_list, tag_list, **kws):
     if kargs == {}:
         kargs = {'name': '*'}  # add to ChannelFinderClient.find()?
     return cfc.find(**kargs)
+
+
+def _none_to_star(raw_dict):
+    new_dict = {}
+    for k,v in raw_dict.items():
+        if v is None:
+            new_dict[k] = '*'
+        else:
+            new_dict[k] = v
+    return new_dict
 
 
 def write_cfs(data, cfs_url, **kws):
