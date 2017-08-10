@@ -64,6 +64,11 @@ class DataSource(object):
 
     def __init__(self, source=None, **kws):
         # source and source type is None by default or failed to set source
+
+        self._pvdata = None
+        self._tag_list = None
+        self._prop_list = None
+
         self._get_data = {
             'cfs': self._get_cfs_data,
             'csv': self._get_csv_data,
@@ -77,10 +82,6 @@ class DataSource(object):
         }
 
         self.source = source
-
-        self._pvdata = None
-        self._tag_list = None
-        self._prop_list = None
 
     def init_data(self, **kws):
         """Initialize data source.
@@ -271,6 +272,7 @@ class DataSource(object):
         """
         prop_list = kws.get('prop_list', self.prop_list)
         tag_list = kws.get('tag_list', self.prop_list)
+
         if self._src_type is not None:
             ret = self._get_data.get(self._src_type)(prop_list=prop_list,
                     tag_list=tag_list, **kws)
@@ -354,12 +356,12 @@ class DataSource(object):
         
         resource_data = _cofetch_data([c_url, t_url, p_url])
 
-        all_prop_list = sorted([p['name'] for p in resource_data[p_url]])
-        all_tag_list = sorted([t['name'] for t in resource_data[t_url]])
+        prop_list = sorted([p['name'] for p in resource_data[p_url]])
+        tag_list = sorted([t['name'] for t in resource_data[t_url]])
         raw_data = resource_data[c_url]
 
-        self._prop_list = all_prop_list
-        self._tag_list = all_tag_list
+        self._prop_list = prop_list
+        self._tag_list = tag_list
         self._pvdata = raw_data
 
     def _init_csv_data(self, **kws):
