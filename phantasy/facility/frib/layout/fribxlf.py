@@ -41,8 +41,6 @@ from phantasy.library.parser import Configuration
 
 # configuration options
 
-CONFIG_XLF_DIAMETER = "xlf_diameter"
-CONFIG_XLF_DATA_FILE = "xlf_data_file"
 CONFIG_MACHINE = "machine"
 CONFIG_LENGTH = "length"
 CONFIG_APERTURE = "aperture"
@@ -51,21 +49,39 @@ CONFIG_APERTURE_Y = "aperture_y"
 
 # XLF parameters
 
-_XLF_LAYOUT_SHEET_NAME = "LatticeLayout"
-_XLF_LAYOUT_SHEET_START = 8
-_XLF_LAYOUT_SYSTEM_IDX = 0
-_XLF_LAYOUT_SUBSYSTEM_IDX = 1
-_XLF_LAYOUT_DEVICE_IDX = 2
-_XLF_LAYOUT_POSITION_IDX = 3
-_XLF_LAYOUT_NAME_IDX = 4
-_XLF_LAYOUT_DEVICE_TYPE_IDX = 5
-_XLF_LAYOUT_ELEMENT_NAME_IDX = 6
-_XLF_LAYOUT_DIAMETER_IDX = 7
-_XLF_LAYOUT_EFFECTIVE_LENGTH_IDX = 10
-_XLF_LAYOUT_CENTER_POSITION_IDX = 14
+XLF_SECTION_NAME = "LatticeFile"
 
-__copyright__ = "Copyright (c) 2015, Facility for Rare Isotope Beams"
-__author__ = "Dylan Maxwell"
+CONFIG_XLF_DIAMETER = "xlf_diameter"
+CONFIG_XLF_DATA_FILE = "xlf_data_file"
+
+CONFIG_LAYOUT_SHEET_NAME = "layout_sheet_name"
+CONFIG_LAYOUT_SHEET_START = "layout_sheet_start"
+CONFIG_LAYOUT_SYSTEM_IDX = "layout_system_idx"
+CONFIG_LAYOUT_SUBSYSTEM_IDX = "layout_subsystem_idx"
+CONFIG_LAYOUT_DEVICE_IDX = "layout_device_idx"
+CONFIG_LAYOUT_POSITION_IDX = "layout_position_idx"
+CONFIG_LAYOUT_NAME_IDX = "layout_name_idx"
+CONFIG_LAYOUT_DEVICE_TYPE_IDX = "layout_device_type_idx"
+CONFIG_LAYOUT_ELEMENT_NAME_IDX = "layout_element_name_idx"
+CONFIG_LAYOUT_DIAMETER_IDX = "layout_diameter_idx"
+CONFIG_LAYOUT_EFFECTIVE_LENGTH_IDX = "layout_effective_length_idx"
+CONFIG_LAYOUT_CENTER_POSITION_IDX = "layout_center_position_idx"
+
+_XLF_LAYOUT_SHEET_NAME_DEFAULT = "LatticeLayout"
+_XLF_LAYOUT_SHEET_START_DEFAULT = 8
+_XLF_LAYOUT_SYSTEM_IDX_DEFAULT = 0
+_XLF_LAYOUT_SUBSYSTEM_IDX_DEFAULT = 1
+_XLF_LAYOUT_DEVICE_IDX_DEFAULT = 2
+_XLF_LAYOUT_POSITION_IDX_DEFAULT = 3
+_XLF_LAYOUT_NAME_IDX_DEFAULT = 4
+_XLF_LAYOUT_DEVICE_TYPE_IDX_DEFAULT = 5
+_XLF_LAYOUT_ELEMENT_NAME_IDX_DEFAULT = 6
+_XLF_LAYOUT_DIAMETER_IDX_DEFAULT = 7
+_XLF_LAYOUT_EFFECTIVE_LENGTH_IDX_DEFAULT = 10
+_XLF_LAYOUT_CENTER_POSITION_IDX_DEFAULT = 14
+
+__copyright__ = "Copyright (c) 2015-2017, Facility for Rare Isotope Beams"
+__author__ = "Dylan Maxwell, Tong Zhang"
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -73,6 +89,52 @@ try:
     basestring
 except NameError:
     basestring = str
+
+
+class XlfConfig(object):
+    """Configuration for XLF file.
+    """
+    def __init__(self, config, **kws):
+        section = kws.get('section', XLF_SECTION_NAME)
+        k = (CONFIG_LAYOUT_SHEET_NAME, CONFIG_LAYOUT_SHEET_START,
+             CONFIG_LAYOUT_SYSTEM_IDX, CONFIG_LAYOUT_SUBSYSTEM_IDX,
+             CONFIG_LAYOUT_DEVICE_IDX, CONFIG_LAYOUT_POSITION_IDX,
+             CONFIG_LAYOUT_NAME_IDX, CONFIG_LAYOUT_DEVICE_TYPE_IDX,
+             CONFIG_LAYOUT_ELEMENT_NAME_IDX, CONFIG_LAYOUT_DIAMETER_IDX,
+             CONFIG_LAYOUT_EFFECTIVE_LENGTH_IDX, CONFIG_LAYOUT_CENTER_POSITION_IDX)
+        v = (_XLF_LAYOUT_SHEET_NAME_DEFAULT, _XLF_LAYOUT_SHEET_START_DEFAULT,
+             _XLF_LAYOUT_SYSTEM_IDX_DEFAULT, _XLF_LAYOUT_SUBSYSTEM_IDX_DEFAULT,
+             _XLF_LAYOUT_DEVICE_IDX_DEFAULT, _XLF_LAYOUT_POSITION_IDX_DEFAULT,
+             _XLF_LAYOUT_NAME_IDX_DEFAULT, _XLF_LAYOUT_DEVICE_TYPE_IDX_DEFAULT,
+             _XLF_LAYOUT_ELEMENT_NAME_IDX_DEFAULT, _XLF_LAYOUT_DIAMETER_IDX_DEFAULT,
+             _XLF_LAYOUT_EFFECTIVE_LENGTH_IDX_DEFAULT, _XLF_LAYOUT_CENTER_POSITION_IDX_DEFAULT)
+        d = dict(zip(k, v))
+
+        for option in k:
+            if config.has_option(section, option, False):
+                new_value = config.get(section, option)
+                try:
+                    x = int(new_value)
+                except ValueError:
+                    x = new_value
+                finally:
+                    d[option] = x
+        self._xlf_layout_sheet_name = d.get(CONFIG_LAYOUT_SHEET_NAME)
+        self._xlf_layout_sheet_start = d.get(CONFIG_LAYOUT_SHEET_START)
+        self._xlf_layout_system_idx = d.get(CONFIG_LAYOUT_SYSTEM_IDX)
+        self._xlf_layout_subsystem_idx = d.get(CONFIG_LAYOUT_SUBSYSTEM_IDX)
+        self._xlf_layout_device_idx = d.get(CONFIG_LAYOUT_DEVICE_IDX)
+        self._xlf_layout_position_idx = d.get(CONFIG_LAYOUT_POSITION_IDX)
+        self._xlf_layout_name_idx = d.get(CONFIG_LAYOUT_NAME_IDX)
+        self._xlf_layout_device_type_idx = d.get(CONFIG_LAYOUT_DEVICE_TYPE_IDX)
+        self._xlf_layout_element_name_idx = d.get(CONFIG_LAYOUT_ELEMENT_NAME_IDX)
+        self._xlf_layout_diameter_idx = d.get(CONFIG_LAYOUT_DIAMETER_IDX)
+        self._xlf_layout_effective_length_idx = d.get(CONFIG_LAYOUT_EFFECTIVE_LENGTH_IDX)
+        self._xlf_layout_center_position_idx = d.get(CONFIG_LAYOUT_CENTER_POSITION_IDX)
+        self._options = d
+    
+    def get_options(self):
+        return self._options
 
 
 def build_accel(xlfpath=None, machine=None):
@@ -102,7 +164,7 @@ def build_layout(**kwargs):
     return accel_factory.build()
 
 
-class AccelFactory(object):
+class AccelFactory(XlfConfig):
     """
     Read the Accelerator Design Description from FRIB Expanded Lattice File.
     """
@@ -112,6 +174,8 @@ class AccelFactory(object):
             self.config = kwargs.get("config")
         else:
             self.config = Configuration()
+
+        XlfConfig.__init__(self, self.config)
 
         self.xlfpath = kwargs.get("xlfpath", None)
         self.machine = kwargs.get("machine", None)
@@ -208,8 +272,8 @@ class AccelFactory(object):
 
     def build(self):
         xlfpath = self.xlfpath
-        if (xlfpath is None) and self.config.has_default(CONFIG_XLF_DATA_FILE):
-            xlfpath = self.config.getabspath_default(CONFIG_XLF_DATA_FILE)
+        if (xlfpath is None) and self.config.has_option(XLF_SECTION_NAME, CONFIG_XLF_DATA_FILE):
+            xlfpath = self.config.getabspath(XLF_SECTION_NAME, CONFIG_XLF_DATA_FILE)
 
         if xlfpath is None:
             raise ValueError("AccelFactory: Expanded Lattice File not specified, check the configuration.")
@@ -222,16 +286,16 @@ class AccelFactory(object):
             machine = self.config.get_default(CONFIG_MACHINE)
 
         diameter = self.diameter
-        if (diameter is None) and self.config.has_default(CONFIG_XLF_DIAMETER):
-            diameter = _parse_diameter(self.config.get_default(CONFIG_XLF_DIAMETER))
+        if (diameter is None) and self.config.has_option(XLF_SECTION_NAME, CONFIG_XLF_DIAMETER):
+            diameter = _parse_diameter(self.config.get(XLF_SECTION_NAME, CONFIG_XLF_DIAMETER))
 
         wkbk = xlrd.open_workbook(xlfpath)
 
-        if _XLF_LAYOUT_SHEET_NAME not in wkbk.sheet_names():
+        if self._xlf_layout_sheet_name not in wkbk.sheet_names():
             raise RuntimeError(
-                "AccelFactory: Expanded Lattice File layout not found: '{}'".format(_XLF_LAYOUT_SHEET_NAME))
+                "AccelFactory: Expanded Lattice File layout not found: '{}'".format(self._xlf_layout_sheet_name))
 
-        layout = wkbk.sheet_by_name(_XLF_LAYOUT_SHEET_NAME)
+        layout = wkbk.sheet_by_name(self._xlf_layout_sheet_name)
 
         accelerator = Layout(os.path.splitext(os.path.basename(xlfpath))[0], desc="FRIB Linear Accelerator")
 
@@ -249,16 +313,20 @@ class AccelFactory(object):
                 raise RuntimeError("AccelFactory: previous element type invalid")
             return elements[-1]
 
-        for ridx in range(_XLF_LAYOUT_SHEET_START, layout.nrows):
-            row = _LayoutRow(layout.row(ridx))
+        for ridx in range(self._xlf_layout_sheet_start, layout.nrows):
+            row = _LayoutRow(layout.row(ridx), self.config)
 
             # skip rows without length
             if row.eff_length is None:
                 continue
 
+            if row.device in ["end", "start", "END"]:
+                continue
+
             # clear lines with comments
             if row.system is not None:
-                for prefix in ["dump", "SEGMENT", "LINAC", "Target"]:
+                for prefix in ["dump", "SEGMENT", "LINAC", "Target",
+                               "beta=0.085 QWR cryomodules START"]:
                     if row.system.startswith(prefix):
                         row.system = None
                         break
@@ -387,7 +455,7 @@ class AccelFactory(object):
 
                         subsequence.append(elem)
 
-                    elif row.device in ["PM"]:
+                    elif row.device in ["PM", "PM1"]:
 
                         inst = "D{:d}".format(int(row.position))
 
@@ -433,7 +501,7 @@ class AccelFactory(object):
                                                      system=row.system, subsystem=row.subsystem, device=row.device,
                                                      dtype=row.device_type))
 
-                    elif row.device in ["PORT"]:
+                    elif row.device in ["PORT", "TMP", "NEGP", "IP", "CP"]:
                         dtype = "" if row.device_type is None else row.device_type
                         subsystem = "" if row.subsystem is None else row.subsystem
                         subsequence.append(PortElement(row.center_position, row.eff_length, row.diameter, row.name,
@@ -557,7 +625,7 @@ class AccelFactory(object):
                             DriftElement(row.center_position, row.eff_length, row.diameter, desc=row.element_name))
 
                     elif row.device in ["STRIP"]:
-                        elem = get_prev_element((StripElement))
+                        elem = get_prev_element((StripElement, DriftElement))
                         elem.z = row.center_position
                         elem.name = row.name
                         elem.desc = row.element_name
@@ -588,6 +656,12 @@ class AccelFactory(object):
                             DriftElement(row.center_position, row.eff_length, row.diameter, desc=row.element_name))
 
                     elif row.element_name in ["coil-out", "coil-out (assumed)", "coil out", "coil out + leads"]:
+                        if drift_delta != 0.0:
+                            raise Exception("Unsupported drift delta on element: {}".format(row.element_name))
+                        subsequence.append(
+                            DriftElement(row.center_position, row.eff_length, row.diameter, desc=row.element_name))
+
+                    elif row.element_name in ["collimation flange", "collimation flange moved??"]:
                         if drift_delta != 0.0:
                             raise Exception("Unsupported drift delta on element: {}".format(row.element_name))
                         subsequence.append(
@@ -624,7 +698,8 @@ class AccelFactory(object):
                     elif row.element_name in ["artemis_b extraction/puller", "artemis_b extraction wall",
                                               "extraction mounting plate", "extraction box",
                                               "gap (puller & extraction hole)", "gap (puller main & bias)",
-                                              "puller tube"]:
+                                              "puller tube", "8 mm extraction hole",
+                                              "artemis_b extraction conical wall"]:
                         if drift_delta != 0.0:
                             raise Exception("Unsupported drift delta on element: {}".format(row.element_name))
                         subsequence.append(
@@ -688,7 +763,7 @@ def _parse_diameter(d):
     return None
 
 
-class _LayoutRow(object):
+class _LayoutRow(XlfConfig):
     """
     LayoutRow contains the data from a single row of the layout sheet in the XLF.
     """
@@ -725,17 +800,18 @@ class _LayoutRow(object):
 
         return None
 
-    def __init__(self, row):
-        self.system = self._cell_to_string(row[_XLF_LAYOUT_SYSTEM_IDX])
-        self.subsystem = self._cell_to_string(row[_XLF_LAYOUT_SUBSYSTEM_IDX])
-        self.position = self._cell_to_float(row[_XLF_LAYOUT_POSITION_IDX])
-        self.name = self._cell_to_string(row[_XLF_LAYOUT_NAME_IDX])
-        self.device = self._cell_to_string(row[_XLF_LAYOUT_DEVICE_IDX])
-        self.device_type = self._cell_to_string(row[_XLF_LAYOUT_DEVICE_TYPE_IDX])
-        self.element_name = self._cell_to_string(row[_XLF_LAYOUT_ELEMENT_NAME_IDX])
-        self.diameter = self._cell_to_diameter(row[_XLF_LAYOUT_DIAMETER_IDX])
-        self.eff_length = self._cell_to_float(row[_XLF_LAYOUT_EFFECTIVE_LENGTH_IDX])
-        self.center_position = self._cell_to_float(row[_XLF_LAYOUT_CENTER_POSITION_IDX])
+    def __init__(self, row, config):
+        XlfConfig.__init__(self, config)
+        self.system = self._cell_to_string(row[self._xlf_layout_system_idx])
+        self.subsystem = self._cell_to_string(row[self._xlf_layout_subsystem_idx])
+        self.position = self._cell_to_float(row[self._xlf_layout_position_idx])
+        self.name = self._cell_to_string(row[self._xlf_layout_name_idx])
+        self.device = self._cell_to_string(row[self._xlf_layout_device_idx])
+        self.device_type = self._cell_to_string(row[self._xlf_layout_device_type_idx])
+        self.element_name = self._cell_to_string(row[self._xlf_layout_element_name_idx])
+        self.diameter = self._cell_to_diameter(row[self._xlf_layout_diameter_idx])
+        self.eff_length = self._cell_to_float(row[self._xlf_layout_effective_length_idx])
+        self.center_position = self._cell_to_float(row[self._xlf_layout_center_position_idx])
 
     def __str__(self):
         return type(self).__name__ + str(self.__dict__)
