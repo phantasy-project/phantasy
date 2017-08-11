@@ -385,7 +385,7 @@ class AccelFactory(XlfConfig):
                                                         subsystem=row.subsystem, device=row.device))
 
                     elif row.device in ["CAV1", "CAV2", "CAV3", "CAV4", "CAV5", "CAV6", "CAV7", "CAV8", "CAV"]:
-                        m = re.match("(b\\d{2}) cavity", row.element_name)
+                        m = re.match("(b\\d{2}) (?:cavity|resonator)", row.element_name)
                         if m:
                             dtype = "CAV_{}".format(m.group(1).upper())
                         else:
@@ -625,7 +625,7 @@ class AccelFactory(XlfConfig):
                             DriftElement(row.center_position, row.eff_length, row.diameter, desc=row.element_name))
 
                     elif row.device in ["STRIP"]:
-                        elem = get_prev_element((StripElement, DriftElement))
+                        elem = get_prev_element((StripElement))
                         elem.z = row.center_position
                         elem.name = row.name
                         elem.desc = row.element_name
@@ -675,6 +675,16 @@ class AccelFactory(XlfConfig):
                             DriftElement(row.center_position, row.eff_length, row.diameter, desc=row.element_name))
 
                     elif row.element_name == "stripper module":
+                        if drift_delta != 0.0:
+                            raise Exception("Unsupported drift delta on element: {}".format(row.element_name))
+                        try:
+                            get_prev_element((StripElement)).length += row.eff_length
+                        except:
+                            subsequence.append(
+                                #StripElement(row.center_position, row.eff_length, row.diameter, "CHARGE STRIPPER",
+                                #            desc=row.element_name))
+                                DriftElement(row.center_position, row.eff_length, row.diameter, desc=row.element_name))
+                    elif row.element_name == "#stripper":
                         if drift_delta != 0.0:
                             raise Exception("Unsupported drift delta on element: {}".format(row.element_name))
                         try:
