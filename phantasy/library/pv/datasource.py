@@ -271,7 +271,7 @@ class DataSource(object):
         ``prop_filter=[('elemHandle', 'setpoint'), 'elem*']`` will not work.
         """
         prop_list = kws.get('prop_list', self.prop_list)
-        tag_list = kws.get('tag_list', self.prop_list)
+        tag_list = kws.get('tag_list', self.tag_list)
 
         if self._src_type is not None:
             ret = self._get_data.get(self._src_type)(prop_list=prop_list,
