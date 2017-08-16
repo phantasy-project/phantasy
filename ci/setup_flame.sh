@@ -7,7 +7,7 @@
 cwd=$(pwd)
 cd $HOME
 git clone -b latest https://github.com/archman/FLAME.git
-cd FLAME/deb
+cd FLAME/deb/trusty
 sudo dpkg -i *.deb
 cd ${cwd}
 
