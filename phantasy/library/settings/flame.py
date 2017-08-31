@@ -11,6 +11,7 @@ import re
 import os
 import logging
 from collections import OrderedDict
+from cStringIO import StringIO
 
 from flame import GLPSParser
 
@@ -103,12 +104,20 @@ class SettingsFactory(object):
 
     def build(self):
         """Generate the settings dictionary from the FLAME lattice file.
-		"""
-        if not os.path.isfile(self._latpath):
-            raise RuntimeError("SettingsFactory: FLAME lattice file not found: {}".format(self._latpath))
+	"""
+        try:
+            if isinstance(self._latpath, basestring):
+                # latpath content
+                fp = StringIO(self._latpath)
+                conf = OrderedDict(GLPSParser().parse(fp))
+                fp.close()
+        except:
+            if not os.path.isfile(self._latpath):
+                raise RuntimeError("SettingsFactory: FLAME lattice file not found: {}".format(self._latpath))
 
-        with open(self._latpath, "r") as fp:
-            conf = OrderedDict(GLPSParser().parse(fp))
+            with open(self._latpath, "r") as fp:
+                conf = OrderedDict(GLPSParser().parse(fp))
+
 
         settings = Settings()
 
