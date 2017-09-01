@@ -2,3 +2,4 @@ sphinx_bootstrap_theme
 nbsphinx
 pyepics
 cothread
+dateutils
