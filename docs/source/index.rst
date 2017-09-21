@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to phantasy's documentation!
-====================================
+Phantasy documentation
+======================
 
 .. only:: latex
 
@@ -29,12 +29,12 @@ Welcome to phantasy's documentation!
 
 .. only:: html
 
-PDF documentation: :download:`Download <../build/latex/phantasy.pdf>`
+.. PDF documentation: :download:`Download <../build/latex/phantasy.pdf>`
 
 
-Indices and tables
-==================
+.. Indices and tables
+.. ==================
 
-* :ref:`genindex`
-* :ref:`modindex`
+.. * :ref:`genindex`
+.. * :ref:`modindex`
 
