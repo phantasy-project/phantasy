@@ -1,5 +1,5 @@
-Terminologies
-=============
+Glossary
+========
 
 :machine:
     Accelerator facility, defined by a string name, should have configuration
