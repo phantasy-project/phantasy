@@ -23,7 +23,7 @@ app_platform = ["Linux"]
 app_author = "Tong Zhang"
 app_author_email = "zhangt@frib.msu.edu"
 app_license = read_license()
-app_url = "https://controls.frib.msu.edu/phantasy/"
+app_url = "https://archman.github.io/phantasy/"
 app_keywords = "phantasy FRIB HLA high-level python FLAME IMPACT"
 installrequires = [
     'numpy',
