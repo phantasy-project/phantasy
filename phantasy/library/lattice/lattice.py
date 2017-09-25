@@ -40,6 +40,7 @@ from phantasy.library.settings import Settings
 from phantasy.library.settings import build_flame_settings
 from phantasy.library.physics import get_orbit
 from phantasy.library.physics import inverse_matrix
+from phantasy.library.parser.config import find_machine_config
 from .element import AbstractElement
 from .element import CaElement
 from .flame import FlameLatticeFactory
@@ -57,6 +58,11 @@ try:
     r_input = raw_input
 except NameError:
     r_input = input
+
+DEFAULT_PHANTASY_CONFIG_MACHINE = '/etc/phantasy/config/mdemo/'
+DEFAULT_CONFIG_FILE = os.path.join(DEFAULT_PHANTASY_CONFIG_MACHINE, 'phantasy.cfg')
+DEFAULT_MCONF, DEFAULT_MPATH, DEFAULT_MNAME = find_machine_config(
+        DEFAULT_PHANTASY_CONFIG_MACHINE)
 
 
 class Lattice(object):
@@ -263,7 +269,7 @@ class Lattice(object):
     @mname.setter
     def mname(self, name):
         if name is None:
-            self._mname = ''
+            self._mname = DEFAULT_MNAME
         else:
             self._mname = name
 
@@ -275,7 +281,7 @@ class Lattice(object):
     @mpath.setter
     def mpath(self, path):
         if path is None:
-            self._mpath = ''
+            self._mpath = DEFAULT_MPATH
         else:
             self._mpath = path
 
@@ -289,7 +295,7 @@ class Lattice(object):
         if isinstance(config, Configuration):
             self._mconf = config
         else:
-            self._mconf = None
+            self._mconf = DEFAULT_MCONF
 
     @property
     def mtype(self):
@@ -357,7 +363,10 @@ class Lattice(object):
             configfile = self.mconf.getabspath(self.name, "config_file")
             config = Configuration(configfile)
         else:
-            config = None
+            try:
+                config = Configuration(DEFAULT_CONFIG_FILE)
+            except:
+                _LOGGER.error("Cannot load {}.".format(DEFAULT_CONFIG_FILE))
         return config
 
     def _get_default_settings(self):
