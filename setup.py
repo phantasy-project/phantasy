@@ -63,7 +63,7 @@ def get_all_dirs(des_root, src_root):
 
 setup(
         name=app_name,
-        version="0.6.5",
+        version="0.6.6",
         description=app_description,
         long_description=app_long_description,
         author=app_author,
