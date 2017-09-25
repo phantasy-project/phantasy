@@ -70,8 +70,9 @@ class MachinePortal(object):
     1. Lattice if created from segment of machine.
     2. Directory searching rule for the machine configuration files:
        (list by searching priority)
-       
+
        - User-defined directory;
+       - Current working directory;
        - Environmental variable: ``PHANTASY_CONFIG_DIR``;
        - Current user's home folder: ``~/.phantasy``;
 
@@ -730,7 +731,7 @@ class MachinePortal(object):
             Inspection results, retur a dict when *out* is None,
             or StringIO object when *out* is ``sio``, or None;
             keys of dict:
-            
+
             - ``path`` : (str), phantasy.ini fullpath
             - ``lattices`` : (list), all defined lattices
             - ``machine`` : (str), defined machine name

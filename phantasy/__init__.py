@@ -25,7 +25,7 @@ __authors__ = "Tong Zhang"
 __copyright__ = "(c) 2016-2017, Facility for Rare Isotope beams," \
                 " Michigan State University"
 __contact__ = "Tong Zhang <zhangt@frib.msu.edu>"
-__version__ = "0.6.2"
+__version__ = "0.6.4"
 
 __doc__ = \
 """PHANTASY: [P]hysics [H]igh-level [A]pplications a[N]d [T]oolkits for
@@ -48,5 +48,6 @@ More details see documentation at https://controls.frib.msu.edu/phantasy/.
 """ % (__version__, __authors__)
 
 __all__ = ['flameutils', 'MachinePortal']
+__loc__ = __path__
 
 logging.basicConfig(format="%(levelname)s: %(asctime)s: %(name)s: %(message)s")

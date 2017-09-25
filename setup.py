@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import glob
+import os
 from fnmatch import fnmatch
 
 from setuptools import setup, find_packages
@@ -51,9 +52,18 @@ extrasrequire = {
 
 app_scripts = [i for i in glob.glob("scripts/*") if not fnmatch(i, "scripts/softIoc")]
 
+def get_all_dirs(des_root, src_root):
+    ret = []
+    for r,d,f in os.walk(src_root):
+        ret.append(
+                (os.path.join(des_root, r), [os.path.join(r, fi) for fi in f])
+        )
+    return ret
+
+
 setup(
         name=app_name,
-        version="0.6.2",
+        version="0.6.4",
         description=app_description,
         long_description=app_long_description,
         author=app_author,
@@ -64,12 +74,14 @@ setup(
         keywords=app_keywords,
         scripts=app_scripts,
         packages=find_packages(exclude=['utest', 'demo', 'example']),
+        #package_data={'': ['mdemo']},
+        data_files = get_all_dirs('/phantasy/config', 'mdemo'),
         classifiers=[
             'Programming Language :: Python :: 2.7',
             'Topic :: Software Development :: Libraries :: Python Modules', 
             'Topic :: Scientific/Engineering :: Physics'],
         tests_require=['nose'],
         test_suite='nose.collector',
-        install_requires=installrequires,
+        #install_requires=installrequires,
         #extras_require=extrasrequire, 
 )
