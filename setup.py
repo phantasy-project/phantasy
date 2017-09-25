@@ -9,7 +9,7 @@ from setuptools import setup, find_packages
 
 
 def readme():
-    with open('README.rst', 'r') as f:
+    with open('README.md', 'r') as f:
         return f.read()
 
 def read_license():
@@ -17,7 +17,7 @@ def read_license():
         return f.read()
 
 app_name = "phantasy"
-app_description = 'Physics high-level applications and toolkits for accelerator system'
+app_description = 'Physics high-level applications and toolkit for accelerator system'
 app_long_description = readme() + '\n\n'
 app_platform = ["Linux"]
 app_author = "Tong Zhang"
@@ -63,7 +63,7 @@ def get_all_dirs(des_root, src_root):
 
 setup(
         name=app_name,
-        version="0.6.4",
+        version="0.6.5",
         description=app_description,
         long_description=app_long_description,
         author=app_author,
