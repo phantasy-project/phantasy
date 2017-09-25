@@ -74,7 +74,7 @@ setup(
         keywords=app_keywords,
         scripts=app_scripts,
         packages=find_packages(exclude=['utest', 'demo', 'example']),
-        data_files = get_all_dirs('/phantasy/config', 'mdemo'),
+        data_files = get_all_dirs('/etc/phantasy/config', 'mdemo'),
         classifiers=[
             'Programming Language :: Python :: 2.7',
             'Topic :: Software Development :: Libraries :: Python Modules', 
