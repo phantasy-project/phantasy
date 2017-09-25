@@ -9,7 +9,7 @@ from setuptools import setup, find_packages
 
 
 def readme():
-    with open('README.md', 'r') as f:
+    with open('README.rst', 'r') as f:
         return f.read()
 
 def read_license():

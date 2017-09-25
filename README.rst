@@ -13,8 +13,6 @@ Physics applications built on top of ``phantasy`` are developed as another
 repo: ``phantasy-apps``, whose names in Debian repo are prefixed with
 ``python-``, i.e. ``python-phantasy`` and ``python-phantasy-apps``.
 
-More details see documentation at https://controls.frib.msu.edu/phantasy/.
-
 ``phantasy`` was originally refactored from two repos: ``phyapps`` and ``phyhlc``
 since the mid December of 2016, the major changes are:
 
@@ -29,3 +27,5 @@ since the mid December of 2016, the major changes are:
 - Add packages/modules upon this new framework;
 - Add unittests;
 - Test and deploy with CI.
+
+More details see documentation at https://archman.github.io/phantasy/
