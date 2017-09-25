@@ -1,0 +1,11 @@
+About Strip element:
+    1: Add '#stripper' before and after STRIPPER, see PS1
+    2: Treat 'stripper module' as drift
+    3: If only 'stripper module' is used to wrap STRIPPER, replace
+       'stripper module' with '#stripper', see PS2
+
+PS1: other elements are mixed into STRIPPER unit.
+PS2: only STRIPPER element.
+
+Tong Zhang <zhangt@frib.msu.edu>
+2017-08-11 14:16:22 PM EDT
