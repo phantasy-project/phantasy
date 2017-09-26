@@ -40,12 +40,15 @@ from phantasy.library.settings import Settings
 from phantasy.library.settings import build_flame_settings
 from phantasy.library.physics import get_orbit
 from phantasy.library.physics import inverse_matrix
-from phantasy.library.parser.config import find_machine_config
 from .element import AbstractElement
 from .element import CaElement
 from .flame import FlameLatticeFactory
 from .impact import LatticeFactory as ImpactLatticeFactory
 from .impact import run_lattice as run_impact_lattice
+from phantasy.library.dconf import _DEFAULT_MCONF
+from phantasy.library.dconf import _DEFAULT_MNAME
+from phantasy.library.dconf import _DEFAULT_MPATH
+from phantasy.library.dconf import _DEFAULT_MCONFIG
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -58,14 +61,6 @@ try:
     r_input = raw_input
 except NameError:
     r_input = input
-
-try:
-    DEFAULT_PHANTASY_CONFIG_MACHINE = '/etc/phantasy/config/mdemo/'
-    DEFAULT_CONFIG_FILE = os.path.join(DEFAULT_PHANTASY_CONFIG_MACHINE, 'phantasy.cfg')
-    DEFAULT_MCONF, DEFAULT_MPATH, DEFAULT_MNAME = find_machine_config(
-        DEFAULT_PHANTASY_CONFIG_MACHINE)
-except:
-    _LOGGER.warn('Default configuration does not exist.')
 
 
 class Lattice(object):
@@ -272,7 +267,7 @@ class Lattice(object):
     @mname.setter
     def mname(self, name):
         if name is None:
-            self._mname = DEFAULT_MNAME
+            self._mname = _DEFAULT_MNAME
         else:
             self._mname = name
 
@@ -284,7 +279,7 @@ class Lattice(object):
     @mpath.setter
     def mpath(self, path):
         if path is None:
-            self._mpath = DEFAULT_MPATH
+            self._mpath = _DEFAULT_MPATH
         else:
             self._mpath = path
 
@@ -298,7 +293,7 @@ class Lattice(object):
         if isinstance(config, Configuration):
             self._mconf = config
         else:
-            self._mconf = DEFAULT_MCONF
+            self._mconf = _DEFAULT_MCONF
 
     @property
     def mtype(self):
@@ -366,10 +361,7 @@ class Lattice(object):
             configfile = self.mconf.getabspath(self.name, "config_file")
             config = Configuration(configfile)
         else:
-            try:
-                config = Configuration(DEFAULT_CONFIG_FILE)
-            except:
-                _LOGGER.error("Cannot load {}.".format(DEFAULT_CONFIG_FILE))
+            config = _DEFAULT_MCONFIG
         return config
 
     def _get_default_settings(self):
