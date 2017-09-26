@@ -59,10 +59,13 @@ try:
 except NameError:
     r_input = input
 
-DEFAULT_PHANTASY_CONFIG_MACHINE = '/etc/phantasy/config/mdemo/'
-DEFAULT_CONFIG_FILE = os.path.join(DEFAULT_PHANTASY_CONFIG_MACHINE, 'phantasy.cfg')
-DEFAULT_MCONF, DEFAULT_MPATH, DEFAULT_MNAME = find_machine_config(
+try:
+    DEFAULT_PHANTASY_CONFIG_MACHINE = '/etc/phantasy/config/mdemo/'
+    DEFAULT_CONFIG_FILE = os.path.join(DEFAULT_PHANTASY_CONFIG_MACHINE, 'phantasy.cfg')
+    DEFAULT_MCONF, DEFAULT_MPATH, DEFAULT_MNAME = find_machine_config(
         DEFAULT_PHANTASY_CONFIG_MACHINE)
+except:
+    _LOGGER.warn('Default configuration does not exist.')
 
 
 class Lattice(object):
