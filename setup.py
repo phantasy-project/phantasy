@@ -4,8 +4,7 @@
 import glob
 import os
 from fnmatch import fnmatch
-
-from setuptools import setup, find_packages
+from setuptools import setup
 
 
 def readme():
@@ -60,6 +59,10 @@ def get_all_dirs(des_root, src_root):
         )
     return ret
 
+kns = ('channelfinder', 'operation', 'lattice', 'layout', 'settings',
+       'physics', 'pv', 'scan', 'model', 'parser')
+d_pkg = {'{0}.{1}'.format(app_name, kn):'{0}/{1}/{2}'.format(
+            app_name, 'library', kn) for kn in kns}
 
 setup(
         name=app_name,
@@ -73,8 +76,9 @@ setup(
         license=app_license,
         keywords=app_keywords,
         scripts=app_scripts,
-        packages=find_packages(exclude=['utest', 'demo', 'example']),
-        data_files = get_all_dirs('/etc/phantasy/config', 'mdemo'),
+        packages=d_pkg.keys(),
+        package_dir=d_pkg,
+        data_files = get_all_dirs('/etc/phantasy/config', 'frib'),
         classifiers=[
             'Programming Language :: Python :: 2.7',
             'Topic :: Software Development :: Libraries :: Python Modules', 
