@@ -80,15 +80,14 @@ _XLF_LAYOUT_DIAMETER_IDX_DEFAULT = 7
 _XLF_LAYOUT_EFFECTIVE_LENGTH_IDX_DEFAULT = 10
 _XLF_LAYOUT_CENTER_POSITION_IDX_DEFAULT = 14
 
-__copyright__ = "Copyright (c) 2015-2017, Facility for Rare Isotope Beams"
-__author__ = "Dylan Maxwell, Tong Zhang"
-
 _LOGGER = logging.getLogger(__name__)
 
 try:
     basestring
 except NameError:
     basestring = str
+
+FMT_INST = "D{:04d}"
 
 
 class XlfConfig(object):
@@ -132,6 +131,11 @@ class XlfConfig(object):
         self._xlf_layout_effective_length_idx = d.get(CONFIG_LAYOUT_EFFECTIVE_LENGTH_IDX)
         self._xlf_layout_center_position_idx = d.get(CONFIG_LAYOUT_CENTER_POSITION_IDX)
         self._options = d
+
+        if config.has_option(section, 'device_mapping', False):
+            self.d_map = _to_dict(config.get(section, 'device_mapping'))
+        else:
+            self.d_map = {}
     
     def get_options(self):
         return self._options
@@ -390,8 +394,9 @@ class AccelFactory(XlfConfig):
                             dtype = "CAV_{}".format(m.group(1).upper())
                         else:
                             dtype = row.element_name
+                        row.device = self.d_map.get(row.device, row.device)
 
-                        inst = "D{:d}".format(int(row.position))
+                        inst = FMT_INST.format(int(row.position))
 
                         elem = CavityElement(row.center_position, row.eff_length, row.diameter, row.name,
                                              desc=row.element_name,
@@ -407,8 +412,9 @@ class AccelFactory(XlfConfig):
                         subsequence.append(elem)
 
                     elif row.device in ["SOLR"]:
+                        row.device = self.d_map.get(row.device, row.device)
                         dtype = "SOL_{}".format(row.device_type)
-                        inst = "D{:d}".format(int(row.position))
+                        inst = FMT_INST.format(int(row.position))
 
                         elem = SolElement(row.center_position, row.eff_length, row.diameter, row.name,
                                           desc=row.element_name,
@@ -418,8 +424,9 @@ class AccelFactory(XlfConfig):
                         subsequence.append(elem)
 
                     elif row.device in ["SOL1", "SOL2", "SOL3", "SOLS"]:
+                        row.device = self.d_map.get(row.device, row.device)
                         dtype = "SOL_{}".format(row.device_type)
-                        inst = "D{:d}".format(int(row.position))
+                        inst = FMT_INST.format(int(row.position))
 
                         elem = SolCorElement(row.center_position, row.eff_length, row.diameter, row.name,
                                              desc=row.element_name,
@@ -446,7 +453,7 @@ class AccelFactory(XlfConfig):
 
                     elif row.device in ["BPM"]:
 
-                        inst = "D{:d}".format(int(row.position))
+                        inst = FMT_INST.format(int(row.position))
 
                         elem = BPMElement(row.center_position, row.eff_length, row.diameter, row.name,
                                           desc=row.element_name,
@@ -457,7 +464,7 @@ class AccelFactory(XlfConfig):
 
                     elif row.device in ["PM", "PM1"]:
 
-                        inst = "D{:d}".format(int(row.position))
+                        inst = FMT_INST.format(int(row.position))
 
                         elem = PMElement(row.center_position, row.eff_length, row.diameter, row.name,
                                          desc=row.element_name,
@@ -510,8 +517,9 @@ class AccelFactory(XlfConfig):
                                                        dtype=dtype))
 
                     elif row.device in ["DC", "DC0", "CH", "DCHV"]:
+                        row.device = self.d_map.get(row.device, row.device)
 
-                        inst = "D{:d}".format(int(row.position))
+                        inst = FMT_INST.format(int(row.position))
 
                         elem = CorElement(row.center_position, row.eff_length, row.diameter, row.name,
                                           desc=row.element_name,
@@ -531,9 +539,10 @@ class AccelFactory(XlfConfig):
                         subsequence.append(elem)
 
                     elif row.device in ["DH"]:
+                        row.device = self.d_map.get(row.device, row.device)
 
                         dtype = "BEND_{}".format(row.device_type)
-                        inst = "D{:d}".format(int(row.position))
+                        inst = FMT_INST.format(int(row.position))
 
                         elem = BendElement(row.center_position, row.eff_length, row.diameter, row.name,
                                            desc=row.element_name,
@@ -545,9 +554,10 @@ class AccelFactory(XlfConfig):
                         subsequence.append(elem)
 
                     elif row.device in ["QH", "QV", "Q"]:
+                        row.device = self.d_map.get(row.device, row.device)
 
                         dtype = "QUAD_{}".format(row.device_type)
-                        inst = "D{:d}".format(int(row.position))
+                        inst = FMT_INST.format(int(row.position))
 
                         elem = QuadElement(row.center_position, row.eff_length, row.diameter, row.name,
                                            desc=row.element_name,
@@ -557,8 +567,9 @@ class AccelFactory(XlfConfig):
                         subsequence.append(elem)
 
                     elif row.device in ["S"]:
+                        row.device = self.d_map.get(row.device, row.device)
 
-                        inst = "D{:d}".format(int(row.position))
+                        inst = FMT_INST.format(int(row.position))
 
                         elem = SextElement(row.center_position, row.eff_length, row.diameter, row.name,
                                            desc=row.element_name,
@@ -568,8 +579,9 @@ class AccelFactory(XlfConfig):
                         subsequence.append(elem)
 
                     elif row.device in ["ELC1", "ELC2", "ELC3"]:
+                        row.device = self.d_map.get(row.device, row.device)
 
-                        inst = "D{:d}".format(int(row.position))
+                        inst = FMT_INST.format(int(row.position))
 
                         elem = ElectrodeElement(row.center_position, row.eff_length, row.diameter, row.name,
                                                 desc=row.element_name,
@@ -579,8 +591,9 @@ class AccelFactory(XlfConfig):
                         subsequence.append(elem)
 
                     elif row.device in ["ACC"]:
+                        row.device = self.d_map.get(row.device, row.device)
 
-                        inst = "D{:d}".format(int(row.position))
+                        inst = FMT_INST.format(int(row.position))
 
                         elem = ColumnElement(row.center_position, row.eff_length, row.diameter, row.name,
                                              desc=row.element_name,
@@ -590,9 +603,10 @@ class AccelFactory(XlfConfig):
                         subsequence.append(elem)
 
                     elif row.device in ["DVE"]:
+                        row.device = self.d_map.get(row.device, row.device)
 
                         dtype = "BEND_{}".format(row.device_type)
-                        inst = "D{:d}".format(int(row.position))
+                        inst = FMT_INST.format(int(row.position))
 
                         elem = EBendElement(row.center_position, row.eff_length, row.diameter, row.name,
                                             desc=row.element_name,
@@ -604,9 +618,10 @@ class AccelFactory(XlfConfig):
                         subsequence.append(elem)
 
                     elif row.device in ["QHE", "QVE"]:
+                        row.device = self.d_map.get(row.device, row.device)
 
                         dtype = "QUAD_{}".format(row.device_type)
-                        inst = "D{:d}".format(int(row.position))
+                        inst = FMT_INST.format(int(row.position))
 
                         elem = EQuadElement(row.center_position, row.eff_length, row.diameter, row.name,
                                             desc=row.element_name,
@@ -825,3 +840,10 @@ class _LayoutRow(XlfConfig):
 
     def __str__(self):
         return type(self).__name__ + str(self.__dict__)
+
+
+def _to_dict(s):
+    l = s.replace(',',':').split(':')
+    k = [s.strip() for s in l[0::2]]
+    v = [s.strip() for s in l[1::2]]
+    return dict(zip(k,v))
