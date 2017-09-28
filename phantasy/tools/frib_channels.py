@@ -23,6 +23,7 @@ from phantasy.library.channelfinder import write_csv
 from phantasy.library.channelfinder import write_db
 from phantasy.library.misc import complicate_data
 from phantasy.facility.frib.channels import build_channels
+from phantasy.facility.frib.channels import build_channels_ps
 
 
 parser = ArgumentParser(prog=os.path.basename(sys.argv[0])+" frib-channels",
@@ -32,6 +33,7 @@ parser.add_argument("--start", help="name of accelerator element to start proces
 parser.add_argument("--end", help="name of accelerator element to end processing")
 parser.add_argument("--tag", action="append", help="additional tag (can be used multiple times)")
 parser.add_argument("--machine", help="name of machine (used to indicate VA)")
+parser.add_argument("--only-ps", dest="onlyps", nargs='?', type=str, const=False, default=False, help="only generate power supply PVs")
 parser.add_argument("layoutPath", help="path to accelerator layout file")
 parser.add_argument("channelsPath", help="path to output data file (csv or sqlite)")
 
@@ -49,11 +51,9 @@ def main():
     elif args.verbosity > 1:
         logging.getLogger().setLevel(logging.DEBUG)
 
-
     if not os.path.isfile(args.layoutPath):
         print("Accelerator layout file not found: {}".format(args.layoutPath), file=sys.stderr)
         return 1
-
 
     if (args.channelsPath is not None) and os.path.exists(args.channelsPath):
         print("Channels output file already exists: {}".format(args.channelsPath), file=sys.stderr)
@@ -67,8 +67,12 @@ def main():
         return 1
 
     try:
-        channels = build_channels(layout, machine=args.machine,
-                start=args.start, end=args.end)
+        if args.onlyps:
+            channels = build_channels_ps(layout, machine=args.machine,
+                    start=args.start, end=args.end)
+        else:
+            channels = build_channels(layout, machine=args.machine,
+                    start=args.start, end=args.end)
     except Exception as e:
         if args.verbosity > 0: traceback.print_exc()
         print("Error building channels:", e, file=sys.stderr)
