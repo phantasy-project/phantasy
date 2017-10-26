@@ -83,7 +83,7 @@ if args.x is None and args.y is None:
     line_y, = ax.plot(z, y, 'b-', label='$y$')
 
 ax.set_xlabel('$z\,\mathrm{[m]}$')
-ax.set_ylabel('$\mathrm{Envelope\,\mathrm{[mm]}}$')
+ax.set_ylabel('$\mathrm{Centroid\,\mathrm{[mm]}}$')
 ax.legend(loc='best')
 
 if args.output is not None:
