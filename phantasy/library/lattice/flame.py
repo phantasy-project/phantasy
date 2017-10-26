@@ -49,6 +49,7 @@ except NameError:
 
 CONFIG_FLAME_SIM_TYPE = "flame_sim_type"
 CONFIG_FLAME_CAV_TYPE = "flame_cav_type"
+CONFIG_FLAME_CAV_CONF = "flame_cav_conf"
 CONFIG_FLAME_DATA_DIR = "flame_data_dir"
 CONFIG_FLAME_MPOLE_LEVEL = "flame_mpole_level"
 CONFIG_FLAME_HDIPOLE_FIT_MODE = "flame_hdipole_fit_mode"
@@ -441,12 +442,22 @@ class FlameLatticeFactory(BaseLatticeFactory):
                 cav_type = self._get_config(elem.dtype, CONFIG_FLAME_CAV_TYPE, None)
                 if cav_type is None:
                     raise RuntimeError("FlameLatticeFactory: Cavity type not found: {}".format(elem.dtype))
-
-                lattice.append(elem.name, "rfcavity",
-                               ('cavtype', cav_type), ('f', frequency),
-                               ('phi', phase), ('scl_fac', amplitude),
-                               ('L', elem.length), ('aper', elem.aperture / 2.0),
-                               name=elem.name, etype=elem.ETYPE)
+                elif cav_type == 'Generic':
+                    cav_conf = self._get_config(elem.dtype, CONFIG_FLAME_CAV_CONF, None)
+                    if cav_conf is None:
+                        raise RuntimeError("FlameLatticeFactory: Generic cavity data file not found: {}".format(elem.dtype))
+                    lattice.append(elem.name, "rfcavity",
+                                   ('cavtype', cav_type), ('f', frequency),
+                                   ('phi', phase), ('scl_fac', amplitude),
+                                   ('L', elem.length), ('aper', elem.aperture / 2.0),
+                                   ('datafile', cav_conf),
+                                   name=elem.name, etype=elem.ETYPE)
+                else:
+                    lattice.append(elem.name, "rfcavity",
+                                   ('cavtype', cav_type), ('f', frequency),
+                                   ('phi', phase), ('scl_fac', amplitude),
+                                   ('L', elem.length), ('aper', elem.aperture / 2.0),
+                                   name=elem.name, etype=elem.ETYPE)
 
             elif isinstance(elem, SolCorElement):
                 field = 0.0
