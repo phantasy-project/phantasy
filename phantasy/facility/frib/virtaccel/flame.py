@@ -67,6 +67,9 @@ except NameError:
 CONFIG_MACHINE = "machine"
 CONFIG_FLAME_DATA_DIR = "flame_data_dir"
 
+# drift mask: bool
+CONFIG_DRIFT_MASK = "drift_mask"
+
 # default values
 
 _TEMP_DIRECTORY_SUFFIX = "_va_flame"
@@ -284,6 +287,13 @@ class VirtualAcceleratorFactory(object):
 
         raise RuntimeError("VirtAccelFactory: channel not found: '{}', '{}', '{}'".format(name, field, handle))
 
+    def _get_config(self, section, option, defvalue):
+        if self.config.has_option(section, option):
+            value = self.config.get(section, option)
+            _LOGGER.debug("VirtAccelFactory: [{}] '{}' found in configuration: {}".format(section, option, value))
+            return value
+        return defvalue
+
     def build(self):
         """Process the accelerator description and configure the Virtual Accelerator.
         """
@@ -316,6 +326,10 @@ class VirtualAcceleratorFactory(object):
         va = VirtualAccelerator(latfactory, settings, chanprefix, data_dir, work_dir)
 
         for elem in self.layout.iter(start=self.start, end=self.end):
+            # check drift mask first
+            if self._get_config(elem.dtype, CONFIG_DRIFT_MASK, 'False').lower() == 'true':
+                elem = DriftElement(elem.z, elem.length, elem.aperture, elem.name)
+            #
 
             if isinstance(elem, CavityElement):
                 # Need to normalize cavity phase settings to 0~360

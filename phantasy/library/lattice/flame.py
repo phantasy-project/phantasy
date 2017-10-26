@@ -71,6 +71,9 @@ CONFIG_FLAME_EBEND_SPHERBOOL = 'flame_spher'
 CONFIG_FLAME_EBEND_ASYMFAC = 'flame_asym_fac'
 CONFIG_FLAME_BEND_FOCUSING = 'focusing_component'
 
+# drift mask: bool
+CONFIG_DRIFT_MASK = "drift_mask"
+
 # Sextupole
 CONFIG_FLAME_SEXT_STEP = 'step'
 CONFIG_FLAME_SEXT_DSTKICK = 'dstkick'
@@ -363,6 +366,10 @@ class FlameLatticeFactory(BaseLatticeFactory):
             return "DRIFT_" + str(ndrift[0])
 
         for elem in self._accel.iter(self.start, self.end):
+            # check drift mask first
+            if self._get_config(elem.dtype, CONFIG_DRIFT_MASK, 'False').lower() == 'true':
+                elem = DriftElement(elem.z, elem.length, elem.aperture, elem.name)
+            #
 
             if isinstance(elem, DriftElement):
                 lattice.append(next_drift(), "drift",
