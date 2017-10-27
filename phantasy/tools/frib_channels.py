@@ -37,13 +37,16 @@ parser.add_argument("--only-ps", dest="onlyps", nargs='?', type=str, const=False
 parser.add_argument("layoutPath", help="path to accelerator layout file")
 parser.add_argument("channelsPath", help="path to output data file (csv or sqlite)")
 
-print_help = parser.print_help
+print_help = parser.print_help()
 
 
 def main():
     """
     Entry point for command 'frib-channels'.
     """
+    if len(sys.argv) < 2:
+        print_help
+        return 1
     args = parser.parse_args(sys.argv[2:])
 
     if args.verbosity == 1:

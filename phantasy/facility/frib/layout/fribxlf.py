@@ -136,7 +136,7 @@ class XlfConfig(object):
             self.d_map = _to_dict(config.get(section, 'device_mapping'))
         else:
             self.d_map = {}
-    
+
     def get_options(self):
         return self._options
 

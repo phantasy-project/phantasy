@@ -4,7 +4,7 @@
 import glob
 import os
 from fnmatch import fnmatch
-from setuptools import setup
+from setuptools import setup, find_packages
 
 
 def readme():
@@ -16,7 +16,8 @@ def read_license():
         return f.read()
 
 app_name = "phantasy"
-app_description = 'Physics high-level applications and toolkit for accelerator system'
+app_description = 'Physics high-level applications and toolkit for ' \
+        'accelerator system'
 app_long_description = readme() + '\n\n'
 app_platform = ["Linux"]
 app_author = "Tong Zhang"
@@ -61,12 +62,19 @@ def get_all_dirs(des_root, src_root):
 
 kns = ('channelfinder', 'operation', 'lattice', 'layout', 'settings',
        'physics', 'pv', 'scan', 'model', 'parser')
-d_pkg = {'{0}.{1}'.format(app_name, kn):'{0}/{1}/{2}'.format(
+d_pkg = {'{0}.{1}.{2}'.format(app_name, 'library', kn):'{0}/{1}/{2}'.format(
             app_name, 'library', kn) for kn in kns}
+d_pkg.update(
+        {
+            '{0}.library'.format(app_name): '{0}/library'.format(app_name),
+            '{0}.tools'.format(app_name): '{0}/tools'.format(app_name),
+            '{}'.format(app_name): '{}'.format(app_name),
+        }
+)
 
 setup(
         name=app_name,
-        version="0.6.6",
+        version="0.7.0",
         description=app_description,
         long_description=app_long_description,
         author=app_author,
@@ -76,8 +84,17 @@ setup(
         license=app_license,
         keywords=app_keywords,
         scripts=app_scripts,
-        packages=d_pkg.keys(),
-        package_dir=d_pkg,
+        packages=find_packages(),
+        #packages=d_pkg.keys(),
+        #package_dir=d_pkg,
+
+        #packages=['phantasy', 'phantasy.library', 'phantasy.channelfinder'],
+        #package_dir={
+        #    'phantasy': 'phantasy',
+        #    'phantasy.library': 'phantasy/library',
+        #    'phantasy.channelfinder': 'phantasy/library/channelfinder',
+        #},
+
         data_files = get_all_dirs('/etc/phantasy/config', 'frib'),
         classifiers=[
             'Programming Language :: Python :: 2.7',
