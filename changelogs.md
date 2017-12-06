@@ -1,5 +1,15 @@
 Version 0.6.0
 -------------
+2017-10-27 [Testing]
+
+- Fix bugs.
+- New changes to generate machine configuration for real FRIB LINAC.
+- New moduel for default machine configuration within package.
+- New support for 'Generic' type cavity [FLAME].
+- New configurable feature to mask device as drift.
+
+Version 0.6.0
+-------------
 2017-05-31 [Testing]
 
 - Fix docstrings after API changes.
