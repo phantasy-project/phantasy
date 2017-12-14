@@ -1,0 +1,11 @@
+nose
+nose-exclude
+coverage
+requests>=2.17.3
+lmfit
+pyepics
+cothread
+sphinx_bootstrap_theme
+sphinx
+nbsphinx
+ipython

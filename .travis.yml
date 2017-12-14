@@ -3,8 +3,6 @@ language: python
 sudo: required
 dist: trusty
 
-group: deprecated-2017Q2
-
 python:
     - 2.7
 
@@ -15,32 +13,31 @@ cache:
 virtualenv:
     system_site_packages: true
 
+addons:
+  apt:
+    packages:
+    - libboost-program-options-dev
+    - libboost-filesystem-dev
+    - libhdf5-dev
+    - python-numpy
+    - python-dateutil
+    - pandoc
+
 before_install:
     - cwd=$(pwd)
-    - cd ci
-    - bash pre_install.sh
-    - bash install_epics.sh
+    - git clone -b trusty https://github.com/archman/packages.git
+    - cd packages/trusty
+    - sudo dpkg -i *.deb
     - cd ${cwd}
 
 install:
+    - pip install -r requirements-dev.txt
     - cwd=$(pwd)
     - cd ci
     - bash setup_pycfc.sh
     - bash setup_pyscan.sh
-    - bash setup_flame.sh
-    - bash install_scipy.sh #(travis wait)
+    - bash install_scipy.sh
     - cd ${cwd}
-    - pip install -r requirements.txt
-    - pip install nose nose-exclude
-    - pip install coverage coveralls
-    - pip install python-dateutil==2.6.0
-    - pip install requests==2.17.3
-    - pip install lmfit==0.9.5
-    - sudo apt install -y pandoc
-    - pip install pip --upgrade
-    - pip install ipython
-    - python -c "import requests;print(requests.__file__);print(requests.__version__)"
-    - python -c "import nose_exclude;print(nose_exclude.__file__)"
 
 script:
     - cwd=$(pwd)
@@ -49,23 +46,12 @@ script:
     - export PATH=${EPICS_BASE}/bin/${EPICS_HOST_ARCH}:${PATH}
     - export PYEPICS_LIBCA=${EPICS_BASE}/lib/${EPICS_HOST_ARCH}/libca.so
     - export CATOOLS_LIBCA_PATH=${EPICS_BASE}/lib/${EPICS_HOST_ARCH}
-    - export FLAMEPATH=/usr/lib/python2.7/dist-packages
     - export PYTHONPATH=${cwd}:${PYTHONPATH}:$HOME/pyCFClient:$HOME/PyScanClient
     - cd tests
-    - echo $PYTHONPATH
-    - python -c "import sys;print(sys.path)"
     - make test
     - cd ${cwd}/docs
     - make clean html
     - cd ${cwd}
 
 after_success:
-#    - coveralls
     - bash ci/deploy_gh.sh
-
-#deploy:
-#    provider: pages
-#    skip_cleanup: true
-#    github_token: $GITHUB_TOKEN
-#    on:
-#        branch: master

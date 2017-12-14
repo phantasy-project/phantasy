@@ -180,7 +180,7 @@ html_static_path = ['_static']
 # The empty string is equivalent to '%b %d, %Y'.
 #
 # html_last_updated_fmt = None
-html_last_updated_fmt = '%b %d, %Y'
+html_last_updated_fmt = '%H:%M:%S %b %d, %Y'
 
 # If true, SmartyPants will be used to convert quotes and dashes to
 # typographically correct entities.
