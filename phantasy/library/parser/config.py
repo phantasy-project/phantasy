@@ -254,6 +254,11 @@ def _find_machine_path(machine):
     # if os.path.isdir(pkg_machine):
     #     mname = os.path.basename(os.path.realpath(pkg_machine))
     #     return pkg_machine, mname
+    #sys_mach = DEFAULT_PHANTASY_CONFIG_MACHINE
+    #_LOGGER.info("Searching system dir '%s'" % sys_mach)
+    #if os.path.isdir(sys_mach):
+    #    mname = os.path.basename(os.path.realpath(sys_mach))
+    #    return sys_mach, mname
 
     _LOGGER.warn("Can not find machine dir")
     return None, ""

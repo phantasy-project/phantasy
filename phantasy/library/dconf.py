@@ -10,7 +10,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 try:
-    DEFAULT_PHANTASY_CONFIG_MACHINE = '/etc/phantasy/config/frib/'
+    DEFAULT_PHANTASY_CONFIG_MACHINE = '/etc/phantasy/config/frib/LEBT'
     DEFAULT_CONFIG_FILE = os.path.join(DEFAULT_PHANTASY_CONFIG_MACHINE, 'phantasy.cfg')
     _DEFAULT_MCONF, _DEFAULT_MPATH, _DEFAULT_MNAME = find_machine_config(
         DEFAULT_PHANTASY_CONFIG_MACHINE)
