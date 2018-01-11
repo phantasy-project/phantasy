@@ -37,7 +37,7 @@ parser.add_argument("--only-ps", dest="onlyps", nargs='?', type=str, const=False
 parser.add_argument("layoutPath", help="path to accelerator layout file")
 parser.add_argument("channelsPath", help="path to output data file (csv or sqlite)")
 
-print_help = parser.print_help()
+print_help = parser.print_help
 
 
 def main():
