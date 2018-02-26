@@ -3,6 +3,7 @@
 """Library for reading FRIB Expanded Lattice File (*.xlsx) and generating Accelerator Design Description."""
 
 from __future__ import print_function
+from __future__ import division
 
 import logging
 import os.path
@@ -421,6 +422,12 @@ class AccelFactory(XlfConfig):
                                           system=row.system, subsystem=row.subsystem, device=row.device, dtype=dtype,
                                           inst=inst)
 
+                        if self._has_config_length(dtype):
+                            drift_delta = (elem.length - self._get_config_length(dtype)) / 2.0
+                            get_prev_element().length += drift_delta
+                            get_prev_element().z += drift_delta
+                            elem.length -= drift_delta * 2.0
+
                         subsequence.append(elem)
 
                     elif row.device in ["SOL1", "SOL2", "SOL3", "SOLS"]:
@@ -628,6 +635,12 @@ class AccelFactory(XlfConfig):
                                             system=row.system, subsystem=row.subsystem, device=row.device, dtype=dtype,
                                             inst=inst)
 
+                        if self._has_config_length(dtype):
+                            drift_delta = (elem.length - self._get_config_length(dtype)) / 2.0
+                            get_prev_element().length += drift_delta
+                            get_prev_element().z += drift_delta
+                            elem.length -= drift_delta * 2.0
+
                         subsequence.append(elem)
 
                     elif row.device in ["SLH", "SLT", "CHP", "AP", "ATT"]:
@@ -654,7 +667,8 @@ class AccelFactory(XlfConfig):
 
                     if row.element_name in ["bellow", "bellows", "bellow+tube", "2 bellows + tube", "bellow+box",
                                             "bellow+tube/box", "tube", "reducer flange", "bellow ?", "4 way cross ??",
-                                            "BPM bellow", "bellow?", "bellow+tube ??", "6 way cross ??"]:
+                                            "BPM bellow", "bellow?", "bellow+tube ??", "6 way cross ??",
+                                            "mhb box & bellows"]:
                         if drift_delta != 0.0:
                             row.eff_length += drift_delta
                             row.center_position -= drift_delta
@@ -683,7 +697,7 @@ class AccelFactory(XlfConfig):
                             DriftElement(row.center_position, row.eff_length, row.diameter, desc=row.element_name))
 
                     elif row.element_name in ["BPM-box", "diagnostic box", "vacuum box", "box", "box+tube", "mhb box",
-                                              "mhb box & bellows", "4 way cross", "6 way cross"]:
+                                              "4 way cross", "6 way cross"]:
                         if drift_delta != 0.0:
                             raise Exception("Unsupported drift delta on element: {}".format(row.element_name))
                         subsequence.append(
