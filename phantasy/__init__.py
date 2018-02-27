@@ -22,10 +22,10 @@ from phantasy.library import *
 
 #
 __authors__ = "Tong Zhang"
-__copyright__ = "(c) 2016-2017, Facility for Rare Isotope beams," \
+__copyright__ = "(c) 2016-2018, Facility for Rare Isotope beams," \
                 " Michigan State University"
 __contact__ = "Tong Zhang <zhangt@frib.msu.edu>"
-__version__ = "0.7.0"
+__version__ = "0.7.2"
 
 __doc__ = \
 """PHANTASY: [P]hysics [H]igh-level [A]pplications a[N]d [T]oolkits for
