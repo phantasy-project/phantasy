@@ -475,7 +475,7 @@ class AccelFactory(XlfConfig):
                         if self._has_config_length(dtype):
                             drift_delta = (elem.length - self._get_config_length(dtype)) / 2.0
                             get_prev_element().length += drift_delta
-                            get_prev_element().z += drift_delta
+                            get_prev_element().z += drift_delta / 2.0
                             elem.length -= drift_delta * 2.0
 
                         subsequence.append(elem)
@@ -493,7 +493,7 @@ class AccelFactory(XlfConfig):
                         if self._has_config_length(dtype):
                             drift_delta = (elem.length - self._get_config_length(dtype)) / 2.0
                             get_prev_element().length += drift_delta
-                            get_prev_element().z += drift_delta
+                            get_prev_element().z += drift_delta / 2.0
                             elem.length -= drift_delta * 2.0
 
                         subsequence.append(elem)
@@ -511,7 +511,7 @@ class AccelFactory(XlfConfig):
                         if self._has_config_length(dtype):
                             drift_delta = (elem.length - self._get_config_length(dtype)) / 2.0
                             get_prev_element().length += drift_delta
-                            get_prev_element().z += drift_delta
+                            get_prev_element().z += drift_delta / 2.0
                             elem.length -= drift_delta * 2.0
 
                         elem.h = HCorElement(elem.z, 0.0, elem.aperture,
@@ -691,7 +691,7 @@ class AccelFactory(XlfConfig):
                         if self._has_config_length(dtype):
                             drift_delta = (elem.length - self._get_config_length(dtype)) / 2.0
                             get_prev_element().length += drift_delta
-                            get_prev_element().z += drift_delta
+                            get_prev_element().z += drift_delta / 2.0
                             elem.length -= drift_delta * 2.0
                         subsequence.append(elem)
 
@@ -746,7 +746,7 @@ class AccelFactory(XlfConfig):
                                             "mhb box & bellows"]:
                         if drift_delta != 0.0:
                             row.eff_length += drift_delta
-                            row.center_position -= drift_delta
+                            row.center_position -= drift_delta / 2.0
                             drift_delta = 0.0
                         subsequence.append(
                             DriftElement(row.center_position, row.eff_length, row.diameter, desc=row.element_name))
@@ -754,7 +754,7 @@ class AccelFactory(XlfConfig):
                     elif row.element_name in ["solenoid-entry", "solenoid-exit"]:
                         if drift_delta != 0.0:
                             row.eff_length += drift_delta
-                            row.center_position -= drift_delta
+                            row.center_position -= drift_delta / 2.0
                             drift_delta = 0.0
                         subsequence.append(
                             DriftElement(row.center_position, row.eff_length, row.diameter, desc=row.element_name))
@@ -831,7 +831,7 @@ class AccelFactory(XlfConfig):
                 elif row.eff_length != 0.0:
                     if drift_delta != 0.0:
                         row.eff_length += drift_delta
-                        row.center_position -= drift_delta
+                        row.center_position -= drift_delta / 2.0
                         drift_delta = 0.0
                     desc = "drift_{}".format(ridx + 1) if row.element_name is None else row.element_name
                     subsequence.append(DriftElement(row.center_position, row.eff_length, row.diameter, desc=desc))
