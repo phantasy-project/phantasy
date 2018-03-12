@@ -652,6 +652,62 @@ class StripElement(Element):
                                            **meta)
 
 
+# Slit Elements
+
+class SlitElement(Element):
+    """SlitElement represents a slit/collimator.
+    """
+
+    ETYPE = "SLT"
+
+    def __init__(self, z, length, aperture, name, desc="slit",
+                 **meta):
+        super(SlitElement, self).__init__(z, length, aperture, name, desc=desc,
+                                          **meta)
+
+
+# Chopper Elements
+
+class ChopperElement(Element):
+    """ChopperElement represents a chopper.
+    """
+
+    ETYPE = "CHP"
+
+    def __init__(self, z, length, aperture, name, desc="chopper",
+                 **meta):
+        super(ChopperElement, self).__init__(z, length, aperture, name, desc=desc,
+                                             **meta)
+
+
+# Attenuator Elements
+
+class AttenuatorElement(Element):
+    """AttenuatorElement represents an attenuator.
+    """
+
+    ETYPE = "ATT"
+
+    def __init__(self, z, length, aperture, name, desc="attenuator",
+                 **meta):
+        super(AttenuatorElement, self).__init__(z, length, aperture, name, desc=desc,
+                                                **meta)
+
+
+# Dump Elements
+
+class DumpElement(Element):
+    """DumpElement represents a dump.
+    """
+
+    ETYPE = "DMP"
+
+    def __init__(self, z, length, aperture, name, desc="dump",
+                 **meta):
+        super(DumpElement, self).__init__(z, length, aperture, name, desc=desc,
+                                          **meta)
+
+
 # Source Elements
 
 class ElectrodeElement(Element):
