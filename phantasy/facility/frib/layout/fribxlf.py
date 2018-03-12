@@ -348,7 +348,7 @@ class AccelFactory(XlfConfig):
                 else:
                     raise RuntimeError("AccelFactory: Layout data missing diameter (row:{}): {}".format(ridx + 1, row))
 
-            # unit conversion
+            # unit conversion, [mm] -> [m]
             row.diameter[0] *= 0.001
             row.diameter[1] *= 0.001
 
@@ -853,7 +853,9 @@ class _LayoutRow(XlfConfig):
         self.center_position = self._cell_to_float(row[self._xlf_layout_center_position_idx])
 
     def __str__(self):
-        return type(self).__name__ + str(self.__dict__)
+        keys = ('system', 'subsystem', 'position', 'name', 'device', 'device_type',
+                'element_name', 'eff_length', 'center_position', 'diameter')
+        return type(self).__name__ + str({k:v for k,v in self.__dict__.items() if k in keys})
 
 
 def _to_dict(s):
