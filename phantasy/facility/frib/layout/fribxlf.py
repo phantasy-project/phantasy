@@ -38,7 +38,71 @@ from phantasy.library.layout import StripElement
 from phantasy.library.layout import VCorElement
 from phantasy.library.layout import VDElement
 from phantasy.library.layout import ValveElement
+from phantasy.library.layout import SlitElement
+from phantasy.library.layout import ChopperElement
+from phantasy.library.layout import AttenuatorElement
+from phantasy.library.layout import DumpElement
 from phantasy.library.parser import Configuration
+
+# constants for parsing xlsx file
+# skip line whose system field startswiths any one of the words defined by SYSTEM_SKIP_WORDS
+SYSTEM_SKIP_WORDS = ("dump", "SEGMENT", "LINAC", "Target",
+                     "beta=0.085 QWR cryomodules START")
+# skip line whose device field in one of the tuple defined by DEVICE_SKIP_WORDS
+DEVICE_SKIP_WORDS = ("end", "start", "END")
+
+# device alias for valve: ValveElement
+DEVICE_ALIAS_VALVE = ("GV", "FVS", "FAV")
+# device alias for cavity: CavityElement
+DEVICE_ALIAS_CAV = ("CAV1", "CAV2", "CAV3", "CAV4", "CAV5", "CAV6", "CAV7", "CAV8", "CAV")
+# device alias for solenoid: SolElement
+DEVICE_ALIAS_SOLR = ("SOLR")
+# device alias for solenoid w/ hcor&vcor: SolCorElement
+DEVICE_ALIAS_SOL = ("SOL1", "SOL2", "SOL3", "SOLS")
+# device alias for BPM
+DEVICE_ALIAS_BPM = ("BPM")
+# device alias for PM
+DEVICE_ALIAS_PM = ("PM", "PM1")
+# device alias for BL (measure beam length)
+DEVICE_ALIAS_BL = ("BL")
+# device alias for BLM (measure beam loss)
+DEVICE_ALIAS_BLM = ("BLM")
+# device alias for BCM (measure beam current)
+DEVICE_ALIAS_BCM = ("BCM")
+# device alias for EMS (emittance scanner)
+DEVICE_ALIAS_EMS = ("EMS")
+# device alias for faraday cup
+DEVICE_ALIAS_FC = ("FC", "FFC")
+# device alias for viewer
+DEVICE_ALIAS_VD = ("VD")
+# device alias for pump, port, etc.
+DEVICE_ALIAS_PORT = ("PORT", "TMP", "NEGP", "IP", "CP")
+# device alias for correctors, comes with H&V pair.
+DEVICE_ALIAS_COR = ("DC", "DC0", "CH", "DCHV")
+# device alias for dipole, bend
+DEVICE_ALIAS_BEND = ("DH")
+# device alias for quad
+DEVICE_ALIAS_QUAD = ("QH", "QV", "Q")
+# device alias for sextupole
+DEVICE_ALIAS_SEXT = ("S")
+# device alias for electrode
+DEVICE_ALIAS_ELC = ("ELC1", "ELC2", "ELC3")
+# device alias for acc column
+DEVICE_ALIAS_ACC = ("ACC"):
+# device alias for ES bend
+DEVICE_ALIAS_EBEND = ("DVE")
+# device alias for ES quad
+DEVICE_ALIAS_EQUAD = ("QHE", "QVE")
+# device alias for slit
+DEVICE_ALIAS_SLIT = ("SLH", "SLT")
+# device alias for chopper
+DEVICE_ALIAS_CHP = ("CHP")
+# device alias for aperture
+DEVICE_ALIAS_AP = ("AP")
+# device alias for attenuator
+DEVICE_ALIAS_ATT = ("ATT")
+# device alias for dump
+DEVICE_ALIAS_DUMP = ("dump", "DUMP")
 
 # configuration options
 
@@ -88,6 +152,7 @@ try:
 except NameError:
     basestring = str
 
+# format D.* to D####
 FMT_INST = "D{:04d}"
 
 
@@ -134,6 +199,8 @@ class XlfConfig(object):
         self._options = d
 
         if config.has_option(section, 'device_mapping', False):
+            # 'device_mapping' is an option name in phantasy.cfg, to change the
+            # device name defined by key to the name defined by value.
             self.d_map = _to_dict(config.get(section, 'device_mapping'))
         else:
             self.d_map = {}
@@ -325,13 +392,12 @@ class AccelFactory(XlfConfig):
             if row.eff_length is None:
                 continue
 
-            if row.device in ["end", "start", "END"]:
+            if row.device in DEVICE_SKIP_WORDS
                 continue
 
             # clear lines with comments
             if row.system is not None:
-                for prefix in ["dump", "SEGMENT", "LINAC", "Target",
-                               "beta=0.085 QWR cryomodules START"]:
+                for prefix in SYSTEM_SKIP_WORDS:
                     if row.system.startswith(prefix):
                         row.system = None
                         break
@@ -384,12 +450,14 @@ class AccelFactory(XlfConfig):
                         # these 'named' elements do not support non-zero drift delta
                         raise RuntimeError("Unsupported drift delta on element: {}".format(row.element_name))
 
-                    elif row.device in ["GV", "FVS", "FAV"]:
-                        subsequence.append(ValveElement(row.center_position, row.eff_length, row.diameter, row.name,
-                                                        desc=row.element_name, system=row.system,
-                                                        subsystem=row.subsystem, device=row.device))
+                    elif row.device in DEVICE_ALIAS_VALVE:
+                        inst = FMT_INST.format(int(row.position))
+                        elem = ValveElement(row.center_position, row.eff_length, row.diameter, row.name,
+                                            desc=row.element_name, system=row.system,
+                                            subsystem=row.subsystem, device=row.device, inst=inst))
+                        subsequence.append(elem)
 
-                    elif row.device in ["CAV1", "CAV2", "CAV3", "CAV4", "CAV5", "CAV6", "CAV7", "CAV8", "CAV"]:
+                    elif row.device in DEVICE_ALIAS_CAV:
                         m = re.match("(b\\d{2}) (?:cavity|resonator)", row.element_name)
                         if m:
                             dtype = "CAV_{}".format(m.group(1).upper())
@@ -412,7 +480,7 @@ class AccelFactory(XlfConfig):
 
                         subsequence.append(elem)
 
-                    elif row.device in ["SOLR"]:
+                    elif row.device in DEVICE_ALIAS_SOLR:
                         row.device = self.d_map.get(row.device, row.device)
                         dtype = "SOL_{}".format(row.device_type)
                         inst = FMT_INST.format(int(row.position))
@@ -430,7 +498,7 @@ class AccelFactory(XlfConfig):
 
                         subsequence.append(elem)
 
-                    elif row.device in ["SOL1", "SOL2", "SOL3", "SOLS"]:
+                    elif row.device in DEVICE_ALIAS_SOL:
                         row.device = self.d_map.get(row.device, row.device)
                         dtype = "SOL_{}".format(row.device_type)
                         inst = FMT_INST.format(int(row.position))
@@ -458,7 +526,7 @@ class AccelFactory(XlfConfig):
 
                         subsequence.append(elem)
 
-                    elif row.device in ["BPM"]:
+                    elif row.device in DEVICE_ALIAS_BPM:
 
                         inst = FMT_INST.format(int(row.position))
 
@@ -469,188 +537,195 @@ class AccelFactory(XlfConfig):
 
                         subsequence.append(elem)
 
-                    elif row.device in ["PM", "PM1"]:
-
+                    elif row.device in DEVICE_ALIAS_PM:
                         inst = FMT_INST.format(int(row.position))
-
                         elem = PMElement(row.center_position, row.eff_length, row.diameter, row.name,
                                          desc=row.element_name,
                                          system=row.system, subsystem=row.subsystem, device=row.device,
                                          dtype=row.device_type, inst=inst)
-
                         subsequence.append(elem)
 
-                    elif row.device in ["BL"]:
-                        subsequence.append(BLElement(row.center_position, row.eff_length, row.diameter, row.name,
-                                                     desc=row.element_name,
-                                                     system=row.system, subsystem=row.subsystem, device=row.device,
-                                                     dtype=row.device_type))
+                    elif row.device in DEVICE_ALIAS_BL:
+                        inst = FMT_INST.format(int(row.position))
+                        elem = BLElement(row.center_position, row.eff_length, row.diameter, row.name,
+                                         desc=row.element_name,
+                                         system=row.system, subsystem=row.subsystem, device=row.device,
+                                         dtype=row.device_type, inst=inst)
+                        subsequence.append(elem)
 
-                    elif row.device in ["BLM"]:
-                        subsequence.append(BLMElement(row.center_position, row.eff_length, row.diameter, row.name,
-                                                      desc=row.element_name,
-                                                      system=row.system, subsystem=row.subsystem, device=row.device))
+                    elif row.device in DEVICE_ALIAS_BLM:
+                        inst = FMT_INST.format(int(row.position))
+                        elem = BLMElement(row.center_position, row.eff_length, row.diameter, row.name,
+                                          desc=row.element_name,
+                                          system=row.system, subsystem=row.subsystem, device=row.device,
+                                          dtype=row.device_type, inst=inst)
+                        subsequence.append(elem)
 
-                    elif row.device in ["BCM"]:
-                        subsequence.append(BCMElement(row.center_position, row.eff_length, row.diameter, row.name,
-                                                      desc=row.element_name,
-                                                      system=row.system, subsystem=row.subsystem, device=row.device,
-                                                      dtype=row.device_type))
+                    elif row.device in DEVICE_ALIAS_BCM:
+                        inst = FMT_INST.format(int(row.position))
+                        elem = BCMElement(row.center_position, row.eff_length, row.diameter, row.name,
+                                          desc=row.element_name,
+                                          system=row.system, subsystem=row.subsystem, device=row.device,
+                                          dtype=row.device_type, inst=inst)
+                        subsequence.append(elem)
 
-                    elif row.device in ["EMS"]:
-                        subsequence.append(EMSElement(row.center_position, row.eff_length, row.diameter, row.name,
-                                                      desc=row.element_name,
-                                                      system=row.system, subsystem=row.subsystem, device=row.device,
-                                                      dtype=row.device_type))
+                    elif row.device in DEVICE_ALIAS_EMS:
+                        inst = FMT_INST.format(int(row.position))
+                        elem = EMSElement(row.center_position, row.eff_length, row.diameter, row.name,
+                                          desc=row.element_name,
+                                          system=row.system, subsystem=row.subsystem, device=row.device,
+                                          dtype=row.device_type, inst=inst)
+                        subsequence.append(elem)
 
-                    elif row.device in ["FC", "FFC"]:
-                        subsequence.append(FCElement(row.center_position, row.eff_length, row.diameter, row.name,
-                                                     desc=row.element_name,
-                                                     system=row.system, subsystem=row.subsystem, device=row.device,
-                                                     dtype=row.device_type))
+                    elif row.device in DEVICE_ALIAS_FC:
+                        inst = FMT_INST.format(int(row.position))
+                        elem = FCElement(row.center_position, row.eff_length, row.diameter, row.name,
+                                         desc=row.element_name,
+                                         system=row.system, subsystem=row.subsystem, device=row.device,
+                                         dtype=row.device_type, inst=inst)
+                        subsequence.append(elem)
 
-                    elif row.device in ["VD"]:
-                        subsequence.append(VDElement(row.center_position, row.eff_length, row.diameter, row.name,
-                                                     desc=row.element_name,
-                                                     system=row.system, subsystem=row.subsystem, device=row.device,
-                                                     dtype=row.device_type))
+                    elif row.device in DEVICE_ALIAS_VD:
+                        inst = FMT_INST.format(int(row.position))
+                        elem = VDElement(row.center_position, row.eff_length, row.diameter, row.name,
+                                         desc=row.element_name,
+                                         system=row.system, subsystem=row.subsystem, device=row.device,
+                                         dtype=row.device_type, inst=inst)
+                        subsequence.append(elem)
 
-                    elif row.device in ["PORT", "TMP", "NEGP", "IP", "CP"]:
+                    elif row.device in DEVICE_ALIAS_PORT:
                         dtype = "" if row.device_type is None else row.device_type
                         subsystem = "" if row.subsystem is None else row.subsystem
-                        subsequence.append(PortElement(row.center_position, row.eff_length, row.diameter, row.name,
-                                                       desc=row.element_name,
-                                                       system=row.system, subsystem=subsystem, device=row.device,
-                                                       dtype=dtype))
-
-                    elif row.device in ["DC", "DC0", "CH", "DCHV"]:
-                        row.device = self.d_map.get(row.device, row.device)
-
                         inst = FMT_INST.format(int(row.position))
+                        elem = PortElement(row.center_position, row.eff_length, row.diameter, row.name,
+                                           desc=row.element_name,
+                                           system=row.system, subsystem=subsystem, device=row.device,
+                                           dtype=dtype, inst=inst)
+                        subsequence.append(elem)
 
+                    elif row.device in DEVICE_ALIAS_COR:
+                        row.device = self.d_map.get(row.device, row.device)
+                        inst = FMT_INST.format(int(row.position))
                         elem = CorElement(row.center_position, row.eff_length, row.diameter, row.name,
                                           desc=row.element_name,
                                           system=row.system, subsystem=row.subsystem, device=row.device,
                                           dtype=row.device_type, inst=inst)
-
                         elem.h = HCorElement(elem.z, 0.0, elem.aperture,
                                              "{elem.system}_{elem.subsystem}:DCH_{elem.inst}".format(elem=elem),
                                              system=row.system, subsystem=row.subsystem, device="DCH",
                                              dtype=row.device_type, inst=inst)
-
                         elem.v = VCorElement(elem.z, 0.0, elem.aperture,
                                              "{elem.system}_{elem.subsystem}:DCV_{elem.inst}".format(elem=elem),
                                              system=row.system, subsystem=row.subsystem, device="DCV",
                                              dtype=row.device_type, inst=inst)
-
                         subsequence.append(elem)
 
-                    elif row.device in ["DH"]:
+                    elif row.device in DEVICE_ALIAS_BEND:
                         row.device = self.d_map.get(row.device, row.device)
-
                         dtype = "BEND_{}".format(row.device_type)
                         inst = FMT_INST.format(int(row.position))
-
                         elem = BendElement(row.center_position, row.eff_length, row.diameter, row.name,
                                            desc=row.element_name,
-                                           system=row.system, subsystem=row.subsystem, device=row.device, dtype=dtype,
-                                           inst=inst)
-
+                                           system=row.system, subsystem=row.subsystem, device=row.device,
+                                           dtype=dtype, inst=inst)
                         self._apply_config(elem)
-
                         subsequence.append(elem)
 
-                    elif row.device in ["QH", "QV", "Q"]:
+                    elif row.device in DEVICE_ALIAS_QUAD:
                         row.device = self.d_map.get(row.device, row.device)
-
                         dtype = "QUAD_{}".format(row.device_type)
                         inst = FMT_INST.format(int(row.position))
-
                         elem = QuadElement(row.center_position, row.eff_length, row.diameter, row.name,
                                            desc=row.element_name,
-                                           system=row.system, subsystem=row.subsystem, device=row.device, dtype=dtype,
-                                           inst=inst)
-
+                                           system=row.system, subsystem=row.subsystem, device=row.device,
+                                           dtype=dtype, inst=inst)
                         subsequence.append(elem)
 
-                    elif row.device in ["S"]:
+                    elif row.device in DEVICE_ALIAS_SEXT:
                         row.device = self.d_map.get(row.device, row.device)
-
                         inst = FMT_INST.format(int(row.position))
-
                         elem = SextElement(row.center_position, row.eff_length, row.diameter, row.name,
                                            desc=row.element_name,
                                            system=row.system, subsystem=row.subsystem, device=row.device,
                                            dtype=row.device_type, inst=inst)
-
                         subsequence.append(elem)
 
-                    elif row.device in ["ELC1", "ELC2", "ELC3"]:
+                    elif row.device in DEVICE_ALIAS_ELC:
                         row.device = self.d_map.get(row.device, row.device)
-
                         inst = FMT_INST.format(int(row.position))
-
                         elem = ElectrodeElement(row.center_position, row.eff_length, row.diameter, row.name,
                                                 desc=row.element_name,
                                                 system=row.system, subsystem=row.subsystem, device=row.device,
                                                 dtype=row.device_type, inst=inst)
-
                         subsequence.append(elem)
 
-                    elif row.device in ["ACC"]:
+                    elif row.device in DEVICE_ALIAS_ACC:
                         row.device = self.d_map.get(row.device, row.device)
-
                         inst = FMT_INST.format(int(row.position))
-
                         elem = ColumnElement(row.center_position, row.eff_length, row.diameter, row.name,
                                              desc=row.element_name,
                                              system=row.system, subsystem=row.subsystem, device=row.device,
                                              dtype=row.device_type, inst=inst)
-
                         subsequence.append(elem)
 
-                    elif row.device in ["DVE"]:
+                    elif row.device in DEVICE_ALIAS_EBEND:
                         row.device = self.d_map.get(row.device, row.device)
-
                         dtype = "BEND_{}".format(row.device_type)
                         inst = FMT_INST.format(int(row.position))
-
                         elem = EBendElement(row.center_position, row.eff_length, row.diameter, row.name,
                                             desc=row.element_name,
-                                            system=row.system, subsystem=row.subsystem, device=row.device, dtype=dtype,
-                                            inst=inst)
-
-                        # self._apply_config(elem)
-
+                                            system=row.system, subsystem=row.subsystem, device=row.device,
+                                            dtype=dtype, inst=inst)
+                        self._apply_config(elem)
                         subsequence.append(elem)
 
-                    elif row.device in ["QHE", "QVE"]:
+                    elif row.device in DEVICE_ALIAS_EQUAD:
                         row.device = self.d_map.get(row.device, row.device)
-
                         dtype = "QUAD_{}".format(row.device_type)
                         inst = FMT_INST.format(int(row.position))
-
                         elem = EQuadElement(row.center_position, row.eff_length, row.diameter, row.name,
                                             desc=row.element_name,
-                                            system=row.system, subsystem=row.subsystem, device=row.device, dtype=dtype,
-                                            inst=inst)
+                                            system=row.system, subsystem=row.subsystem, device=row.device,
+                                            dtype=dtype, inst=inst)
 
                         if self._has_config_length(dtype):
                             drift_delta = (elem.length - self._get_config_length(dtype)) / 2.0
                             get_prev_element().length += drift_delta
                             get_prev_element().z += drift_delta
                             elem.length -= drift_delta * 2.0
-
                         subsequence.append(elem)
 
-                    elif row.device in ["SLH", "SLT", "CHP", "AP", "ATT"]:
-                        # use dift to represent slits, chopper, apertures and attenuators
-                        subsequence.append(
-                            DriftElement(row.center_position, row.eff_length, row.diameter, desc=row.element_name))
+                    elif row.device in DEVICE_ALIAS_SLIT:
+                        inst = FMT_INST.format(int(row.position))
+                        elem = SLitElement(row.center_position, row.eff_length, row.diameter, row.name,
+                                           desc=row.element_name,
+                                           system=row.system, subsystem=row.subsystem, device=row.device,
+                                           dtype=row.device_type, inst=inst)
+                        subsequence.append(elem)
 
-                    elif row.device in ["dump", "DUMP"]:
-                        subsequence.append(
-                            DriftElement(row.center_position, row.eff_length, row.diameter, desc=row.element_name))
+                    elif row.device in DEVICE_ALIAS_CHP:
+                        inst = FMT_INST.format(int(row.position))
+                        elem = ChopperElement(row.center_position, row.eff_length, row.diameter, row.name,
+                                              desc=row.element_name,
+                                              system=row.system, subsystem=row.subsystem, device=row.device,
+                                              dtype=row.device_type, inst=inst)
+                        subsequence.append(elem)
+
+                    elif row.device in DEVICE_ALIAS_ATT:
+                        inst = FMT_INST.format(int(row.position))
+                        elem = AttenuatorElement(row.center_position, row.eff_length, row.diameter, row.name,
+                                                 desc=row.element_name,
+                                                 system=row.system, subsystem=row.subsystem, device=row.device,
+                                                 dtype=row.device_type, inst=inst)
+                        subsequence.append(elem)
+
+                    elif row.device in DEVICE_ALIAS_DUMP:
+                        inst = FMT_INST.format(int(row.position))
+                        elem = DumpElement(row.center_position, row.eff_length, row.diameter, row.name,
+                                           desc=row.element_name,
+                                           system=row.system, subsystem=row.subsystem, device=row.device,
+                                           dtype=row.device_type, inst=inst)
+                        subsequence.append(elem)
 
                     elif row.device in ["STRIP"]:
                         elem = get_prev_element((StripElement))
