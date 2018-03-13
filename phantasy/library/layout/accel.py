@@ -700,7 +700,7 @@ class DumpElement(Element):
     """DumpElement represents a dump.
     """
 
-    ETYPE = "DMP"
+    ETYPE = "DUMP"
 
     def __init__(self, z, length, aperture, name, desc="dump",
                  **meta):
