@@ -42,6 +42,7 @@ from phantasy.library.layout import SlitElement
 from phantasy.library.layout import ChopperElement
 from phantasy.library.layout import AttenuatorElement
 from phantasy.library.layout import DumpElement
+from phantasy.library.layout import ApertureElement
 from phantasy.library.parser import Configuration
 
 # constants for parsing xlsx file
@@ -717,6 +718,14 @@ class AccelFactory(XlfConfig):
                                                  desc=row.element_name,
                                                  system=row.system, subsystem=row.subsystem, device=row.device,
                                                  dtype=row.device_type, inst=inst)
+                        subsequence.append(elem)
+
+                    elif row.device in DEVICE_ALIAS_AP:
+                        inst = FMT_INST.format(int(row.position))
+                        elem = ApertureElement(row.center_position, row.eff_length, row.diameter, row.name,
+                                               desc=row.element_name,
+                                               system=row.system, subsystem=row.subsystem, device=row.device,
+                                               dtype=row.device_type, inst=inst)
                         subsequence.append(elem)
 
                     elif row.device in DEVICE_ALIAS_DUMP:
