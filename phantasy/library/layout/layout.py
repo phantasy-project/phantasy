@@ -65,6 +65,11 @@ from .accel import BendElement
 from .accel import QuadElement
 from .accel import SextElement
 from .accel import VDElement
+from .accel import SlitElement
+from .accel import ChopperElement
+from .accel import ApertureElement
+from .accel import DumpElement
+from .accel import AttenuatorElement
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -204,6 +209,21 @@ def build_layout(layoutPath=None, **kwargs):
 
             elif etype == ElectrodeElement.ETYPE:
                 elements.append(buildElement(row, ElectrodeElement))
+
+            elif etype == SlitElement.ETYPE:
+                elements.append(buildElement(row, SlitElement))
+
+            elif etype == ChopperElement.ETYPE:
+                elements.append(buildElement(row, ChopperElement))
+
+            elif etype == ApertureElement.ETYPE:
+                elements.append(buildElement(row, ApertureElement))
+
+            elif etype == DumpElement.ETYPE:
+                elements.append(buildElement(row, DumpElement))
+
+            elif etype == AttenuatorElement.ETYPE:
+                elements.append(buildElement(row, AttenuatorElement))
 
             else:
                 raise RuntimeError("read_layout: Element type '{}' not supported".format(etype))
