@@ -88,7 +88,7 @@ DEVICE_ALIAS_SEXT = ("S")
 # device alias for electrode
 DEVICE_ALIAS_ELC = ("ELC1", "ELC2", "ELC3")
 # device alias for acc column
-DEVICE_ALIAS_ACC = ("ACC"):
+DEVICE_ALIAS_ACC = ("ACC")
 # device alias for ES bend
 DEVICE_ALIAS_EBEND = ("DVE")
 # device alias for ES quad
@@ -392,7 +392,7 @@ class AccelFactory(XlfConfig):
             if row.eff_length is None:
                 continue
 
-            if row.device in DEVICE_SKIP_WORDS
+            if row.device in DEVICE_SKIP_WORDS:
                 continue
 
             # clear lines with comments
@@ -454,7 +454,7 @@ class AccelFactory(XlfConfig):
                         inst = FMT_INST.format(int(row.position))
                         elem = ValveElement(row.center_position, row.eff_length, row.diameter, row.name,
                                             desc=row.element_name, system=row.system,
-                                            subsystem=row.subsystem, device=row.device, inst=inst))
+                                            subsystem=row.subsystem, device=row.device, inst=inst)
                         subsequence.append(elem)
 
                     elif row.device in DEVICE_ALIAS_CAV:
