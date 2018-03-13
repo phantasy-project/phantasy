@@ -27,6 +27,12 @@ from phantasy.library.layout import SolElement
 from phantasy.library.layout import StripElement
 from phantasy.library.layout import VDElement
 from phantasy.library.layout import ValveElement
+from phantasy.library.layout import ApertureElement
+from phantasy.library.layout import AttenuatorElement
+from phantasy.library.layout import SlitElement
+from phantasy.library.layout import DumpElement
+from phantasy.library.layout import ChopperElement
+
 
 _INDEX_PROPERTY = "elemIndex"
 _POSITION_PROPERTY = "elemPosition"
@@ -292,7 +298,12 @@ def build_channels(layout, machine=None, **kws):
             pass
 
         elif isinstance(elem, (DriftElement, ValveElement, PortElement)):
-            # Passtive elements do not have defined channels
+            # Passive elements do not have defined channels
+            pass
+
+        elif isinstance(elem, (AttenuatorElement, ApertureElement,
+                               ChopperElement, DumpElement, SlitElement)):
+            # for element identification only
             pass
 
         elif isinstance(elem, EMSElement):
