@@ -45,6 +45,15 @@ from phantasy.library.layout import DumpElement
 from phantasy.library.layout import ApertureElement
 from phantasy.library.parser import Configuration
 
+NON_DRIFT_ELEMENTS = (
+        BCMElement, BLElement, BLMElement, BPMElement, BendElement,
+        CavityElement, ColumnElement, CorElement, EBendElement, EMSElement,
+        EQuadElement, ElectrodeElement, FCElement, HCorElement, PMElement,
+        PortElement, QuadElement, SextElement, SolElement, SolCorElement,
+        StripElement, VCorElement, VDElement, ValveElement, SlitElement,
+        ChopperElement, AttenuatorElement, DumpElement, ApertureElement,
+)
+
 # constants for parsing xlsx file
 # skip line whose system field startswiths any one of the words defined by SYSTEM_SKIP_WORDS
 SYSTEM_SKIP_WORDS = ("dump", "SEGMENT", "LINAC", "Target",
@@ -385,6 +394,19 @@ class AccelFactory(XlfConfig):
             elif not isinstance(elements[-1], allow_types):
                 raise RuntimeError("AccelFactory: previous element type invalid")
             return elements[-1]
+        
+        def name_drift():
+            try:
+                pre_elem = get_prev_element(NON_DRIFT_ELEMENTS)
+                name = "{elem.system}_{elem.subsystem}:DFT_{elem.inst}".format(elem=pre_elem)
+            except:
+                pre_elem = get_prev_element()
+                r = re.match(r"(.*)-([0-9].*)", pre_elem.name)
+                if r is None:
+                    pre_elem.name = '{}-1'.format(pre_elem.name)
+                n,idx = pre_elem.name.split('-')
+                name = "{n}-{i}".format(n=n,i=int(idx)+1)
+            return name
 
         for ridx in range(self._xlf_layout_sheet_start, layout.nrows):
             row = _LayoutRow(layout.row(ridx), self.config)
@@ -465,77 +487,62 @@ class AccelFactory(XlfConfig):
                         else:
                             dtype = row.element_name
                         row.device = self.d_map.get(row.device, row.device)
-
                         inst = FMT_INST.format(int(row.position))
-
                         elem = CavityElement(row.center_position, row.eff_length, row.diameter, row.name,
                                              desc=row.element_name,
                                              system=row.system, subsystem=row.subsystem, device=row.device, dtype=dtype,
                                              inst=inst)
-
                         if self._has_config_length(dtype):
                             drift_delta = (elem.length - self._get_config_length(dtype)) / 2.0
                             get_prev_element().length += drift_delta
                             get_prev_element().z += drift_delta / 2.0
                             elem.length -= drift_delta * 2.0
-
                         subsequence.append(elem)
 
                     elif row.device in DEVICE_ALIAS_SOLR:
                         row.device = self.d_map.get(row.device, row.device)
                         dtype = "SOL_{}".format(row.device_type)
                         inst = FMT_INST.format(int(row.position))
-
                         elem = SolElement(row.center_position, row.eff_length, row.diameter, row.name,
                                           desc=row.element_name,
                                           system=row.system, subsystem=row.subsystem, device=row.device, dtype=dtype,
                                           inst=inst)
-
                         if self._has_config_length(dtype):
                             drift_delta = (elem.length - self._get_config_length(dtype)) / 2.0
                             get_prev_element().length += drift_delta
                             get_prev_element().z += drift_delta / 2.0
                             elem.length -= drift_delta * 2.0
-
                         subsequence.append(elem)
 
                     elif row.device in DEVICE_ALIAS_SOL:
                         row.device = self.d_map.get(row.device, row.device)
                         dtype = "SOL_{}".format(row.device_type)
                         inst = FMT_INST.format(int(row.position))
-
                         elem = SolCorElement(row.center_position, row.eff_length, row.diameter, row.name,
                                              desc=row.element_name,
                                              system=row.system, subsystem=row.subsystem, device=row.device, dtype=dtype,
                                              inst=inst)
-
                         if self._has_config_length(dtype):
                             drift_delta = (elem.length - self._get_config_length(dtype)) / 2.0
                             get_prev_element().length += drift_delta
                             get_prev_element().z += drift_delta / 2.0
                             elem.length -= drift_delta * 2.0
-
                         elem.h = HCorElement(elem.z, 0.0, elem.aperture,
                                              "{elem.system}_{elem.subsystem}:DCH_{elem.inst}".format(elem=elem),
                                              system=row.system, subsystem=row.subsystem, device="DCH",
                                              dtype=row.device_type, inst=inst)
-
                         elem.v = VCorElement(elem.z, 0.0, elem.aperture,
                                              "{elem.system}_{elem.subsystem}:DCV_{elem.inst}".format(elem=elem),
                                              system=row.system, subsystem=row.subsystem, device="DCV",
                                              dtype=row.device_type, inst=inst)
-
                         subsequence.append(elem)
 
                     elif row.device in DEVICE_ALIAS_BPM:
-
                         inst = FMT_INST.format(int(row.position))
-
                         elem = BPMElement(row.center_position, row.eff_length, row.diameter, row.name,
                                           desc=row.element_name,
                                           system=row.system, subsystem=row.subsystem, device=row.device,
                                           dtype=row.device_type, inst=inst)
-
                         subsequence.append(elem)
 
                     elif row.device in DEVICE_ALIAS_PM:
@@ -688,7 +695,6 @@ class AccelFactory(XlfConfig):
                                             desc=row.element_name,
                                             system=row.system, subsystem=row.subsystem, device=row.device,
                                             dtype=dtype, inst=inst)
-
                         if self._has_config_length(dtype):
                             drift_delta = (elem.length - self._get_config_length(dtype)) / 2.0
                             get_prev_element().length += drift_delta
@@ -749,43 +755,33 @@ class AccelFactory(XlfConfig):
 
                 elif row.element_name is not None:
 
-                    if row.element_name in ["bellow", "bellows", "bellow+tube", "2 bellows + tube", "bellow+box",
+                    if row.element_name in ("bellow", "bellows", "bellow+tube", "2 bellows + tube", "bellow+box",
                                             "bellow+tube/box", "tube", "reducer flange", "bellow ?", "4 way cross ??",
                                             "BPM bellow", "bellow?", "bellow+tube ??", "6 way cross ??",
-                                            "mhb box & bellows"]:
+                                            "mhb box & bellows",
+                                            "solenoid-entry", "solenoid-exit"):
                         if drift_delta != 0.0:
                             row.eff_length += drift_delta
                             row.center_position -= drift_delta / 2.0
                             drift_delta = 0.0
                         subsequence.append(
-                            DriftElement(row.center_position, row.eff_length, row.diameter, desc=row.element_name))
+                            DriftElement(row.center_position, row.eff_length, row.diameter, name_drift(), desc=row.element_name))
 
-                    elif row.element_name in ["solenoid-entry", "solenoid-exit"]:
-                        if drift_delta != 0.0:
-                            row.eff_length += drift_delta
-                            row.center_position -= drift_delta / 2.0
-                            drift_delta = 0.0
-                        subsequence.append(
-                            DriftElement(row.center_position, row.eff_length, row.diameter, desc=row.element_name))
-
-                    elif row.element_name in ["coil-out", "coil-out (assumed)", "coil out", "coil out + leads"]:
-                        if drift_delta != 0.0:
-                            raise Exception("Unsupported drift delta on element: {}".format(row.element_name))
-                        subsequence.append(
-                            DriftElement(row.center_position, row.eff_length, row.diameter, desc=row.element_name))
-
-                    elif row.element_name in ["collimation flange", "collimation flange moved??"]:
+                    elif row.element_name in ["coil-out", "coil-out (assumed)", "coil out", "coil out + leads",
+                                              "collimation flange", "collimation flange moved??",
+                                              "BPM-box", "diagnostic box", "vacuum box", "box",
+                                              "box+tube", "mhb box", "4 way cross", "6 way cross",
+                                              "artemis_b extraction/puller", "artemis_b extraction wall",
+                                              "extraction mounting plate", "extraction box",
+                                              "gap (puller & extraction hole)", "gap (puller main & bias)",
+                                              "puller tube", "8 mm extraction hole",
+                                              "artemis_b extraction conical wall",
+                                              "RFQ end wall", "RFQ inn-wall (match point)", "RFQ inn-wall",
+                                              ]:
                         if drift_delta != 0.0:
                             raise Exception("Unsupported drift delta on element: {}".format(row.element_name))
                         subsequence.append(
-                            DriftElement(row.center_position, row.eff_length, row.diameter, desc=row.element_name))
-
-                    elif row.element_name in ["BPM-box", "diagnostic box", "vacuum box", "box", "box+tube", "mhb box",
-                                              "4 way cross", "6 way cross"]:
-                        if drift_delta != 0.0:
-                            raise Exception("Unsupported drift delta on element: {}".format(row.element_name))
-                        subsequence.append(
-                            DriftElement(row.center_position, row.eff_length, row.diameter, desc=row.element_name))
+                            DriftElement(row.center_position, row.eff_length, row.diameter, name_drift(), desc=row.element_name))
 
                     elif row.element_name == "stripper module":
                         if drift_delta != 0.0:
@@ -796,7 +792,7 @@ class AccelFactory(XlfConfig):
                             subsequence.append(
                                 #StripElement(row.center_position, row.eff_length, row.diameter, "CHARGE STRIPPER",
                                 #            desc=row.element_name))
-                                DriftElement(row.center_position, row.eff_length, row.diameter, desc=row.element_name))
+                                DriftElement(row.center_position, row.eff_length, row.diameter, name_drift(), desc=row.element_name))
                     elif row.element_name == "#stripper":
                         if drift_delta != 0.0:
                             raise Exception("Unsupported drift delta on element: {}".format(row.element_name))
@@ -818,22 +814,6 @@ class AccelFactory(XlfConfig):
                         elem.subsystem = row.subsystem
                         elem.device = "STRIP"
 
-                    elif row.element_name in ["artemis_b extraction/puller", "artemis_b extraction wall",
-                                              "extraction mounting plate", "extraction box",
-                                              "gap (puller & extraction hole)", "gap (puller main & bias)",
-                                              "puller tube", "8 mm extraction hole",
-                                              "artemis_b extraction conical wall"]:
-                        if drift_delta != 0.0:
-                            raise Exception("Unsupported drift delta on element: {}".format(row.element_name))
-                        subsequence.append(
-                            DriftElement(row.center_position, row.eff_length, row.diameter, desc=row.element_name))
-
-                    elif row.element_name in ["RFQ end wall", "RFQ inn-wall (match point)", "RFQ inn-wall"]:
-                        if drift_delta != 0.0:
-                            raise Exception("Unsupported drift delta on element: {}".format(row.element_name))
-                        subsequence.append(
-                            DriftElement(row.center_position, row.eff_length, row.diameter, desc=row.element_name))
-
                     else:
                         raise Exception("Unsupported layout with name: '{}'".format(row.element_name))
 
@@ -843,7 +823,7 @@ class AccelFactory(XlfConfig):
                         row.center_position -= drift_delta / 2.0
                         drift_delta = 0.0
                     desc = "drift_{}".format(ridx + 1) if row.element_name is None else row.element_name
-                    subsequence.append(DriftElement(row.center_position, row.eff_length, row.diameter, desc=desc))
+                    subsequence.append(DriftElement(row.center_position, row.eff_length, row.diameter, name_drift(), desc=desc))
 
             except Exception as e:
                 raise RuntimeError("AccelFactory: {}: row {}: {}".format(str(e), ridx + 1, row))

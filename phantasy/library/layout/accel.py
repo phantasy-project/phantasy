@@ -48,7 +48,7 @@ class Fields(object):
 
 class Element(object):
     """Element is the base for the layout element class heirarchy.
-    
+
     Parameters
     ----------
     z : float
