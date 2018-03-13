@@ -29,6 +29,7 @@ from .accel import SlitElement
 from .accel import ChopperElement
 from .accel import AttenuatorElement
 from .accel import DumpElement
+from .accel import ApertureElement
 from .accel import ValveElement
 from .accel import Element
 from .accel import Fields
@@ -44,6 +45,7 @@ __all__ = [
     'SextElement', 'SolCorElement', 'SolElement',
     'StripElement', 'VCorElement', 'VDElement', 'ValveElement',
     'SlitElement', 'ChopperElement', 'AttenuatorElement', 'DumpElement',
+    'ApertureElement',
     'Element', 'Fields',
 ]
 

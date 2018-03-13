@@ -708,6 +708,20 @@ class DumpElement(Element):
                                           **meta)
 
 
+# Aperture Elements
+
+class ApertureElement(Element):
+    """ApertureElement represents an aperture.
+    """
+
+    ETYPE = "AP"
+
+    def __init__(self, z, length, aperture, name, desc="aperture",
+                 **meta):
+        super(ApertureElement, self).__init__(z, length, aperture, name, desc=desc,
+                                              **meta)
+
+
 # Source Elements
 
 class ElectrodeElement(Element):
