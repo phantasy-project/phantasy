@@ -697,7 +697,7 @@ class AccelFactory(XlfConfig):
 
                     elif row.device in DEVICE_ALIAS_SLIT:
                         inst = FMT_INST.format(int(row.position))
-                        elem = SLitElement(row.center_position, row.eff_length, row.diameter, row.name,
+                        elem = SlitElement(row.center_position, row.eff_length, row.diameter, row.name,
                                            desc=row.element_name,
                                            system=row.system, subsystem=row.subsystem, device=row.device,
                                            dtype=row.device_type, inst=inst)
