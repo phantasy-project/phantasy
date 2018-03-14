@@ -394,18 +394,24 @@ class AccelFactory(XlfConfig):
             elif not isinstance(elements[-1], allow_types):
                 raise RuntimeError("AccelFactory: previous element type invalid")
             return elements[-1]
-        
+
         def name_drift():
             try:
+                # previous element is not drift
                 pre_elem = get_prev_element(NON_DRIFT_ELEMENTS)
-                name = "{elem.system}_{elem.subsystem}:DFT_{elem.inst}".format(elem=pre_elem)
+                name = "{elem.system}_{elem.subsystem}:{elem.device}_DFT_{elem.inst}".format(elem=pre_elem)
             except:
+                # previous element is drift
                 pre_elem = get_prev_element()
-                r = re.match(r"(.*)-([0-9].*)", pre_elem.name)
+                r = re.match(r"(.*)_(D.*)_([0-9].*)", pre_elem.name)
                 if r is None:
-                    pre_elem.name = '{}-1'.format(pre_elem.name)
-                n,idx = pre_elem.name.split('-')
-                name = "{n}-{i}".format(n=n,i=int(idx)+1)
+                    # if pre drift name does not ends with '_#', rename it
+                    name = '{}_2'.format(pre_elem.name)
+                    pre_elem.name = '{}_1'.format(pre_elem.name)
+                else:
+                    # if pre drift name ends with '_#', inc # to the new drift
+                    n, dnum, idx = r.groups()
+                    name = "{n}_{d}_{i}".format(n=n, d=dnum, i=int(idx)+1)
             return name
 
         for ridx in range(self._xlf_layout_sheet_start, layout.nrows):
