@@ -387,9 +387,13 @@ class AccelFactory(XlfConfig):
 
         drift_delta = 0.0
 
-        def get_prev_element(allow_types=(DriftElement,)):
-            elements = subsequence.elements
+        def get_prev_element(allow_types=(DriftElement,), elements=None):
+            # get previous element
+            elements = subsequence.elements if elements is None else elements
             if len(elements) == 0:
+                # if not found in subsequence, try searching from the last one
+                # note: indexing by -2 since new subsequence is always appended before growing
+                return get_prev_element(allow_types, sequence.elements[-2].elements)
                 raise RuntimeError("AccelFactory: previous element not found")
             elif not isinstance(elements[-1], allow_types):
                 raise RuntimeError("AccelFactory: previous element type invalid")
