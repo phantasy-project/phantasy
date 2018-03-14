@@ -40,6 +40,11 @@ from phantasy.library.layout import VDElement
 from phantasy.library.layout import EMSElement
 from phantasy.library.layout import ElectrodeElement
 from phantasy.library.layout import SolElement
+from phantasy.library.layout import ApertureElement
+from phantasy.library.layout import AttenuatorElement
+from phantasy.library.layout import SlitElement
+from phantasy.library.layout import DumpElement
+from phantasy.library.layout import ChopperElement
 from phantasy.library.settings import Settings
 
 try:
@@ -359,12 +364,6 @@ class FlameLatticeFactory(BaseLatticeFactory):
             lattice.initialEnvelope = self._get_config_data_default(CONFIG_FLAME_INITIAL_ENVELOPE_FILE,
                                                                     _DEFAULT_INITIAL_ENVELOPE)
 
-        ndrift = [0]
-
-        def next_drift():
-            ndrift[0] += 1
-            return "DRIFT_" + str(ndrift[0])
-
         for elem in self._accel.iter(self.start, self.end):
             # check drift mask first
             if self._get_config(elem.dtype, CONFIG_DRIFT_MASK, 'False').lower() == 'true':
@@ -372,7 +371,7 @@ class FlameLatticeFactory(BaseLatticeFactory):
             #
 
             if isinstance(elem, DriftElement):
-                lattice.append(next_drift(), "drift",
+                lattice.append(elem.name, "drift",
                                ('L', elem.length), ('aper', elem.aperture / 2.0))
 
             elif isinstance(elem, (ValveElement, PortElement)):
@@ -382,29 +381,29 @@ class FlameLatticeFactory(BaseLatticeFactory):
 
             elif isinstance(elem, BPMElement):
                 if elem.length != 0.0:
-                    lattice.append(next_drift(), "drift",
+                    lattice.append(_drift_name(elem.name, 1), "drift",
                                    ('L', elem.length / 2.0), ('aper', elem.aperture / 2.0))
 
                 lattice.append(elem.name, "bpm", name=elem.name, etype=elem.ETYPE)
 
                 if elem.length != 0.0:
-                    lattice.append(next_drift(), "drift",
+                    lattice.append(_drift_name(elem.name, 2), "drift",
                                    ('L', elem.length / 2.0), ('aper', elem.aperture / 2.0))
 
             elif isinstance(elem, (BLMElement, BLElement, BCMElement)):
                 if elem.length != 0.0:
-                    lattice.append(next_drift(), "drift",
+                    lattice.append(_drift_name(elem.name, 1), "drift",
                                    ('L', elem.length / 2.0), ('aper', elem.aperture / 2.0))
 
                 lattice.append(elem.name, "marker", name=elem.name, etype=elem.ETYPE)
 
                 if elem.length != 0.0:
-                    lattice.append(next_drift(), "drift",
+                    lattice.append(_drift_name(elem.name, 2), "drift",
                                    ('L', elem.length / 2.0), ('aper', elem.aperture / 2.0))
 
             elif isinstance(elem, PMElement):
                 if elem.length != 0.0:
-                    lattice.append(next_drift(), "drift",
+                    lattice.append(_drift_name(elem.name, 1), "drift",
                                    ('L', elem.length / 2.0), ('aper', elem.aperture / 2.0))
 
                 pm_angle = self._get_config(elem.dtype, CONFIG_PM_ANGLE, DEFAULT_PM_ANGLE)
@@ -415,7 +414,7 @@ class FlameLatticeFactory(BaseLatticeFactory):
                 lattice.append(elem.name, "marker", name=elem.name, etype=elem.ETYPE)
 
                 if elem.length != 0.0:
-                    lattice.append(next_drift(), "drift",
+                    lattice.append(_drift_name(elem.name, 2), "drift",
                                    ('L', elem.length / 2.0), ('aper', elem.aperture / 2.0))
 
             elif isinstance(elem, CavityElement):
@@ -566,7 +565,7 @@ class FlameLatticeFactory(BaseLatticeFactory):
                                                                                                  elem.name))
 
                 if elem.length != 0.0:
-                    lattice.append(next_drift(), "drift",
+                    lattice.append(_drift_name(elem.name, 1), "drift",
                                    ('L', elem.length / 2.0),
                                    ('aper', elem.apertureX / 2.0))
 
@@ -577,7 +576,7 @@ class FlameLatticeFactory(BaseLatticeFactory):
                                name=elem.v.name, etype=elem.v.ETYPE)
 
                 if elem.length != 0.0:
-                    lattice.append(next_drift(), "drift",
+                    lattice.append(_drift_name(elem.name, 2), "drift",
                                    ('L', elem.length / 2.0),
                                    ('aper', elem.apertureX / 2.0))
 
@@ -676,7 +675,7 @@ class FlameLatticeFactory(BaseLatticeFactory):
                 stripper_count = numpy.array(stripper_count)
 
                 if elem.length != 0.0:
-                    lattice.append(next_drift(), "drift",
+                    lattice.append(_drift_name(elem.name, 1), "drift",
                                    ('L', elem.length / 2.0),
                                    ('aper', elem.aperture / 2.0))
 
@@ -686,7 +685,7 @@ class FlameLatticeFactory(BaseLatticeFactory):
                                name=elem.name, etype=elem.ETYPE)
 
                 if elem.length != 0.0:
-                    lattice.append(next_drift(), "drift",
+                    lattice.append(_drift_name(elem.name, 2), "drift",
                                    ('L', elem.length / 2.0),
                                    ('aper', elem.aperture / 2.0))
 
@@ -714,6 +713,21 @@ class FlameLatticeFactory(BaseLatticeFactory):
                 lattice.append(elem.name, "drift", ('L', elem.length), ('aper', elem.aperture / 2.0),
                                name=elem.name, etype=elem.ETYPE)
             elif isinstance(elem, EMSElement):
+                lattice.append(elem.name, "drift", ('L', elem.length), ('aper', elem.aperture / 2.0),
+                               name=elem.name, etype=elem.ETYPE)
+            elif isinstance(elem, ApertureElement):
+                lattice.append(elem.name, "drift", ('L', elem.length), ('aper', elem.aperture / 2.0),
+                               name=elem.name, etype=elem.ETYPE)
+            elif isinstance(elem, AttenuatorElement):
+                lattice.append(elem.name, "drift", ('L', elem.length), ('aper', elem.aperture / 2.0),
+                               name=elem.name, etype=elem.ETYPE)
+            elif isinstance(elem, SlitElement):
+                lattice.append(elem.name, "drift", ('L', elem.length), ('aper', elem.aperture / 2.0),
+                               name=elem.name, etype=elem.ETYPE)
+            elif isinstance(elem, DumpElement):
+                lattice.append(elem.name, "drift", ('L', elem.length), ('aper', elem.aperture / 2.0),
+                               name=elem.name, etype=elem.ETYPE)
+            elif isinstance(elem, ChopperElement):
                 lattice.append(elem.name, "drift", ('L', elem.length), ('aper', elem.aperture / 2.0),
                                name=elem.name, etype=elem.ETYPE)
 
@@ -793,6 +807,12 @@ class FlameLatticeFactory(BaseLatticeFactory):
                 raise Exception("Unsupported accelerator element: {}".format(elem))
 
         return lattice
+
+def _drift_name(name, did=1):
+    """Return equivalent drift section name, before(1) and after(2).
+    """
+    r = re.match(r"(.*):(.*)_(D.*)", name)
+    return '{}:{}_DFT{}_{}'.format(r.group(1), r.group(2), did, r.group(3))
 
 
 class FlameLattice(object):
