@@ -56,63 +56,64 @@ NON_DRIFT_ELEMENTS = (
 
 # constants for parsing xlsx file
 # skip line whose system field startswiths any one of the words defined by SYSTEM_SKIP_WORDS
-SYSTEM_SKIP_WORDS = ("dump", "SEGMENT", "LINAC", "Target",
-                     "beta=0.085 QWR cryomodules START")
+SYSTEM_SKIP_WORDS = ( "dump", "SEGMENT", "LINAC", "Target",
+                      "beta=0.085 QWR cryomodules START", )
 # skip line whose device field in one of the tuple defined by DEVICE_SKIP_WORDS
-DEVICE_SKIP_WORDS = ("end", "start", "END")
+DEVICE_SKIP_WORDS = ( "end", "start", "END", )
 
 # device alias for valve: ValveElement
-DEVICE_ALIAS_VALVE = ("GV", "FVS", "FAV")
+DEVICE_ALIAS_VALVE = ( "GV", "FVS", "FAV", )
 # device alias for cavity: CavityElement
-DEVICE_ALIAS_CAV = ("CAV1", "CAV2", "CAV3", "CAV4", "CAV5", "CAV6", "CAV7", "CAV8", "CAV")
+DEVICE_ALIAS_CAV = ( "CAV1", "CAV2", "CAV3", "CAV4",
+                     "CAV5", "CAV6", "CAV7", "CAV8", "CAV", )
 # device alias for solenoid: SolElement
-DEVICE_ALIAS_SOLR = ("SOLR")
+DEVICE_ALIAS_SOLR = ( "SOLR", )
 # device alias for solenoid w/ hcor&vcor: SolCorElement
-DEVICE_ALIAS_SOL = ("SOL1", "SOL2", "SOL3", "SOLS")
+DEVICE_ALIAS_SOL = ( "SOL1", "SOL2", "SOL3", "SOLS", )
 # device alias for BPM
-DEVICE_ALIAS_BPM = ("BPM")
+DEVICE_ALIAS_BPM = ( "BPM", )
 # device alias for PM
-DEVICE_ALIAS_PM = ("PM", "PM1")
+DEVICE_ALIAS_PM = ( "PM", "PM1", )
 # device alias for BL (measure beam length)
-DEVICE_ALIAS_BL = ("BL")
+DEVICE_ALIAS_BL = ( "BL", )
 # device alias for BLM (measure beam loss)
-DEVICE_ALIAS_BLM = ("BLM")
+DEVICE_ALIAS_BLM = ( "BLM", )
 # device alias for BCM (measure beam current)
-DEVICE_ALIAS_BCM = ("BCM")
+DEVICE_ALIAS_BCM = ( "BCM", )
 # device alias for EMS (emittance scanner)
-DEVICE_ALIAS_EMS = ("EMS")
+DEVICE_ALIAS_EMS = ( "EMS", )
 # device alias for faraday cup
-DEVICE_ALIAS_FC = ("FC", "FFC")
+DEVICE_ALIAS_FC = ( "FC", "FFC", )
 # device alias for viewer
-DEVICE_ALIAS_VD = ("VD")
+DEVICE_ALIAS_VD = ( "VD", )
 # device alias for pump, port, etc.
-DEVICE_ALIAS_PORT = ("PORT", "TMP", "NEGP", "IP", "CP")
+DEVICE_ALIAS_PORT = ( "PORT", "TMP", "NEGP", "IP", "CP", )
 # device alias for correctors, comes with H&V pair.
-DEVICE_ALIAS_COR = ("DC", "DC0", "CH", "DCHV")
+DEVICE_ALIAS_COR = ( "DC", "DC0", "CH", "DCHV", )
 # device alias for dipole, bend
-DEVICE_ALIAS_BEND = ("DH")
+DEVICE_ALIAS_BEND = ( "DH", )
 # device alias for quad
-DEVICE_ALIAS_QUAD = ("QH", "QV", "Q")
+DEVICE_ALIAS_QUAD = ( "QH", "QV", "Q", )
 # device alias for sextupole
-DEVICE_ALIAS_SEXT = ("S")
+DEVICE_ALIAS_SEXT = ( "S", )
 # device alias for electrode
-DEVICE_ALIAS_ELC = ("ELC1", "ELC2", "ELC3")
+DEVICE_ALIAS_ELC = ( "ELC1", "ELC2", "ELC3", )
 # device alias for acc column
-DEVICE_ALIAS_ACC = ("ACC")
+DEVICE_ALIAS_ACC = ( "ACC", )
 # device alias for ES bend
-DEVICE_ALIAS_EBEND = ("DVE")
+DEVICE_ALIAS_EBEND = ( "DVE", )
 # device alias for ES quad
-DEVICE_ALIAS_EQUAD = ("QHE", "QVE")
+DEVICE_ALIAS_EQUAD = ( "QHE", "QVE", )
 # device alias for slit
-DEVICE_ALIAS_SLIT = ("SLH", "SLT")
+DEVICE_ALIAS_SLIT = ( "SLH", "SLT", )
 # device alias for chopper
-DEVICE_ALIAS_CHP = ("CHP")
+DEVICE_ALIAS_CHP = ( "CHP", )
 # device alias for aperture
-DEVICE_ALIAS_AP = ("AP")
+DEVICE_ALIAS_AP = ( "AP", )
 # device alias for attenuator
-DEVICE_ALIAS_ATT = ("ATT")
+DEVICE_ALIAS_ATT = ( "ATT", )
 # device alias for dump
-DEVICE_ALIAS_DUMP = ("dump", "DUMP")
+DEVICE_ALIAS_DUMP = ( "dump", "DUMP", )
 
 # configuration options
 
