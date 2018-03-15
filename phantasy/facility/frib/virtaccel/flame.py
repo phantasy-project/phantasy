@@ -53,6 +53,11 @@ from phantasy.library.layout import SolElement
 from phantasy.library.layout import VDElement
 from phantasy.library.layout import FCElement
 from phantasy.library.layout import ElectrodeElement
+from phantasy.library.layout import SlitElement
+from phantasy.library.layout import ChopperElement
+from phantasy.library.layout import AttenuatorElement
+from phantasy.library.layout import DumpElement
+from phantasy.library.layout import ApertureElement
 from phantasy.library.lattice import FlameLatticeFactory
 
 
@@ -456,6 +461,11 @@ class VirtualAcceleratorFactory(object):
 
             elif isinstance(elem, DriftElement):
                 # drift elements have no channels
+                pass
+
+            elif isinstance(elem, (AttenuatorElement, ApertureElement,
+                                   ChopperElement, DumpElement, SlitElement)):
+                # no channels for now
                 pass
 
             elif isinstance(elem, (EMSElement, VDElement, FCElement)):
