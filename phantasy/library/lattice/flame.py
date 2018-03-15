@@ -808,6 +808,7 @@ class FlameLatticeFactory(BaseLatticeFactory):
 
         return lattice
 
+
 def _drift_name(name, did=1):
     """Return equivalent drift section name, before(1) and after(2).
     """
