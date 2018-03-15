@@ -50,7 +50,7 @@ More details see documentation at https://controls.frib.msu.edu/phantasy/.
 __all__ = ['MachinePortal']
 
 _LOGGER = logging.getLogger(__name__)
-_LOGGER.setLevel(logging.DEBUG)
+_LOGGER.setLevel(logging.INFO)
 logging.basicConfig(
         format="%(levelname)s: %(asctime)s: %(name)s: %(message)s"
 )
