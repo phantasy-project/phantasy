@@ -1,4 +1,4 @@
-from .flame import MachineStates
+from .flame import BeamState
 from .flame import ModelFlame
 from .flame import collect_data
 from .flame import configure
@@ -15,7 +15,7 @@ from .flame import propagate
 from .model import Model
 
 __all__ = [
-    'MachineStates', 'ModelFlame', 'collect_data', 'configure',
+    'BeamState', 'ModelFlame', 'collect_data', 'configure',
     'convert_results', 'generate_latfile', 'get_all_names',
     'get_all_types', 'get_element', 'get_index_by_name',
     'get_index_by_type', 'get_names_by_pattern', 'inspect_lattice',

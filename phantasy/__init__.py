@@ -47,6 +47,10 @@ More details see documentation at https://controls.frib.msu.edu/phantasy/.
 :authors: %s
 """ % (__version__, __authors__)
 
-__all__ = ['flameutils', 'MachinePortal']
+__all__ = ['MachinePortal']
 
-logging.basicConfig(format="%(levelname)s: %(asctime)s: %(name)s: %(message)s")
+_LOGGER = logging.getLogger(__name__)
+_LOGGER.setLevel(logging.DEBUG)
+logging.basicConfig(
+        format="%(levelname)s: %(asctime)s: %(name)s: %(message)s"
+)

@@ -31,7 +31,7 @@ from phantasy.library.misc import flatten
 from phantasy.library.misc import get_intersection
 from phantasy.library.misc import parse_dt
 from phantasy.library.misc import pattern_filter
-from phantasy.library.model import MachineStates
+from phantasy.library.model import BeamState
 from phantasy.library.model import ModelFlame
 from phantasy.library.parser import Configuration
 from phantasy.library.pv import caget
@@ -547,7 +547,7 @@ class Lattice(object):
             Two options available: 'control' and 'model', by default 'control'
             i.e. only get from 'control' environment.
         mstate : bool
-            If True, return MachineStates instance, False by default, only
+            If True, return BeamState instance, False by default, only
             valid for viewer elements and ``source='model'``.
 
         Note
@@ -556,7 +556,7 @@ class Lattice(object):
         from model environment, there are two categories: one is devices that
         accept new values settings, e.g. corrector, cavity, etc., the other is
         devices that only can show readings, e.g. BPM, PM, etc. (so-called
-        *viewer elements*). For *viewer elements*, ``MachineStates`` could be
+        *viewer elements*). For *viewer elements*, ``BeamState`` could be
         got after ``run()``, for flame model.
 
         Returns
@@ -594,7 +594,7 @@ class Lattice(object):
         Keyword Arguments
         -----------------
         mstate : bool
-            If True, return MachineStates instance, False by default.
+            If True, return BeamState instance, False by default.
         """
         if not isinstance(field, (list, tuple)):
             field = field,
@@ -947,7 +947,7 @@ class Lattice(object):
             m = Machine(latconf)
         elif latfile is not None:
             m = Machine(open(latfile, 'r'))
-        ms = MachineStates(machine=m)
+        ms = BeamState(machine=m)
         fm = ModelFlame()
         fm.mstates, fm.machine = ms, m
         obs = fm.get_index_by_type(type='bpm')['bpm']
