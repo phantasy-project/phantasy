@@ -67,7 +67,7 @@ def build_channels(layout, machine=None, **kws):
 
     Returns
     -------
-    ret : list(tuple) 
+    ret : list(tuple)
         List of tuples of (channel, properties, tags)
 
     See Also
