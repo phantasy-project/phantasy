@@ -1,4 +1,4 @@
-Eng_Data_Dir = "/home/tong/Dropbox/FRIB/work/python-phantasy/tests/lattice/flame_data";
+Eng_Data_Dir = "/home/tong/Dropbox/FRIB/work/phantasy/tests/lattice/flame_data";
 HdipoleFitMode = 1.0;
 IonChargeStates = [0.138655];
 IonEk = 500000.0;
