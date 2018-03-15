@@ -1,3 +1,37 @@
+Version 0.7.6
+-------------
+2018-03-15 [Testing]
+
+- New:
+  - New elements: SlitElement, ApertureElement, AttenuatorElement, DumpElement, ChopperElement
+  - Drift has specific names, rule: `SYSTEM_SUBSYSTEM:DEVICE_DFT_D####_#`
+- Fixed:
+  - Apply effective length when switching subsystem
+  - Center position when shrinking/expanding element
+- Updated:
+  - Virtual accelerator
+  - Channel/layout generation
+- Changed:
+  - All features provided by 'flameutils' module is imported from another external Python package: `flame_utils`
+  - Unittests for flameutils have been deleted
+
+
+Version 0.7.2-0.7.5
+-------------
+2018-02-27 [Testing]
+
+- Fix channel names
+- Add LEBT tag to machine configuration
+- Support effective length for solenoid and equad
+
+
+Version 0.7.1
+-------------
+2017-12-21 [Testing]
+
+- Update default machine configurations
+
+
 Version 0.7.0
 -------------
 2017-10-27 [Testing]
@@ -7,6 +41,7 @@ Version 0.7.0
 - New moduel for default machine configuration within package.
 - New support for 'Generic' type cavity [FLAME].
 - New configurable feature to mask device as drift.
+
 
 Version 0.6.0
 -------------
@@ -18,6 +53,7 @@ Version 0.6.0
 - New physics module: orm for orbit correction.
 - New attribute 'orm', correct orbit by orm method.
 - Fix bugs.
+
 
 Version 0.5.1
 -------------
@@ -36,12 +72,14 @@ Version 0.5.1
 - API changed:
   - CaElement: fields() -> fields
 
+
 Version 0.4.0
 -------------
 2017-05-08 [Testing]
 
 - Support sextupole modeling in FLAME VA.
 - Fix PM incorrect field values for XY and XYRMS.
+
 
 Version 0.3.0
 -------------
@@ -51,12 +89,14 @@ Version 0.3.0
 - Application utilities are included in 'phantasy.apps',
 however provided by another package called 'python-phantasy-apps'.
 
+
 Version 0.2.0
 -------------
 2017-02-22 [Testing]
 
 - Support modeling LEBT segment of front-end of FRIB linac.
 - New configurations from "FRIB_FE", which is in "machines" repo.
+
 
 Version 0.1.0
 -------------
