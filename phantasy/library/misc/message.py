@@ -3,5 +3,23 @@
 import logging
 
 
-def disable_warnings(level=60):
+def disable_warnings(level=logging.CRITICAL):
+    """Disable all logging messages for *level* and below.
+    
+    Parameters
+    ----------
+    level : int
+        Severity level, could be an integer, e.g. NOSET(0), DEBUG(10),
+        INFO(20), WARNING(30), ERROR(40), CRITICAL(50).
+    
+    Examples
+    --------
+    >>> from phantasy import disable_warnings
+    >>> # disable all logging message
+    >>> disable_warnings(50)
+    >>> # show level higher than warning
+    >>> disable_warnings(20)
+    >>> # show level higher than info
+    >>> disable_warnings(10)
+    """
     logging.disable(level)
