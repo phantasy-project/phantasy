@@ -74,7 +74,7 @@ d_pkg.update(
 
 setup(
         name=app_name,
-        version="0.7.6",
+        version="0.7.7",
         description=app_description,
         long_description=app_long_description,
         author=app_author,
