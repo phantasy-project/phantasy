@@ -1,3 +1,12 @@
+Version 0.7.7
+-------------
+2018-03-16 [Testing]
+
+- Fix: PM type
+- Fix: default machine configurations
+- New: way to control logging message display level
+
+
 Version 0.7.6
 -------------
 2018-03-15 [Testing]
