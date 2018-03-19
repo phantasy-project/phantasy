@@ -1,0 +1,271 @@
+PV,elemField,elemHandle,elemIndex,elemLength,elemName,elemPosition,elemType,machine,physicsName,physicsType
+FE_SCS1:SOLR_D0704:I_CSET,B,setpoint,4,0.3998,FE_SCS1:SOLR_D0704,0.63265413,SOL,LIVE,solenoid,SOL_S4b,phantasy.sys.FE,phantasy.sub.SCS1,LEBT
+FE_SCS1:SOLR_D0704:I_RSET,B,readset,4,0.3998,FE_SCS1:SOLR_D0704,0.63265413,SOL,LIVE,solenoid,SOL_S4b,phantasy.sys.FE,phantasy.sub.SCS1,LEBT
+FE_SCS1:SOLR_D0704:I_RD,B,readback,4,0.3998,FE_SCS1:SOLR_D0704,0.63265413,SOL,LIVE,solenoid,SOL_S4b,phantasy.sys.FE,phantasy.sub.SCS1,LEBT
+FE_SCS1:DCH_D0709:I_CSET,ANG,setpoint,8,0.0,FE_SCS1:DCH_D0709,0.97275413,HCOR,LIVE,horiz. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.SCS1,LEBT
+FE_SCS1:DCH_D0709:I_RSET,ANG,readset,8,0.0,FE_SCS1:DCH_D0709,0.97275413,HCOR,LIVE,horiz. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.SCS1,LEBT
+FE_SCS1:DCH_D0709:I_RD,ANG,readback,8,0.0,FE_SCS1:DCH_D0709,0.97275413,HCOR,LIVE,horiz. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.SCS1,LEBT
+FE_SCS1:DCV_D0709:I_CSET,ANG,setpoint,8,0.0,FE_SCS1:DCV_D0709,0.97275413,VCOR,LIVE,vert. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.SCS1,LEBT
+FE_SCS1:DCV_D0709:I_RSET,ANG,readset,8,0.0,FE_SCS1:DCV_D0709,0.97275413,VCOR,LIVE,vert. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.SCS1,LEBT
+FE_SCS1:DCV_D0709:I_RD,ANG,readback,8,0.0,FE_SCS1:DCV_D0709,0.97275413,VCOR,LIVE,vert. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.SCS1,LEBT
+FE_SCS1:DH_D0717:I_CSET,B,setpoint,10,1.0,FE_SCS1:DH_D0717,2.20775413,BEND,LIVE,"dipole-90deg, D5-1",BEND_D5,phantasy.sys.FE,phantasy.sub.SCS1,LEBT
+FE_SCS1:DH_D0717:I_RSET,B,readset,10,1.0,FE_SCS1:DH_D0717,2.20775413,BEND,LIVE,"dipole-90deg, D5-1",BEND_D5,phantasy.sys.FE,phantasy.sub.SCS1,LEBT
+FE_SCS1:DH_D0717:I_RD,B,readback,10,1.0,FE_SCS1:DH_D0717,2.20775413,BEND,LIVE,"dipole-90deg, D5-1",BEND_D5,phantasy.sys.FE,phantasy.sub.SCS1,LEBT
+FE_SCS1:DCH_D0723:I_CSET,ANG,setpoint,13,0.0,FE_SCS1:DCH_D0723,2.37005413,HCOR,LIVE,horiz. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.SCS1,LEBT
+FE_SCS1:DCH_D0723:I_RSET,ANG,readset,13,0.0,FE_SCS1:DCH_D0723,2.37005413,HCOR,LIVE,horiz. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.SCS1,LEBT
+FE_SCS1:DCH_D0723:I_RD,ANG,readback,13,0.0,FE_SCS1:DCH_D0723,2.37005413,HCOR,LIVE,horiz. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.SCS1,LEBT
+FE_SCS1:DCV_D0723:I_CSET,ANG,setpoint,13,0.0,FE_SCS1:DCV_D0723,2.37005413,VCOR,LIVE,vert. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.SCS1,LEBT
+FE_SCS1:DCV_D0723:I_RSET,ANG,readset,13,0.0,FE_SCS1:DCV_D0723,2.37005413,VCOR,LIVE,vert. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.SCS1,LEBT
+FE_SCS1:DCV_D0723:I_RD,ANG,readback,13,0.0,FE_SCS1:DCV_D0723,2.37005413,VCOR,LIVE,vert. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.SCS1,LEBT
+FE_SCS1:QE_D0726:V_CSET,V,setpoint,15,0.2052,FE_SCS1:QHE_D0726,2.76035413,EQUAD,LIVE,ES_quad_X,QUAD_Q7,phantasy.sys.FE,phantasy.sub.SCS1,LEBT
+FE_SCS1:QE_D0726:V_RSET,V,readset,15,0.2052,FE_SCS1:QHE_D0726,2.76035413,EQUAD,LIVE,ES_quad_X,QUAD_Q7,phantasy.sys.FE,phantasy.sub.SCS1,LEBT
+FE_SCS1:QE_D0726:V_RD,V,readback,15,0.2052,FE_SCS1:QHE_D0726,2.76035413,EQUAD,LIVE,ES_quad_X,QUAD_Q7,phantasy.sys.FE,phantasy.sub.SCS1,LEBT
+FE_SCS1:QE_D0730:V_CSET,V,setpoint,17,0.2052,FE_SCS1:QVE_D0730,3.09535413,EQUAD,LIVE,ES_quad_Y,QUAD_Q7,phantasy.sys.FE,phantasy.sub.SCS1,LEBT
+FE_SCS1:QE_D0730:V_RSET,V,readset,17,0.2052,FE_SCS1:QVE_D0730,3.09535413,EQUAD,LIVE,ES_quad_Y,QUAD_Q7,phantasy.sys.FE,phantasy.sub.SCS1,LEBT
+FE_SCS1:QE_D0730:V_RD,V,readback,17,0.2052,FE_SCS1:QVE_D0730,3.09535413,EQUAD,LIVE,ES_quad_Y,QUAD_Q7,phantasy.sys.FE,phantasy.sub.SCS1,LEBT
+FE_SCS1:QE_D0733:V_CSET,V,setpoint,19,0.2052,FE_SCS1:QHE_D0733,3.43035413,EQUAD,LIVE,ES_quad_X,QUAD_Q7,phantasy.sys.FE,phantasy.sub.SCS1,LEBT
+FE_SCS1:QE_D0733:V_RSET,V,readset,19,0.2052,FE_SCS1:QHE_D0733,3.43035413,EQUAD,LIVE,ES_quad_X,QUAD_Q7,phantasy.sys.FE,phantasy.sub.SCS1,LEBT
+FE_SCS1:QE_D0733:V_RD,V,readback,19,0.2052,FE_SCS1:QHE_D0733,3.43035413,EQUAD,LIVE,ES_quad_X,QUAD_Q7,phantasy.sys.FE,phantasy.sub.SCS1,LEBT
+FE_SCS1:QE_D0743:V_CSET,V,setpoint,30,0.2052,FE_SCS1:QHE_D0743,4.39035413,EQUAD,LIVE,ES_quad_X,QUAD_Q7,phantasy.sys.FE,phantasy.sub.SCS1,LEBT
+FE_SCS1:QE_D0743:V_RSET,V,readset,30,0.2052,FE_SCS1:QHE_D0743,4.39035413,EQUAD,LIVE,ES_quad_X,QUAD_Q7,phantasy.sys.FE,phantasy.sub.SCS1,LEBT
+FE_SCS1:QE_D0743:V_RD,V,readback,30,0.2052,FE_SCS1:QHE_D0743,4.39035413,EQUAD,LIVE,ES_quad_X,QUAD_Q7,phantasy.sys.FE,phantasy.sub.SCS1,LEBT
+FE_SCS1:QE_D0746:V_CSET,V,setpoint,32,0.2052,FE_SCS1:QVE_D0746,4.72535413,EQUAD,LIVE,ES_quad_Y,QUAD_Q7,phantasy.sys.FE,phantasy.sub.SCS1,LEBT
+FE_SCS1:QE_D0746:V_RSET,V,readset,32,0.2052,FE_SCS1:QVE_D0746,4.72535413,EQUAD,LIVE,ES_quad_Y,QUAD_Q7,phantasy.sys.FE,phantasy.sub.SCS1,LEBT
+FE_SCS1:QE_D0746:V_RD,V,readback,32,0.2052,FE_SCS1:QVE_D0746,4.72535413,EQUAD,LIVE,ES_quad_Y,QUAD_Q7,phantasy.sys.FE,phantasy.sub.SCS1,LEBT
+FE_SCS1:QE_D0749:V_CSET,V,setpoint,34,0.2052,FE_SCS1:QHE_D0749,5.06035413,EQUAD,LIVE,ES_quad_X,QUAD_Q7,phantasy.sys.FE,phantasy.sub.SCS1,LEBT
+FE_SCS1:QE_D0749:V_RSET,V,readset,34,0.2052,FE_SCS1:QHE_D0749,5.06035413,EQUAD,LIVE,ES_quad_X,QUAD_Q7,phantasy.sys.FE,phantasy.sub.SCS1,LEBT
+FE_SCS1:QE_D0749:V_RD,V,readback,34,0.2052,FE_SCS1:QHE_D0749,5.06035413,EQUAD,LIVE,ES_quad_X,QUAD_Q7,phantasy.sys.FE,phantasy.sub.SCS1,LEBT
+FE_LEBT:DH_D0759:I_CSET,B,setpoint,38,1.0,FE_LEBT:DH_D0759,6.40775413,BEND,LIVE,"dipole-90deg, D5-2",BEND_D5,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DH_D0759:I_RSET,B,readset,38,1.0,FE_LEBT:DH_D0759,6.40775413,BEND,LIVE,"dipole-90deg, D5-2",BEND_D5,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DH_D0759:I_RD,B,readback,38,1.0,FE_LEBT:DH_D0759,6.40775413,BEND,LIVE,"dipole-90deg, D5-2",BEND_D5,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:QE_D0767:V_CSET,V,setpoint,40,0.2052,FE_LEBT:QVE_D0767,6.83535413,EQUAD,LIVE,ES_quad_Y,QUAD_Q7,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:QE_D0767:V_RSET,V,readset,40,0.2052,FE_LEBT:QVE_D0767,6.83535413,EQUAD,LIVE,ES_quad_Y,QUAD_Q7,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:QE_D0767:V_RD,V,readback,40,0.2052,FE_LEBT:QVE_D0767,6.83535413,EQUAD,LIVE,ES_quad_Y,QUAD_Q7,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:QE_D0770:V_CSET,V,setpoint,42,0.2052,FE_LEBT:QHE_D0770,7.17035413,EQUAD,LIVE,ES_quad_X,QUAD_Q7,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:QE_D0770:V_RSET,V,readset,42,0.2052,FE_LEBT:QHE_D0770,7.17035413,EQUAD,LIVE,ES_quad_X,QUAD_Q7,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:QE_D0770:V_RD,V,readback,42,0.2052,FE_LEBT:QHE_D0770,7.17035413,EQUAD,LIVE,ES_quad_X,QUAD_Q7,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCH_D0773:I_CSET,ANG,setpoint,44,0.0,FE_LEBT:DCH_D0773,7.36525413,HCOR,LIVE,horiz. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCH_D0773:I_RSET,ANG,readset,44,0.0,FE_LEBT:DCH_D0773,7.36525413,HCOR,LIVE,horiz. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCH_D0773:I_RD,ANG,readback,44,0.0,FE_LEBT:DCH_D0773,7.36525413,HCOR,LIVE,horiz. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCV_D0773:I_CSET,ANG,setpoint,44,0.0,FE_LEBT:DCV_D0773,7.36525413,VCOR,LIVE,vert. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCV_D0773:I_RSET,ANG,readset,44,0.0,FE_LEBT:DCV_D0773,7.36525413,VCOR,LIVE,vert. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCV_D0773:I_RD,ANG,readback,44,0.0,FE_LEBT:DCV_D0773,7.36525413,VCOR,LIVE,vert. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:QE_D0776:V_CSET,V,setpoint,46,0.2052,FE_LEBT:QHE_D0776,7.76535413,EQUAD,LIVE,ES_quad_X,QUAD_Q7,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:QE_D0776:V_RSET,V,readset,46,0.2052,FE_LEBT:QHE_D0776,7.76535413,EQUAD,LIVE,ES_quad_X,QUAD_Q7,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:QE_D0776:V_RD,V,readback,46,0.2052,FE_LEBT:QHE_D0776,7.76535413,EQUAD,LIVE,ES_quad_X,QUAD_Q7,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:QE_D0780:V_CSET,V,setpoint,48,0.2052,FE_LEBT:QVE_D0780,8.10035413,EQUAD,LIVE,ES_quad_Y,QUAD_Q7,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:QE_D0780:V_RSET,V,readset,48,0.2052,FE_LEBT:QVE_D0780,8.10035413,EQUAD,LIVE,ES_quad_Y,QUAD_Q7,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:QE_D0780:V_RD,V,readback,48,0.2052,FE_LEBT:QVE_D0780,8.10035413,EQUAD,LIVE,ES_quad_Y,QUAD_Q7,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM_D0783:X_RD,X,readback,50,0.0,FE_LEBT:PM_D0783,8.28933913,PM,LIVE,profile monitor (large fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM_D0783:Y_RD,Y,readback,50,0.0,FE_LEBT:PM_D0783,8.28933913,PM,LIVE,profile monitor (large fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM_D0783:XY_RD,XY,readback,50,0.0,FE_LEBT:PM_D0783,8.28933913,PM,LIVE,profile monitor (large fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM_D0783:XRMS_RD,XRMS,readback,50,0.0,FE_LEBT:PM_D0783,8.28933913,PM,LIVE,profile monitor (large fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM_D0783:YRMS_RD,YRMS,readback,50,0.0,FE_LEBT:PM_D0783,8.28933913,PM,LIVE,profile monitor (large fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM_D0783:XYRMS_RD,XYRMS,readback,50,0.0,FE_LEBT:PM_D0783,8.28933913,PM,LIVE,profile monitor (large fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:SOLR_D0787:I_CSET,B,setpoint,53,0.3998,FE_LEBT:SOLR_D0787,8.90765413,SOL,LIVE,solenoid,SOL_S4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:SOLR_D0787:I_RSET,B,readset,53,0.3998,FE_LEBT:SOLR_D0787,8.90765413,SOL,LIVE,solenoid,SOL_S4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:SOLR_D0787:I_RD,B,readback,53,0.3998,FE_LEBT:SOLR_D0787,8.90765413,SOL,LIVE,solenoid,SOL_S4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCH_D0790:I_CSET,ANG,setpoint,55,0.0,FE_LEBT:DCH_D0790,9.02840413,HCOR,LIVE,horiz. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCH_D0790:I_RSET,ANG,readset,55,0.0,FE_LEBT:DCH_D0790,9.02840413,HCOR,LIVE,horiz. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCH_D0790:I_RD,ANG,readback,55,0.0,FE_LEBT:DCH_D0790,9.02840413,HCOR,LIVE,horiz. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCV_D0790:I_CSET,ANG,setpoint,55,0.0,FE_LEBT:DCV_D0790,9.02840413,VCOR,LIVE,vert. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCV_D0790:I_RSET,ANG,readset,55,0.0,FE_LEBT:DCV_D0790,9.02840413,VCOR,LIVE,vert. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCV_D0790:I_RD,ANG,readback,55,0.0,FE_LEBT:DCV_D0790,9.02840413,VCOR,LIVE,vert. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:SOLR_D0802:I_CSET,B,setpoint,65,0.3998,FE_LEBT:SOLR_D0802,10.38280413,SOL,LIVE,solenoid,SOL_S4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:SOLR_D0802:I_RSET,B,readset,65,0.3998,FE_LEBT:SOLR_D0802,10.38280413,SOL,LIVE,solenoid,SOL_S4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:SOLR_D0802:I_RD,B,readback,65,0.3998,FE_LEBT:SOLR_D0802,10.38280413,SOL,LIVE,solenoid,SOL_S4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCH_D0805:I_CSET,ANG,setpoint,67,0.0,FE_LEBT:DCH_D0805,10.50355413,HCOR,LIVE,horiz. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCH_D0805:I_RSET,ANG,readset,67,0.0,FE_LEBT:DCH_D0805,10.50355413,HCOR,LIVE,horiz. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCH_D0805:I_RD,ANG,readback,67,0.0,FE_LEBT:DCH_D0805,10.50355413,HCOR,LIVE,horiz. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCV_D0805:I_CSET,ANG,setpoint,67,0.0,FE_LEBT:DCV_D0805,10.50355413,VCOR,LIVE,vert. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCV_D0805:I_RSET,ANG,readset,67,0.0,FE_LEBT:DCV_D0805,10.50355413,VCOR,LIVE,vert. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCV_D0805:I_RD,ANG,readback,67,0.0,FE_LEBT:DCV_D0805,10.50355413,VCOR,LIVE,vert. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM_D0808:X_RD,X,readback,71,0.0,FE_LEBT:PM_D0808,10.80244266,PM,LIVE,profile monitor (large fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM_D0808:Y_RD,Y,readback,71,0.0,FE_LEBT:PM_D0808,10.80244266,PM,LIVE,profile monitor (large fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM_D0808:XY_RD,XY,readback,71,0.0,FE_LEBT:PM_D0808,10.80244266,PM,LIVE,profile monitor (large fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM_D0808:XRMS_RD,XRMS,readback,71,0.0,FE_LEBT:PM_D0808,10.80244266,PM,LIVE,profile monitor (large fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM_D0808:YRMS_RD,YRMS,readback,71,0.0,FE_LEBT:PM_D0808,10.80244266,PM,LIVE,profile monitor (large fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM_D0808:XYRMS_RD,XYRMS,readback,71,0.0,FE_LEBT:PM_D0808,10.80244266,PM,LIVE,profile monitor (large fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:SOLR_D0818:I_CSET,B,setpoint,79,0.3998,FE_LEBT:SOLR_D0818,12.02295413,SOL,LIVE,solenoid,SOL_S4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:SOLR_D0818:I_RSET,B,readset,79,0.3998,FE_LEBT:SOLR_D0818,12.02295413,SOL,LIVE,solenoid,SOL_S4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:SOLR_D0818:I_RD,B,readback,79,0.3998,FE_LEBT:SOLR_D0818,12.02295413,SOL,LIVE,solenoid,SOL_S4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCH_D0821:I_CSET,ANG,setpoint,81,0.0,FE_LEBT:DCH_D0821,12.14370413,HCOR,LIVE,horiz. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCH_D0821:I_RSET,ANG,readset,81,0.0,FE_LEBT:DCH_D0821,12.14370413,HCOR,LIVE,horiz. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCH_D0821:I_RD,ANG,readback,81,0.0,FE_LEBT:DCH_D0821,12.14370413,HCOR,LIVE,horiz. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCV_D0821:I_CSET,ANG,setpoint,81,0.0,FE_LEBT:DCV_D0821,12.14370413,VCOR,LIVE,vert. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCV_D0821:I_RSET,ANG,readset,81,0.0,FE_LEBT:DCV_D0821,12.14370413,VCOR,LIVE,vert. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCV_D0821:I_RD,ANG,readback,81,0.0,FE_LEBT:DCV_D0821,12.14370413,VCOR,LIVE,vert. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM1_D0824:X_RD,X,readback,85,0.0,FE_LEBT:PM1_D0824,12.41748706,PM,LIVE,profile monitor (large fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM1_D0824:Y_RD,Y,readback,85,0.0,FE_LEBT:PM1_D0824,12.41748706,PM,LIVE,profile monitor (large fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM1_D0824:XY_RD,XY,readback,85,0.0,FE_LEBT:PM1_D0824,12.41748706,PM,LIVE,profile monitor (large fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM1_D0824:XRMS_RD,XRMS,readback,85,0.0,FE_LEBT:PM1_D0824,12.41748706,PM,LIVE,profile monitor (large fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM1_D0824:YRMS_RD,YRMS,readback,85,0.0,FE_LEBT:PM1_D0824,12.41748706,PM,LIVE,profile monitor (large fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM1_D0824:XYRMS_RD,XYRMS,readback,85,0.0,FE_LEBT:PM1_D0824,12.41748706,PM,LIVE,profile monitor (large fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DVE_D0833:V_CSET,V,setpoint,89,1.0,FE_LEBT:DVE_D0833,13.82305513,EBEND,LIVE,ES_bender 1,BEND_D7,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DVE_D0833:V_RSET,V,readset,89,1.0,FE_LEBT:DVE_D0833,13.82305513,EBEND,LIVE,ES_bender 1,BEND_D7,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DVE_D0833:V_RD,V,readback,89,1.0,FE_LEBT:DVE_D0833,13.82305513,EBEND,LIVE,ES_bender 1,BEND_D7,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCH_D0840:I_CSET,ANG,setpoint,92,0.0,FE_LEBT:DCH_D0840,14.03805513,HCOR,LIVE,horiz. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCH_D0840:I_RSET,ANG,readset,92,0.0,FE_LEBT:DCH_D0840,14.03805513,HCOR,LIVE,horiz. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCH_D0840:I_RD,ANG,readback,92,0.0,FE_LEBT:DCH_D0840,14.03805513,HCOR,LIVE,horiz. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCV_D0840:I_CSET,ANG,setpoint,92,0.0,FE_LEBT:DCV_D0840,14.03805513,VCOR,LIVE,vert. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCV_D0840:I_RSET,ANG,readset,92,0.0,FE_LEBT:DCV_D0840,14.03805513,VCOR,LIVE,vert. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCV_D0840:I_RD,ANG,readback,92,0.0,FE_LEBT:DCV_D0840,14.03805513,VCOR,LIVE,vert. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:QE_D0844:V_CSET,V,setpoint,94,0.2052,FE_LEBT:QHE_D0844,14.57565513,EQUAD,LIVE,ES_quad_X,QUAD_Q7,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:QE_D0844:V_RSET,V,readset,94,0.2052,FE_LEBT:QHE_D0844,14.57565513,EQUAD,LIVE,ES_quad_X,QUAD_Q7,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:QE_D0844:V_RD,V,readback,94,0.2052,FE_LEBT:QHE_D0844,14.57565513,EQUAD,LIVE,ES_quad_X,QUAD_Q7,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:QE_D0848:V_CSET,V,setpoint,96,0.2052,FE_LEBT:QVE_D0848,14.91065513,EQUAD,LIVE,ES_quad_Y,QUAD_Q7,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:QE_D0848:V_RSET,V,readset,96,0.2052,FE_LEBT:QVE_D0848,14.91065513,EQUAD,LIVE,ES_quad_Y,QUAD_Q7,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:QE_D0848:V_RD,V,readback,96,0.2052,FE_LEBT:QVE_D0848,14.91065513,EQUAD,LIVE,ES_quad_Y,QUAD_Q7,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:QE_D0851:V_CSET,V,setpoint,98,0.2052,FE_LEBT:QHE_D0851,15.24565513,EQUAD,LIVE,ES_quad_X,QUAD_Q7,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:QE_D0851:V_RSET,V,readset,98,0.2052,FE_LEBT:QHE_D0851,15.24565513,EQUAD,LIVE,ES_quad_X,QUAD_Q7,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:QE_D0851:V_RD,V,readback,98,0.2052,FE_LEBT:QHE_D0851,15.24565513,EQUAD,LIVE,ES_quad_X,QUAD_Q7,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM_D0856:X_RD,X,readback,100,0.0,FE_LEBT:PM_D0856,15.5860708626,PM,LIVE,profile monitor (large fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM_D0856:Y_RD,Y,readback,100,0.0,FE_LEBT:PM_D0856,15.5860708626,PM,LIVE,profile monitor (large fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM_D0856:XY_RD,XY,readback,100,0.0,FE_LEBT:PM_D0856,15.5860708626,PM,LIVE,profile monitor (large fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM_D0856:XRMS_RD,XRMS,readback,100,0.0,FE_LEBT:PM_D0856,15.5860708626,PM,LIVE,profile monitor (large fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM_D0856:YRMS_RD,YRMS,readback,100,0.0,FE_LEBT:PM_D0856,15.5860708626,PM,LIVE,profile monitor (large fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM_D0856:XYRMS_RD,XYRMS,readback,100,0.0,FE_LEBT:PM_D0856,15.5860708626,PM,LIVE,profile monitor (large fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCH_D0868:I_CSET,ANG,setpoint,105,0.0,FE_LEBT:DCH_D0868,16.8418051256,HCOR,LIVE,horiz. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCH_D0868:I_RSET,ANG,readset,105,0.0,FE_LEBT:DCH_D0868,16.8418051256,HCOR,LIVE,horiz. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCH_D0868:I_RD,ANG,readback,105,0.0,FE_LEBT:DCH_D0868,16.8418051256,HCOR,LIVE,horiz. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCV_D0868:I_CSET,ANG,setpoint,105,0.0,FE_LEBT:DCV_D0868,16.8418051256,VCOR,LIVE,vert. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCV_D0868:I_RSET,ANG,readset,105,0.0,FE_LEBT:DCV_D0868,16.8418051256,VCOR,LIVE,vert. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCV_D0868:I_RD,ANG,readback,105,0.0,FE_LEBT:DCV_D0868,16.8418051256,VCOR,LIVE,vert. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:QE_D0871:V_CSET,V,setpoint,107,0.2052,FE_LEBT:QVE_D0871,17.2244051256,EQUAD,LIVE,ES_quad_Y,QUAD_Q7,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:QE_D0871:V_RSET,V,readset,107,0.2052,FE_LEBT:QVE_D0871,17.2244051256,EQUAD,LIVE,ES_quad_Y,QUAD_Q7,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:QE_D0871:V_RD,V,readback,107,0.2052,FE_LEBT:QVE_D0871,17.2244051256,EQUAD,LIVE,ES_quad_Y,QUAD_Q7,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:QE_D0874:V_CSET,V,setpoint,109,0.2052,FE_LEBT:QHE_D0874,17.5594051256,EQUAD,LIVE,ES_quad_X,QUAD_Q7,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:QE_D0874:V_RSET,V,readset,109,0.2052,FE_LEBT:QHE_D0874,17.5594051256,EQUAD,LIVE,ES_quad_X,QUAD_Q7,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:QE_D0874:V_RD,V,readback,109,0.2052,FE_LEBT:QHE_D0874,17.5594051256,EQUAD,LIVE,ES_quad_X,QUAD_Q7,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:QE_D0878:V_CSET,V,setpoint,111,0.2052,FE_LEBT:QVE_D0878,17.8944051256,EQUAD,LIVE,ES_quad_Y,QUAD_Q7,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:QE_D0878:V_RSET,V,readset,111,0.2052,FE_LEBT:QVE_D0878,17.8944051256,EQUAD,LIVE,ES_quad_Y,QUAD_Q7,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:QE_D0878:V_RD,V,readback,111,0.2052,FE_LEBT:QVE_D0878,17.8944051256,EQUAD,LIVE,ES_quad_Y,QUAD_Q7,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCH_D0880:I_CSET,ANG,setpoint,113,0.0,FE_LEBT:DCH_D0880,18.0718051256,HCOR,LIVE,horiz. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCH_D0880:I_RSET,ANG,readset,113,0.0,FE_LEBT:DCH_D0880,18.0718051256,HCOR,LIVE,horiz. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCH_D0880:I_RD,ANG,readback,113,0.0,FE_LEBT:DCH_D0880,18.0718051256,HCOR,LIVE,horiz. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCV_D0880:I_CSET,ANG,setpoint,113,0.0,FE_LEBT:DCV_D0880,18.0718051256,VCOR,LIVE,vert. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCV_D0880:I_RSET,ANG,readset,113,0.0,FE_LEBT:DCV_D0880,18.0718051256,VCOR,LIVE,vert. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCV_D0880:I_RD,ANG,readback,113,0.0,FE_LEBT:DCV_D0880,18.0718051256,VCOR,LIVE,vert. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM_D0885:X_RD,X,readback,115,0.0,FE_LEBT:PM_D0885,18.5465347136,PM,LIVE,profile monitor (large fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM_D0885:Y_RD,Y,readback,115,0.0,FE_LEBT:PM_D0885,18.5465347136,PM,LIVE,profile monitor (large fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM_D0885:XY_RD,XY,readback,115,0.0,FE_LEBT:PM_D0885,18.5465347136,PM,LIVE,profile monitor (large fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM_D0885:XRMS_RD,XRMS,readback,115,0.0,FE_LEBT:PM_D0885,18.5465347136,PM,LIVE,profile monitor (large fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM_D0885:YRMS_RD,YRMS,readback,115,0.0,FE_LEBT:PM_D0885,18.5465347136,PM,LIVE,profile monitor (large fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM_D0885:XYRMS_RD,XYRMS,readback,115,0.0,FE_LEBT:PM_D0885,18.5465347136,PM,LIVE,profile monitor (large fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:QE_D0891:V_CSET,V,setpoint,120,0.2052,FE_LEBT:QVE_D0891,19.2544051336,EQUAD,LIVE,ES_quad_Y,QUAD_Q7,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:QE_D0891:V_RSET,V,readset,120,0.2052,FE_LEBT:QVE_D0891,19.2544051336,EQUAD,LIVE,ES_quad_Y,QUAD_Q7,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:QE_D0891:V_RD,V,readback,120,0.2052,FE_LEBT:QVE_D0891,19.2544051336,EQUAD,LIVE,ES_quad_Y,QUAD_Q7,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:QE_D0895:V_CSET,V,setpoint,122,0.2052,FE_LEBT:QHE_D0895,19.5894051336,EQUAD,LIVE,ES_quad_X,QUAD_Q7,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:QE_D0895:V_RSET,V,readset,122,0.2052,FE_LEBT:QHE_D0895,19.5894051336,EQUAD,LIVE,ES_quad_X,QUAD_Q7,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:QE_D0895:V_RD,V,readback,122,0.2052,FE_LEBT:QHE_D0895,19.5894051336,EQUAD,LIVE,ES_quad_X,QUAD_Q7,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:QE_D0898:V_CSET,V,setpoint,124,0.2052,FE_LEBT:QVE_D0898,19.9244051336,EQUAD,LIVE,ES_quad_Y,QUAD_Q7,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:QE_D0898:V_RSET,V,readset,124,0.2052,FE_LEBT:QVE_D0898,19.9244051336,EQUAD,LIVE,ES_quad_Y,QUAD_Q7,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:QE_D0898:V_RD,V,readback,124,0.2052,FE_LEBT:QVE_D0898,19.9244051336,EQUAD,LIVE,ES_quad_Y,QUAD_Q7,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCH_D0901:I_CSET,ANG,setpoint,126,0.0,FE_LEBT:DCH_D0901,20.1018051336,HCOR,LIVE,horiz. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCH_D0901:I_RSET,ANG,readset,126,0.0,FE_LEBT:DCH_D0901,20.1018051336,HCOR,LIVE,horiz. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCH_D0901:I_RD,ANG,readback,126,0.0,FE_LEBT:DCH_D0901,20.1018051336,HCOR,LIVE,horiz. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCV_D0901:I_CSET,ANG,setpoint,126,0.0,FE_LEBT:DCV_D0901,20.1018051336,VCOR,LIVE,vert. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCV_D0901:I_RSET,ANG,readset,126,0.0,FE_LEBT:DCV_D0901,20.1018051336,VCOR,LIVE,vert. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCV_D0901:I_RD,ANG,readback,126,0.0,FE_LEBT:DCV_D0901,20.1018051336,VCOR,LIVE,vert. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM_D0912:X_RD,X,readback,132,0.0,FE_LEBT:PM_D0912,21.1952847336,PM,LIVE,profile monitor (large fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM_D0912:Y_RD,Y,readback,132,0.0,FE_LEBT:PM_D0912,21.1952847336,PM,LIVE,profile monitor (large fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM_D0912:XY_RD,XY,readback,132,0.0,FE_LEBT:PM_D0912,21.1952847336,PM,LIVE,profile monitor (large fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM_D0912:XRMS_RD,XRMS,readback,132,0.0,FE_LEBT:PM_D0912,21.1952847336,PM,LIVE,profile monitor (large fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM_D0912:YRMS_RD,YRMS,readback,132,0.0,FE_LEBT:PM_D0912,21.1952847336,PM,LIVE,profile monitor (large fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM_D0912:XYRMS_RD,XYRMS,readback,132,0.0,FE_LEBT:PM_D0912,21.1952847336,PM,LIVE,profile monitor (large fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:QE_D0918:V_CSET,V,setpoint,134,0.2052,FE_LEBT:QHE_D0918,21.9031551336,EQUAD,LIVE,ES_quad_X,QUAD_Q7,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:QE_D0918:V_RSET,V,readset,134,0.2052,FE_LEBT:QHE_D0918,21.9031551336,EQUAD,LIVE,ES_quad_X,QUAD_Q7,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:QE_D0918:V_RD,V,readback,134,0.2052,FE_LEBT:QHE_D0918,21.9031551336,EQUAD,LIVE,ES_quad_X,QUAD_Q7,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:QE_D0921:V_CSET,V,setpoint,136,0.2052,FE_LEBT:QVE_D0921,22.2381551336,EQUAD,LIVE,ES_quad_Y,QUAD_Q7,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:QE_D0921:V_RSET,V,readset,136,0.2052,FE_LEBT:QVE_D0921,22.2381551336,EQUAD,LIVE,ES_quad_Y,QUAD_Q7,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:QE_D0921:V_RD,V,readback,136,0.2052,FE_LEBT:QVE_D0921,22.2381551336,EQUAD,LIVE,ES_quad_Y,QUAD_Q7,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:QE_D0924:V_CSET,V,setpoint,138,0.2052,FE_LEBT:QHE_D0924,22.5731551336,EQUAD,LIVE,ES_quad_X,QUAD_Q7,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:QE_D0924:V_RSET,V,readset,138,0.2052,FE_LEBT:QHE_D0924,22.5731551336,EQUAD,LIVE,ES_quad_X,QUAD_Q7,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:QE_D0924:V_RD,V,readback,138,0.2052,FE_LEBT:QHE_D0924,22.5731551336,EQUAD,LIVE,ES_quad_X,QUAD_Q7,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCH_D0929:I_CSET,ANG,setpoint,140,0.0,FE_LEBT:DCH_D0929,22.9055551336,HCOR,LIVE,horiz. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCH_D0929:I_RSET,ANG,readset,140,0.0,FE_LEBT:DCH_D0929,22.9055551336,HCOR,LIVE,horiz. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCH_D0929:I_RD,ANG,readback,140,0.0,FE_LEBT:DCH_D0929,22.9055551336,HCOR,LIVE,horiz. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCV_D0929:I_CSET,ANG,setpoint,140,0.0,FE_LEBT:DCV_D0929,22.9055551336,VCOR,LIVE,vert. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCV_D0929:I_RSET,ANG,readset,140,0.0,FE_LEBT:DCV_D0929,22.9055551336,VCOR,LIVE,vert. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCV_D0929:I_RD,ANG,readback,140,0.0,FE_LEBT:DCV_D0929,22.9055551336,VCOR,LIVE,vert. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DVE_D0936:V_CSET,V,setpoint,142,1.0,FE_LEBT:DVE_D0936,24.1205551336,EBEND,LIVE,ES_bender 2,BEND_D7,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DVE_D0936:V_RSET,V,readset,142,1.0,FE_LEBT:DVE_D0936,24.1205551336,EBEND,LIVE,ES_bender 2,BEND_D7,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DVE_D0936:V_RD,V,readback,142,1.0,FE_LEBT:DVE_D0936,24.1205551336,EBEND,LIVE,ES_bender 2,BEND_D7,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM_D0945:X_RD,X,readback,148,0.0,FE_LEBT:PM_D0945,24.5261261936,PM,LIVE,profile monitor (large fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM_D0945:Y_RD,Y,readback,148,0.0,FE_LEBT:PM_D0945,24.5261261936,PM,LIVE,profile monitor (large fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM_D0945:XY_RD,XY,readback,148,0.0,FE_LEBT:PM_D0945,24.5261261936,PM,LIVE,profile monitor (large fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM_D0945:XRMS_RD,XRMS,readback,148,0.0,FE_LEBT:PM_D0945,24.5261261936,PM,LIVE,profile monitor (large fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM_D0945:YRMS_RD,YRMS,readback,148,0.0,FE_LEBT:PM_D0945,24.5261261936,PM,LIVE,profile monitor (large fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM_D0945:XYRMS_RD,XYRMS,readback,148,0.0,FE_LEBT:PM_D0945,24.5261261936,PM,LIVE,profile monitor (large fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCH_D0948:I_CSET,ANG,setpoint,150,0.0,FE_LEBT:DCH_D0948,24.7999091336,HCOR,LIVE,horiz. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCH_D0948:I_RSET,ANG,readset,150,0.0,FE_LEBT:DCH_D0948,24.7999091336,HCOR,LIVE,horiz. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCH_D0948:I_RD,ANG,readback,150,0.0,FE_LEBT:DCH_D0948,24.7999091336,HCOR,LIVE,horiz. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCV_D0948:I_CSET,ANG,setpoint,150,0.0,FE_LEBT:DCV_D0948,24.7999091336,VCOR,LIVE,vert. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCV_D0948:I_RSET,ANG,readset,150,0.0,FE_LEBT:DCV_D0948,24.7999091336,VCOR,LIVE,vert. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCV_D0948:I_RD,ANG,readback,150,0.0,FE_LEBT:DCV_D0948,24.7999091336,VCOR,LIVE,vert. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:SOLR_D0951:I_CSET,B,setpoint,152,0.3998,FE_LEBT:SOLR_D0951,25.3204591336,SOL,LIVE,solenoid,SOL_S4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:SOLR_D0951:I_RSET,B,readset,152,0.3998,FE_LEBT:SOLR_D0951,25.3204591336,SOL,LIVE,solenoid,SOL_S4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:SOLR_D0951:I_RD,B,readback,152,0.3998,FE_LEBT:SOLR_D0951,25.3204591336,SOL,LIVE,solenoid,SOL_S4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM_D0961:X_RD,X,readback,160,0.0,FE_LEBT:PM_D0961,26.1412422136,PM,LIVE,profile monitor (large fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM_D0961:Y_RD,Y,readback,160,0.0,FE_LEBT:PM_D0961,26.1412422136,PM,LIVE,profile monitor (large fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM_D0961:XY_RD,XY,readback,160,0.0,FE_LEBT:PM_D0961,26.1412422136,PM,LIVE,profile monitor (large fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM_D0961:XRMS_RD,XRMS,readback,160,0.0,FE_LEBT:PM_D0961,26.1412422136,PM,LIVE,profile monitor (large fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM_D0961:YRMS_RD,YRMS,readback,160,0.0,FE_LEBT:PM_D0961,26.1412422136,PM,LIVE,profile monitor (large fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM_D0961:XYRMS_RD,XYRMS,readback,160,0.0,FE_LEBT:PM_D0961,26.1412422136,PM,LIVE,profile monitor (large fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCH_D0964:I_CSET,ANG,setpoint,162,0.0,FE_LEBT:DCH_D0964,26.4400591336,HCOR,LIVE,horiz. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCH_D0964:I_RSET,ANG,readset,162,0.0,FE_LEBT:DCH_D0964,26.4400591336,HCOR,LIVE,horiz. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCH_D0964:I_RD,ANG,readback,162,0.0,FE_LEBT:DCH_D0964,26.4400591336,HCOR,LIVE,horiz. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCV_D0964:I_CSET,ANG,setpoint,162,0.0,FE_LEBT:DCV_D0964,26.4400591336,VCOR,LIVE,vert. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCV_D0964:I_RSET,ANG,readset,162,0.0,FE_LEBT:DCV_D0964,26.4400591336,VCOR,LIVE,vert. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCV_D0964:I_RD,ANG,readback,162,0.0,FE_LEBT:DCV_D0964,26.4400591336,VCOR,LIVE,vert. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:SOLR_D0967:I_CSET,B,setpoint,164,0.3998,FE_LEBT:SOLR_D0967,26.9606091336,SOL,LIVE,solenoid,SOL_S4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:SOLR_D0967:I_RSET,B,readset,164,0.3998,FE_LEBT:SOLR_D0967,26.9606091336,SOL,LIVE,solenoid,SOL_S4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:SOLR_D0967:I_RD,B,readback,164,0.3998,FE_LEBT:SOLR_D0967,26.9606091336,SOL,LIVE,solenoid,SOL_S4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM_D0972:X_RD,X,readback,166,0.0,FE_LEBT:PM_D0972,27.1792598036,PM,LIVE,profile monitor (large fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM_D0972:Y_RD,Y,readback,166,0.0,FE_LEBT:PM_D0972,27.1792598036,PM,LIVE,profile monitor (large fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM_D0972:XY_RD,XY,readback,166,0.0,FE_LEBT:PM_D0972,27.1792598036,PM,LIVE,profile monitor (large fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM_D0972:XRMS_RD,XRMS,readback,166,0.0,FE_LEBT:PM_D0972,27.1792598036,PM,LIVE,profile monitor (large fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM_D0972:YRMS_RD,YRMS,readback,166,0.0,FE_LEBT:PM_D0972,27.1792598036,PM,LIVE,profile monitor (large fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM_D0972:XYRMS_RD,XYRMS,readback,166,0.0,FE_LEBT:PM_D0972,27.1792598036,PM,LIVE,profile monitor (large fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCH_D0979:I_CSET,ANG,setpoint,176,0.0,FE_LEBT:DCH_D0979,27.9152091336,HCOR,LIVE,horiz. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCH_D0979:I_RSET,ANG,readset,176,0.0,FE_LEBT:DCH_D0979,27.9152091336,HCOR,LIVE,horiz. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCH_D0979:I_RD,ANG,readback,176,0.0,FE_LEBT:DCH_D0979,27.9152091336,HCOR,LIVE,horiz. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCV_D0979:I_CSET,ANG,setpoint,176,0.0,FE_LEBT:DCV_D0979,27.9152091336,VCOR,LIVE,vert. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCV_D0979:I_RSET,ANG,readset,176,0.0,FE_LEBT:DCV_D0979,27.9152091336,VCOR,LIVE,vert. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCV_D0979:I_RD,ANG,readback,176,0.0,FE_LEBT:DCV_D0979,27.9152091336,VCOR,LIVE,vert. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:SOLR_D0982:I_CSET,B,setpoint,178,0.3998,FE_LEBT:SOLR_D0982,28.4357591336,SOL,LIVE,solenoid,SOL_S4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:SOLR_D0982:I_RSET,B,readset,178,0.3998,FE_LEBT:SOLR_D0982,28.4357591336,SOL,LIVE,solenoid,SOL_S4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:SOLR_D0982:I_RD,B,readback,178,0.3998,FE_LEBT:SOLR_D0982,28.4357591336,SOL,LIVE,solenoid,SOL_S4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM_D0986:X_RD,X,readback,180,0.0,FE_LEBT:PM_D0986,28.6558581336,PM,LIVE,profile monitor (small fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM_D0986:Y_RD,Y,readback,180,0.0,FE_LEBT:PM_D0986,28.6558581336,PM,LIVE,profile monitor (small fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM_D0986:XY_RD,XY,readback,180,0.0,FE_LEBT:PM_D0986,28.6558581336,PM,LIVE,profile monitor (small fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM_D0986:XRMS_RD,XRMS,readback,180,0.0,FE_LEBT:PM_D0986,28.6558581336,PM,LIVE,profile monitor (small fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM_D0986:YRMS_RD,YRMS,readback,180,0.0,FE_LEBT:PM_D0986,28.6558581336,PM,LIVE,profile monitor (small fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM_D0986:XYRMS_RD,XYRMS,readback,180,0.0,FE_LEBT:PM_D0986,28.6558581336,PM,LIVE,profile monitor (small fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:CAV_D0987:PHA_CSET,PHA,setpoint,182,0.0,FE_LEBT:CAV_D0987,28.7608591336,CAV,LIVE,multi harmonic buncher,multi harmonic buncher,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:CAV_D0987:PHA_RSET,PHA,readset,182,0.0,FE_LEBT:CAV_D0987,28.7608591336,CAV,LIVE,multi harmonic buncher,multi harmonic buncher,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:CAV_D0987:PHA_RD,PHA,readback,182,0.0,FE_LEBT:CAV_D0987,28.7608591336,CAV,LIVE,multi harmonic buncher,multi harmonic buncher,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:CAV_D0987:AMPL_CSET,AMP,setpoint,182,0.0,FE_LEBT:CAV_D0987,28.7608591336,CAV,LIVE,multi harmonic buncher,multi harmonic buncher,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:CAV_D0987:AMPL_RSET,AMP,readset,182,0.0,FE_LEBT:CAV_D0987,28.7608591336,CAV,LIVE,multi harmonic buncher,multi harmonic buncher,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:CAV_D0987:AMPL_RD,AMP,readback,182,0.0,FE_LEBT:CAV_D0987,28.7608591336,CAV,LIVE,multi harmonic buncher,multi harmonic buncher,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCH_D0992:I_CSET,ANG,setpoint,188,0.0,FE_LEBT:DCH_D0992,29.2252091336,HCOR,LIVE,horiz. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCH_D0992:I_RSET,ANG,readset,188,0.0,FE_LEBT:DCH_D0992,29.2252091336,HCOR,LIVE,horiz. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCH_D0992:I_RD,ANG,readback,188,0.0,FE_LEBT:DCH_D0992,29.2252091336,HCOR,LIVE,horiz. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCV_D0992:I_CSET,ANG,setpoint,188,0.0,FE_LEBT:DCV_D0992,29.2252091336,VCOR,LIVE,vert. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCV_D0992:I_RSET,ANG,readset,188,0.0,FE_LEBT:DCV_D0992,29.2252091336,VCOR,LIVE,vert. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:DCV_D0992:I_RD,ANG,readback,188,0.0,FE_LEBT:DCV_D0992,29.2252091336,VCOR,LIVE,vert. corrector magnet,C4,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:SOLR_D0995:I_CSET,B,setpoint,190,0.3998,FE_LEBT:SOLR_D0995,29.7457591336,SOL,LIVE,solenoid,SOL_S4b,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:SOLR_D0995:I_RSET,B,readset,190,0.3998,FE_LEBT:SOLR_D0995,29.7457591336,SOL,LIVE,solenoid,SOL_S4b,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:SOLR_D0995:I_RD,B,readback,190,0.3998,FE_LEBT:SOLR_D0995,29.7457591336,SOL,LIVE,solenoid,SOL_S4b,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM_D0998:X_RD,X,readback,195,0.0,FE_LEBT:PM_D0998,29.8447000336,PM,LIVE,profile monitor (small fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM_D0998:Y_RD,Y,readback,195,0.0,FE_LEBT:PM_D0998,29.8447000336,PM,LIVE,profile monitor (small fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM_D0998:XY_RD,XY,readback,195,0.0,FE_LEBT:PM_D0998,29.8447000336,PM,LIVE,profile monitor (small fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM_D0998:XRMS_RD,XRMS,readback,195,0.0,FE_LEBT:PM_D0998,29.8447000336,PM,LIVE,profile monitor (small fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM_D0998:YRMS_RD,YRMS,readback,195,0.0,FE_LEBT:PM_D0998,29.8447000336,PM,LIVE,profile monitor (small fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:PM_D0998:XYRMS_RD,XYRMS,readback,195,0.0,FE_LEBT:PM_D0998,29.8447000336,PM,LIVE,profile monitor (small fork),PM1,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:CAV_D0999:PHA_CSET,PHA,setpoint,197,0.0,FE_LEBT:CAV_D0999,29.9208591336,CAV,LIVE,velocity equalizer resonator,velocity equalizer resonator,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:CAV_D0999:PHA_RSET,PHA,readset,197,0.0,FE_LEBT:CAV_D0999,29.9208591336,CAV,LIVE,velocity equalizer resonator,velocity equalizer resonator,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:CAV_D0999:PHA_RD,PHA,readback,197,0.0,FE_LEBT:CAV_D0999,29.9208591336,CAV,LIVE,velocity equalizer resonator,velocity equalizer resonator,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:CAV_D0999:AMPL_CSET,AMP,setpoint,197,0.0,FE_LEBT:CAV_D0999,29.9208591336,CAV,LIVE,velocity equalizer resonator,velocity equalizer resonator,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:CAV_D0999:AMPL_RSET,AMP,readset,197,0.0,FE_LEBT:CAV_D0999,29.9208591336,CAV,LIVE,velocity equalizer resonator,velocity equalizer resonator,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
+FE_LEBT:CAV_D0999:AMPL_RD,AMP,readback,197,0.0,FE_LEBT:CAV_D0999,29.9208591336,CAV,LIVE,velocity equalizer resonator,velocity equalizer resonator,phantasy.sys.FE,phantasy.sub.LEBT,LEBT
