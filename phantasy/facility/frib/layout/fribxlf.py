@@ -1,5 +1,4 @@
-# encoding: UTF-8
-
+# -*- coding: utf-8 -*-
 """Library for reading FRIB Expanded Lattice File (*.xlsx) and generating Accelerator Design Description."""
 
 from __future__ import print_function
@@ -304,11 +303,11 @@ class AccelFactory(XlfConfig):
             raise TypeError("AccelFactory: 'config' property must be type Configuration")
         self._config = config
 
-    def _get_config_length(self, dtype):
-        return self.config.getfloat(dtype, CONFIG_LENGTH, False)
+    def _get_config_length(self, elem):
+        return self.config.getfloat(elem.dtype, CONFIG_LENGTH, False)
 
-    def _has_config_length(self, dtype):
-        return self.config.has_option(dtype, CONFIG_LENGTH, False)
+    def _has_config_length(self, elem):
+        return self.config.has_option(elem.dtype, CONFIG_LENGTH, False)
 
     def _get_config_aperture(self, elem):
         if self.config.has_option(elem.name, CONFIG_APERTURE, False):
@@ -340,7 +339,23 @@ class AccelFactory(XlfConfig):
         return self.config.has_option(elem.name, CONFIG_APERTURE_Y, False) \
                or self.config.has_option(elem.dtype, CONFIG_APERTURE_Y, False)
 
-    def _apply_config(self, elem):
+    def apply_config(self, elem, sequence, drift_delta):
+        """Apply config to element.
+
+        Parameters
+        ----------
+        elem :
+            Element object.
+        sequence :
+            SeqElement, elements of SeqElement is a list of SeqElement.
+        drift_delta : float
+            Input drift_delta.
+
+        Returns
+        -------
+        r : float
+            Updated drfit delta, could be unchanged.
+        """
         if self._has_config_aperture(elem):
             elem.aperture = self._get_config_aperture(elem)
             _LOGGER.info("AccelFactory: %s: aperture found in configuration: %s", elem.name, elem.aperture)
@@ -352,6 +367,27 @@ class AccelFactory(XlfConfig):
         if self._has_config_aperture_y(elem):
             elem.apertureY = self._get_config_aperture_y(elem)
             _LOGGER.info("AccelFactory: %s: aperture Y found in configuration: %s", elem.name, elem.apertureY)
+
+        if self._has_config_length(elem):
+            eff_len = self._get_config_length(elem)
+            drift_delta = (elem.length - eff_len) / 2.0
+            self.get_prev_element(sequence).length += drift_delta
+            self.get_prev_element(sequence).z += drift_delta / 2.0
+            elem.length -= drift_delta * 2.0
+            _LOGGER.info("AccelFactory: %s: effective length found in configuration: %s", elem.name, elem.dtype)
+        return drift_delta
+
+    def get_prev_element(self, sequence, allow_types=(DriftElement,)):
+        # get previous element from sequence
+        elements = sequence.elements[-1].elements
+        if len(elements) == 0:
+            # if not found in subsequence, try searching from the last one
+            # note: indexing by -2 since new subsequence is always appended before growing
+            return self.get_prev_element(SeqElement(None, elements=sequence.elements[:-1]))
+            raise RuntimeError("AccelFactory: previous element not found")
+        elif not isinstance(elements[-1], allow_types):
+            raise RuntimeError("AccelFactory: previous element type invalid")
+        return elements[-1]
 
     def build(self):
         xlfpath = self.xlfpath
@@ -383,31 +419,17 @@ class AccelFactory(XlfConfig):
         accelerator = Layout(os.path.splitext(os.path.basename(xlfpath))[0], desc="FRIB Linear Accelerator")
 
         sequence = None
-
         subsequence = None
-
         drift_delta = 0.0
-
-        def get_prev_element(allow_types=(DriftElement,), elements=None):
-            # get previous element
-            elements = subsequence.elements if elements is None else elements
-            if len(elements) == 0:
-                # if not found in subsequence, try searching from the last one
-                # note: indexing by -2 since new subsequence is always appended before growing
-                return get_prev_element(allow_types, sequence.elements[-2].elements)
-                raise RuntimeError("AccelFactory: previous element not found")
-            elif not isinstance(elements[-1], allow_types):
-                raise RuntimeError("AccelFactory: previous element type invalid")
-            return elements[-1]
 
         def name_drift():
             try:
                 # previous element is not drift
-                pre_elem = get_prev_element(NON_DRIFT_ELEMENTS)
+                pre_elem = self.get_prev_element(sequence, NON_DRIFT_ELEMENTS)
                 name = "{elem.system}_{elem.subsystem}:{elem.device}_DFT_{elem.inst}".format(elem=pre_elem)
             except:
                 # previous element is drift
-                pre_elem = get_prev_element()
+                pre_elem = self.get_prev_element(sequence)
                 r = re.match(r"(.*)_(D.*)_([0-9].*)", pre_elem.name)
                 if r is None:
                     # if pre drift name does not ends with '_#', rename it
@@ -503,11 +525,7 @@ class AccelFactory(XlfConfig):
                                              desc=row.element_name,
                                              system=row.system, subsystem=row.subsystem, device=row.device, dtype=dtype,
                                              inst=inst)
-                        if self._has_config_length(dtype):
-                            drift_delta = (elem.length - self._get_config_length(dtype)) / 2.0
-                            get_prev_element().length += drift_delta
-                            get_prev_element().z += drift_delta / 2.0
-                            elem.length -= drift_delta * 2.0
+                        drift_delta = self.apply_config(elem, sequence, drift_delta)
                         subsequence.append(elem)
 
                     elif row.device in DEVICE_ALIAS_SOLR:
@@ -518,11 +536,7 @@ class AccelFactory(XlfConfig):
                                           desc=row.element_name,
                                           system=row.system, subsystem=row.subsystem, device=row.device, dtype=dtype,
                                           inst=inst)
-                        if self._has_config_length(dtype):
-                            drift_delta = (elem.length - self._get_config_length(dtype)) / 2.0
-                            get_prev_element().length += drift_delta
-                            get_prev_element().z += drift_delta / 2.0
-                            elem.length -= drift_delta * 2.0
+                        drift_delta = self.apply_config(elem, sequence, drift_delta)
                         subsequence.append(elem)
 
                     elif row.device in DEVICE_ALIAS_SOL:
@@ -533,11 +547,7 @@ class AccelFactory(XlfConfig):
                                              desc=row.element_name,
                                              system=row.system, subsystem=row.subsystem, device=row.device, dtype=dtype,
                                              inst=inst)
-                        if self._has_config_length(dtype):
-                            drift_delta = (elem.length - self._get_config_length(dtype)) / 2.0
-                            get_prev_element().length += drift_delta
-                            get_prev_element().z += drift_delta / 2.0
-                            elem.length -= drift_delta * 2.0
+                        drift_delta = self.apply_config(elem, sequence, drift_delta)
                         elem.h = HCorElement(elem.z, 0.0, elem.aperture,
                                              "{elem.system}_{elem.subsystem}:DCH_{elem.inst}".format(elem=elem),
                                              system=row.system, subsystem=row.subsystem, device="DCH",
@@ -647,7 +657,7 @@ class AccelFactory(XlfConfig):
                                            desc=row.element_name,
                                            system=row.system, subsystem=row.subsystem, device=row.device,
                                            dtype=dtype, inst=inst)
-                        self._apply_config(elem)
+                        drift_delta = self.apply_config(elem, sequence, drift_delta)
                         subsequence.append(elem)
 
                     elif row.device in DEVICE_ALIAS_QUAD:
@@ -695,7 +705,7 @@ class AccelFactory(XlfConfig):
                                             desc=row.element_name,
                                             system=row.system, subsystem=row.subsystem, device=row.device,
                                             dtype=dtype, inst=inst)
-                        self._apply_config(elem)
+                        drift_delta = self.apply_config(elem, sequence, drift_delta)
                         subsequence.append(elem)
 
                     elif row.device in DEVICE_ALIAS_EQUAD:
@@ -706,11 +716,7 @@ class AccelFactory(XlfConfig):
                                             desc=row.element_name,
                                             system=row.system, subsystem=row.subsystem, device=row.device,
                                             dtype=dtype, inst=inst)
-                        if self._has_config_length(dtype):
-                            drift_delta = (elem.length - self._get_config_length(dtype)) / 2.0
-                            get_prev_element().length += drift_delta
-                            get_prev_element().z += drift_delta / 2.0
-                            elem.length -= drift_delta * 2.0
+                        drift_delta = self.apply_config(elem, sequence, drift_delta)
                         subsequence.append(elem)
 
                     elif row.device in DEVICE_ALIAS_SLIT:
@@ -754,7 +760,7 @@ class AccelFactory(XlfConfig):
                         subsequence.append(elem)
 
                     elif row.device in ["STRIP"]:
-                        elem = get_prev_element((StripElement))
+                        elem = self.get_prev_element(sequence, (StripElement,))
                         elem.z = row.center_position
                         elem.name = row.name
                         elem.desc = row.element_name
@@ -798,7 +804,7 @@ class AccelFactory(XlfConfig):
                         if drift_delta != 0.0:
                             raise Exception("Unsupported drift delta on element: {}".format(row.element_name))
                         try:
-                            get_prev_element((StripElement)).length += row.eff_length
+                            self.get_prev_element(sequence, (StripElement,)).length += row.eff_length
                         except:
                             subsequence.append(
                                 #StripElement(row.center_position, row.eff_length, row.diameter, "CHARGE STRIPPER",
@@ -808,7 +814,7 @@ class AccelFactory(XlfConfig):
                         if drift_delta != 0.0:
                             raise Exception("Unsupported drift delta on element: {}".format(row.element_name))
                         try:
-                            get_prev_element((StripElement)).length += row.eff_length
+                            self.get_prev_element(sequence, (StripElement,)).length += row.eff_length
                         except:
                             subsequence.append(
                                 StripElement(row.center_position, row.eff_length, row.diameter, "CHARGE STRIPPER",
@@ -817,7 +823,7 @@ class AccelFactory(XlfConfig):
                     elif row.element_name == "lithium film stripper":
                         if drift_delta != 0.0:
                             raise Exception("Unsupported drift delta on element: {}".format(row.element_name))
-                        elem = get_prev_element((StripElement))
+                        elem = self.get_prev_element(sequence, (StripElement,))
                         elem.z = row.center_position
                         elem.name = row.name
                         elem.desc = row.element_name
