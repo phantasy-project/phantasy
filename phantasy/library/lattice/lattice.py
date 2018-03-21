@@ -2180,28 +2180,18 @@ class Lattice(object):
         return el[idx]
 
     def __repr__(self):
-        s0 = '#name of segment: {}'.format(self.name)
-        s1 = '#{0:<6s}{1:^20s} {2:<10s} {3:<10s} {4:<10s}'.format(
-                'index', 'name', 'family', 'position', 'length'
+        s0 = "#Name of segment: '{}', unit: [m]".format(self.name)
+        s1 = '#{0:<4s}{1:^20s} {2:<6s} {3:>10s} {4:>10s}'.format(
+                'IDX', 'NAME', 'FAMILY', 'POSITION', 'LENGTH'
         )
         ret = [s0, s1]
 
-        ml_name, ml_family = 0, 0
-        for e in self._elements:
-            if len(e.name) > ml_name:
-                ml_name = len(e.name)
-            if e.family and len(e.family) > ml_family:
-                ml_family = len(e.family)
-
-        idx = 1
-        if len(self._elements) >= 10:
-            idx = int(1.0 + log10(len(self._elements)))
-        fmt = "{{index:<{wi}d}} {{name:<{wn}s}} {{family:<{wf}s}} {{pos:<10.4f}} {{len:<10.4f}}".format(
-            wi=idx, wn=ml_name, wf=ml_family)
+        fmt = "{{idx:<{wi}d}} {{name:<{wn}s}} {{family:<{wf}s}} {{pos:>10.4f}} {{len:>10.4f}}".format(
+            wi=4, wn=20, wf=6)
         for i, e in enumerate(self._elements):
             if e.virtual:
                 continue
-            ret.append(fmt.format(index=i, name=e.name, family=e.family,
+            ret.append(fmt.format(idx=i, name=e.name, family=e.family,
                                   pos=e.sb, len=e.length))
         return '\n'.join(ret)
 
