@@ -981,6 +981,9 @@ class Lattice(object):
         else:
             return self._elements[i]
 
+    def __len__(self):
+        return len(self._elements)
+
     def _find_exact_element(self, name):
         """Return element object if *name* is fully matched, or return None.
         """
