@@ -260,7 +260,12 @@ class AbstractElement(object):
 
     def _update_static_props(self, props):
         """Non-CA"""
-        [setattr(self, k, v) for k, v in props.items()]
+        for k, v in props.items():
+            if not hasattr(self, k):
+                setattr(self, k, v)
+            else:
+                _LOGGER.debug("{0} already has {1} of {2}.".format(
+                    self.name, k, getattr(self, k)))
 
     def update_properties(self, props, **kws):
         raise NotImplementedError("Not implemented.")
@@ -279,6 +284,24 @@ class CaField(object):
     The same rule applies to set values, i.e. by ``value`` attribute and
     by calling ``put()`` method.
 
+    Parameters
+    ----------
+    name : str
+        Name of CA field, usually represents the physics attribute linked with CA.
+
+    Keyword Arguments
+    -----------------
+    readback : str, list(str)
+        Readback PV name(s), if a single string is defined, append operation
+        will be issued, if list or tuple of strings is defined, *readback*
+        attribute will be overwritten with the new list, the same rule applies
+        to *readset* and *setpoint*, as well as *readback_pv*, *readset_pv* and
+        *setpoint_pv*.
+    readset : str, list(str)
+        Readset PV name(s).
+    setpoint : str, list(str)
+        Setpoint PV name(s).
+
     ### IMPLEMENTED IN HIGH-LEVEL LATTICE RIGHT NOW
     ### THIS WAY KEEP MULTIPLE SETTINGS FOR DIFFERENT LATTICES.
     ###
@@ -290,13 +313,18 @@ class CaField(object):
 
     def __init__(self, name='', **kws):
         self.name = name
+        self._rdbk_pv_name = []
+        self._rset_pv_name = []
+        self._cset_pv_name = []
         self.readback = kws.get('readback', None)
         self.readset = kws.get('readset', None)
         self.setpoint = kws.get('setpoint', None)
-        self.readback_pv = None
-        self.readset_pv = None
-        self.setpoint_pv = None
+        self._rdbk_pv = []
+        self._rset_pv = []
+        self._cset_pv = []
         self.init_pvs()
+        self.read_policy = None
+        self.set_policy = None
 
         #################################################################
         # self.golden = []  # some setpoint can saved as golden value
@@ -332,48 +360,53 @@ class CaField(object):
 
     @property
     def readback(self):
-        """str: Readback PV name, usually ends with *_RD*."""
+        """list[str]: Readback PV name, usually ends with *_RD*."""
         return self._rdbk_pv_name
 
     @readback.setter
     def readback(self, s):
-        if s is None:
-            self._rdbk_pv_name = None
-        elif isinstance(s, basestring):
-            self._rdbk_pv_name = s
+        """if s is string, append will be issued, or override will be issued, the
+        same policy for setpoint and readset."""
+        if isinstance(s, basestring):
+            self._rdbk_pv_name.append(s)
+        elif isinstance(s, (list, tuple)):
+            self._rdbk_pv_name = list(s)
+        elif s is None:
+            _LOGGER.debug("Readback PV not update.")
         else:
-            self._rdbk_pv_name = None
-            _LOGGER.warn("Readback PV name should a valid string.")
+            _LOGGER.warning("Readback PV name should a valid string or list of string.")
 
     @property
     def readset(self):
-        """str: Readset PV name, usually ends with *_RSET*."""
+        """list[str]: Readset PV name, usually ends with *_RSET*."""
         return self._rset_pv_name
 
     @readset.setter
     def readset(self, s):
-        if s is None:
-            self._rset_pv_name = None
-        elif isinstance(s, basestring):
-            self._rset_pv_name = s
+        if isinstance(s, basestring):
+            self._rset_pv_name.append(s)
+        elif isinstance(s, (list, tuple)):
+            self._rset_pv_name = list(s)
+        elif s is None:
+            _LOGGER.debug("Readset PV not update.")
         else:
-            self._rset_pv_name = None
-            _LOGGER.warn("Readset PV name should a valid string.")
+            _LOGGER.warning("Readset PV name should a valid string or list of string.")
 
     @property
     def setpoint(self):
-        """str: Setpoint PV name, usually ends with *_CSET*."""
+        """list[str]: Setpoint PV name, usually ends with *_CSET*."""
         return self._cset_pv_name
 
     @setpoint.setter
     def setpoint(self, s):
-        if s is None:
-            self._cset_pv_name = None
-        elif isinstance(s, basestring):
-            self._cset_pv_name = s
+        if isinstance(s, basestring):
+            self._cset_pv_name.append(s)
+        elif isinstance(s, (list, tuple)):
+            self._cset_pv_name = list(s)
+        elif s is None:
+            _LOGGER.debug("Setpoint PV not update.")
         else:
-            self._cset_pv_name = None
-            _LOGGER.warn("Setpoint PV name should a valid string.")
+            _LOGGER.warning("Setpoint PV name should a valid string or list of string.")
 
     @property
     def readback_pv(self):
@@ -382,12 +415,12 @@ class CaField(object):
 
     @readback_pv.setter
     def readback_pv(self, pvobj):
-        if pvobj is None:
-            self._rdbk_pv = None
-        elif isinstance(pvobj, PV):
-            self._rdbk_pv = pvobj
+        if isinstance(pvobj, PV):
+            self._rdbk_pv.append(pvobj)
+        elif isinstance(pvobj, (list, tuple)):
+            self._rdbk_pv = list(pvobj)
         else:
-            _LOGGER.warn("Input PV should be PV object.")
+            _LOGGER.warning("Input PV should be (list of) PV object.")
 
     @property
     def readset_pv(self):
@@ -396,12 +429,12 @@ class CaField(object):
 
     @readset_pv.setter
     def readset_pv(self, pvobj):
-        if pvobj is None:
-            self._rset_pv = None
-        elif isinstance(pvobj, PV):
-            self._rset_pv = pvobj
+        if isinstance(pvobj, PV):
+            self._rset_pv.append(pvobj)
+        elif isinstance(pvobj, (list, tuple)):
+            self._rset_pv = list(pvobj)
         else:
-            _LOGGER.warn("Input PV should be PV object.")
+            _LOGGER.warning("Input PV should be (list of) PV object.")
 
     @property
     def setpoint_pv(self):
@@ -410,10 +443,10 @@ class CaField(object):
 
     @setpoint_pv.setter
     def setpoint_pv(self, pvobj):
-        if pvobj is None:
-            self._cset_pv = None
-        elif isinstance(pvobj, PV):
-            self._cset_pv = pvobj
+        if isinstance(pvobj, PV):
+            self._cset_pv.append(pvobj)
+        elif isinstance(pvobj, (list, tuple)):
+            self._cset_pv = list(pvobj)
         else:
             _LOGGER.warn("Input PV should be PV object.")
 
@@ -424,66 +457,91 @@ class CaField(object):
                self.name == other.name
 
     @property
+    def set_policy(self):
+        """Defined set policy, i.e. how to set value to field.
+
+        The defined policy is a function, with *setpoint_pv* attribute and new
+        value as arguments.
+        """
+        return self._set_policy
+
+    @set_policy.setter
+    def set_policy(self, f):
+        if f is None:
+            self._set_policy = lambda x,v: [i.put(v) for i in x]
+        else:
+            self._set_policy = f
+
+    @property
+    def read_policy(self):
+        """Defined read policy, i.e. how to read value from field.
+
+        The defined policy is a function, with *readback_pv* attribute as argument,
+        return a value.
+        """
+        return self._read_policy
+
+    @read_policy.setter
+    def read_policy(self, f):
+        if f is None:
+            self._read_policy = lambda x: x[0].value
+        else:
+            self._read_policy = f
+
+    @property
     def value(self):
         """Get value of PV, returned from CA request.
         Priority of accessed PV: 'readback' > 'readset' > 'setpoint'.
         """
-        if self.readback is not None:
-            pv = self.readback_pv
-        elif self.readset is not None:
-            pv = self.readset_pv
-        elif self.setpoint is not None:
-            pv = self.setpoint_pv
-        else:
-            _LOGGER.error("Error: Invalid PV configuration.")
-            raise RuntimeError("Invalid PV configuration.")
-
-        return pv.value
+        # if self.readback is not None:
+        #     pv = self.readback_pv
+        # elif self.readset is not None:
+        #     pv = self.readset_pv
+        # elif self.setpoint is not None:
+        #     pv = self.setpoint_pv
+        # else:
+        #     _LOGGER.error("Error: Invalid PV configuration.")
+        #     raise RuntimeError("Invalid PV configuration.")
+        #
+        # return pv.value
+        return self.read_policy(self.readback_pv)
 
     @value.setter
     def value(self, v):
-        if self.setpoint is not None:
-            self.set(v, 'setpoint')
-        else:
-            raise RuntimeError("Invalid PV configuration.")
+        # if self.setpoint is not None:
+        #     self.set(v, 'setpoint')
+        # else:
+        #     raise RuntimeError("Invalid PV configuration.")
+        self.set_policy(self.setpoint_pv, v)
 
     def init_pvs(self, **kws):
         """PV initialization."""
         rdbk_pv_name, rset_pv_name, cset_pv_name = self._rdbk_pv_name, \
                                                    self._rset_pv_name, \
                                                    self._cset_pv_name
-        if rdbk_pv_name is not None:
-            self._init_rdbk_pv(rdbk_pv_name, **kws)
-        if rset_pv_name is not None:
-            self._init_rset_pv(rset_pv_name, **kws)
-        if cset_pv_name is not None:
-            self._init_cset_pv(cset_pv_name, **kws)
+        self._init_rdbk_pv(rdbk_pv_name, **kws)
+        self._init_rset_pv(rset_pv_name, **kws)
+        self._init_cset_pv(cset_pv_name, **kws)
 
-    def _init_rdbk_pv(self, pv, **kws):
-        self.readback_pv = PV(pv)
+    def _init_rdbk_pv(self, pvs, **kws):
+        if pvs:
+            self.readback_pv = [PV(i) for i in pvs]
 
-    def _init_rset_pv(self, pv, **kws):
-        self.readset_pv = PV(pv)
+    def _init_rset_pv(self, pvs, **kws):
+        if pvs:
+            self.readset_pv = [PV(i) for i in pvs]
 
-    def _init_cset_pv(self, pv, **kws):
-        self.setpoint_pv = PV(pv)
+    def _init_cset_pv(self, pvs, **kws):
+        if pvs:
+            self.setpoint_pv = [PV(i) for i in pvs]
 
     def update(self, **kws):
         """Update PV with defined handle."""
-        rdbk_pv_name = kws.get('readback', None)
-        if rdbk_pv_name is not None:
-            self._rdbk_pv_name = rdbk_pv_name
-            self._init_rdbk_pv(rdbk_pv_name, **kws)
-
-        rset_pv_name = kws.get('readset', None)
-        if rset_pv_name is not None:
-            self._rset_pv_name = rset_pv_name
-            self._init_rset_pv(rset_pv_name, **kws)
-
-        cset_pv_name = kws.get('setpoint', None)
-        if cset_pv_name is not None:
-            self._cset_pv_name = cset_pv_name
-            self._init_cset_pv(cset_pv_name, **kws)
+        for k in ('readback', 'readset', 'setpoint'):
+            v = kws.get(k)
+            if v is not None:
+                setattr(self, k, v)
+                setattr(self, "{}_pv".format(k), PV(v))
 
     def pvs(self):
         """Return dict of valid pv type and names."""
@@ -511,7 +569,7 @@ class CaField(object):
         elif handle == 'setpoint':
             pv = self._cset_pv
         if pv is not None:
-            return pv.get(**kws)
+            return [ipv.get(**kws) for ipv in pv]
         else:
             return None
 
@@ -520,8 +578,8 @@ class CaField(object):
 
         Parameters
         ----------
-        value :
-            New value to be set.
+        value : list or list(val)
+            New value(s) to be set.
         handle : str
             PV handle, 'readback', 'readset' or 'setpoint'.
 
@@ -536,7 +594,8 @@ class CaField(object):
         elif handle == 'setpoint':
             pv = self._cset_pv
         if pv is not None:
-            pv.put(value, **kws)
+            for (k, v) in zip(pv, value):
+                k.put(v, **kws)
         else:
             pass
 
