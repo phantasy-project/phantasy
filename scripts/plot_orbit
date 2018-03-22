@@ -49,6 +49,9 @@ if args.latfile is None:
 
 from flame import Machine
 import traceback
+import logging
+
+logging.getLogger('flame.machine').disabled = True
 
 try:
     f = open(args.latfile, 'r')
