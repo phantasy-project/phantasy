@@ -1371,7 +1371,7 @@ class Lattice(object):
         if not kws.get('trust', False):
             elem = self._find_exact_element(elem)
             if elem is None:
-                _LOGGER.warn("insert: not a valid element.")
+                _LOGGER.warning("insert: not a valid element.")
                 return
 
         if i is not None:
@@ -2207,10 +2207,7 @@ def _inplace_order_insert(elem, lat):
             continue
         else:
             break
-    if k == len(lat):
-        lat.append(elem)
-    else:
-        lat.insert(k, elem)
+    lat.insert(k, elem)
 
 
 def _normalize_phase(x):
