@@ -261,7 +261,7 @@ class AbstractElement(object):
     def _update_static_props(self, props):
         """Non-CA"""
         for k, v in props.items():
-            if not hasattr(self, k):
+            if not hasattr(self, k) or getattr(self, k) is None:
                 setattr(self, k, v)
             else:
                 _LOGGER.debug("{0} already has {1} of {2}.".format(
