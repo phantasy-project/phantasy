@@ -12,6 +12,8 @@ except NameError:
     basestring = str
 
 from epics import PV
+from phantasy.library.misc import flatten
+
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -20,8 +22,9 @@ ASCENDING = 1
 DESCENDING = 2
 RANDOM = 3
 
-VALID_STATIC_KEYS = ['name', 'family', 'index', 'se', 'length', 'sb']
-VALID_CA_KEYS = ['field', 'handle']
+VALID_STATIC_KEYS = ('name', 'family', 'index', 'se', 'length', 'sb',
+                     'phy_name', 'phy_type', 'machine',)
+VALID_CA_KEYS = ('field', 'handle',)
 
 
 class AbstractElement(object):
@@ -261,7 +264,7 @@ class AbstractElement(object):
     def _update_static_props(self, props):
         """Non-CA"""
         for k, v in props.items():
-            if not hasattr(self, k) or getattr(self, k) is None:
+            if not hasattr(self, k) or getattr(self, k) != v:
                 setattr(self, k, v)
             else:
                 _LOGGER.debug("{0} already has {1} of {2}.".format(
@@ -1052,7 +1055,7 @@ class CaElement(AbstractElement):
                     print("Invalid handle, valid options: " +
                           "'readback', 'readset', 'setpoint'.")
                     break
-        return pvs
+        return flatten(pvs)
 
     #     def _pv_1(self, **kwargs):
     #         """Find the pv when len(kwargs)==1.
