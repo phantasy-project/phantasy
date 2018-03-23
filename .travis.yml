@@ -20,6 +20,7 @@ addons:
     - libboost-filesystem-dev
     - libhdf5-dev
     - python-numpy
+    - python3-numpy
     - python-dateutil
     - pandoc
 
@@ -29,6 +30,13 @@ before_install:
     - cd packages/trusty
     - sudo dpkg -i *.deb
     - cd ${cwd}
+    - ifconfig docker0
+    - BCAST=$(ifconfig docker0 | /bin/grep 'inet ' | sed "s/.*addr:\([0-9]*\).\([0-9]*\).* Bcast.*/\1.\2.255.255/")
+    - export EPICS_CA_AUTO_ADDR_LIST=NO
+    - export EPICS_CA_ADDR_LIST=${BCAST}
+    - export DOCKERIMG="tonyzhang/phantasy-ioc:jessie"
+    - docker pull ${DOCKERIMG}
+    - docker run -d ${DOCKERIMG}
 
 install:
     - pip install -r requirements-dev.txt
