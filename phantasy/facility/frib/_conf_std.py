@@ -115,7 +115,7 @@ INI_DICT['DEFAULT_CF_SVR_TAG'] = DEFAULT_CF_SVR_TAG
 
 # channel finder property names
 KEYNAME_CF_SVR_PROP = 'cfs_property_names'
-DEFAULT_CF_SVR_PROP = 'elem*'
+DEFAULT_CF_SVR_PROP = '*'
 
 INI_DICT['KEYNAME_CF_SVR_PROP'] = KEYNAME_CF_SVR_PROP
 INI_DICT['DEFAULT_CF_SVR_PROP'] = DEFAULT_CF_SVR_PROP
@@ -147,8 +147,13 @@ _cf_map = {'elemName' : 'name',
            'elemIndex' : 'index',
            'elemPosition' : 'se',
            'elemLength' : 'length',
+           'physicsType': 'phy_type',
+           'physicsName': 'phy_name',
+           'machine': 'machine',
 
            'system' : 'system',
+           'subsystem': 'subsystem',
+
            'devName' : 'devname',
            'elemGroups' : 'groups',
 }
