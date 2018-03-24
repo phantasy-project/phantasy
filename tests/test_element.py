@@ -17,6 +17,8 @@ from phantasy import CaElement
 curdir = os.path.dirname(__file__)
 
 TEST_MACH = 'FRIB_FLAME'
+TEST_CA = 'TEST_CA'
+TEST_CA_1 = 'TEST_CA_1'
 
 
 class TestElement(unittest.TestCase):
@@ -93,3 +95,35 @@ class TestElement(unittest.TestCase):
         self.assertEqual(elem.sb, float(pv_props['sb']))
         self.assertEqual(elem.se, float(pv_props['se']))
         self.assertEqual(elem.group, {pv_props['family']})
+
+
+class TestCaElement(unittest.TestCase):
+    def setUp(self):
+        self.config_dir = os.path.join(curdir, 'config')
+        mpath = os.path.join(self.config_dir, TEST_CA)
+        mp = MachinePortal(machine=mpath)
+        self.mp = mp
+
+    def tearDown(self):
+        pass
+
+    def test_channel_props(self):
+        """Set channel properties to elem*..."""
+        lat = self.mp.work_lattice_conf
+        elem0 = lat[0]
+        for k in ('name', 'family', 'index', 'se', 'length', 'sb'):
+            self.assertEqual(hasattr(elem0, k), True)
+        for k in ('phy_type', 'phy_name', 'machine'):
+            self.assertEqual(hasattr(elem0, k), False)
+
+    def test_channel_props_1(self):
+        """Set channel properties to elem*, physics*..."""
+        mpath = os.path.join(self.config_dir, TEST_CA_1)
+        mp = MachinePortal(mpath)
+        lat = mp.work_lattice_conf
+        elem0 = lat[0]
+        for k in ('name', 'family', 'index', 'se', 'length', 'sb',
+                  'phy_type', 'phy_name'):
+            self.assertEqual(hasattr(elem0, k), True)
+        for k in ('machine',):
+            self.assertEqual(hasattr(elem0, k), False)
