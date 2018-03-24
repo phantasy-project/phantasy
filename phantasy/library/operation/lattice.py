@@ -21,12 +21,12 @@ from fnmatch import fnmatch
 from phantasy.facility.frib import INI_DICT
 from phantasy.library.lattice import CaElement
 from phantasy.library.lattice import Lattice
-from phantasy.library.layout import build_layout
 from phantasy.library.misc import simplify_data
-from phantasy.library.parser import Configuration
 from phantasy.library.parser import find_machine_config
 from phantasy.library.pv import DataSource
-from phantasy.library.settings import Settings
+#from phantasy.library.layout import build_layout
+#from phantasy.library.parser import Configuration
+#from phantasy.library.settings import Settings
 
 __authors__ = "Tong Zhang"
 __copyright__ = "(c) 2016-2017, Facility for Rare Isotope beams, "\
@@ -137,36 +137,36 @@ def load_lattice(machine, segment=None, **kws):
             model_data_dir = os.path.expanduser(
                 os.path.join(work_dir, model_data_dir))
 
-        # config file
-        config_file = d_msect.get(INI_DICT['KEYNAME_CONFIG_FILE'],
-                                  INI_DICT['DEFAULT_CONFIG_FILE'])
-        if config_file is not None:
-            if not os.path.isabs(config_file):
-                config_file = os.path.join(mdir, config_file)
-            config = Configuration(config_file)
-        else:
-            raise RuntimeError("Lattice configuration for '%s' not specified" %
-                               (msect,))
+        # # config file
+        # config_file = d_msect.get(INI_DICT['KEYNAME_CONFIG_FILE'],
+        #                           INI_DICT['DEFAULT_CONFIG_FILE'])
+        # if config_file is not None:
+        #     if not os.path.isabs(config_file):
+        #         config_file = os.path.join(mdir, config_file)
+        #     config = Configuration(config_file)
+        # else:
+        #     raise RuntimeError("Lattice configuration for '%s' not specified" %
+        #                        (msect,))
 
-        # layout file
-        layout_file = d_msect.get(INI_DICT['KEYNAME_LAYOUT_FILE'],
-                                  INI_DICT['DEFAULT_LAYOUT_FILE'])
-        if layout_file is not None:
-            if not os.path.isabs(layout_file):
-                layout_file = os.path.join(mdir, layout_file)
-            layout = build_layout(layoutPath=layout_file)
-        else:
-            raise RuntimeError("Layout for '%s' not specified" % (msect,))
+        # # layout file
+        # layout_file = d_msect.get(INI_DICT['KEYNAME_LAYOUT_FILE'],
+        #                          INI_DICT['DEFAULT_LAYOUT_FILE'])
+        # if layout_file is not None:
+        #    if not os.path.isabs(layout_file):
+        #        layout_file = os.path.join(mdir, layout_file)
+        #    layout = build_layout(layoutPath=layout_file)
+        # else:
+        #    raise RuntimeError("Layout for '%s' not specified" % (msect,))
 
-        # settings file
-        settings_file = d_msect.get(INI_DICT['KEYNAME_SETTINGS_FILE'],
-                                    INI_DICT['DEFAULT_SETTINGS_FILE'])
-        if settings_file is not None:
-            if not os.path.isabs(settings_file):
-                settings_file = os.path.join(mdir, settings_file)
-            settings = Settings(settingsPath=settings_file)
-        else:
-            raise RuntimeError("Settings for '%s' not specified" % (msect,))
+        # # settings file
+        # settings_file = d_msect.get(INI_DICT['KEYNAME_SETTINGS_FILE'],
+        #                             INI_DICT['DEFAULT_SETTINGS_FILE'])
+        # if settings_file is not None:
+        #     if not os.path.isabs(settings_file):
+        #         settings_file = os.path.join(mdir, settings_file)
+        #     settings = Settings(settingsPath=settings_file)
+        # else:
+        #     raise RuntimeError("Settings for '%s' not specified" % (msect,))
 
         # machine type, linear (non-loop) or ring (loop)
         mtype = int(d_msect.get(INI_DICT['KEYNAME_MTYPE'],
@@ -181,10 +181,12 @@ def load_lattice(machine, segment=None, **kws):
         ds_sql_path = os.path.join(mdir, cf_svr_url)
 
         # channel finder service: tag, and property names
-        cf_svr_tag = d_msect.get(INI_DICT['KEYNAME_CF_SVR_TAG'],
-                                 INI_DICT['DEFAULT_CF_SVR_TAG'](msect))
-        cf_svr_prop = d_msect.get(INI_DICT['KEYNAME_CF_SVR_PROP'],
+        cf_svr_tag0 = d_msect.get(INI_DICT['KEYNAME_CF_SVR_TAG'],
+                                  INI_DICT['DEFAULT_CF_SVR_TAG'](msect))
+        cf_svr_prop0 = d_msect.get(INI_DICT['KEYNAME_CF_SVR_PROP'],
                                   INI_DICT['DEFAULT_CF_SVR_PROP'])
+        cf_svr_tag = [s.strip() for s in cf_svr_tag0.split(',')]
+        cf_svr_prop = [s.strip() for s in cf_svr_prop0.split(',')]
 
         if re.match(r"https?://.*", cf_svr_url, re.I):
             # pv data source is cfs
@@ -193,10 +195,10 @@ def load_lattice(machine, segment=None, **kws):
             ds = DataSource(source=cf_svr_url)
         elif os.path.isfile(ds_sql_path):
             # pv data source is sqlite/csv file
-            _LOGGER.info("Using SQlite instead of CFS '%s'" % ds_sql_path)
+            _LOGGER.info("Using CSV/SQLite instead of CFS '%s'" % ds_sql_path)
             ds = DataSource(source=ds_sql_path)
         else:
-            _LOGGER.warn("Invalid CFS is defined.")
+            _LOGGER.warning("Invalid CFS is defined.")
             raise RuntimeError("Unknown channel finder source '%s'" %
                                cf_svr_url)
 
@@ -217,9 +219,9 @@ def load_lattice(machine, segment=None, **kws):
                              mpath=mdir,
                              mconf=mconfig,
                              model=simulation_code,
-                             layout=layout,
-                             config=config,
-                             settings=settings,
+                             #layout=layout,
+                             #config=config,
+                             #settings=settings,
                              sort=sort_flag)
 
         #         if IMPACT_ELEMENT_MAP is not None:
@@ -342,12 +344,12 @@ def create_lattice(latname, pv_data, tag, **kws):
         Machine type, 0 for linear (default), 1 for a ring.
     model : str
         Model code, 'FLAME' or 'IMPACT', 'FLAME' by default.
-    layout :
-        Lattice layout object.
-    config :
-        Lattice configuration object.
-    settings :
-        Lattice settings object.
+    #layout :
+    #    Lattice layout object.
+    #config :
+    #    Lattice configuration object.
+    #settings :
+    #    Lattice settings object.
     sort : True or False
         Sort lattice with s-position or not, default is False.
 
@@ -371,8 +373,8 @@ def create_lattice(latname, pv_data, tag, **kws):
     """
     src = kws.get('source', None)
     if src is None:
-        _LOGGER.warn("PV data source type should be explicitly defined.")
-        return
+        _LOGGER.warning("PV data source type should be explicitly defined.")
+        return None
 
     _LOGGER.debug("Creating lattice {0} from {1}.".format(latname, src))
     _LOGGER.info("Found {0:d} PVs in {1}.".format(len(pv_data), latname))
@@ -388,7 +390,7 @@ def create_lattice(latname, pv_data, tag, **kws):
             continue
 
         # skip if tag does not match
-        if pv_name and tag not in pv_tags:
+        if pv_name and not set(tag).issubset(set(pv_tags)):
             _LOGGER.debug("{0} is not tagged as {1}.".format(pv_name, tag))
             continue
 
@@ -410,9 +412,10 @@ def create_lattice(latname, pv_data, tag, **kws):
                 _LOGGER.error(
                     "Error: creating element '{0}' with '{1}'.".format(
                         name, pv_props))
-                raise
+                raise RuntimeError("Creating element ERROR.")
             _LOGGER.debug("Created new element: '{0}'".format(name))
             lat.insert(elem, trust=True)
+            _LOGGER.info("Inserted {}".format(elem.name))
         else:
             _LOGGER.debug(
                 "Element '{0}' exists, only update properties.".format(name))
