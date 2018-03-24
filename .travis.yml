@@ -47,11 +47,8 @@ install:
     - cd ${cwd}
 
 script:
-    - which caput
-    - cainfo fac
-    - caget FE_SCS1:PSOL_D0704:I_RD
     - caput fac 0.0
-    - caget FE_SCS1:PSOL_D0704:I_RD
+    - sleep 2.0
     - cwd=$(pwd)
     - export EPICS_BASE=/usr/lib/epics/
     - export EPICS_HOST_ARCH=linux-x86_64
@@ -66,4 +63,4 @@ script:
     - cd ${cwd}
 
 after_success:
-    #- bash ci/deploy_gh.sh
+    - bash ci/deploy_gh.sh
