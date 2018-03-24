@@ -37,6 +37,7 @@ before_install:
     - export DOCKERIMG="tonyzhang/phantasy-ioc:jessie"
     - docker pull ${DOCKERIMG}
     - docker run -d ${DOCKERIMG}
+    - caput fac 0.0
 
 install:
     - pip install -r requirements-dev.txt
@@ -60,6 +61,7 @@ script:
     - cd ${cwd}/docs
     - make clean html
     - cd ${cwd}
+    - caget FE_SCS1:PSOL_D0704:I_RD
 
 after_success:
-    - bash ci/deploy_gh.sh
+    #- bash ci/deploy_gh.sh
