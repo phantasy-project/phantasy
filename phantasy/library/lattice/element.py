@@ -493,6 +493,24 @@ class CaField(object):
         else:
             self._read_policy = f
 
+    def reset_policy(self, policy=None):
+        """Reset policy, by policy name."""
+        if policy is None:
+            self._reset_read_policy()
+            self._reset_write_policy()
+        elif policy == 'read':
+            self._reset_read_policy()
+        elif policy == 'write':
+            self._reset_write_policy()
+        else:
+            _LOGGER.error("Invalid policy name, do not reset.")
+
+    def _reset_read_policy(self):
+        self._read_policy = self._default_read_policy
+
+    def _reset_write_policy(self):
+        self._write_policy = self._default_write_policy
+
     @property
     def value(self):
         """Get value of PV, returned from CA request.
