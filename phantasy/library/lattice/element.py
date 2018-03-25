@@ -326,8 +326,10 @@ class CaField(object):
         self._rset_pv = []
         self._cset_pv = []
         self.init_pvs()
-        self.read_policy = None
-        self.set_policy = None
+        self._default_read_policy = lambda x: sum([i.value for i in x])/len(x)
+        self._default_write_policy = lambda x,v: [i.put(v) for i in x]
+        self.read_policy = self._default_read_policy
+        self.write_policy = self._default_write_policy
 
         #################################################################
         # self.golden = []  # some setpoint can saved as golden value
@@ -460,20 +462,20 @@ class CaField(object):
                self.name == other.name
 
     @property
-    def set_policy(self):
-        """Defined set policy, i.e. how to set value to field.
+    def write_policy(self):
+        """Defined write policy, i.e. how to set value to field.
 
         The defined policy is a function, with *setpoint_pv* attribute and new
         value as arguments.
         """
-        return self._set_policy
+        return self._write_policy
 
-    @set_policy.setter
-    def set_policy(self, f):
+    @write_policy.setter
+    def write_policy(self, f):
         if f is None:
-            self._set_policy = lambda x,v: [i.put(v) for i in x]
+            self._write_policy = self._default_write_policy
         else:
-            self._set_policy = f
+            self._write_policy = f
 
     @property
     def read_policy(self):
@@ -487,7 +489,7 @@ class CaField(object):
     @read_policy.setter
     def read_policy(self, f):
         if f is None:
-            self._read_policy = lambda x: x[0].value
+            self._read_policy = self._default_read_policy
         else:
             self._read_policy = f
 
@@ -515,7 +517,7 @@ class CaField(object):
         #     self.set(v, 'setpoint')
         # else:
         #     raise RuntimeError("Invalid PV configuration.")
-        self.set_policy(self.setpoint_pv, v)
+        self.write_policy(self.setpoint_pv, v)
 
     def init_pvs(self, **kws):
         """PV initialization."""
