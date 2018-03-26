@@ -415,7 +415,7 @@ def create_lattice(latname, pv_data, tag, **kws):
                 raise RuntimeError("Creating element ERROR.")
             _LOGGER.debug("Created new element: '{0}'".format(name))
             lat.insert(elem, trust=True)
-            _LOGGER.info("Inserted {}".format(elem.name))
+            _LOGGER.debug("Inserted {}".format(elem.name))
         else:
             _LOGGER.debug(
                 "Element '{0}' exists, only update properties.".format(name))
