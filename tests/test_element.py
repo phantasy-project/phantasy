@@ -107,12 +107,16 @@ class TestCaElement(unittest.TestCase):
 
     def tearDown(self):
         lat = self.mp.work_lattice_conf
-        lat[0].get_field('B').set(0.1, 'setpoint')
-        lat[1].get_field('V').set([0.1, 0.1], 'setpoint')
+        fld0 = lat[0].get_field('B')
+        fld0.reset_policy()
+        fld0.set(0.1, 'setpoint')
+        fld1 = lat[1].get_field('V')
+        fld1.reset_policy()
+        fld1.set([-0.1, 0.1], 'setpoint')
         time.sleep(1.5)
 
     def test_channel_props(self):
-        """Set channel properties to elem*..."""
+        """Set channel properties to elem*"""
         lat = self.mp.work_lattice_conf
         elem0 = lat[0]
         for k in ('name', 'family', 'index', 'se', 'length', 'sb'):
@@ -121,7 +125,7 @@ class TestCaElement(unittest.TestCase):
             self.assertEqual(hasattr(elem0, k), False)
 
     def test_channel_props_1(self):
-        """Set channel properties to elem*, physics*..."""
+        """Set channel properties to elem*, physics*"""
         mpath = os.path.join(self.config_dir, TEST_CA_1)
         mp = MachinePortal(mpath)
         lat = mp.work_lattice_conf
@@ -133,7 +137,7 @@ class TestCaElement(unittest.TestCase):
             self.assertEqual(hasattr(elem0, k), False)
 
     def test_channel_ca_1(self):
-        """Each CA handle only has one PV..."""
+        """Each CA handle only has one PV"""
         lat = self.mp.work_lattice_conf
         elem = lat[0]
         fld_name = 'B'
@@ -155,7 +159,7 @@ class TestCaElement(unittest.TestCase):
         time.sleep(1.5)
 
     def test_channel_ca_2(self):
-        """Each CA handle has two PV..."""
+        """Each CA handle has two PV"""
         lat = self.mp.work_lattice_conf
         elem = lat[1]
         fld_name = 'V'
@@ -163,25 +167,25 @@ class TestCaElement(unittest.TestCase):
         self.assertEqual(elem.fields, [fld_name])
         self.assertEqual(elem.V, 0.1)
         fld = elem.get_field(fld_name)
-        self.assertEqual(fld.get('readback'), [fld.value, fld.value])
+        self.assertEqual(fld.get('readback'), [-fld.value, fld.value])
         self.assertEqual(fld.value, 0.1)
         elem.V = 0.5
         time.sleep(1.5)
         self.assertEqual(fld.value, 0.5)
-        self.assertEqual(fld.get('readback'), [0.5, 0.5])
+        self.assertEqual(fld.get('readback'), [-0.5, 0.5])
         fld.set(0.2, handle='setpoint')
         time.sleep(1.5)
-        self.assertEqual(fld.value, 0.35)
-        self.assertEqual(elem.V, 0.35)
+        self.assertEqual(fld.value, 0.15)
+        self.assertEqual(elem.V, 0.15)
         fld.set([0.2, 0.2], handle='setpoint')
         time.sleep(1.5)
-        self.assertEqual(fld.value, 0.2)
-        self.assertEqual(elem.V, 0.2)
+        self.assertEqual(fld.value, 0)
+        self.assertEqual(elem.V, 0)
         elem.V = 0.1
         time.sleep(1.5)
 
     def test_read_write_policy(self):
-        """Test read & write policy for QHE(+): PSQ1(-), PSQ2(+)..."""
+        """Test read & write policy for QHE(+): PSQ1(-), PSQ2(+)"""
         lat = self.mp.work_lattice_conf
         elem = lat[1]
         fld = elem.get_field('V')
@@ -193,9 +197,9 @@ class TestCaElement(unittest.TestCase):
         self.assertEqual(fld.get('setpoint'), [-0.5, 0.5])
         self.assertEqual(fld.get('readset'), [-0.5, 0.5])
         fld.reset_policy('read')
-        self.assertEqual(elem.V, 0)
+        self.assertEqual(elem.V, 0.5)
         fld.reset_policy('write')
         elem.V = 0.1
         time.sleep(1.5)
         self.assertEqual(fld.value, 0.1)
-        self.assertEqual(fld.get('readback'), [fld.value, fld.value])
+        self.assertEqual(fld.get('readback'), [-fld.value, fld.value])
