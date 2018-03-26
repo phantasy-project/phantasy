@@ -14,8 +14,12 @@ from .readback import get_readback
 from .datasource import DataSource
 from .datasource import dump_data
 
+from .policy import PV_POLICIES
+
+
 __all__ = [
     'Popen', 'caget', 'caput', 'camonitor', 'cainfo',
     'connect', 'CABatch', 'get_readback',
     'DataSource', 'dump_data',
+    'PV_POLICIES',
 ]
