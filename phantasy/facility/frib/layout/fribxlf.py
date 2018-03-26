@@ -847,20 +847,20 @@ class AccelFactory(XlfConfig):
 
         return accelerator
 
-    @staticmethod
-    def _channel_data(machine, name, system, subsystem, device, z, handle, field, etype):
-        d = OrderedDict()
-        d["machine"] = machine
-        d["system"] = system
-        d["subsystem"] = subsystem
-        d["device"] = device
-        # d["deviceType"] = elem.dtype
-        d["z"] = z
-        d["elemName"] = name
-        d["elemHandle"] = handle
-        d["elemField"] = field
-        d["elemType"] = etype
-        return d
+    # @staticmethod
+    # def _channel_data(machine, name, system, subsystem, device, z, handle, field, etype):
+    #     d = OrderedDict()
+    #     d["machine"] = machine
+    #     d["system"] = system
+    #     d["subsystem"] = subsystem
+    #     d["device"] = device
+    #     # d["deviceType"] = elem.dtype
+    #     d["z"] = z
+    #     d["elemName"] = name
+    #     d["elemHandle"] = handle
+    #     d["elemField"] = field
+    #     d["elemType"] = etype
+    #     return d
 
 
 def _parse_diameter(d):
