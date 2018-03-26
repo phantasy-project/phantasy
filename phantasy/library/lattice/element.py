@@ -581,9 +581,33 @@ class CaField(object):
         handle : str
             PV handle, 'readback', 'readset' or 'setpoint'.
 
-        Keyword Arguments
-        -----------------
+        Returns
+        -------
+        r : list
+            List of readings for specified handle.
 
+        Examples
+        --------
+        Get CA field instance from element:
+
+        >>> from phantasy import MachinePortal
+        >>> mp = MachinePortal(machine='<mach_name>')
+        >>> lat = mp.work_lattice_conf
+        >>> elem = lat[0]
+        >>> print(elem.fields)
+        >>> fld = elem.get_field('<field_name>')
+
+        Get readings from PVs with 'readback' handle
+
+        >>> print(fld.get('readback'))
+
+        Get readings from PVs with 'setpoint' handle
+
+        >>> print(fld.get('setpoint'))
+
+        Get readings from PVs with 'readset' handle
+
+        >>> print(fld.get('readset'))
         """
         if handle == 'readback':
             pv = self._rdbk_pv
@@ -597,7 +621,7 @@ class CaField(object):
             return None
 
     def set(self, value, handle, **kws):
-        """Set value of PV with specified *handle*.
+        """Set value(s) of PV(s) with specified *handle*.
 
         Parameters
         ----------
@@ -606,9 +630,20 @@ class CaField(object):
         handle : str
             PV handle, 'readback', 'readset' or 'setpoint'.
 
-        Keyword Arguments
-        -----------------
+        Examples
+        --------
+        Get CA field instance, see `get()`, set one field of an element
+        which has two 'setpoint' PVs, e.g. quad:
 
+        >>> fld.set([val1, val2], 'setpoint')
+        >>> # Check with get:
+        >>> fld.get('setpoint')
+        >>> # should return [val1, val2]
+
+        Note
+        ----
+        ``get()`` and ``set()`` are a pair of methods that can read/write PV(s)
+        bypass field defined read/write policies.
         """
         if handle == 'readback':
             pv = self._rdbk_pv
@@ -616,6 +651,8 @@ class CaField(object):
             pv = self._rset_pv
         elif handle == 'setpoint':
             pv = self._cset_pv
+        if not isinstance(value, (list, tuple)):
+            value = value,
         if pv is not None:
             for (k, v) in zip(pv, value):
                 k.put(v, **kws)
