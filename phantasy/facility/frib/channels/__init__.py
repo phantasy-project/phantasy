@@ -1,12 +1,5 @@
-# encoding: UTF-8
-
-"""Construct channels based on FRIB naming convention.
-
-:author: Dylan Maxwell <maxwelld@frib.msu.edu>
-:date: 2015-06-15
-
-:copyright: Copyright (c) 2015, Facility for Rare Isotope Beams
-"""
+# -*- coding: utf-8 -*-
 
 from .channels import build_channels
 from .channels_ps import build_channels as build_channels_ps
+from .channels_pspv import build_channels as build_channels_pspv
