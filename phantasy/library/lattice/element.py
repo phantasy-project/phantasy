@@ -13,6 +13,7 @@ except NameError:
 
 from epics import PV
 from phantasy.library.misc import flatten
+from phantasy.library.pv import PV_POLICIES
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -23,8 +24,8 @@ DESCENDING = 2
 RANDOM = 3
 
 VALID_STATIC_KEYS = ('name', 'family', 'index', 'se', 'length', 'sb',
-                     'phy_name', 'phy_type', 'machine',)
-VALID_CA_KEYS = ('field', 'handle',)
+                     'phy_name', 'phy_type', 'machine')
+VALID_CA_KEYS = ('field', 'handle', 'pv_policy')
 
 
 class AbstractElement(object):
@@ -326,8 +327,9 @@ class CaField(object):
         self._rset_pv = []
         self._cset_pv = []
         self.init_pvs()
-        self._default_read_policy = lambda x: sum([i.value for i in x])/len(x)
-        self._default_write_policy = lambda x,v: [i.put(v) for i in x]
+        pv_policy = PV_POLICIES.get(kws.get('pv_policy', 'DEFAULT'))
+        self._default_read_policy = pv_policy['read']
+        self._default_write_policy = pv_policy['write']
         self.read_policy = self._default_read_policy
         self.write_policy = self._default_write_policy
 
@@ -906,11 +908,12 @@ class CaElement(AbstractElement):
         """CA"""
         handle_name = props.get('handle', None)
         field_name = props.get('field', None)
+        pv_policy = props.get('pv_policy', 'DEFAULT')
         pv = kws.get('pv', None)
         if field_name is not None:
-            self.set_field(field_name, pv, handle_name)
+            self.set_field(field_name, pv, handle_name, pv_policy=pv_policy)
 
-    def set_field(self, field, pv, handle=None):
+    def set_field(self, field, pv, handle=None, **kws):
         """Set element field with CA support.
 
         Parameters
@@ -922,11 +925,18 @@ class CaElement(AbstractElement):
         handle : str
             PV channel type, valid options: ``readback``, ``readset``,
             ``setpoint``, default is ``readback``.
+
+        Keyword Arguments
+        -----------------
+        pv_policy : str
+            Name of PV read/write policy.
         """
         if handle is None:
             handle = 'readback'
         if field not in self._fields:
-            new_field = CaField(name=field, **{handle: pv})
+            new_field = CaField(name=field,
+                                pv_policy=kws.get('pv_policy', 'DEFAULT'),
+                                **{handle: pv})
             self._fields[field] = new_field
         else:
             self._fields[field].update(**{handle: pv})
