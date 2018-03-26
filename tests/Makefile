@@ -7,9 +7,14 @@ test:
 		--exclude-dir-file="skiptests" 
 
 ioc:
-	docker run -d tonyzhang/phantasy-ioc:jessie
+	docker run -d --name phantasy-ioc tonyzhang/phantasy-ioc:jessie
+	sleep 2.0
 	caput fac 0.0
 	sleep 2.0
+
+kill-ioc:
+	docker container stop phantasy-ioc
+	docker container rm phantasy-ioc
 
 clean:
 	[ -e /tmp/phantasy_data ] && rm -rf /tmp/phantasy_data
