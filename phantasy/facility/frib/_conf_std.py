@@ -150,6 +150,7 @@ _cf_map = {'elemName' : 'name',
            'physicsType': 'phy_type',
            'physicsName': 'phy_name',
            'machine': 'machine',
+           'pvPolicy': 'pv_policy',
 
            'system' : 'system',
            'subsystem': 'subsystem',
