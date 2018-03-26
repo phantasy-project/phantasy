@@ -24,6 +24,7 @@ from phantasy.library.channelfinder import write_db
 from phantasy.library.misc import complicate_data
 from phantasy.facility.frib.channels import build_channels
 from phantasy.facility.frib.channels import build_channels_ps
+from phantasy.facility.frib.channels import build_channels_pspv
 
 
 parser = ArgumentParser(prog=os.path.basename(sys.argv[0])+" frib-channels",
@@ -34,6 +35,7 @@ parser.add_argument("--end", help="name of accelerator element to end processing
 parser.add_argument("--tag", action="append", help="additional tag (can be used multiple times)")
 parser.add_argument("--machine", help="name of machine (used to indicate VA)")
 parser.add_argument("--only-ps", dest="onlyps", nargs='?', type=str, const=False, default=False, help="only generate power supply PVs")
+parser.add_argument("--pspvfile", dest="pspvfile", nargs='?', type=str, help="path to ps pv csv file")
 parser.add_argument("layoutPath", help="path to accelerator layout file")
 parser.add_argument("channelsPath", help="path to output data file (csv or sqlite)")
 
@@ -70,7 +72,11 @@ def main():
         return 1
 
     try:
-        if args.onlyps:
+        if args.pspvfile:
+            channels = build_channels_pspv(layout, args.pspvfile,
+                    machine=args.machine,
+                    start=args.start, end=args.end)
+        elif args.onlyps:
             channels = build_channels_ps(layout, machine=args.machine,
                     start=args.start, end=args.end)
         else:
