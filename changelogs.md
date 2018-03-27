@@ -1,3 +1,44 @@
+Version 0.8.0
+-------------
+2018-03-27 [Testing]
+
+- New:
+    - len() method for high-level lattice
+    - Logging message level control
+    - Property: `pvPolicy` for channels 
+    - CaField: new methods: `reset_policy`
+    - CaField: update element to support multi-PVs for one handle
+    - CaField: new attributes: `read_policy`/`write_policy`
+    - Module for PV policy: `DEFAULT`, `EQUAD`, `EBEND`
+
+- Update:
+    - Implement all element config into `apply_config` method
+    - Replace append with insert operation for high-level lattice class
+    - Make repr of lattice more fast
+    - Default `cfs_property_name` changed to be `*`
+    - CaField: get() will return list instead of scalar
+
+- Tools:
+    - frib_channels: new option `--pspvfile` to generate PS channels based on given pspvfile.
+
+- CI:
+    - New docker image (tonyzhang/phantasy-ioc) as a soft-ioc container for PV testing
+    - set random noise to 0 by PV: 'fac'
+    - Add new deps
+    - Makefile rule to start/stop phantasy-ioc container
+
+- Config:
+    - Update LEBT configuration with new channels
+
+Test: 
+    - New test for generating layout from xlsx file
+    - New test for CaElement/CaField  
+    - New test data
+
+Clean:
+    - Remove debian directory from source branch
+    - Unused functions
+
 Version 0.7.7
 -------------
 2018-03-16 [Testing]
