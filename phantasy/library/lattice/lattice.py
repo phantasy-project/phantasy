@@ -2243,5 +2243,4 @@ def _get_control_field(elem, field):
     """
     if not isinstance(field, (list, tuple)):
         field = field,
-    pv = {f: elem.pv(field=f, handle='readback') for f in field}
-    return {k: caget(v)[0] for k, v in pv.items()}
+    return {f: getattr(elem, f) for f in field}
