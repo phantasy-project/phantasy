@@ -20,9 +20,6 @@ __copyright__ = "(c) 2016-2018, Facility for Rare Isotope beams, Michigan State 
 __contact__ = "Tong Zhang <zhangt@frib.msu.edu>"
 
 _LOGGER = logging.getLogger(__name__)
-logging.basicConfig(
-        format="%(levelname)s: %(asctime)s: %(name)s: %(message)s"
-)
 
 try:
     from flame_utils import BeamState
