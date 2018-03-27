@@ -238,7 +238,7 @@ class AbstractElement(object):
     #         return [b, b, e, e], [0, 0.2 * h, 0.2 * h, 0], 'k'
 
     def __str__(self):
-        return "{0:<4d} | {1:^20s} {2:<8s} {3:^6.2f} {4:^6.6f}".format(
+        return "{0:04d} | {1:<20s} {2:<8s} {3:^6.2f} [m] {4:^6.6f} [m]".format(
             int(self.index), self.name, self.family,
             float(self.sb), float(self.length)
         )
