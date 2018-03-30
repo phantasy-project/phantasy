@@ -292,6 +292,10 @@ class CaField(object):
     ----------
     name : str
         Name of CA field, usually represents the physics attribute linked with CA.
+    wait : bool
+        If True, wait until put operation completed, default is False.
+    timeout: float
+        Time out in second for put operation, default is 10 seconds.
 
     Keyword Arguments
     -----------------
@@ -317,6 +321,8 @@ class CaField(object):
 
     def __init__(self, name='', **kws):
         self.name = name
+        self.timeout = kws.get('timeout', None)
+        self.wait = kws.get('wait', None)
         self._rdbk_pv_name = []
         self._rset_pv_name = []
         self._cset_pv_name = []
@@ -348,7 +354,6 @@ class CaField(object):
         # self.opflags = 0
         # self.trace = kws.get('trace', False)
         # self.trace_limit = 200
-        # self.timeout = 2
         # self.sprb_epsilon = 0
 
     @property
@@ -364,6 +369,31 @@ class CaField(object):
             self._name = s
         else:
             _LOGGER.warn("Field name should be a valid string.")
+
+    @property
+    def wait(self):
+        """boolean: Wait (True) for not (False) when issuing set command,
+        default: False."""
+        return self._wait
+
+    @wait.setter
+    def wait(self, b):
+        if b is None:
+            self._wait = False
+        else:
+            self._wait = bool(b)
+
+    @property
+    def timeout(self):
+        """float: Time out in second for put operation, default: 10 [sec]."""
+        return self._timeout
+
+    @timeout.setter
+    def timeout(self, x):
+        if x is None:
+            self._timeout = 10
+        else:
+            self._timeout = float(x)
 
     @property
     def readback(self):
@@ -537,7 +567,8 @@ class CaField(object):
         #     self.set(v, 'setpoint')
         # else:
         #     raise RuntimeError("Invalid PV configuration.")
-        self.write_policy(self.setpoint_pv, v)
+        self.write_policy(self.setpoint_pv, v, timeout=self.timeout,
+                          wait=self.wait)
 
     def init_pvs(self, **kws):
         """PV initialization."""
@@ -1062,6 +1093,11 @@ class CaElement(AbstractElement):
     def __setattr__(self, key, value):
         if key in self._fields:
             self._fields[key].value = value
+            _LOGGER.debug(
+                "Field {f_name} of element {e_name} reached: {rd_val}.".format(
+                    f_name=key, e_name=self.name, rd_val=getattr(self, key)
+                )
+            )
         else:
             super(CaElement, self).__setattr__(key, value)
 
