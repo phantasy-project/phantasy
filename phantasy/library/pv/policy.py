@@ -21,9 +21,9 @@ def _default_read_policy(x):
     return sum(i.value for i in x)/len(x)
 
 
-def _default_write_policy(x, v):
+def _default_write_policy(x, v, **kws):
     for i in x:
-        i.put(v)
+        i.put(v, **kws)
 
 # _default_read_policy = lambda x: sum([i.value for i in x])/len(x)
 # _default_write_policy = lambda x,v: [i.put(v) for i in x]
@@ -44,9 +44,9 @@ def _default_write_policy(x, v):
 def _equad_read_policy(x):
     return 0.5 * (-x[0].value + x[1].value)
 
-def _equad_write_policy(x, v):
-    x[0].put(-v)
-    x[1].put(v)
+def _equad_write_policy(x, v, **kws):
+    x[0].put(-v, **kws)
+    x[1].put(v, **kws)
 
 
 # Policy for ebend
@@ -56,9 +56,9 @@ def _ebend_read_policy(x):
     return 0.5 * (-x[0].value + x[1].value)
 
 
-def _ebend_write_policy(x, v):
-    x[0].put(-v)
-    x[1].put(v)
+def _ebend_write_policy(x, v, **kws):
+    x[0].put(-v, **kws)
+    x[1].put(v, **kws)
 
 
 #
