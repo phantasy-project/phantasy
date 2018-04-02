@@ -22,7 +22,6 @@ from functools import reduce
 
 from numpy import intersect1d
 from phantasy.library.lattice import CaElement
-from phantasy.library.misc import flatten
 from phantasy.library.parser import Configuration
 from phantasy.library.pv import get_readback
 
@@ -272,35 +271,35 @@ class MachinePortal(object):
             self._work_lattice_conf = lat_conf
             return retval
 
-        # try:
-        retval = load_lattice(machine=machine, segment=segment, **kws)
+        try:
+            retval = load_lattice(machine=machine, segment=segment, **kws)
 
-        lat_all = retval['lattices']
-        lat_name = retval['lat0name']
-        lat_conf = lat_all.get(lat_name)
-        mach_name = retval['machname']
-        mach_conf = retval['machconf']
-        mach_path = retval['machpath']
+            lat_all = retval['lattices']
+            lat_name = retval['lat0name']
+            lat_conf = lat_all.get(lat_name)
+            mach_name = retval['machname']
+            mach_conf = retval['machconf']
+            mach_path = retval['machpath']
 
-        self._lattices.update(lat_all)
-        self._machines.update({mach_name: {'conf': mach_conf, 'path': mach_path}})
-        self._last_mach_conf = mach_conf
-        self._last_mach_path = mach_path
-        self._last_mach_name = mach_name
-        self._last_lattice_name = lat_name
-        self._last_lattice_conf = lat_conf
-        self._work_lattice_name = lat_name
-        self._work_lattice_conf = lat_conf
+            self._lattices.update(lat_all)
+            self._machines.update({mach_name: {'conf': mach_conf, 'path': mach_path}})
+            self._last_mach_conf = mach_conf
+            self._last_mach_path = mach_path
+            self._last_mach_name = mach_name
+            self._last_lattice_name = lat_name
+            self._last_lattice_conf = lat_conf
+            self._work_lattice_name = lat_name
+            self._work_lattice_conf = lat_conf
 
-        if lat_name is not None and lat_name not in self._lattice_names:
-            self._lattice_names.append(lat_name)
+            if lat_name is not None and lat_name not in self._lattice_names:
+                self._lattice_names.append(lat_name)
 
-        if mach_name is not None and mach_name not in self._machine_names:
-            self._machine_names.append(mach_name)
-            # except:
-        # _LOGGER.error("Cannot load machine: {} segment: {}".format(
-        #         machine, segment))
-        #     retval = None
+            if mach_name is not None and mach_name not in self._machine_names:
+                self._machine_names.append(mach_name)
+        except:
+            _LOGGER.error("Cannot load machine: {} segment: {}".format(
+                 machine, segment))
+            retval = None
         return retval
 
     def print_all_properties(self):
