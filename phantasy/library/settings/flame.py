@@ -1,6 +1,5 @@
-# encoding: UTF-8
-
-"""Library for reading device settings from FLAME imput file (test.lat)."""
+# -*- coding: utf-8 -*-
+"""Library for reading device settings from FLAME input lattice file."""
 
 from __future__ import absolute_import
 from __future__ import division
@@ -9,9 +8,7 @@ from __future__ import unicode_literals
 
 import re
 import os
-import logging
 from collections import OrderedDict
-from cStringIO import StringIO
 
 from flame import GLPSParser
 
@@ -30,6 +27,11 @@ try:
     basestring
 except:
     basestring = str
+
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from io import StringIO
 
 
 def build_settings(latpath, start=None, end=None):
