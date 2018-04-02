@@ -1097,11 +1097,12 @@ class CaElement(AbstractElement):
     def __setattr__(self, key, value):
         if key in self._fields:
             self._fields[key].value = value
-            _LOGGER.debug(
-                "Field {f_name} of element {e_name} reached: {rd_val}.".format(
-                    f_name=key, e_name=self.name, rd_val=getattr(self, key)
+            if self._fields[key].wait:
+                _LOGGER.warning(
+                    "Field '{f_name}' of '{e_name}' reached: {rd_val}.".format(
+                        f_name=key, e_name=self.name, rd_val=getattr(self, key)
+                    )
                 )
-            )
         else:
             super(CaElement, self).__setattr__(key, value)
 
