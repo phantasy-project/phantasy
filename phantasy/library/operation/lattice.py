@@ -348,8 +348,8 @@ def create_lattice(latname, pv_data, tag, **kws):
     #    Lattice layout object.
     #config :
     #    Lattice configuration object.
-    #settings :
-    #    Lattice settings object.
+    settings :
+        Lattice settings object.
     sort : True or False
         Sort lattice with s-position or not, default is False.
 
@@ -430,6 +430,9 @@ def create_lattice(latname, pv_data, tag, **kws):
 
     # update group
     lat.update_groups()
+
+    # init design settings for all elements
+    lat.init_design_settings()
 
     # sort lattice or not
     if kws.get('sort', False):
