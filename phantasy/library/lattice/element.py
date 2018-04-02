@@ -880,18 +880,46 @@ class CaElement(AbstractElement):
         self.virtual = kws.get('virtual', None)
         self.tags = kws.get('tags', None)
         super(CaElement, self).__init__(**kws)
-        ###
-        # self._golden = {}  # the golden values for fields.
-        # self._pvarchive = []
-        # self.trace = kws.get('trace', False)
-        # self.alias = []
-        ###
+
         pv_data = kws.get('pv_data', None)
         if pv_data is not None:
             if isinstance(pv_data, list):
                 self.process_pv(*pv_data)
             elif isinstance(pv_data, dict):
                 self.process_pv(**pv_data)
+
+        self.last_settings = {}
+        self.design_settings = {}
+
+        ###
+        # self._pvarchive = []
+        # self.trace = kws.get('trace', False)
+        # self.alias = []
+        ###
+
+    @property
+    def last_settings(self):
+        """dict: Last setting(s) for all dynamic field(s)."""
+        return self._last_settings
+
+    @last_settings.setter
+    def last_settings(self, x):
+        if x is None:
+            self._last_settings = {}
+        else:
+            self._last_settings = x
+
+    @property
+    def design_settings(self):
+        """dict: Physics design setting(s) for all dynamic field(s)."""
+        return self._design_settings
+
+    @design_settings.setter
+    def design_settings(self, x):
+        if x is None:
+            self._design_settings = {}
+        else:
+            self._design_settings = x
 
     @property
     def tags(self):
@@ -1103,6 +1131,7 @@ class CaElement(AbstractElement):
                         f_name=key, e_name=self.name, rd_val=getattr(self, key)
                     )
                 )
+            self._last_settings.update([(key, value)])
         else:
             super(CaElement, self).__setattr__(key, value)
 
