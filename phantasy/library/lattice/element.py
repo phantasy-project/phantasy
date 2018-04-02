@@ -280,22 +280,24 @@ class CaField(object):
 
     Usually, ``CaField`` instance has at most three types of PV names:
     *readback*, *readset* and *setpoint*, each PV should linked with valid
-    PV connection.
+    PV connections.
 
     There are two approaches to retrieve the PV values, one is through
     ``value`` attribute, another one is by explicitly calling ``get()``;
 
-    The same rule applies to set values, i.e. by ``value`` attribute and
-    by calling ``put()`` method.
+    The same rule applies to set values, i.e. by setting ``value`` attribute
+    and by calling ``put()`` method.
 
     Parameters
     ----------
     name : str
         Name of CA field, usually represents the physics attribute linked with CA.
     wait : bool
-        If True, wait until put operation completed, default is False.
+        If True, wait until put operation completed, default is True.
     timeout: float
         Time out in second for put operation, default is 10 seconds.
+    ename : str
+        Name of element which the field attaches to.
 
     Keyword Arguments
     -----------------
@@ -321,6 +323,7 @@ class CaField(object):
 
     def __init__(self, name='', **kws):
         self.name = name
+        self.ename = kws.get('ename', None)
         self.timeout = kws.get('timeout', None)
         self.wait = kws.get('wait', None)
         self._rdbk_pv_name = []
@@ -371,15 +374,29 @@ class CaField(object):
             _LOGGER.warn("Field name should be a valid string.")
 
     @property
+    def ename(self):
+        """str: Name of element the field attaches to."""
+        return self._ename
+
+    @ename.setter
+    def ename(self, e):
+        if e is None:
+            self._ename = ''
+        elif isinstance(e, basestring):
+            self._ename = e
+        else:
+            _LOGGER.warn("Element name should be a valid string")
+
+    @property
     def wait(self):
         """boolean: Wait (True) for not (False) when issuing set command,
-        default: False."""
+        default: True."""
         return self._wait
 
     @wait.setter
     def wait(self, b):
         if b is None:
-            self._wait = False
+            self._wait = True
         else:
             self._wait = bool(b)
 
@@ -545,28 +562,11 @@ class CaField(object):
 
     @property
     def value(self):
-        """Get value of PV, returned from CA request.
-        Priority of accessed PV: 'readback' > 'readset' > 'setpoint'.
-        """
-        # if self.readback is not None:
-        #     pv = self.readback_pv
-        # elif self.readset is not None:
-        #     pv = self.readset_pv
-        # elif self.setpoint is not None:
-        #     pv = self.setpoint_pv
-        # else:
-        #     _LOGGER.error("Error: Invalid PV configuration.")
-        #     raise RuntimeError("Invalid PV configuration.")
-        #
-        # return pv.value
+        """Get value of PV, returned from CA request."""
         return self.read_policy(self.readback_pv)
 
     @value.setter
     def value(self, v):
-        # if self.setpoint is not None:
-        #     self.set(v, 'setpoint')
-        # else:
-        #     raise RuntimeError("Invalid PV configuration.")
         self.write_policy(self.setpoint_pv, v, timeout=self.timeout,
                           wait=self.wait)
 
@@ -691,6 +691,9 @@ class CaField(object):
                 k.put(v, **kws)
         else:
             pass
+
+    def __repr__(self):
+        return "Field '{}' of '{}'".format(self.name, self.ename)
 
         ################################################################################
 
@@ -966,6 +969,7 @@ class CaElement(AbstractElement):
             handle = 'readback'
         if field not in self._fields:
             new_field = CaField(name=field,
+                                ename=self.name,
                                 pv_policy=kws.get('pv_policy', 'DEFAULT'),
                                 **{handle: pv})
             self._fields[field] = new_field
