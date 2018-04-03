@@ -159,7 +159,7 @@ class TestCaElement(unittest.TestCase):
         time.sleep(1.5)
 
     def test_channel_ca_2(self):
-        """Each CA handle has two PV"""
+        """Each CA handle has two PVs"""
         lat = self.mp.work_lattice_conf
         elem = lat[1]
         fld_name = 'V'
@@ -189,8 +189,8 @@ class TestCaElement(unittest.TestCase):
         lat = self.mp.work_lattice_conf
         elem = lat[1]
         fld = elem.get_field('V')
-        fld.read_policy = lambda x: (-x[0].value + x[1].value) * 0.5
-        fld.write_policy = lambda x,v: [x[0].put(-v), x[1].put(v)]
+        fld.read_policy = lambda x,**kws: (-x[0].value + x[1].value) * 0.5
+        fld.write_policy = lambda x,v,**kws: [x[0].put(-v, **kws), x[1].put(v, **kws)]
         elem.V = 0.5
         time.sleep(1.5)
         self.assertEqual(fld.get('readback'), [-0.5, 0.5])
