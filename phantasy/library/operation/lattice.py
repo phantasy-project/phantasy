@@ -432,7 +432,7 @@ def create_lattice(latname, pv_data, tag, **kws):
     lat.update_groups()
 
     # init design settings for all elements
-    lat.init_design_settings()
+    lat.load_settings(stype='design')
 
     # sort lattice or not
     if kws.get('sort', False):
