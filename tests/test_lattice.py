@@ -11,10 +11,13 @@ import unittest
 import os
 
 from phantasy import MachinePortal
+from phantasy import Settings
 
 curdir = os.path.dirname(__file__)
 
 TEST_MACH = 'FRIB_FLAME'
+TEST_CA = "TEST_CA"
+SETTINGS_FILE = os.path.join(curdir, 'config/FRIB_XLF/settings.json')
 
 
 class TestLattice(unittest.TestCase):
@@ -49,4 +52,39 @@ class TestLattice(unittest.TestCase):
         self.assertEqual(lat.model, 'FLAME')
 
 
+class TestLatSettings(unittest.TestCase):
+    def setUp(self):
+        config_dir = os.path.join(curdir, 'config')
+        mpath = os.path.join(config_dir, TEST_CA)
+        mp = MachinePortal(mpath)
+        self.mp = mp
 
+    def test_settings_1(self):
+        """test initial settings is None"""
+        mp = self.mp
+        lat = mp.work_lattice_conf
+
+        for elem in lat:
+            self.assertEqual(set(elem.fields).issubset(elem.design_settings), True)
+            self.assertEqual(set(elem.fields).issubset(elem.last_settings), True)
+            self.assertEqual(set(elem.last_settings).issubset(elem.design_settings), True)
+
+        elem0 = lat[0]
+        self.assertEqual(elem0.last_settings['B'], None)
+        self.assertEqual(elem0.design_settings['B'], None)
+
+    def test_settings_2(self):
+        """test load settings"""
+        mp = self.mp
+        lat = mp.work_lattice_conf
+        elem0 = lat[0]
+        elem1 = lat[1]
+        settings = Settings(SETTINGS_FILE)
+
+        lat.load_settings(settings, stype='design')
+        self.assertEqual(elem0.design_settings, {'B': 0.0})
+        self.assertEqual(elem1.design_settings, {'V': 3985.557698574019})
+
+        lat.load_settings(settings, stype='last')
+        self.assertEqual(elem0.last_settings, {'B': 0.0})
+        self.assertEqual(elem1.last_settings, {'V': 3985.557698574019})
