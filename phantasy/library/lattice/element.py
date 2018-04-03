@@ -881,6 +881,9 @@ class CaElement(AbstractElement):
         self.tags = kws.get('tags', None)
         super(CaElement, self).__init__(**kws)
 
+        self.last_settings = {}
+        self.design_settings = {}
+
         pv_data = kws.get('pv_data', None)
         if pv_data is not None:
             if isinstance(pv_data, list):
@@ -888,8 +891,6 @@ class CaElement(AbstractElement):
             elif isinstance(pv_data, dict):
                 self.process_pv(**pv_data)
 
-        self.last_settings = {}
-        self.design_settings = {}
 
         ###
         # self._pvarchive = []
@@ -1000,6 +1001,8 @@ class CaElement(AbstractElement):
                                 ename=self.name,
                                 pv_policy=kws.get('pv_policy', 'DEFAULT'),
                                 **{handle: pv})
+            self._design_settings.update({field: None})
+            self._last_settings.update({field: None})
             self._fields[field] = new_field
         else:
             self._fields[field].update(**{handle: pv})
