@@ -218,6 +218,8 @@ class Lattice(object):
             self._settings = settings
         else:
             self._settings = self._get_default_settings()
+        # update model factory
+        self.model_factory = None
 
     @property
     def model_factory(self):
@@ -368,6 +370,7 @@ class Lattice(object):
         if self.mconf.has_option(self.name, "settings_file"):
             settingfile = self.mconf.getabspath(self.name, "settings_file")
             settings = Settings(settingfile)
+            _LOGGER.debug("Apply settings file from machine configs.")
         else:
             settings = None
         return settings
@@ -436,7 +439,7 @@ class Lattice(object):
         elif len(all_fields) == 1:
             field = all_fields[0]
         else:
-            print("Element has not defined field.")
+            print("Element does not have the defined field.")
             return None
 
         source = kws.get('source', 'all')
@@ -455,13 +458,14 @@ class Lattice(object):
     def _set_control_field(self, elem, field, value):
         """Set value to element field onto control environment.
         """
-        pv = elem.pv(field=field, handle='setpoint')[0]
-        value0 = caget(pv)
+        value0 = elem.last_settings.get('field')
+        if value0 is None:
+            value0 = getattr(elem, field)
         if elem.family == "CAV" and field == 'PHA':
             value = _normalize_phase(value)
-        caput(pv, value)
+        setattr(elem, field, value)
         self._log_trace('control', element=elem.name,
-                        field=field, value0=value0, value=value, pv=pv)
+                        field=field, value0=value0, value=value)
 
     def _set_model_field(self, elem, field, value):
         """Set value to element field.
@@ -483,8 +487,7 @@ class Lattice(object):
             self.settings[elem_name][field] = value
             self.model_factory.settings[elem_name][field] = value
             _LOGGER.debug(
-                "Updated field: {0:s} of element: {1:s} with \
-                value: {2:f}.".format(field, elem_name, value))
+                "Updated field: {0:s} of element: {1:s} with value: {2:f}.".format(field, elem_name, value))
         self._log_trace('model', element=elem_name, field=field,
                         value=value, value0=value0)
 
@@ -498,7 +501,6 @@ class Lattice(object):
         timestamp
         element
         field
-        pv
         value
         value0
         """
@@ -507,25 +509,14 @@ class Lattice(object):
             field = kws.get('field')
             value = kws.get('value')
             value0 = kws.get('value0')
-            if type == 'control':
-                pv = kws.get('pv')
-                log_entry = OrderedDict((
-                    ('timestamp', time.time()),
-                    ('type', type),
-                    ('element', name),
-                    ('field', field),
-                    ('value0', value0),
-                    ('value', value),
-                    ('pv', pv)))
-            elif type == 'model':
-                log_entry = OrderedDict((
-                    ('timestamp', time.time()),
-                    ('type', type),
-                    ('element', name),
-                    ('field', field),
-                    ('value0', value0),
-                    ('value', value)))
-
+            log_entry = OrderedDict((
+                ('timestamp', time.time()),
+                ('type', type),
+                ('element', name),
+                ('field', field),
+                ('value0', value0),
+                ('value', value),
+            ))
             self._trace_history.append(log_entry)
         else:
             pass
@@ -639,16 +630,11 @@ class Lattice(object):
         +---------------+--------------------------------------+
         | *value0*      | ``325``                              |
         +---------------+--------------------------------------+
-        | *pv*          | ``V_1:LS1_CA01:CAV1_D1127:PHA_CSET`` |
-        +---------------+--------------------------------------+
 
         Keyword Arguments
         -----------------
         element : str
             Unix shell pattern of element name.
-        pv : str
-            Unix shell pattern of element pv name, only valid for 'control'
-            type entry.
         field : str
             Unix shell pattern of element field name.
         type : str
@@ -668,22 +654,13 @@ class Lattice(object):
                 ts = log_entry['timestamp']
                 value = log_entry['value']
                 value0 = log_entry['value0']
-                if type == 'control':
-                    pv = log_entry['pv']
-                    log_str = "{ts} [{type:^7s}] set {pv:<34s} with \
-                               {value:>16.6e} which was {value0:>16.6e}".format(
-                        ts=datetime.fromtimestamp(ts).strftime(
-                            '%Y-%m-%d %H:%M:%S'),
-                        type=type, pv=pv, value=value, value0=value0)
-                elif type == 'model':
-                    name = log_entry['element']
-                    field = log_entry['field']
-                    log_str = "{ts} [{type:^7s}] set {name:<34s} with \
-                               {value:>16.6e} which was {value0:>16.6e}".format(
-                        ts=datetime.fromtimestamp(ts).strftime(
-                            '%Y-%m-%d %H:%M:%S'),
-                        type=type, name="{0}:{1}".format(name, field),
-                        value=value, value0=value0)
+                name = log_entry['element']
+                field = log_entry['field']
+                log_str = "{ts} [{type:^7s}] Set {name:<22s} TO {value:<10.3f} [{value0:^10.3f}]".format(
+                    ts=datetime.fromtimestamp(ts).strftime(
+                        '%Y-%m-%d %H:%M:%S'),
+                    type=type, name="{0} [{1}]".format(name, field),
+                    value=value, value0=value0)
                 retval.append(log_str)
                 print(log_str)
             return "\n".join(retval)
@@ -798,15 +775,7 @@ class Lattice(object):
             _entry_type = entry.get('type')
             _field_name = entry.get('field')
             _value = entry.get('value0')
-            _pv_name = entry.get('pv', None)
-            if _pv_name is None:
-                self._set_model_field(_elem_name, _field_name, _value)
-            else:
-                _value0 = caget(_pv_name)
-                caput(_pv_name, _value)
-                self._log_trace('control', element=_elem_name,
-                                field=_field_name,
-                                value=_value, value0=_value0, pv=_pv_name)
+            self.set(_elem_name, _value, _field_name, source=_entry_type)
 
     def update_model_settings(self, model_lattice, **kws):
         """Update model lattice settings with external lattice file, prefer
@@ -873,8 +842,6 @@ class Lattice(object):
                                                      source='control').items():
                             if field in model_settings[elem.name]:
                                 self._set_model_field(elem, field, value)
-                                # model_settings[elem.name][field] = value
-                                # _LOGGER.debug("Update model: {e}:{f} to be {v}.".format(e=elem.name, f=field, v=value))
                             else:
                                 _LOGGER.debug(
                                     'Model settings does not have field: {e}:{f}.'.format(
@@ -897,6 +864,31 @@ class Lattice(object):
                         if field in elem[0].fields:
                             self._set_control_field(elem[0], field, value)
 
+    def load_settings(self, settings=None, stype='design'):
+        """Initializing design settings of elements from *settings*.
+
+        Parameters
+        ----------
+        settings :
+            Settings object.
+        stype : str
+            Setting type, 'design' or 'last', to set `design_settings` or
+            `last_settings`, respectively.
+        """
+        settings = self.settings if settings is None and \
+                   self.settings is not None else settings
+        if settings is None:
+            _LOGGER.warning("Cannot load settings from None.")
+            return 0
+        for k, v in settings.items():
+            el = self._find_exact_element(k)
+            if el is not None:
+                if stype == 'design':
+                    el.design_settings.update(dict(v))
+                elif stype == 'last':
+                    el.last_settings.update(dict(v))
+                _LOGGER.debug("Updated {0:<20}: {1}_settings.".format(el.name, stype))
+
     def _skip_elements(self, name):
         """Presently, element should skip: SEXT
         """
@@ -907,7 +899,7 @@ class Lattice(object):
                 return e.ETYPE in SKIP_TYPES
 
     def run(self):
-        """Run mchine with defined model, e.g. 'FLAME' or 'IMPACT',
+        """Run machine with defined model, e.g. 'FLAME' or 'IMPACT',
         update model settings, but not control settings.
         
         Returns
