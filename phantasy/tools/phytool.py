@@ -11,20 +11,21 @@ import sys
 __USAGE__ = """Usage: phytool <command> [<args>]
 
 The support commands are:
-  flame-vastart    Start FLAME virtual accelerator
-  flame-lattice    Generate FLAME lattice file
-  flame-settings   Read settings from FLAME lattice file (test.lat)
-  impact-vastart   Start IMPACT virtual accelerator
-  impact-lattice   Generate IMPACT lattice file (test.in)
-  impact-settings  Read settings from IMPACT lattice file (test.in)
-  import-model     Run IMPACT model and produce results
-  frib-layout      Generate layout file from FRIB Expanded Lattice File (XLF)
-  frib-channels    Generate a channels data file with FRIB naming conventions
-  cfutil-export    Export channel data to file or Channel Finder Service
-  cfutil-update    Update data of channel finder service
-  gen-mconfig      Generate machine configuration template file
-  admin            Admin commands only for development (requires permission)
-  help             Show help information for a specified topic
+  flame-vastart     Start FLAME virtual accelerator
+  flame-lattice     Generate FLAME lattice file
+  flame-settings    Read settings from FLAME lattice file (test.lat)
+  impact-vastart    Start IMPACT virtual accelerator
+  impact-lattice    Generate IMPACT lattice file (test.in)
+  impact-settings   Read settings from IMPACT lattice file (test.in)
+  import-model      Run IMPACT model and produce results
+  frib-layout       Generate layout file from FRIB Expanded Lattice File (XLF)
+  frib-channels     Generate a channels data file with FRIB naming conventions
+  cfutil-export     Export channel data to file or Channel Finder Service
+  cfutil-update     Update data of channel finder service
+  snapshot-settings Generate lattice settings from snapshot file
+  gen-mconfig       Generate machine configuration template file
+  admin             Admin commands only for development (requires permission)
+  help              Show help information for a specified topic
 """
   #cfutil-mark      Mark channel data with more properties and tags
 
@@ -76,6 +77,10 @@ def main():
     elif cmd == "cfutil-update":
         from . import cfutil_update
         return cfutil_update.main()
+
+    elif cmd == "snapshot-settings":
+        from . import snapshot_settings
+        return snapshot_settings.main()
 
     elif cmd == "frib-layout":
         from . import frib_layout
@@ -139,6 +144,10 @@ def print_help():
     elif cmd == "cfutil-update":
         from . import cfutil_update
         cfutil_update.print_help()
+
+    elif cmd == "snapshot-settings":
+        from . import snapshot_settings
+        snapshot_settings.print_help()
 
     elif cmd == "frib-layout":
         from . import frib_layout
