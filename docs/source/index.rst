@@ -14,7 +14,7 @@ Phantasy documentation
 
         :Author: Tong Zhang
         :E-mail: zhangt@frib.msu.edu
-        :Copyright: 2016-2017, Facility for Rare Isotope Beams, Michigan State University
+        :Copyright: 2016-2018, Facility for Rare Isotope Beams, Michigan State University
 
 .. toctree::
     :maxdepth: 3
@@ -25,7 +25,6 @@ Phantasy documentation
     src/nb
     src/api
     src/terms
-    src/ack
 
 .. only:: html
 
