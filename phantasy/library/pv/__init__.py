@@ -2,12 +2,10 @@
 
 from .cothread import Popen
 
-from .catools import caput
-from .catools import caget
-from .catools import camonitor
-from .catools import connect
-from .catools import cainfo
-from .catools import CABatch
+from .epics_tools import caput
+from .epics_tools import caget
+from .epics_tools import cainfo
+from .epics_tools import camonitor
 
 from .readback import get_readback
 
@@ -19,7 +17,7 @@ from .policy import PV_POLICIES
 
 __all__ = [
     'Popen', 'caget', 'caput', 'camonitor', 'cainfo',
-    'connect', 'CABatch', 'get_readback',
+    'get_readback',
     'DataSource', 'dump_data',
     'PV_POLICIES',
 ]
