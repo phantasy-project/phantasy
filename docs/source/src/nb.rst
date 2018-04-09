@@ -13,6 +13,7 @@ Original ``.ipynb`` files could be downloaded:
 * :download:`Orbit Tuning (Advanced) <notebooks/phantasy_orbit_pro.ipynb>`
 * :download:`Cavity Tuning <notebooks/phantasy_cavity.ipynb>`
 * :download:`Wire-scanner <notebooks/phantasy_ws.ipynb>`
+* :download:`Work with Save&Restore <notebooks/work_with_save_restore.ipynb>`
 
 .. toctree::
     :maxdepth: 2
@@ -24,4 +25,5 @@ Original ``.ipynb`` files could be downloaded:
     Orbit Tuning (Advanced) <notebooks/phantasy_orbit_pro.ipynb>
     Cavity Tuning <notebooks/phantasy_cavity.ipynb>
     Wire Scanner <notebooks/phantasy_ws.ipynb>
+    Work with Save&Restore <notebooks/work_with_save_restore.ipynb>
     
