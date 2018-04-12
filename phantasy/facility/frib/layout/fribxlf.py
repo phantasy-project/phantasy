@@ -54,11 +54,14 @@ NON_DRIFT_ELEMENTS = (
 )
 
 # constants for parsing xlsx file
-# skip line whose system field startswiths any one of the words defined by SYSTEM_SKIP_WORDS
+# skip line whose system field startswith any one of the words defined by SYSTEM_SKIP_WORDS
 SYSTEM_SKIP_WORDS = ( "dump", "SEGMENT", "LINAC", "Target",
                       "beta=0.085 QWR cryomodules START", )
 # skip line whose device field in one of the tuple defined by DEVICE_SKIP_WORDS
 DEVICE_SKIP_WORDS = ( "end", "start", "END", )
+
+# skip line whose name field is any one of the words defined by NAME_SKIP_WORDS
+NAME_SKIP_WORDS = ("FE_MEBT:PM_D1053", )
 
 # device alias for valve: ValveElement
 DEVICE_ALIAS_VALVE = ( "GV", "FVS", "FAV", )
@@ -369,12 +372,16 @@ class AccelFactory(XlfConfig):
             _LOGGER.info("AccelFactory: %s: aperture Y found in configuration: %s", elem.name, elem.apertureY)
 
         if self._has_config_length(elem):
-            eff_len = self._get_config_length(elem)
-            drift_delta = (elem.length - eff_len) / 2.0
-            self.get_prev_element(sequence).length += drift_delta
-            self.get_prev_element(sequence).z += drift_delta / 2.0
-            elem.length -= drift_delta * 2.0
-            _LOGGER.info("AccelFactory: %s: effective length found in configuration: %s", elem.name, elem.dtype)
+            try:
+                eff_len = self._get_config_length(elem)
+                drift_delta = (elem.length - eff_len) / 2.0
+                self.get_prev_element(sequence).length += drift_delta
+                self.get_prev_element(sequence).z += drift_delta / 2.0
+                elem.length -= drift_delta * 2.0
+                _LOGGER.info("AccelFactory: %s: effective length found in configuration: %s", elem.name, elem.dtype)
+            except:
+                _LOGGER.warning("AccelFactory: %s: effective length configure failed: %s", elem.name, elem.dtype)
+                drift_delta = 0.0
         return drift_delta
 
     def get_prev_element(self, sequence, allow_types=(DriftElement,)):
@@ -439,7 +446,8 @@ class AccelFactory(XlfConfig):
                     # if pre drift name ends with '_#', inc # to the new drift
                     n, dnum, idx = r.groups()
                     name = "{n}_{d}_{i}".format(n=n, d=dnum, i=int(idx)+1)
-            return name
+            finally:
+                return name
 
         for ridx in range(self._xlf_layout_sheet_start, layout.nrows):
             row = _LayoutRow(layout.row(ridx), self.config)
@@ -449,6 +457,9 @@ class AccelFactory(XlfConfig):
                 continue
 
             if row.device in DEVICE_SKIP_WORDS:
+                continue
+
+            if row.name in NAME_SKIP_WORDS:
                 continue
 
             # clear lines with comments
@@ -514,7 +525,7 @@ class AccelFactory(XlfConfig):
                         subsequence.append(elem)
 
                     elif row.device in DEVICE_ALIAS_CAV:
-                        m = re.match("(b\\d{2}) (?:cavity|resonator)", row.element_name)
+                        m = re.match("(b\\d{2}) (?:cavity|resonator).*", row.element_name)
                         if m:
                             dtype = "CAV_{}".format(m.group(1).upper())
                         else:
@@ -776,7 +787,8 @@ class AccelFactory(XlfConfig):
                                             "bellow+tube/box", "tube", "reducer flange", "bellow ?", "4 way cross ??",
                                             "BPM bellow", "bellow?", "bellow+tube ??", "6 way cross ??",
                                             "mhb box & bellows",
-                                            "solenoid-entry", "solenoid-exit"):
+                                            "solenoid-entry", "solenoid-exit",
+                                            "rf coupler"):
                         if drift_delta != 0.0:
                             row.eff_length += drift_delta
                             row.center_position -= drift_delta / 2.0
@@ -807,9 +819,8 @@ class AccelFactory(XlfConfig):
                             self.get_prev_element(sequence, (StripElement,)).length += row.eff_length
                         except:
                             subsequence.append(
-                                #StripElement(row.center_position, row.eff_length, row.diameter, "CHARGE STRIPPER",
-                                #            desc=row.element_name))
                                 DriftElement(row.center_position, row.eff_length, row.diameter, name_drift(), desc=row.element_name))
+
                     elif row.element_name == "#stripper":
                         if drift_delta != 0.0:
                             raise Exception("Unsupported drift delta on element: {}".format(row.element_name))
