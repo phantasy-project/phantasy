@@ -449,6 +449,8 @@ class VirtualAcceleratorFactory(object):
                              (elem.name, elem.fields.yrms), desc="Vertical Size", egu="m")
                 va.append_ro(self._findChannel(elem.name, elem.fields.xyrms, "readback"),
                              (elem.name, elem.fields.xyrms), desc="Diagonal Size", egu="m")
+                va.append_ro(self._findChannel(elem.name, elem.fields.cxy, "readback"),
+                             (elem.name, elem.fields.cxy), desc="X-Y Correlation", egu="m")
                 va.append_elem(elem)
 
             elif isinstance(elem, (BLMElement, BLElement, BCMElement)):
@@ -880,7 +882,7 @@ class VirtualAccelerator(object):
                     output_map.append(None)
 
             batch = catools.CABatch()
-            for i in range(0,len(machine)):
+            for i in range(0, len(machine)):
                 machine.propagate(S, i, 1)
 
                 if output_map[i] in self._elemmap:
@@ -934,6 +936,11 @@ class VirtualAccelerator(object):
                         _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
                                       self._readfieldmap[elem.name][elem.fields.xyrms], xy_rms)
                         batch[self._readfieldmap[elem.name][elem.fields.xyrms]] = xy_rms
+
+                        cxy = sign * S.moment1_env[0, 2] * 1e-6 / x_rms / y_rms
+                        _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
+                                      self._readfieldmap[elem.name][elem.fields.cxy], cxy)
+                        batch[self._readfieldmap[elem.name][elem.fields.cxy]] = cxy
 
             batch.caput()
 
