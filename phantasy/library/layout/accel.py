@@ -1,13 +1,8 @@
-# encoding: UTF-8
+# -*- coding: utf-8 -*-
+"""Layout Elements
 
-"""
-Layout Elements
-===============
-
-The accelerator layout is composed of  elements. These elements
+The accelerator layout is composed of elements. These elements
 represent the various types of accelerator devices or components.
-
-:authors: Dylan Maxwell, Tong Zhang
 """
 
 from __future__ import print_function
@@ -23,16 +18,10 @@ except NameError:
 
 
 # Base Elements
-
-
 class Fields(object):
-    """
-    Fields is a simple container for element field names.
+    """Fields is a simple container for element field names.
 
-    Keyword Arguments
-    -----------------
-    kwargs :
-        All keyword arguments become object attributes.
+    All keyword arguments become object attributes.
     """
 
     def __init__(self, **kwargs):
@@ -42,7 +31,7 @@ class Fields(object):
     def __iter__(self):
         return iter(dir(self))
 
-    def __str__(self):
+    def __repr__(self):
         return str(self.__dict__)
 
 
@@ -62,8 +51,8 @@ class Element(object):
 
     Keyword Arguments
     -----------------
-    meta :
-        Meta data describing this accelerator element.
+    meta : dict
+        Key-value pairs describing this element.
     """
 
     def __init__(self, z, length, aperture, name, **meta):
@@ -152,10 +141,7 @@ class Element(object):
             raise ValueError("Element: 'name' property must not be empty")
         self._name = name
 
-    # def __getattr__(self, name):
-    #     return self.meta.get(name, "")
-
-    def __str__(self):
+    def __repr__(self):
         s = "{{ name:'{elem.name}', z:{elem.z}, length:{elem.length}, " \
             "aperture:{elem.aperture}, meta={elem.meta}, " \
             "fields={elem.fields} }}"
@@ -169,11 +155,11 @@ class SeqElement(Element):
     Parameters
     ----------
     name : str
-            Name of this accelerator element.
+        Name of this accelerator element.
     desc : str
-            Description of this accelerator element.
+        Description of this accelerator element.
     elements : list
-            List of elements contained by this sequence.
+        List of elements contained by this sequence.
     """
 
     def __init__(self, name, elements=None, desc="sequence", **meta):
@@ -282,7 +268,7 @@ class SeqElement(Element):
     def iter(self, start=None, end=None):
         return _SeqElementIterator(self, start, end)
 
-    def __str__(self):
+    def __repr__(self):
         s = "{{ name:'{elem.name}', desc:'{elem.desc}', " \
             "nelements:{nelements} }}"
         return type(self).__name__ + s.format(elem=self,
@@ -335,7 +321,6 @@ class DriftElement(Element):
     """DriftElement represents a drift tube, drift space, bellows or other
     passive element.
     """
-
     ETYPE = "DRIFT"
 
     def __init__(self, z, length, aperture, name="DRIFT", desc="drift", **meta):
@@ -346,7 +331,6 @@ class DriftElement(Element):
 class ValveElement(Element):
     """ValveElement represents a vaccuum valve or other similar valve.
     """
-
     ETYPE = "VALVE"
 
     def __init__(self, z, length, aperture, name, desc="valve", **meta):
@@ -357,7 +341,6 @@ class ValveElement(Element):
 class PortElement(Element):
     """PortElement represents a attachment point for pump or other device.
     """
-
     ETYPE = "PORT"
 
     def __init__(self, z, length, aperture, name, desc="port", **meta):
@@ -370,7 +353,6 @@ class PortElement(Element):
 class BLMElement(Element):
     """BLMElement represents Beam Loss Monitor diagnostic device.
     """
-
     ETYPE = "BLM"
 
     def __init__(self, z, length, aperture, name, desc="beam loss monitor",
@@ -382,7 +364,6 @@ class BLMElement(Element):
 class BPMElement(Element):
     """BPMElement represents Beam Position Monitor diagnostic device.
     """
-
     ETYPE = "BPM"
 
     def __init__(self, z, length, aperture, name, desc="beam positon monitor",
@@ -398,7 +379,6 @@ class BPMElement(Element):
 class BCMElement(Element):
     """BCMElement represents Beam Current Monitor diagnostic device.
     """
-
     ETYPE = "BCM"
 
     def __init__(self, z, length, aperture, name, desc="beam current monitor",
@@ -431,12 +411,13 @@ class PMElement(Element):
                  **meta):
         super(PMElement, self).__init__(z, length, aperture, name, desc=desc,
                                         **meta)
-        self.fields.x = "X"
-        self.fields.y = "Y"
+        self.fields.x = "XCEN"
+        self.fields.y = "YCEN"
         self.fields.xy = "XY"
         self.fields.xrms = "XRMS"
         self.fields.yrms = "YRMS"
         self.fields.xyrms = "XYRMS"
+        self.fields.cxy = "CXY"
 
 
 class EMSElement(Element):
@@ -676,7 +657,8 @@ class ChopperElement(Element):
 
     def __init__(self, z, length, aperture, name, desc="chopper",
                  **meta):
-        super(ChopperElement, self).__init__(z, length, aperture, name, desc=desc,
+        super(ChopperElement, self).__init__(z, length, aperture, name,
+                                             desc=desc,
                                              **meta)
 
 
@@ -690,7 +672,8 @@ class AttenuatorElement(Element):
 
     def __init__(self, z, length, aperture, name, desc="attenuator",
                  **meta):
-        super(AttenuatorElement, self).__init__(z, length, aperture, name, desc=desc,
+        super(AttenuatorElement, self).__init__(z, length, aperture, name,
+                                                desc=desc,
                                                 **meta)
 
 
@@ -718,7 +701,8 @@ class ApertureElement(Element):
 
     def __init__(self, z, length, aperture, name, desc="aperture",
                  **meta):
-        super(ApertureElement, self).__init__(z, length, aperture, name, desc=desc,
+        super(ApertureElement, self).__init__(z, length, aperture, name,
+                                              desc=desc,
                                               **meta)
 
 
