@@ -28,7 +28,7 @@ Phantasy documentation
 
 .. only:: html
 
-.. PDF documentation: :download:`Download <../build/latex/phantasy.pdf>`
+ PDF documentation: :download:`Download <../build/latex/phantasy.pdf>`
 
 
 .. Indices and tables
