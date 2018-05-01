@@ -247,15 +247,19 @@ def build_channels(layout, machine=None, **kws):
 
             props[_FIELD_PROPERTY] = elem.fields.x
             props[_HANDLE_PROPERTY] = "readback"
-            data.append((channel + ":X_RD", OrderedDict(props), list(tags)))
+            data.append((channel + ":XCEN_RD", OrderedDict(props), list(tags)))
 
             props[_FIELD_PROPERTY] = elem.fields.y
             props[_HANDLE_PROPERTY] = "readback"
-            data.append((channel + ":Y_RD", OrderedDict(props), list(tags)))
+            data.append((channel + ":YCEN_RD", OrderedDict(props), list(tags)))
 
             props[_FIELD_PROPERTY] = elem.fields.xy
             props[_HANDLE_PROPERTY] = "readback"
             data.append((channel + ":XY_RD", OrderedDict(props), list(tags)))
+
+            props[_FIELD_PROPERTY] = elem.fields.cxy
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel + ":CXY_RD", OrderedDict(props), list(tags)))
 
             props[_FIELD_PROPERTY] = elem.fields.xrms
             props[_HANDLE_PROPERTY] = "readback"
