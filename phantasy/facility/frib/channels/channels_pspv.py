@@ -301,19 +301,23 @@ def build_channels(layout, psfile, machine=None, **kws):
 
             props[_FIELD_PROPERTY] = elem.fields.x
             props[_HANDLE_PROPERTY] = "readback"
-            data.append((channel + ":X_RD", OrderedDict(props), list(tags)))
+            data.append((channel + ":XPOS_RD", OrderedDict(props), list(tags)))
 
             props[_FIELD_PROPERTY] = elem.fields.y
             props[_HANDLE_PROPERTY] = "readback"
-            data.append((channel + ":Y_RD", OrderedDict(props), list(tags)))
+            data.append((channel + ":YPOS_RD", OrderedDict(props), list(tags)))
 
             props[_FIELD_PROPERTY] = elem.fields.phase
             props[_HANDLE_PROPERTY] = "readback"
-            data.append((channel + ":PHA_RD", OrderedDict(props), list(tags)))
+            data.append((channel + ":PHASE_RD", OrderedDict(props), list(tags)))
 
             props[_FIELD_PROPERTY] = elem.fields.energy
             props[_HANDLE_PROPERTY] = "readback"
             data.append((channel + ":ENG_RD", OrderedDict(props), list(tags)))
+
+            props[_FIELD_PROPERTY] = elem.fields.magnitude
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel + ":MAG_RD", OrderedDict(props), list(tags)))
 
         elif isinstance(elem, PMElement):
             props[_TYPE_PROPERTY] = "PM"
