@@ -1,0 +1,41 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: tonyzhang/phantasy-testing:latest
+      - image: tonyzhang/phantasy-ioc:jessie
+
+    working_directory: ~/repo
+
+    branches:
+      only:
+        - upstream
+
+    steps:
+      - checkout
+
+#      - run:
+#          name: install python dependencies
+#          command: |
+#            pip install -r requirements-dev.txt
+#
+#      - save_cache:
+#          paths:
+#            - ~/pip-cache
+#          key: v1-depends-{{ checksum "requirements-dev.txt" }}
+
+      - run:
+          name: initialize ioc
+          command: |
+            caput fac 0.0
+            sleep 2.0
+      
+      - run:
+          name: run tests
+          command: |
+            cd tests
+            make test
+
+      - store_artifacts:
+          path: test-reports
+          destination: test-reports
