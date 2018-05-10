@@ -14,6 +14,8 @@ except NameError:
 from epics import PV
 from phantasy.library.misc import flatten
 from phantasy.library.pv import PV_POLICIES
+from phantasy.library.pv import unicorn_read
+from phantasy.library.pv import unicorn_write
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -25,7 +27,7 @@ RANDOM = 3
 
 VALID_STATIC_KEYS = ('name', 'family', 'index', 'se', 'length', 'sb',
                      'phy_name', 'phy_type', 'machine')
-VALID_CA_KEYS = ('field', 'handle', 'pv_policy')
+VALID_CA_KEYS = ('field', 'field_phy', 'handle', 'pv_policy')
 
 
 class AbstractElement(object):
@@ -969,12 +971,38 @@ class CaElement(AbstractElement):
 
     def _update_ca_props(self, props, **kws):
         """CA"""
+        def build_pv_policy_phy(u_policy, pv_policy_name):
+            pv_policy = PV_POLICIES[pv_policy_name]
+            fn_p, fn_n = u_policy['p'], u_policy['n']
+            f_read, f_write = pv_policy['read'], pv_policy['write']
+
+            @unicorn_read(fn_p)
+            def f_read_phy(x):
+                return f_read(x)
+
+            @unicorn_write(fn_n)
+            def f_write_phy(x, v, **kws):
+                f_write(x, v, **kws)
+            return {'read': f_read_phy, 'write': f_write_phy}
+
         handle_name = props.get('handle', None)
-        field_name = props.get('field', None)
+        field_name = props.get('field', None) # engineering field name
+        # if field_phy is undefined, use the same as field_eng
+        field_name_phy = props.get('field_phy', None)
         pv_policy = props.get('pv_policy', 'DEFAULT')
+        if kws.get('u_policy', None) is not None:
+            pv_policy_phy = build_pv_policy_phy(kws.get('u_policy'), pv_policy)
+        else:
+            pv_policy_phy = pv_policy
         pv = kws.get('pv', None)
+        #
+        print(field_name)
+        print(field_name_phy)
+        #
         if field_name is not None:
             self.set_field(field_name, pv, handle_name, pv_policy=pv_policy)
+        if field_name_phy is not None:
+            self.set_field(field_name_phy, pv, handle_name, pv_policy=pv_policy_phy)
 
     def set_field(self, field, pv, handle=None, **kws):
         """Set element field with CA support.
@@ -1006,7 +1034,9 @@ class CaElement(AbstractElement):
             self._fields[field] = new_field
         else:
             self._fields[field].update(**{handle: pv})
+
         _LOGGER.debug("Process '{0}' PV: {1}.".format(handle, pv))
+
 
     def update_properties(self, props, **kws):
         """Update element properties.
@@ -1052,7 +1082,7 @@ class CaElement(AbstractElement):
         else:
             self._tags[pv_name] = set(tags)
 
-    def process_pv(self, pv_name, pv_props, pv_tags=None):
+    def process_pv(self, pv_name, pv_props, pv_tags=None, u_policy=None):
         """Process PV record to update element with properties and tags.
 
         Parameters
@@ -1068,7 +1098,7 @@ class CaElement(AbstractElement):
             raise TypeError("{} is not a valid type".format(type(pv_name)))
 
         # properties
-        self.update_properties(pv_props, pv=pv_name)
+        self.update_properties(pv_props, pv=pv_name, u_policy=u_policy)
         # tags
         self.update_tags(pv_tags, pv=pv_name)
         self.update_groups(pv_props, pv=pv_name)
