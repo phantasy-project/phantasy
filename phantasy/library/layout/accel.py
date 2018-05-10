@@ -371,10 +371,15 @@ class BPMElement(Element):
         super(BPMElement, self).__init__(z, length, aperture, name, desc=desc,
                                          **meta)
         self.fields.x = "X"
+        self.fields.x_phy = "XPOS"
         self.fields.y = "Y"
+        self.fields.y_phy = "YPOS"
         self.fields.phase = "PHA"
+        self.fields.phase_phy = "PHASE"
         self.fields.energy = "ENG"
+        self.fields.energy_phy = "ENERGY"
         self.fields.magnitude = "MAG"
+        self.fields.magnitude_phy = "MAGNITUDE"
 
 
 class BCMElement(Element):
@@ -467,7 +472,8 @@ class SolElement(Element):
     def __init__(self, z, length, aperture, name, desc="solenoid", **meta):
         super(SolElement, self).__init__(z, length, aperture, name, desc=desc,
                                          **meta)
-        self.fields.field = "B"
+        self.fields.field = "I"
+        self.fields.field_phy = "B"
 
 
 class SolCorElement(Element):
@@ -480,7 +486,8 @@ class SolCorElement(Element):
                  **meta):
         super(SolCorElement, self).__init__(z, length, aperture, name,
                                             desc=desc, **meta)
-        self.fields.field = "B"
+        self.fields.field = "I"
+        self.fields.field_phy = "B"
         self.h = None
         self.v = None
 
@@ -494,7 +501,8 @@ class BendElement(Element):
     def __init__(self, z, length, aperture, name, desc="bend magnet", **meta):
         super(BendElement, self).__init__(z, length, aperture, name, desc=desc,
                                           **meta)
-        self.fields.field = "B"
+        self.fields.field = "I"
+        self.fields.field_phy = "B"
         self.fields.angle = "ANG"
         self.fields.exitAngle = "EXTANG"
         self.fields.entrAngle = "ENTANG"
@@ -510,7 +518,8 @@ class HCorElement(Element):
                  desc="horiz. corrector magnet", **meta):
         super(HCorElement, self).__init__(z, length, aperture, name, desc=desc,
                                           **meta)
-        self.fields.angle = "ANG"
+        self.fields.angle = "I"
+        self.fields.angle_phy = "ANG"
 
 
 class VCorElement(Element):
@@ -523,7 +532,8 @@ class VCorElement(Element):
                  **meta):
         super(VCorElement, self).__init__(z, length, aperture, name, desc=desc,
                                           **meta)
-        self.fields.angle = "ANG"
+        self.fields.angle = "I"
+        self.fields.angle_phy = "ANG"
 
 
 class CorElement(Element):
@@ -551,7 +561,8 @@ class QuadElement(Element):
                  **meta):
         super(QuadElement, self).__init__(z, length, aperture, name, desc=desc,
                                           **meta)
-        self.fields.gradient = "GRAD"
+        self.fields.gradient = "I"
+        self.fields.gradient_phy = "GRAD"
 
 
 class SextElement(Element):
@@ -564,7 +575,8 @@ class SextElement(Element):
                  **meta):
         super(SextElement, self).__init__(z, length, aperture, name, desc=desc,
                                           **meta)
-        self.fields.field = "B3"
+        self.fields.field = "I"
+        self.fields.field_phy = "B3"
 
 
 # Electrostatic Elements
@@ -579,6 +591,7 @@ class EBendElement(Element):
         super(EBendElement, self).__init__(z, length, aperture, name, desc=desc,
                                            **meta)
         self.fields.field = "V"
+        self.fields.field_phy = "V"
 
 
 class EQuadElement(Element):
@@ -591,6 +604,7 @@ class EQuadElement(Element):
         super(EQuadElement, self).__init__(z, length, aperture, name, desc=desc,
                                            **meta)
         self.fields.gradient = "V"
+        self.fields.gradient_phy = "V"
 
 
 # Accelerating Elements
@@ -605,7 +619,9 @@ class CavityElement(Element):
         super(CavityElement, self).__init__(z, length, aperture, name,
                                             desc=desc, **meta)
         self.fields.phase = "PHA"
+        self.fields.phase_phy = "PHASE"
         self.fields.amplitude = "AMP"
+        self.fields.amplitude_phy = "AMPLITUDE"
         self.fields.frequency = "FREQ"
 
 
