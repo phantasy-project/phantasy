@@ -27,6 +27,9 @@ from phantasy.library.pv import DataSource
 #from phantasy.library.layout import build_layout
 #from phantasy.library.parser import Configuration
 #from phantasy.library.settings import Settings
+from unicorn.utils import UnicornData
+from unicorn.utils import get_func
+
 
 __authors__ = "Tong Zhang"
 __copyright__ = "(c) 2016-2017, Facility for Rare Isotope beams, "\
@@ -168,6 +171,13 @@ def load_lattice(machine, segment=None, **kws):
         # else:
         #     raise RuntimeError("Settings for '%s' not specified" % (msect,))
 
+        udata_file = d_msect.get('unicorn_file')
+        if udata_file is not None:
+            if not os.path.isabs(udata_file):
+                udata_file = os.path.join(mdir, udata_file)
+            udata = [{'name': f['name'], 'fn': get_func(f['code'])}
+                     for f in UnicornData(udata_file).functions]
+
         # machine type, linear (non-loop) or ring (loop)
         mtype = int(d_msect.get(INI_DICT['KEYNAME_MTYPE'],
                                 INI_DICT['DEFAULT_MTYPE']))
@@ -222,6 +232,7 @@ def load_lattice(machine, segment=None, **kws):
                              #layout=layout,
                              #config=config,
                              #settings=settings,
+                             udata=udata,
                              sort=sort_flag)
 
         #         if IMPACT_ELEMENT_MAP is not None:
@@ -344,6 +355,9 @@ def create_lattice(latname, pv_data, tag, **kws):
         Machine type, 0 for linear (default), 1 for a ring.
     model : str
         Model code, 'FLAME' or 'IMPACT', 'FLAME' by default.
+    udata: list of dict
+        Scaling law functions, represented via 'name' (function name) and 'fn'
+        (function object) keys.
     #layout :
     #    Lattice layout object.
     #config :
@@ -372,6 +386,7 @@ def create_lattice(latname, pv_data, tag, **kws):
         Unified data source class for PVs.
     """
     src = kws.get('source', None)
+    udata = kws.get('udata', None)
     if src is None:
         _LOGGER.warning("PV data source type should be explicitly defined.")
         return None
@@ -426,7 +441,11 @@ def create_lattice(latname, pv_data, tag, **kws):
 
         # update element
         if pv_name:
-            elem.process_pv(pv_name, pv_props, pv_tags)
+            # add 'u_policy' as keyword argument
+            # this policy should created from unicorn_policy
+            # u_policy: {'p': fn_p, 'n': fn_n}
+            u_policy = get_unicorn_policy(udata, elem.name)
+            elem.process_pv(pv_name, pv_props, pv_tags, u_policy=u_policy)
 
     # update group
     lat.update_groups()
@@ -444,3 +463,35 @@ def create_lattice(latname, pv_data, tag, **kws):
     _LOGGER.info("'{0:s}' has {1:d} elements".format(lat.name, lat.size()))
 
     return lat
+
+
+def get_unicorn_policy(udata, ename):
+    """Get unicorn policy for element of name as `ename` from `udata`.
+
+    Parameters
+    ----------
+    udata : list of dict
+        List of scaling laws functions, keys: `name` and `fn`.
+    ename : str
+        Name of element.
+
+    Returns
+    -------
+    ret : dict
+        Keys: `p` and `n`, values: `fn_p` and `fn_n`, `fn_p` is the scaling law
+        to interpret engineering unit to physics unit, the reverse way is handled
+        by `fn_n`.
+
+    Notes
+    -----
+    The scaling law function name ends with '-P' refers to `fn_p`, while '-N'
+    refers to `fn_n`.
+    """
+    fn_p = lambda x:x
+    fn_n = lambda x:x
+    for item in udata:
+        if '{}-P'.format(ename) in item:
+            fn_p = item['fn']
+        elif '{}-N'.format(ename) in item:
+            fn_n = item['fn']
+    return {'p': fn_p, 'n': fn_n}
