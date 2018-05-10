@@ -13,6 +13,8 @@ from .datasource import DataSource
 from .datasource import dump_data
 
 from .policy import PV_POLICIES
+from .unicorn import unicorn_read
+from .unicorn import unicorn_write
 
 
 __all__ = [
@@ -20,4 +22,5 @@ __all__ = [
     'get_readback',
     'DataSource', 'dump_data',
     'PV_POLICIES',
+    'unicorn_read', 'unicorn_write',
 ]
