@@ -141,7 +141,8 @@ INI_DICT['DEFAULT_SEND'] = DEFAULT_SEND
 # the properties used for initializing Element are different from those defined
 # by cfs or sqlite, re-name property to Element property may needed.
 _cf_map = {'elemName' : 'name',
-           'elemField': 'field',
+           'elemField_eng': 'field_eng',
+           'elemField_phy': 'field_phy',
            'elemType' : 'family',
            'elemHandle' : 'handle',
            'elemIndex' : 'index',
