@@ -27,7 +27,7 @@ RANDOM = 3
 
 VALID_STATIC_KEYS = ('name', 'family', 'index', 'se', 'length', 'sb',
                      'phy_name', 'phy_type', 'machine')
-VALID_CA_KEYS = ('field', 'field_phy', 'handle', 'pv_policy')
+VALID_CA_KEYS = ('field_eng', 'field_phy', 'handle', 'pv_policy')
 
 
 class AbstractElement(object):
@@ -338,7 +338,7 @@ class CaField(object):
         self._rset_pv = []
         self._cset_pv = []
         self.init_pvs()
-        pv_policy = PV_POLICIES.get(kws.get('pv_policy', 'DEFAULT'))
+        pv_policy = kws.get('pv_policy', PV_POLICIES['DEFAULT'])
         self._default_read_policy = pv_policy['read']
         self._default_write_policy = pv_policy['write']
         self.read_policy = self._default_read_policy
@@ -971,8 +971,7 @@ class CaElement(AbstractElement):
 
     def _update_ca_props(self, props, **kws):
         """CA"""
-        def build_pv_policy_phy(u_policy, pv_policy_name):
-            pv_policy = PV_POLICIES[pv_policy_name]
+        def build_pv_policy_phy(u_policy, pv_policy):
             fn_p, fn_n = u_policy['p'], u_policy['n']
             f_read, f_write = pv_policy['read'], pv_policy['write']
 
@@ -986,18 +985,17 @@ class CaElement(AbstractElement):
             return {'read': f_read_phy, 'write': f_write_phy}
 
         handle_name = props.get('handle', None)
-        field_name = props.get('field', None) # engineering field name
+        field_name = props.get('field_eng', None) # engineering field name
         # if field_phy is undefined, use the same as field_eng
         field_name_phy = props.get('field_phy', None)
-        pv_policy = props.get('pv_policy', 'DEFAULT')
+        pv_policy = PV_POLICIES.get(props.get('pv_policy', 'DEFAULT'))
+        # pv_policy passed as string, which is defined in channels datafile,
+        # while pv_policy passed to CaField is a dict: {'read': rp, 'write': wp}
         if kws.get('u_policy', None) is not None:
             pv_policy_phy = build_pv_policy_phy(kws.get('u_policy'), pv_policy)
         else:
-            pv_policy_phy = pv_policy
+            pv_policy_phy = PV_POLICIES.get(pv_policy)
         pv = kws.get('pv', None)
-        #
-        print(field_name)
-        print(field_name_phy)
         #
         if field_name is not None:
             self.set_field(field_name, pv, handle_name, pv_policy=pv_policy)
@@ -1019,15 +1017,16 @@ class CaElement(AbstractElement):
 
         Keyword Arguments
         -----------------
-        pv_policy : str
-            Name of PV read/write policy.
+        pv_policy : dict
+            Name of PV read/write policy, keys: 'read' and 'write', values:
+            scaling law function object.
         """
         if handle is None:
             handle = 'readback'
         if field not in self._fields:
             new_field = CaField(name=field,
                                 ename=self.name,
-                                pv_policy=kws.get('pv_policy', 'DEFAULT'),
+                                pv_policy=kws.get('pv_policy'),
                                 **{handle: pv})
             self._design_settings.update({field: None})
             self._last_settings.update({field: None})
