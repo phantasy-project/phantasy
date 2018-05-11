@@ -490,8 +490,10 @@ def get_unicorn_policy(udata, ename):
     fn_p = lambda x:x
     fn_n = lambda x:x
     for item in udata:
-        if '{}-P'.format(ename) in item:
+        if '{}-P'.format(ename) == item['name']:
             fn_p = item['fn']
-        elif '{}-N'.format(ename) in item:
+            print(fn_p)
+        elif '{}-N'.format(ename) == item['name']:
             fn_n = item['fn']
+            print(fn_n)
     return {'p': fn_p, 'n': fn_n}
