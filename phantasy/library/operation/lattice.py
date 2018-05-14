@@ -171,12 +171,14 @@ def load_lattice(machine, segment=None, **kws):
         # else:
         #     raise RuntimeError("Settings for '%s' not specified" % (msect,))
 
-        udata_file = d_msect.get('unicorn_file')
+        udata_file = d_msect.get('unicorn_file', None)
         if udata_file is not None:
             if not os.path.isabs(udata_file):
                 udata_file = os.path.join(mdir, udata_file)
             udata = [{'name': f['name'], 'fn': get_func(f['code'])}
                      for f in UnicornData(udata_file).functions]
+        else:
+            udata = None  # no unicorn data provided
 
         # machine type, linear (non-loop) or ring (loop)
         mtype = int(d_msect.get(INI_DICT['KEYNAME_MTYPE'],
@@ -489,6 +491,8 @@ def get_unicorn_policy(udata, ename):
     """
     fn_p = lambda x:x
     fn_n = lambda x:x
+    if udata is None:
+        return {'p': fn_p, 'n': fn_n}
     for item in udata:
         if '{}-P'.format(ename) == item['name']:
             fn_p = item['fn']
