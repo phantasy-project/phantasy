@@ -492,8 +492,6 @@ def get_unicorn_policy(udata, ename):
     for item in udata:
         if '{}-P'.format(ename) == item['name']:
             fn_p = item['fn']
-            print(fn_p)
         elif '{}-N'.format(ename) == item['name']:
             fn_n = item['fn']
-            print(fn_n)
     return {'p': fn_p, 'n': fn_n}
