@@ -421,19 +421,19 @@ class FlameLatticeFactory(BaseLatticeFactory):
                 phase = 0.0
                 if settings is not None:
                     try:
-                        phase = settings[elem.name][elem.fields.phase]
+                        phase = settings[elem.name][elem.fields.phase_phy]
                     except KeyError:
                         raise RuntimeError(
-                            "FlameLatticeFactory: '{}' setting not found for element: {}".format(elem.fields.phase,
+                            "FlameLatticeFactory: '{}' setting not found for element: {}".format(elem.fields.phase_phy,
                                                                                                  elem.name))
 
                 amplitude = 0.0
                 if settings is not None:
                     try:
-                        amplitude = settings[elem.name][elem.fields.amplitude]
+                        amplitude = settings[elem.name][elem.fields.amplitude_phy]
                     except KeyError:
                         raise RuntimeError(
-                            "FlameLatticeFactory: '{}' setting not found for element: {}".format(elem.fields.amplitude,
+                            "FlameLatticeFactory: '{}' setting not found for element: {}".format(elem.fields.amplitude_phy,
                                                                                                  elem.name))
 
                 frequency = 0.0
@@ -469,28 +469,28 @@ class FlameLatticeFactory(BaseLatticeFactory):
                 field = 0.0
                 if settings is not None:
                     try:
-                        field = settings[elem.name][elem.fields.field]
+                        field = settings[elem.name][elem.fields.field_phy]
                     except KeyError:
                         raise RuntimeError(
-                            "FlameLatticeFactory: '{}' setting not found for element: {}".format(elem.fields.field,
+                            "FlameLatticeFactory: '{}' setting not found for element: {}".format(elem.fields.field_phy,
                                                                                                  elem.name))
 
                 hkick = 0.0
                 if settings is not None:
                     try:
-                        hkick = settings[elem.h.name][elem.h.fields.angle]
+                        hkick = settings[elem.h.name][elem.h.fields.angle_phy]
                     except KeyError:
                         raise RuntimeError(
-                            "FlameLatticeFactory: '{}' setting not found for element: {}".format(elem.h.fields.angle,
+                            "FlameLatticeFactory: '{}' setting not found for element: {}".format(elem.h.fields.angle_phy,
                                                                                                  elem.name))
 
                 vkick = 0.0
                 if settings is not None:
                     try:
-                        vkick = settings[elem.v.name][elem.v.fields.angle]
+                        vkick = settings[elem.v.name][elem.v.fields.angle_phy]
                     except KeyError:
                         raise RuntimeError(
-                            "FlameLatticeFactory: '{}' setting not found for element: {}".format(elem.v.fields.angle,
+                            "FlameLatticeFactory: '{}' setting not found for element: {}".format(elem.v.fields.angle_phy,
                                                                                                  elem.name))
 
                 # error = self._get_error(elem)
@@ -513,10 +513,10 @@ class FlameLatticeFactory(BaseLatticeFactory):
                 gradient = 0.0
                 if settings is not None:
                     try:
-                        gradient = settings[elem.name][elem.fields.gradient]
+                        gradient = settings[elem.name][elem.fields.gradient_phy]
                     except KeyError:
                         raise RuntimeError(
-                            "FlameLatticeFactory: '{}' setting not found for element: {}".format(elem.fields.gradient,
+                            "FlameLatticeFactory: '{}' setting not found for element: {}".format(elem.fields.gradient_phy,
                                                                                                  elem.name))
 
                 # error = self._get_error(elem)
@@ -529,10 +529,10 @@ class FlameLatticeFactory(BaseLatticeFactory):
                 field = 0.0
                 if settings is not None:
                     try:
-                        field = settings[elem.name][elem.fields.field]
+                        field = settings[elem.name][elem.fields.field_phy]
                     except KeyError:
                         raise RuntimeError(
-                            "FlameLatticeFactory: '{}' setting not found for element: {}".format(elem.fields.field,
+                            "FlameLatticeFactory: '{}' setting not found for element: {}".format(elem.fields.field_phy,
                                                                                                  elem.name))
 
                 step = self._get_config(elem.dtype, CONFIG_FLAME_SEXT_STEP,
@@ -549,19 +549,19 @@ class FlameLatticeFactory(BaseLatticeFactory):
                 hkick = 0.0
                 if settings is not None:
                     try:
-                        hkick = settings[elem.h.name][elem.h.fields.angle]
+                        hkick = settings[elem.h.name][elem.h.fields.angle_phy]
                     except KeyError:
                         raise RuntimeError(
-                            "FlameLatticeFactory: '{}' setting not found for element: {}".format(elem.h.fields.angle,
+                            "FlameLatticeFactory: '{}' setting not found for element: {}".format(elem.h.fields.angle_phy,
                                                                                                  elem.name))
 
                 vkick = 0.0
                 if settings is not None:
                     try:
-                        vkick = settings[elem.v.name][elem.v.fields.angle]
+                        vkick = settings[elem.v.name][elem.v.fields.angle_phy]
                     except KeyError:
                         raise RuntimeError(
-                            "FlameLatticeFactory: '{}' setting not found for element: {}".format(elem.v.fields.angle,
+                            "FlameLatticeFactory: '{}' setting not found for element: {}".format(elem.v.fields.angle_phy,
                                                                                                  elem.name))
 
                 if elem.length != 0.0:
@@ -584,10 +584,10 @@ class FlameLatticeFactory(BaseLatticeFactory):
                 field = 0.0
                 if settings is not None:
                     try:
-                        field = settings[elem.name][elem.fields.field]
+                        field = settings[elem.name][elem.fields.field_phy]
                     except KeyError:
                         raise RuntimeError(
-                            "FlameLatticeFactory: '{}' setting not found for element: {}".format(elem.fields.field,
+                            "FlameLatticeFactory: '{}' setting not found for element: {}".format(elem.fields.field_phy,
                                                                                                  elem.name))
 
                 angle = 0.0
@@ -693,10 +693,10 @@ class FlameLatticeFactory(BaseLatticeFactory):
                 field = 0.0
                 if settings is not None:
                     try:
-                        field = settings[elem.name][elem.fields.field]
+                        field = settings[elem.name][elem.fields.field_phy]
                     except KeyError:
                         raise RuntimeError(
-                            "FlameLatticeFactory: '{}' setting not found for element: {}".format(elem.fields.field,
+                            "FlameLatticeFactory: '{}' setting not found for element: {}".format(elem.fields.field_phy,
                                                                                                  elem.name))
 
                 lattice.append(elem.name, "solenoid", ('L', elem.length),
@@ -735,10 +735,10 @@ class FlameLatticeFactory(BaseLatticeFactory):
                 field = 0.0
                 if settings is not None:
                     try:
-                        field = settings[elem.name][elem.fields.field]
+                        field = settings[elem.name][elem.fields.field_phy]
                     except KeyError:
                         raise RuntimeError(
-                            "FlameLatticeFactory: '{}' setting not found for element: {}".format(elem.fields.field,
+                            "FlameLatticeFactory: '{}' setting not found for element: {}".format(elem.fields.field_phy,
                                                                                                  elem.name))
 
                 phi = self._get_config(elem.dtype, CONFIG_FLAME_EBEND_PHI, None)
@@ -773,14 +773,13 @@ class FlameLatticeFactory(BaseLatticeFactory):
                                name=elem.name, etype=elem.ETYPE)
 
             elif isinstance(elem, EQuadElement):
-                # try:
                 gradient = 0.0
                 if settings is not None:
                     try:
-                        gradient = settings[elem.name][elem.fields.gradient]
+                        gradient = settings[elem.name][elem.fields.gradient_phy]
                     except KeyError:
                         raise RuntimeError("FlameLatticeFactory: '{}' setting not found for element: {}".format(
-                            elem.fields.gradient, elem.name))
+                            elem.fields.gradient_phy, elem.name))
 
                 radius = self._get_config(elem.dtype, CONFIG_FLAME_EQUAD_RADIUS, None)
                 if radius is None:
@@ -789,19 +788,6 @@ class FlameLatticeFactory(BaseLatticeFactory):
                                ('aper', elem.aperture / 2.0), ('V', gradient),
                                ('radius', float(radius)),
                                name=elem.name, etype=elem.ETYPE)
-                # except:
-                #     # treat it as QuadElement
-                #     gradient = 0.0
-                #     if settings is not None:
-                #         try:
-                #             gradient = settings[elem.name]['GRAD']
-                #         except KeyError:
-                #             raise RuntimeError("FlameLatticeFactory: '{}' setting not found for element: {}".format(
-                #                 elem.fields.gradient, elem.name))
-                #
-                #     lattice.append(elem.name, "quadrupole", ('L', elem.length),
-                #                    ('aper', elem.aperture / 2.0), ('B2', gradient),
-                #                    name=elem.name, etype=elem.ETYPE)
 
             else:
                 raise Exception("Unsupported accelerator element: {}".format(elem))
