@@ -44,7 +44,8 @@ _LENGTH_PROPERTY = "elemLength"
 _MACHINE_PROPERTY = "machine"
 _NAME_PROPERTY = "elemName"
 _HANDLE_PROPERTY = "elemHandle"
-_FIELD_PROPERTY = "elemField"
+_FIELD_PHY_PROPERTY = "elemField_phy"
+_FIELD_ENG_PROPERTY = "elemField_eng"
 _TYPE_PROPERTY = "elemType"
 
 _PHYTYPE_PROPERTY = "physicsType"
@@ -140,7 +141,8 @@ def build_channels(layout, psfile, machine=None, **kws):
             props[_MACHINE_PROPERTY] = machine
             props[_NAME_PROPERTY] = element.name
             props[_HANDLE_PROPERTY] = ""
-            props[_FIELD_PROPERTY] = ""
+            props[_FIELD_PHY_PROPERTY] = ""
+            props[_FIELD_ENG_PROPERTY] = ""
             props[_TYPE_PROPERTY] = ""
             props[_PHYTYPE_PROPERTY] = element.dtype
             props[_PHYNAME_PROPERTY] = element.desc
@@ -165,7 +167,8 @@ def build_channels(layout, psfile, machine=None, **kws):
             props[_MACHINE_PROPERTY] = machine
             props[_NAME_PROPERTY] = element.name
             props[_HANDLE_PROPERTY] = ""
-            props[_FIELD_PROPERTY] = ""
+            props[_FIELD_PHY_PROPERTY] = ""
+            props[_FIELD_ENG_PROPERTY] = ""
             props[_TYPE_PROPERTY] = ""
             props[_PHYTYPE_PROPERTY] = element.dtype
             props[_PHYNAME_PROPERTY] = element.desc
@@ -179,7 +182,8 @@ def build_channels(layout, psfile, machine=None, **kws):
 
         if isinstance(elem, CavityElement):
             props[_TYPE_PROPERTY] = "CAV"
-            props[_FIELD_PROPERTY] = elem.fields.phase
+            props[_FIELD_ENG_PROPERTY] = elem.fields.phase
+            props[_FIELD_PHY_PROPERTY] = elem.fields.phase_phy
             props[_HANDLE_PROPERTY] = "setpoint"
             data.append((channel + ":PHA_CSET", OrderedDict(props), list(tags)))
             props[_HANDLE_PROPERTY] = "readset"
@@ -187,7 +191,8 @@ def build_channels(layout, psfile, machine=None, **kws):
             props[_HANDLE_PROPERTY] = "readback"
             data.append((channel + ":PHA_RD", OrderedDict(props), list(tags)))
 
-            props[_FIELD_PROPERTY] = elem.fields.amplitude
+            props[_FIELD_ENG_PROPERTY] = elem.fields.amplitude
+            props[_FIELD_PHY_PROPERTY] = elem.fields.amplitude_phy
             props[_HANDLE_PROPERTY] = "setpoint"
             data.append((channel + ":AMPL_CSET", OrderedDict(props), list(tags)))
             props[_HANDLE_PROPERTY] = "readset"
@@ -197,7 +202,8 @@ def build_channels(layout, psfile, machine=None, **kws):
 
         elif isinstance(elem, SolCorElement):
             props[_TYPE_PROPERTY] = "SOL"
-            props[_FIELD_PROPERTY] = elem.fields.field
+            props[_FIELD_ENG_PROPERTY] = elem.fields.field
+            props[_FIELD_PHY_PROPERTY] = elem.fields.field_phy
             props[_HANDLE_PROPERTY] = "setpoint"
             data.append((channel + ":I_CSET", OrderedDict(props), list(tags)))
             props[_HANDLE_PROPERTY] = "readset"
@@ -207,7 +213,8 @@ def build_channels(layout, psfile, machine=None, **kws):
 
             channel, props, tags = buildChannel(elem.h)
             props[_TYPE_PROPERTY] = "HCOR"
-            props[_FIELD_PROPERTY] = elem.h.fields.angle
+            props[_FIELD_ENG_PROPERTY] = elem.h.fields.angle
+            props[_FIELD_PHY_PROPERTY] = elem.h.fields.angle_phy
             props[_HANDLE_PROPERTY] = "setpoint"
             data.append((channel + ":I_CSET", OrderedDict(props), list(tags)))
             props[_HANDLE_PROPERTY] = "readset"
@@ -217,7 +224,8 @@ def build_channels(layout, psfile, machine=None, **kws):
 
             channel, props, tags = buildChannel(elem.v)
             props[_TYPE_PROPERTY] = "VCOR"
-            props[_FIELD_PROPERTY] = elem.v.fields.angle
+            props[_FIELD_ENG_PROPERTY] = elem.v.fields.angle
+            props[_FIELD_PHY_PROPERTY] = elem.v.fields.angle_phy
             props[_HANDLE_PROPERTY] = "setpoint"
             data.append((channel + ":I_CSET", OrderedDict(props), list(tags)))
             props[_HANDLE_PROPERTY] = "readset"
@@ -228,7 +236,8 @@ def build_channels(layout, psfile, machine=None, **kws):
         elif isinstance(elem, SolElement):
             channels, props, tags = buildChannel_pspv(elem)
             props[_TYPE_PROPERTY] = "SOL"
-            props[_FIELD_PROPERTY] = elem.fields.field
+            props[_FIELD_ENG_PROPERTY] = elem.fields.field
+            props[_FIELD_PHY_PROPERTY] = elem.fields.field_phy
 
             for channel in channels:
                 props[_HANDLE_PROPERTY] = "setpoint"
@@ -241,7 +250,8 @@ def build_channels(layout, psfile, machine=None, **kws):
         elif isinstance(elem, CorElement):
             channels, props, tags = buildChannel_pspv(elem.h)
             props[_TYPE_PROPERTY] = "HCOR"
-            props[_FIELD_PROPERTY] = elem.h.fields.angle
+            props[_FIELD_ENG_PROPERTY] = elem.h.fields.angle
+            props[_FIELD_PHY_PROPERTY] = elem.h.fields.angle_phy
 
             for channel in channels:
                 props[_HANDLE_PROPERTY] = "setpoint"
@@ -253,7 +263,8 @@ def build_channels(layout, psfile, machine=None, **kws):
 
             channels, props, tags = buildChannel_pspv(elem.v)
             props[_TYPE_PROPERTY] = "VCOR"
-            props[_FIELD_PROPERTY] = elem.v.fields.angle
+            props[_FIELD_ENG_PROPERTY] = elem.v.fields.angle
+            props[_FIELD_PHY_PROPERTY] = elem.v.fields.angle_phy
 
             for channel in channels:
                 props[_HANDLE_PROPERTY] = "setpoint"
@@ -265,7 +276,8 @@ def build_channels(layout, psfile, machine=None, **kws):
 
         elif isinstance(elem, QuadElement):
             props[_TYPE_PROPERTY] = "QUAD"
-            props[_FIELD_PROPERTY] = elem.fields.gradient
+            props[_FIELD_ENG_PROPERTY] = elem.fields.gradient
+            props[_FIELD_PHY_PROPERTY] = elem.fields.gradient_phy
             props[_HANDLE_PROPERTY] = "setpoint"
             data.append((channel + ":I_CSET", OrderedDict(props), list(tags)))
             props[_HANDLE_PROPERTY] = "readset"
@@ -276,7 +288,8 @@ def build_channels(layout, psfile, machine=None, **kws):
         elif isinstance(elem, BendElement):
             channels, props, tags = buildChannel_pspv(elem)
             props[_TYPE_PROPERTY] = "BEND"
-            props[_FIELD_PROPERTY] = elem.fields.field
+            props[_FIELD_ENG_PROPERTY] = elem.fields.field
+            props[_FIELD_PHY_PROPERTY] = elem.fields.field_phy
 
             for channel in channels:
                 props[_HANDLE_PROPERTY] = "setpoint"
@@ -288,7 +301,8 @@ def build_channels(layout, psfile, machine=None, **kws):
 
         elif isinstance(elem, SextElement):
             props[_TYPE_PROPERTY] = "SEXT"
-            props[_FIELD_PROPERTY] = elem.fields.field
+            props[_FIELD_ENG_PROPERTY] = elem.fields.field
+            props[_FIELD_PHY_PROPERTY] = elem.fields.field_phy
             props[_HANDLE_PROPERTY] = "setpoint"
             data.append((channel + ":I_CSET", OrderedDict(props), list(tags)))
             props[_HANDLE_PROPERTY] = "readset"
@@ -299,61 +313,74 @@ def build_channels(layout, psfile, machine=None, **kws):
         elif isinstance(elem, BPMElement):
             props[_TYPE_PROPERTY] = "BPM"
 
-            props[_FIELD_PROPERTY] = elem.fields.x
+            props[_FIELD_ENG_PROPERTY] = elem.fields.x
+            props[_FIELD_PHY_PROPERTY] = elem.fields.x_phy
             props[_HANDLE_PROPERTY] = "readback"
             data.append((channel + ":XPOS_RD", OrderedDict(props), list(tags)))
 
-            props[_FIELD_PROPERTY] = elem.fields.y
+            props[_FIELD_ENG_PROPERTY] = elem.fields.y
+            props[_FIELD_PHY_PROPERTY] = elem.fields.y_phy
             props[_HANDLE_PROPERTY] = "readback"
             data.append((channel + ":YPOS_RD", OrderedDict(props), list(tags)))
 
-            props[_FIELD_PROPERTY] = elem.fields.phase
+            props[_FIELD_ENG_PROPERTY] = elem.fields.phase
+            props[_FIELD_PHY_PROPERTY] = elem.fields.phase_phy
             props[_HANDLE_PROPERTY] = "readback"
             data.append((channel + ":PHASE_RD", OrderedDict(props), list(tags)))
 
-            props[_FIELD_PROPERTY] = elem.fields.energy
+            props[_FIELD_ENG_PROPERTY] = elem.fields.energy
+            props[_FIELD_PHY_PROPERTY] = elem.fields.energy_phy
             props[_HANDLE_PROPERTY] = "readback"
             data.append((channel + ":ENG_RD", OrderedDict(props), list(tags)))
 
-            props[_FIELD_PROPERTY] = elem.fields.magnitude
+            props[_FIELD_ENG_PROPERTY] = elem.fields.magnitude
+            props[_FIELD_PHY_PROPERTY] = elem.fields.magnitude_phy
             props[_HANDLE_PROPERTY] = "readback"
             data.append((channel + ":MAG_RD", OrderedDict(props), list(tags)))
 
         elif isinstance(elem, PMElement):
             props[_TYPE_PROPERTY] = "PM"
 
-            props[_FIELD_PROPERTY] = elem.fields.x
+            props[_FIELD_ENG_PROPERTY] = elem.fields.x
+            props[_FIELD_PHY_PROPERTY] = elem.fields.x
             props[_HANDLE_PROPERTY] = "readback"
             data.append((channel + ":XCEN_RD", OrderedDict(props), list(tags)))
 
-            props[_FIELD_PROPERTY] = elem.fields.y
+            props[_FIELD_ENG_PROPERTY] = elem.fields.y
+            props[_FIELD_PHY_PROPERTY] = elem.fields.y
             props[_HANDLE_PROPERTY] = "readback"
             data.append((channel + ":YCEN_RD", OrderedDict(props), list(tags)))
 
-            props[_FIELD_PROPERTY] = elem.fields.xy
+            props[_FIELD_ENG_PROPERTY] = elem.fields.xy
+            props[_FIELD_PHY_PROPERTY] = elem.fields.xy
             props[_HANDLE_PROPERTY] = "readback"
             data.append((channel + ":XY_RD", OrderedDict(props), list(tags)))
 
-            props[_FIELD_PROPERTY] = elem.fields.cxy
+            props[_FIELD_ENG_PROPERTY] = elem.fields.cxy
+            props[_FIELD_PHY_PROPERTY] = elem.fields.cxy
             props[_HANDLE_PROPERTY] = "readback"
             data.append((channel + ":CXY_RD", OrderedDict(props), list(tags)))
 
-            props[_FIELD_PROPERTY] = elem.fields.xrms
+            props[_FIELD_ENG_PROPERTY] = elem.fields.xrms
+            props[_FIELD_PHY_PROPERTY] = elem.fields.xrms
             props[_HANDLE_PROPERTY] = "readback"
             data.append((channel + ":XRMS_RD", OrderedDict(props), list(tags)))
 
-            props[_FIELD_PROPERTY] = elem.fields.yrms
+            props[_FIELD_ENG_PROPERTY] = elem.fields.yrms
+            props[_FIELD_PHY_PROPERTY] = elem.fields.yrms
             props[_HANDLE_PROPERTY] = "readback"
             data.append((channel + ":YRMS_RD", OrderedDict(props), list(tags)))
 
-            props[_FIELD_PROPERTY] = elem.fields.xyrms
+            props[_FIELD_ENG_PROPERTY] = elem.fields.xyrms
+            props[_FIELD_PHY_PROPERTY] = elem.fields.xyrms
             props[_HANDLE_PROPERTY] = "readback"
             data.append((channel + ":XYRMS_RD", OrderedDict(props), list(tags)))
 
         elif isinstance(elem, EBendElement):
             channels, props, tags = buildChannel_pspv(elem)
             props[_TYPE_PROPERTY] = "EBEND"
-            props[_FIELD_PROPERTY] = elem.fields.field
+            props[_FIELD_ENG_PROPERTY] = elem.fields.field
+            props[_FIELD_PHY_PROPERTY] = elem.fields.field_phy
 
             for channel in channels:
                 props[_HANDLE_PROPERTY] = "setpoint"
@@ -366,7 +393,8 @@ def build_channels(layout, psfile, machine=None, **kws):
         elif isinstance(elem, EQuadElement):
             channels, props, tags = buildChannel_pspv(elem)
             props[_TYPE_PROPERTY] = "EQUAD"
-            props[_FIELD_PROPERTY] = elem.fields.gradient
+            props[_FIELD_ENG_PROPERTY] = elem.fields.gradient
+            props[_FIELD_PHY_PROPERTY] = elem.fields.gradient_phy
 
             for channel in channels:
                 props[_HANDLE_PROPERTY] = "setpoint"
