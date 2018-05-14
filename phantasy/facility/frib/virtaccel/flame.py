@@ -281,7 +281,7 @@ class VirtualAcceleratorFactory(object):
         for channel, props, _ in self.channels:
             if props["elemName"] != name:
                 continue
-            if props["elemField"] != field:
+            if props["elemField_eng"] != field:
                 continue
             if props["elemHandle"] != handle:
                 continue
@@ -363,7 +363,7 @@ class VirtualAcceleratorFactory(object):
                              self._findChannel(elem.v.name, elem.v.fields.angle, "readback"),
                              (elem.v.name, elem.v.fields.angle), desc="Vertical Corrector", egu="radian") #, drvabs=0.001)
                 va.append_elem(elem)
-            
+
             elif isinstance(elem, SolElement):
                 va.append_rw(self._findChannel(elem.name, elem.fields.field, "setpoint"),
                              self._findChannel(elem.name, elem.fields.field, "readset"),
@@ -404,19 +404,11 @@ class VirtualAcceleratorFactory(object):
                 va.append_elem(elem)
 
             elif isinstance(elem, EQuadElement):
-                # try:
                 va.append_rw(self._findChannel(elem.name, elem.fields.gradient, "setpoint"),
                              self._findChannel(elem.name, elem.fields.gradient, "readset"),
                              self._findChannel(elem.name, elem.fields.gradient, "readback"),
                              (elem.name, elem.fields.gradient), desc="EQuad Field", egu="V")
                 va.append_elem(elem)
-                # except: # QUAD settings
-                #     #va.append_rw(self._findChannel(elem.name, "GRAD", "setpoint"),
-                #     #             self._findChannel(elem.name, "GRAD", "readset"),
-                #     #             self._findChannel(elem.name, "GRAD", "readback"),
-                #     #             (elem.name, "GRAD"), desc="EQuad Field", egu="V", drvratio=0.10)
-                #     #va.append_elem(elem)
-                #     pass
 
             elif isinstance(elem, SextElement):
                 va.append_rw(self._findChannel(elem.name, elem.fields.field, "setpoint"),
