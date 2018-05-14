@@ -154,9 +154,9 @@ def build_channels(layout, machine=None, **kws):
             props[_HANDLE_PROPERTY] = "setpoint"
             data.append((channel + ":I_CSET", OrderedDict(props), list(tags)))
             props[_HANDLE_PROPERTY] = "readset"
-            data.append((channel + ":I__RSET", OrderedDict(props), list(tags)))
+            data.append((channel + ":I_RSET", OrderedDict(props), list(tags)))
             props[_HANDLE_PROPERTY] = "readback"
-            data.append((channel + ":I__RD", OrderedDict(props), list(tags)))
+            data.append((channel + ":I_RD", OrderedDict(props), list(tags)))
 
             channel, props, tags = buildChannel(elem.v)
             props[_TYPE_PROPERTY] = "VCOR"
