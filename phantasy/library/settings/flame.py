@@ -147,8 +147,8 @@ class SettingsFactory(object):
                 name = parseName(elem['name'])
                 cav = CavityElement(0, 0, 0, name)
                 fields = OrderedDict()
-                fields[cav.fields.phase] = elem['phi']
-                fields[cav.fields.amplitude] = elem['scl_fac']
+                fields[cav.fields.phase_phy] = elem['phi']
+                fields[cav.fields.amplitude_phy] = elem['scl_fac']
                 fields[cav.fields.frequency] = elem['f']
                 settings[name] = fields
 
@@ -156,7 +156,7 @@ class SettingsFactory(object):
                 name = parseName(elem['name'])
                 sol = SolElement(0, 0, 0, name)
                 fields = OrderedDict()
-                fields[sol.fields.field] = elem['B']
+                fields[sol.fields.field_phy] = elem['B']
                 settings[name] = fields
 
             elif ftype == "orbtrim":
@@ -164,13 +164,13 @@ class SettingsFactory(object):
                 fields = OrderedDict()
                 if 'theta_x' in elem:
                     cor = HCorElement(0, 0, 0, name)
-                    fields[cor.fields.angle] = elem['theta_x']
+                    fields[cor.fields.angle_phy] = elem['theta_x']
                 elif 'theta_y' in elem:
                     cor = VCorElement(0, 0, 0, name)
-                    fields[cor.fields.angle] = elem['theta_y']
+                    fields[cor.fields.angle_phy] = elem['theta_y']
                 else:
                     cor = HCorElement(0, 0, 0, name)
-                    fields[cor.fields.angle] = 0.0
+                    fields[cor.fields.angle_phy] = 0.0
                 settings[name] = fields
 
             elif ftype == "sbend":
@@ -178,7 +178,7 @@ class SettingsFactory(object):
                 bend = BendElement(0, 0, 0, name)
                 if name not in settings:
                     fields = OrderedDict()
-                    fields[bend.fields.field] = elem['bg']
+                    fields[bend.fields.field_phy] = elem['bg']
                     fields[bend.fields.angle] = elem['phi']
                     fields[bend.fields.entrAngle] = elem['phi1']
                     fields[bend.fields.exitAngle] = elem['phi2']
@@ -193,30 +193,30 @@ class SettingsFactory(object):
 
             elif ftype == "quadrupole":
                 name = parseName(elem['name'])
-                sol = QuadElement(0, 0, 0, name)
+                quad = QuadElement(0, 0, 0, name)
                 fields = OrderedDict()
-                fields[sol.fields.gradient] = elem['B2']
+                fields[quad.fields.gradient_phy] = elem['B2']
                 settings[name] = fields
 
             elif ftype == "equad":
                 name = parseName(elem['name'])
                 equad = EQuadElement(0, 0, 0, name)
                 fields = OrderedDict()
-                fields[equad.fields.gradient] = elem['V']
+                fields[equad.fields.gradient_phy] = elem['V']
                 settings[name] = fields
 
             elif ftype == "edipole":
                 name = parseName(elem['name'])
                 ebend = EBendElement(0, 0, 0, name)
                 fields = OrderedDict()
-                fields[ebend.fields.field] = elem['beta']
+                fields[ebend.fields.field_phy] = elem['beta']
                 settings[name] = fields
 
             elif ftype == "sextupole":
                 name = parseName(elem['name'])
                 sextupole = SextElement(0, 0, 0, name)
                 fields = OrderedDict()
-                fields[sextupole.fields.field] = elem['B3']
+                fields[sextupole.fields.field_phy] = elem['B3']
                 settings[name] = fields
 
             else:
