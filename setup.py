@@ -15,6 +15,7 @@ def read_license():
     with open('LICENSE') as f:
         return f.read()
 
+
 app_name = "phantasy"
 app_description = 'Physics high-level applications and toolkit for ' \
         'accelerator system'
@@ -30,25 +31,7 @@ installrequires = [
     'scipy',
     'matplotlib',
     'xlrd',
-#    'tornado',
-#    'motor==0.4',
-#    'jinja2',
-#    'humanize',
-#    'jsonschema',
-#    'cothread',
-#    'nose',
-#    'nose-exclude',
-#    'coverage',
 ]
-extrasrequire = {
-    "LMS": [
-        'tornado',
-        'humanize',
-        'motor==0.4',
-        'jinja2',
-        'jsonschema',
-    ]
-}
 
 app_scripts = [i for i in glob.glob("scripts/*") if not fnmatch(i, "scripts/softIoc")]
 
@@ -73,35 +56,24 @@ d_pkg.update(
 )
 
 setup(
-        name=app_name,
-        version="0.9.2",
-        description=app_description,
-        long_description=app_long_description,
-        author=app_author,
-        author_email=app_author_email,
-        url = app_url,
-        platforms=app_platform,
-        license=app_license,
-        keywords=app_keywords,
-        scripts=app_scripts,
-        packages=find_packages(),
-        #packages=d_pkg.keys(),
-        #package_dir=d_pkg,
-
-        #packages=['phantasy', 'phantasy.library', 'phantasy.channelfinder'],
-        #package_dir={
-        #    'phantasy': 'phantasy',
-        #    'phantasy.library': 'phantasy/library',
-        #    'phantasy.channelfinder': 'phantasy/library/channelfinder',
-        #},
-
-        data_files = get_all_dirs('/etc/phantasy/config', 'frib'),
-        classifiers=[
-            'Programming Language :: Python :: 2.7',
-            'Topic :: Software Development :: Libraries :: Python Modules', 
-            'Topic :: Scientific/Engineering :: Physics'],
-        tests_require=['nose'],
-        test_suite='nose.collector',
-        #install_requires=installrequires,
-        #extras_require=extrasrequire, 
+    name=app_name,
+    version="0.9.3",
+    description=app_description,
+    long_description=app_long_description,
+    author=app_author,
+    author_email=app_author_email,
+    url = app_url,
+    platforms=app_platform,
+    license=app_license,
+    keywords=app_keywords,
+    scripts=app_scripts,
+    packages=find_packages(),
+    data_files = get_all_dirs('/etc/phantasy/config', 'frib'),
+    classifiers=[
+        'Programming Language :: Python :: 2.7',
+        'Topic :: Software Development :: Libraries :: Python Modules', 
+        'Topic :: Scientific/Engineering :: Physics'],
+    tests_require=['nose'],
+    test_suite='nose.collector',
+    #install_requires=installrequires,
 )
