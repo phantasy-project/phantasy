@@ -882,21 +882,21 @@ class VirtualAccelerator(object):
                     if isinstance(elem, BPMElement):
                         x_centroid = S.moment0_env[0]/1.0e3 # convert mm to m
                         _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
-                                      self._readfieldmap[elem.name][elem.fields.x], x_centroid)
-                        batch[self._readfieldmap[elem.name][elem.fields.x]] = x_centroid
+                                      self._readfieldmap[elem.name][elem.fields.x_phy], x_centroid)
+                        batch[self._readfieldmap[elem.name][elem.fields.x_phy]] = x_centroid
                         y_centroid = S.moment0_env[2]/1.0e3 # convert mm to m
                         _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
-                                      self._readfieldmap[elem.name][elem.fields.y], y_centroid)
-                        batch[self._readfieldmap[elem.name][elem.fields.y]] = y_centroid
+                                      self._readfieldmap[elem.name][elem.fields.y_phy], y_centroid)
+                        batch[self._readfieldmap[elem.name][elem.fields.y_phy]] = y_centroid
                          # convert rad to deg and adjust for 161MHz sampling frequency
                         phase = _normalize_phase(2.0 * S.ref_phis * (180.0 / math.pi))
                         _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
-                                      self._readfieldmap[elem.name][elem.fields.phase], phase)
-                        batch[self._readfieldmap[elem.name][elem.fields.phase]] = phase
+                                      self._readfieldmap[elem.name][elem.fields.phase_phy], phase)
+                        batch[self._readfieldmap[elem.name][elem.fields.phase_phy]] = phase
                         energy = S.ref_IonEk/1.0e6 # convert eV to MeV
                         _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
-                                      self._readfieldmap[elem.name][elem.fields.energy], energy)
-                        batch[self._readfieldmap[elem.name][elem.fields.energy]] = energy
+                                      self._readfieldmap[elem.name][elem.fields.energy_phy], energy)
+                        batch[self._readfieldmap[elem.name][elem.fields.energy_phy]] = energy
                     elif isinstance(elem, PMElement):
                         x_centroid = S.moment0_env[0]/1.0e3 # convert mm to m
                         _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
