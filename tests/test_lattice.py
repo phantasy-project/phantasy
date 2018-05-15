@@ -15,7 +15,7 @@ from phantasy import Settings
 
 curdir = os.path.dirname(__file__)
 
-TEST_MACH = 'FRIB_FLAME'
+TEST_MACH = 'VA_LS1FS1'
 TEST_CA = "TEST_CA"
 SETTINGS_FILE = os.path.join(curdir, 'config/FRIB_XLF/settings.json')
 

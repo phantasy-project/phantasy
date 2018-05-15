@@ -17,7 +17,7 @@ from phantasy import CaElement
 
 curdir = os.path.dirname(__file__)
 
-TEST_MACH = 'FRIB_FLAME'
+TEST_MACH = 'VA_LS1FS1'
 TEST_CA = 'TEST_CA'
 TEST_CA_1 = 'TEST_CA_1'
 

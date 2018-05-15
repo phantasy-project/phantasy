@@ -5,7 +5,7 @@
     "handle": "readback",
     "name": "LS1_CA01:BPM_D1129",
     "family": "BPM",
-    "field": "X",
+    "field_eng": "X",
     "length": "0.0",
     "sb": "0.51132684",
     "se": "0.51132684"

@@ -9,8 +9,7 @@ from phantasy import MachinePortal
 
 curdir = os.path.dirname(__file__)
 
-# TEST_MACH = 'FRIB_TEST'
-TEST_MACH = 'FRIB_FLAME'
+TEST_MACH = 'VA_LS1FS1'
 
 
 class TestMachinePortal(unittest.TestCase):
@@ -23,13 +22,6 @@ class TestMachinePortal(unittest.TestCase):
 
     def tearDown(self):
         pass
-
-    # def test_init_with_environpath(self):
-    #    val_bak = os.environ.get('PHYUTIL_CONFIG_DIR')
-    #    os.environ['PHYUTIL_CONFIG_DIR'] = self.config_dir
-    #    mp = MachinePortal(machine=TEST_MACH)
-    #    self.assertEqual(mp.last_machine_name, TEST_MACH)
-    #    os.environ['PHYUTIL_CONFIG_DIR'] = val_bak
 
     def test_init_with_machinepath(self):
         mpath = os.path.join(self.config_dir, TEST_MACH)
@@ -137,10 +129,10 @@ class TestMachinePortal(unittest.TestCase):
 
     def test_get_elements_hybrid(self):
         mp = self.mp
-        el1 = mp.get_elements(name=['FS1_B?*D266?', 'LS1_B*DCV*'],
+        el1 = mp.get_elements(name=['FS1_B?*D26??', 'LS1_B*DCV*'],
                               type=['BPM', 'QUAD'],
-                              srange=(154, 155), latname='LINAC')
-        el2 = mp.get_elements(name='FS1_BMS:QH_D2666')
+                              srange=(152, 152.5), latname='LINAC')
+        el2 = mp.get_elements(name='FS1_BMS:QH_D2645')
         self.assertEqual(el1, el2)
 
     def test_next_elements_count(self):
@@ -187,7 +179,7 @@ class TestMachinePortal(unittest.TestCase):
 
         ref_elem = all_e[5]
 
-        names1 = ['LS1_CA01:CAV2_D1135',
+        names1 = ['LS1_CA01:CAV2_D1136',
                   'LS1_CA01:BPM_D1144',
                   'LS1_WA01:BPM_D1155']
         self.assertEqual(
@@ -195,9 +187,9 @@ class TestMachinePortal(unittest.TestCase):
                              ref_include=True, range='0::1'),
             mp.get_elements(name=names1)
         )
-        names2 = ['LS1_WA01:BPM_D1155',
-                  'LS1_CA01:CAV3_D1143',
+        names2 = ['LS1_CA01:CAV3_D1142',
                   'LS1_CA01:CAV4_D1150',
+                  'LS1_WA01:BPM_D1155',
                   'LS1_CA01:BPM_D1144']
         # hybrid types
         self.assertEqual(
@@ -212,11 +204,11 @@ class TestMachinePortal(unittest.TestCase):
         self.assertEqual(mconf.get('machine'), TEST_MACH)
         self.assertEqual(mconf.get('path'),
                          os.path.join(self.config_dir, TEST_MACH, 'phantasy.ini'))
-        self.assertEqual(mconf.get('lattices'), ['LINAC', 'LS1'])
+        self.assertEqual(mconf.get('lattices'), ['LINAC', 'LS1', 'FS1'])
 
     def test_get_pv_names(self):
         mp = self.mp
-        elem = mp.get_elements(type='*PM')
+        elem = mp.get_elements(type='BPM')
         pv1 = mp.get_pv_names(elem)
         pv_x = [e.pv(field='X', handle='readback')[0] for e in elem]
         pv_y = [e.pv(field='Y', handle='readback')[0] for e in elem]
