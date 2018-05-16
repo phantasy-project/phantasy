@@ -482,7 +482,10 @@ class CaField(object):
     @readback_pv.setter
     def readback_pv(self, pvobj):
         if isinstance(pvobj, PV):
-            self._rdbk_pv.append(pvobj)
+            if pvobj not in self._rdbk_pv:
+                self._rdbk_pv.append(pvobj)
+            else:
+                _LOGGER.debug("Readback PV object already exists.")
         elif isinstance(pvobj, (list, tuple)):
             self._rdbk_pv = list(pvobj)
         else:
@@ -496,7 +499,10 @@ class CaField(object):
     @readset_pv.setter
     def readset_pv(self, pvobj):
         if isinstance(pvobj, PV):
-            self._rset_pv.append(pvobj)
+            if pvobj not in self._rset_pv:
+                self._rset_pv.append(pvobj)
+            else:
+                _LOGGER.debug("Readset PV object already exists.")
         elif isinstance(pvobj, (list, tuple)):
             self._rset_pv = list(pvobj)
         else:
@@ -510,7 +516,10 @@ class CaField(object):
     @setpoint_pv.setter
     def setpoint_pv(self, pvobj):
         if isinstance(pvobj, PV):
-            self._cset_pv.append(pvobj)
+            if pvobj not in self._cset_pv:
+                self._cset_pv.append(pvobj)
+            else:
+                _LOGGER.debug("Setpoint PV object already exists.")
         elif isinstance(pvobj, (list, tuple)):
             self._cset_pv = list(pvobj)
         else:
