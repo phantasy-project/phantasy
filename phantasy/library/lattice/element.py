@@ -343,6 +343,7 @@ class CaField(object):
         self._default_write_policy = pv_policy['write']
         self.read_policy = self._default_read_policy
         self.write_policy = self._default_write_policy
+        self.ftype = kws.get('ftype', 'ENG')
 
         #################################################################
         # self.golden = []  # some setpoint can saved as golden value
@@ -695,7 +696,7 @@ class CaField(object):
             pass
 
     def __repr__(self):
-        return "Field '{}' of '{}'".format(self.name, self.ename)
+        return "[{}] Field '{}' of '{}'".format(self.ftype, self.name, self.ename)
 
         ################################################################################
 
@@ -1000,9 +1001,11 @@ class CaElement(AbstractElement):
         pv = kws.get('pv', None)
         #
         if field_name is not None:
-            self.set_field(field_name, pv, handle_name, pv_policy=pv_policy)
+            self.set_field(field_name, pv, handle_name, ftype='ENG',
+                           pv_policy=pv_policy)
         if field_name_phy is not None:
-            self.set_field(field_name_phy, pv, handle_name, pv_policy=pv_policy_phy)
+            self.set_field(field_name_phy, pv, handle_name, ftype='PHY',
+                           pv_policy=pv_policy_phy)
 
     def set_field(self, field, pv, handle=None, **kws):
         """Set element field with CA support.
@@ -1022,12 +1025,15 @@ class CaElement(AbstractElement):
         pv_policy : dict
             Name of PV read/write policy, keys: 'read' and 'write', values:
             scaling law function object.
+        ftype : str
+            Field type, 'ENG' (default) or 'PHY'.
         """
         if handle is None:
             handle = 'readback'
         if field not in self._fields:
             new_field = CaField(name=field,
                                 ename=self.name,
+                                ftype=kws.get('ftype'),
                                 pv_policy=kws.get('pv_policy'),
                                 **{handle: pv})
             self._design_settings.update({field: None})
