@@ -425,7 +425,10 @@ class CaField(object):
         """if s is string, append will be issued, or override will be issued, the
         same policy for setpoint and readset."""
         if isinstance(s, basestring):
-            self._rdbk_pv_name.append(s)
+            if s not in self._rdbk_pv_name:
+                self._rdbk_pv_name.append(s)
+            else:
+                _LOGGER.debug("Readback PV aleady exists.")
         elif isinstance(s, (list, tuple)):
             self._rdbk_pv_name = list(s)
         elif s is None:
@@ -441,7 +444,10 @@ class CaField(object):
     @readset.setter
     def readset(self, s):
         if isinstance(s, basestring):
-            self._rset_pv_name.append(s)
+            if s not in self._rset_pv_name:
+                self._rset_pv_name.append(s)
+            else:
+                _LOGGER.debug("Readset PV aleady exists.")
         elif isinstance(s, (list, tuple)):
             self._rset_pv_name = list(s)
         elif s is None:
@@ -457,7 +463,10 @@ class CaField(object):
     @setpoint.setter
     def setpoint(self, s):
         if isinstance(s, basestring):
-            self._cset_pv_name.append(s)
+            if s not in self._cset_pv_name:
+                self._cset_pv_name.append(s)
+            else:
+                _LOGGER.debug("Setpoint PV aleady exists.")
         elif isinstance(s, (list, tuple)):
             self._cset_pv_name = list(s)
         elif s is None:
