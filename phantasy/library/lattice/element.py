@@ -713,6 +713,16 @@ class CaField(object):
         else:
             pass
 
+    def is_physics_field(self):
+        """Test if *field* is physics field.
+        """
+        return self.ftype == 'PHY'
+
+    def is_engineering_field(self):
+        """Test if *field* is engineering field.
+        """
+        return self.ftype == 'ENG'
+
     def __repr__(self):
         return "[{}] Field '{}' of '{}'".format(self.ftype, self.name, self.ename)
 
@@ -987,6 +997,24 @@ class CaElement(AbstractElement):
             self._fields = f
         else:
             _LOGGER.warn("'fields' should be a valid dict.")
+
+    def get_phy_fields(self):
+        """Return list of all physics fields.
+
+        Note
+        ----
+        If returned list is empty, but `get_eng_fields` is not, then physics
+        fields should be the same as engineering fields, but only appeared as
+        ENG field type.
+        """
+        return [f for f in self.fields
+                if self.get_field(f).is_physics_field()]
+
+    def get_eng_fields(self):
+        """Return list of all engineering fields.
+        """
+        return [f for f in self.fields
+                if self.get_field(f).is_engineering_field()]
 
     def _update_ca_props(self, props, **kws):
         """CA"""
