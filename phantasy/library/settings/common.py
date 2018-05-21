@@ -66,7 +66,7 @@ def snp2dict(snpfile):
     return settings
 
 
-def get_setting(settings, element):
+def get_setting(settings, element, **kws):
     """Get *element* field settings from *settings*.
 
     Parameters
@@ -75,6 +75,11 @@ def get_setting(settings, element):
         Dict contains key-values of PV name and set values.
     element :
         CaElement object.
+
+    Keyword Arguments
+    -----------------
+    only_physics : bool
+        If True, only return physics settings, default is False.
 
     Returns
     -------
@@ -86,8 +91,9 @@ def get_setting(settings, element):
     snp2dict
     :class:`~phantasy.library.lattice.element.CaElement`
     """
+    only_phy = kws.get('only_physics', False)
     elem_setting = {}
-    for f in element.fields:
+    for f in element.get_eng_fields():
         # mag_pv = "{}:{}_CSET".format(element.name, f) # engineering dynamic field, I/V
         # if mag_pv in settings:
         #     elem_setting.update({f: float(settings[mag_pv])})
@@ -95,12 +101,21 @@ def get_setting(settings, element):
         # FRIB rule
         pv = element.pv(handle='setpoint')[-1]
         if pv in settings:
-            elem_setting.update({f: float(settings[pv])})
-        return elem_setting
+            v = float(settings[pv])
+            phy_field = element.get_phy_fields()
+            if phy_field and phy_field[0] != f:
+                elem_setting.update({phy_field[0]: element._unicorn_e2p(v)})
+            if not only_phy:
+                elem_setting.update({f: v})
+    return elem_setting
 
 
-def generate_settings(snpfile, lattice):
+def generate_settings(snpfile, lattice, **kws):
     """Generate settings (Settings object) from .snp file.
+    ##
+    # The generated settings may has both PHY and ENG fields, e.g. settings
+    # for solenoid should have 'I' and 'B' as keys in the returned dict.
+    ##
 
     Parameters
     ----------
@@ -108,6 +123,11 @@ def generate_settings(snpfile, lattice):
         Filename of snp file from save&restore app.
     lattice :
         Lattice object, usually created after `MachinePortal` instantiation.
+
+    Keyword Arguments
+    -----------------
+    only_physics : bool
+        If True, only return physics settings, default is False.
 
     Returns
     -------
@@ -118,6 +138,7 @@ def generate_settings(snpfile, lattice):
     --------
     :class:`~phantasy.library.settings.common.Settings`
     """
+    only_phy = kws.get('only_physics')
     settings_new = snp2dict(snpfile)
     settings = Settings()
     for elem in (i for i in lattice if i.name in lattice.settings):
@@ -125,6 +146,7 @@ def generate_settings(snpfile, lattice):
             k: v
             for k, v in lattice.settings.get(elem.name).items()
         }
-        elem_settings.update(get_setting(settings_new, elem))
+        elem_settings.update(get_setting(settings_new, elem,
+                                         only_physics=only_phy))
         settings.update({elem.name: elem_settings})
     return settings
