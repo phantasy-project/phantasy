@@ -1040,10 +1040,16 @@ class CaElement(AbstractElement):
         pv_policy = PV_POLICIES.get(pv_policy_str)
         # pv_policy passed as string, which is defined in channels datafile,
         # while pv_policy passed to CaField is a dict: {'read': rp, 'write': wp}
-        if kws.get('u_policy', None) is not None:
-            pv_policy_phy = build_pv_policy_phy(kws.get('u_policy'), pv_policy)
+        u_policy = kws.get('u_policy')
+        if u_policy is not None:
+            pv_policy_phy = build_pv_policy_phy(u_policy, pv_policy)
+            # Set u_policy as element attributes
+            self._unicorn_e2p = u_policy['p']
+            self._unicorn_p2e = u_policy['n']
         else:
             pv_policy_phy = PV_POLICIES.get(pv_policy_str)
+            self._unicorn_e2p = lambda x:x
+            self._unicorn_p2e = lambda x:x
         pv = kws.get('pv', None)
         #
         if field_name is not None:
