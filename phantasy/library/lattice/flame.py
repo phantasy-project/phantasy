@@ -75,6 +75,9 @@ CONFIG_FLAME_EBEND_VERBOOL = 'flame_ver'
 CONFIG_FLAME_EBEND_SPHERBOOL = 'flame_spher'
 CONFIG_FLAME_EBEND_ASYMFAC = 'flame_asym_fac'
 CONFIG_FLAME_BEND_FOCUSING = 'focusing_component'
+# Corrector:
+# flag to indicate if using kick ([T.m]) ("tm_kick") or theta ([rad]) ("rad_kick")
+CONFIG_FLAME_COR_GAUGE = "flame_cor_gauge"
 
 # drift mask: bool
 CONFIG_DRIFT_MASK = "drift_mask"
@@ -569,11 +572,19 @@ class FlameLatticeFactory(BaseLatticeFactory):
                                    ('L', elem.length / 2.0),
                                    ('aper', elem.apertureX / 2.0))
 
-                lattice.append(elem.h.name, "orbtrim", ('theta_x', hkick),
-                               name=elem.h.name, etype=elem.h.ETYPE)
-
-                lattice.append(elem.v.name, "orbtrim", ('theta_y', vkick),
-                               name=elem.v.name, etype=elem.v.ETYPE)
+                kick_gauge = self._get_config(elem.dtype, CONFIG_FLAME_COR_GAUGE, None)
+                if kick_gauge == "tm_kick":
+                    lattice.append(elem.h.name, "orbtrim",
+                                   ('realpara', 1), ('tm_xkick', hkick),
+                                   name=elem.h.name, etype=elem.h.ETYPE)
+                    lattice.append(elem.v.name, "orbtrim",
+                                   ('realpara', 1), ('tm_ykick', hkick),
+                                   name=elem.v.name, etype=elem.v.ETYPE)
+                else:
+                    lattice.append(elem.h.name, "orbtrim", ('theta_x', hkick),
+                                   name=elem.h.name, etype=elem.h.ETYPE)
+                    lattice.append(elem.v.name, "orbtrim", ('theta_y', vkick),
+                                   name=elem.v.name, etype=elem.v.ETYPE)
 
                 if elem.length != 0.0:
                     lattice.append(_drift_name(elem.name, 2), "drift",
