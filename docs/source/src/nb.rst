@@ -1,3 +1,4 @@
+=========
 Notebooks
 =========
 
@@ -15,6 +16,7 @@ Original ``.ipynb`` files could be downloaded:
 * :download:`Wire-scanner <notebooks/phantasy_ws.ipynb>`
 * :download:`Read settings from .snp file <notebooks/read_settings.ipynb>`
 * :download:`Generate lattice with .snp file <notebooks/generate_lattice.ipynb>`
+* :download:`Generate lattice from accelerator <notebooks/generate_lattice_file_from_accelerator.ipynb>`
 * :download:`Synchronize settgins from .snp file <notebooks/sync_settings.ipynb>`
 * :download:`Work with Save&Restore <notebooks/work_with_save_restore.ipynb>`
 
@@ -23,7 +25,7 @@ Data files used in these notebooks:
 * :download:`Example of snapshot file <../snippets/Ar_LEBT_to_MEBT_20180321.snp>`
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 1
 
     Element <notebooks/phantasy_element.ipynb>
     Lattice <notebooks/phantasy_lattice.ipynb>
@@ -34,5 +36,6 @@ Data files used in these notebooks:
     Wire Scanner <notebooks/phantasy_ws.ipynb>
     Read Settings from .snp file <notebooks/read_settings.ipynb>
     Generate lattice with .snp file <notebooks/generate_lattice.ipynb>
+    Generate lattice from accelerator <notebooks/generate_lattice_file_from_accelerator.ipynb>
     Synchronize settgins from .snp file <notebooks/sync_settings.ipynb>
     Work with Save&Restore <notebooks/work_with_save_restore.ipynb>
