@@ -2,6 +2,11 @@
 
 import logging
 
+logging.getLogger(__name__).setLevel(logging.INFO)
+logging.basicConfig(
+        format="%(levelname)s: %(asctime)s: %(name)s: %(message)s"
+)
+
 from phantasy.library import channelfinder
 from phantasy.library import lattice
 from phantasy.library import layout
@@ -25,7 +30,7 @@ __contact__ = "Tong Zhang <zhangt@frib.msu.edu>"
 __version__ = "0.9.4"
 
 __doc__ = \
-"""PHANTASY: [P]hysics [H]igh-level [A]pplications a[N]d [T]oolkits for
+"""PHANTASY: [P]hysics [H]igh-level [A]pplications a[N]d [T]oolkit for
 [A]ccelerator [SY]stem.
 
 Main features of ``phantasy``:
@@ -45,9 +50,3 @@ More details see documentation at https://archman.github.io/phantasy/.
 """ % (__version__, __authors__)
 
 __all__ = ['MachinePortal']
-
-_LOGGER = logging.getLogger(__name__)
-_LOGGER.setLevel(logging.INFO)
-logging.basicConfig(
-        format="%(levelname)s: %(asctime)s: %(name)s: %(message)s"
-)
