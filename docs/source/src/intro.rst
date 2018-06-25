@@ -1,13 +1,14 @@
+============
 Introduction
 ============
 
-About the name
---------------
+Package Name
+------------
 
 .. only:: latex
     
     ``phantasy`` is brief for **P**\ hysics **H**\ igh-level
-    **A**\ pplications a **n**\ d **T**\ oolkits for **A**\ ccelerator
+    **A**\ pplications a **n**\ d **T**\ oolkit for **A**\ ccelerator
     **Sy**\ stem.
 
 .. only:: html
@@ -19,15 +20,15 @@ About the name
         <font color="magenta">H</font>igh-level 
         <font color="magenta">A</font>pplications
         a<font color="magenta">n</font>d 
-        <font color="magenta">T</font>oolkits for 
+        <font color="magenta">T</font>oolkit for 
         <font color="magenta">A</font>ccelerator
         <font color="magenta">Sy</font>stem.
 
 
-Framework
----------
+.. Framework
+.. ---------
 
-.. image:: ../images/phantasy.png
+.. .. image:: ../images/phantasy.png
     :align: center
     :width: 600px
 
