@@ -18,25 +18,27 @@ from __future__ import unicode_literals
 import logging
 import os
 import requests
-from channelfinder import ChannelFinderClient
 from fnmatch import fnmatch
 
-from phantasy.library.channelfinder import get_data_from_cf
 from phantasy.library.channelfinder import get_data_from_db
 from phantasy.library.channelfinder import get_data_from_tb
-from phantasy.library.channelfinder import write_cfs
 from phantasy.library.channelfinder import write_db
 from phantasy.library.channelfinder import write_json
 from phantasy.library.channelfinder import write_tb
 from phantasy.library.misc import cofetch
 
+_LOGGER = logging.getLogger(__name__)
+
+from phantasy.library.channelfinder import HAS_CFC
+if HAS_CFC:
+    from channelfinder import ChannelFinderClient
+    from phantasy.library.channelfinder import get_data_from_cf
+    from phantasy.library.channelfinder import write_cfs
 
 __authors__ = "Tong Zhang"
 __copyright__ = "(c) 2016-2017, Facility for Rare Isotope beams, " \
                 "Michigan State University"
 __contact__ = "Tong Zhang <zhangt@frib.msu.edu>"
-
-_LOGGER = logging.getLogger(__name__)
 
 
 class DataSource(object):
@@ -70,16 +72,17 @@ class DataSource(object):
         self._prop_list = None
 
         self._get_data = {
-            'cfs': self._get_cfs_data,
             'csv': self._get_csv_data,
             'sql': self._get_sql_data,
         }
 
         self._init_data = {
-            'cfs': self._init_cfs_data,
             'csv': self._init_csv_data,
             'sql': self._init_sql_data,
         }
+        if HAS_CFC:
+            self._get_data['cfs'] = self._get_cfs_data
+            self._init_data['cfs'] = self._init_cfs_data
 
         self.source = source
 
@@ -283,10 +286,11 @@ class DataSource(object):
             self.pvdata = ret
         return ret
 
-    def _get_cfs_data(self, **kws):
-        """Get PV data from ChannelFinderService (URL)
-        """
-        return get_data_from_cf(self.source, **kws)
+    if HAS_CFC:
+        def _get_cfs_data(self, **kws):
+            """Get PV data from ChannelFinderService (URL)
+            """
+            return get_data_from_cf(self.source, **kws)
 
     def _get_csv_data(self, **kws):
         """Get PV data from spreadsheet (CSV)
@@ -344,25 +348,26 @@ class DataSource(object):
                 p_list.append(p)
             r['properties'] = p_list
 
-    def _init_cfs_data(self, **kws):
-        username = kws.get('username', None)
-        password = kws.get('password', None)
-        cfc = ChannelFinderClient(BaseURL=self.source,
-                                  username=username,
-                                  password=password)
-        c_url = cfc.get_resource('channel')
-        t_url = cfc.get_resource('tag')
-        p_url = cfc.get_resource('property')
-        
-        resource_data = _cofetch_data([c_url, t_url, p_url])
+    if HAS_CFC:
+        def _init_cfs_data(self, **kws):
+            username = kws.get('username', None)
+            password = kws.get('password', None)
+            cfc = ChannelFinderClient(BaseURL=self.source,
+                                      username=username,
+                                      password=password)
+            c_url = cfc.get_resource('channel')
+            t_url = cfc.get_resource('tag')
+            p_url = cfc.get_resource('property')
+            
+            resource_data = _cofetch_data([c_url, t_url, p_url])
 
-        prop_list = sorted([p['name'] for p in resource_data[p_url]])
-        tag_list = sorted([t['name'] for t in resource_data[t_url]])
-        raw_data = resource_data[c_url]
+            prop_list = sorted([p['name'] for p in resource_data[p_url]])
+            tag_list = sorted([t['name'] for t in resource_data[t_url]])
+            raw_data = resource_data[c_url]
 
-        self._prop_list = prop_list
-        self._tag_list = tag_list
-        self._pvdata = raw_data
+            self._prop_list = prop_list
+            self._tag_list = tag_list
+            self._pvdata = raw_data
 
     def _init_csv_data(self, **kws):
         pass
@@ -391,8 +396,9 @@ def dump_data(data, fname, ftype, **kws):
     """
     dump_meth = {'csv': write_tb,
                  'sql': write_db,
-                 'json': write_json,
-                 'cfs': write_cfs}
+                 'json': write_json}
+    if HAS_CFC:
+        dump_meth['cfs'] = write_cfs
     dump_meth.get(ftype)(data, fname, **kws)
 
 
