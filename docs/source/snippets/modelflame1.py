@@ -12,21 +12,21 @@ Tong Zhang <zhangt@frib.msu.edu>
 """
 
 from flame import Machine
-from phantasy import flameutils
+import flame_utils
 import matplotlib.pyplot as plt
 
 
 # create FLAME machine
 latfile = "test.lat"
-m = Machine(open(latfile, 'r'))
+m = Machine(open(latfile, 'rb'))
 
-# create MachineStates object
-ms = flameutils.MachineStates(machine=m)
-# adjust the attributes of ms
-#ms.ref_IonEk = 500000
+# create BeamState object
+bs = flame_utils.BeamState(machine=m)
+# adjust the attributes of bs
+#bs.ref_IonEk = 500000
 
 # create ModelFlame object
-fm = flameutils.ModelFlame()
+fm = flame_utils.ModelFlame()
 # setup machine and state
 fm.mstates, fm.machine = ms, m
 
