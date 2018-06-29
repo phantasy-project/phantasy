@@ -10,15 +10,15 @@ _LOGGER = logging.getLogger(__name__)
 
 
 try:
-    DEFAULT_PHANTASY_CONFIG_MACHINE = '/etc/phantasy/config/frib/LEBT'
-    DEFAULT_CONFIG_FILE = os.path.join(DEFAULT_PHANTASY_CONFIG_MACHINE, 'phantasy.cfg')
-    _DEFAULT_MCONF, _DEFAULT_MPATH, _DEFAULT_MNAME = find_machine_config(
-        DEFAULT_PHANTASY_CONFIG_MACHINE)
-    _DEFAULT_MCONFIG = Configuration(DEFAULT_CONFIG_FILE)
+    DEMO_PHANTASY_CONFIG_MACHINE = '/etc/phantasy/config/demo_mconfig/accel'
+    DEMO_CONFIG_FILE = os.path.join(DEMO_PHANTASY_CONFIG_MACHINE, 'phantasy.cfg')
+    _DEMO_MCONF, _DEMO_MPATH, _DEMO_MNAME = find_machine_config(
+        DEMO_PHANTASY_CONFIG_MACHINE)
+    _DEMO_MCONFIG = Configuration(DEMO_CONFIG_FILE)
 except:
-    _DEFAULT_MCONFIG = None
-    _DEFAULT_MCONF = None
-    _DEFAULT_MPATH = ''
-    _DEFAULT_MNAME = ''
-    _LOGGER.warn('Default configuration does not exist.')
+    _DEMO_MCONFIG = None
+    _DEMO_MCONF = None
+    _DEMO_MPATH = ''
+    _DEMO_MNAME = ''
+    _LOGGER.warn('DEMO configuration does not exist.')
 
