@@ -68,7 +68,7 @@ setup(
     keywords=app_keywords,
     scripts=app_scripts,
     packages=find_packages(),
-    data_files = get_all_dirs('/etc/phantasy/config', 'frib'),
+    data_files = get_all_dirs('/etc/phantasy/config', 'demo_mconfig'),
     classifiers=[
         'Programming Language :: Python :: 2.7',
         'Topic :: Software Development :: Libraries :: Python Modules', 
