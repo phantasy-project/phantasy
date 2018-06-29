@@ -45,10 +45,6 @@ from .element import CaElement
 from .flame import FlameLatticeFactory
 from .impact import LatticeFactory as ImpactLatticeFactory
 from .impact import run_lattice as run_impact_lattice
-from phantasy.library.dconf import _DEFAULT_MCONF
-from phantasy.library.dconf import _DEFAULT_MNAME
-from phantasy.library.dconf import _DEFAULT_MPATH
-from phantasy.library.dconf import _DEFAULT_MCONFIG
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -269,7 +265,8 @@ class Lattice(object):
     @mname.setter
     def mname(self, name):
         if name is None:
-            self._mname = _DEFAULT_MNAME
+            from phantasy.library.dconf import _DEMO_MNAME
+            self._mname = _DEMO_MNAME
         else:
             self._mname = name
 
@@ -281,7 +278,8 @@ class Lattice(object):
     @mpath.setter
     def mpath(self, path):
         if path is None:
-            self._mpath = _DEFAULT_MPATH
+            from phantasy.library.dconf import _DEMO_MPATH
+            self._mpath = _DEMO_MPATH
         else:
             self._mpath = path
 
@@ -295,7 +293,8 @@ class Lattice(object):
         if isinstance(config, Configuration):
             self._mconf = config
         else:
-            self._mconf = _DEFAULT_MCONF
+            from phantasy.library.dconf import _DEMO_MCONF
+            self._mconf = _DEMO_MCONF
 
     @property
     def mtype(self):
@@ -363,7 +362,8 @@ class Lattice(object):
             configfile = self.mconf.getabspath(self.name, "config_file")
             config = Configuration(configfile)
         else:
-            config = _DEFAULT_MCONFIG
+            from phantasy.library.dconf import _DEMO_MCONFIG
+            config = _DEMO_MCONFIG
         return config
 
     def _get_default_settings(self):
