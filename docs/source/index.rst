@@ -1,3 +1,8 @@
+.. phantasy documentation master file, created by
+   sphinx-quickstart on Wed Jan 11 09:10:55 2017.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
+
 phantasy - Physics High-level Applications and Toolkit for Accelerator System
 =============================================================================
 
@@ -5,7 +10,7 @@ phantasy - Physics High-level Applications and Toolkit for Accelerator System
 
     .. sidebar:: phantasy Python package
         
-        ``phantasy``: Physics High-level Applications aNd Toolkits for Accelerator SYstem
+        ``phantasy``: Physics High-level Applications aNd Toolkit for Accelerator SYstem
 
         :Author: Tong Zhang
         :E-mail: zhangt@frib.msu.edu
