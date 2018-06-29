@@ -27,7 +27,7 @@ __authors__ = "Tong Zhang"
 __copyright__ = "(c) 2016-2018, Facility for Rare Isotope beams," \
                 " Michigan State University"
 __contact__ = "Tong Zhang <zhangt@frib.msu.edu>"
-__version__ = "0.9.4"
+__version__ = "0.9.5"
 
 __doc__ = \
 """PHANTASY: [P]hysics [H]igh-level [A]pplications a[N]d [T]oolkit for
@@ -37,7 +37,8 @@ Main features of ``phantasy``:
 
 - Creating virtual accelerators, EPICS controls environment;
 - Modeling and tuning accelerator on high-level computing stage;
-- General interface for physics applications;
+- Device abstraction and configuration management;
+- Online modeling, integrating physics and engineering units scaling laws;
 
 Physics applications built on top of ``phantasy`` are developed as another
 repo: ``phantasy-apps``, whose names in Debian repo are prefixed with
