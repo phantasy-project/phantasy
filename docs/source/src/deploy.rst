@@ -1,26 +1,32 @@
+==========
 Deployment
 ==========
 
 Deploy ``phantasy`` to different operating systems is quite simple, both 
-online and offline approaches are provided. Before installing this package
-into system, there may be packages/libraries dependence issues to be
-resolved first (if installing by ``pip install``, dependence issues will be
-automatically resolved).
+online and offline approaches are provided. Before installation, there
+may be packages/libraries dependency issues to be resolved first.
 
 Prerequisites
 -------------
 
-Required Python packages: ``numpy``, ``scipy``, ``matplotlib``, ``cothread``,
-``xlrd``, ``tornado``, ``motor``, ``jinja2``, ``humanize``, ``jsonschema``.
+Required Python packages: ``numpy``, ``scipy``, ``matplotlib``,
+``cothread``, ``xlrd``,
+Optional Python packages: ``tornado``, ``motor``, ``jinja2``,
+``humanize``, ``jsonschema``,
+Optional Python packages: ``pyCFClient``, ``scanclient``,
+Suggested packages: ``phantasy-machines``,
+``python-unicorn``, ``unicorn-webapp``,
 
 Other home-made packages:
-
-- Python (cannot resolve by ``pip``): ``flame``, ``genopt`` 
+- Python: ``flame``, ``genopt`` 
 - C++: ``flame``, ``impact`` (FRIB-version), ``dakota-drivers``
 
 
-Installation
-------------
+Install via APT
+---------------
+
+Install via PIP
+---------------
 
 **Offline approach**
 
