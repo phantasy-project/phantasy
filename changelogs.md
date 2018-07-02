@@ -1,3 +1,112 @@
+Version 0.9.6
+-------------
+2018-07-02 [Testing]
+
+- MNT: Remove README.rst and update README.md.
+- ENH: Add method 'get_model_settings' to Lattice.
+
+Version 0.9.5
+-------------
+2018-06-29 [Testing]
+
+- ENH: Rename machine example to demo_mconfig/accel.
+- ENH: Install demo mach into /etc/phantasy/config.
+- ENH: Make example machine config usage conditional.
+- ENH: Make scan module optional.
+- ENH: Make channelfinder module optional.
+- FIX: Logging level issue an typo.
+- FIX: Change the data path for tests.
+
+Version 0.9.4
+-------------
+2018-05-23 [Testing]
+
+- DOC: Add entries for new notebook files.
+- DOC: Add notebooks.
+- ENH: Add plot_orbit tool to work with FLAME model.
+- ENH: Add option 'flame_cor_gauge' to corrector.
+- ENH: Generate settings with physics field values.
+- ENH: Add _unicorn_e2p and _unicorn_p2e to Element.
+- ENH: Add methods to test field type.
+- FIX: CaField duplicated PV objects.
+- FIX: CaField duplicated PV names.
+- ENH: Add ftype (field type) attribute to CaField.
+
+Version 0.9.3
+-------------
+2018-05-15 [Testing]
+
+- MNT: Remove files regarding to Travis CI.
+- FIX: pv_policy is a str when passing to process_pv.
+- TST: Adapt the tests regarding to phantasy source.
+- FIX: Use physics fields for BPM element.
+- ENH: Generate settings from physics fields.
+- ENH: Update VA settings from physics fields.
+- ENH: Read settings from physics fields.
+- ENH: Seperate into ENG and PHY fields for channels.
+- FIX: If 'unicorn_file' is missing, use default law.
+- FIX: Get channels according to 'elemField_eng'.
+- FIX: Get unicorn functions with element name.
+- ENH: Integrate unicorn policy when processing PVs.
+- ENH: Update routine to integrate physics field.
+- NEW: Replace elemField with elemField_eng[_phy].
+- ENH: Add physics field names for each elements.
+- ENH: Update 'process_pv' for element generation.
+- ENH: Support 'unicorn_file' when loading lattice.
+- ENH: Add unicorn decorators into package.
+- ENH: decorators for pv_policy with scaling laws.
+
+Version 0.9.2
+-------------
+2018-05-02 [Testing]
+
+- FIX: Update BPM field PVs according to FRIB setup.
+- ENH: Add MAG dynamic field for BPM.
+- CI: Set up Circle CI.
+
+Version 0.9.1
+-------------
+2018-05-01 [Testing]
+
+- ENH: Rename x(y) -> x(y)cen and add cxy for PM.
+- ENH: Add xy correlation for profile monitor.
+- ENH: Update profile monitor pv names.
+- DOC: Attach pdf doc.
+- ENH: Support XLS lattice file dated 2018-01-25.
+
+Version 0.9.0
+-------------
+2018-04-09 [Testing]
+
+- DOC: Update index page.
+- DOC: Add work_with_save_restore notebook.
+- Fix caget large waveform record issue.
+- ENH: Add snapshot-settings to phytool.
+- ENH: Add new cmd 'snapshot-settings' to read .snp.
+- ENH: Add support to read settings from snp file.
+- Add support to load settings into Lattice.
+- Default design/last settings: {field: None}.
+- Initialize elem design_settings from settings file.
+- Add keyword arguments to pv policy functions.
+- Add tests for lattice load_settings.
+- Add design_settings and last_settings attribute.
+- Initialize design settings for all elements.
+- Enable try except block.
+- Fix compatibility with Python 3.
+- Show warning message if wait flag is True when set.
+- Set wait as default True and add ename for CaField.
+- Add attributes to control put action of CaField.
+- Add keyword arguments to all policy functions.
+- Add set_loglevel to control level of log system.
+- Add sphinx_rtd_theme as deps.
+- Use rtd theme.
+
+Version 0.8.1
+-------------
+2018-03-27 [Testing]
+
+- Fix: get field from 'control' environment.
+
 Version 0.8.0
 -------------
 2018-03-27 [Testing]
@@ -5,7 +114,7 @@ Version 0.8.0
 - New:
     - len() method for high-level lattice
     - Logging message level control
-    - Property: `pvPolicy` for channels 
+    - Property: `pvPolicy` for channels
     - CaField: new methods: `reset_policy`
     - CaField: update element to support multi-PVs for one handle
     - CaField: new attributes: `read_policy`/`write_policy`
@@ -30,7 +139,7 @@ Version 0.8.0
 - Config:
     - Update LEBT configuration with new channels
 
-Test: 
+Test:
     - New test for generating layout from xlsx file
     - New test for CaElement/CaField  
     - New test data
