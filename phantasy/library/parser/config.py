@@ -54,19 +54,19 @@ class Configuration(SafeConfigParser):
         else:
             self.config_path = None
 
-    def get_default(self, option):
-        return self.get(self._DEFAULT_SECTION, option, check_default=False)
+    def get_default(self, option, **kws):
+        return self.get(self._DEFAULT_SECTION, option, check_default=False, **kws)
 
-    def getint_default(self, option):
-        return self.getint(self._DEFAULT_SECTION, option, check_default=False)
+    def getint_default(self, option, **kws):
+        return self.getint(self._DEFAULT_SECTION, option, check_default=False, **kws)
 
-    def getfloat_default(self, option):
-        return self.getfloat(self._DEFAULT_SECTION, option, check_default=False)
+    def getfloat_default(self, option, **kws):
+        return self.getfloat(self._DEFAULT_SECTION, option, check_default=False, **kws)
 
-    def getarray_default(self, option, sep=None, conv=None):
-        return self.getarray(self._DEFAULT_SECTION, option, check_default=False, sep=sep, conv=conv)
+    def getarray_default(self, option, sep=None, conv=None, **kws):
+        return self.getarray(self._DEFAULT_SECTION, option, check_default=False, sep=sep, conv=conv, **kws)
 
-    def getabspath_default(self, option, cmd=False):
+    def getabspath_default(self, option, cmd=False, **kws):
         """Get the given option and convert to an absolute path.
         If the value of the option is not already an absolute
         path, than resolve the relative path against the config_path
@@ -86,42 +86,42 @@ class Configuration(SafeConfigParser):
         ret :
             Absolute path.
         """
-        return self.getabspath(self._DEFAULT_SECTION, option, check_default=False, cmd=cmd)
+        return self.getabspath(self._DEFAULT_SECTION, option, check_default=False, cmd=cmd, **kws)
 
     def has_default(self, option):
         return self.has_option(self._DEFAULT_SECTION, option, check_default=False)
 
-    def get(self, section, option, check_default=True):
+    def get(self, section, option, check_default=True, **kws):
         if self.has_option(section, option, False):
-            return SafeConfigParser.get(self, section, option)
+            return SafeConfigParser.get(self, section, option, **kws)
         elif check_default and self.has_default(option):
-            return self.get_default(option)
+            return self.get_default(option, **kws)
         elif not self.has_section(section):
             raise NoSectionError(section)
         else:
             raise NoOptionError(option, section)
 
-    def getint(self, section, option, check_default=True):
+    def getint(self, section, option, check_default=True, **kws):
         if self.has_option(section, option, False):
-            return SafeConfigParser.getint(self, section, option)
+            return SafeConfigParser.getint(self, section, option, **kws)
         elif check_default and self.has_default(option):
-            return self.getint_default(option)
+            return self.getint_default(option, **kws)
         elif not self.has_section(section):
             raise NoSectionError(section)
         else:
             raise NoOptionError(option, section)
 
-    def getfloat(self, section, option, check_default=True):
+    def getfloat(self, section, option, check_default=True, **kws):
         if self.has_option(section, option, False):
-            return SafeConfigParser.getfloat(self, section, option)
+            return SafeConfigParser.getfloat(self, section, option, **kws)
         elif check_default and self.has_default(option):
-            return self.getfloat_default(option)
+            return self.getfloat_default(option, **kws)
         elif not self.has_section(section):
             raise NoSectionError(section)
         else:
             raise NoOptionError(option, section)
 
-    def getarray(self, section, option, check_default=True, sep=None, conv=None):
+    def getarray(self, section, option, check_default=True, sep=None, conv=None, **kws):
         def parsearray(s):
             spt = s.split(sep)
             if callable(conv):
@@ -132,15 +132,15 @@ class Configuration(SafeConfigParser):
             return spt
 
         if self.has_option(section, option, False):
-            return parsearray(SafeConfigParser.get(self, section, option))
+            return parsearray(SafeConfigParser.get(self, section, option, **kws))
         elif check_default and self.has_default(option):
-            return parsearray(self.get_default(option))
+            return parsearray(self.get_default(option, **kws))
         elif not self.has_section(section):
             raise NoSectionError(section)
         else:
             raise NoOptionError(option, section)
 
-    def getabspath(self, section, option, check_default=True, cmd=False):
+    def getabspath(self, section, option, check_default=True, cmd=False, **kws):
         """Get the given option and convert to an absolute path.
         If the value of the option is not already an absolute
         path, than resolve the relative path against the config_path
@@ -164,7 +164,7 @@ class Configuration(SafeConfigParser):
         ret :
             Absolute path.
         """
-        path = self.get(section, option, check_default=check_default)
+        path = self.get(section, option, check_default=check_default, **kws)
         if os.path.isabs(path):
             return path
         elif cmd and not path.startswith(".") and (os.path.sep not in path):
