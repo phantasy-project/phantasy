@@ -2,7 +2,7 @@
 
 test:
 	PYTHONPATH=../:$(PYTHONPATH) \
-	nosetests --with-coverage --cover-package=phantasy \
+	nosetests3 --with-coverage --cover-package=phantasy \
 		--with-id -v --logging-level=INFO \
 		--exclude-dir-file="skiptests" 
 
