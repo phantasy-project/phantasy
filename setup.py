@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 
 def readme():
-    with open('README.rst', 'r') as f:
+    with open('README.md', 'rb') as f:
         return f.read()
 
 def read_license():
