@@ -34,8 +34,6 @@ from phantasy.library.misc import pattern_filter
 from phantasy.library.model import BeamState
 from phantasy.library.model import ModelFlame
 from phantasy.library.parser import Configuration
-from phantasy.library.pv import caget
-from phantasy.library.pv import caput
 from phantasy.library.settings import Settings
 from phantasy.library.settings import build_flame_settings
 from phantasy.library.physics import get_orbit
@@ -62,7 +60,7 @@ except NameError:
 class Lattice(object):
     """Machine high-level lattice object, all elements inside this lattice
     has an unique name.
-    
+
     Parameters
     ----------
     name : str
@@ -108,7 +106,7 @@ class Lattice(object):
         set action cannot be reverted, by default, trace feature is on.
     group : dict
         Initial group configuration.
-    
+
     Note
     ----
     :class:`~phantasy.library.operation.create_lattice` could be used to
@@ -145,7 +143,7 @@ class Lattice(object):
         self._elements = []
         self._orm = None
 
-        ## clean up the following parameters
+        # clean up the following parameters
         self.isring = bool(self.mtype)
         self.latticemodelmap = None
 
@@ -395,13 +393,49 @@ class Lattice(object):
                 "Lattice: Model '{}' not supported".format(self.model))
         return mf
 
+    def get_model_settings(self, only_physics=False):
+        """Get settings from 'model' environment, if *only_physics* is `True`,
+        only return physics field settings, otherwise return both engineering
+        and physics settings.
+
+        Parameters
+        ----------
+        only_physics : bool
+            If `True`, only return physics settings, the same as `settings`
+            attribute, the default value is `False`.
+
+        Returns
+        -------
+        r :
+            Settings object.
+
+        See Also
+        --------
+        :func:`~phantasy.library.settings.common.generate_settings`
+        """
+        if only_physics:
+            return self.settings
+        else:
+            all_settings = Settings()
+            for e_name, e_phyconf in self.settings.items():
+                elem = self._find_exact_element(e_name)
+                all_settings.update(OrderedDict({e_name: e_phyconf}))
+                for phy_fld_name in set(e_phyconf).intersection(
+                        elem.get_phy_fields()):
+                    eng_fields = elem.get_eng_fields()
+                    if len(eng_fields) == 1:
+                        all_settings[e_name].update(
+                            {eng_fields[0]:
+                                 elem._unicorn_p2e(e_phyconf[phy_fld_name])})
+            return all_settings
+
     def set(self, elem, value, field=None, **kws):
         """Set the value of a lattice element field, if element only has one
         field, parameter *field* is optional, or *field* must be specified.
-        
+
         Parameters
         ----------
-        elem : str or CaElement object 
+        elem : str or CaElement object
             Element name string or CaElement object.
         value :
             Value of the field, type should be valid w.r.t *field*.
@@ -487,7 +521,8 @@ class Lattice(object):
             self.settings[elem_name][field] = value
             self.model_factory.settings[elem_name][field] = value
             _LOGGER.debug(
-                "Updated field: {0:s} of element: {1:s} with value: {2:f}.".format(field, elem_name, value))
+                "Updated field: {0:s} of element: {1:s} with value: {2:f}.".format(
+                    field, elem_name, value))
         self._log_trace('model', element=elem_name, field=field,
                         value=value, value0=value0)
 
@@ -552,7 +587,7 @@ class Lattice(object):
 
         Returns
         -------
-        ret : dict 
+        ret : dict
             Field value, {field: value}.
         """
         elems = self._get_element_list(elem)
@@ -620,7 +655,7 @@ class Lattice(object):
         +---------------+--------------------------------------+
         | *timestamp*   | ``1485275869``                       |
         +---------------+--------------------------------------+
-        | *type*        | ``control``                          |  
+        | *type*        | ``control``                          |
         +---------------+--------------------------------------+
         | *element*     | ``LS1_CA01:CAV1_D1127``              |
         +---------------+--------------------------------------+
@@ -748,7 +783,7 @@ class Lattice(object):
           *hour*, *minute*, *second*, *microsecond*, *mins*, *secs*, *msecs*,
           *min*, *sec*, *msec*, could be linked by string 'and' or ',',
           ended with 'ago', e.g. '5 mins ago', '1 hour and 30 mins ago'.
-        
+
         Warning
         -------
         If valid *retroaction* parameter is defined, *setting* will be
@@ -785,7 +820,7 @@ class Lattice(object):
         ----------
         model_lattice : path
             External model lattice file.
-        
+
         Keyword Arguments
         -----------------
         sdict : dict
@@ -825,7 +860,7 @@ class Lattice(object):
         Parameters
         ----------
         data_source : str
-            Data source of synchronization, if 'model' is defined, will update 
+            Data source of synchronization, if 'model' is defined, will update
             data of control environment with data from 'model'; if 'control'
             is defined, model data will be synchronized; *data_source* is
             'control' by default.
@@ -876,7 +911,7 @@ class Lattice(object):
             `last_settings`, respectively.
         """
         settings = self.settings if settings is None and \
-                   self.settings is not None else settings
+                                    self.settings is not None else settings
         if settings is None:
             _LOGGER.warning("Cannot load settings from None.")
             return 0
@@ -887,7 +922,8 @@ class Lattice(object):
                     el.design_settings.update(dict(v))
                 elif stype == 'last':
                     el.last_settings.update(dict(v))
-                _LOGGER.debug("Updated {0:<20}: {1}_settings.".format(el.name, stype))
+                _LOGGER.debug(
+                    "Updated {0:<20}: {1}_settings.".format(el.name, stype))
 
     def _skip_elements(self, name):
         """Presently, element should skip: SEXT
@@ -901,7 +937,7 @@ class Lattice(object):
     def run(self):
         """Run machine with defined model, e.g. 'FLAME' or 'IMPACT',
         update model settings, but not control settings.
-        
+
         Returns
         -------
         ret : tuple
@@ -950,7 +986,7 @@ class Lattice(object):
     def _update_viewer_settings(self, fm, r):
         """Initially, all viewer settings are {}, after ``run()``,
         new key-values will be added into.
-        
+
         field : model environment
         key   : flame model
         +---------+----------+-----------+
@@ -1009,7 +1045,7 @@ class Lattice(object):
         -------
         ret : List
             List of elements (``CaElement``), excluding virtual elements.
-            
+
         Note
         ----
         1. The pattern here used is Unix shell style, slightly different
@@ -1048,21 +1084,21 @@ class Lattice(object):
         >>> get_elements(name=['FS1_B?*D266?', 'LS1_B*DCV*'], type='BPM')
         [FS1_BMS:BPM_D2664 [BPM] @ sb=153.963690]
         >>> # type='BPM' also could be pattern
-        
+
         4. Filter hybrid types:
 
         >>> get_elements(name=['FS1_B?*D266?', 'LS1_B*DCV*'],
         >>>              type=['BPM', 'QUAD'])
         [FS1_BMS:BPM_D2664 [BPM] @ sb=153.963690,
          FS1_BMS:QH_D2666 [QUAD] @ sb=154.144690]
-        
+
         5. Get subsection from lattice according to s-position range:
-        
+
         >>> get_elements(srange=(10, 11))
         [LS1_CB01:CAV1_D1229 [CAV] @ sb=10.366596,
          LS1_CB01:BPM_D1231 [BPM] @ sb=10.762191,
          LS1_CB01:SOL1_D1235 [SOL] @ sb=10.894207]
-        
+
         6. Continue filter with *srange* parameter
 
         >>> get_elements(name=['FS1_B?*D266?', 'LS1_B*DCV*'],
@@ -1319,12 +1355,12 @@ class Lattice(object):
 
     def has_element(self, name):
         """If lattice has element or not.
-        
+
         Parameters
         ----------
         name : str or CaElement
             Name of element or element itself.
-        
+
         Returns
         -------
         ret : True or False
@@ -1385,7 +1421,7 @@ class Lattice(object):
 
     def append(self, elem):
         """Append new element to lattice.
-        
+
         Parameters
         ----------
         elem : CaElement
@@ -1403,7 +1439,7 @@ class Lattice(object):
             List of elements, could be returned from
             func:`~phantasy.library.lattice.Lattice.get_elements`, if not
             defined, entire lattice will be sorted.
-        
+
         Keyword Arguments
         -----------------
         sort_key : str
@@ -1413,7 +1449,7 @@ class Lattice(object):
             If *inplace* is True, the original element list will be replaced
             with sorted one, False by default.
 
-        Warning 
+        Warning
         -------
         Inplace sort only supports the case of ``elements=None``.
 
@@ -1725,17 +1761,19 @@ class Lattice(object):
         m_inv = inverse_matrix(m)
 
         n_cor = len(correctors)
-        for i in range(1, itern+1):
+        for i in range(1, itern + 1):
             bpm_readings = get_orbit(bpms, **kws)
             delt_cor = np.dot(m_inv, -bpm_readings * damp_fac)
             for ic, (e, v) in enumerate(zip(correctors, delt_cor)):
-                print("Correct cor[{0:>2d}/{1:>2d}]: {2:<20s} with {3:>10.4e} mrad.".format(
-                    ic+1, n_cor, e.name, v*1e3))
+                print(
+                    "Correct cor[{0:>2d}/{1:>2d}]: {2:<20s} with {3:>10.4e} mrad.".format(
+                        ic + 1, n_cor, e.name, v * 1e3))
                 v0 = getattr(e, cor_field)
                 setattr(e, cor_field, v0 + v)
                 time.sleep(wait)
             next_iter = r_input(
-                "Continue correction iteration: {0}/{1}? ([Y]/N)".format(i+1, itern)
+                "Continue correction iteration: {0}/{1}? ([Y]/N)".format(i + 1,
+                                                                         itern)
             )
             if next_iter.upper() in ['Y', '']:
                 continue
@@ -1746,7 +1784,6 @@ class Lattice(object):
         pass
 
     ###############################################################################
-
 
     def _find_element_s(self, s, eps=1e-9, loc='left'):
         """Given s location, find an element at this location, mostly return
@@ -1785,9 +1822,9 @@ class Lattice(object):
 
     def createLatticeModelMap(self, mapfile):
         """Create a mapping between lattice layout and model output from a file
-        
+
         :param mapfile: file name which has mapping information.
-        
+
         """
         mapping = np.loadtxt(mapfile, dtype=str)
         if self.latticemodelmap is not None:
@@ -1824,7 +1861,6 @@ class Lattice(object):
         else:
             return None
 
-
     def save(self, fname, dbmode='c'):
         """save the lattice into binary data, using writing *dbmode*.
 
@@ -1845,7 +1881,7 @@ class Lattice(object):
 
         In the db file, all lattice has a key with prefix 'lat.mode.'. If the
         given mode is empty string, then use 'lat.'
-        
+ 
         seealso Python Standard Lib `shelve`
         """
         f = shelve.open(fname, 'r')
@@ -2072,7 +2108,6 @@ class Lattice(object):
 
         return elem
 
-
     def getNeighbors(self, elemname, groups, n, elemself=True):
         """
         Assuming self._elements is in s order
@@ -2177,7 +2212,7 @@ class Lattice(object):
     def __repr__(self):
         s0 = "#Name of segment: '{}', unit: [m]".format(self.name)
         s1 = '#{0:<4s}{1:^20s} {2:<6s} {3:>10s} {4:>10s}'.format(
-                'IDX', 'NAME', 'FAMILY', 'POSITION', 'LENGTH'
+            'IDX', 'NAME', 'FAMILY', 'POSITION', 'LENGTH'
         )
         ret = [s0, s1]
 
