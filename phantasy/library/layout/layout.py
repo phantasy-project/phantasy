@@ -97,7 +97,7 @@ def build_layout(layoutPath=None, **kwargs):
 
         elements = []
 
-        header = csvstream.next()
+        header = next(csvstream)
 
         def buildEtype(row):
             return row[header.index("type")]
@@ -119,7 +119,7 @@ def build_layout(layoutPath=None, **kwargs):
 
         while True:
             try:
-                row = csvstream.next()
+                row = next(csvstream)
             except StopIteration:
                 break
 
@@ -174,7 +174,7 @@ def build_layout(layoutPath=None, **kwargs):
                     elem = buildElement(row, CorElement)
 
                 for _ in range(2):
-                    row = csvstream.next()
+                    row = next(csvstream)
                     etype = buildEtype(row)
                     if etype == HCorElement.ETYPE:
                         if elem.h is None:
