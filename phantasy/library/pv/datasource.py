@@ -29,6 +29,11 @@ from phantasy.library.misc import cofetch
 
 _LOGGER = logging.getLogger(__name__)
 
+try:
+    basestring
+except NameError:
+    basestring = str
+
 from phantasy.library.channelfinder import HAS_CFC
 if HAS_CFC:
     from channelfinder import ChannelFinderClient
@@ -103,7 +108,7 @@ class DataSource(object):
 
     @source.setter
     def source(self, s):
-        if not isinstance(s, (unicode, str)):
+        if not isinstance(s, basestring):
             self._source, self._src_type = None, None
             return
         ext = os.path.splitext(s)[-1].lower()
