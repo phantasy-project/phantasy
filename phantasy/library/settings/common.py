@@ -21,7 +21,7 @@ class Settings(OrderedDict):
         super(Settings, self).__init__()
         # if settingsPath is not None:
         if isinstance(settingsPath, basestring):
-            with open(settingsPath, "rb") as fp:
+            with open(settingsPath, "r") as fp:
                 self.readfp(fp)
 
     def readfp(self, fp):
@@ -56,7 +56,7 @@ def snp2dict(snpfile):
     r : dict
         Dict of PV names and setpoint values.
     """
-    f = open(snpfile, 'rb')
+    f = open(snpfile, 'r')
     csv_data = csv.reader(f, delimiter=',', skipinitialspace=True)
     csv_data.next()
     header = csv_data.next()
