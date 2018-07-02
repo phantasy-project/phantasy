@@ -7,7 +7,11 @@ Tong Zhang <zhangt@frib.msu.edu>
 """
 
 import threading
-import Queue
+
+try:
+    import Queue
+except ImportError:
+    import queue
 
 
 def cofetch(f):
