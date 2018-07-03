@@ -1152,7 +1152,7 @@ class Lattice(object):
         else:
             ele_srange = []
 
-        ret_elems = get_intersection(c1=ele_names, c2=ele_types, c3=ele_srange)
+        ret_elems = get_intersection(ele_names, ele_types, ele_srange)
 
         sk = kws.get('sort_key', 'sb')
         if sk == 'pos':
