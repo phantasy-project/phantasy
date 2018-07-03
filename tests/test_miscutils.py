@@ -53,19 +53,19 @@ class TestMiscUtils(unittest.TestCase):
 
     def test_get_interset(self):
         a, b, c = [], [], []
-        self.assertEqual(miscutils.get_intersection(a=a,b=b,c=c), [])
+        self.assertEqual(miscutils.get_intersection(a, b, c), [])
 
         a, b, c = [1], [2], []
-        self.assertEqual(miscutils.get_intersection(a=a,b=b,c=c), [])
+        self.assertEqual(miscutils.get_intersection(a, b, c), [])
         
         a, b, c = [1,2], [2], []
-        self.assertEqual(miscutils.get_intersection(a=a,b=b,c=c), [2])
+        self.assertEqual(miscutils.get_intersection(a, b, c), [2])
         
         a, b, c = [1,2], [2], [2,3]
-        self.assertEqual(miscutils.get_intersection(a=a,b=b,c=c), [2])
+        self.assertEqual(miscutils.get_intersection(a, b, c), [2])
         
         a, b, c = [1,2], [3,4], [2,3]
-        self.assertEqual(miscutils.get_intersection(a=a,b=b,c=c), [])
+        self.assertEqual(miscutils.get_intersection(a, b, c), [])
   
 def t_1():
     l0 = [1,2,3]
