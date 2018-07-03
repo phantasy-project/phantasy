@@ -1,9 +1,6 @@
-# encoding: UTF-8
+# -*- utf-8 -*-
 
 """
-Accelerator Layout
-==================
-
 The Accelerator Layout is a data model developed to capture the accelerator
 element positions independent of file format and/or simulation tool.
 It is used as intermediate data structure when converting between formats
@@ -27,12 +24,6 @@ LS1_CA01:BLM_D1128,BLM,0.0,112.78681696,0.034,0.034,CA01,NONE,LS1,NONE,BLM,outsi
 DRIFT,DRIFT,0.06426334,112.86731838,0.04,0.04,NONE,NONE,NONE,NONE,NONE,bellow
 LS1_CA01:BPM_D1129,BPM,0.0,112.8833268,0.04,0.04,CA01,BPM6,LS1,D1129,BPM,"position monitor, BPMc"
 [...]
-
-
-:author: Dylan Maxwell
-:date: 2015-06-09
-
-:copyright: Copyright (c) 2015, Facility for Rare Isotope Beams
 """
 
 import csv
@@ -76,7 +67,7 @@ _LOGGER = logging.getLogger(__name__)
 
 def build_layout(layoutPath=None, **kwargs):
     """Build the accelerator layout from a layout data file.
- 
+
     Parameters
     ----------
     layoutPath :
@@ -87,7 +78,8 @@ def build_layout(layoutPath=None, **kwargs):
         raise RuntimeError("build_layout: layout data file not specified")
 
     if not os.path.isfile(layoutPath):
-        raise RuntimeError("build_layout: layout data file not found: {}".format(layoutPath))
+        raise RuntimeError(
+            "build_layout: layout data file not found: {}".format(layoutPath))
 
     with open(layoutPath, "r") as layoutFile:
 
@@ -180,12 +172,14 @@ def build_layout(layoutPath=None, **kwargs):
                         if elem.h is None:
                             elem.h = buildElement(row, HCorElement)
                         else:
-                            raise RuntimeError("build_layout: HCorElement already found")
+                            raise RuntimeError(
+                                "build_layout: HCorElement already found")
                     elif etype == VCorElement.ETYPE:
                         if elem.v is None:
                             elem.v = buildElement(row, VCorElement)
                         else:
-                            raise RuntimeError("build_layout: VCorElement already found")
+                            raise RuntimeError(
+                                "build_layout: VCorElement already found")
 
                 elements.append(elem)
 
@@ -226,7 +220,8 @@ def build_layout(layoutPath=None, **kwargs):
                 elements.append(buildElement(row, AttenuatorElement))
 
             else:
-                raise RuntimeError("read_layout: Element type '{}' not supported".format(etype))
+                raise RuntimeError(
+                    "read_layout: Element type '{}' not supported".format(etype))
 
     return Layout(os.path.basename(layoutPath), elements)
 
@@ -284,7 +279,7 @@ class Layout(SeqElement):
 
         csvstream = csv.writer(stream, delimiter=',')
 
-        csvstream.writerow(fixedkeys+metakeys)
+        csvstream.writerow(fixedkeys + metakeys)
 
         for element in elemdicts:
             row = []
