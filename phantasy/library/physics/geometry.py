@@ -75,7 +75,10 @@ class Point(object):
         x, y = p[0], p[1]
         # x is a list or tuple or array,
         # e.g. x = (1, 2); x = [1, 2]; x = np.array([1,2])
-        if isinstance(x, (list, tuple, np.ndarray)):
+        if isinstance(x, (list, tuple)):
+            self.x, self.y = x[0], x[1]
+        elif isinstance(x, np.ndarray):  # np.int64 is not instance of int
+            x = x.tolist()
             self.x, self.y = x[0], x[1]
         elif isinstance(x, Point):
             # x is Point
