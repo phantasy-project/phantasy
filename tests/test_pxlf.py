@@ -2,6 +2,7 @@
 
 import unittest
 import os
+import csv
 
 from phantasy.facility.frib.layout import fribxlf
 from phantasy.library.parser import Configuration
@@ -31,12 +32,26 @@ class TestXLFParser(unittest.TestCase):
     def test_layout(self):
         config = Configuration(CONFIG_PATH)
         layout = fribxlf.build_layout(xlfpath=XLF_PATH, config=config)
-        with open(self.layout_file, 'wb') as f:
+        with open(self.layout_file, 'w') as f:
             layout.write(f, start=self.start_elem, end=self.end_elem)
-        
-        with open(LAYOUT_PATH, 'rb') as f:
-            f_str0 = f.read().strip().decode()
-        with open(self.layout_file, 'rb') as f:
-            f_str1 = f.read().strip().decode()
-        
-        self.assertEqual(f_str0, f_str1)
+
+        compare_csvfiles(self, LAYOUT_PATH, self.layout_file)
+
+
+def compare_csvfiles(tobj, file1, file2):
+    """Compare two csv files.
+    """
+    NPRC = 9  # assertAlmostEqual(x, y, places=NPRC)
+    with open(file1, 'r') as f1, open(file2, 'r') as f2:
+        csv1, csv2 = csv.reader(f1), csv.reader(f2)
+        header1, header2 = next(csv1), next(csv2)
+        tobj.assertEqual(sorted(header1), sorted(header2))
+        for line1, line2 in zip(csv1, csv2):
+            row1 = dict(zip(header1, line1))
+            row2 = dict(zip(header2, line2))
+            for k in row1:
+                try:
+                    v1, v2 = float(row1[k]), float(row2[k])
+                    tobj.assertAlmostEqual(v1, v2, places=NPRC)
+                except ValueError:
+                    tobj.assertEqual(row1[k], row2[k])
