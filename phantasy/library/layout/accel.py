@@ -249,7 +249,7 @@ class SeqElement(Element):
         while len(iterators) > 0:
             it = iterators[-1]
             try:
-                elem = it.next()
+                elem = next(it)
             except StopIteration:
                 del iterators[-1]
                 level -= 1
@@ -291,7 +291,7 @@ class _SeqElementIterator(object):
         while len(self._iterators) > 0:
             it = self._iterators[-1]
             try:
-                elem = it.next()
+                elem = next(it)
             except StopIteration:
                 del self._iterators[-1]
                 continue
@@ -313,6 +313,9 @@ class _SeqElementIterator(object):
                 return elem
 
         raise StopIteration()
+
+    __next__ = next
+
 
 
 # Passive Elements
