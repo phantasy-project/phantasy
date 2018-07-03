@@ -264,6 +264,9 @@ class AbstractElement(object):
                self.index == other.index and \
                self.name == other.name
 
+    def __hash__(self,):
+        return hash((self.name, self.index, self.length, self.sb))
+
     def _update_static_props(self, props):
         """Non-CA"""
         for k, v in props.items():
