@@ -69,8 +69,8 @@ def flatten(nnn):
     return list(_flatten(nnn))
 
 
-def get_intersection(**kws):
-    """Get the intersection of all input keyword parameters, ignore
+def get_intersection(*args):
+    """Get the intersection of all input parameters, separated by comma, ignore
     empty list or tuple.
 
     Returns
@@ -80,29 +80,28 @@ def get_intersection(**kws):
     Examples
     --------
     >>> a, b, c = [], [], []
-    >>> print(get_intersection(a=a,b=b,c=c))
+    >>> print(get_intersection(a, b, c))
     []
     >>> a, b, c = [1], [2], []
-    >>> print(get_intersection(a=a,b=b,c=c))
+    >>> print(get_intersection(a, b, c))
     []
-    >>> a, b, c = [1,2], [2], []
-    >>> print(get_intersection(a=a,b=b,c=c))
+    >>> a, b, c = [1, 2], [2], []
+    >>> print(get_intersection(a, b, c))
     [2]
-    >>> a, b, c = [1,2], [2], [2,3]
-    >>> print(get_intersection(a=a,b=b,c=c))
+    >>> a, b, c = [1, 2], [2], [2, 3]
+    >>> print(get_intersection(a, b, c))
     [2]
-    >>> a, b, c = [1,2], [3,4], [2,3]
-    >>> print(get_intersection(a=a,b=b,c=c))
+    >>> a, b, c = [1, 2], [3, 4], [2, 3]
+    >>> print(get_intersection(a, b, c))
     []
     """
-    s = set()
-    for k in kws:
-        v = kws.get(k, [])
-        if s == set() or v == []:
-            s = s.union(v)
-        else:
-            s = s.intersection(v)
-    return list(s)
+    vs = (v for v in args if v != list() and v != tuple())
+    s = set(next(vs, ()))
+    if s == set():
+        return list()
+    for v in vs:
+        s = s.intersection(v)
+    return list(s)    
 
 
 def machine_setter(_latfile=None, _machine=None, _handle_name=None):
