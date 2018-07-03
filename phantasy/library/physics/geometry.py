@@ -51,7 +51,7 @@ class Point(object):
     def x(self, x):
         if isinstance(x, float):
             self._x = x
-        elif isinstance(x, (int, long)):
+        elif isinstance(x, int):
             self._x = float(x)
         else:
             self._x = np.random.random()
@@ -60,7 +60,7 @@ class Point(object):
     def y(self, y):
         if isinstance(y, float):
             self._y = y
-        elif isinstance(y, (int, long)):
+        elif isinstance(y, int):
             self._y = float(y)
         else:
             self._y = np.random.random()
@@ -103,10 +103,12 @@ class Point(object):
     def __rmul__(self, other):
         return Point(other * self.x, other * self.y)
 
-    def __div__(self, other):
+    def __truediv__(self, other):
         return Point(self.x / other, self.y / other)
 
-    def __rdiv__(self, other):
+    __div__ = __truediv__
+
+    def __rtruediv__(self, other):
         return Point(self.x / other, self.y / other)
 
     def __radd__(self, other):
@@ -359,7 +361,7 @@ class Line(object):
     def x(self, x):
         if isinstance(x, float):
             self._x = x
-        elif isinstance(x, (int, long)):
+        elif isinstance(x, int):
             self._x = float(x)
         else:
             self._x = 0.0
@@ -368,7 +370,7 @@ class Line(object):
     def y(self, y):
         if isinstance(y, float):
             self._y = y
-        elif isinstance(y, (int, long)):
+        elif isinstance(y, int):
             self._y = float(y)
         else:
             self._y = 1.0
