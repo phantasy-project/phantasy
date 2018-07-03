@@ -990,7 +990,7 @@ class CaElement(AbstractElement):
         --------
         *fields* can only accept dict, with CA field name as key and ``CaField`` as value.
         """
-        return self._fields.keys()
+        return list(self._fields.keys())
 
     @fields.setter
     def fields(self, f):
