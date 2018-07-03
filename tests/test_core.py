@@ -222,6 +222,6 @@ class TestMachinePortal(unittest.TestCase):
 
     def test_get_all_types(self):
         mp = self.mp
-        all_types = [u'BPM', u'HCOR', u'CAV', u'SOL', u'VCOR', u'SEXT',
-                     u'BEND', u'QUAD', u'PM']
-        self.assertEqual(mp.get_all_types(), all_types)
+        all_types = sorted([u'BPM', u'HCOR', u'CAV', u'SOL', u'VCOR', u'SEXT',
+                            u'BEND', u'QUAD', u'PM'])
+        self.assertEqual(sorted(mp.get_all_types()), all_types)

@@ -34,10 +34,11 @@ class TestLattice(unittest.TestCase):
     def test_get_all_types(self):
         mp = self.mp
         lat = mp.work_lattice_conf
-        all_types = [u'BPM', u'HCOR', u'CAV', u'SOL', u'VCOR', u'SEXT',
-                     u'BEND', u'QUAD', u'PM']
-        self.assertEqual(lat.get_all_types(), all_types)
-        self.assertEqual(lat.group.keys(), lat.get_all_types())
+        all_types = sorted([u'BPM', u'HCOR', u'CAV', u'SOL', u'VCOR', u'SEXT',
+                            u'BEND', u'QUAD', u'PM'])
+        self.assertEqual(sorted(lat.get_all_types()), all_types)
+        self.assertEqual(sorted(list(lat.group.keys())),
+                         sorted(lat.get_all_types()))
 
     def test_get_all_names(self):
         mp = self.mp
