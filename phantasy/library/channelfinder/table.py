@@ -159,7 +159,8 @@ def read_csv(csvfile):
     if not os.path.isfile(csvfile):
         raise RuntimeError("Invalid CSV file {0}".format(csvfile))
 
-    csvraw = list(csv.reader(open(csvfile, 'r')))
+    with open(csvfile, 'r') as f:
+        csvraw = list(csv.reader(f))
 
     if len(csvraw) == 0:
         raise RuntimeError("Empty CSV file {0}".format(csvfile))
