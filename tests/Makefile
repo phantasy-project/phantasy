@@ -1,8 +1,15 @@
 .PHONY: test clean
 
 test:
-	PYTHONPATH=../:$(PYTHONPATH) \
+	PYTHONPATH=../ \
 	nosetests3 --with-coverage --cover-package=phantasy \
+		--with-id -v --logging-level=INFO \
+		--exclude-dir-file="skiptests"
+
+test-py2:
+	PYTHONPATH=../ \
+	nosetests \
+		--with-coverage --cover-package=phantasy \
 		--with-id -v --logging-level=INFO \
 		--exclude-dir-file="skiptests" 
 
