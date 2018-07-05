@@ -1,9 +1,5 @@
 """
 Channel finder serice source: database (sqlite)
-
-.. Authors:
-..    Guobao Shen <shen@frib.msu.edu>
-..    Tong Zhang <zhangt@frib.msu.edu>
 """
 
 import getpass
@@ -77,8 +73,8 @@ class CFCDatabase(object):
                 self.dbconn.close()
             self.dbconn = new_conn
         except:
-            _LOGGER.warn("Cannot establish new connection to {}.".format(n))
-            _LOGGER.warn("Rollback to previous one.")
+            _LOGGER.warning("Cannot establish new connection to {}.".format(n))
+            _LOGGER.warning("Rollback to previous one.")
             if os.path.isfile(n):
                 os.remove(n)
 
@@ -792,7 +788,7 @@ def write_db(data, db_name, overwrite=False, **kwargs):
     elif overwrite:
         init_db(db_name, overwrite=overwrite)
     else:
-        _LOGGER.warn(
+        _LOGGER.warning(
             "{} already exists, overwrite it by passing overwrite=True.".format(
                 db_name))
         return None
@@ -1157,7 +1153,7 @@ def init_db(db_name, overwrite=False, extra_cols=None):
         or None.
     """
     if os.path.isfile(db_name) and not overwrite:
-        _LOGGER.warn(
+        _LOGGER.warning(
             "{} already exists, overwrite it by pass overwrite=True.".format(
                 db_name))
         return db_name

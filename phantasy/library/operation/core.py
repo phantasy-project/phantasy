@@ -323,15 +323,15 @@ class MachinePortal(object):
         _f_reload = kws.get('re_load')
         if machine in self._machine_names and segment in self._lattice_names:
             if _f_reload:
-                _LOGGER.warn("Force reload machine: {} segment: {}".format(
+                _LOGGER.warning("Force reload machine: {} segment: {}".format(
                     machine, segment))
                 retval = False
             else:
-                _LOGGER.warn("Use cached results for machine: {} segment: {}".format(
+                _LOGGER.warning("Use cached results for machine: {} segment: {}".format(
                     machine, segment))
                 retval = True
         else:
-            _LOGGER.warn("Load new machine: {} segment: {}".format(
+            _LOGGER.warning("Load new machine: {} segment: {}".format(
                 machine, segment))
             retval = False
         return retval
@@ -390,7 +390,7 @@ class MachinePortal(object):
             self._work_lattice_conf = self._lattices[lattice_name]
             return self._work_lattice_name
         else:
-            _LOGGER.warn("Invalid lattice name, working lattice name unchanged.")
+            _LOGGER.warning("Invalid lattice name, working lattice name unchanged.")
             return self._work_lattice_name
 
     def get_elements(self, latname=None, name=None, type=None, srange=None,
@@ -774,11 +774,11 @@ class MachinePortal(object):
                     for k, v in d[sn].items():
                         print("{0:<20s} : {1}".format(k, v), file=out, end='\n')
             except:
-                _LOGGER.warn("Cannot output into stream defined by out.")
+                _LOGGER.warning("Cannot output into stream defined by out.")
             finally:
                 return retval
         else:
-            _LOGGER.warn("Cannot inspect invalid machine configuration object.")
+            _LOGGER.warning("Cannot inspect invalid machine configuration object.")
             return None
 
     @staticmethod
@@ -848,12 +848,12 @@ class MachinePortal(object):
         """
         if not isinstance(elem, (list, tuple)):
             if not isinstance(elem, CaElement):
-                _LOGGER.warn("Invalid CaElement.")
+                _LOGGER.warning("Invalid CaElement.")
                 return None
             elem = elem,
         else:
             if not isinstance(elem[0], CaElement):
-                _LOGGER.warn("Invalid CaElements.")
+                _LOGGER.warning("Invalid CaElements.")
                 return None
 
         all_fields = reduce(intersect1d, [e.fields for e in elem])

@@ -24,10 +24,6 @@ It supports 2 different CSV file formats.
   Example:
     PV, machine, elemIndex, elemPosition, elemName, elemHandle, elemField, elemType
     xxx, xxx,    xxx,       xxx,          xxx,      xxx,        xxx,       xxx,      tag1,tag2
-
-Authors:
-    Guobao Shen <shen@frib.msu.edu>
-    Tong Zhang <zhangt@frib.msu.edu>
 """
 
 from __future__ import print_function
@@ -294,10 +290,10 @@ def write_tb(data, tb_name, overwrite=False, **kwargs):
 
     if os.path.isfile(tb_name):
         if not overwrite:
-            _LOGGER.warn("{} already exists, overwrite it by passing overwrite=True".format(tb_name))
+            _LOGGER.warning("{} already exists, overwrite it by passing overwrite=True".format(tb_name))
             return None
         else:
-            _LOGGER.warn("{} will be overwritten.".format(tb_name))
+            _LOGGER.warning("{} will be overwritten.".format(tb_name))
 
     if tb_type == 'csv':
         pvdata = simplify_data(data)
@@ -325,7 +321,7 @@ class CFCTable(object):
                 data = read_csv(tb_name)
                 self._csv_data = data
             except:
-                _LOGGER.warn("Cannot read data from {}.".format(tb_name))
+                _LOGGER.warning("Cannot read data from {}.".format(tb_name))
 
     @property
     def owner(self):
@@ -351,8 +347,8 @@ class CFCTable(object):
             self._csv_data = data
             self._tb_name = n
         except:
-            _LOGGER.warn("Cannot read data from {}.".format(n))
-            _LOGGER.warn("Rollback to previous one.")
+            _LOGGER.warning("Cannot read data from {}.".format(n))
+            _LOGGER.warning("Rollback to previous one.")
 
     def find(self, name='*'):
         """Return csv data as channel finder format.

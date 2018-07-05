@@ -159,7 +159,7 @@ class Lattice(object):
         elif isinstance(g, dict):
             self._group = g
         else:
-            _LOGGER.warn("'group' attribute is always initialized with {}.")
+            _LOGGER.warning("'group' attribute is always initialized with {}.")
 
     @property
     def trace(self):
@@ -509,11 +509,11 @@ class Lattice(object):
         else:
             elem_name = elem
         if elem_name not in self.settings:
-            _LOGGER.warn(
+            _LOGGER.warning(
                 "Element:{} to set not found in lattice model.".format(
                     elem_name))
         elif field not in self.settings[elem_name]:
-            _LOGGER.warn(
+            _LOGGER.warning(
                 "Field: {} to set not found in element: {}.".format(
                     field, elem_name))
         else:
@@ -1264,7 +1264,7 @@ class Lattice(object):
         """
         ref_include_flag = kws.get('ref_include', False)
         if not isinstance(ref_elem, CaElement):
-            _LOGGER.warn("{} is not a valid CaElement.".format(str(ref_elem)))
+            _LOGGER.warning("{} is not a valid CaElement.".format(str(ref_elem)))
             if ref_include_flag:
                 return [ref_elem]
             else:
@@ -1463,7 +1463,7 @@ class Lattice(object):
         else:
             elem0 = elements
         if not isinstance(elem0, list):
-            _LOGGER.warn("'elements' is not a list.")
+            _LOGGER.warning("'elements' is not a list.")
             return []
 
         sk = kws.get('sort_key', 'sb')
@@ -1476,7 +1476,7 @@ class Lattice(object):
             if elements is None:
                 self._elements = sorted_elemlist
             else:
-                _LOGGER.warn(
+                _LOGGER.warning(
                     "'inplace' sort is only valid when 'elements=None'."
                 )
 
@@ -1584,7 +1584,7 @@ class Lattice(object):
                 msg = "'{0}' is already in group: '{1}'.".format(
                     elem.name, group)
                 print("Warning: {0}".format(msg))
-                _LOGGER.warn(msg)
+                _LOGGER.warning(msg)
                 return
             else:
                 elem.group.add(group)
@@ -1921,7 +1921,7 @@ class Lattice(object):
 
         for child in chlist:
             if child not in self._group:
-                _LOGGER.warn("WARNING: no %s group found" % child)
+                _LOGGER.warning("WARNING: no %s group found" % child)
                 continue
             for elem in self._group[child]:
                 if elem in pl:

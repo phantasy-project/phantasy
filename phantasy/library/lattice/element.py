@@ -79,7 +79,7 @@ class AbstractElement(object):
         elif isinstance(g, (list, tuple, set)):
             self._group = set(g)
         else:
-            _LOGGER.warn("'group': Input should be a set.")
+            _LOGGER.warning("'group': Input should be a set.")
 
     @property
     def name(self):
@@ -93,7 +93,7 @@ class AbstractElement(object):
         elif isinstance(name, basestring):
             self._name = name
         else:
-            _LOGGER.warn("'name': Input should be a string.")
+            _LOGGER.warning("'name': Input should be a string.")
 
     @property
     def index(self):
@@ -112,7 +112,7 @@ class AbstractElement(object):
             except ValueError:
                 _LOGGER.error("'index': Invalid string to integer.")
         else:
-            _LOGGER.warn("'index': Input should be an integer.")
+            _LOGGER.warning("'index': Input should be an integer.")
 
     @property
     def family(self):
@@ -126,7 +126,7 @@ class AbstractElement(object):
         elif isinstance(t, basestring):
             self._family = t
         else:
-            _LOGGER.warn("'family': Input should be a string.")
+            _LOGGER.warning("'family': Input should be a string.")
 
     @property
     def length(self):
@@ -145,7 +145,7 @@ class AbstractElement(object):
             except ValueError:
                 _LOGGER.error("'length': Invalid string to float.")
         else:
-            _LOGGER.warn("'length': Input should be a float number.")
+            _LOGGER.warning("'length': Input should be a float number.")
 
     @property
     def sb(self):
@@ -164,7 +164,7 @@ class AbstractElement(object):
             except ValueError:
                 _LOGGER.error("'sb': Invalid string to float.")
         else:
-            _LOGGER.warn("'sb': Input should be a float number.")
+            _LOGGER.warning("'sb': Input should be a float number.")
 
     @property
     def se(self):
@@ -183,7 +183,7 @@ class AbstractElement(object):
             except ValueError:
                 _LOGGER.error("'se': Invalid string to float.")
         else:
-            _LOGGER.warn("'se': Input should be a float number.")
+            _LOGGER.warning("'se': Input should be a float number.")
 
     @property
     def active(self):
@@ -196,7 +196,7 @@ class AbstractElement(object):
         if self._active != new_flag:
             self._active = new_flag
         else:
-            _LOGGER.warn("Active status: {} is not changed.".format(new_flag))
+            _LOGGER.warning("Active status: {} is not changed.".format(new_flag))
 
     ##
     # def profile(self, vscale=1.0):
@@ -255,7 +255,7 @@ class AbstractElement(object):
         elif self.sb != other.sb:
             return self.sb < other.sb
         else:
-            _LOGGER.warn('{} and {} may be the same one'.format(self, other))
+            _LOGGER.warning('{} and {} may be the same one'.format(self, other))
 
     def __eq__(self, other):
         """compares location, length and name"""
@@ -377,7 +377,7 @@ class CaField(object):
         elif isinstance(s, basestring):
             self._name = s
         else:
-            _LOGGER.warn("Field name should be a valid string.")
+            _LOGGER.warning("Field name should be a valid string.")
 
     @property
     def ename(self):
@@ -391,7 +391,7 @@ class CaField(object):
         elif isinstance(e, basestring):
             self._ename = e
         else:
-            _LOGGER.warn("Element name should be a valid string")
+            _LOGGER.warning("Element name should be a valid string")
 
     @property
     def wait(self):
@@ -526,7 +526,7 @@ class CaField(object):
         elif isinstance(pvobj, (list, tuple)):
             self._cset_pv = list(pvobj)
         else:
-            _LOGGER.warn("Input PV should be PV object.")
+            _LOGGER.warning("Input PV should be PV object.")
 
     def __eq__(self, other):
         return self.readback == other.readback and \
@@ -968,7 +968,7 @@ class CaElement(AbstractElement):
         elif isinstance(t, dict):
             self._tags = t
         else:
-            _LOGGER.warn("'tags' should be a valid dict.")
+            _LOGGER.warning("'tags' should be a valid dict.")
 
     @property
     def virtual(self):
@@ -999,7 +999,7 @@ class CaElement(AbstractElement):
         elif isinstance(f, dict):
             self._fields = f
         else:
-            _LOGGER.warn("'fields' should be a valid dict.")
+            _LOGGER.warning("'fields' should be a valid dict.")
 
     def get_phy_fields(self):
         """Return list of all physics fields.
@@ -1831,7 +1831,7 @@ def merge(elems, field=None, **kwargs):
     if field is None:
         for k, v in count.items():
             if v < len(elems):
-                _LOGGER.warn("field '%s' has %d < %d" % (k, v, len(elems)))
+                _LOGGER.warning("field '%s' has %d < %d" % (k, v, len(elems)))
                 pvdict.pop(k)
         # print pvdict.keys()
         for fld, pvs in pvdict.items():
@@ -1855,7 +1855,7 @@ def merge(elems, field=None, **kwargs):
         elem._name = [e.name for e in elemgrp]
         # print pvsp
     else:
-        _LOGGER.warn("no pv merged for {0}".format([
+        _LOGGER.warning("no pv merged for {0}".format([
             e.name for e in elems]))
     # if all raw units are the same, so are the merged element
     for fld in elem.fields():

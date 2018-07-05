@@ -20,5 +20,5 @@ except:
     _DEMO_MCONF = None
     _DEMO_MPATH = ''
     _DEMO_MNAME = ''
-    _LOGGER.warn('DEMO configuration does not exist.')
+    _LOGGER.warning('DEMO configuration does not exist.')
 

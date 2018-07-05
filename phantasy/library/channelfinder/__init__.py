@@ -24,7 +24,7 @@ try:
     HAS_CFC = True
 except ImportError:
     HAS_CFC = False
-    _LOGGER.warn("Package 'channelfinder' does not exit, some" \
+    _LOGGER.warning("Package 'channelfinder' does not exit, some" \
             " features may not be available.")
 
 if HAS_CFC:

@@ -260,7 +260,7 @@ def _find_machine_path(machine):
     #    mname = os.path.basename(os.path.realpath(sys_mach))
     #    return sys_mach, mname
 
-    _LOGGER.warn("Can not find machine dir")
+    _LOGGER.warning("Can not find machine dir")
     return None, ""
 
 

@@ -101,7 +101,7 @@ def get_data_from_db(db_name, db_type='sqlite', **kws):
         tag_list = cfcd.getAllTags(name_only=True)
         cfcd.close()
     else:
-        _LOGGER.warn("{} will be implemented later.".format(db_type))
+        _LOGGER.warning("{} will be implemented later.".format(db_type))
         raise NotImplementedError
 
     new_kws = {k: v for k, v in kws.items() if k not in ('raw_data', 'owner', 'tag_list', 'prop_list')}
@@ -172,7 +172,7 @@ def get_data_from_tb(tb_name, tb_type='csv', **kws):
         prop_list = cfct.getAllProperties(name_only=True)
         tag_list = cfct.getAllTags(name_only=True)
     else:
-        _LOGGER.warn("{} will be implemented later.".format(tb_type))
+        _LOGGER.warning("{} will be implemented later.".format(tb_type))
         raise NotImplementedError
 
     new_kws = {k: v for k, v in kws.items() if k not in ('raw_data', 'owner', 'tag_list', 'prop_list')}
@@ -214,7 +214,7 @@ def _get_data(raw_data, prop_list, tag_list, **kws):
              for tn_i in tag_filter]
         )
         if tag_selected == []:
-            _LOGGER.warn('Invalid tags defined, tag_filter will be inactived.')
+            _LOGGER.warning('Invalid tags defined, tag_filter will be inactived.')
 
     retval = []
     for rec in raw_data:
@@ -289,10 +289,10 @@ def write_json(data, json_name, overwrite=False, **kws):
     fname = json_name
     if os.path.isfile(fname):
         if not overwrite:
-            _LOGGER.warn("{} already exists, overwrite it by passing overwrite=True".format(fname))
+            _LOGGER.warning("{} already exists, overwrite it by passing overwrite=True".format(fname))
             return None
         else:
-            _LOGGER.warn("{} will be overwritten.".format(fname))
+            _LOGGER.warning("{} will be overwritten.".format(fname))
 
     pvdict = OrderedDict()
     for r in data:
@@ -330,7 +330,7 @@ def _get_cf_data(cfc, prop_list, tag_list, **kws):
         tag_selected = flatten([pattern_filter(tag_list, tn_i)
             for tn_i in tag_filter])
         if tag_selected == []:
-            _LOGGER.warn('Invalid tags defined, tag_filter will be inactived.')
+            _LOGGER.warning('Invalid tags defined, tag_filter will be inactived.')
     if tag_selected != []:
         kargs['tagName'] = ','.join(tag_selected)
 

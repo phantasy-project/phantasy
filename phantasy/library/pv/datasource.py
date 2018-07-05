@@ -285,7 +285,7 @@ class DataSource(object):
             ret = self._get_data.get(self._src_type)(prop_list=prop_list,
                     tag_list=tag_list, **kws)
         else:
-            _LOGGER.warn("Failed to get PV data from invalid source.")
+            _LOGGER.warning("Failed to get PV data from invalid source.")
             ret = None
         if ret is not None:
             self.pvdata = ret
@@ -327,7 +327,7 @@ class DataSource(object):
         dump_data
         """
         if self._pvdata is None:
-            _LOGGER.warn("PV data is not available, get_data() first.")
+            _LOGGER.warning("PV data is not available, get_data() first.")
             return None
 
         dump_data(self._pvdata, fname, ftype, **kws)
@@ -341,7 +341,7 @@ class DataSource(object):
             Keys are original name(s), and values are new name(s).
         """
         if self._pvdata is None:
-            _LOGGER.warn("PV data is not available, get_data() first.")
+            _LOGGER.warning("PV data is not available, get_data() first.")
             return None
 
         for r in self._pvdata:
