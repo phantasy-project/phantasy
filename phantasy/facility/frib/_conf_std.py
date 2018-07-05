@@ -205,16 +205,16 @@ def generate_inifile(dconf=None, out=None):
     >>>     generate_inifile(out=f)
     """
     try:
-        from ConfigParser import SafeConfigParser
+        from ConfigParser import SafeConfigParser as ConfigParser
     except ImportError:
-        from configparser import SafeConfigParser
+        from configparser import ConfigParser
 
     if dconf is None:
         dconf = INI_DCONF
 
     out = sys.stdout if out is None else out
 
-    p = SafeConfigParser()
+    p = ConfigParser()
     p.optionxform = str
     for sn in dconf:
         p.add_section(sn)

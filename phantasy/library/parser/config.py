@@ -14,11 +14,11 @@ import os.path
 from collections import OrderedDict
 
 try:
-    from ConfigParser import SafeConfigParser
+    from ConfigParser import SafeConfigParser as ConfigParser
     from ConfigParser import NoSectionError
     from ConfigParser import NoOptionError
 except ImportError:
-    from configparser import SafeConfigParser
+    from configparser import ConfigParser
     from configparser import NoSectionError
     from configparser import NoOptionError
 
@@ -31,7 +31,7 @@ _home_hla = os.path.join(os.path.expanduser('~'), '.phantasy')
 PHANTASY_CONFIG_DIR = os.environ.get("PHANTASY_CONFIG_DIR", _home_hla)
 
 
-class Configuration(SafeConfigParser):
+class Configuration(ConfigParser):
     """Configuration wraps the standand python config
     parser to provide convenient helper methods.
        
@@ -43,7 +43,7 @@ class Configuration(SafeConfigParser):
     _DEFAULT_SECTION = "DEFAULT"
 
     def __init__(self, config_path=None):
-        SafeConfigParser.__init__(self)
+        ConfigParser.__init__(self)
         if config_path is not None:
             if os.path.isabs(config_path):
                 self.config_path = config_path
@@ -93,7 +93,7 @@ class Configuration(SafeConfigParser):
 
     def get(self, section, option, check_default=True, **kws):
         if self.has_option(section, option, False):
-            return SafeConfigParser.get(self, section, option, **kws)
+            return ConfigParser.get(self, section, option, **kws)
         elif check_default and self.has_default(option):
             return self.get_default(option, **kws)
         elif not self.has_section(section):
@@ -103,7 +103,7 @@ class Configuration(SafeConfigParser):
 
     def getint(self, section, option, check_default=True, **kws):
         if self.has_option(section, option, False):
-            return SafeConfigParser.getint(self, section, option, **kws)
+            return ConfigParser.getint(self, section, option, **kws)
         elif check_default and self.has_default(option):
             return self.getint_default(option, **kws)
         elif not self.has_section(section):
@@ -113,7 +113,7 @@ class Configuration(SafeConfigParser):
 
     def getfloat(self, section, option, check_default=True, **kws):
         if self.has_option(section, option, False):
-            return SafeConfigParser.getfloat(self, section, option, **kws)
+            return ConfigParser.getfloat(self, section, option, **kws)
         elif check_default and self.has_default(option):
             return self.getfloat_default(option, **kws)
         elif not self.has_section(section):
@@ -132,7 +132,7 @@ class Configuration(SafeConfigParser):
             return spt
 
         if self.has_option(section, option, False):
-            return parsearray(SafeConfigParser.get(self, section, option, **kws))
+            return parsearray(ConfigParser.get(self, section, option, **kws))
         elif check_default and self.has_default(option):
             return parsearray(self.get_default(option, **kws))
         elif not self.has_section(section):
@@ -175,14 +175,14 @@ class Configuration(SafeConfigParser):
             raise RuntimeError("config_path is None: cannot resolve relative path")
 
     def has_option(self, section, option, check_default=True):
-        # There is an inconsistency in the SafeConfigParser implementations
+        # There is an inconsistency in the ConfigParser implementations
         # of the has_option() and get() methods.  The has_option() method
         # considers any sections which is 'falsy' (ie empty string or list)
         # as synonymous with the default section. However, the get() method
         # will raise exception if a 'falsy' section is used.  In this method,
         # if the provided section is 'falsy' then then it is considered
         # to not exist in the configuration.
-        return (bool(section) and SafeConfigParser.has_option(self, section, option)) or \
+        return (bool(section) and ConfigParser.has_option(self, section, option)) or \
                     (check_default and self.has_default(option))
     
     def to_dict(self, flat=False, ordered=True):
