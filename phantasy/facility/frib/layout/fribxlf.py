@@ -78,7 +78,7 @@ DEVICE_ALIAS_BPM = ( "BPM", )
 # device alias for PM
 DEVICE_ALIAS_PM = ( "PM", "PM1", )
 # device alias for BL (measure beam length)
-DEVICE_ALIAS_BL = ( "BL", )
+DEVICE_ALIAS_BL = ( "BL", "LPM", )
 # device alias for BLM (measure beam loss)
 DEVICE_ALIAS_BLM = ( "BLM", )
 # device alias for BCM (measure beam current)
@@ -88,9 +88,11 @@ DEVICE_ALIAS_EMS = ( "EMS", )
 # device alias for faraday cup
 DEVICE_ALIAS_FC = ( "FC", "FFC", )
 # device alias for viewer
-DEVICE_ALIAS_VD = ( "VD", )
+DEVICE_ALIAS_VD = ( "VD", 
+                    "SiD", ) # SiD if silicon detector, temporarily put it here
 # device alias for pump, port, etc.
-DEVICE_ALIAS_PORT = ( "PORT", "TMP", "NEGP", "IP", "CP", )
+DEVICE_ALIAS_PORT = ( "PORT", "TMP", "NEGP", "IP", "CP",
+                     "CCG", )  # CCG is cold cathod gauge, temporarily put it here
 # device alias for correctors, comes with H&V pair.
 DEVICE_ALIAS_COR = ( "DC", "DC0", "CH", "DCHV", )
 # device alias for dipole, bend
