@@ -65,7 +65,7 @@ DEVICE_SKIP_WORDS = ( "end", "start", "END", )
 NAME_SKIP_WORDS = ("FE_MEBT:PM_D1053", )
 
 # device alias for valve: ValveElement
-DEVICE_ALIAS_VALVE = ( "GV", "FVS", "FAV", )
+DEVICE_ALIAS_VALVE = ( "GV", "FVS", "FAV", "FV", )
 # device alias for cavity: CavityElement
 DEVICE_ALIAS_CAV = ( "CAV1", "CAV2", "CAV3", "CAV4",
                      "CAV5", "CAV6", "CAV7", "CAV8", "CAV", )
