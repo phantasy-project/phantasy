@@ -57,8 +57,10 @@ _MISC_PROPERTY = "misc"
 def build_item(row):
     """Build dict item from row configuration.
 
-    Returned item:
-    `{'element_name': {'pv_prefix', 'pv_field(I/V)', 'policy_name'}}`
+    Returns
+    -------
+    r : dict
+        `{'element_name': {'pv_prefix', 'pv_field(I/V)', 'policy_name'}}`
     """
     e_name, ps1, ps2, ps1_sign, ps2_sign, value_sign, note = row
     r1, r2 = [re.match(".*:(.*)_.*:.*", s) for s in (ps1, ps2)]
@@ -73,13 +75,12 @@ def build_item(row):
 
 
 def get_all_pspvs(psfile):
-    f_ps = open(psfile, 'rb')
-    csv_stream = csv.reader(f_ps, delimiter=',', skipinitialspace=True)
-    csv_stream.next()
-    elem_pv_rules = {}
-    for line in csv_stream:
-        elem_pv_rules.update(build_item(line))
-    f_ps.close()
+    with open(psfile, 'r') as f_ps:
+        csv_stream = csv.reader(f_ps, delimiter=',', skipinitialspace=True)
+        header = next(csv_stream)
+        elem_pv_rules = {}
+        for line in csv_stream:
+            elem_pv_rules.update(build_item(line))
     return elem_pv_rules
 
 
