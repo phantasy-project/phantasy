@@ -56,7 +56,8 @@ NON_DRIFT_ELEMENTS = (
 # constants for parsing xlsx file
 # skip line whose system field startswith any one of the words defined by SYSTEM_SKIP_WORDS
 SYSTEM_SKIP_WORDS = ( "dump", "SEGMENT", "LINAC", "Target",
-                      "beta=0.085 QWR cryomodules START", )
+                      "beta=0.085 QWR cryomodules START",
+                      "D-station start", "D-station end", )
 # skip line whose device field in one of the tuple defined by DEVICE_SKIP_WORDS
 DEVICE_SKIP_WORDS = ( "end", "start", "END", )
 
