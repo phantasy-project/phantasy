@@ -1,3 +1,11 @@
+Version 0.9.7
+-------------
+2018-07-06 [Testing]
+
+- Now support both Python 2.7 and Python 3.x
+- Unittest can be ran by `python setup.py test`
+- Bugs fixed
+
 Version 0.9.6
 -------------
 2018-07-02 [Testing]
