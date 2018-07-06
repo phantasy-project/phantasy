@@ -24,6 +24,7 @@ from numpy import intersect1d
 from phantasy.library.lattice import CaElement
 from phantasy.library.parser import Configuration
 from phantasy.library.pv import get_readback
+from phantasy.facility.frib import INI_DICT
 
 from .lattice import load_lattice
 
@@ -906,7 +907,7 @@ class MachinePortal(object):
         pv_values = get_readback(pv_names)
         return pv_values
 
-    def syn_settings(self, ):
+    def sync_settings(self, ):
         pass
 
     def roll_back(self, ):
@@ -914,3 +915,15 @@ class MachinePortal(object):
 
     def update_model_settings(self, ):
         pass
+
+    def get_all_segment_names(self):
+        """Return all available segment names.
+        """
+        config = self.machines[self.last_machine_name].get('conf')
+        return config.get(INI_DICT['COMMON_SECTION_NAME'],
+                          INI_DICT['KEYNAME_SEGMENTS']).split()
+
+    def __repr__(self):
+        return "[{mname}] MachinePortal | Valid segment: {msects}".format(
+                    mname=self.last_machine_name,
+                    msects=', '.join(self.get_all_segment_names()))
