@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import glob
 import os
-from fnmatch import fnmatch
 from setuptools import setup, find_packages
 
 
@@ -40,7 +38,8 @@ app_extras_require = {
     'test': ['nose', 'nose-exclude', 'coverage'],
 }
 
-app_scripts = [i for i in glob.glob("scripts/*") if not fnmatch(i, "scripts/softIoc")]
+#app_scripts = [i for i in glob.glob("scripts/*") if not fnmatch(i, "scripts/softIoc")]
+app_scripts = ['scripts/{}'.format(i) for i in ('phytool', 'plot_orbit', 'correct_orbit')]
 
 def get_all_dirs(des_root, src_root):
     ret = []
