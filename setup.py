@@ -16,6 +16,7 @@ def read_license():
         return f.read()
 
 
+app_version="0.9.7"
 app_name = "phantasy"
 app_description = 'Physics high-level applications and toolkit for ' \
         'accelerator system'
@@ -26,12 +27,18 @@ app_author_email = "zhangt@frib.msu.edu"
 app_license = read_license()
 app_url = "https://archman.github.io/phantasy/"
 app_keywords = "phantasy FRIB HLA high-level python FLAME IMPACT"
-installrequires = [
+app_install_requires = [
     'numpy',
-    'scipy',
     'matplotlib',
     'xlrd',
+    'lmfit==0.8.0',
+    'scipy==0.14.0',
+    'cothread',
+    'pyepics',
 ]
+app_extras_require = {
+    'test': ['nose', 'nose-exclude', 'coverage'],
+}
 
 app_scripts = [i for i in glob.glob("scripts/*") if not fnmatch(i, "scripts/softIoc")]
 
@@ -43,26 +50,14 @@ def get_all_dirs(des_root, src_root):
         )
     return ret
 
-kns = ('channelfinder', 'operation', 'lattice', 'layout', 'settings',
-       'physics', 'pv', 'scan', 'model', 'parser')
-d_pkg = {'{0}.{1}.{2}'.format(app_name, 'library', kn):'{0}/{1}/{2}'.format(
-            app_name, 'library', kn) for kn in kns}
-d_pkg.update(
-        {
-            '{0}.library'.format(app_name): '{0}/library'.format(app_name),
-            '{0}.tools'.format(app_name): '{0}/tools'.format(app_name),
-            '{}'.format(app_name): '{}'.format(app_name),
-        }
-)
-
 setup(
     name=app_name,
-    version="0.9.7",
+    version=app_version,
     description=app_description,
     long_description=app_long_description,
     author=app_author,
     author_email=app_author_email,
-    url = app_url,
+    url=app_url,
     platforms=app_platform,
     license=app_license,
     keywords=app_keywords,
@@ -71,9 +66,11 @@ setup(
     data_files = get_all_dirs('/etc/phantasy/config', 'demo_mconfig'),
     classifiers=[
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
         'Topic :: Software Development :: Libraries :: Python Modules', 
         'Topic :: Scientific/Engineering :: Physics'],
     tests_require=['nose'],
     test_suite='nose.collector',
-    #install_requires=installrequires,
+    install_requires=app_install_requires,
+    extras_require=app_extras_require,
 )
