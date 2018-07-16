@@ -127,7 +127,7 @@ def loadfast(machine, submachine = "*"):
         print ('* Auto-updating the lattice cache file for the '
                'machine "{0}"...').format(machine)
         load(machine, use_cache=False, save_cache=True)
-        print '* Finished updating the cache file.'
+        print ('* Finished updating the cache file.')
     else:
         load(machine, use_cache=True, save_cache=False)
 
