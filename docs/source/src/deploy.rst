@@ -2,7 +2,7 @@
 Deployment
 ==========
 
-Deploy ``phantasy`` to different operating systems is quite simple, both 
+Deploy ``phantasy`` to different operating systems is quite simple, both
 online and offline approaches are provided. Before installation, there
 may be packages/libraries dependency issues to be resolved first.
 
@@ -18,44 +18,65 @@ Suggested packages: ``phantasy-machines``,
 ``python-unicorn``, ``unicorn-webapp``,
 
 Other home-made packages:
-- Python: ``flame``, ``genopt`` 
+- Python: ``flame``, ``genopt``
 - C++: ``flame``, ``impact`` (FRIB-version), ``dakota-drivers``
 
 
 Install via APT
 ---------------
 
+**FRIB intranet only**, the target workstation is running Debian 8, add the
+following lines to ``/etc/apt/sources.list`` or save as a separated file
+to the directory ``/etc/apt/sources.list.d``:
+
+.. code-block:: bash
+
+    deb http://ci.frib.msu.edu/debian/ jessie unstable
+    deb-src http://ci.frib.msu.edu/debian/ jessie unstable
+
+The public key can be imported by [#f1]_:
+
+.. code-block:: bash
+
+    wget http://ci.frib.msu.edu/debian/repo_key.gpg -O - | sudo apt-key add -
+
+After that, in the terminal, issue ``sudo apt-get update`` and
+``sudo apt-get install python-phantasy`` to install ``phantasy``, ``apt`` will
+handle all the dependencies automatically.
+
+FRIB controls network case
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. image:: ../images/packages.png
+    :align: center
+    :width: 600px
+
+
 Install via PIP
 ---------------
 
-**Offline approach**
-
-Download ``.whl`` package of ``phantasy`` from `HERE <https://stash.frib.msu.edu/projects/PHYAPP/repos/python-phantasy/browse/dist>`_,
+Download ``.whl`` package of ``phantasy`` from `HERE <https://stash.frib.msu.edu/projects/PHYAPP/repos/phantasy/browse/dist>`_,
 select the newest version, and install it by:
 
 .. code-block:: bash
-    
+
     pip install <phantasy.VERSION.whl>
 
 Or upgrade from earlier version by:
 
 .. code-block:: bash
-    
+
     pip install <phantasy.VERSION.whl> --upgrade --no-deps
 
-**Online approach** (FRIB)
+Or simply install by:
 
-For Debian-8 (jessie) OS, ``phantasy`` could be deployed via ``apt install``,
-add the following line to file ``/etc/apt/sources.list``:
+.. code-block:: bash
 
-``deb http://nsclmirror.nscl.msu.edu/controls/debian/ jessie fc1 unstable`` 
+    pip install phantasy
 
-issue ``sudo apt update`` and ``sudo apt install python-phantasy`` to install.
 
-See also: http://ci.frib.msu.edu/
+.. only:: html
 
-*FRIB controls network case:*
+  .. rubric:: Footnotes
 
-.. image:: ../images/packages.png
-    :align: center
-    :width: 600px
+.. [#f1] Details see: http://ci.frib.msu.edu/
