@@ -1,3 +1,10 @@
+Version 0.9.8
+-------------
+2018-07-17 [Testing]
+
+- Fix Python 3.x compatibilities for Debian packaging
+- Sort out the install-depends for `pip`
+
 Version 0.9.7
 -------------
 2018-07-06 [Testing]
