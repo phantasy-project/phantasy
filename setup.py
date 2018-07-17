@@ -29,8 +29,8 @@ app_install_requires = [
     'numpy',
     'matplotlib',
     'xlrd',
-    'lmfit==0.8.0',
-    'scipy==0.14.0',
+    'lmfit',
+    'scipy',
     'cothread',
     'pyepics',
 ]
