@@ -3,15 +3,17 @@
 test:
 	PYTHONPATH=../ \
 	nosetests3 --with-coverage --cover-package=phantasy \
-		--with-id -v --logging-level=INFO \
-		--exclude-dir-file="skiptests"
+		-v --logging-level=INFO
+		# --with-id 
+		# --exclude-dir-file="skiptests"
 
 test-py2:
 	PYTHONPATH=../ \
 	nosetests \
 		--with-coverage --cover-package=phantasy \
-		--with-id -v --logging-level=INFO \
-		--exclude-dir-file="skiptests" 
+		-v --logging-level=INFO
+		# --with-id 
+		# --exclude-dir-file="skiptests" 
 
 ioc:
 	docker run -d --name phantasy-ioc tonyzhang/phantasy-ioc:jessie
