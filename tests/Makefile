@@ -1,6 +1,12 @@
 .PHONY: test clean
 
+PYTHON_EXECUTABLE ?= $$(which python)
+
 test:
+	PYTHONPATH=../ \
+	$(PYTHON_EXECUTABLE) -m "nose.core" .
+
+test-py3:
 	PYTHONPATH=../ \
 	nosetests3 --with-coverage --cover-package=phantasy \
 		-v --logging-level=INFO
