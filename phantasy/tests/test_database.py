@@ -15,7 +15,7 @@ import os
 from phantasy.library.channelfinder import CFCDatabase
 
 
-curdir = os.path.dirname(__file__)
+curdir = os.path.abspath(os.path.dirname(__file__))
 
 class TestDataBase(unittest.TestCase):
     def setUp(self):

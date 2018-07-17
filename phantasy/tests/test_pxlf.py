@@ -7,7 +7,7 @@ import csv
 from phantasy.facility.frib.layout import fribxlf
 from phantasy.library.parser import Configuration
 
-curdir = os.path.dirname(__file__)
+curdir = os.path.abspath(os.path.dirname(__file__))
 
 TEST_MACH = "FRIB_XLF"
 MACH_PATH = os.path.join(curdir, 'config', TEST_MACH)

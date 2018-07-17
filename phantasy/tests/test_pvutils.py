@@ -9,7 +9,7 @@ import os
 
 from phantasy.library.pv import get_readback
 
-curdir = os.path.dirname(__file__)
+curdir = os.path.abspath(os.path.dirname(__file__))
 
 class TestGetReadback(unittest.TestCase):
     def setUp(self):

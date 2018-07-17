@@ -15,7 +15,7 @@ import time
 from phantasy import MachinePortal
 from phantasy import CaElement
 
-curdir = os.path.dirname(__file__)
+curdir = os.path.abspath(os.path.dirname(__file__))
 
 TEST_MACH = 'VA_LS1FS1'
 TEST_CA = 'TEST_CA'

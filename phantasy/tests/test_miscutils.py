@@ -12,7 +12,7 @@ import numpy as np
 from phantasy.library.misc import miscutils
 import os
 
-curdir = os.path.dirname(__file__)
+curdir = os.path.abspath(os.path.dirname(__file__))
 
 class TestMiscUtils(unittest.TestCase):
     def test_flatten_gen(self):

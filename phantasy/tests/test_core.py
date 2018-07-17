@@ -7,7 +7,7 @@ import unittest
 
 from phantasy import MachinePortal
 
-curdir = os.path.dirname(__file__)
+curdir = os.path.abspath(os.path.dirname(__file__))
 
 TEST_MACH = 'VA_LS1FS1'
 
