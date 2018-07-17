@@ -1,1 +1,5 @@
 include LICENSE
+include requirements.txt
+include requirements-dev.txt
+include requirements-py3-dev.txt
+recursive-include phantasy/tests/ *

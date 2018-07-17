@@ -61,7 +61,9 @@ setup(
     license=app_license,
     keywords=app_keywords,
     scripts=app_scripts,
-    packages=find_packages(exclude=['phantasy.tests']),
+    #packages=find_packages(exclude=['phantasy.tests']),
+    packages=find_packages(),
+    include_package_data=True,
     data_files = get_all_dirs('/etc/phantasy/config', 'demo_mconfig'),
     classifiers=[
         'Programming Language :: Python :: 2.7',
