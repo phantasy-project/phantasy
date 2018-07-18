@@ -65,6 +65,7 @@ setup(
             'phytool=phantasy.tools.phytool:main',
             'plot_orbit=phantasy.tools.plot_orbit:main',
             'correct_orbit=phantasy.tools.correct_orbit:main',
+            'test_phantasy=phantasy.tests:main',
         ]
     },
     classifiers=[
