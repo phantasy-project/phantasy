@@ -41,44 +41,45 @@ Examples:
 > {n} test.lat --outfile new.lat # correct x and y, and save lattice to new.lat
 """.format(n=os.path.basename(sys.argv[0]))
 
-if len(sys.argv) < 2:
-    parser.print_help()
-    sys.exit(1)
+def main():
+    if len(sys.argv) < 2:
+        parser.print_help()
+        sys.exit(1)
 
-args = parser.parse_args(sys.argv[1:])
+    args = parser.parse_args(sys.argv[1:])
 
-if args.latfile is None:
-    parser.print_help()
-    sys.exit(1)
+    if args.latfile is None:
+        parser.print_help()
+        sys.exit(1)
 
-import traceback
-import genopt
+    import traceback
+    import genopt
 
-iternum = 10 if args.iternum is None else args.iternum
-outfile = sys.stdout if args.outfile is None else args.outfile
+    iternum = 10 if args.iternum is None else args.iternum
+    outfile = sys.stdout if args.outfile is None else args.outfile
 
-try:
-    oc = genopt.DakotaOC(lat_file=args.latfile)
-    bpms = oc.get_elem_by_type('bpm')
-    oc.set_bpms(bpm=bpms, pseudo_all=args.pseudo_all)
+    try:
+        oc = genopt.DakotaOC(lat_file=args.latfile)
+        bpms = oc.get_elem_by_type('bpm')
+        oc.set_bpms(bpm=bpms, pseudo_all=args.pseudo_all)
 
-    if args.x is not None and args.y is None:
-        hcors = oc.get_all_cors(type='h')
-        oc.set_cors(hcor=hcors)
-        oc.ref_flag = 'xy'
-    elif args.x is None and args.y is not None:
-        vcors = oc.get_all_cors(type='v')
-        oc.set_cors(vcor=vcors)
-        oc.ref_flag = 'xy'
-    else:
-        hcors = oc.get_all_cors(type='h')
-        vcors = oc.get_all_cors(type='v')
-        oc.set_cors(hcor=hcors, vcor=vcors)
-        oc.ref_flag = 'xy'
-    oc.simple_run(mpi=True, iternum=iternum, echo=args.echo)
-    oc.get_opt_latfile(outfile)
-except:
-    traceback.print_exc()
-    sys.exit(1)
-  
-
+        if args.x is not None and args.y is None:
+            hcors = oc.get_all_cors(type='h')
+            oc.set_cors(hcor=hcors)
+            oc.ref_flag = 'xy'
+        elif args.x is None and args.y is not None:
+            vcors = oc.get_all_cors(type='v')
+            oc.set_cors(vcor=vcors)
+            oc.ref_flag = 'xy'
+        else:
+            hcors = oc.get_all_cors(type='h')
+            vcors = oc.get_all_cors(type='v')
+            oc.set_cors(hcor=hcors, vcor=vcors)
+            oc.ref_flag = 'xy'
+        oc.simple_run(mpi=True, iternum=iternum, echo=args.echo)
+        oc.get_opt_latfile(outfile)
+    except:
+        traceback.print_exc()
+        sys.exit(1)
+      
+    return 0
