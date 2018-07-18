@@ -1,9 +1,19 @@
+Version 0.9.9
+-------------
+2018-07-18 [Testing]
+
+- Add command `test_phantasy` for testing
+- Use `entry_points` rather than `scripts`
+- Fix issue of not cleaning up after testing
+- Fix issue of write permission when testing
+
 Version 0.9.8
 -------------
 2018-07-17 [Testing]
 
 - Fix Python 3.x compatibilities for Debian packaging
 - Sort out the install-depends for `pip`
+- Add tests folder into package
 
 Version 0.9.7
 -------------
