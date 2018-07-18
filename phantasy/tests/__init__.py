@@ -25,3 +25,5 @@ def run(argv=None, **kws):
         nose.run(argv=argv_list, defaultTest=CWD, **kws)
     if os.path.isdir(TMP_DIR):
         shutil.rmtree(TMP_DIR)
+
+    return 0
