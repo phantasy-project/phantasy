@@ -217,6 +217,12 @@ def load_lattice(machine, segment=None, **kws):
         ds.get_data(tag_filter=cf_svr_tag, prop_filter=cf_svr_prop)
         ds.map_property_name(INI_DICT['CF_NAMEMAP'])
 
+        # model data temp directory
+        if not os.path.exists(model_data_dir):
+            os.makedirs(model_data_dir)
+        data_dir = tempfile.mkdtemp(prefix="data_", dir=model_data_dir)
+        _LOGGER.info("Model data directory: {}".format(data_dir))
+
         # build lattice from PV data
         latname = msect
         pv_data = simplify_data(ds.pvdata)
@@ -235,6 +241,7 @@ def load_lattice(machine, segment=None, **kws):
                              #config=config,
                              #settings=settings,
                              udata=udata,
+                             data_dir=data_dir,
                              sort=sort_flag)
 
         #         if IMPACT_ELEMENT_MAP is not None:
@@ -246,10 +253,6 @@ def load_lattice(machine, segment=None, **kws):
                                       INI_DICT['DEFAULT_SEND']))
         lat.loop = bool(d_msect.get(INI_DICT['KEYNAME_MTYPE'],
                                     INI_DICT['DEFAULT_MTYPE']))
-        if not os.path.exists(model_data_dir):
-            os.makedirs(model_data_dir)
-        lat.data_dir = tempfile.mkdtemp(prefix="data_", dir=model_data_dir)
-        _LOGGER.info("Temp model data directory: {}".format(lat.data_dir))
 
         # _temp_dirs.append(lat.output_dir)
 
@@ -360,6 +363,11 @@ def create_lattice(latname, pv_data, tag, **kws):
     udata: list of dict
         Scaling law functions, represented via 'name' (function name) and 'fn'
         (function object) keys.
+    data_dir: str
+        Path of directory to host data generated from model, including input
+        lattice files, output files and other related files, if not defined,
+        random folder will be created in system temporary directory,
+        e.g.'/tmp/model_hGe1sq'.
     #layout :
     #    Lattice layout object.
     #config :
