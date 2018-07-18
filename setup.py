@@ -38,9 +38,6 @@ app_extras_require = {
     'test': ['nose', 'nose-exclude', 'coverage'],
 }
 
-#app_scripts = [i for i in glob.glob("scripts/*") if not fnmatch(i, "scripts/softIoc")]
-app_scripts = ['scripts/{}'.format(i) for i in ('phytool', 'plot_orbit', 'correct_orbit')]
-
 def get_all_dirs(des_root, src_root):
     ret = []
     for r,d,f in os.walk(src_root):
@@ -60,15 +57,20 @@ setup(
     platforms=app_platform,
     license=app_license,
     keywords=app_keywords,
-    scripts=app_scripts,
-    #packages=find_packages(exclude=['phantasy.tests']),
     packages=find_packages(),
     include_package_data=True,
-    data_files = get_all_dirs('/etc/phantasy/config', 'demo_mconfig'),
+    data_files=get_all_dirs('/etc/phantasy/config', 'demo_mconfig'),
+    entry_points={
+        'console_scripts': [
+            'phytool=phantasy.tools.phytool:main',
+            'plot_orbit=phantasy.tools.plot_orbit:main',
+            'correct_orbit=phantasy.tools.correct_orbit:main',
+        ]
+    },
     classifiers=[
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Topic :: Software Development :: Libraries :: Python Modules', 
+        'Topic :: Software Development :: Libraries :: Python Modules',
         'Topic :: Scientific/Engineering :: Physics'],
     tests_require=['nose'],
     test_suite='nose.collector',
