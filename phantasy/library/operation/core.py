@@ -924,6 +924,11 @@ class MachinePortal(object):
                           INI_DICT['KEYNAME_SEGMENTS']).split()
 
     def __repr__(self):
+        all_segments = self.get_all_segment_names()
+        wl_name = self.work_lattice_name
+        idx = all_segments.index(wl_name)
+        all_segments.remove(wl_name)
+        all_segments.insert(idx, '*{}'.format(wl_name))
         return "[{mname}] MachinePortal | Valid segment: {msects}".format(
                     mname=self.last_machine_name,
-                    msects=', '.join(self.get_all_segment_names()))
+                    msects=', '.join(all_segments))
