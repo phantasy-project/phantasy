@@ -25,7 +25,10 @@ Other home-made packages:
 Install via APT
 ---------------
 
-**FRIB intranet only**, the target workstation is running Debian 8, add the
+This is the recommended way to deploy ``phantasy``, however, the **APT**
+way is **FRIB intranet only**.
+
+The target workstation is running Debian 8, add the
 following lines to ``/etc/apt/sources.list`` or save as a separated file
 to the directory ``/etc/apt/sources.list.d``:
 
@@ -43,6 +46,9 @@ The public key can be imported by [#f1]_:
 After that, in the terminal, issue ``sudo apt-get update`` and
 ``sudo apt-get install python-phantasy`` to install ``phantasy``, ``apt`` will
 handle all the dependencies automatically.
+
+.. For those cannot reach FRIB intranet, the ready-to-install Debian packages
+.. can be found at the `following address <https://www.google.com>`_.
 
 FRIB controls network case
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -73,6 +79,21 @@ Or simply install by:
 .. code-block:: bash
 
     pip install phantasy
+
+
+Run Tests
+---------
+
+After installation, commands ``test_phantasy`` (for Python 2.7) and
+``test_phantasy3`` (for Python 3.x) can
+be invoked to run tests distributed with ``phantasy`` package.
+
+Alternative way to do in Python terminal:
+
+.. code-block:: python
+
+    >>> from phantasy.tests import main
+    >>> main()
 
 
 .. only:: html
