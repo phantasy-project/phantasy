@@ -38,7 +38,7 @@ from phantasy.library.settings import Settings
 from phantasy.library.settings import build_flame_settings
 from phantasy.library.physics import get_orbit
 from phantasy.library.physics import inverse_matrix
-from .element import AbstractElement
+from .element import BaseElement
 from .element import CaElement
 from .flame import FlameLatticeFactory
 from .impact import LatticeFactory as ImpactLatticeFactory
@@ -1015,7 +1015,7 @@ class Lattice(object):
     def _find_exact_element(self, name):
         """Return element object if *name* is fully matched, or return None.
         """
-        if isinstance(name, AbstractElement):
+        if isinstance(name, BaseElement):
             name = name.name
         for e in self._elements:
             if str(e.name) == str(name):
