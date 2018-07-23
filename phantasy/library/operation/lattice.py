@@ -399,13 +399,14 @@ def create_lattice(latname, pv_data, tag, **kws):
     :class:`~phantasy.library.pv.datasource.DataSource`
         Unified data source class for PVs.
     """
-    src = kws.get('source', None)
     udata = kws.get('udata', None)
-    if src is None:
+    data_source = kws.get('source', None)
+    if data_source is None:
         _LOGGER.warning("PV data source type should be explicitly defined.")
-        return None
+    if udata is None:
+        _LOGGER.warning("Default UNICORN policy will be applied.")
 
-    _LOGGER.debug("Creating lattice {0} from {1}.".format(latname, src))
+    _LOGGER.debug("Creating lattice {0} from {1}.".format(latname, data_source))
     _LOGGER.info("Found {0:d} PVs in {1}.".format(len(pv_data), latname))
 
     if isinstance(tag, basestring):
@@ -451,10 +452,6 @@ def create_lattice(latname, pv_data, tag, **kws):
         else:
             _LOGGER.debug(
                 "Element '{0}' exists, only update properties.".format(name))
-
-        ## mark element virtual (True) or not (False, default)
-        #if INI_DICT['HLA_VFAMILY'] in pv_props.get('group', []):
-        #    elem.virtual = True
 
         # update element
         if pv_name:
