@@ -5,6 +5,7 @@
 """
 
 import logging
+from datetime import datetime
 
 try:
     basestring
@@ -13,6 +14,7 @@ except NameError:
 
 from epics import PV
 from phantasy.library.misc import flatten
+from phantasy.library.misc import epoch2human
 from phantasy.library.pv import PV_POLICIES
 from phantasy.library.pv import unicorn_read
 from phantasy.library.pv import unicorn_write
@@ -567,18 +569,23 @@ class CaField(object):
         pv_dict = dict(zip(pv_types, pv_names))
         return {k: v for k, v in pv_dict.items() if v is not None}
 
-    def get(self, handle, **kws):
+    def get(self, handle, with_timestamp=False, ts_format='raw', **kws):
         """Get value of PV with specified *handle*.
 
         Parameters
         ----------
         handle : str
             PV handle, 'readback', 'readset' or 'setpoint'.
+        with_timestamp : bool
+            If `True`, return timestamp, default value is `False`.
+        ts_format : str
+            Format for timestamp, valid options: `raw`, `epoch` and `human`.
 
         Returns
         -------
-        r : list
-            List of readings for specified handle.
+        r : list or tuple
+            List of readings for specified handle, if *with_timestamp* is True,
+            return tuple, with the second element the list of timestamps.
 
         Examples
         --------
@@ -602,6 +609,15 @@ class CaField(object):
         Get readings from PVs with 'readset' handle
 
         >>> print(fld.get('readset'))
+
+        Get readings with timestamp
+        
+        >>> value, ts = fld.get('readback', with_timestamp=True)
+
+        Define the style of timestamp
+
+        >>> value, ts = fld.get('readback', with_timestamp=True,
+                                ts_format='human')
         """
         if handle == 'readback':
             pv = self._rdbk_pv
@@ -610,7 +626,15 @@ class CaField(object):
         elif handle == 'setpoint':
             pv = self._cset_pv
         if pv is not None:
-            return [ipv.get(**kws) for ipv in pv]
+            if with_timestamp:
+                if ts_format == 'epoch':
+                    return tuple(zip(*[(ipv.get(**kws), ipv.timestamp) for ipv in pv]))
+                elif ts_format == 'human':
+                    return tuple(zip(*[(ipv.get(**kws), epoch2human(ipv.timestamp)) for ipv in pv]))
+                elif ts_format == 'raw':
+                    return tuple(zip(*[(ipv.get(**kws), datetime.fromtimestamp(ipv.timestamp)) for ipv in pv]))
+            else:
+                return [ipv.get(**kws) for ipv in pv]
         else:
             return None
 
