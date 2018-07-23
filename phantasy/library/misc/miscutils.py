@@ -415,3 +415,25 @@ def parse_dt(dt, ref_date=None, epoch=None):
         retval = retro_datetime
 
     return retval
+
+
+def epoch2human(ts, **kws):
+    """Convert epoch time to human friendly format.
+
+    Parameters
+    ----------
+    ts : float
+        Time in epoch format.
+
+    keyword Arguments
+    -----------------
+    fmt : str
+        Format to convert, default is `%Y-%m-%d %H:%M:%S.%f`.
+    
+    Returns
+    -------
+    t : str
+        Converted time string.
+    """
+    fmt = "%Y-%m-%d %H:%M:%S.%f" if kws.get('fmt', None) is None else kws.get('fmt')
+    return datetime.fromtimestamp(ts).strftime(fmt)

@@ -10,6 +10,7 @@ from .miscutils import simplify_data
 from .miscutils import complicate_data
 from .miscutils import SpecialDict
 from .miscutils import parse_dt
+from .miscutils import epoch2human
 from .message import disable_warnings
 from .message import set_loglevel
 from .httputils import cofetch
@@ -17,7 +18,7 @@ from .httputils import cofetch
 __all__ = [
     'flatten', 'get_intersection', 'machine_setter', 'bisect_index',
     'pattern_filter', 'expand_list_to_dict', 'simplify_data',
-    'complicate_data', 'SpecialDict', 'parse_dt',
+    'complicate_data', 'SpecialDict', 'parse_dt', 'epoch2human',
     'cofetch', 'disable_warnings', 'set_loglevel',
 ]
 
