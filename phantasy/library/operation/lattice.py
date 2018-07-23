@@ -30,6 +30,10 @@ from phantasy.library.pv import DataSource
 from unicorn.utils import UnicornData
 from unicorn.utils import get_func
 
+try:
+    basestring
+except NameError:
+    basestring = str
 
 __authors__ = "Tong Zhang"
 __copyright__ = "(c) 2016-2017, Facility for Rare Isotope beams, "\
@@ -403,6 +407,9 @@ def create_lattice(latname, pv_data, tag, **kws):
 
     _LOGGER.debug("Creating lattice {0} from {1}.".format(latname, src))
     _LOGGER.info("Found {0:d} PVs in {1}.".format(len(pv_data), latname))
+
+    if isinstance(tag, basestring):
+        tag = tag,
 
     # create a new lattice
     lat = Lattice(latname, **kws)
