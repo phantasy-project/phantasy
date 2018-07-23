@@ -454,7 +454,7 @@ def create_lattice(latname, pv_data, tag, **kws):
             # add 'u_policy' as keyword argument
             # this policy should created from unicorn_policy
             # u_policy: {'p': fn_p, 'n': fn_n}
-            u_policy = get_unicorn_policy(udata, elem.name)
+            u_policy = get_unicorn_policy(elem.name, udata)
             elem.process_pv(pv_name, pv_props, pv_tags, u_policy=u_policy)
 
     # update group
@@ -475,15 +475,16 @@ def create_lattice(latname, pv_data, tag, **kws):
     return lat
 
 
-def get_unicorn_policy(udata, ename):
-    """Get unicorn policy for element of name as `ename` from `udata`.
+def get_unicorn_policy(ename, udata=None):
+    """Get unicorn policy for element of name as `ename` from `udata`,
+    if `udata` is not defined, then return `lambda x: x`.
 
     Parameters
     ----------
-    udata : list of dict
-        List of scaling laws functions, keys: `name` and `fn`.
     ename : str
         Name of element.
+    udata : list of dict
+        List of scaling laws functions, keys: `name` and `fn`.
 
     Returns
     -------
