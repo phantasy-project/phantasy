@@ -380,6 +380,16 @@ class DataSource(object):
     def _init_sql_data(self, **kws):
         pass
 
+    def __repr__(self):
+        if self.source is None:
+            return "DataSource [] to be initialized..."
+        elif self.pvdata is None:
+            return "DataSource: [{}] at '{}', load data by `get_data`.".format(
+                self.source_type.upper(), self.source)
+        else:
+            return "DataSource: [{}] at '{}', loaded data: {} records.".format(
+                self.source_type.upper(), self.source, len(self.pvdata))
+
 
 def dump_data(data, fname, ftype, **kws):
     """Dump PV data to file or CFS, defined by *ftype*, support types:
