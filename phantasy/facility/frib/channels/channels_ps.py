@@ -60,10 +60,12 @@ def build_channels(layout, machine=None, **kws):
 
     Keyword Arguments
     -----------------
-    start: str
+    start : str
         Start element.
-    end: str
+    end : str
         End element.
+    offset : float
+        Longitudinal offset applied on the first element, unit: [m].
 
     Returns
     -------
@@ -84,7 +86,7 @@ def build_channels(layout, machine=None, **kws):
 
     data = []
     index = 0
-    offset = None
+    offset = kws.get('offset', None)
 
     _start = kws.get('start', None)
     _end = kws.get('end', None)

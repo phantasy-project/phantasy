@@ -91,17 +91,19 @@ def build_channels(layout, psfile, machine=None, **kws):
     ----------
     layout :
         Accelerator layout object
-    psfile: str
+    psfile : str
         Name of the csv file which contains power supply PVs for each element.
     machine : str
         Machine identifier and optional channel prefix.
 
     Keyword Arguments
     -----------------
-    start: str
+    start : str
         Start element.
-    end: str
+    end : str
         End element.
+    offset : float
+        Longitudinal offset applied on the first element, unit: [m].
 
     Returns
     -------
@@ -123,7 +125,9 @@ def build_channels(layout, psfile, machine=None, **kws):
 
     data = []
     index = 0
-    offset = None
+    offset = kws.get('offset', None)
+    # if offset is not defined,
+    # the offset will be set as (z-l/2.0) of the first element.
 
     _start = kws.get('start', None)
     _end = kws.get('end', None)
