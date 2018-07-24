@@ -36,6 +36,7 @@ parser.add_argument("--tag", action="append", help="additional tag (can be used 
 parser.add_argument("--machine", help="name of machine (used to indicate VA)")
 parser.add_argument("--only-ps", dest="onlyps", nargs='?', type=str, const=False, default=False, help="only generate power supply PVs")
 parser.add_argument("--pspvfile", dest="pspvfile", nargs='?', type=str, help="path to ps pv csv file")
+parser.add_argument("--soffset", dest="soffset", nargs='?', type=float, help="longitudinal offset in meter")
 parser.add_argument("layoutPath", help="path to accelerator layout file")
 parser.add_argument("channelsPath", help="path to output data file (csv or sqlite)")
 
@@ -75,13 +76,13 @@ def main():
         if args.pspvfile:
             channels = build_channels_pspv(layout, args.pspvfile,
                     machine=args.machine,
-                    start=args.start, end=args.end)
+                    start=args.start, end=args.end, offset=args.soffset)
         elif args.onlyps:
             channels = build_channels_ps(layout, machine=args.machine,
-                    start=args.start, end=args.end)
+                    start=args.start, end=args.end, offset=args.soffset)
         else:
             channels = build_channels(layout, machine=args.machine,
-                    start=args.start, end=args.end)
+                    start=args.start, end=args.end, offset=args.soffset)
     except Exception as e:
         if args.verbosity > 0: traceback.print_exc()
         print("Error building channels:", e, file=sys.stderr)
