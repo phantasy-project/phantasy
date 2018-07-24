@@ -392,7 +392,10 @@ class BCMElement(Element):
                  **meta):
         super(BCMElement, self).__init__(z, length, aperture, name, desc=desc,
                                          **meta)
-        self.fields.current = "I"
+        self.fields.current1 = "I1"  # 1 Hz avg
+        self.fields.current1_phy = "I1"
+        self.fields.currentp = "Ip"  # peak avg
+        self.fields.currentp_phy = "Ip"
 
 
 class BLElement(Element):
@@ -448,6 +451,11 @@ class FCElement(Element):
     def __init__(self, z, length, aperture, name, desc="faraday cup", **meta):
         super(FCElement, self).__init__(z, length, aperture, name, desc=desc,
                                         **meta)
+
+        self.fields.intensity = "I"
+        self.fields.intensity_phy = "I"
+        self.fields.biasvolt = "V"
+        self.fields.biasvolt_phy = "V"
 
 
 class VDElement(Element):
