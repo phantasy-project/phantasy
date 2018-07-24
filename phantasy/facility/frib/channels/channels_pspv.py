@@ -186,20 +186,20 @@ def build_channels(layout, psfile, machine=None, **kws):
             props[_FIELD_ENG_PROPERTY] = elem.fields.phase
             props[_FIELD_PHY_PROPERTY] = elem.fields.phase_phy
             props[_HANDLE_PROPERTY] = "setpoint"
-            data.append((channel + ":PHA_CSET", OrderedDict(props), list(tags)))
+            data.append(("#" + channel + ":PHA_CSET", OrderedDict(props), list(tags)))
             props[_HANDLE_PROPERTY] = "readset"
-            data.append((channel + ":PHA_RSET", OrderedDict(props), list(tags)))
+            data.append(("#" + channel + ":PHA_RSET", OrderedDict(props), list(tags)))
             props[_HANDLE_PROPERTY] = "readback"
-            data.append((channel + ":PHA_RD", OrderedDict(props), list(tags)))
+            data.append(("#" + channel + ":PHA_RD_CAVS", OrderedDict(props), list(tags)))
 
             props[_FIELD_ENG_PROPERTY] = elem.fields.amplitude
             props[_FIELD_PHY_PROPERTY] = elem.fields.amplitude_phy
             props[_HANDLE_PROPERTY] = "setpoint"
-            data.append((channel + ":AMPL_CSET", OrderedDict(props), list(tags)))
+            data.append(("#" + channel + ":E_CSET", OrderedDict(props), list(tags)))
             props[_HANDLE_PROPERTY] = "readset"
-            data.append((channel + ":AMPL_RSET", OrderedDict(props), list(tags)))
+            data.append(("#" + channel + ":E_RSET", OrderedDict(props), list(tags)))
             props[_HANDLE_PROPERTY] = "readback"
-            data.append((channel + ":AMPL_RD", OrderedDict(props), list(tags)))
+            data.append(("#" + channel + ":E_RD_CAVS", OrderedDict(props), list(tags)))
 
         elif isinstance(elem, SolCorElement):
             props[_TYPE_PROPERTY] = "SOL"
