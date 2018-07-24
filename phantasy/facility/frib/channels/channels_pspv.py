@@ -404,9 +404,22 @@ def build_channels(layout, psfile, machine=None, **kws):
             # Charge Stripper has no channels
             pass
 
-        elif isinstance(elem, (BLMElement, BLElement, BCMElement)):
+        elif isinstance(elem, (BLMElement, BLElement)):
             # Diagnostic elements do not have defined channels
             pass
+
+        elif isinstance(elem, BCMElement):
+            props[_TYPE_PROPERTY] = "BCM"
+
+            props[_FIELD_ENG_PROPERTY] = elem.fields.current1
+            props[_FIELD_PHY_PROPERTY] = elem.fields.current1_phy
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel + ":AVG_RD", OrderedDict(props), list(tags)))
+
+            props[_FIELD_ENG_PROPERTY] = elem.fields.currentp
+            props[_FIELD_PHY_PROPERTY] = elem.fields.currentp_phy
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel + ":TYP_RD", OrderedDict(props), list(tags)))
 
         elif isinstance(elem, (DriftElement, ValveElement, PortElement)):
             # Passive elements do not have defined channels
@@ -424,7 +437,22 @@ def build_channels(layout, psfile, machine=None, **kws):
             pass
 
         elif isinstance(elem, FCElement):
-            pass
+            props[_TYPE_PROPERTY] = "FC"
+
+            props[_FIELD_ENG_PROPERTY] = elem.fields.intensity
+            props[_FIELD_PHY_PROPERTY] = elem.fields.intensity_phy
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel + ":AVG_RD", OrderedDict(props), list(tags)))
+
+            props[_FIELD_ENG_PROPERTY] = elem.fields.biasvolt
+            props[_FIELD_PHY_PROPERTY] = elem.fields.biasvolt_phy
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append(("#" + channel + ":VoltageMeasure", OrderedDict(props), list(tags)))
+
+            props[_FIELD_ENG_PROPERTY] = elem.fields.biasvolt
+            props[_FIELD_PHY_PROPERTY] = elem.fields.biasvolt_phy
+            props[_HANDLE_PROPERTY] = "setpoint"
+            data.append(("#" + channel + ":VoltageSet", OrderedDict(props), list(tags)))
 
         else:
             raise RuntimeError("read_layout: Element type '{}' not supported".format(elem.ETYPE))
