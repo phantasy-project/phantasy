@@ -379,8 +379,6 @@ class BPMElement(Element):
         self.fields.y_phy = "YPOS"
         self.fields.phase = "PHA"
         self.fields.phase_phy = "PHASE"
-        self.fields.energy = "ENG"
-        self.fields.energy_phy = "ENERGY"
         self.fields.magnitude = "MAG"
         self.fields.magnitude_phy = "MAGNITUDE"
 
