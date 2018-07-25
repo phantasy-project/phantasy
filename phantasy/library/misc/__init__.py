@@ -11,6 +11,8 @@ from .miscutils import complicate_data
 from .miscutils import SpecialDict
 from .miscutils import parse_dt
 from .miscutils import epoch2human
+from .miscutils import convert_epoch
+from .miscutils import QCallback
 from .message import disable_warnings
 from .message import set_loglevel
 from .httputils import cofetch
@@ -19,6 +21,7 @@ __all__ = [
     'flatten', 'get_intersection', 'machine_setter', 'bisect_index',
     'pattern_filter', 'expand_list_to_dict', 'simplify_data',
     'complicate_data', 'SpecialDict', 'parse_dt', 'epoch2human',
-    'cofetch', 'disable_warnings', 'set_loglevel',
+    'cofetch', 'disable_warnings', 'set_loglevel', 'QCallback',
+    'convert_epoch',
 ]
 

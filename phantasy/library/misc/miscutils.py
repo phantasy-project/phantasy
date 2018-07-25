@@ -437,3 +437,30 @@ def epoch2human(ts, **kws):
     """
     fmt = "%Y-%m-%d %H:%M:%S.%f" if kws.get('fmt', None) is None else kws.get('fmt')
     return datetime.fromtimestamp(ts).strftime(fmt)
+
+
+def convert_epoch(epoch_ts, ts_format='raw'):
+    if ts_format == 'epoch':
+        return epoch_ts
+    elif ts_format == 'human':
+        return epoch2human(epoch_ts)
+    elif ts_format == 'raw':
+        return datetime.fromtimestamp(epoch_ts)
+    else:
+        _LOGGER.warning("Unknown timestamp format, return orignal one.")
+        return epoch_ts
+
+
+class QCallback(object):
+    def __init__(self, data_queue, status_queue):
+        self.data_queue = data_queue
+        self.status_queue = status_queue
+
+    def __call__(self, **kws):
+        val = kws.get('value')
+        ts = kws.get('timestamp')
+        self.data_queue.put((val, ts))
+        if self.data_queue.full():
+            idx, obj = kws.get('cb_info')
+            obj.remove_callback(idx)
+            self.status_queue.put(1)
