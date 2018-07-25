@@ -1057,7 +1057,7 @@ class CaElement(BaseElement):
             super(CaElement, self).__setattr__(key, value)
 
     def __dir__(self):
-        return dir(CaElement) + self._fields.keys() + self.__dict__.keys()
+        return dir(CaElement) + list(self._fields.keys()) + list(self.__dict__.keys())
 
     def __repr__(self):
         if self.virtual:
