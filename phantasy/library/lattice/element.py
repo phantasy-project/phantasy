@@ -15,9 +15,18 @@ except NameError:
 from epics import PV
 from phantasy.library.misc import flatten
 from phantasy.library.misc import epoch2human
+from phantasy.library.misc import convert_epoch
+from phantasy.library.misc import QCallback
 from phantasy.library.pv import PV_POLICIES
 from phantasy.library.pv import unicorn_read
 from phantasy.library.pv import unicorn_write
+
+import numpy as np
+
+try:
+    from Queue import Queue
+except ImportError:
+    from queue import Queue
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -569,23 +578,36 @@ class CaField(object):
         pv_dict = dict(zip(pv_types, pv_names))
         return {k: v for k, v in pv_dict.items() if v is not None}
 
-    def get(self, handle, with_timestamp=False, ts_format='raw', **kws):
-        """Get value of PV with specified *handle*.
+    def get(self, handle, n_sample=1, time_interval=None,
+            with_timestamp=False, ts_format='raw', keep_raw=False,
+            **kws):
+        """Get value of PV with specified *handle*, if argument *n_sample* is
+        larger than 1, statistical result with averaged value and
+        standard deviation will be returned; if *time_interval* is defined,
+        the sample rate will be applied as `1/time_interval`, otherwise
+        the sample rate depends on the device scan rate.
 
         Parameters
         ----------
         handle : str
             PV handle, 'readback', 'readset' or 'setpoint'.
+        n_sample : int
+            Sample number, total DAQ count.
+        time_interval : float
+            Time interval between each DAQ if defined.
         with_timestamp : bool
             If `True`, return timestamp, default value is `False`.
         ts_format : str
             Format for timestamp, valid options: `raw`, `epoch` and `human`.
+        keep_raw : bool
+            If `True`, return raw read data as well.
 
         Returns
         -------
-        r : list or tuple
-            List of readings for specified handle, if *with_timestamp* is True,
-            return tuple, with the second element the list of timestamps.
+        r : dict
+            Valid keys: 'mean', 'std', 'timestamp', 'data', the values are
+            the average of all shots, the standard deviation of all shots,
+            the timestamp of the first shot, and all the aquired data array.
 
         Examples
         --------
@@ -611,13 +633,18 @@ class CaField(object):
         >>> print(fld.get('readset'))
 
         Get readings with timestamp
-        
-        >>> value, ts = fld.get('readback', with_timestamp=True)
+
+        >>> fld.get('readback', with_timestamp=True)
 
         Define the style of timestamp
 
-        >>> value, ts = fld.get('readback', with_timestamp=True,
-                                ts_format='human')
+        >>> fld.get('readback', with_timestamp=True, ts_format='human')
+
+        Get statistical readings, and keep all the raw data
+
+        >>> fld.get('readback', n_sample=1, with_timestamp=True,
+                    ts_format="epoch", keep_raw=True)
+
         """
         if handle == 'readback':
             pv = self._rdbk_pv
@@ -627,14 +654,25 @@ class CaField(object):
             pv = self._cset_pv
         if pv is not None:
             if with_timestamp:
-                if ts_format == 'epoch':
-                    return tuple(zip(*[(ipv.get(**kws), ipv.timestamp) for ipv in pv]))
-                elif ts_format == 'human':
-                    return tuple(zip(*[(ipv.get(**kws), epoch2human(ipv.timestamp)) for ipv in pv]))
-                elif ts_format == 'raw':
-                    return tuple(zip(*[(ipv.get(**kws), datetime.fromtimestamp(ipv.timestamp)) for ipv in pv]))
+                r = []
+                for ipv in pv:
+                    if keep_raw:
+                        avg, std, ts, all_data = self.__get(ipv, n_sample, ts_format=ts_format, keep_raw=True)
+                        r.append((avg, std, ts, all_data))
+                    else:
+                        avg, std, ts, _ = self.__get(ipv, n_sample, ts_format=ts_format)
+                        r.append((avg, std, ts, []))
+                return dict(zip(('mean', 'std', 'timestamp', 'data'), zip(*r)))
             else:
-                return [ipv.get(**kws) for ipv in pv]
+                r = []
+                for ipv in pv:
+                    if keep_raw:
+                        avg, std, _, all_data = self.__get(ipv, n_sample, ts_format="epoch", keep_raw=True)
+                        r.append((avg, std, '', all_data))
+                    else:
+                        avg, std, _, _ = self.__get(ipv, n_sample, ts_format="epoch")
+                        r.append((avg, std, '', []))
+                return dict(zip(('mean', 'std', 'timestamp', 'data'), zip(*r)))
         else:
             return None
 
@@ -689,6 +727,17 @@ class CaField(object):
 
     def __repr__(self):
         return "[{}] Field '{}' of '{}'".format(self.ftype, self.name, self.ename)
+
+    def __get(self, pvobj, n=1, keep_raw=False, ts_format='raw'):
+        dq, sq = Queue(n), Queue(1)
+        pvobj.add_callback(QCallback(dq, sq))
+        if sq.get(timeout=None):
+            all_data = np.array([dq.get() for _ in range(dq.qsize())])
+            data, ts = all_data[:, 0], all_data[:, 1]
+            if not keep_raw:
+                return data.mean(), data.std(), convert_epoch(ts[0], ts_format), []
+            else:
+                return data.mean(), data.std(), convert_epoch(ts[0], ts_format), all_data
 
 
 class CaElement(BaseElement):
