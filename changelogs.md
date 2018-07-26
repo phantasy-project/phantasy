@@ -1,3 +1,37 @@
+Version 0.9.13
+-------------
+2018-07-26 [Testing]
+
+- ENH: Set 'handle' with default value.
+- ENH: Add 'timeout' to CaField.get() for const.
+
+Version 0.9.12
+-------------
+2018-07-25 [Testing]
+
+- ENH,API: More feature to the `CaField.get()`.
+- ENH: New functions for get value from PV.
+
+Version 0.9.11
+-------------
+2018-07-25 [Testing]
+
+- PY3: Fix dict keys() compatibility.
+
+Version 0.9.10
+-------------
+2018-07-25 [Testing]
+
+- ENH:
+  - `MachinePortal` instance mark the current working lattice with `*`
+  - `CaField.get`: new option to return timestamp
+  - Add support to model FC and BCM
+  - Add `--soffset` option to `frib-channels` tool
+- BUG:
+  - Ensure parsed tag as list type
+- Changes:
+  - Remove energy field from BPM element
+
 Version 0.9.9
 -------------
 2018-07-18 [Testing]
