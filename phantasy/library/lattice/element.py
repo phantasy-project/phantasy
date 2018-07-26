@@ -24,9 +24,9 @@ from phantasy.library.pv import unicorn_write
 import numpy as np
 
 try:
-    from Queue import Queue
+    from Queue import Queue, Empty
 except ImportError:
-    from queue import Queue
+    from queue import Queue, Empty
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -578,14 +578,20 @@ class CaField(object):
         pv_dict = dict(zip(pv_types, pv_names))
         return {k: v for k, v in pv_dict.items() if v is not None}
 
-    def get(self, handle='readback', n_sample=1, time_interval=None,
+    def get(self, handle='readback', n_sample=1, timeout=None,
             with_timestamp=False, ts_format='raw', keep_raw=False,
             **kws):
         """Get value of PV with specified *handle*, if argument *n_sample* is
-        larger than 1, statistical result with averaged value and
-        standard deviation will be returned; if *time_interval* is defined,
-        the sample rate will be applied as `1/time_interval`, otherwise
-        the sample rate depends on the device scan rate.
+        larger than 1, statistical result with averaged value and standard
+        deviation will be returned; the sample rate depends on the device
+        scan rate. If *timeout* is defined, DAQ will be inactivated after
+        *timeout* second.
+
+        Warning
+        -------
+        For the case of devices that generate constant readings, if *n_sample*
+        is larger than 1, set *timeout* parameter with a reasonable value is
+        required, or this method will hang up your program.
 
         Parameters
         ----------
@@ -593,8 +599,8 @@ class CaField(object):
             PV handle, 'readback', 'readset' or 'setpoint'.
         n_sample : int
             Sample number, total DAQ count.
-        time_interval : float
-            Time interval between each DAQ if defined.
+        timeout : float
+            Timeout in second for the whole DAQ process.
         with_timestamp : bool
             If `True`, return timestamp, default value is `False`.
         ts_format : str
@@ -657,20 +663,20 @@ class CaField(object):
                 r = []
                 for ipv in pv:
                     if keep_raw:
-                        avg, std, ts, all_data = self.__get(ipv, n_sample, ts_format=ts_format, keep_raw=True)
+                        avg, std, ts, all_data = self.__get(ipv, n_sample, ts_format=ts_format, keep_raw=True, timeout=timeout)
                         r.append((avg, std, ts, all_data))
                     else:
-                        avg, std, ts, _ = self.__get(ipv, n_sample, ts_format=ts_format)
+                        avg, std, ts, _ = self.__get(ipv, n_sample, ts_format=ts_format, timeout=timeout)
                         r.append((avg, std, ts, []))
                 return dict(zip(('mean', 'std', 'timestamp', 'data'), zip(*r)))
             else:
                 r = []
                 for ipv in pv:
                     if keep_raw:
-                        avg, std, _, all_data = self.__get(ipv, n_sample, ts_format="epoch", keep_raw=True)
+                        avg, std, _, all_data = self.__get(ipv, n_sample, ts_format="epoch", keep_raw=True, timeout=timeout)
                         r.append((avg, std, '', all_data))
                     else:
-                        avg, std, _, _ = self.__get(ipv, n_sample, ts_format="epoch")
+                        avg, std, _, _ = self.__get(ipv, n_sample, ts_format="epoch", timeout=timeout)
                         r.append((avg, std, '', []))
                 return dict(zip(('mean', 'std', 'timestamp', 'data'), zip(*r)))
         else:
@@ -728,16 +734,20 @@ class CaField(object):
     def __repr__(self):
         return "[{}] Field '{}' of '{}'".format(self.ftype, self.name, self.ename)
 
-    def __get(self, pvobj, n=1, keep_raw=False, ts_format='raw'):
+    def __get(self, pvobj, n=1, keep_raw=False, ts_format='raw', timeout=None):
         dq, sq = Queue(n), Queue(1)
-        pvobj.add_callback(QCallback(dq, sq))
-        if sq.get(timeout=None):
-            all_data = np.array([dq.get() for _ in range(dq.qsize())])
-            data, ts = all_data[:, 0], all_data[:, 1]
-            if not keep_raw:
-                return data.mean(), data.std(), convert_epoch(ts[0], ts_format), []
-            else:
-                return data.mean(), data.std(), convert_epoch(ts[0], ts_format), all_data
+        cid = pvobj.add_callback(QCallback(dq, sq))
+        try:
+            if sq.get(timeout=timeout):
+                all_data = np.array([dq.get() for _ in range(dq.qsize())])
+                data, ts = all_data[:, 0], all_data[:, 1]
+                if not keep_raw:
+                    return data.mean(), data.std(), convert_epoch(ts[0], ts_format), []
+                else:
+                    return data.mean(), data.std(), convert_epoch(ts[0], ts_format), all_data
+        except Empty:
+            pvobj.remove_callback(cid)
+            return pvobj.value, 0.0, convert_epoch(pvobj.timestamp, ts_format), []
 
 
 class CaElement(BaseElement):
