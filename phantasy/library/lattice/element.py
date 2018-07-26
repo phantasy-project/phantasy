@@ -578,7 +578,7 @@ class CaField(object):
         pv_dict = dict(zip(pv_types, pv_names))
         return {k: v for k, v in pv_dict.items() if v is not None}
 
-    def get(self, handle, n_sample=1, time_interval=None,
+    def get(self, handle='readback', n_sample=1, time_interval=None,
             with_timestamp=False, ts_format='raw', keep_raw=False,
             **kws):
         """Get value of PV with specified *handle*, if argument *n_sample* is
@@ -676,7 +676,7 @@ class CaField(object):
         else:
             return None
 
-    def set(self, value, handle, **kws):
+    def set(self, value, handle='setpoint', **kws):
         """Set value(s) of PV(s) with specified *handle*.
 
         Parameters
