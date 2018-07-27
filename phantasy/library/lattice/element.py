@@ -281,14 +281,6 @@ class CaField(object):
         Readset PV name(s).
     setpoint : str, list(str)
         Setpoint PV name(s).
-
-    ### IMPLEMENTED IN HIGH-LEVEL LATTICE RIGHT NOW
-    ### THIS WAY KEEP MULTIPLE SETTINGS FOR DIFFERENT LATTICES.
-    ###
-    If *trace* is True, every readback/setpoint will be recorded for later
-    reset/revert whenever the get/put functions are called. Extra history
-    point can be recorded by calling *mark*.
-    ###
     """
 
     def __init__(self, name='', **kws):
