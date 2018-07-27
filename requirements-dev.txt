@@ -10,3 +10,4 @@ sphinx
 nbsphinx
 ipython
 xlrd
+numpydoc
