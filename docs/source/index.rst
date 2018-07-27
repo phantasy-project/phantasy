@@ -36,24 +36,30 @@ package [#f1]_:
 * Web service integration
 
 .. toctree::
-    :maxdepth:1
+    :maxdepth: 1
     :caption: Documentation
 
     src/intro
     src/deploy
 
 .. toctree::
-    :maxdepth:1
+    :maxdepth: 1
     :caption: Tutorials
 
     src/tut
 ..    src/nb
 
 .. toctree::
-    :maxdepth:1
-    :caption: API Documentation
+    :maxdepth: 1
+    :caption: Features Highlight
+
+    src/features
+
+.. toctree::
+    :maxdepth: 1
+    :caption: References
     
-    src/api
+    src/apiref
     src/terms
 
 .. only:: html
