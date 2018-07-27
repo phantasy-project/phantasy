@@ -32,4 +32,23 @@ Package Name
     :align: center
     :width: 600px
 
+Architecture
+------------
 
+.. image:: ../images/arch0.png
+    :align: center
+    :width: 600px
+
+Lattice
+^^^^^^^
+.. include:: arch/lattice.rst
+
+.. _arch_element:
+
+Element
+^^^^^^^
+.. include:: arch/element.rst
+
+Field
+^^^^^
+.. include:: arch/field.rst
