@@ -40,14 +40,16 @@ The 9th line is to create a general FLAME beam state object, which
 is a super class of FLAME interal state, one can use this object as
 the same API as the FLAME interal state (except ``show()`` method).
 
-The 12th line is to create a ``ModelFlame`` object, after that, ``machine``
+The 12th line is to create a ``ModelFlame`` object
+(see :class:`~flame_utils.ModelFlame`), after that, ``machine``
 and ``bmstate`` should be assigned to make it alive. The ``machine``
 attribute is just the FLAME machine object, ``bmstate`` could accept
-both FLAME interal state or ``BeamState``, for the possible
+both FLAME interal state or ``BeamState``
+(see :class:`~flame_utils.BeamState`), for the possible
 user-customized states, the ``BeamState`` is recommanded to
 include all the operations upon the machine states object.
 
-The advantage of re-invent the new :class:`BeamState` is to
+The advantage of re-invent the new :class:`~flame_utils.BeamState` is to
 improve the user experience in the Python CLI environment that
 support auto-completion, e.g. `ipython`, then all properties that 
 ``BeamState`` has could be reached by double hitting ``<TAB>``; moreover,
