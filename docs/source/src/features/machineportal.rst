@@ -35,4 +35,4 @@ as ``FRIB`` and segment named as ``LEBT``:
     from phantasy import MachinePortal
 
     # create MachinePortal instance
-    mp = MachinePortal(machine='LEBT', segment='LEBT')
+    mp = MachinePortal(machine='FRIB', segment='LEBT')
