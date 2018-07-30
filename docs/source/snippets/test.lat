@@ -1,4 +1,3 @@
-Eng_Data_Dir = "/home/tong1/work/FRIB/projects/machines/FRIB_FLAME/flame_data";
 HdipoleFitMode = 1;
 IonChargeStates = [0.138655];
 IonEk = 500000;
