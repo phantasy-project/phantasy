@@ -145,12 +145,14 @@ class TestCaElement(unittest.TestCase):
         self.assertEqual(elem.fields, [fld_name])
         self.assertEqual(elem.B, 0.1)
         fld = elem.get_field(fld_name)
-        self.assertEqual(fld.get('readback'), [fld.value])
+        self.assertEqual(fld.get()['mean'], fld.get('readback')['mean'])
+        self.assertEqual(fld.get()['mean'], fld.get(timeout=1.0)['mean'])
+        self.assertEqual(list(fld.get(timeout=1)['mean']), [fld.value])
         self.assertEqual(fld.value, 0.1)
         elem.B = 0.5
         time.sleep(1.5)
         self.assertEqual(fld.value, 0.5)
-        self.assertEqual(fld.get('readback'), [0.5])
+        self.assertEqual(list(fld.get(timeout=1)['mean']), [0.5])
         fld.set(0.2, handle='setpoint')
         time.sleep(1.5)
         self.assertEqual(fld.value, 0.2)
@@ -167,12 +169,13 @@ class TestCaElement(unittest.TestCase):
         self.assertEqual(elem.fields, [fld_name])
         self.assertEqual(elem.V, 0.1)
         fld = elem.get_field(fld_name)
-        self.assertEqual(fld.get('readback'), [-fld.value, fld.value])
+        self.assertEqual(list(fld.get(timeout=1.0)['mean']),
+                         [-fld.value, fld.value])
         self.assertEqual(fld.value, 0.1)
         elem.V = 0.5
         time.sleep(1.5)
         self.assertEqual(fld.value, 0.5)
-        self.assertEqual(fld.get('readback'), [-0.5, 0.5])
+        self.assertEqual(list(fld.get(timeout=1.0)['mean']), [-0.5, 0.5])
         fld.set(0.2, handle='setpoint')
         time.sleep(1.5)
         self.assertEqual(fld.value, 0.15)
@@ -193,13 +196,17 @@ class TestCaElement(unittest.TestCase):
         fld.write_policy = lambda x,v,**kws: [x[0].put(-v, **kws), x[1].put(v, **kws)]
         elem.V = 0.5
         time.sleep(1.5)
-        self.assertEqual(fld.get('readback'), [-0.5, 0.5])
-        self.assertEqual(fld.get('setpoint'), [-0.5, 0.5])
-        self.assertEqual(fld.get('readset'), [-0.5, 0.5])
+        self.assertEqual(list(fld.get('readback', timeout=1.0)['mean']),
+                         [-0.5, 0.5])
+        self.assertEqual(list(fld.get('setpoint', timeout=1.0)['mean']),
+                         [-0.5, 0.5])
+        self.assertEqual(list(fld.get('readset', timeout=1.0)['mean']),
+                         [-0.5, 0.5])
         fld.reset_policy('read')
         self.assertEqual(elem.V, 0.5)
         fld.reset_policy('write')
         elem.V = 0.1
         time.sleep(1.5)
         self.assertEqual(fld.value, 0.1)
-        self.assertEqual(fld.get('readback'), [-fld.value, fld.value])
+        self.assertEqual(list(fld.get('readback', timeout=1.0)['mean']),
+                         [-fld.value, fld.value])
