@@ -48,6 +48,7 @@ install:
     - bash setup_pyscan.sh
     - bash install_scipy.sh
     - cd ${cwd}
+    - pip install ipython matplotlib
 
 script:
     - caput fac 0.0
