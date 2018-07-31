@@ -22,7 +22,10 @@ addons:
     - libhdf5-dev
     - python-numpy
     - python3-numpy
+    - python-scipy
+    - python3-scipy
     - python-dateutil
+    - python3-dateutil
     - pandoc
 
 before_install:
@@ -41,7 +44,6 @@ before_install:
 install:
     - cwd=$(pwd)
     - pip install -r requirements-dev.txt
-    - pip install packages/trusty/scipy-0.19.0-cp27-cp27mu-manylinux1_x86_64.whl
     - git clone https://github.com/archman/unicorn.git
     - cd unicorn && pip install .
     - cd ${cwd}/.ci
