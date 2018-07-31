@@ -10,6 +10,8 @@ jobs:
     branches:
       only:
         - master
+      ignore:
+        - gh-pages
 
     steps:
       - checkout
