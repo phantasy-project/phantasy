@@ -9,7 +9,7 @@ jobs:
 
     branches:
       only:
-        - master
+        - devel
       ignore:
         - gh-pages
 
