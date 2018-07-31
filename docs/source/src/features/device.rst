@@ -27,7 +27,7 @@ interested device(s). All valid device types can be known by
 .. ipython:: python
     
     from phantasy import MachinePortal
-    mp = MachinePortal(machine="LEBT", segment="LEBT")
+    mp = MachinePortal(machine="FRIB", segment="LEBT")
     mp.get_all_types()
 
 The method :meth:`~phantasy.MachinePortal.get_elements` is created for
