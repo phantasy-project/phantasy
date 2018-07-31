@@ -419,6 +419,8 @@ class Lattice(object):
             all_settings = Settings()
             for e_name, e_phyconf in self.settings.items():
                 elem = self._find_exact_element(e_name)
+                if elem is None:
+                    continue
                 all_settings.update(OrderedDict({e_name: e_phyconf}))
                 for phy_fld_name in set(e_phyconf).intersection(
                         elem.get_phy_fields()):
