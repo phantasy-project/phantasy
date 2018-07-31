@@ -63,6 +63,7 @@ script:
     - export PYEPICS_LIBCA=${EPICS_BASE}/lib/${EPICS_HOST_ARCH}/libca.so
     - export CATOOLS_LIBCA_PATH=${EPICS_BASE}/lib/${EPICS_HOST_ARCH}
     - export PYTHONPATH=${cwd}:${PYTHONPATH}:$HOME/pyCFClient:$HOME/PyScanClient
+    - export PHANTASY_CONFIG_DIR=/usr/lib/phantasy-machines
     - cd phantasy/tests
     - make test
     - cd ${cwd}/docs
@@ -70,4 +71,6 @@ script:
     - cd ${cwd}
 
 after_success:
-    - bash .ci/deploy_gh.sh
+    - if [ $TRAVIS_PYTHON_VERSION == "2.7" ]; then
+      bash .ci/deploy_gh.sh;
+      fi
