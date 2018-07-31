@@ -5,6 +5,7 @@ dist: trusty
 
 python:
     - 2.7
+    - 3.4
 
 cache:
     directories:
@@ -43,7 +44,7 @@ install:
     - pip install packages/trusty/scipy-0.19.0-cp27-cp27mu-manylinux1_x86_64.whl
     - git clone https://github.com/archman/unicorn.git
     - cd unicorn && pip install .
-    - cd ${cwd}/ci
+    - cd ${cwd}/.ci
     - bash setup_pycfc.sh
     - bash setup_pyscan.sh
     - bash install_scipy.sh
@@ -67,4 +68,4 @@ script:
     - cd ${cwd}
 
 after_success:
-    - bash ci/deploy_gh.sh
+    - bash .ci/deploy_gh.sh
