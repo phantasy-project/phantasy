@@ -1,3 +1,9 @@
+Version 0.9.14
+-------------
+2018-07-31 [Testing]
+
+- FIX: `lat.get_model_settings` skip element if not in current working lattice
+
 Version 0.9.13
 -------------
 2018-07-26 [Testing]
