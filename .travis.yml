@@ -27,6 +27,11 @@ addons:
     - python-dateutil
     - python3-dateutil
     - pandoc
+    - latexmk
+    - texlive
+    - texlive-latex-extra
+    - texlive-fonts-extra
+    - tex-gyre
 
 before_install:
     - cwd=$(pwd)
@@ -49,7 +54,6 @@ install:
     - cd ${cwd}/.ci
     - bash setup_pycfc.sh
     - bash setup_pyscan.sh
-    - bash install_scipy.sh
     - cd ${cwd}
     - pip install ipython matplotlib
 
@@ -66,9 +70,11 @@ script:
     - export PHANTASY_CONFIG_DIR=/usr/lib/phantasy-machines
     - cd phantasy/tests
     - make test
-    - cd ${cwd}/docs
-    - make clean html
-    - cd ${cwd}
+    - if [ $TRAVIS_PYTHON_VERSION == "2.7" ]; then
+      cd ${cwd}/docs;
+      make clean latexpdf html;
+      cd ${cwd};
+      fi
 
 after_success:
     - if [ $TRAVIS_PYTHON_VERSION == "2.7" ]; then
