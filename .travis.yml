@@ -34,11 +34,10 @@ addons:
     - tex-gyre
 
 before_install:
-    - cwd=$(pwd)
+    - cd /tmp
     - git clone -b trusty https://github.com/archman/packages.git
     - cd packages/trusty
     - sudo dpkg -i *.deb
-    - cd ${cwd}
     - BCAST=$(ifconfig docker0 | /bin/grep 'inet ' | sed "s/.*addr:\([0-9]*\).\([0-9]*\).* Bcast.*/\1.\2.255.255/")
     - export EPICS_CA_AUTO_ADDR_LIST=NO
     - export EPICS_CA_ADDR_LIST=${BCAST}
@@ -47,36 +46,33 @@ before_install:
     - docker run -d ${DOCKERIMG}
 
 install:
-    - cwd=$(pwd)
+    - cd ${TRAVIS_BUILD_DIR}
     - pip install -r requirements-dev.txt
+    - cd /tmp
     - git clone https://github.com/archman/unicorn.git
     - cd unicorn && pip install .
-    - cd ${cwd}/.ci
+    - cd ${TRAVIS_BUILD_DIR}/.ci
     - bash setup_pycfc.sh
     - bash setup_pyscan.sh
-    - cd ${cwd}
-    - pip install ipython matplotlib
 
 script:
     - caput fac 0.0
     - sleep 2.0
-    - cwd=$(pwd)
     - export EPICS_BASE=/usr/lib/epics/
     - export EPICS_HOST_ARCH=linux-x86_64
     - export PATH=${EPICS_BASE}/bin/${EPICS_HOST_ARCH}:${PATH}
     - export PYEPICS_LIBCA=${EPICS_BASE}/lib/${EPICS_HOST_ARCH}/libca.so
     - export CATOOLS_LIBCA_PATH=${EPICS_BASE}/lib/${EPICS_HOST_ARCH}
-    - export PYTHONPATH=${cwd}:${PYTHONPATH}:$HOME/pyCFClient:$HOME/PyScanClient
+    - export PYTHONPATH=${TRAVIS_BUILD_DIR}:$HOME/pyCFClient:$HOME/PyScanClient
     - export PHANTASY_CONFIG_DIR=/usr/lib/phantasy-machines
-    - cd phantasy/tests
+    - cd ${TRAVIS_BUILD_DIR}/phantasy/tests
     - make test
-    - if [ $TRAVIS_PYTHON_VERSION == "2.7" ]; then
-      cd ${cwd}/docs;
+    - if [ ${TRAVIS_PYTHON_VERSION} == "2.7" ]; then
+      cd ${TRAVIS_BUILD_DIR}/docs;
       make clean latexpdf html;
-      cd ${cwd};
       fi
 
 after_success:
-    - if [ $TRAVIS_PYTHON_VERSION == "2.7" ]; then
-      bash .ci/deploy_gh.sh;
+    - if [ ${TRAVIS_PYTHON_VERSION} == "2.7" ]; then
+      bash ${TRAVIS_BUILD_DIR}/.ci/deploy_gh.sh;
       fi
