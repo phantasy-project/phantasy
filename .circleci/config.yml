@@ -8,8 +8,6 @@ jobs:
     working_directory: ~/repo
 
     branches:
-      only:
-        - devel
       ignore:
         - gh-pages
 
