@@ -1,0 +1,78 @@
+language: python
+
+sudo: required
+dist: trusty
+
+python:
+    - 2.7
+    - 3.4
+
+cache:
+    directories:
+    - $HOME/.cache/pip
+
+virtualenv:
+    system_site_packages: true
+
+addons:
+  apt:
+    packages:
+    - libboost-program-options-dev
+    - libboost-filesystem-dev
+    - libhdf5-dev
+    - python-numpy
+    - python3-numpy
+    - python-scipy
+    - python3-scipy
+    - python-dateutil
+    - python3-dateutil
+    - pandoc
+    - latexmk
+    - texlive
+    - texlive-latex-extra
+    - texlive-fonts-extra
+    - tex-gyre
+
+before_install:
+    - cd /tmp
+    - git clone -b trusty https://github.com/archman/packages.git
+    - cd packages/trusty
+    - sudo dpkg -i *.deb
+    - BCAST=$(ifconfig docker0 | /bin/grep 'inet ' | sed "s/.*addr:\([0-9]*\).\([0-9]*\).* Bcast.*/\1.\2.255.255/")
+    - export EPICS_CA_AUTO_ADDR_LIST=NO
+    - export EPICS_CA_ADDR_LIST=${BCAST}
+    - export DOCKERIMG="tonyzhang/phantasy-ioc:jessie"
+    - docker pull ${DOCKERIMG}
+    - docker run -d ${DOCKERIMG}
+
+install:
+    - cd ${TRAVIS_BUILD_DIR}
+    - pip install -r requirements-dev.txt
+    - cd /tmp
+    - git clone https://github.com/archman/unicorn.git
+    - cd unicorn && pip install .
+    - cd ${TRAVIS_BUILD_DIR}/.ci
+    - bash setup_pycfc.sh
+    - bash setup_pyscan.sh
+
+script:
+    - caput fac 0.0
+    - sleep 2.0
+    - export EPICS_BASE=/usr/lib/epics/
+    - export EPICS_HOST_ARCH=linux-x86_64
+    - export PATH=${EPICS_BASE}/bin/${EPICS_HOST_ARCH}:${PATH}
+    - export PYEPICS_LIBCA=${EPICS_BASE}/lib/${EPICS_HOST_ARCH}/libca.so
+    - export CATOOLS_LIBCA_PATH=${EPICS_BASE}/lib/${EPICS_HOST_ARCH}
+    - export PYTHONPATH=${TRAVIS_BUILD_DIR}:$HOME/pyCFClient:$HOME/PyScanClient
+    - export PHANTASY_CONFIG_DIR=/usr/lib/phantasy-machines
+    - cd ${TRAVIS_BUILD_DIR}/phantasy/tests
+    - make test
+    - if [ ${TRAVIS_PYTHON_VERSION} == "2.7" ]; then
+      cd ${TRAVIS_BUILD_DIR}/docs;
+      make clean latexpdf html;
+      fi
+
+after_success:
+    - if [ ${TRAVIS_PYTHON_VERSION} == "2.7" ]; then
+      bash ${TRAVIS_BUILD_DIR}/.ci/deploy_gh.sh;
+      fi

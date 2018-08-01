@@ -281,14 +281,6 @@ class CaField(object):
         Readset PV name(s).
     setpoint : str, list(str)
         Setpoint PV name(s).
-
-    ### IMPLEMENTED IN HIGH-LEVEL LATTICE RIGHT NOW
-    ### THIS WAY KEEP MULTIPLE SETTINGS FOR DIFFERENT LATTICES.
-    ###
-    If *trace* is True, every readback/setpoint will be recorded for later
-    reset/revert whenever the get/put functions are called. Extra history
-    point can be recorded by calling *mark*.
-    ###
     """
 
     def __init__(self, name='', **kws):
@@ -578,7 +570,7 @@ class CaField(object):
         pv_dict = dict(zip(pv_types, pv_names))
         return {k: v for k, v in pv_dict.items() if v is not None}
 
-    def get(self, handle='readback', n_sample=1, timeout=None,
+    def get(self, handle='readback', n_sample=1, timeout=10.0,
             with_timestamp=False, ts_format='raw', keep_raw=False,
             **kws):
         """Get value of PV with specified *handle*, if argument *n_sample* is
@@ -600,7 +592,8 @@ class CaField(object):
         n_sample : int
             Sample number, total DAQ count.
         timeout : float
-            Timeout in second for the whole DAQ process.
+            Timeout in second for the whole DAQ process, set `None` to wait
+            forever.
         with_timestamp : bool
             If `True`, return timestamp, default value is `False`.
         ts_format : str
