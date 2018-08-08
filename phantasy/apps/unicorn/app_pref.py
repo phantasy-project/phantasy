@@ -12,8 +12,9 @@ class PrefDialog(QDialog, Ui_Dialog):
         self.parent = parent
         self.setupUi(self)
 
-        # set url
-        self.lineEdit.setText(self.parent._url.toString())
+        # set url and port
+        self.lineEdit_url.setText(self.parent._url)
+        self.lineEdit_port.setText(self.parent._port)
         # set pagezoom
         self.pageZoom.setCurrentText('{}%'.format(int(self.parent._pageZoom)))
 
@@ -23,10 +24,12 @@ class PrefDialog(QDialog, Ui_Dialog):
 
     def on_accept_btn_box(self):
         # url
-        url = QUrl(self.lineEdit.text())
-        if url.toString().rstrip('/') != self.parent._url.toString().rstrip('/'):
+        url, port = self.lineEdit_url.text(), self.lineEdit_port.text()
+        base_url = url.rstrip('/') + ':' + port
+        if base_url != self.parent.get_base_url():
             self.parent._url = url
-            self.parent.update_url()
+            self.parent._port = port
+            self.parent.update_url(QUrl(base_url))
 
         # pageZoom
         self.parent._pageZoom = float(self.pageZoom.currentText().split('%')[0])

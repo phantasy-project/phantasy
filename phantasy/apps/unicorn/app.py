@@ -40,7 +40,7 @@ class UnicornApp(QMainWindow, Ui_mainWindow):
         self.clock_sb.setText(self.get_current_time())
 
         # vars
-        self._url = self.webView.url()
+        self._url, self._port = self.webView.url().toString().rstrip('/').rsplit(':', 1)
         self._pageZoom = self.webView.zoomFactor() * 100
 
         # clock
@@ -50,6 +50,9 @@ class UnicornApp(QMainWindow, Ui_mainWindow):
 
         # events
         self.clockTicking['QString'].connect(self.clock_sb.setText)
+
+    def get_base_url(self):
+        return '{}:{}'.format(self._url, self._port)
 
     def closeEvent(self, e):
         r = QMessageBox.warning(self, "Warning",
@@ -79,8 +82,8 @@ class UnicornApp(QMainWindow, Ui_mainWindow):
         d = PrefDialog(self)
         d.exec_()
 
-    def update_url(self):
-        self.webView.setUrl(self._url)
+    def update_url(self, url):
+        self.webView.setUrl(url)
 
     def update_pageZoom(self):
         self.webView.setZoomFactor(self._pageZoom/100.0)
