@@ -66,7 +66,10 @@ setup(
             'plot_orbit=phantasy.tools.plot_orbit:main',
             'correct_orbit=phantasy.tools.correct_orbit:main',
             'test_phantasy=phantasy.tests:main',
-        ]
+        ],
+        'gui_scripts': [
+            'unicorn_app=phantasy.apps.unicorn:run',
+        ],
     },
     classifiers=[
         'Programming Language :: Python :: 2.7',
