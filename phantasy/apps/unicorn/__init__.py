@@ -5,7 +5,6 @@ from PyQt5.QtWidgets import QApplication
 
 from .app import UnicornApp
 
-
 __authors__ = "Tong Zhang"
 __copyright__ = "(c) 2018, Facility for Rare Isotope beams," \
                 " Michigan State University"

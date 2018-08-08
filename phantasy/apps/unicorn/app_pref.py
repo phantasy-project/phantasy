@@ -32,7 +32,8 @@ class PrefDialog(QDialog, Ui_Dialog):
             self.parent.update_url(QUrl(base_url))
 
         # pageZoom
-        self.parent._pageZoom = float(self.pageZoom.currentText().split('%')[0])
+        self.parent._pageZoom = float(
+            self.pageZoom.currentText().split('%')[0])
         self.parent.update_pageZoom()
         self.close()
 

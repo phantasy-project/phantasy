@@ -8,6 +8,7 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
@@ -25,40 +26,50 @@ class Ui_Dialog(object):
         self.formLayout.setObjectName("formLayout")
         self.label = QtWidgets.QLabel(self.tab)
         self.label.setObjectName("label")
-        self.formLayout.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.label)
+        self.formLayout.setWidget(0, QtWidgets.QFormLayout.LabelRole,
+                                  self.label)
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.lineEdit_url = QtWidgets.QLineEdit(self.tab)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
+                                           QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(1)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.lineEdit_url.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(
+            self.lineEdit_url.sizePolicy().hasHeightForWidth())
         self.lineEdit_url.setSizePolicy(sizePolicy)
         self.lineEdit_url.setObjectName("lineEdit_url")
         self.horizontalLayout_2.addWidget(self.lineEdit_url)
         self.lineEdit_port = QtWidgets.QLineEdit(self.tab)
         self.lineEdit_port.setObjectName("lineEdit_port")
         self.horizontalLayout_2.addWidget(self.lineEdit_port)
-        self.formLayout.setLayout(0, QtWidgets.QFormLayout.FieldRole, self.horizontalLayout_2)
+        self.formLayout.setLayout(0, QtWidgets.QFormLayout.FieldRole,
+                                  self.horizontalLayout_2)
         self.label_2 = QtWidgets.QLabel(self.tab)
         self.label_2.setObjectName("label_2")
-        self.formLayout.setWidget(1, QtWidgets.QFormLayout.LabelRole, self.label_2)
+        self.formLayout.setWidget(1, QtWidgets.QFormLayout.LabelRole,
+                                  self.label_2)
         self.comboBox = QtWidgets.QComboBox(self.tab)
         self.comboBox.setEnabled(True)
         self.comboBox.setObjectName("comboBox")
         self.comboBox.addItem("")
-        self.formLayout.setWidget(1, QtWidgets.QFormLayout.FieldRole, self.comboBox)
+        self.formLayout.setWidget(1, QtWidgets.QFormLayout.FieldRole,
+                                  self.comboBox)
         self.label_4 = QtWidgets.QLabel(self.tab)
         self.label_4.setObjectName("label_4")
-        self.formLayout.setWidget(2, QtWidgets.QFormLayout.LabelRole, self.label_4)
+        self.formLayout.setWidget(2, QtWidgets.QFormLayout.LabelRole,
+                                  self.label_4)
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.pushButton_2 = QtWidgets.QPushButton(self.tab)
         self.pushButton_2.setObjectName("pushButton_2")
         self.horizontalLayout.addWidget(self.pushButton_2)
-        spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        spacerItem = QtWidgets.QSpacerItem(40, 20,
+                                           QtWidgets.QSizePolicy.Expanding,
+                                           QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout.addItem(spacerItem)
-        self.formLayout.setLayout(2, QtWidgets.QFormLayout.FieldRole, self.horizontalLayout)
+        self.formLayout.setLayout(2, QtWidgets.QFormLayout.FieldRole,
+                                  self.horizontalLayout)
         self.tabWidget.addTab(self.tab, "")
         self.tab_2 = QtWidgets.QWidget()
         self.tab_2.setObjectName("tab_2")
@@ -70,7 +81,8 @@ class Ui_Dialog(object):
         self.formLayout_2.setObjectName("formLayout_2")
         self.label_3 = QtWidgets.QLabel(self.tab_2)
         self.label_3.setObjectName("label_3")
-        self.formLayout_2.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.label_3)
+        self.formLayout_2.setWidget(0, QtWidgets.QFormLayout.LabelRole,
+                                    self.label_3)
         self.pageZoom = QtWidgets.QComboBox(self.tab_2)
         self.pageZoom.setModelColumn(0)
         self.pageZoom.setObjectName("pageZoom")
@@ -82,12 +94,14 @@ class Ui_Dialog(object):
         self.pageZoom.addItem("")
         self.pageZoom.addItem("")
         self.pageZoom.addItem("")
-        self.formLayout_2.setWidget(0, QtWidgets.QFormLayout.FieldRole, self.pageZoom)
+        self.formLayout_2.setWidget(0, QtWidgets.QFormLayout.FieldRole,
+                                    self.pageZoom)
         self.gridLayout_2.addLayout(self.formLayout_2, 0, 0, 1, 1)
         self.tabWidget.addTab(self.tab_2, "")
         self.verticalLayout.addWidget(self.tabWidget)
         self.btn_box = QtWidgets.QDialogButtonBox(Dialog)
-        self.btn_box.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel|QtWidgets.QDialogButtonBox.Ok)
+        self.btn_box.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel |
+                                        QtWidgets.QDialogButtonBox.Ok)
         self.btn_box.setObjectName("btn_box")
         self.verticalLayout.addWidget(self.btn_box)
 
@@ -109,7 +123,9 @@ class Ui_Dialog(object):
         self.comboBox.setItemText(0, _translate("Dialog", "v1.0"))
         self.label_4.setText(_translate("Dialog", "Server Status"))
         self.pushButton_2.setText(_translate("Dialog", "START"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("Dialog", "Unicorn WebApp"))
+        self.tabWidget.setTabText(
+            self.tabWidget.indexOf(self.tab),
+            _translate("Dialog", "Unicorn WebApp"))
         self.label_3.setText(_translate("Dialog", "Page Zoom"))
         self.pageZoom.setCurrentText(_translate("Dialog", "100%"))
         self.pageZoom.setItemText(0, _translate("Dialog", "75%"))
@@ -120,7 +136,8 @@ class Ui_Dialog(object):
         self.pageZoom.setItemText(5, _translate("Dialog", "125%"))
         self.pageZoom.setItemText(6, _translate("Dialog", "150%"))
         self.pageZoom.setItemText(7, _translate("Dialog", "200%"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("Dialog", "Style"))
+        self.tabWidget.setTabText(
+            self.tabWidget.indexOf(self.tab_2), _translate("Dialog", "Style"))
 
 
 if __name__ == "__main__":
@@ -131,4 +148,3 @@ if __name__ == "__main__":
     ui.setupUi(Dialog)
     Dialog.show()
     sys.exit(app.exec_())
-

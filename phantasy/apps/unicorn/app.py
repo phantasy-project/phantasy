@@ -17,6 +17,7 @@ from .app_pref import PrefDialog
 
 DT_FMT = 'yyyy-MM-dd HH:mm:ss t'
 
+
 class UnicornApp(QMainWindow, Ui_mainWindow):
 
     # signal for label: 'clock_sb'
@@ -24,7 +25,7 @@ class UnicornApp(QMainWindow, Ui_mainWindow):
 
     def __init__(self, version):
         super(UnicornApp, self).__init__()
-        
+
         self._version = version
 
         # UI
@@ -40,7 +41,8 @@ class UnicornApp(QMainWindow, Ui_mainWindow):
         self.clock_sb.setText(self.get_current_time())
 
         # vars
-        self._url, self._port = self.webView.url().toString().rstrip('/').rsplit(':', 1)
+        self._url, self._port = self.webView.url().toString().rstrip(
+            '/').rsplit(':', 1)
         self._pageZoom = self.webView.zoomFactor() * 100
 
         # clock
@@ -55,10 +57,9 @@ class UnicornApp(QMainWindow, Ui_mainWindow):
         return '{}:{}'.format(self._url, self._port)
 
     def closeEvent(self, e):
-        r = QMessageBox.warning(self, "Warning",
-                "Exit this application?",
-                QMessageBox.Cancel | QMessageBox.Yes,
-                QMessageBox.Cancel)
+        r = QMessageBox.warning(self, "Warning", "Exit this application?",
+                                QMessageBox.Cancel | QMessageBox.Yes,
+                                QMessageBox.Cancel)
         if r == QMessageBox.Yes:
             self.timer.stop()
             e.accept()
@@ -76,7 +77,7 @@ class UnicornApp(QMainWindow, Ui_mainWindow):
 
     def onAbout(self):
         QMessageBox.about(self, 'UNICORN Application',
-                'This is the UI for UNICORN.')
+                          'This is the UI for UNICORN.')
 
     def onPreferences(self):
         d = PrefDialog(self)
@@ -86,7 +87,7 @@ class UnicornApp(QMainWindow, Ui_mainWindow):
         self.webView.setUrl(url)
 
     def update_pageZoom(self):
-        self.webView.setZoomFactor(self._pageZoom/100.0)
+        self.webView.setZoomFactor(self._pageZoom / 100.0)
 
     def on_clockticking(self):
         self.clockTicking.emit(self.get_current_time())
@@ -102,11 +103,11 @@ class UnicornApp(QMainWindow, Ui_mainWindow):
 
         self.clock_sb = clock_sb = QLabel(sb)
         clock_sb.setAlignment(Qt.AlignRight)
-        
+
         sb.addWidget(app_title)
         sb.addWidget(self.clock_sb, 1)
         return sb
-        
+
 
 if __name__ == "__main__":
     import sys
