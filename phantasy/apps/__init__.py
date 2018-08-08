@@ -1,13 +1,10 @@
-# encoding: UTF-8
-#
-# Copyright (c) 2015-2016 Facility for Rare Isotope Beams
-#
-
+# -*- coding: utf-8 -*-
 """
-Physics Applications
+Applications
 """
 
-try:
-    from phantasy_apps import *
-except ImportError:
-    print("Package 'python-phantasy-apps' is required.")
+# try:
+#     from phantasy_apps import *
+# except ImportError:
+#     print("'phantasy-apps' is required...")
+
