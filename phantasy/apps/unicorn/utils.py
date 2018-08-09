@@ -19,12 +19,9 @@ def init_unicorn_database():
     default_file_name = 'unicorn.sqlite'
     full_name = os.path.join(default_dir_name, default_file_name)
     db_src = os.path.join('/usr/share/unicorn/unicorn.sqlite')
-    if os.path.exists(default_dir_name):
-        if not os.path.exists(full_name):
-            shutil.copy(db_src, default_dir_name)
-    else:
+    if not os.path.exists(default_dir_name):
         os.mkdir(default_dir_name)
-        shutil.copy(db_src, default_dir_name)
+    shutil.copy(db_src, default_dir_name)
 
 
 if __name__ == "__main__":
