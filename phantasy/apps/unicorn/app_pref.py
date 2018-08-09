@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import time
-
+import requests
 from PyQt5.QtWidgets import QDialog
 from PyQt5.QtCore import QUrl
 from PyQt5.QtCore import QThread
@@ -37,10 +37,10 @@ class PrefDialog(QDialog, Ui_Dialog):
         # url
         url, port = self.lineEdit_url.text(), self.lineEdit_port.text()
         base_url = url.rstrip('/') + ':' + port
-        if base_url != self.parent.get_base_url():
-            self.parent._url = url
-            self.parent._port = port
-            self.parent.update_url(QUrl(base_url))
+        #if base_url != self.parent.get_base_url():
+        self.parent._url = url
+        self.parent._port = port
+        self.parent.update_url(QUrl(base_url))
 
         # pageZoom
         self.parent._pageZoom = float(
@@ -53,10 +53,11 @@ class PrefDialog(QDialog, Ui_Dialog):
 
     def srv_control(self, e):
         sender = self.sender()
+        url, port = self.lineEdit_url.text().rstrip('/'), self.lineEdit_port.text()
         if sender.text() == 'START':
-            print("START UNICORN SERVICE")
+            _start_unicorn_service(url, port)
         else:
-            print("STOP UNICORN SERVICE")
+            _stop_unicorn_service(url, port)
 
     def closeEvent(self, e):
         self.refresher.terminate()
@@ -75,4 +76,21 @@ class Refresher(QThread):
                 self.srv_ctrl_lbl_signal.emit("STOP")
             else:
                 self.srv_ctrl_lbl_signal.emit("START")
-            time.sleep(30)
+            time.sleep(10)
+
+
+def _start_unicorn_service(url, port):
+    import os, subprocess
+    cmdline = ["unicorn-admin", port]
+    log = open('/tmp/log', 'w')
+    app_process = subprocess.Popen(cmdline, stdout=log)
+
+
+def _stop_unicorn_service(url, port):
+    base_url = "{}:{}".format(url, port)
+    try:
+        requests.post("{}/shutdown".format(base_url))
+    except requests.ConnectionError:
+        print("Service is not running...")
+    finally:
+        print("Service is shutting down...")
