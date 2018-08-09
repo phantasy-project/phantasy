@@ -41,10 +41,10 @@ class Ui_mainWindow(object):
         self.webView.setBaseSize(QtCore.QSize(1024, 768))
         self.webView.setUrl(QtCore.QUrl("http://127.0.0.1:5000/"))
         self.webView.setZoomFactor(1.25)
-        self.webView.setRenderHints(QtGui.QPainter.Antialiasing |
-                                    QtGui.QPainter.HighQualityAntialiasing |
-                                    QtGui.QPainter.SmoothPixmapTransform |
-                                    QtGui.QPainter.TextAntialiasing)
+        self.webView.setRenderHints(QtGui.QPainter.Antialiasing
+                                    | QtGui.QPainter.HighQualityAntialiasing
+                                    | QtGui.QPainter.SmoothPixmapTransform
+                                    | QtGui.QPainter.TextAntialiasing)
         self.webView.setObjectName("webView")
         self.verticalLayout.addWidget(self.webView)
         self.gridLayout.addLayout(self.verticalLayout, 0, 0, 1, 1)
