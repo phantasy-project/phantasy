@@ -1,3 +1,10 @@
+Version 1.0.1
+-------------
+2018-08-09 [Testing]
+
+- ENH: Add new button to initialize UNICORN SQLite data
+- ENH: UI
+
 Version 1.0.0
 -------------
 2018-08-09 [Testing]
