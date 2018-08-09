@@ -9,6 +9,7 @@ from PyQt5.QtCore import pyqtSignal
 
 from .ui_app_pref import Ui_Dialog
 from .utils import get_service_status
+from .utils import init_unicorn_database
 
 
 class PrefDialog(QDialog, Ui_Dialog):
@@ -32,6 +33,7 @@ class PrefDialog(QDialog, Ui_Dialog):
         self.btn_box.accepted.connect(self.on_accept_btn_box)
         self.btn_box.rejected.connect(self.on_reject_btn_box)
         self.srv_ctrl_btn.clicked.connect(self.srv_control)
+        self.srv_data_btn.clicked.connect(self.init_database)
 
     def on_accept_btn_box(self):
         # url
@@ -79,6 +81,9 @@ class PrefDialog(QDialog, Ui_Dialog):
 
     def closeEvent(self, e):
         self.refresher.terminate()
+
+    def init_database(self, e):
+        init_unicorn_database()
 
 
 class Refresher(QThread):
