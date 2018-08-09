@@ -25,7 +25,7 @@ class PrefDialog(QDialog, Ui_Dialog):
 
         # refresher (UI)
         self.refresher = Refresher(self)
-        self.refresher.srv_ctrl_lbl_signal.connect(self.srv_ctrl_btn.setText)
+        self.refresher.srv_ctrl_btn_signal.connect(self.set_btn_style)
         self.refresher.start()
 
         # events
@@ -56,15 +56,33 @@ class PrefDialog(QDialog, Ui_Dialog):
         url, port = self.lineEdit_url.text().rstrip('/'), self.lineEdit_port.text()
         if sender.text() == 'START':
             _start_unicorn_service(url, port)
+            self.refresher.restart()
         else:
             _stop_unicorn_service(url, port)
+            self.refresher.restart()
+
+    def set_btn_style(self, s):
+        btn = self.srv_ctrl_btn
+        btn.setText(s)
+        if s == 'STOP':
+            btn.setStyleSheet(
+                    "QPushButton {\n"
+                    "    color: rgb(0, 170, 0);\n"
+                    "  font-weight: bold;\n"
+                    "}")
+        else:
+            btn.setStyleSheet(
+                    "QPushButton {\n"
+                    "  color: rgb(255, 0, 0);\n"
+                    "  font-weight: bold;\n"
+                    "}")
 
     def closeEvent(self, e):
         self.refresher.terminate()
 
 
 class Refresher(QThread):
-    srv_ctrl_lbl_signal = pyqtSignal('QString')  # for control btn label
+    srv_ctrl_btn_signal = pyqtSignal('QString')  # for control btn label
     def __init__(self, parent=None):
         super(Refresher, self).__init__(parent)
         self.parent = parent
@@ -73,10 +91,14 @@ class Refresher(QThread):
     def run(self):
         while self.run_flag:
             if get_service_status(self.parent.parent.get_base_url()) == "Running":
-                self.srv_ctrl_lbl_signal.emit("STOP")
+                self.srv_ctrl_btn_signal.emit("STOP")
             else:
-                self.srv_ctrl_lbl_signal.emit("START")
-            time.sleep(10)
+                self.srv_ctrl_btn_signal.emit("START")
+            self.run_flag = False
+
+    def restart(self):
+        self.run_flag = True
+        self.start()
 
 
 def _start_unicorn_service(url, port):
