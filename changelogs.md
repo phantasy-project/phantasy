@@ -1,5 +1,13 @@
-Version 0.9.14
+Version 1.0.0
 -------------
+2018-08-09 [Testing]
+
+- CI: Automatically test and build documentation (HTML and pdf)
+- DOC: Major update
+- ENH: Add new GUI app: `unicorn_app` (Python 2), `unicorn_app3` (Python 3)
+
+Version 0.9.14
+--------------
 2018-07-31 [Testing]
 
 - FIX: `lat.get_model_settings` skip element if not in current working lattice
