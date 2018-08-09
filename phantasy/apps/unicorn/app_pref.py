@@ -80,10 +80,9 @@ class Refresher(QThread):
 
 
 def _start_unicorn_service(url, port):
-    import os, subprocess
-    cmdline = ["unicorn-admin", port]
-    log = open('/tmp/log', 'w')
-    app_process = subprocess.Popen(cmdline, stdout=log)
+    import subprocess
+    cmdline = ["unicorn-admin", "run", port]
+    app_process = subprocess.Popen(cmdline)
 
 
 def _stop_unicorn_service(url, port):
