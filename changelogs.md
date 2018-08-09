@@ -1,3 +1,11 @@
+Version 1.0.2
+-------------
+2018-08-09 [Testing]
+
+- unicorn_app:
+  - FIX: Always override unicorn.sqlite file
+  - UI: Rename srv_data_btn to srv_db_reset_btn
+
 Version 1.0.1
 -------------
 2018-08-09 [Testing]
