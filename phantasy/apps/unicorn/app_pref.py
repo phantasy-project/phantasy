@@ -33,7 +33,7 @@ class PrefDialog(QDialog, Ui_Dialog):
         self.btn_box.accepted.connect(self.on_accept_btn_box)
         self.btn_box.rejected.connect(self.on_reject_btn_box)
         self.srv_ctrl_btn.clicked.connect(self.srv_control)
-        self.srv_data_btn.clicked.connect(self.init_database)
+        self.srv_db_reset_btn.clicked.connect(self.init_database)
 
     def on_accept_btn_box(self):
         # url
@@ -83,6 +83,7 @@ class PrefDialog(QDialog, Ui_Dialog):
         self.refresher.terminate()
 
     def init_database(self, e):
+        # initialize database with default one from unicorn-webapp
         init_unicorn_database()
 
 
