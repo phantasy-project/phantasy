@@ -25,8 +25,9 @@ from .utils import get_service_status
 from .utils import start_unicorn_service
 from .utils import stop_unicorn_service
 from .resources import unicorn_icon
+from .utils import PORT_RANGE
 
-PORT_RANGE = (5000, 5050)
+
 DT_FMT = 'yyyy-MM-dd HH:mm:ss t'
 
 class UnicornApp(QMainWindow, Ui_mainWindow):
@@ -79,8 +80,9 @@ class UnicornApp(QMainWindow, Ui_mainWindow):
     def slot_test(self, e):
         print(self.sender().text())
 
-    def get_base_url(self):
-        return '{}:{}'.format(self._url, self._port)
+    def get_base_url(self, port=None):
+        port = self._port if port is None else port
+        return '{}:{}'.format(self._url, port)
 
     def closeEvent(self, e):
         r = QMessageBox.warning(self, "Warning", "Exit this application?",
@@ -192,11 +194,11 @@ class UnicornApp(QMainWindow, Ui_mainWindow):
         if get_service_status(base_url) == "Not Running":
             start_unicorn_service(self._url, self._port)
             time.sleep(1.0)
-            self.webView.setUrl(QUrl(base_url))
         else:
             QMessageBox.information(self, "Start Unicorn Service",
                     "UNICORN service is already running at {}.".format(base_url),
                     QMessageBox.Ok)
+        self.webView.setUrl(QUrl(base_url))
 
 
 class Refresher(QThread):
