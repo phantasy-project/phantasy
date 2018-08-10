@@ -40,7 +40,7 @@ class Ui_mainWindow(object):
         self.webView.setMinimumSize(QtCore.QSize(1024, 768))
         self.webView.setBaseSize(QtCore.QSize(1024, 768))
         self.webView.setUrl(QtCore.QUrl("http://127.0.0.1:5000/"))
-        self.webView.setZoomFactor(1.25)
+        self.webView.setZoomFactor(1.0)
         self.webView.setRenderHints(QtGui.QPainter.Antialiasing
                                     | QtGui.QPainter.HighQualityAntialiasing
                                     | QtGui.QPainter.SmoothPixmapTransform
@@ -92,6 +92,8 @@ class Ui_mainWindow(object):
         self.actionAbout.setText(_translate("mainWindow", "About"))
         self.actionAbout.setShortcut(_translate("mainWindow", "Ctrl+A"))
         self.actionPreferences.setText(_translate("mainWindow", "Preferences"))
+        self.actionPreferences.setIconText(
+            _translate("mainWindow", "Preferences..."))
         self.actionPreferences.setShortcut(
             _translate("mainWindow", "Ctrl+Shift+P"))
         self.actionExit.setText(_translate("mainWindow", "Exit"))
