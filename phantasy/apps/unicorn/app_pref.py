@@ -12,6 +12,7 @@ from .utils import get_service_status
 from .utils import init_unicorn_database
 from .utils import start_unicorn_service
 from .utils import stop_unicorn_service
+from .utils import PORT_RANGE
 
 
 class PrefDialog(QDialog, Ui_Dialog):
@@ -36,6 +37,8 @@ class PrefDialog(QDialog, Ui_Dialog):
         self.btn_box.rejected.connect(self.on_reject_btn_box)
         self.srv_ctrl_btn.clicked.connect(self.srv_control)
         self.srv_db_reset_btn.clicked.connect(self.init_database)
+        self.get_all_srv_status_btn.clicked.connect(self.get_all_srv_status)
+        self.clean_all_srv_btn.clicked.connect(self.clean_all_srv)
 
     def on_accept_btn_box(self):
         # url
@@ -87,6 +90,38 @@ class PrefDialog(QDialog, Ui_Dialog):
     def init_database(self, e):
         # initialize database with default one from unicorn-webapp
         init_unicorn_database()
+
+    def clean_all_srv(self, e):
+        # clean up all alive services
+        urls = self.textEdit_srv_info.toPlainText().split('\n')
+        current_port = self.parent._port
+        for url in urls:
+            u, p = url.rstrip('/').rsplit(':', 1)
+            if p != current_port:
+                stop_unicorn_service(u, p)
+
+    def get_all_srv_status(self, e):
+        # get all alive services
+        self.textEdit_srv_info.clear()
+        srv_checker = SrvStatusChecker(self)
+        srv_checker.srv_info_signal.connect(self.textEdit_srv_info.append)
+        srv_checker.start()
+
+
+class SrvStatusChecker(QThread):
+    """Check the status of all possible urls.
+    """
+    srv_info_signal = pyqtSignal('QString')
+    def __init__(self, parent=None):
+        super(self.__class__, self).__init__(parent)
+        self.parent = parent
+
+    def run(self):
+        min_port, max_port = PORT_RANGE
+        for i in range(min_port, max_port + 1):
+            base_url = self.parent.parent.get_base_url(i)
+            if get_service_status(base_url) == "Running":
+                self.srv_info_signal.emit(base_url)
 
 
 class Refresher(QThread):
