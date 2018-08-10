@@ -17,13 +17,16 @@ from PyQt5.QtCore import QThread
 from PyQt5.QtGui import QIcon
 from PyQt5.QtGui import QPixmap
 import time
+import random
 
 from .ui_app import Ui_mainWindow
 from .app_pref import PrefDialog
 from .utils import get_service_status
+from .utils import start_unicorn_service
+from .utils import stop_unicorn_service
 from .resources import unicorn_icon
 
-
+PORT_RANGE = (5000, 5050)
 DT_FMT = 'yyyy-MM-dd HH:mm:ss t'
 
 class UnicornApp(QMainWindow, Ui_mainWindow):
@@ -49,7 +52,10 @@ class UnicornApp(QMainWindow, Ui_mainWindow):
         # vars
         self._url, self._port = self.webView.url().toString().rstrip(
             '/').rsplit(':', 1)
+        self._port = str(random.randint(*PORT_RANGE))
         self._pageZoom = self.webView.zoomFactor() * 100
+        # startup service
+        self._startup_unicorn()
 
         # create statusBar
         self.statusBar = self.create_statusbar()
@@ -83,6 +89,7 @@ class UnicornApp(QMainWindow, Ui_mainWindow):
         if r == QMessageBox.Yes:
             self.timer.stop()
             self.ui_refresher.terminate()
+            self._terminate_unicorn()
             e.accept()
         else:
             e.ignore()
@@ -170,6 +177,26 @@ class UnicornApp(QMainWindow, Ui_mainWindow):
                     "    color: rgb(255, 255, 255);\n"
                     "    font-weight: bold;\n"
                     "}")
+
+    def _terminate_unicorn(self):
+        # shutdown unicorn web service
+        base_url = self.get_base_url()
+        if get_service_status(base_url) == "Running":
+            stop_unicorn_service(self._url, self._port)
+        else:
+            print("Unicorn service is terminated.")
+
+    def _startup_unicorn(self):
+        # startup unicorn service at random port
+        base_url = self.get_base_url()
+        if get_service_status(base_url) == "Not Running":
+            start_unicorn_service(self._url, self._port)
+            time.sleep(1.0)
+            self.webView.setUrl(QUrl(base_url))
+        else:
+            QMessageBox.information(self, "Start Unicorn Service",
+                    "UNICORN service is already running at {}.".format(base_url),
+                    QMessageBox.Ok)
 
 
 class Refresher(QThread):
