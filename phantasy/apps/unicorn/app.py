@@ -14,11 +14,14 @@ from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtCore import Qt
 from PyQt5.QtCore import QThread
+from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QPixmap
 import time
 
 from .ui_app import Ui_mainWindow
 from .app_pref import PrefDialog
 from .utils import get_service_status
+from .resources import unicorn_icon
 
 
 DT_FMT = 'yyyy-MM-dd HH:mm:ss t'
@@ -36,6 +39,9 @@ class UnicornApp(QMainWindow, Ui_mainWindow):
         # UI
         self.setupUi(self)
         self.setWindowTitle("UNICORN Application")
+
+        # icon
+        self.setWindowIcon(QIcon(QPixmap(unicorn_icon)))
 
         # remove widgets border in statusbar
         self.setStyleSheet("QStatusBar::item { border: 0px solid black };")
