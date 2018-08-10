@@ -1,10 +1,22 @@
+Version 1.0.3
+-------------
+2018-08-10 [Testing]
+
+- `unicorn_app`:
+  - Default page zoom set to 100%
+  - Add an icon
+  - Update the about information
+  - Automatic start UNICORN web service locally at random port
+    between 5000-5050, and terminate at exiting
+  - Add a new tab 'Advance' to Preferences for residue services clean up
+
 Version 1.0.2
 -------------
 2018-08-09 [Testing]
 
-- unicorn_app:
+- `unicorn_app`:
   - FIX: Always override unicorn.sqlite file
-  - UI: Rename srv_data_btn to srv_db_reset_btn
+  - UI: Rename `srv_data_btn` to `srv_db_reset_btn`
 
 Version 1.0.1
 -------------
