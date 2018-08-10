@@ -10,6 +10,8 @@ from PyQt5.QtCore import pyqtSignal
 from .ui_app_pref import Ui_Dialog
 from .utils import get_service_status
 from .utils import init_unicorn_database
+from .utils import start_unicorn_service
+from .utils import stop_unicorn_service
 
 
 class PrefDialog(QDialog, Ui_Dialog):
@@ -57,10 +59,10 @@ class PrefDialog(QDialog, Ui_Dialog):
         sender = self.sender()
         url, port = self.lineEdit_url.text().rstrip('/'), self.lineEdit_port.text()
         if sender.text() == 'START':
-            _start_unicorn_service(url, port)
+            start_unicorn_service(url, port)
             self.refresher.restart()
         else:
-            _stop_unicorn_service(url, port)
+            stop_unicorn_service(url, port)
             self.refresher.restart()
 
     def set_btn_style(self, s):
@@ -105,19 +107,3 @@ class Refresher(QThread):
     def restart(self):
         self.run_flag = True
         self.start()
-
-
-def _start_unicorn_service(url, port):
-    import subprocess
-    cmdline = ["unicorn-admin", "run", port]
-    app_process = subprocess.Popen(cmdline)
-
-
-def _stop_unicorn_service(url, port):
-    base_url = "{}:{}".format(url, port)
-    try:
-        requests.post("{}/shutdown".format(base_url))
-    except requests.ConnectionError:
-        print("Service is not running...")
-    finally:
-        print("Service is shutting down...")

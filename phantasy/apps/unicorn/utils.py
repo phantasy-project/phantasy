@@ -24,6 +24,25 @@ def init_unicorn_database():
     shutil.copy(db_src, default_dir_name)
 
 
+def start_unicorn_service(url, port):
+    import subprocess
+    cmdline = ["unicorn-admin", "run", port]
+    app_process = subprocess.Popen(cmdline)
+    return app_process
+
+
+def stop_unicorn_service(url, port):
+    base_url = "{}:{}".format(url, port)
+    try:
+        requests.post("{}/shutdown".format(base_url))
+    except requests.ConnectionError:
+        print("Service is not running...")
+        return False
+    finally:
+        print("Service is shutting down...")
+        return True
+
+
 if __name__ == "__main__":
     url = 'http://127.0.0.1:5000'
     print(get_service_status(url))
