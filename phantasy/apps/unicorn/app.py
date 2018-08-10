@@ -97,8 +97,23 @@ class UnicornApp(QMainWindow, Ui_mainWindow):
         QMessageBox.aboutQt(self)
 
     def onAbout(self):
-        QMessageBox.about(self, 'UNICORN Application',
-                          'This is the UI for UNICORN.')
+        app_info = '''
+        <html>
+        <h4>About Unicorn App</h4>
+        <p>Unicorn App is a GUI application, built upon PyQt5,
+        current running version is {}.
+        </p>
+        <p>
+        UNICORN is a web service to be used as an interpreter for the
+        units between engineering and physics fields, on the accelerator
+        system.
+        </p>
+        <p>The detailed information could be reached at Help page of UNICORN.</p>
+        <p>This app features easy access and control to UNICORN service.</p>
+        <p>Copyright (C) 2018 Facility for Rare Isotope Beams and other contributors.</p>
+        </html>
+        '''.format(self._version)
+        QMessageBox.about(self, 'About UNICORN App', app_info)
 
     def onPreferences(self):
         d = PrefDialog(self)
