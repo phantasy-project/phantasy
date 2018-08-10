@@ -4,6 +4,7 @@ import requests
 import os
 import shutil
 
+PORT_RANGE = (5000, 5050)
 
 def get_service_status(url):
     try:
