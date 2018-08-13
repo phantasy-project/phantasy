@@ -1,3 +1,9 @@
+Version 1.0.4
+-------------
+2018-08-10 [Testing]
+
+- Add menu entry for `unicorn_app`
+
 Version 1.0.3
 -------------
 2018-08-10 [Testing]
