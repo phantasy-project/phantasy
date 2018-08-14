@@ -39,6 +39,7 @@ class PrefDialog(QDialog, Ui_Dialog):
         self.srv_db_reset_btn.clicked.connect(self.init_database)
         self.get_all_srv_status_btn.clicked.connect(self.get_all_srv_status)
         self.clean_all_srv_btn.clicked.connect(self.clean_all_srv)
+        self.popup_browser_btn.clicked.connect(self.popup_browser)
 
     def on_accept_btn_box(self):
         # url
@@ -106,6 +107,13 @@ class PrefDialog(QDialog, Ui_Dialog):
         srv_checker = SrvStatusChecker(self)
         srv_checker.srv_info_signal.connect(self.textEdit_srv_info.append)
         srv_checker.start()
+
+    def popup_browser(self, e):
+        # pop up browser
+        import subprocess
+        url = self.parent.get_base_url()
+        cmdline = 'x-www-browser {}'.format(url)
+        subprocess.Popen(cmdline.split())
 
 
 class SrvStatusChecker(QThread):

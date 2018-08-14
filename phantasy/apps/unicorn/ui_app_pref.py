@@ -126,6 +126,9 @@ class Ui_Dialog(object):
         self.clean_all_srv_btn.setSizePolicy(sizePolicy)
         self.clean_all_srv_btn.setObjectName("clean_all_srv_btn")
         self.horizontalLayout_4.addWidget(self.clean_all_srv_btn)
+        self.popup_browser_btn = QtWidgets.QPushButton(self.tab_3)
+        self.popup_browser_btn.setObjectName("popup_browser_btn")
+        self.horizontalLayout_4.addWidget(self.popup_browser_btn)
         spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_4.addItem(spacerItem2)
         self.gridLayout.addLayout(self.horizontalLayout_4, 0, 0, 1, 1)
@@ -181,6 +184,8 @@ class Ui_Dialog(object):
         self.get_all_srv_status_btn.setText(_translate("Dialog", "Update"))
         self.clean_all_srv_btn.setToolTip(_translate("Dialog", "<html><head/><body><p>Terminate all other alive services.</p></body></html>"))
         self.clean_all_srv_btn.setText(_translate("Dialog", "Clean Up"))
+        self.popup_browser_btn.setToolTip(_translate("Dialog", "<html><head/><body><p>Access &amp; control UNICORN in the web browser</p></body></html>"))
+        self.popup_browser_btn.setText(_translate("Dialog", "Start with Browser"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), _translate("Dialog", "Advance"))
 
 
