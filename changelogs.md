@@ -1,3 +1,10 @@
+Version 1.0.5
+-------------
+2018-08-14 [Testing]
+
+- `unicorn_app`:
+  - Add button 'Start with Browser' to 'Advance' tab
+
 Version 1.0.4
 -------------
 2018-08-10 [Testing]
