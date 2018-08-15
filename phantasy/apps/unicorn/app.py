@@ -21,6 +21,7 @@ import random
 
 from .ui_app import Ui_mainWindow
 from .app_pref import PrefDialog
+from .app_help import HelpDialog
 from .utils import get_service_status
 from .utils import start_unicorn_service
 from .utils import stop_unicorn_service
@@ -126,6 +127,10 @@ class UnicornApp(QMainWindow, Ui_mainWindow):
 
     def onPreferences(self):
         d = PrefDialog(self)
+        d.exec_()
+
+    def onHelp(self):
+        d = HelpDialog(self)
         d.exec_()
 
     def update_url(self, url):

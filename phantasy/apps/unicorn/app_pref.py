@@ -20,6 +20,7 @@ class PrefDialog(QDialog, Ui_Dialog):
         super(PrefDialog, self).__init__()
         self.parent = parent
         self.setupUi(self)
+        self.setWindowTitle('Preferences')
 
         # set url and port
         self.lineEdit_url.setText(self.parent._url)
