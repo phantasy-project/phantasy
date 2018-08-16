@@ -1,3 +1,10 @@
+Version 1.0.6
+-------------
+2018-08-16 [Testing]
+
+- Fix the compatibility issue regarding to the unicorn data
+  - For old unicorn data: xydata columns indices are 4 and 5.
+
 Version 1.0.5
 -------------
 2018-08-15 [Testing]
