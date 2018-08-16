@@ -180,7 +180,9 @@ def load_lattice(machine, segment=None, **kws):
             if not os.path.isabs(udata_file):
                 udata_file = os.path.join(mdir, udata_file)
             udata = [{'name': f['name'], 'fn': get_func(f['code'])}
-                     for f in UnicornData(udata_file).functions]
+                     for f in UnicornData(
+                         udata_file, data_x_col_idx=4, data_y_col_idx=5).functions]
+                     # will be deprecated in 1.1.0
         else:
             udata = None  # no unicorn data provided
 
