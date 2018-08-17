@@ -926,7 +926,7 @@ class FlameLattice(object):
     @initialPosition.setter
     def initialPosition(self, initialPosition):
         def replace_variable(position):
-            for k in self.variables.keys():
+            for k in list(self.variables.keys()):
                 if re.match("P(\\d+)$", k):
                     del self.variables[k]
             for i in range(0, position.shape[0]):

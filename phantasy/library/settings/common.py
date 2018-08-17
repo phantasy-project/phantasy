@@ -39,7 +39,7 @@ class Settings(OrderedDict):
 		implementation is broken. Override it to make it work again.
 		"""
         s = Settings()
-        s.update(deepcopy(self.items(), memo))
+        s.update(deepcopy(list(self.items()), memo))
         return s
 
 

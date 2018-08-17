@@ -964,7 +964,7 @@ class VirtualAccelerator(object):
         """Handle updates of CSET channels by updating
            the corresponding setting and RSET channel.
         """
-        cset = self._csetmap.items()[idx]
+        cset = list(self._csetmap.items())[idx]
         _LOGGER.debug("VirtualAccelerator: Update cset: '%s' to %s", cset[0], value)
         name, field = self._fieldmap[cset[0]]
         self._settings[name][field] = float(value)
