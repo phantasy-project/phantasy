@@ -203,7 +203,7 @@ def _save_csv_table(data, csvname):
             prpts_set.add(k)
     header = sorted(list(prpts_set))
 
-    writer = csv.writer(open(csvname, 'wb'))
+    writer = csv.writer(open(csvname, 'w'))
     writer.writerow(["PV"] + header)
     for r in data:
         prpt = []
