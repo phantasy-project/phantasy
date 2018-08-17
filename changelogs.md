@@ -1,3 +1,14 @@
+Version 1.0.7
+-------------
+2018-08-17 [Testing]
+
+- Python 3 compatibilities:
+  - Convert dict.keys() and dict.items() to list
+  - Write file with 'w' option  
+- Virtual accelerator (FLAME):
+  - FIX: add back BPM energy field
+  - ENH: add new option '-l' to `flame-vastart` to run IOC localhost only
+
 Version 1.0.6
 -------------
 2018-08-16 [Testing]
