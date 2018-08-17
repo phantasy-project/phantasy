@@ -381,6 +381,9 @@ class BPMElement(Element):
         self.fields.phase_phy = "PHASE"
         self.fields.magnitude = "MAG"
         self.fields.magnitude_phy = "MAGNITUDE"
+        # only for VA
+        self.fields.energy = "ENG"
+        self.fields.energy_phy = "ENERGY"
 
 
 class BCMElement(Element):
