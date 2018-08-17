@@ -23,10 +23,15 @@ from .common import loadMachineConfig
 
 from phantasy.facility.frib.virtaccel import build_flame_virtaccel
 
+def set_ca_local():
+    os.environ['EPICS_CAS_ADDR_LIST'] = '127.0.0.1'
+    os.environ['EPICS_CA_ADDR_LIST'] = '127.0.0.1'
+    os.environ['EPICS_CA_AUTO_ADDR_LIST'] = 'NO'
 
 parser = ArgumentParser(prog=os.path.basename(sys.argv[0]) + " flame-vastart",
                         description="Start the virtual accelerator using FLAME simulation")
 parser.add_argument("-v", dest="verbosity", nargs='?', type=int, const=1, default=0, help="set the amount of output")
+parser.add_argument("-l", dest="localonly", nargs='?', type=int, const=1, default=0, help="run IOC localhost only")
 parser.add_argument("--mach", dest="machine", help="name of machine or path of machine directory")
 parser.add_argument("--subm", dest="submach", help="name of segment")
 parser.add_argument("--layout", dest="layoutpath", help="path of accelerator layout file (.csv)")
@@ -39,7 +44,6 @@ parser.add_argument("--end", help="name of accelerator element to end processing
 parser.add_argument("--data", dest="datapath", help="path to directory with FLAME data")
 parser.add_argument("--work", dest="workpath", help="path to directory for executing FLAME")
 
-
 print_help = parser.print_help
 
 
@@ -51,6 +55,9 @@ def main():
 
     if len(sys.argv) == 2:
         print_help()
+
+    if args.localonly == 1:
+        set_ca_local()
 
     if args.verbosity == 1:
         logging.getLogger().setLevel(logging.INFO)
