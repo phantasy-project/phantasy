@@ -69,6 +69,7 @@ setup(
         ],
         'gui_scripts': [
             'unicorn_app=phantasy.apps.unicorn:run',
+            'lattice_viewer=phantasy.apps.lattice_viewer:run',
         ],
     },
     classifiers=[
