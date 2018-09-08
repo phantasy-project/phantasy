@@ -9,4 +9,4 @@ various objectives, the development guide should see :ref:`api`.
     :maxdepth: 1
 
     Modeling Accelerator With Lattice File <tutorials/tut_modelflame.rst>
-    Modeling Accelerator Facility <tutorials/tut_phantasy_overview.rst>
+    Modeling Accelerator Facility <tutorials/tut_model_accl.rst>
