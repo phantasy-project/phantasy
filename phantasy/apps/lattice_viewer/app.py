@@ -3,6 +3,11 @@
 
 from .ui.ui_app import Ui_MainWindow
 from phantasy_ui.templates import BaseAppForm
+from phantasy_ui.widgets.utils import LatticeDataModel
+
+from PyQt5.QtCore import QVariant
+from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtCore import Qt
 
 
 class LatticeViewerWindow(BaseAppForm, Ui_MainWindow):
@@ -32,6 +37,14 @@ class LatticeViewerWindow(BaseAppForm, Ui_MainWindow):
 
         # UI
         self.setupUi(self)
+
+    @pyqtSlot(QVariant)
+    def onLatticeChanged(self, o):
+        """loaded lattice changed.
+        """
+        model = LatticeDataModel(self.treeView, o)
+        model.setHeaderData(0, Qt.Horizontal, "Device Type")
+        self.treeView.setModel(model)
 
 
 if __name__ == '__main__':
