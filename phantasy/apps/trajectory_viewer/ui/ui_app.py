@@ -37,8 +37,8 @@ class Ui_MainWindow(object):
             "                                      stop: 0 #E0E0E0, stop: 1 #FFFFFF);\n"
             "    border: 2px solid gray;\n"
             "    border-radius: 5px;\n"
-            "    margin-top: 2ex; /* leave space at the top for the title */\n"
-            "    margin-bottom: 1ex;\n"
+            "    margin-top: 1.5ex; /* leave space at the top for the title */\n"
+            "    margin-bottom: 0.5ex;\n"
             "}\n"
             "\n"
             "QGroupBox::title {\n"
@@ -51,16 +51,26 @@ class Ui_MainWindow(object):
         self.groupBox.setAlignment(QtCore.Qt.AlignLeading | QtCore.Qt.AlignLeft
                                    | QtCore.Qt.AlignVCenter)
         self.groupBox.setObjectName("groupBox")
-        self.gridLayout_2 = QtWidgets.QGridLayout(self.groupBox)
-        self.gridLayout_2.setSizeConstraint(QtWidgets.QLayout.SetMinimumSize)
-        self.gridLayout_2.setContentsMargins(9, 9, -1, -1)
-        self.gridLayout_2.setObjectName("gridLayout_2")
+        self.gridLayout = QtWidgets.QGridLayout(self.groupBox)
+        self.gridLayout.setContentsMargins(-1, 15, -1, -1)
+        self.gridLayout.setObjectName("gridLayout")
+        self.label_2 = QtWidgets.QLabel(self.groupBox)
+        self.label_2.setObjectName("label_2")
+        self.gridLayout.addWidget(self.label_2, 0, 0, 1, 1)
+        self.freq_dSpinbox = QtWidgets.QDoubleSpinBox(self.groupBox)
+        self.freq_dSpinbox.setDecimals(1)
+        self.freq_dSpinbox.setMinimum(0.1)
+        self.freq_dSpinbox.setMaximum(10.0)
+        self.freq_dSpinbox.setSingleStep(0.5)
+        self.freq_dSpinbox.setProperty("value", 1.0)
+        self.freq_dSpinbox.setObjectName("freq_dSpinbox")
+        self.gridLayout.addWidget(self.freq_dSpinbox, 0, 1, 1, 1)
+        self.label_3 = QtWidgets.QLabel(self.groupBox)
+        self.label_3.setObjectName("label_3")
+        self.gridLayout.addWidget(self.label_3, 0, 2, 1, 2)
         self.label_4 = QtWidgets.QLabel(self.groupBox)
         self.label_4.setObjectName("label_4")
-        self.gridLayout_2.addWidget(self.label_4, 1, 0, 1, 1)
-        self.label_5 = QtWidgets.QLabel(self.groupBox)
-        self.label_5.setObjectName("label_5")
-        self.gridLayout_2.addWidget(self.label_5, 2, 0, 1, 1)
+        self.gridLayout.addWidget(self.label_4, 1, 0, 1, 1)
         self.select_elem_btn = QtWidgets.QPushButton(self.groupBox)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
                                            QtWidgets.QSizePolicy.Fixed)
@@ -70,31 +80,10 @@ class Ui_MainWindow(object):
             self.select_elem_btn.sizePolicy().hasHeightForWidth())
         self.select_elem_btn.setSizePolicy(sizePolicy)
         self.select_elem_btn.setObjectName("select_elem_btn")
-        self.gridLayout_2.addWidget(self.select_elem_btn, 1, 1, 1, 3)
-        self.stop_btn = QtWidgets.QPushButton(self.groupBox)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
-                                           QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(
-            self.stop_btn.sizePolicy().hasHeightForWidth())
-        self.stop_btn.setSizePolicy(sizePolicy)
-        self.stop_btn.setObjectName("stop_btn")
-        self.gridLayout_2.addWidget(self.stop_btn, 2, 3, 1, 1)
-        self.label_3 = QtWidgets.QLabel(self.groupBox)
-        self.label_3.setObjectName("label_3")
-        self.gridLayout_2.addWidget(self.label_3, 0, 2, 1, 2)
-        self.freq_dSpinbox = QtWidgets.QDoubleSpinBox(self.groupBox)
-        self.freq_dSpinbox.setDecimals(1)
-        self.freq_dSpinbox.setMinimum(0.1)
-        self.freq_dSpinbox.setMaximum(10.0)
-        self.freq_dSpinbox.setSingleStep(0.5)
-        self.freq_dSpinbox.setProperty("value", 1.0)
-        self.freq_dSpinbox.setObjectName("freq_dSpinbox")
-        self.gridLayout_2.addWidget(self.freq_dSpinbox, 0, 1, 1, 1)
-        self.label_2 = QtWidgets.QLabel(self.groupBox)
-        self.label_2.setObjectName("label_2")
-        self.gridLayout_2.addWidget(self.label_2, 0, 0, 1, 1)
+        self.gridLayout.addWidget(self.select_elem_btn, 1, 1, 1, 2)
+        self.label_5 = QtWidgets.QLabel(self.groupBox)
+        self.label_5.setObjectName("label_5")
+        self.gridLayout.addWidget(self.label_5, 2, 0, 1, 1)
         self.start_btn = QtWidgets.QPushButton(self.groupBox)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
                                            QtWidgets.QSizePolicy.Fixed)
@@ -104,11 +93,21 @@ class Ui_MainWindow(object):
             self.start_btn.sizePolicy().hasHeightForWidth())
         self.start_btn.setSizePolicy(sizePolicy)
         self.start_btn.setObjectName("start_btn")
-        self.gridLayout_2.addWidget(self.start_btn, 2, 1, 1, 2)
-        spacerItem = QtWidgets.QSpacerItem(40, 20,
+        self.gridLayout.addWidget(self.start_btn, 2, 1, 1, 2)
+        self.stop_btn = QtWidgets.QPushButton(self.groupBox)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
+                                           QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.stop_btn.sizePolicy().hasHeightForWidth())
+        self.stop_btn.setSizePolicy(sizePolicy)
+        self.stop_btn.setObjectName("stop_btn")
+        self.gridLayout.addWidget(self.stop_btn, 2, 3, 1, 1)
+        spacerItem = QtWidgets.QSpacerItem(229, 20,
                                            QtWidgets.QSizePolicy.Expanding,
                                            QtWidgets.QSizePolicy.Minimum)
-        self.gridLayout_2.addItem(spacerItem, 2, 4, 1, 1)
+        self.gridLayout.addItem(spacerItem, 2, 4, 1, 1)
         self.horizontalLayout.addWidget(self.groupBox)
         self.verticalLayout.addLayout(self.horizontalLayout)
         self.matplotlibcurveWidget = MatplotlibCurveWidget(self.centralwidget)
@@ -152,13 +151,13 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.label.setText(_translate("MainWindow", "Trajectory Viewer"))
         self.groupBox.setTitle(_translate("MainWindow", "Control Panel"))
-        self.label_4.setText(_translate("MainWindow", "Select Devices"))
-        self.label_5.setText(_translate("MainWindow", "DAQ Action"))
-        self.select_elem_btn.setText(_translate("MainWindow", "Choose"))
-        self.stop_btn.setText(_translate("MainWindow", "Stop"))
-        self.label_3.setText(_translate("MainWindow", "Hz"))
         self.label_2.setText(_translate("MainWindow", "DAQ Frequency"))
+        self.label_3.setText(_translate("MainWindow", "Hz"))
+        self.label_4.setText(_translate("MainWindow", "Select Devices"))
+        self.select_elem_btn.setText(_translate("MainWindow", "Choose"))
+        self.label_5.setText(_translate("MainWindow", "DAQ Action"))
         self.start_btn.setText(_translate("MainWindow", "Start"))
+        self.stop_btn.setText(_translate("MainWindow", "Stop"))
         self.menu_File.setTitle(_translate("MainWindow", "&File"))
         self.menu_Help.setTitle(_translate("MainWindow", "&Help"))
         self.actionE_xit.setText(_translate("MainWindow", "E&xit"))
