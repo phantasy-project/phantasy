@@ -18,6 +18,13 @@ class Ui_MainWindow(object):
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
         self.label = QtWidgets.QLabel(self.centralwidget)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
+                                           QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.label.sizePolicy().hasHeightForWidth())
+        self.label.setSizePolicy(sizePolicy)
         self.label.setStyleSheet("QLabel {\n"
                                  "    font-weight: bold;\n"
                                  "    font-size: 20pt;\n"
@@ -26,8 +33,23 @@ class Ui_MainWindow(object):
         self.label.setObjectName("label")
         self.gridLayout.addWidget(self.label, 0, 0, 1, 1)
         self.latticeWidget = LatticeWidget(self.centralwidget)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
+                                           QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.latticeWidget.sizePolicy().hasHeightForWidth())
+        self.latticeWidget.setSizePolicy(sizePolicy)
         self.latticeWidget.setObjectName("latticeWidget")
         self.gridLayout.addWidget(self.latticeWidget, 1, 0, 1, 1)
+        self.treeView = QtWidgets.QTreeView(self.centralwidget)
+        self.treeView.setStyleSheet("QTreeView {\n"
+                                    "    margin-left: 5px;\n"
+                                    "    margin-right: 5px;\n"
+                                    "}")
+        self.treeView.setAnimated(True)
+        self.treeView.setObjectName("treeView")
+        self.gridLayout.addWidget(self.treeView, 2, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 927, 34))
@@ -53,6 +75,8 @@ class Ui_MainWindow(object):
         self.actionAbout.triggered.connect(MainWindow.onAbout)
         self.actionAbout_Qt.triggered.connect(MainWindow.onAboutQt)
         self.actionE_xit.triggered.connect(MainWindow.close)
+        self.latticeWidget.latticeChanged['QVariant'].connect(
+            MainWindow.onLatticeChanged)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
