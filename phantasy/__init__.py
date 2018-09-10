@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
 
+# always use Qt5Agg
+import matplotlib
+matplotlib.use("Qt5Agg")
+#
+
 import logging
 
 logging.getLogger(__name__).setLevel(logging.INFO)
