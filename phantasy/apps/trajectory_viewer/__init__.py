@@ -16,6 +16,7 @@ def run(cli=False):
     app = QApplication(sys.argv)
     w = TrajectoryViewerWindow(version=__version__)
     w.show()
+    w.setWindowTitle("Trajectory Viewer")
     if cli:
         app.exec_()
     else:
