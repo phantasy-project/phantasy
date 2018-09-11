@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from .ui.ui_app import Ui_MainWindow
+from .app_help import HelpDialog
 from phantasy_ui.templates import BaseAppForm
 
 from PyQt5.QtCore import QVariant
@@ -12,6 +13,7 @@ from PyQt5.QtCore import QTimer
 
 class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
 
+    lineChanged = pyqtSignal(int)
     xdataChanged = pyqtSignal(QVariant)
     ydataChanged = pyqtSignal(QVariant)
     def __init__(self, version):
@@ -54,6 +56,7 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
         # DAQ freq
         self.freq_dSpinbox.valueChanged[float].connect(self.update_daqfreq)
         # curve
+        self.lineChanged.connect(self.matplotlibcurveWidget.setLineID)
         self.xdataChanged.connect(self.matplotlibcurveWidget.setXData)
         self.ydataChanged.connect(self.matplotlibcurveWidget.setYData)
 
@@ -67,6 +70,8 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
     def post_init(self):
         self.start_btn.setEnabled(True)
         self.stop_btn.setEnabled(False)
+        # add another curve to matplotlibcurveWidget
+        self.matplotlibcurveWidget.add_curve()
         # initial values
         self._bpms = []
         self._daqfreq = 1.0
@@ -92,10 +97,20 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
         if self._bpms == []:
             return
         xdata = [elem.sb for elem in self._bpms]
-        ydata = [elem.X for elem in self._bpms]
+        line0_ydata = [elem.X*1e3 for elem in self._bpms]
+        line1_ydata = [elem.Y*1e3 for elem in self._bpms]
         self.xdataChanged.emit(xdata)
-        self.ydataChanged.emit(ydata)
+        self.ydataChanged.emit(line0_ydata)
+        self.lineChanged.emit(1)
+        self.xdataChanged.emit(xdata)
+        self.ydataChanged.emit(line1_ydata)
+        self.lineChanged.emit(0)
 
+    @pyqtSlot()
+    def onHelp(self):
+        d = HelpDialog(self)
+        d.resize(800, 600)
+        d.exec_()
 
 if __name__ == '__main__':
     from PyQt5.QtWidgets import QApplication
