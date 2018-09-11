@@ -131,6 +131,7 @@ class UnicornApp(QMainWindow, Ui_mainWindow):
 
     def onHelp(self):
         d = HelpDialog(self)
+        d.resize(800, 600)
         d.exec_()
 
     def update_url(self, url):
