@@ -132,7 +132,11 @@ class Ui_MainWindow(object):
         self.actionAbout.setObjectName("actionAbout")
         self.actionAbout_Qt = QtWidgets.QAction(MainWindow)
         self.actionAbout_Qt.setObjectName("actionAbout_Qt")
+        self.actionContents = QtWidgets.QAction(MainWindow)
+        self.actionContents.setObjectName("actionContents")
         self.menu_File.addAction(self.actionE_xit)
+        self.menu_Help.addAction(self.actionContents)
+        self.menu_Help.addSeparator()
         self.menu_Help.addAction(self.actionAbout)
         self.menu_Help.addAction(self.actionAbout_Qt)
         self.menubar.addAction(self.menu_File.menuAction())
@@ -144,6 +148,7 @@ class Ui_MainWindow(object):
         self.actionE_xit.triggered.connect(MainWindow.close)
         self.latticeWidget.latticeChanged['QVariant'].connect(
             MainWindow.onLatticeChanged)
+        self.actionContents.triggered.connect(MainWindow.onHelp)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -165,6 +170,8 @@ class Ui_MainWindow(object):
         self.actionAbout.setText(_translate("MainWindow", "About"))
         self.actionAbout.setShortcut(_translate("MainWindow", "Ctrl+A"))
         self.actionAbout_Qt.setText(_translate("MainWindow", "About Qt"))
+        self.actionContents.setText(_translate("MainWindow", "Contents"))
+        self.actionContents.setShortcut(_translate("MainWindow", "F1"))
 
 
 from mpl4qt.widgets.mplcurvewidget import MatplotlibCurveWidget
