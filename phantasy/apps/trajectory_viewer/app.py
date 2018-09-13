@@ -3,12 +3,15 @@
 
 from .ui.ui_app import Ui_MainWindow
 from .app_help import HelpDialog
+from .icons import tv_icon
 from phantasy_ui.templates import BaseAppForm
 
 from PyQt5.QtCore import QVariant
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import QTimer
+from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QPixmap
 
 
 class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
@@ -22,8 +25,9 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
         # app version
         self._version = version
 
-        # window title
+        # window title/icon
         self.setWindowTitle("Trajectory Viewer")
+        self.setWindowIcon(QIcon(QPixmap(tv_icon)))
 
         # set app properties
         self.setAppTitle("Trajectory Viewer")
