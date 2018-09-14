@@ -1,0 +1,1407 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>phantasy.library.lattice.element &mdash; phantasy 1.0.7 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../../../../_static/frib-favicon.ico"/>
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+
+  
+  <script src="../../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> phantasy
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0.7
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../src/intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../src/deploy.html">Deployment</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../src/tut.html">User Guide</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Features Highlight</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../src/features.html">Features</a></li>
+</ul>
+<p class="caption"><span class="caption-text">References</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../src/apiref.html">API References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../src/terms.html">Glossary</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">phantasy</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>phantasy.library.lattice.element</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for phantasy.library.lattice.element</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;Build elements with Channel Access support.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">datetime</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">basestring</span>
+<span class="k">except</span> <span class="ne">NameError</span><span class="p">:</span>
+    <span class="n">basestring</span> <span class="o">=</span> <span class="nb">str</span>
+
+<span class="kn">from</span> <span class="nn">epics</span> <span class="k">import</span> <span class="n">PV</span>
+<span class="kn">from</span> <span class="nn">phantasy.library.misc</span> <span class="k">import</span> <span class="n">flatten</span>
+<span class="kn">from</span> <span class="nn">phantasy.library.misc</span> <span class="k">import</span> <span class="n">epoch2human</span>
+<span class="kn">from</span> <span class="nn">phantasy.library.misc</span> <span class="k">import</span> <span class="n">convert_epoch</span>
+<span class="kn">from</span> <span class="nn">phantasy.library.misc</span> <span class="k">import</span> <span class="n">QCallback</span>
+<span class="kn">from</span> <span class="nn">phantasy.library.pv</span> <span class="k">import</span> <span class="n">PV_POLICIES</span>
+<span class="kn">from</span> <span class="nn">phantasy.library.pv</span> <span class="k">import</span> <span class="n">unicorn_read</span>
+<span class="kn">from</span> <span class="nn">phantasy.library.pv</span> <span class="k">import</span> <span class="n">unicorn_write</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">Queue</span> <span class="k">import</span> <span class="n">Queue</span><span class="p">,</span> <span class="n">Empty</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">queue</span> <span class="k">import</span> <span class="n">Queue</span><span class="p">,</span> <span class="n">Empty</span>
+
+
+<span class="n">_LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="n">VALID_STATIC_KEYS</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;family&#39;</span><span class="p">,</span> <span class="s1">&#39;index&#39;</span><span class="p">,</span> <span class="s1">&#39;se&#39;</span><span class="p">,</span> <span class="s1">&#39;length&#39;</span><span class="p">,</span> <span class="s1">&#39;sb&#39;</span><span class="p">,</span>
+                     <span class="s1">&#39;phy_name&#39;</span><span class="p">,</span> <span class="s1">&#39;phy_type&#39;</span><span class="p">,</span> <span class="s1">&#39;machine&#39;</span><span class="p">)</span>
+<span class="n">VALID_CA_KEYS</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;field_eng&#39;</span><span class="p">,</span> <span class="s1">&#39;field_phy&#39;</span><span class="p">,</span> <span class="s1">&#39;handle&#39;</span><span class="p">,</span> <span class="s1">&#39;pv_policy&#39;</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">BaseElement</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Base class for all elements, contains most of the device properties,</span>
+<span class="sd">    such as element name, length, location and family. It also keeps a list of</span>
+<span class="sd">    groups which belongs to.</span>
+
+<span class="sd">    ``BaseElement`` does not support Channel Access, ``CaElement`` does.</span>
+
+<span class="sd">    Keyword Arguments</span>
+<span class="sd">    -----------------</span>
+<span class="sd">    name : str</span>
+<span class="sd">        Element name.</span>
+<span class="sd">    family : str</span>
+<span class="sd">        Element type.</span>
+<span class="sd">    index : int</span>
+<span class="sd">        Element index, default sort key, otherwise, ``sb`` is used as sort key.</span>
+<span class="sd">    length : float</span>
+<span class="sd">        Effective element length.</span>
+<span class="sd">    sb : float</span>
+<span class="sd">        Longitudinal position at the beginning point, unit: *m*.</span>
+<span class="sd">    se : float</span>
+<span class="sd">        Longitudinal position at the end point, unit: *m*.</span>
+<span class="sd">    enable : True or False</span>
+<span class="sd">        Element is enabled or not, ``True`` is controllable, default is True.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">kws</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">kws</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;index&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">family</span> <span class="o">=</span> <span class="n">kws</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;family&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">se</span> <span class="o">=</span> <span class="n">kws</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;se&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sb</span> <span class="o">=</span> <span class="n">kws</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;sb&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">length</span> <span class="o">=</span> <span class="n">kws</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;length&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_active</span> <span class="o">=</span> <span class="n">kws</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;enable&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">group</span> <span class="o">=</span> <span class="n">kws</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;group&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_family</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_group</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_family</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">group</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;set: Groups element belongs to.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_group</span>
+
+    <span class="nd">@group</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">g</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">g</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_group</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="nb">set</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_group</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">g</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;&#39;group&#39;: Input should be a set.&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;str: Element name, None if not given.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
+
+    <span class="nd">@name</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">basestring</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;&#39;name&#39;: Input should be a string.&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">index</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;int: Element index, ``-1`` if not given.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_index</span>
+
+    <span class="nd">@index</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_index</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_index</span> <span class="o">=</span> <span class="n">i</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">basestring</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="n">_LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;&#39;index&#39;: Invalid string to integer.&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;&#39;index&#39;: Input should be an integer.&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">family</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;str: Element family, i.e. device type, None if not given.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_family</span>
+
+    <span class="nd">@family</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">family</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">t</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_family</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">basestring</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_family</span> <span class="o">=</span> <span class="n">t</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;&#39;family&#39;: Input should be a string.&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">length</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float: Element length, *m*, 0.0 if not given.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_length</span>
+
+    <span class="nd">@length</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">length</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_length</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_length</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">basestring</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_length</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="n">_LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;&#39;length&#39;: Invalid string to float.&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;&#39;length&#39;: Input should be a float number.&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">sb</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float: Longitudinal position at the beginning point, *m*.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sb</span>
+
+    <span class="nd">@sb</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">sb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sb</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sb</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">basestring</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_sb</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="n">_LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;&#39;sb&#39;: Invalid string to float.&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;&#39;sb&#39;: Input should be a float number.&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">se</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float: Longitudinal position at the end point, *m*.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_se</span>
+
+    <span class="nd">@se</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">se</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_se</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_se</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">basestring</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_se</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="n">_LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;&#39;se&#39;: Invalid string to float.&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;&#39;se&#39;: Input should be a float number.&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">active</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Bool: Element is controllable or not, ``True`` by default.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_active</span>
+
+    <span class="nd">@active</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">active</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+        <span class="n">new_flag</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_active</span> <span class="o">!=</span> <span class="n">new_flag</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_active</span> <span class="o">=</span> <span class="n">new_flag</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Active status: </span><span class="si">{}</span><span class="s2"> is not changed.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">new_flag</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{0:04d}</span><span class="s2"> | </span><span class="si">{1:&lt;20s}</span><span class="s2"> </span><span class="si">{2:&lt;8s}</span><span class="s2"> </span><span class="si">{3:^6.2f}</span><span class="s2"> [m] </span><span class="si">{4:^6.6f}</span><span class="s2"> [m]&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">family</span><span class="p">,</span>
+            <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sb</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">length</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> [</span><span class="si">%s</span><span class="s2">] @ sb=</span><span class="si">%f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">family</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sb</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;use *index* if not None, otherwise use *sb*&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">&lt;</span> <span class="n">other</span><span class="o">.</span><span class="n">index</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">sb</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">sb</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sb</span> <span class="o">&lt;</span> <span class="n">other</span><span class="o">.</span><span class="n">sb</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> and </span><span class="si">{}</span><span class="s1"> may be the same one&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;compares location, length and name&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sb</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">sb</span> <span class="ow">and</span> \
+               <span class="bp">self</span><span class="o">.</span><span class="n">length</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">length</span> <span class="ow">and</span> \
+               <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">index</span> <span class="ow">and</span> \
+               <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">name</span>
+
+    <span class="k">def</span> <span class="nf">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">,):</span>
+        <span class="k">return</span> <span class="nb">hash</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">length</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sb</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_update_static_props</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">props</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Non-CA&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">props</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span> <span class="o">!=</span> <span class="n">v</span><span class="p">:</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">_LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{0}</span><span class="s2"> already has </span><span class="si">{1}</span><span class="s2"> of </span><span class="si">{2}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">)))</span>
+
+    <span class="k">def</span> <span class="nf">update_properties</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">props</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Not implemented.&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="CaField"><a class="viewcode-back" href="../../../../src/apidocs/lattice.html#phantasy.CaField">[docs]</a><span class="k">class</span> <span class="nc">CaField</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Channel Access support for element field.</span>
+
+<span class="sd">    Usually, ``CaField`` instance has at most three types of PV names:</span>
+<span class="sd">    *readback*, *readset* and *setpoint*, each PV should linked with valid</span>
+<span class="sd">    PV connections.</span>
+
+<span class="sd">    There are two approaches to retrieve the PV values, one is through</span>
+<span class="sd">    ``value`` attribute, another one is by explicitly calling ``get()``;</span>
+
+<span class="sd">    The same rule applies to set values, i.e. by setting ``value`` attribute</span>
+<span class="sd">    and by calling ``put()`` method.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name : str</span>
+<span class="sd">        Name of CA field, usually represents the physics attribute linked with CA.</span>
+<span class="sd">    wait : bool</span>
+<span class="sd">        If True, wait until put operation completed, default is True.</span>
+<span class="sd">    timeout: float</span>
+<span class="sd">        Time out in second for put operation, default is 10 seconds.</span>
+<span class="sd">    ename : str</span>
+<span class="sd">        Name of element which the field attaches to.</span>
+
+<span class="sd">    Keyword Arguments</span>
+<span class="sd">    -----------------</span>
+<span class="sd">    readback : str, list(str)</span>
+<span class="sd">        Readback PV name(s), if a single string is defined, append operation</span>
+<span class="sd">        will be issued, if list or tuple of strings is defined, *readback*</span>
+<span class="sd">        attribute will be overwritten with the new list, the same rule applies</span>
+<span class="sd">        to *readset* and *setpoint*, as well as *readback_pv*, *readset_pv* and</span>
+<span class="sd">        *setpoint_pv*.</span>
+<span class="sd">    readset : str, list(str)</span>
+<span class="sd">        Readset PV name(s).</span>
+<span class="sd">    setpoint : str, list(str)</span>
+<span class="sd">        Setpoint PV name(s).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ename</span> <span class="o">=</span> <span class="n">kws</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ename&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span> <span class="o">=</span> <span class="n">kws</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;timeout&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wait</span> <span class="o">=</span> <span class="n">kws</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;wait&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rdbk_pv_name</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rset_pv_name</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cset_pv_name</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">readback</span> <span class="o">=</span> <span class="n">kws</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;readback&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">readset</span> <span class="o">=</span> <span class="n">kws</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;readset&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setpoint</span> <span class="o">=</span> <span class="n">kws</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;setpoint&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rdbk_pv</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rset_pv</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cset_pv</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_pvs</span><span class="p">()</span>
+        <span class="n">pv_policy</span> <span class="o">=</span> <span class="n">kws</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;pv_policy&#39;</span><span class="p">,</span> <span class="n">PV_POLICIES</span><span class="p">[</span><span class="s1">&#39;DEFAULT&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_default_read_policy</span> <span class="o">=</span> <span class="n">pv_policy</span><span class="p">[</span><span class="s1">&#39;read&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_default_write_policy</span> <span class="o">=</span> <span class="n">pv_policy</span><span class="p">[</span><span class="s1">&#39;write&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">read_policy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_read_policy</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_policy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_write_policy</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ftype</span> <span class="o">=</span> <span class="n">kws</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ftype&#39;</span><span class="p">,</span> <span class="s1">&#39;ENG&#39;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;str: Field name, empty string if not given.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
+
+    <span class="nd">@name</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">s</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">basestring</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">s</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Field name should be a valid string.&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ename</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;str: Name of element the field attaches to.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ename</span>
+
+    <span class="nd">@ename</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">ename</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">e</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">e</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_ename</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">basestring</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_ename</span> <span class="o">=</span> <span class="n">e</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Element name should be a valid string&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">wait</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;boolean: Wait (True) for not (False) when issuing set command,</span>
+<span class="sd">        default: True.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wait</span>
+
+    <span class="nd">@wait</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">wait</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">b</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_wait</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_wait</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float: Time out in second for put operation, default: 10 [sec].&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_timeout</span>
+
+    <span class="nd">@timeout</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_timeout</span> <span class="o">=</span> <span class="mi">10</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_timeout</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">readback</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;list[str]: Readback PV name, usually ends with *_RD*.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rdbk_pv_name</span>
+
+    <span class="nd">@readback</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">readback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;if s is string, append will be issued, or override will be issued, the</span>
+<span class="sd">        same policy for setpoint and readset.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">basestring</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">s</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rdbk_pv_name</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_rdbk_pv_name</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">_LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Readback PV aleady exists.&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_rdbk_pv_name</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">s</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">_LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Readback PV not update.&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Readback PV name should a valid string or list of string.&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">readset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;list[str]: Readset PV name, usually ends with *_RSET*.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rset_pv_name</span>
+
+    <span class="nd">@readset</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">readset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">basestring</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">s</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rset_pv_name</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_rset_pv_name</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">_LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Readset PV aleady exists.&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_rset_pv_name</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">s</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">_LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Readset PV not update.&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Readset PV name should a valid string or list of string.&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">setpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;list[str]: Setpoint PV name, usually ends with *_CSET*.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cset_pv_name</span>
+
+    <span class="nd">@setpoint</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">setpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">basestring</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">s</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cset_pv_name</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_cset_pv_name</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">_LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Setpoint PV aleady exists.&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cset_pv_name</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">s</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">_LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Setpoint PV not update.&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Setpoint PV name should a valid string or list of string.&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">readback_pv</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;PV: Readback PV object.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rdbk_pv</span>
+
+    <span class="nd">@readback_pv</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">readback_pv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pvobj</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pvobj</span><span class="p">,</span> <span class="n">PV</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">pvobj</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rdbk_pv</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_rdbk_pv</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pvobj</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">_LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Readback PV object already exists.&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pvobj</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_rdbk_pv</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">pvobj</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Input PV should be (list of) PV object.&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">readset_pv</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;PV: Readset PV object.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rset_pv</span>
+
+    <span class="nd">@readset_pv</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">readset_pv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pvobj</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pvobj</span><span class="p">,</span> <span class="n">PV</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">pvobj</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rset_pv</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_rset_pv</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pvobj</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">_LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Readset PV object already exists.&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pvobj</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_rset_pv</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">pvobj</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Input PV should be (list of) PV object.&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">setpoint_pv</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;PV: Setpoint PV object.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cset_pv</span>
+
+    <span class="nd">@setpoint_pv</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">setpoint_pv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pvobj</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pvobj</span><span class="p">,</span> <span class="n">PV</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">pvobj</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cset_pv</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_cset_pv</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pvobj</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">_LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Setpoint PV object already exists.&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pvobj</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cset_pv</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">pvobj</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Input PV should be PV object.&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">readback</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">readback</span> <span class="ow">and</span> \
+               <span class="bp">self</span><span class="o">.</span><span class="n">setpoint</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">setpoint</span> <span class="ow">and</span> \
+               <span class="bp">self</span><span class="o">.</span><span class="n">readset</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">readset</span> <span class="ow">and</span> \
+               <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">name</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">write_policy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Defined write policy, i.e. how to set value to field.</span>
+
+<span class="sd">        The defined policy is a function, with *setpoint_pv* attribute and new</span>
+<span class="sd">        value as arguments.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_write_policy</span>
+
+    <span class="nd">@write_policy</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">write_policy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">f</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_write_policy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_write_policy</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_write_policy</span> <span class="o">=</span> <span class="n">f</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">read_policy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Defined read policy, i.e. how to read value from field.</span>
+
+<span class="sd">        The defined policy is a function, with *readback_pv* attribute as argument,</span>
+<span class="sd">        return a value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_policy</span>
+
+    <span class="nd">@read_policy</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">read_policy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">f</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_read_policy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_read_policy</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_read_policy</span> <span class="o">=</span> <span class="n">f</span>
+
+<div class="viewcode-block" id="CaField.reset_policy"><a class="viewcode-back" href="../../../../src/apidocs/lattice.html#phantasy.CaField.reset_policy">[docs]</a>    <span class="k">def</span> <span class="nf">reset_policy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">policy</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Reset policy, by policy name.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">policy</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_reset_read_policy</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_reset_write_policy</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">policy</span> <span class="o">==</span> <span class="s1">&#39;read&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_reset_read_policy</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">policy</span> <span class="o">==</span> <span class="s1">&#39;write&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_reset_write_policy</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Invalid policy name, do not reset.&quot;</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_reset_read_policy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_read_policy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_read_policy</span>
+
+    <span class="k">def</span> <span class="nf">_reset_write_policy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_write_policy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_write_policy</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get value of PV, returned from CA request.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_policy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">readback_pv</span><span class="p">)</span>
+
+    <span class="nd">@value</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_policy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">setpoint_pv</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">,</span>
+                          <span class="n">wait</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">wait</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CaField.init_pvs"><a class="viewcode-back" href="../../../../src/apidocs/lattice.html#phantasy.CaField.init_pvs">[docs]</a>    <span class="k">def</span> <span class="nf">init_pvs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;PV initialization.&quot;&quot;&quot;</span>
+        <span class="n">rdbk_pv_name</span><span class="p">,</span> <span class="n">rset_pv_name</span><span class="p">,</span> <span class="n">cset_pv_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rdbk_pv_name</span><span class="p">,</span> \
+                                                   <span class="bp">self</span><span class="o">.</span><span class="n">_rset_pv_name</span><span class="p">,</span> \
+                                                   <span class="bp">self</span><span class="o">.</span><span class="n">_cset_pv_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_rdbk_pv</span><span class="p">(</span><span class="n">rdbk_pv_name</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_rset_pv</span><span class="p">(</span><span class="n">rset_pv_name</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_cset_pv</span><span class="p">(</span><span class="n">cset_pv_name</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_init_rdbk_pv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pvs</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">pvs</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">readback_pv</span> <span class="o">=</span> <span class="p">[</span><span class="n">PV</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">pvs</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_init_rset_pv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pvs</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">pvs</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">readset_pv</span> <span class="o">=</span> <span class="p">[</span><span class="n">PV</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">pvs</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_init_cset_pv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pvs</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">pvs</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setpoint_pv</span> <span class="o">=</span> <span class="p">[</span><span class="n">PV</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">pvs</span><span class="p">]</span>
+
+<div class="viewcode-block" id="CaField.update"><a class="viewcode-back" href="../../../../src/apidocs/lattice.html#phantasy.CaField.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Update PV with defined handle.&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;readback&#39;</span><span class="p">,</span> <span class="s1">&#39;readset&#39;</span><span class="p">,</span> <span class="s1">&#39;setpoint&#39;</span><span class="p">):</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="n">kws</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">_pv&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">),</span> <span class="n">PV</span><span class="p">(</span><span class="n">v</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="CaField.pvs"><a class="viewcode-back" href="../../../../src/apidocs/lattice.html#phantasy.CaField.pvs">[docs]</a>    <span class="k">def</span> <span class="nf">pvs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return dict of valid pv type and names.&quot;&quot;&quot;</span>
+        <span class="n">pv_types</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;readback&#39;</span><span class="p">,</span> <span class="s1">&#39;readset&#39;</span><span class="p">,</span> <span class="s1">&#39;setpoint&#39;</span><span class="p">)</span>
+        <span class="n">pv_names</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">readback</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">readset</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">setpoint</span><span class="p">)</span>
+        <span class="n">pv_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">pv_types</span><span class="p">,</span> <span class="n">pv_names</span><span class="p">))</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">pv_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">}</span></div>
+
+<div class="viewcode-block" id="CaField.get"><a class="viewcode-back" href="../../../../src/apidocs/lattice.html#phantasy.CaField.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handle</span><span class="o">=</span><span class="s1">&#39;readback&#39;</span><span class="p">,</span> <span class="n">n_sample</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span>
+            <span class="n">with_timestamp</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ts_format</span><span class="o">=</span><span class="s1">&#39;raw&#39;</span><span class="p">,</span> <span class="n">keep_raw</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kws</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get value of PV with specified *handle*, if argument *n_sample* is</span>
+<span class="sd">        larger than 1, statistical result with averaged value and standard</span>
+<span class="sd">        deviation will be returned; the sample rate depends on the device</span>
+<span class="sd">        scan rate. If *timeout* is defined, DAQ will be inactivated after</span>
+<span class="sd">        *timeout* second.</span>
+
+<span class="sd">        Warning</span>
+<span class="sd">        -------</span>
+<span class="sd">        For the case of devices that generate constant readings, if *n_sample*</span>
+<span class="sd">        is larger than 1, set *timeout* parameter with a reasonable value is</span>
+<span class="sd">        required, or this method will hang up your program.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        handle : str</span>
+<span class="sd">            PV handle, &#39;readback&#39;, &#39;readset&#39; or &#39;setpoint&#39;.</span>
+<span class="sd">        n_sample : int</span>
+<span class="sd">            Sample number, total DAQ count.</span>
+<span class="sd">        timeout : float</span>
+<span class="sd">            Timeout in second for the whole DAQ process, set `None` to wait</span>
+<span class="sd">            forever.</span>
+<span class="sd">        with_timestamp : bool</span>
+<span class="sd">            If `True`, return timestamp, default value is `False`.</span>
+<span class="sd">        ts_format : str</span>
+<span class="sd">            Format for timestamp, valid options: `raw`, `epoch` and `human`.</span>
+<span class="sd">        keep_raw : bool</span>
+<span class="sd">            If `True`, return raw read data as well.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        r : dict</span>
+<span class="sd">            Valid keys: &#39;mean&#39;, &#39;std&#39;, &#39;timestamp&#39;, &#39;data&#39;, the values are</span>
+<span class="sd">            the average of all shots, the standard deviation of all shots,</span>
+<span class="sd">            the timestamp of the first shot, and all the aquired data array.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        Get CA field instance from element:</span>
+
+<span class="sd">        &gt;&gt;&gt; from phantasy import MachinePortal</span>
+<span class="sd">        &gt;&gt;&gt; mp = MachinePortal(machine=&#39;&lt;mach_name&gt;&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; lat = mp.work_lattice_conf</span>
+<span class="sd">        &gt;&gt;&gt; elem = lat[0]</span>
+<span class="sd">        &gt;&gt;&gt; print(elem.fields)</span>
+<span class="sd">        &gt;&gt;&gt; fld = elem.get_field(&#39;&lt;field_name&gt;&#39;)</span>
+
+<span class="sd">        Get readings from PVs with &#39;readback&#39; handle</span>
+
+<span class="sd">        &gt;&gt;&gt; print(fld.get(&#39;readback&#39;))</span>
+
+<span class="sd">        Get readings from PVs with &#39;setpoint&#39; handle</span>
+
+<span class="sd">        &gt;&gt;&gt; print(fld.get(&#39;setpoint&#39;))</span>
+
+<span class="sd">        Get readings from PVs with &#39;readset&#39; handle</span>
+
+<span class="sd">        &gt;&gt;&gt; print(fld.get(&#39;readset&#39;))</span>
+
+<span class="sd">        Get readings with timestamp</span>
+
+<span class="sd">        &gt;&gt;&gt; fld.get(&#39;readback&#39;, with_timestamp=True)</span>
+
+<span class="sd">        Define the style of timestamp</span>
+
+<span class="sd">        &gt;&gt;&gt; fld.get(&#39;readback&#39;, with_timestamp=True, ts_format=&#39;human&#39;)</span>
+
+<span class="sd">        Get statistical readings, and keep all the raw data</span>
+
+<span class="sd">        &gt;&gt;&gt; fld.get(&#39;readback&#39;, n_sample=1, with_timestamp=True,</span>
+<span class="sd">                    ts_format=&quot;epoch&quot;, keep_raw=True)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">handle</span> <span class="o">==</span> <span class="s1">&#39;readback&#39;</span><span class="p">:</span>
+            <span class="n">pv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rdbk_pv</span>
+        <span class="k">elif</span> <span class="n">handle</span> <span class="o">==</span> <span class="s1">&#39;readset&#39;</span><span class="p">:</span>
+            <span class="n">pv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rset_pv</span>
+        <span class="k">elif</span> <span class="n">handle</span> <span class="o">==</span> <span class="s1">&#39;setpoint&#39;</span><span class="p">:</span>
+            <span class="n">pv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cset_pv</span>
+        <span class="k">if</span> <span class="n">pv</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">with_timestamp</span><span class="p">:</span>
+                <span class="n">r</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">ipv</span> <span class="ow">in</span> <span class="n">pv</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">keep_raw</span><span class="p">:</span>
+                        <span class="n">avg</span><span class="p">,</span> <span class="n">std</span><span class="p">,</span> <span class="n">ts</span><span class="p">,</span> <span class="n">all_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get</span><span class="p">(</span><span class="n">ipv</span><span class="p">,</span> <span class="n">n_sample</span><span class="p">,</span> <span class="n">ts_format</span><span class="o">=</span><span class="n">ts_format</span><span class="p">,</span> <span class="n">keep_raw</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
+                        <span class="n">r</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">avg</span><span class="p">,</span> <span class="n">std</span><span class="p">,</span> <span class="n">ts</span><span class="p">,</span> <span class="n">all_data</span><span class="p">))</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">avg</span><span class="p">,</span> <span class="n">std</span><span class="p">,</span> <span class="n">ts</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get</span><span class="p">(</span><span class="n">ipv</span><span class="p">,</span> <span class="n">n_sample</span><span class="p">,</span> <span class="n">ts_format</span><span class="o">=</span><span class="n">ts_format</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
+                        <span class="n">r</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">avg</span><span class="p">,</span> <span class="n">std</span><span class="p">,</span> <span class="n">ts</span><span class="p">,</span> <span class="p">[]))</span>
+                <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">((</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="s1">&#39;std&#39;</span><span class="p">,</span> <span class="s1">&#39;timestamp&#39;</span><span class="p">,</span> <span class="s1">&#39;data&#39;</span><span class="p">),</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">r</span><span class="p">)))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">r</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">ipv</span> <span class="ow">in</span> <span class="n">pv</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">keep_raw</span><span class="p">:</span>
+                        <span class="n">avg</span><span class="p">,</span> <span class="n">std</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">all_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get</span><span class="p">(</span><span class="n">ipv</span><span class="p">,</span> <span class="n">n_sample</span><span class="p">,</span> <span class="n">ts_format</span><span class="o">=</span><span class="s2">&quot;epoch&quot;</span><span class="p">,</span> <span class="n">keep_raw</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
+                        <span class="n">r</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">avg</span><span class="p">,</span> <span class="n">std</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">all_data</span><span class="p">))</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">avg</span><span class="p">,</span> <span class="n">std</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get</span><span class="p">(</span><span class="n">ipv</span><span class="p">,</span> <span class="n">n_sample</span><span class="p">,</span> <span class="n">ts_format</span><span class="o">=</span><span class="s2">&quot;epoch&quot;</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
+                        <span class="n">r</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">avg</span><span class="p">,</span> <span class="n">std</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="p">[]))</span>
+                <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">((</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="s1">&#39;std&#39;</span><span class="p">,</span> <span class="s1">&#39;timestamp&#39;</span><span class="p">,</span> <span class="s1">&#39;data&#39;</span><span class="p">),</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">r</span><span class="p">)))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="CaField.set"><a class="viewcode-back" href="../../../../src/apidocs/lattice.html#phantasy.CaField.set">[docs]</a>    <span class="k">def</span> <span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">handle</span><span class="o">=</span><span class="s1">&#39;setpoint&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set value(s) of PV(s) with specified *handle*.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        value : list or list(val)</span>
+<span class="sd">            New value(s) to be set.</span>
+<span class="sd">        handle : str</span>
+<span class="sd">            PV handle, &#39;readback&#39;, &#39;readset&#39; or &#39;setpoint&#39;.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        Get CA field instance, see `get()`, set one field of an element</span>
+<span class="sd">        which has two &#39;setpoint&#39; PVs, e.g. quad:</span>
+
+<span class="sd">        &gt;&gt;&gt; fld.set([val1, val2], &#39;setpoint&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; # Check with get:</span>
+<span class="sd">        &gt;&gt;&gt; fld.get(&#39;setpoint&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; # should return [val1, val2]</span>
+
+<span class="sd">        Note</span>
+<span class="sd">        ----</span>
+<span class="sd">        ``get()`` and ``set()`` are a pair of methods that can read/write PV(s)</span>
+<span class="sd">        bypass field defined read/write policies.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">handle</span> <span class="o">==</span> <span class="s1">&#39;readback&#39;</span><span class="p">:</span>
+            <span class="n">pv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rdbk_pv</span>
+        <span class="k">elif</span> <span class="n">handle</span> <span class="o">==</span> <span class="s1">&#39;readset&#39;</span><span class="p">:</span>
+            <span class="n">pv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rset_pv</span>
+        <span class="k">elif</span> <span class="n">handle</span> <span class="o">==</span> <span class="s1">&#39;setpoint&#39;</span><span class="p">:</span>
+            <span class="n">pv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cset_pv</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="p">,</span>
+        <span class="k">if</span> <span class="n">pv</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">pv</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+                <span class="n">k</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="CaField.is_physics_field"><a class="viewcode-back" href="../../../../src/apidocs/lattice.html#phantasy.CaField.is_physics_field">[docs]</a>    <span class="k">def</span> <span class="nf">is_physics_field</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Test if *field* is physics field.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ftype</span> <span class="o">==</span> <span class="s1">&#39;PHY&#39;</span></div>
+
+<div class="viewcode-block" id="CaField.is_engineering_field"><a class="viewcode-back" href="../../../../src/apidocs/lattice.html#phantasy.CaField.is_engineering_field">[docs]</a>    <span class="k">def</span> <span class="nf">is_engineering_field</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Test if *field* is engineering field.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ftype</span> <span class="o">==</span> <span class="s1">&#39;ENG&#39;</span></div>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;[</span><span class="si">{}</span><span class="s2">] Field &#39;</span><span class="si">{}</span><span class="s2">&#39; of &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ftype</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ename</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pvobj</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keep_raw</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ts_format</span><span class="o">=</span><span class="s1">&#39;raw&#39;</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">dq</span><span class="p">,</span> <span class="n">sq</span> <span class="o">=</span> <span class="n">Queue</span><span class="p">(</span><span class="n">n</span><span class="p">),</span> <span class="n">Queue</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">cid</span> <span class="o">=</span> <span class="n">pvobj</span><span class="o">.</span><span class="n">add_callback</span><span class="p">(</span><span class="n">QCallback</span><span class="p">(</span><span class="n">dq</span><span class="p">,</span> <span class="n">sq</span><span class="p">))</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">sq</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">):</span>
+                <span class="n">all_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">dq</span><span class="o">.</span><span class="n">get</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dq</span><span class="o">.</span><span class="n">qsize</span><span class="p">())])</span>
+                <span class="n">data</span><span class="p">,</span> <span class="n">ts</span> <span class="o">=</span> <span class="n">all_data</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">all_data</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">keep_raw</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="n">data</span><span class="o">.</span><span class="n">std</span><span class="p">(),</span> <span class="n">convert_epoch</span><span class="p">(</span><span class="n">ts</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ts_format</span><span class="p">),</span> <span class="p">[]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="n">data</span><span class="o">.</span><span class="n">std</span><span class="p">(),</span> <span class="n">convert_epoch</span><span class="p">(</span><span class="n">ts</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ts_format</span><span class="p">),</span> <span class="n">all_data</span>
+        <span class="k">except</span> <span class="n">Empty</span><span class="p">:</span>
+            <span class="n">pvobj</span><span class="o">.</span><span class="n">remove_callback</span><span class="p">(</span><span class="n">cid</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">pvobj</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">convert_epoch</span><span class="p">(</span><span class="n">pvobj</span><span class="o">.</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">ts_format</span><span class="p">),</span> <span class="p">[]</span></div>
+
+
+<div class="viewcode-block" id="CaElement"><a class="viewcode-back" href="../../../../src/apidocs/lattice.html#phantasy.CaElement">[docs]</a><span class="k">class</span> <span class="nc">CaElement</span><span class="p">(</span><span class="n">BaseElement</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Element with Channel Access support.</span>
+
+<span class="sd">    This class could be used to create an element with data from Channel Finder Service</span>
+<span class="sd">    or input keyword parameters.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    enable : True or False</span>
+<span class="sd">        Element is enabled or not, ``True`` is controllable, default is True.</span>
+
+<span class="sd">    Keyword Arguments</span>
+<span class="sd">    -----------------</span>
+<span class="sd">    name : str</span>
+<span class="sd">        Element name.</span>
+<span class="sd">    family : str</span>
+<span class="sd">        Element type.</span>
+<span class="sd">    index : int</span>
+<span class="sd">        Element index, default sort key, otherwise, ``sb`` is used as sort key.</span>
+<span class="sd">    length : float</span>
+<span class="sd">        Effective element length.</span>
+<span class="sd">    sb : float</span>
+<span class="sd">        Longitudinal position at the beginning point, unit: *m*.</span>
+<span class="sd">    se : float</span>
+<span class="sd">        Longitudinal position at the end point, unit: *m*.</span>
+<span class="sd">    virtual : bool</span>
+<span class="sd">        pass</span>
+<span class="sd">    tags : dict</span>
+<span class="sd">        Tags for each PV as key name and set of strings as tag names.</span>
+<span class="sd">    fields : dict</span>
+<span class="sd">        pass</span>
+<span class="sd">    enable : True or False</span>
+<span class="sd">        Element is enabled or not, ``True`` is controllable, default is True.</span>
+<span class="sd">    pv_data : list or dict</span>
+<span class="sd">        PV record data to build an element, should be of a list of:</span>
+<span class="sd">        ``string of PV name, dict of properties, list of tags``, or</span>
+<span class="sd">        with dict of keys of: ``pv_name``, ``pv_props`` and ``pv_tags``.</span>
+
+<span class="sd">    Note</span>
+<span class="sd">    ----</span>
+<span class="sd">    If *pv_data* is defined, element will be initialized with data from</span>
+<span class="sd">    *pv_data*, if *pv_data* is CFS formatted, ``simplify_data`` should be used</span>
+<span class="sd">    first to convert data structure.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    :func:`~phantasy.library.misc.miscutils.simplify_data`</span>
+<span class="sd">        Convert CFS formatted data into simple tuple.</span>
+<span class="sd">    :class:`phantasy.library.pv.datasource.DataSource`</span>
+<span class="sd">        PV data source.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s1">&#39;_fields&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">virtual</span> <span class="o">=</span> <span class="n">kws</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;virtual&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tags</span> <span class="o">=</span> <span class="n">kws</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;tags&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">CaElement</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kws</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_settings</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">design_settings</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="n">pv_data</span> <span class="o">=</span> <span class="n">kws</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;pv_data&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">pv_data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pv_data</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">process_pv</span><span class="p">(</span><span class="o">*</span><span class="n">pv_data</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pv_data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">process_pv</span><span class="p">(</span><span class="o">**</span><span class="n">pv_data</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">last_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;dict: Last setting(s) for all dynamic field(s).&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_settings</span>
+
+    <span class="nd">@last_settings</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">last_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_last_settings</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_last_settings</span> <span class="o">=</span> <span class="n">x</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">design_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;dict: Physics design setting(s) for all dynamic field(s).&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_design_settings</span>
+
+    <span class="nd">@design_settings</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">design_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_design_settings</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_design_settings</span> <span class="o">=</span> <span class="n">x</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">tags</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;dict: Tags that element PVs have been assigned.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tags</span>
+
+    <span class="nd">@tags</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">tags</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">t</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_tags</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_tags</span> <span class="o">=</span> <span class="n">t</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;&#39;tags&#39; should be a valid dict.&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">virtual</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;bool: Virtual element or not.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_virtual</span>
+
+    <span class="nd">@virtual</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">virtual</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">b</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_virtual</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_virtual</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">fields</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;list: Valid Channel Access field names.</span>
+
+<span class="sd">        Warnings</span>
+<span class="sd">        --------</span>
+<span class="sd">        *fields* can only accept dict, with CA field name as key and ``CaField`` as value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fields</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+    <span class="nd">@fields</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">f</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_fields</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_fields</span> <span class="o">=</span> <span class="n">f</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;&#39;fields&#39; should be a valid dict.&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CaElement.get_phy_fields"><a class="viewcode-back" href="../../../../src/apidocs/lattice.html#phantasy.CaElement.get_phy_fields">[docs]</a>    <span class="k">def</span> <span class="nf">get_phy_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return list of all physics fields.</span>
+
+<span class="sd">        Note</span>
+<span class="sd">        ----</span>
+<span class="sd">        If returned list is empty, but `get_eng_fields` is not, then physics</span>
+<span class="sd">        fields should be the same as engineering fields, but only appeared as</span>
+<span class="sd">        ENG field type.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_field</span><span class="p">(</span><span class="n">f</span><span class="p">)</span><span class="o">.</span><span class="n">is_physics_field</span><span class="p">()]</span></div>
+
+<div class="viewcode-block" id="CaElement.get_eng_fields"><a class="viewcode-back" href="../../../../src/apidocs/lattice.html#phantasy.CaElement.get_eng_fields">[docs]</a>    <span class="k">def</span> <span class="nf">get_eng_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return list of all engineering fields.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_field</span><span class="p">(</span><span class="n">f</span><span class="p">)</span><span class="o">.</span><span class="n">is_engineering_field</span><span class="p">()]</span></div>
+
+    <span class="k">def</span> <span class="nf">_update_ca_props</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">props</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;CA&quot;&quot;&quot;</span>
+        <span class="k">def</span> <span class="nf">build_pv_policy_phy</span><span class="p">(</span><span class="n">u_policy</span><span class="p">,</span> <span class="n">pv_policy</span><span class="p">):</span>
+            <span class="c1"># pv_policy is a dict</span>
+            <span class="n">fn_p</span><span class="p">,</span> <span class="n">fn_n</span> <span class="o">=</span> <span class="n">u_policy</span><span class="p">[</span><span class="s1">&#39;p&#39;</span><span class="p">],</span> <span class="n">u_policy</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">]</span>
+            <span class="n">f_read</span><span class="p">,</span> <span class="n">f_write</span> <span class="o">=</span> <span class="n">pv_policy</span><span class="p">[</span><span class="s1">&#39;read&#39;</span><span class="p">],</span> <span class="n">pv_policy</span><span class="p">[</span><span class="s1">&#39;write&#39;</span><span class="p">]</span>
+
+            <span class="nd">@unicorn_read</span><span class="p">(</span><span class="n">fn_p</span><span class="p">)</span>
+            <span class="k">def</span> <span class="nf">f_read_phy</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">f_read</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+            <span class="nd">@unicorn_write</span><span class="p">(</span><span class="n">fn_n</span><span class="p">)</span>
+            <span class="k">def</span> <span class="nf">f_write_phy</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">):</span>
+                <span class="n">f_write</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;read&#39;</span><span class="p">:</span> <span class="n">f_read_phy</span><span class="p">,</span> <span class="s1">&#39;write&#39;</span><span class="p">:</span> <span class="n">f_write_phy</span><span class="p">}</span>
+
+        <span class="n">handle_name</span> <span class="o">=</span> <span class="n">props</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;handle&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">field_name</span> <span class="o">=</span> <span class="n">props</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;field_eng&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="c1"># engineering field name</span>
+        <span class="c1"># if field_phy is undefined, use the same as field_eng</span>
+        <span class="n">field_name_phy</span> <span class="o">=</span> <span class="n">props</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;field_phy&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">pv_policy_str</span> <span class="o">=</span> <span class="n">props</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;pv_policy&#39;</span><span class="p">,</span> <span class="s1">&#39;DEFAULT&#39;</span><span class="p">)</span>
+        <span class="n">pv_policy</span> <span class="o">=</span> <span class="n">PV_POLICIES</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">pv_policy_str</span><span class="p">)</span>
+        <span class="c1"># pv_policy passed as string, which is defined in channels datafile,</span>
+        <span class="c1"># while pv_policy passed to CaField is a dict: {&#39;read&#39;: rp, &#39;write&#39;: wp}</span>
+        <span class="n">u_policy</span> <span class="o">=</span> <span class="n">kws</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;u_policy&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">u_policy</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">pv_policy_phy</span> <span class="o">=</span> <span class="n">build_pv_policy_phy</span><span class="p">(</span><span class="n">u_policy</span><span class="p">,</span> <span class="n">pv_policy</span><span class="p">)</span>
+            <span class="c1"># Set u_policy as element attributes</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_unicorn_e2p</span> <span class="o">=</span> <span class="n">u_policy</span><span class="p">[</span><span class="s1">&#39;p&#39;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_unicorn_p2e</span> <span class="o">=</span> <span class="n">u_policy</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pv_policy_phy</span> <span class="o">=</span> <span class="n">PV_POLICIES</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">pv_policy_str</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_unicorn_e2p</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span><span class="n">x</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_unicorn_p2e</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span><span class="n">x</span>
+        <span class="n">pv</span> <span class="o">=</span> <span class="n">kws</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;pv&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="c1">#</span>
+        <span class="k">if</span> <span class="n">field_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_field</span><span class="p">(</span><span class="n">field_name</span><span class="p">,</span> <span class="n">pv</span><span class="p">,</span> <span class="n">handle_name</span><span class="p">,</span> <span class="n">ftype</span><span class="o">=</span><span class="s1">&#39;ENG&#39;</span><span class="p">,</span>
+                           <span class="n">pv_policy</span><span class="o">=</span><span class="n">pv_policy</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">field_name_phy</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_field</span><span class="p">(</span><span class="n">field_name_phy</span><span class="p">,</span> <span class="n">pv</span><span class="p">,</span> <span class="n">handle_name</span><span class="p">,</span> <span class="n">ftype</span><span class="o">=</span><span class="s1">&#39;PHY&#39;</span><span class="p">,</span>
+                           <span class="n">pv_policy</span><span class="o">=</span><span class="n">pv_policy_phy</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CaElement.set_field"><a class="viewcode-back" href="../../../../src/apidocs/lattice.html#phantasy.CaElement.set_field">[docs]</a>    <span class="k">def</span> <span class="nf">set_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">pv</span><span class="p">,</span> <span class="n">handle</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set element field with CA support.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        field : str</span>
+<span class="sd">            Field name.</span>
+<span class="sd">        pv : str</span>
+<span class="sd">            Valid PV name.</span>
+<span class="sd">        handle : str</span>
+<span class="sd">            PV channel type, valid options: ``readback``, ``readset``,</span>
+<span class="sd">            ``setpoint``, default is ``readback``.</span>
+
+<span class="sd">        Keyword Arguments</span>
+<span class="sd">        -----------------</span>
+<span class="sd">        pv_policy : dict</span>
+<span class="sd">            Name of PV read/write policy, keys: &#39;read&#39; and &#39;write&#39;, values:</span>
+<span class="sd">            scaling law function object.</span>
+<span class="sd">        ftype : str</span>
+<span class="sd">            Field type, &#39;ENG&#39; (default) or &#39;PHY&#39;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">handle</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">handle</span> <span class="o">=</span> <span class="s1">&#39;readback&#39;</span>
+        <span class="k">if</span> <span class="n">field</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fields</span><span class="p">:</span>
+            <span class="n">new_field</span> <span class="o">=</span> <span class="n">CaField</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">field</span><span class="p">,</span>
+                                <span class="n">ename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                                <span class="n">ftype</span><span class="o">=</span><span class="n">kws</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ftype&#39;</span><span class="p">),</span>
+                                <span class="n">pv_policy</span><span class="o">=</span><span class="n">kws</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;pv_policy&#39;</span><span class="p">),</span>
+                                <span class="o">**</span><span class="p">{</span><span class="n">handle</span><span class="p">:</span> <span class="n">pv</span><span class="p">})</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_design_settings</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">field</span><span class="p">:</span> <span class="kc">None</span><span class="p">})</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_last_settings</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">field</span><span class="p">:</span> <span class="kc">None</span><span class="p">})</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_fields</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_field</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_fields</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="o">**</span><span class="p">{</span><span class="n">handle</span><span class="p">:</span> <span class="n">pv</span><span class="p">})</span>
+
+        <span class="n">_LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Process &#39;</span><span class="si">{0}</span><span class="s2">&#39; PV: </span><span class="si">{1}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="n">pv</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="CaElement.update_properties"><a class="viewcode-back" href="../../../../src/apidocs/lattice.html#phantasy.CaElement.update_properties">[docs]</a>    <span class="k">def</span> <span class="nf">update_properties</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">props</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Update element properties.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        props : dict</span>
+<span class="sd">            Dictionary of properties, two categories:</span>
+
+<span class="sd">            - static properties: without CA features:</span>
+<span class="sd">              *name*, *family*, *index*, *se*, *sb* (optional), *length*</span>
+<span class="sd">            - dynamic properties: with CA features:</span>
+<span class="sd">              *handle*, *field*</span>
+
+<span class="sd">        Keyword Arguments</span>
+<span class="sd">        -----------------</span>
+<span class="sd">        pv : str</span>
+<span class="sd">            Valid PV name.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">prop_st</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">props</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">VALID_STATIC_KEYS</span><span class="p">}</span>
+        <span class="n">prop_ca</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">props</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">VALID_CA_KEYS</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_static_props</span><span class="p">(</span><span class="n">prop_st</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_ca_props</span><span class="p">(</span><span class="n">prop_ca</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CaElement.update_tags"><a class="viewcode-back" href="../../../../src/apidocs/lattice.html#phantasy.CaElement.update_tags">[docs]</a>    <span class="k">def</span> <span class="nf">update_tags</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tags</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Update element tags.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        tags : list</span>
+<span class="sd">            List of tags.</span>
+
+<span class="sd">        Keyword Arguments</span>
+<span class="sd">        -----------------</span>
+<span class="sd">        pv : str</span>
+<span class="sd">            Valid PV name.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pv_name</span> <span class="o">=</span> <span class="n">kws</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;pv&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">pv_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">pv_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tags</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_tags</span><span class="p">[</span><span class="n">pv_name</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">tags</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_tags</span><span class="p">[</span><span class="n">pv_name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">tags</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CaElement.process_pv"><a class="viewcode-back" href="../../../../src/apidocs/lattice.html#phantasy.CaElement.process_pv">[docs]</a>    <span class="k">def</span> <span class="nf">process_pv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pv_name</span><span class="p">,</span> <span class="n">pv_props</span><span class="p">,</span> <span class="n">pv_tags</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">u_policy</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Process PV record to update element with properties and tags.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        pv_name : str</span>
+<span class="sd">            PV name.</span>
+<span class="sd">        pv_props : dict</span>
+<span class="sd">            PV properties, key-value pairs.</span>
+<span class="sd">        pv_tags : list</span>
+<span class="sd">            PV tag list.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pv_name</span><span class="p">,</span> <span class="n">basestring</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> is not a valid type&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">pv_name</span><span class="p">)))</span>
+
+        <span class="c1"># properties</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_properties</span><span class="p">(</span><span class="n">pv_props</span><span class="p">,</span> <span class="n">pv</span><span class="o">=</span><span class="n">pv_name</span><span class="p">,</span> <span class="n">u_policy</span><span class="o">=</span><span class="n">u_policy</span><span class="p">)</span>
+        <span class="c1"># tags</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_tags</span><span class="p">(</span><span class="n">pv_tags</span><span class="p">,</span> <span class="n">pv</span><span class="o">=</span><span class="n">pv_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_groups</span><span class="p">(</span><span class="n">pv_props</span><span class="p">,</span> <span class="n">pv</span><span class="o">=</span><span class="n">pv_name</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CaElement.update_groups"><a class="viewcode-back" href="../../../../src/apidocs/lattice.html#phantasy.CaElement.update_groups">[docs]</a>    <span class="k">def</span> <span class="nf">update_groups</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">props</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Update new group with *family* name.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        props : dict</span>
+<span class="sd">            Element properties.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        update_properties</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">new_groups</span> <span class="o">=</span> <span class="n">props</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;group&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">new_groups</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">new_groups</span><span class="p">,</span> <span class="n">basestring</span><span class="p">):</span>
+                <span class="n">new_groups</span> <span class="o">=</span> <span class="n">new_groups</span><span class="p">,</span>
+            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_group</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">g</span><span class="p">)</span> <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">new_groups</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_family</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_group</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_family</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CaElement.get_field"><a class="viewcode-back" href="../../../../src/apidocs/lattice.html#phantasy.CaElement.get_field">[docs]</a>    <span class="k">def</span> <span class="nf">get_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get element field of CA support.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        field : str</span>
+<span class="sd">            Field name.</span>
+
+<span class="sd">        Note</span>
+<span class="sd">        ----</span>
+<span class="sd">        All valid field names could be retrieved by ``fields`` attribute.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ret :</span>
+<span class="sd">            CaField or None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">field</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fields</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fields</span><span class="p">[</span><span class="n">field</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;INVALID field, could be one of (</span><span class="si">{}</span><span class="s2">).&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">))))</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+    <span class="k">def</span> <span class="nf">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fields</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fields</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
+                <span class="s2">&quot;element </span><span class="si">{}</span><span class="s2"> does not have field </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fields</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_fields</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fields</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">wait</span><span class="p">:</span>
+                <span class="n">_LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="s2">&quot;Field &#39;</span><span class="si">{f_name}</span><span class="s2">&#39; of &#39;</span><span class="si">{e_name}</span><span class="s2">&#39; reached: </span><span class="si">{rd_val}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">f_name</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">e_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">rd_val</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_last_settings</span><span class="o">.</span><span class="n">update</span><span class="p">([(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">super</span><span class="p">(</span><span class="n">CaElement</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__dir__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">dir</span><span class="p">(</span><span class="n">CaElement</span><span class="p">)</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fields</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">virtual</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> [</span><span class="si">%s</span><span class="s2">] (virtual)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">family</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">CaElement</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">()</span>
+
+<div class="viewcode-block" id="CaElement.pv"><a class="viewcode-back" href="../../../../src/apidocs/lattice.html#phantasy.CaElement.pv">[docs]</a>    <span class="k">def</span> <span class="nf">pv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">handle</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get PV names with defined *field* and *handle*, if none of them is defined,</span>
+<span class="sd">        return all PV names.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        field : str or list</span>
+<span class="sd">            Channel access field name, all available fields will be used</span>
+<span class="sd">            if not defined, ignore invalid field.</span>
+<span class="sd">        handle : str</span>
+<span class="sd">            Channel access protocol type, could be one of *readback*, *readset*</span>
+<span class="sd">            and *setpoint*.</span>
+
+<span class="sd">        Note</span>
+<span class="sd">        ----</span>
+<span class="sd">        1. All Valid field names could be retrieved by ``fields`` attribute.</span>
+<span class="sd">        2. If more than one field is defined with *field*, i.e. *field* is a list</span>
+<span class="sd">           of string, return PV names binding with these fields, may apply *handle*</span>
+<span class="sd">           as a filter, e.g. if *handle* is not defined, return all PVs.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ret : list</span>
+<span class="sd">            List of valid PVs as request.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pvs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">field</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">handle</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fields</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">pvs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">pvs</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">f_pv</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">field</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">field</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">basestring</span><span class="p">):</span>
+                <span class="n">field</span> <span class="o">=</span> <span class="n">field</span><span class="p">,</span>
+
+            <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">field</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">]:</span>
+                <span class="n">f_pv</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fields</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">f</span><span class="p">)</span><span class="o">.</span><span class="n">pvs</span><span class="p">())</span>
+
+            <span class="k">for</span> <span class="n">pv_i</span> <span class="ow">in</span> <span class="n">f_pv</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">handle</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">pvs</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">pv_i</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">])</span>
+                <span class="k">elif</span> <span class="n">handle</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;readback&#39;</span><span class="p">,</span> <span class="s1">&#39;setpoint&#39;</span><span class="p">,</span> <span class="s1">&#39;readset&#39;</span><span class="p">]:</span>
+                    <span class="n">pvs</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">pv_i</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">k</span> <span class="o">==</span> <span class="n">handle</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Invalid handle, valid options: &quot;</span> <span class="o">+</span>
+                          <span class="s2">&quot;&#39;readback&#39;, &#39;readset&#39;, &#39;setpoint&#39;.&quot;</span><span class="p">)</span>
+                    <span class="k">break</span>
+        <span class="k">return</span> <span class="n">flatten</span><span class="p">(</span><span class="n">pvs</span><span class="p">)</span></div></div>
+
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="n">pv_props</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;field&#39;</span><span class="p">:</span> <span class="s1">&#39;ANG&#39;</span><span class="p">,</span> <span class="s1">&#39;handle&#39;</span><span class="p">:</span> <span class="s1">&#39;setpoint&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;length&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s1">&#39;se&#39;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s1">&#39;family&#39;</span><span class="p">:</span> <span class="s1">&#39;HCOR&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="n">elem</span> <span class="o">=</span> <span class="n">CaElement</span><span class="p">(</span><span class="o">**</span><span class="n">pv_props</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">elem</span><span class="o">.</span><span class="n">family</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Facility for Rare Isotope Beams, Michigan State University.
+      Last updated on Sep 14, 2018.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../../',
+            VERSION:'1.0.7',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

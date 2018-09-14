@@ -1,0 +1,325 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Deployment &mdash; phantasy 1.0.7 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/frib-favicon.ico"/>
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="User Guide" href="tut.html" />
+    <link rel="prev" title="Introduction" href="intro.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> phantasy
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0.7
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Deployment</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#install-via-apt">Install via APT</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#frib-controls-network-case">FRIB controls network case</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#install-via-pip">Install via PIP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#run-tests">Run Tests</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tut.html">User Guide</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Features Highlight</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="features.html">Features</a></li>
+</ul>
+<p class="caption"><span class="caption-text">References</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="apiref.html">API References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="terms.html">Glossary</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">phantasy</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Deployment</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="deployment">
+<h1>Deployment<a class="headerlink" href="#deployment" title="Permalink to this headline">¶</a></h1>
+<p>Deploy <code class="docutils literal notranslate"><span class="pre">phantasy</span></code> to different operating systems is quite simple, both
+online and offline approaches are provided. Before installation, there
+may be packages/libraries dependency issues to be resolved first.</p>
+<div class="section" id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
+<p>Required Python packages: <code class="docutils literal notranslate"><span class="pre">numpy</span></code>, <code class="docutils literal notranslate"><span class="pre">scipy</span></code>, <code class="docutils literal notranslate"><span class="pre">matplotlib</span></code>,
+<code class="docutils literal notranslate"><span class="pre">cothread</span></code>, <code class="docutils literal notranslate"><span class="pre">xlrd</span></code>,
+Optional Python packages: <code class="docutils literal notranslate"><span class="pre">tornado</span></code>, <code class="docutils literal notranslate"><span class="pre">motor</span></code>, <code class="docutils literal notranslate"><span class="pre">jinja2</span></code>,
+<code class="docutils literal notranslate"><span class="pre">humanize</span></code>, <code class="docutils literal notranslate"><span class="pre">jsonschema</span></code>,
+Optional Python packages: <code class="docutils literal notranslate"><span class="pre">pyCFClient</span></code>, <code class="docutils literal notranslate"><span class="pre">scanclient</span></code>,
+Suggested packages: <code class="docutils literal notranslate"><span class="pre">phantasy-machines</span></code>,
+<code class="docutils literal notranslate"><span class="pre">python-unicorn</span></code>, <code class="docutils literal notranslate"><span class="pre">unicorn-webapp</span></code>,</p>
+<p>Other home-made packages:
+- Python: <code class="docutils literal notranslate"><span class="pre">flame</span></code>, <code class="docutils literal notranslate"><span class="pre">genopt</span></code>
+- C++: <code class="docutils literal notranslate"><span class="pre">flame</span></code>, <code class="docutils literal notranslate"><span class="pre">impact</span></code> (FRIB-version), <code class="docutils literal notranslate"><span class="pre">dakota-drivers</span></code></p>
+</div>
+<div class="section" id="install-via-apt">
+<h2>Install via APT<a class="headerlink" href="#install-via-apt" title="Permalink to this headline">¶</a></h2>
+<p>This is the recommended way to deploy <code class="docutils literal notranslate"><span class="pre">phantasy</span></code>, however, the <strong>APT</strong>
+way is <strong>FRIB intranet only</strong>.</p>
+<p>The target workstation is running Debian 8, add the
+following lines to <code class="docutils literal notranslate"><span class="pre">/etc/apt/sources.list</span></code> or save as a separated file
+to the directory <code class="docutils literal notranslate"><span class="pre">/etc/apt/sources.list.d</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>deb http://ci.frib.msu.edu/debian/ jessie unstable
+deb-src http://ci.frib.msu.edu/debian/ jessie unstable
+</pre></div>
+</div>
+<p>The public key can be imported by <a class="footnote-reference" href="#f1" id="id1">[1]</a>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>wget http://ci.frib.msu.edu/debian/repo_key.gpg -O - <span class="p">|</span> sudo apt-key add -
+</pre></div>
+</div>
+<p>After that, in the terminal, issue <code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">apt-get</span> <span class="pre">update</span></code> and
+<code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">python-phantasy</span></code> to install <code class="docutils literal notranslate"><span class="pre">phantasy</span></code>, <code class="docutils literal notranslate"><span class="pre">apt</span></code> will
+handle all the dependencies automatically.</p>
+<div class="section" id="frib-controls-network-case">
+<h3>FRIB controls network case<a class="headerlink" href="#frib-controls-network-case" title="Permalink to this headline">¶</a></h3>
+<a class="reference internal image-reference" href="../_images/packages.png"><img alt="../_images/packages.png" class="align-center" src="../_images/packages.png" style="width: 600px;" /></a>
+</div>
+</div>
+<div class="section" id="install-via-pip">
+<h2>Install via PIP<a class="headerlink" href="#install-via-pip" title="Permalink to this headline">¶</a></h2>
+<p>Download <code class="docutils literal notranslate"><span class="pre">.whl</span></code> package of <code class="docutils literal notranslate"><span class="pre">phantasy</span></code> from <a class="reference external" href="https://stash.frib.msu.edu/projects/PHYAPP/repos/phantasy/browse/dist">HERE</a>,
+select the newest version, and install it by:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install &lt;phantasy.VERSION.whl&gt;
+</pre></div>
+</div>
+<p>Or upgrade from earlier version by:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install &lt;phantasy.VERSION.whl&gt; --upgrade --no-deps
+</pre></div>
+</div>
+<p>Or simply install by:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install phantasy
+</pre></div>
+</div>
+</div>
+<div class="section" id="run-tests">
+<h2>Run Tests<a class="headerlink" href="#run-tests" title="Permalink to this headline">¶</a></h2>
+<p>After installation, commands <code class="docutils literal notranslate"><span class="pre">test_phantasy</span></code> (for Python 2.7) and
+<code class="docutils literal notranslate"><span class="pre">test_phantasy3</span></code> (for Python 3.x) <a class="footnote-reference" href="#f2" id="id2">[2]</a> can
+be invoked to run tests distributed with <code class="docutils literal notranslate"><span class="pre">phantasy</span></code> package.</p>
+<p>Alternative way to do in Python terminal:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">phantasy.tests</span> <span class="kn">import</span> <span class="n">main</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+<p class="rubric">Footnotes</p>
+<table class="docutils footnote" frame="void" id="f1" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>Details see: <a class="reference external" href="http://ci.frib.msu.edu/">http://ci.frib.msu.edu/</a></td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="f2" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[2]</a></td><td>The name <cite>test_phantasy3</cite> is only valid when deployed by APT way.</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="tut.html" class="btn btn-neutral float-right" title="User Guide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="intro.html" class="btn btn-neutral" title="Introduction" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Facility for Rare Isotope Beams, Michigan State University.
+      Last updated on Sep 14, 2018.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.0.7',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

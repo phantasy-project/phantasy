@@ -1,0 +1,1053 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>API References (operation) &mdash; phantasy 1.0.7 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../../_static/frib-favicon.ico"/>
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="API References (lattice)" href="lattice.html" />
+    <link rel="prev" title="API References" href="../apiref.html" /> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> phantasy
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0.7
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deploy.html">Deployment</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tut.html">User Guide</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Features Highlight</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../features.html">Features</a></li>
+</ul>
+<p class="caption"><span class="caption-text">References</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../apiref.html">API References</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Operation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lattice.html">Lattice</a></li>
+<li class="toctree-l2"><a class="reference internal" href="flame_utils.html">FLAME utils</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../terms.html">Glossary</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">phantasy</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../apiref.html">API References</a> &raquo;</li>
+        
+      <li>API References (operation)</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="api-references-operation">
+<h1>API References (operation)<a class="headerlink" href="#api-references-operation" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="phantasy.MachinePortal">
+<em class="property">class </em><code class="descname">MachinePortal</code><span class="sig-paren">(</span><em>machine=None</em>, <em>segment=None</em>, <em>**kws</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/phantasy/library/operation/core.html#MachinePortal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#phantasy.MachinePortal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Very first step to control the machine on physics high-level layer,
+create lattice object from segment of machine, upon which various
+operations could be preceded.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>machine</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Name of the accelerator machine, typically, use one folder of the
+machine name to host all the related configuration files, also could
+be the path of the configuration folder, “FRIB” by default.</li>
+<li><strong>segment</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – All machine segments are defined in <em>segments</em> field in the
+configuration file “phantasy.ini”, separated by space, e.g.
+<code class="docutils literal notranslate"><span class="pre">segments:</span> <span class="pre">LINAC</span> <span class="pre">LS1</span></code> defines two segments <code class="docutils literal notranslate"><span class="pre">LINAC</span></code> and <code class="docutils literal notranslate"><span class="pre">LS1</span></code>,
+the <code class="docutils literal notranslate"><span class="pre">default_segment</span></code> field in that file is used to define the
+default segment to use. If <em>segment</em> parameter is not defined, use
+the one defined by <code class="docutils literal notranslate"><span class="pre">default_segment</span></code>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Keyword Arguments:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body"><p class="first last"><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – If set nonzero, print out verbose message.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<ol class="last arabic">
+<li><p class="first">Lattice if created from segment of machine.</p>
+</li>
+<li><p class="first">Directory searching rule for the machine configuration files:
+(list by searching priority)</p>
+<ul class="simple">
+<li>User-defined directory;</li>
+<li>Current working directory;</li>
+<li>Environmental variable: <code class="docutils literal notranslate"><span class="pre">PHANTASY_CONFIG_DIR</span></code>;</li>
+<li>Current user’s home folder: <code class="docutils literal notranslate"><span class="pre">~/.phantasy</span></code>;</li>
+</ul>
+<p>If the found directory is <code class="docutils literal notranslate"><span class="pre">MPATH</span></code>, then the naming rule of <em>machine</em>:
+<code class="docutils literal notranslate"><span class="pre">MPATH</span></code> + machine name, e.g. <code class="docutils literal notranslate"><span class="pre">MPATH=/home/user/develop</span></code>,
+machine name is <code class="docutils literal notranslate"><span class="pre">FRIB</span></code>, then <em>machine</em> could be defined as:
+<code class="docutils literal notranslate"><span class="pre">/home/user/develop/FRIB</span></code>, all configuration files of <code class="docutils literal notranslate"><span class="pre">FRIB</span></code> should
+be in that directory.</p>
+</li>
+</ol>
+</div>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Use default configuration</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mp</span> <span class="o">=</span> <span class="n">MachinePortal</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mp</span><span class="o">.</span><span class="n">last_machine_path</span> <span class="c1"># where I put FRIB machine</span>
+<span class="go">/home/tong1/work/FRIB/projects/machines/FRIB</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># with machine name, just the same as above</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mp</span> <span class="o">=</span> <span class="n">MachinePortal</span><span class="p">(</span><span class="n">machine</span><span class="o">=</span><span class="s2">&quot;FRIB&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># another machine name</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mp</span> <span class="o">=</span> <span class="n">MachinePortal</span><span class="p">(</span><span class="n">machine</span><span class="o">=</span><span class="s2">&quot;FRIB1&quot;</span><span class="p">)</span>
+<span class="go"># FRIB1 is in the current working directory</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">relpath</span><span class="p">(</span><span class="n">mp</span><span class="o">.</span><span class="n">last_machine_path</span><span class="p">)</span>
+<span class="go">&#39;FRIB1&#39;</span>
+</pre></div>
+</div>
+<dl class="method">
+<dt id="phantasy.MachinePortal.get_all_names">
+<code class="descname">get_all_names</code><span class="sig-paren">(</span><em>latname=None</em>, <em>virtual=False</em>, <em>**kws</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/phantasy/library/operation/core.html#MachinePortal.get_all_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#phantasy.MachinePortal.get_all_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get names of all elements from  given lattice.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>latname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Name of lattice to be investigated.</li>
+<li><strong>virtual</strong> (<em>True</em><em> or </em><em>False</em>) – Return virtual elements or not, <code class="docutils literal notranslate"><span class="pre">False</span></code> by default.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>ret</strong> – List of element names.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">List(<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a>)</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<dl class="last docutils">
+<dt><a class="reference internal" href="#phantasy.MachinePortal.lattice_names" title="phantasy.MachinePortal.lattice_names"><code class="xref py py-meth docutils literal notranslate"><span class="pre">lattice_names()</span></code></a></dt>
+<dd>Names of all loaded lattices.</dd>
+<dt><a class="reference internal" href="#phantasy.MachinePortal.get_all_types" title="phantasy.MachinePortal.get_all_types"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_all_types()</span></code></a></dt>
+<dd>Get all element types from given lattice.</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="phantasy.MachinePortal.get_all_segment_names">
+<code class="descname">get_all_segment_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/phantasy/library/operation/core.html#MachinePortal.get_all_segment_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#phantasy.MachinePortal.get_all_segment_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return all available segment names.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="phantasy.MachinePortal.get_all_types">
+<code class="descname">get_all_types</code><span class="sig-paren">(</span><em>latname=None</em>, <em>virtual=False</em>, <em>**kws</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/phantasy/library/operation/core.html#MachinePortal.get_all_types"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#phantasy.MachinePortal.get_all_types" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get names of element types (groups/families) from given lattice.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>latname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Name of lattice to be investigated.</li>
+<li><strong>virtual</strong> (<em>True</em><em> or </em><em>False</em>) – Return virtual group or not, <code class="docutils literal notranslate"><span class="pre">False</span></code> by default.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>ret</strong> – List of type names.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">List(<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a>)</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<dl class="last docutils">
+<dt><a class="reference internal" href="#phantasy.MachinePortal.lattice_names" title="phantasy.MachinePortal.lattice_names"><code class="xref py py-meth docutils literal notranslate"><span class="pre">lattice_names()</span></code></a></dt>
+<dd>Names of all loaded lattices.</dd>
+<dt><a class="reference internal" href="#phantasy.MachinePortal.get_all_names" title="phantasy.MachinePortal.get_all_names"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_all_names()</span></code></a></dt>
+<dd>Get all element names from given lattice.</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="phantasy.MachinePortal.get_elements">
+<code class="descname">get_elements</code><span class="sig-paren">(</span><em>latname=None</em>, <em>name=None</em>, <em>type=None</em>, <em>srange=None</em>, <em>**kws</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/phantasy/library/operation/core.html#MachinePortal.get_elements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#phantasy.MachinePortal.get_elements" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get element(s) from working lattice.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>latname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Use the (valid) defined lattice name instead of current working
+lattice name, maybe useful to inspect non-working lattices.</li>
+<li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>]</em>) – (List of) Element names or Unix shell style patterns.</li>
+<li><strong>type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>]</em>) – (List of) Element type/group/family, or Unix shell style patterns.</li>
+<li><strong>srange</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.7)"><em>tuple</em></a>) – Start and end points (tuple of float) of elements’ longitudinal
+position.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Keyword Arguments:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body"><p class="first"><strong>sort_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Ascendingly sort key of the returned list, <code class="docutils literal notranslate"><span class="pre">name</span></code> or <code class="docutils literal notranslate"><span class="pre">pos</span></code>,
+<code class="docutils literal notranslate"><span class="pre">pos</span></code> by default, or other attributes valid for <code class="docutils literal notranslate"><span class="pre">CaElement</span></code>.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>ret</strong> – List of elements (<code class="docutils literal notranslate"><span class="pre">CaElement</span></code>), excluding virtual elements.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">List</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<ol class="last arabic simple">
+<li>The pattern here used is Unix shell style, slightly different
+from regex, e.g. pattern ‘BP’ matches ‘BPM’ in regex, but matches
+nothing in Unix shell style, ‘BP*’ works;</li>
+<li>If more than one positional parameters (<em>name</em>, <em>type</em>, <em>srange</em>)
+are defined, return elements that meet all definitions;</li>
+<li>By default, the returned elements are ascendingly sorted according
+to element position values.</li>
+</ol>
+</div>
+<p class="rubric">Examples</p>
+<p>Create MachinePortal instance, e.g. mp
+1. Define <em>name</em> with an invalid name:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">mp</span><span class="o">.</span><span class="n">get_elements</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;NOEXISTS&#39;</span><span class="p">)</span>
+<span class="go">[]</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li>Define <em>name</em> with name or name patterns:</li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">mp</span><span class="o">.</span><span class="n">get_elements</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;FS1_BMS:DCV_D2662&#39;</span><span class="p">)</span>
+<span class="go">[FS1_BMS:DCV_D2662 [VCOR] @ sb=153.794690]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mp</span><span class="o">.</span><span class="n">get_elements</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;FS1_B?*D266?&#39;</span><span class="p">,</span> <span class="s1">&#39;LS1_B*DCV*&#39;</span><span class="p">],</span> <span class="n">latname</span><span class="o">=</span><span class="s1">&#39;LINAC&#39;</span><span class="p">)</span>
+<span class="go">[LS1_BTS:DCV_D1937 [VCOR] @ sb=81.365954,</span>
+<span class="go"> LS1_BTS:DCV_D1964 [VCOR] @ sb=84.013954,</span>
+<span class="go"> LS1_BTS:DCV_D1997 [VCOR] @ sb=87.348954,</span>
+<span class="go"> LS1_BTS:DCV_D2024 [VCOR] @ sb=90.055166,</span>
+<span class="go"> LS1_BTS:DCV_D2061 [VCOR] @ sb=93.710487,</span>
+<span class="go"> LS1_BTS:DCV_D2114 [VCOR] @ sb=98.985556,</span>
+<span class="go"> FS1_BMS:DCV_D2662 [VCOR] @ sb=153.794690,</span>
+<span class="go"> FS1_BMS:DCH_D2662 [HCOR] @ sb=153.794690,</span>
+<span class="go"> FS1_BMS:BPM_D2664 [BPM] @ sb=153.963690,</span>
+<span class="go"> FS1_BMS:QH_D2666 [QUAD] @ sb=154.144690]</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li>Filter BPMs from the above result:</li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">mp</span><span class="o">.</span><span class="n">get_elements</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;FS1_B?*D266?&#39;</span><span class="p">,</span> <span class="s1">&#39;LS1_B*DCV*&#39;</span><span class="p">],</span> <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;BPM&#39;</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>                <span class="n">latname</span><span class="o">=</span><span class="s1">&#39;LINAC&#39;</span><span class="p">)</span>
+<span class="go">[FS1_BMS:BPM_D2664 [BPM] @ sb=153.963690]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># type=&#39;BPM&#39; also could be be pattern</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="4">
+<li>Filter hybrid types:</li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">mp</span><span class="o">.</span><span class="n">get_elements</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;FS1_B?*D266?&#39;</span><span class="p">,</span> <span class="s1">&#39;LS1_B*DCV*&#39;</span><span class="p">],</span>
+<span class="gp">&gt;&gt;&gt; </span>                <span class="nb">type</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;BPM&#39;</span><span class="p">,</span> <span class="s1">&#39;QUAD&#39;</span><span class="p">],</span> <span class="n">latname</span><span class="o">=</span><span class="s1">&#39;LINAC&#39;</span><span class="p">)</span>
+<span class="go">[FS1_BMS:BPM_D2664 [BPM] @ sb=153.963690,</span>
+<span class="go"> FS1_BMS:QH_D2666 [QUAD] @ sb=154.144690]</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="5">
+<li>Get subsection from lattice according to s-position range:</li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">mp</span><span class="o">.</span><span class="n">get_elements</span><span class="p">(</span><span class="n">srange</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">))</span>
+<span class="go">[LS1_CB01:CAV1_D1229 [CAV] @ sb=10.366596,</span>
+<span class="go"> LS1_CB01:BPM_D1231 [BPM] @ sb=10.762191,</span>
+<span class="go"> LS1_CB01:SOL1_D1235 [SOL] @ sb=10.894207]</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="6">
+<li>Continue filter with <em>srange</em> parameter</li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">mp</span><span class="o">.</span><span class="n">get_elements</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;FS1_B?*D266?&#39;</span><span class="p">,</span> <span class="s1">&#39;LS1_B*DCV*&#39;</span><span class="p">],</span>
+<span class="gp">&gt;&gt;&gt; </span>                <span class="nb">type</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;BPM&#39;</span><span class="p">,</span> <span class="s1">&#39;QUAD&#39;</span><span class="p">],</span> <span class="n">srange</span><span class="o">=</span><span class="p">(</span><span class="mi">154</span><span class="p">,</span> <span class="mi">155</span><span class="p">),</span>
+<span class="gp">&gt;&gt;&gt; </span>                <span class="n">latname</span><span class="o">=</span><span class="s1">&#39;LINAC&#39;</span><span class="p">)</span>
+<span class="go">[FS1_BMS:QH_D2666 [QUAD] @ sb=154.144690]</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Select subsection by <code class="docutils literal notranslate"><span class="pre">srange</span></code> parameter is realized by new approach,
+other than <code class="docutils literal notranslate"><span class="pre">~phantasy.library.Lattice.getLine()</span></code>, e.g. the result of
+<code class="docutils literal notranslate"><span class="pre">getLine((10,11))</span></code> contains element before the start range: i.e.
+<code class="docutils literal notranslate"><span class="pre">LS1_WA03:PM_D1223:PM</span> <span class="pre">&#64;</span> <span class="pre">sb=9.929284</span></code>, which is beyond the range.</p>
+</div>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<dl class="last docutils">
+<dt><a class="reference internal" href="#phantasy.MachinePortal.get_virtual_elements" title="phantasy.MachinePortal.get_virtual_elements"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_virtual_elements()</span></code></a></dt>
+<dd>Get virtual elements.</dd>
+<dt><a class="reference internal" href="#phantasy.MachinePortal.next_elements" title="phantasy.MachinePortal.next_elements"><code class="xref py py-func docutils literal notranslate"><span class="pre">next_elements()</span></code></a></dt>
+<dd>Get neighborhood of reference element.</dd>
+<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">CaElement</span></code></dt>
+<dd>Element class.</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="phantasy.MachinePortal.get_pv_names">
+<em class="property">static </em><code class="descname">get_pv_names</code><span class="sig-paren">(</span><em>elem</em>, <em>field=None</em>, <em>**kws</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/phantasy/library/operation/core.html#MachinePortal.get_pv_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#phantasy.MachinePortal.get_pv_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get PV names by given fields for defined elements.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>elem</strong> – (List of) CaElement objects.</li>
+<li><strong>field</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em> or </em><em>List</em><em>(</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>)</em>) – (List of) Field name of PV, if list of names is defined, only
+names shared by all elements are valid; if not defined, all
+shared fields will be used.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Keyword Arguments:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body"><p class="first"><strong>handle</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Handle of pv, ‘readback’ (default), ‘setpoint’ or ‘readset’.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>ret</strong> – dict of PV names, with keys of field names.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<ol class="arabic simple">
+<li>Get all BPM and PM elements:</li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">elem</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">get_elements</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;*PM&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li>Get all pv names with same field:</li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pv1</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">get_pv_names</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span> <span class="c1"># {&#39;X&#39;:[...], &#39;Y&#39;:[...]}</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li>Get define field(s):</li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pv2</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">get_pv_names</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="s1">&#39;X&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pv2</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">get_pv_names</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;X&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="4">
+<li>Get all PV names from one elements:</li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pv3</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">get_pv_names</span><span class="p">(</span><span class="n">elem</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># return value example:</span>
+<span class="go">{u&#39;ENG&#39;: [u&#39;V_1:LS1_CA01:BPM_D1129:ENG_RD&#39;],</span>
+<span class="go"> u&#39;PHA&#39;: [u&#39;V_1:LS1_CA01:BPM_D1129:PHA_RD&#39;],</span>
+<span class="go"> u&#39;X&#39;: [u&#39;V_1:LS1_CA01:BPM_D1129:X_RD&#39;],</span>
+<span class="go"> u&#39;Y&#39;: [u&#39;V_1:LS1_CA01:BPM_D1129:Y_RD&#39;]}</span>
+</pre></div>
+</div>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<dl class="last docutils">
+<dt><a class="reference internal" href="#phantasy.MachinePortal.get_pv_values" title="phantasy.MachinePortal.get_pv_values"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_pv_values()</span></code></a></dt>
+<dd>Get PV values.</dd>
+<dt><code class="xref py py-func docutils literal notranslate"><span class="pre">get_readback()</span></code></dt>
+<dd>Get PV readbacks.</dd>
+<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">CaElement</span></code></dt>
+<dd>Element class.</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="phantasy.MachinePortal.get_pv_values">
+<em class="property">static </em><code class="descname">get_pv_values</code><span class="sig-paren">(</span><em>elem</em>, <em>field=None</em>, <em>**kws</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/phantasy/library/operation/core.html#MachinePortal.get_pv_values"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#phantasy.MachinePortal.get_pv_values" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get PV readback values by given fields for defined elements.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>elem</strong> – (List of) CaElement objects.</li>
+<li><strong>field</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em> or </em><em>List</em><em>(</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>)</em>) – (List of) Field name of PV, if list of names is defined, only
+names shared by all elements are valid; if not defined, all
+shared fields will be used.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>ret</strong> – dict of PV readback values, with keys of field names.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># get all BPM and PM elements</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">elem</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">get_elements</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;*PM&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># get &#39;X&#39; and &#39;Y&#39; pv readback values</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">get_pv_values</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;X&#39;</span><span class="p">,</span><span class="s1">&#39;Y&#39;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+<span class="go">[&#39;Y&#39;, &#39;X&#39;]</span>
+</pre></div>
+</div>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<dl class="last docutils">
+<dt><a class="reference internal" href="#phantasy.MachinePortal.get_pv_names" title="phantasy.MachinePortal.get_pv_names"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_pv_names()</span></code></a></dt>
+<dd>Get PV names.</dd>
+<dt><code class="xref py py-func docutils literal notranslate"><span class="pre">get_readback()</span></code></dt>
+<dd>Get PV readbacks.</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="phantasy.MachinePortal.get_virtual_elements">
+<code class="descname">get_virtual_elements</code><span class="sig-paren">(</span><em>**kws</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/phantasy/library/operation/core.html#MachinePortal.get_virtual_elements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#phantasy.MachinePortal.get_virtual_elements" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all virtual elements from given lattice.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Keyword Arguments:</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body"><strong>latname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Name of lattice to be investigated.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>ret</strong> – List of virtual <code class="docutils literal notranslate"><span class="pre">CaElement</span></code> objects.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">List</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="phantasy.MachinePortal.inspect_mconf">
+<code class="descname">inspect_mconf</code><span class="sig-paren">(</span><em>mconf=None</em>, <em>out=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/phantasy/library/operation/core.html#MachinePortal.inspect_mconf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#phantasy.MachinePortal.inspect_mconf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inspect given machine configuration.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>mconf</strong> – Machine configuration object, if not given, inspect the last
+loaded machine.</li>
+<li><strong>out</strong> – Output stream, if not given, only return results, or besides
+returning results, also print into defined stream,
+could be <code class="docutils literal notranslate"><span class="pre">stdout</span></code>, <code class="docutils literal notranslate"><span class="pre">file``(valid</span> <span class="pre">file</span> <span class="pre">object),</span> <span class="pre">or``StringIO</span></code>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><p><strong>ret</strong> – Inspection results, retur a dict when <em>out</em> is None,
+or StringIO object when <em>out</em> is <code class="docutils literal notranslate"><span class="pre">sio</span></code>, or None;
+keys of dict:</p>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">path</span></code> : (str), phantasy.ini fullpath</li>
+<li><code class="docutils literal notranslate"><span class="pre">lattices</span></code> : (list), all defined lattices</li>
+<li><code class="docutils literal notranslate"><span class="pre">machine</span></code> : (str), defined machine name</li>
+<li><code class="docutils literal notranslate"><span class="pre">config</span></code> : (dict), all configurations</li>
+</ul>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a> or StringIO or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)">None</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">mconf</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">inspect_mconf</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># write inspection results into file</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;fileout.dat&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">mconf</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">inspect_mconf</span><span class="p">(</span><span class="n">out</span><span class="o">=</span><span class="n">f</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># out could be StringIO or sys.stdout or &#39;stdout&#39;.</span>
+</pre></div>
+</div>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><code class="xref py py-class docutils literal notranslate"><span class="pre">Configuration</span></code></p>
+</div>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="phantasy.MachinePortal.is_virtual">
+<em class="property">static </em><code class="descname">is_virtual</code><span class="sig-paren">(</span><em>elem</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/phantasy/library/operation/core.html#MachinePortal.is_virtual"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#phantasy.MachinePortal.is_virtual" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test if input element is virtual element.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>elem</strong> – <code class="docutils literal notranslate"><span class="pre">CaElement</span></code> object.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>ret</strong> – True for virtual element, else False.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">True or False</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phantasy.MachinePortal.last_lattice_conf">
+<code class="descname">last_lattice_conf</code><a class="headerlink" href="#phantasy.MachinePortal.last_lattice_conf" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>list</em> – Configuration of last loaded lattice, composed of caElements.</p>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><code class="xref py py-class docutils literal notranslate"><span class="pre">CaElement</span></code></p>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phantasy.MachinePortal.last_lattice_name">
+<code class="descname">last_lattice_name</code><a class="headerlink" href="#phantasy.MachinePortal.last_lattice_name" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> – Name of last loaded lattice.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phantasy.MachinePortal.last_machine_conf">
+<code class="descname">last_machine_conf</code><a class="headerlink" href="#phantasy.MachinePortal.last_machine_conf" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>Configuration</em> – Last loaded configuration object.</p>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><code class="xref py py-class docutils literal notranslate"><span class="pre">Configuration</span></code></p>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phantasy.MachinePortal.last_machine_name">
+<code class="descname">last_machine_name</code><a class="headerlink" href="#phantasy.MachinePortal.last_machine_name" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> – Name of last loaded machine.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phantasy.MachinePortal.last_machine_path">
+<code class="descname">last_machine_path</code><a class="headerlink" href="#phantasy.MachinePortal.last_machine_path" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> – Full path of the last loaded <em>phantasys.ini</em> file</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phantasy.MachinePortal.lattice_names">
+<code class="descname">lattice_names</code><a class="headerlink" href="#phantasy.MachinePortal.lattice_names" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>list</em> – Names of all loaded lattices.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phantasy.MachinePortal.lattices">
+<code class="descname">lattices</code><a class="headerlink" href="#phantasy.MachinePortal.lattices" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>dict</em> – All loaded lattices.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="phantasy.MachinePortal.load_lattice">
+<code class="descname">load_lattice</code><span class="sig-paren">(</span><em>segment=None</em>, <em>machine=None</em>, <em>**kws</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/phantasy/library/operation/core.html#MachinePortal.load_lattice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#phantasy.MachinePortal.load_lattice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load machine segment from <em>phantasy.ini</em> file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>segment</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Segment name.</li>
+<li><strong>machine</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Machine name, or path of configuration files.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Keyword Arguments:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body"><ul class="first simple">
+<li><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – If set nonzero, print out verbose message.</li>
+<li><strong>re_load</strong> (<a class="reference external" href="https://docs.python.org/3/library/constants.html#True" title="(in Python v3.7)"><em>True</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#False" title="(in Python v3.7)"><em>False</em></a>) – If set True, reload segment, <code class="docutils literal notranslate"><span class="pre">False</span></code> by default.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>ret</strong> – Configuration of loaded segment of machine, with the keys of
+<code class="docutils literal notranslate"><span class="pre">lat_name</span></code>, <code class="docutils literal notranslate"><span class="pre">lat_conf</span></code>, <code class="docutils literal notranslate"><span class="pre">mach_name</span></code>, <code class="docutils literal notranslate"><span class="pre">mach_path</span></code> and
+<code class="docutils literal notranslate"><span class="pre">mach_conf</span></code>.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">mp</span><span class="o">.</span><span class="n">load_lattice</span><span class="p">(</span><span class="s1">&#39;LS1&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mp</span><span class="o">.</span><span class="n">work_lattice_name</span> <span class="c1"># &#39;LS1&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mp</span><span class="o">.</span><span class="n">load_lattice</span><span class="p">(</span><span class="s1">&#39;LINAC&#39;</span><span class="p">)</span> <span class="c1"># does not actually load, use cached</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mp</span><span class="o">.</span><span class="n">work_lattice_name</span> <span class="c1"># &#39;LINAC&#39;</span>
+<span class="go"># Note working lattice is changed from &#39;LS1&#39; to &#39;LINAC&#39;, although</span>
+<span class="go"># not actually loaded the lattice, see use_lattice().</span>
+</pre></div>
+</div>
+<p>The cached tricky could improve performance, e.g. in ipython:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="o">%%</span><span class="n">timeit</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mp</span><span class="o">.</span><span class="n">load_lattice</span><span class="p">(</span><span class="s1">&#39;LS1&#39;</span><span class="p">,</span> <span class="n">re_load</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="go">10 loops, best of 3: 180 ms per loop</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="o">%%</span><span class="n">timeit</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mp</span><span class="o">.</span><span class="n">load_lattice</span><span class="p">(</span><span class="s1">&#39;LS1&#39;</span><span class="p">)</span>
+<span class="go">10000 loops, best of 3: 190 µs per loop</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<ol class="last arabic simple">
+<li>If <em>segment</em> of <em>machine</em> has already been loaded, will not load
+again, just switch working lattice to be the <em>segment</em>; keyword
+parameter <em>re_load</em> could be set to force reload;</li>
+<li><em>re_load</em> could be used if necessary, e.g. the configuration
+file for some segment is changed, etc.</li>
+</ol>
+</div>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<dl class="last docutils">
+<dt><a class="reference internal" href="#phantasy.MachinePortal.use_lattice" title="phantasy.MachinePortal.use_lattice"><code class="xref py py-meth docutils literal notranslate"><span class="pre">use_lattice()</span></code></a></dt>
+<dd>Choose working lattice from loaded lattices.</dd>
+<dt><a class="reference internal" href="#phantasy.MachinePortal.reload_lattice" title="phantasy.MachinePortal.reload_lattice"><code class="xref py py-meth docutils literal notranslate"><span class="pre">reload_lattice()</span></code></a></dt>
+<dd>Reload machine/lattice.</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phantasy.MachinePortal.machine_names">
+<code class="descname">machine_names</code><a class="headerlink" href="#phantasy.MachinePortal.machine_names" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>list</em> – Names of all loaded machines or facilities.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phantasy.MachinePortal.machines">
+<code class="descname">machines</code><a class="headerlink" href="#phantasy.MachinePortal.machines" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>dict</em> – All loaded machines.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="phantasy.MachinePortal.next_elements">
+<code class="descname">next_elements</code><span class="sig-paren">(</span><em>ref_elem</em>, <em>count=1</em>, <em>**kws</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/phantasy/library/operation/core.html#MachinePortal.next_elements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#phantasy.MachinePortal.next_elements" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get elements w.r.t reference element, according to the defined
+confinement, from given lattice name, if not given <em>latname</em>, use
+the current working lattice.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>ref_elem</strong> – <code class="docutils literal notranslate"><span class="pre">CaElement</span></code> object, reference element.</li>
+<li><strong>count</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – Skip element number after <em>ref_elem</em>, negative input means before,
+e.g. <code class="docutils literal notranslate"><span class="pre">count=1</span></code> will locate the next one of <em>ref_elem</em> in the
+investigated lattice, if keyword parameter <em>type</em> is given, will
+locate the next one element of the defined type; <code class="docutils literal notranslate"><span class="pre">count=-1</span></code> will
+locate in the opposite direction.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Keyword Arguments:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body"><ul class="first simple">
+<li><strong>type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><em>list</em></a><em>(</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>)</em>) – (List of) Element type/group/family, if <em>type</em> is a list of more
+than one element types, the <em>next</em> parameter will apply on each
+type.</li>
+<li><strong>range</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – String of format <code class="docutils literal notranslate"><span class="pre">start:stop:step</span></code>, to slicing the output list,
+e.g. return 50 BPMs after <em>ref_elem</em> (<code class="docutils literal notranslate"><span class="pre">count=50</span></code>), but only get
+every two elements, simply by setting <code class="docutils literal notranslate"><span class="pre">range=0::2</span></code>.</li>
+<li><strong>latname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Name of lattice to be investigated.</li>
+<li><strong>ref_include</strong> (<a class="reference external" href="https://docs.python.org/3/library/constants.html#True" title="(in Python v3.7)"><em>True</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#False" title="(in Python v3.7)"><em>False</em></a>) – Include <em>ref_elem</em> in the returned list or not, False by default.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>ret</strong> – List of next located elements, ascendingly sorted by position, by
+default, only return one element (for eath <em>type</em>) that meets the
+confinement, return more by assgining <em>range</em> keyword parameter.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">List</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<p>Create MachinePortal instance, e.g. mp</p>
+<ol class="arabic simple">
+<li>Select an element as reference element:</li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">all_e</span><span class="p">)</span>
+<span class="go">[LS1_CA01:CAV1_D1127 [CAV] @ sb=0.207064,</span>
+<span class="go"> LS1_CA01:BPM_D1129 [BPM] @ sb=0.511327,</span>
+<span class="go"> LS1_CA01:SOL1_D1131 [SOL] @ sb=0.643330,</span>
+<span class="go"> LS1_CA01:DCV_D1131 [VCOR] @ sb=0.743330,</span>
+<span class="go"> LS1_CA01:DCH_D1131 [HCOR] @ sb=0.743330,</span>
+<span class="go"> LS1_CA01:CAV2_D1135 [CAV] @ sb=0.986724,</span>
+<span class="go"> LS1_CA01:CAV3_D1143 [CAV] @ sb=1.766370,</span>
+<span class="go"> LS1_CA01:BPM_D1144 [BPM] @ sb=2.070634,</span>
+<span class="go"> LS1_CA01:SOL2_D1147 [SOL] @ sb=2.202637,</span>
+<span class="go"> LS1_CA01:DCV_D1147 [VCOR] @ sb=2.302637,</span>
+<span class="go"> LS1_CA01:DCH_D1147 [HCOR] @ sb=2.302637,</span>
+<span class="go"> LS1_CA01:CAV4_D1150 [CAV] @ sb=2.546031,</span>
+<span class="go"> LS1_WA01:BPM_D1155 [BPM] @ sb=3.109095,</span>
+<span class="go"> LS1_CA02:CAV1_D1161 [CAV] @ sb=3.580158,</span>
+<span class="go"> LS1_CA02:BPM_D1163 [BPM] @ sb=3.884422,</span>
+<span class="go"> LS1_CA02:SOL1_D1165 [SOL] @ sb=4.016425,</span>
+<span class="go"> LS1_CA02:DCV_D1165 [VCOR] @ sb=4.116425,</span>
+<span class="go"> LS1_CA02:DCH_D1165 [HCOR] @ sb=4.116425,</span>
+<span class="go"> LS1_CA02:CAV2_D1169 [CAV] @ sb=4.359819,</span>
+<span class="go"> LS1_CA02:CAV3_D1176 [CAV] @ sb=5.139465,</span>
+<span class="go"> LS1_CA02:BPM_D1178 [BPM] @ sb=5.443728]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ref_elem</span> <span class="o">=</span> <span class="n">all_e</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li>Get next element of <em>ref_elem</em>:</li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">mp</span><span class="o">.</span><span class="n">next_elements</span><span class="p">(</span><span class="n">ref_elem</span><span class="p">)</span>
+<span class="go">[LS1_CA01:CAV3_D1143 [CAV] @ sb=1.766370]</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li>Get last of the next two element:</li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">mp</span><span class="o">.</span><span class="n">next_elements</span><span class="p">(</span><span class="n">ref_elem</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">[LS1_CA01:BPM_D1144 [BPM] @ sb=2.070634]</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="4">
+<li>Get all of the next two elements:</li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">mp</span><span class="o">.</span><span class="n">next_elements</span><span class="p">(</span><span class="n">ref_elem</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="s1">&#39;0::1&#39;</span><span class="p">)</span>
+<span class="go">[LS1_CA01:CAV3_D1143 [CAV] @ sb=1.766370,</span>
+<span class="go"> LS1_CA01:BPM_D1144 [BPM] @ sb=2.070634]</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="5">
+<li>Get all of the two elements before <em>ref_elem</em>:</li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">mp</span><span class="o">.</span><span class="n">next_elements</span><span class="p">(</span><span class="n">ref_elem</span><span class="p">,</span> <span class="n">count</span><span class="o">=-</span><span class="mi">2</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="s1">&#39;0::1&#39;</span><span class="p">)</span>
+<span class="go">[LS1_CA01:DCV_D1131 [VCOR] @ sb=0.743330,</span>
+<span class="go"> LS1_CA01:DCH_D1131 [HCOR] @ sb=0.743330]</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="6">
+<li>Get next two BPM elements after <em>ref_elem</em>, including itself:</li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">mp</span><span class="o">.</span><span class="n">next_elements</span><span class="p">(</span><span class="n">ref_elem</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;BPM&#39;</span><span class="p">],</span>
+<span class="gp">&gt;&gt;&gt; </span>                 <span class="n">ref_include</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="s1">&#39;0::1&#39;</span><span class="p">)</span>
+<span class="go">[LS1_CA01:CAV2_D1135 [CAV] @ sb=0.986724,</span>
+<span class="go"> LS1_CA01:BPM_D1144 [BPM] @ sb=2.070634,</span>
+<span class="go"> LS1_WA01:BPM_D1155 [BPM] @ sb=3.109095]</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="7">
+<li>Get with hybrid types:</li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">mp</span><span class="o">.</span><span class="n">next_elements</span><span class="p">(</span><span class="n">ref_elem</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;BPM&#39;</span><span class="p">,</span> <span class="s1">&#39;CAV&#39;</span><span class="p">],</span>
+<span class="gp">&gt;&gt;&gt; </span>                 <span class="nb">range</span><span class="o">=</span><span class="s1">&#39;0::1&#39;</span><span class="p">)</span>
+<span class="go">[LS1_CA01:CAV3_D1143 [CAV] @ sb=1.766370,</span>
+<span class="go"> LS1_CA01:BPM_D1144 [BPM] @ sb=2.070634,</span>
+<span class="go"> LS1_CA01:CAV4_D1150 [CAV] @ sb=2.546031,</span>
+<span class="go"> LS1_WA01:BPM_D1155 [BPM] @ sb=3.109095]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="phantasy.MachinePortal.print_all_properties">
+<code class="descname">print_all_properties</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/phantasy/library/operation/core.html#MachinePortal.print_all_properties"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#phantasy.MachinePortal.print_all_properties" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print all properties, for debug only.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="phantasy.MachinePortal.reload_lattice">
+<code class="descname">reload_lattice</code><span class="sig-paren">(</span><em>segment=None</em>, <em>machine=None</em>, <em>**kws</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/phantasy/library/operation/core.html#MachinePortal.reload_lattice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#phantasy.MachinePortal.reload_lattice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reload machine lattice, if parameters <em>machine</em> and <em>segment</em> are
+not defined, reload last loaded one.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>segment</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Name of segment of machine.</li>
+<li><strong>machine</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Name of machine, or path of configuration files.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<dl class="last docutils">
+<dt><a class="reference internal" href="#phantasy.MachinePortal.load_lattice" title="phantasy.MachinePortal.load_lattice"><code class="xref py py-meth docutils literal notranslate"><span class="pre">load_lattice()</span></code></a></dt>
+<dd>Load machine/lattice from configuration files.</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="phantasy.MachinePortal.use_lattice">
+<code class="descname">use_lattice</code><span class="sig-paren">(</span><em>lattice_name=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/phantasy/library/operation/core.html#MachinePortal.use_lattice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#phantasy.MachinePortal.use_lattice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Choose name of one of the loaded lattices as the working lattice,
+if this method is not evoked, the working lattice is the last loaded
+lattice.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>lattice_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Lattice name.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>ret</strong> – Selected working lattice name.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If <code class="docutils literal notranslate"><span class="pre">load_lattice()</span></code> or <code class="docutils literal notranslate"><span class="pre">reload_lattice()</span></code> is called, the working
+lattice name would be changed to the just loaded one, since,
+usually as the user loading a lattice, most likely he/she would like
+to switch onto that lattice, or explicitly invoking <code class="docutils literal notranslate"><span class="pre">use_lattice()</span></code>
+again to switch to another one.</p>
+</div>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<dl class="last docutils">
+<dt><a class="reference internal" href="#phantasy.MachinePortal.load_lattice" title="phantasy.MachinePortal.load_lattice"><code class="xref py py-meth docutils literal notranslate"><span class="pre">load_lattice()</span></code></a></dt>
+<dd>Load machine/lattice from configuration files.</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phantasy.MachinePortal.work_lattice_conf">
+<code class="descname">work_lattice_conf</code><a class="headerlink" href="#phantasy.MachinePortal.work_lattice_conf" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>list</em> – Configuration of working lattice, composed of CaElements.</p>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<dl class="last docutils">
+<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">CaElement</span></code></dt>
+<dd>Element object for channel access.</dd>
+<dt><a class="reference internal" href="#phantasy.MachinePortal.use_lattice" title="phantasy.MachinePortal.use_lattice"><code class="xref py py-func docutils literal notranslate"><span class="pre">use_lattice()</span></code></a></dt>
+<dd>Choose working lattice from loaded lattices.</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="phantasy.MachinePortal.work_lattice_name">
+<code class="descname">work_lattice_name</code><a class="headerlink" href="#phantasy.MachinePortal.work_lattice_name" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> – Name of working lattice.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="lattice.html" class="btn btn-neutral float-right" title="API References (lattice)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../apiref.html" class="btn btn-neutral" title="API References" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Facility for Rare Isotope Beams, Michigan State University.
+      Last updated on Sep 14, 2018.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'1.0.7',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
