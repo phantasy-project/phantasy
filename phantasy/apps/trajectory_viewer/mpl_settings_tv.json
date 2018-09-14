@@ -1,0 +1,78 @@
+{
+  "curve": [
+    {
+      "label": "X",
+      "line": {
+        "color": "#00AA00",
+        "style": "-.",
+        "width": 2.0
+      },
+      "line_id": 0,
+      "marker": {
+        "edgecolor": "#FF0000",
+        "facecolor": "#FFFFFF",
+        "size": 6.0,
+        "style": "s",
+        "width": 1.0
+      }
+    },
+    {
+      "label": "Y",
+      "line": {
+        "color": "#FFAA00",
+        "style": "--",
+        "width": 2.0
+      },
+      "line_id": 1,
+      "marker": {
+        "edgecolor": "#5500FF",
+        "facecolor": "#FFFFFF",
+        "size": 6.0,
+        "style": "o",
+        "width": 1.0
+      }
+    }
+  ],
+  "figure": {
+    "labels": {
+      "font": "Sans Serif,9,-1,5,50,0,0,0,0,0",
+      "xlabel": "s [m]",
+      "ylabel": "BPM Readings [mm]"
+    },
+    "legend": {
+      "location": 0,
+      "show": true
+    },
+    "title": {
+      "font": "DejaVu Sans,12,-1,5,50,0,0,0,0,0",
+      "value": ""
+    },
+    "xy_range": {
+      "auto_scale": true,
+      "xmax": 4.4,
+      "xmin": -4.4,
+      "ymax": 10.3251,
+      "ymin": -2.76471
+    }
+  },
+  "style": {
+    "background": {
+      "color": "#eeeeee"
+    },
+    "figsize": {
+      "dpi": 120,
+      "height": 3,
+      "width": 4
+    },
+    "layout": {
+      "grid_color": "#aaaaaa",
+      "grid_on": true,
+      "tight_on": true
+    },
+    "ticks": {
+      "color": "#000000",
+      "font": "Sans Serif,9,-1,5,50,0,0,0,0,0",
+      "mticks_on": true
+    }
+  }
+}
