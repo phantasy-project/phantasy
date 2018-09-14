@@ -1,3 +1,12 @@
+Version 1.2.0
+-------------
+2018-09-14 [Testing]
+
+- New PyQt5 with Python 3.x apps:
+  - Trajectory Viewer: first release, with system menu item
+  - Lattice Viewer: initiated, WIP
+- Add generated HTML documentation into source branch
+
 Version 1.0.7
 -------------
 2018-08-17 [Testing]
