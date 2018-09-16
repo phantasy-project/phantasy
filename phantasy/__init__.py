@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# always use Qt5Agg
+# always use Qt5Agg for mpl < 2.0
 import matplotlib
-matplotlib.use("Qt5Agg")
+if matplotlib.__version__ < "2.0.0":
+    matplotlib.use("Qt5Agg")
 #
 
 import logging
