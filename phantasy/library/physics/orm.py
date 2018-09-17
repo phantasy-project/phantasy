@@ -181,3 +181,43 @@ def get_correctors_settings(orm, orbit_diff, inverse=False):
         m_inv = orm
 
     return np.dot(m_inv, orbit_diff)
+
+
+def get_index_grid(lattice, correctors, monitors, xoy='xy'):
+    """Return the index grid of sub ORM from global ORM for selected
+    *correctors* and *monitors* w/ *xoy*.
+    
+    The global ORM is measured with all correctors (H + V) and BPMs for
+    both x and y direction.
+
+    Parameters
+    ----------
+    lattice : Lattice
+        High-level lattice object.
+    correctors : List[CaElement]
+        List of correctors from *lattice*.
+    monitors : List[CaElement]
+        List of monitors, usually BPMs, to measure the beam orbit.
+    xoy : str
+        'x'('y') for monitoring 'x'('y') direction,'xy' for both (default).
+    
+    See Also
+    --------
+    get_orm : Measure orbit response matrix.
+    """
+    all_cors = lattice.get_elements(type='HCOR') +  \
+               lattice.get_elements(type='VCOR')
+    all_bpms = lattice.get_elements(type='BPM')
+    # selected correctors columns
+    col_idx = [all_cors.index(i) for i in correctors]
+    # selected BPM rows, x,x,x....y,y,y...
+    bpm_idx = [all_bpms.index(i) for i in monitors]
+    if xoy == 'xy':
+        bpm_cnt = len(all_bpms)
+        row_idx = bpm_idx + [i+bpm_cnt for i in bpm_idx]   
+    elif xoy == 'x':
+        row_idx = bpm_idx
+    elif xoy == 'y':
+        bpm_cnt = len(all_bpms)
+        row_idx = [i+bpm_cnt for i in bpm_idx]
+    return np.ix_(row_idx, col_idx)   
