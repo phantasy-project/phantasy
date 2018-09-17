@@ -1747,6 +1747,8 @@ class Lattice(object):
             Iteration numbers of correction, default is 1.
         wait : float
             Wait time after set value, in *sec*, 1.0 by default.
+        echo : bool
+            Print out message or not, default is True.
 
         Returns
         -------
@@ -1755,6 +1757,7 @@ class Lattice(object):
         cor_field = kws.get('cor_field', 'ANG')
         damp_fac = kws.get('damping_factor', 0.05)
         wait = kws.get('wait', 1.0)
+        echo = kws.get('echo', True)
 
         if self._orm is None:
             _LOGGER.error("correct_orbit: ORM is not available, set ORM first.")
@@ -1767,12 +1770,15 @@ class Lattice(object):
             bpm_readings = get_orbit(bpms, **kws)
             delt_cor = np.dot(m_inv, -bpm_readings * damp_fac)
             for ic, (e, v) in enumerate(zip(correctors, delt_cor)):
-                print(
-                    "Correct cor[{0:>2d}/{1:>2d}]: {2:<20s} with {3:>10.4e} mrad.".format(
+                if echo:
+                    print(
+                        "Correct cor[{0:>2d}/{1:>2d}]: {2:<20s} with {3:>10.4e} mrad.".format(
                         ic + 1, n_cor, e.name, v * 1e3))
                 v0 = getattr(e, cor_field)
                 setattr(e, cor_field, v0 + v)
                 time.sleep(wait)
+            if i+1 > itern:
+                break
             next_iter = r_input(
                 "Continue correction iteration: {0}/{1}? ([Y]/N)".format(i + 1,
                                                                          itern)
