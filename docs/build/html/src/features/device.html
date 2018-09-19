@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Work with Device &mdash; phantasy 1.0.7 documentation</title>
+  <title>Work with Device &mdash; phantasy 1.2.0 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="API References" href="../apiref.html" />
+    <link rel="next" title="Trajectory Viewer" href="app_tv.html" />
     <link rel="prev" title="Work with MachinePortal" href="machineportal.html" /> 
 
   
@@ -60,7 +60,7 @@
             
             
               <div class="version">
-                1.0.7
+                1.2.0
               </div>
             
           
@@ -104,6 +104,7 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../features.html#gui-applications">GUI Applications</a></li>
 </ul>
 <p class="caption"><span class="caption-text">References</span></p>
 <ul>
@@ -199,7 +200,7 @@ interested device(s). All valid device types can be known by
 <span class="gp">In [2]: </span><span class="n">mp</span> <span class="o">=</span> <span class="n">MachinePortal</span><span class="p">(</span><span class="n">machine</span><span class="o">=</span><span class="s2">&quot;FRIB&quot;</span><span class="p">,</span> <span class="n">segment</span><span class="o">=</span><span class="s2">&quot;LEBT&quot;</span><span class="p">)</span>
 
 <span class="gp">In [3]: </span><span class="n">mp</span><span class="o">.</span><span class="n">get_all_types</span><span class="p">()</span>
-<span class="gh">Out[3]: </span><span class="go">[&#39;EQUAD&#39;, &#39;SOL&#39;, &#39;HCOR&#39;, &#39;PM&#39;, &#39;VCOR&#39;, &#39;BCM&#39;, &#39;BEND&#39;, &#39;CAV&#39;, &#39;EBEND&#39;, &#39;FC&#39;]</span>
+<span class="gh">Out[3]: </span><span class="go">[&#39;BCM&#39;, &#39;CAV&#39;, &#39;BEND&#39;, &#39;PM&#39;, &#39;EQUAD&#39;, &#39;HCOR&#39;, &#39;FC&#39;, &#39;VCOR&#39;, &#39;EBEND&#39;, &#39;SOL&#39;]</span>
 </pre></div>
 </div>
 <p>The method <a class="reference internal" href="../apidocs/operation.html#phantasy.MachinePortal.get_elements" title="phantasy.MachinePortal.get_elements"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_elements()</span></code></a> is created for
@@ -255,7 +256,7 @@ results.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../apiref.html" class="btn btn-neutral float-right" title="API References" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="app_tv.html" class="btn btn-neutral float-right" title="Trajectory Viewer" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="machineportal.html" class="btn btn-neutral" title="Work with MachinePortal" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
@@ -268,7 +269,7 @@ results.</p>
   <div role="contentinfo">
     <p>
         &copy; Copyright 2016, Facility for Rare Isotope Beams, Michigan State University.
-      Last updated on Sep 14, 2018.
+      Last updated on Sep 19, 2018.
 
     </p>
   </div>
@@ -290,7 +291,7 @@ results.</p>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../',
-            VERSION:'1.0.7',
+            VERSION:'1.2.0',
             LANGUAGE:'None',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
