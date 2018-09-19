@@ -182,7 +182,7 @@ def load_lattice(machine, segment=None, **kws):
             udata = [{'name': f['name'], 'fn': get_func(f['code'])}
                      for f in UnicornData(
                          udata_file, data_x_col_idx=4, data_y_col_idx=5).functions]
-                     # will be deprecated in 1.1.0
+                     # will be deprecated in 2.0
         else:
             udata = None  # no unicorn data provided
 
@@ -260,39 +260,6 @@ def load_lattice(machine, segment=None, **kws):
         lat.loop = bool(d_msect.get(INI_DICT['KEYNAME_MTYPE'],
                                     INI_DICT['DEFAULT_MTYPE']))
 
-        # _temp_dirs.append(lat.output_dir)
-
-        # TODO add unit conversion information later
-        # unit conversion & physics data to be added later
-        # uconvfile = d_msect.get("unit_conversion", None)
-        # if uconvfile is not None:
-        #     _logger.info("loading unit conversion '%s'" % uconvfile)
-        #     loadUnitConversion(lat, machdir, uconvfile.split(", "))
-        #
-        # physics_data = d_msect.get("physics_data", None)
-        # if physics_data is not None:
-        #     _logger.info("loading physics data '%s'" % physics_data)
-        #     phy_fname = os.path.join(machdir, physics_data)
-        #     lat.ormdata = OrmData(phy_fname, "OrbitResponseMatrix")
-        #     lat._twiss = TwissData(phy_fname)
-        #     lat._twiss.load(phy_fname, group="Twiss")
-        #     setGoldenLattice(lat, phy_fname, "Golden")
-
-        # virtual elements, skip now (2017-01-12 16:43:27 EST)
-        # vex = lambda k: re.findall(r"\w+", d_msect.get(k, ""))
-        # vfams = { HLA_VBPM:  ('BPM',  vex("virtual_bpm_exclude")),
-        #          HLA_VPM:   ('PM',   vex("virtual_pm_exclude")),
-        #          HLA_VHCOR: ('HCOR', vex("virtual_hcor_exclude")),
-        #          HLA_VVCOR: ('VCOR', vex("virtual_vcor_exclude")),
-        #          HLA_VCOR:  ('COR',  vex("virtual_cor_exclude")),
-        #          HLA_VBEND: ('BEND', vex("virtual_bend_exclude")),
-        #          HLA_VQUAD: ('QUAD', vex("virtual_quad_exclude")),
-        #          HLA_VSEXT: ('SEXT', vex("virtual_sext_exclude")),
-        #          HLA_VSOL:  ('SOL',  vex("virtual_sol_exclude")),
-        #          HLA_VSOL:  ('CAV',  vex("virtual_cav_exclude")),
-        # }
-        # createVirtualElements(lat, vfams)
-
         lat_dict[msect] = lat
         # if show more informaion
         if verbose:
@@ -314,27 +281,10 @@ def load_lattice(machine, segment=None, **kws):
                    len(lat._get_element_list('SOL')),
                    len(lat._get_element_list('CAV'))))
 
-    # #set the default segment, if None, use the first one
-    # lat0 = lat_dict.get(default_segment, None)
-    # if lat0 is None and len(lat_dict) > 0:
-    #    _k = sorted(lat_dict.keys())[0]
-    #    _LOGGER.warn("Use '%s' instead of default segment '%s'" % (_k, default_segment))
-    #    lat0 = lat_dict[_k]
-
-    # if lat0 is None:
-    #    raise RuntimeError("NO accelerator structures available")
     if default_segment in lat_dict:
         lat0name = default_segment
     else:
         lat0name = sorted(lat_dict.keys())[0]
-
-    # _lat = lat0
-    # _lattice_dict.update(lat_dict)
-
-    # if save_cache:
-    #    selected_lattice_name = [k for (k,v) in _lattice_dict.iteritems()
-    #                             if _lat == v][0]
-    #    saveCache(machine, _lattice_dict, selected_lattice_name)
 
     return {'lat0name': lat0name,
             'lattices': lat_dict,
