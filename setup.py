@@ -71,6 +71,7 @@ setup(
             'unicorn_app=phantasy.apps.unicorn:run',
             'lattice_viewer=phantasy.apps.lattice_viewer:run',
             'trajectory_viewer=phantasy.apps.trajectory_viewer:run',
+            'correlation_visualizer=phantasy.apps.correlation_visualizer:run',
         ],
     },
     classifiers=[
