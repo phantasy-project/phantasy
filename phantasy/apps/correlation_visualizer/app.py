@@ -17,6 +17,7 @@ from PyQt5.QtCore import QTimer
 
 from .utils import PVElement
 from .utils import PVElementReadonly
+from .utils import delayed_exec
 
 
 
@@ -67,6 +68,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         self.nshot_spinBox.valueChanged.connect(self.set_scan_daq)
         self.waitsec_dSpinBox.valueChanged.connect(self.set_scan_daq)
         self.scanrate_dSpinBox.valueChanged.connect(self.set_scan_daq)
+        self.show_scan_data_btn.clicked.connect(self.show_scan_outdata)
 
         # signals & slots
         self.scanlogUpdated.connect(self.scan_log_textEdit.append)
@@ -93,6 +95,13 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 
         # UI post_init
         self._post_init_ui()
+
+    @pyqtSlot()
+    def show_scan_outdata(self):
+        """Show scan output data.
+        """
+        print(self.scan_out_all)
+        print(self.scan_out_all.shape)
 
     @pyqtSlot()
     def on_copy_pvname(self):
@@ -201,8 +210,11 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         # pre-allocated array for every iteration
         self.scan_out_per_iter = np.zeros((self.scan_shotnum_val, 2))
         # pre-allocated array for all the iteration
-        self.scan_out_all = np.array([[np.nan, np.nan]] *
-                (self.scan_shotnum_val * self.scan_iternum_val))
+        # shape: niter, nshot, ndim (2)
+        self.scan_out_all = np.asarray([
+            [[np.nan, np.nan]] * self.scan_shotnum_val
+            ] * self.scan_iternum_val
+        )
 
         # set current index at altered, i.e. self.alter_range_array
         self.current_alter_index = 0
@@ -308,16 +320,26 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
             assert self.daq_cnt < self.scan_shotnum_val
         except AssertionError:
             self.daqtimer.stop()
+
+            # update data: scan_out_all
+            self.scan_out_all[self.current_alter_index_in_daq, :, :] = self.scan_out_per_iter
+
             # update figure
 
             # debug only
+            print("-"*20)
+            print(self.current_alter_index_in_daq)
             print(self.scan_out_per_iter)
+            print("-"*20)
 
             # update scan log
             idx = self.current_alter_index_in_daq
             log = 'Iter #: {0:>3d} is done, scan value: {1:>10.3f}.'.format(
                     idx + 1, self.alter_range_array[idx])
             self.scanlogUpdated.emit(log)
+
+            # clear scan_out_per_iter array
+            # self.scan_out_per_iter = np.zeros((self.scan_shotnum_val, 2))
         else:
             self.scan_out_per_iter[self.daq_cnt, :] = \
                 self.alter_var_elem.value, \
@@ -336,14 +358,18 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
             self.alter_var_elem.value = current_alter_val
 
             # wait
-            milli_sleep(self.scan_waitmsec_val)
-            # start DAQ
-            self.start_daqtimer(self.daqtimer_deltmsec, self.current_alter_index)
+            #milli_sleep(self.scan_waitmsec_val)
+            # start DAQ after wait msec
+            #self.start_daqtimer(self.daqtimer_deltmsec, self.current_alter_index)
+            delayed_exec(self.start_daqtimer, self.scan_waitmsec_val,
+                         self.daqtimer_deltmsec, self.current_alter_index)
+
         except AssertionError:
             self.scantimer.stop()
             self.daqtimer.stop()
             self.daq_cnt = 0
             self.scanlogUpdated.emit("Scan routine finished.")
+            self.start_btn.setEnabled(True)
         else:
             self.current_alter_index += 1
 
@@ -403,10 +429,3 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
                         "Cannot connect to the input PV(s).",
                         QMessageBox.Ok)
         QTimer.singleShot(delay, lambda : check_status(pvelem))
-
-
-def milli_sleep(msec):
-    """Sleep for *msec* milliseconds.
-    """
-    #QTimer.singleShot(msec, lambda :print('waited {} msec'.format(msec)))
-    QTimer.singleShot(msec, lambda:None)

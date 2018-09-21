@@ -12,16 +12,29 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1645, 901)
+        MainWindow.resize(1779, 1123)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
-        self.gridLayout_5 = QtWidgets.QGridLayout(self.centralwidget)
-        self.gridLayout_5.setObjectName("gridLayout_5")
-        self.scan_groupBox = QtWidgets.QGroupBox(self.centralwidget)
+        self.gridLayout_3 = QtWidgets.QGridLayout(self.centralwidget)
+        self.gridLayout_3.setObjectName("gridLayout_3")
+        self.splitter_2 = QtWidgets.QSplitter(self.centralwidget)
+        self.splitter_2.setOrientation(QtCore.Qt.Horizontal)
+        self.splitter_2.setObjectName("splitter_2")
+        self.splitter = QtWidgets.QSplitter(self.splitter_2)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
+                                           QtWidgets.QSizePolicy.Expanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(1)
+        sizePolicy.setHeightForWidth(
+            self.splitter.sizePolicy().hasHeightForWidth())
+        self.splitter.setSizePolicy(sizePolicy)
+        self.splitter.setOrientation(QtCore.Qt.Vertical)
+        self.splitter.setObjectName("splitter")
+        self.scan_groupBox = QtWidgets.QGroupBox(self.splitter)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
                                            QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(1)
-        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setVerticalStretch(1)
         sizePolicy.setHeightForWidth(
             self.scan_groupBox.sizePolicy().hasHeightForWidth())
         self.scan_groupBox.setSizePolicy(sizePolicy)
@@ -43,9 +56,8 @@ class Ui_MainWindow(object):
             "                                      stop: 0 #EDECEB, stop: 1 #FFFFFF);\n"
             "}")
         self.scan_groupBox.setObjectName("scan_groupBox")
-        self.gridLayout_4 = QtWidgets.QGridLayout(self.scan_groupBox)
-        self.gridLayout_4.setContentsMargins(-1, 20, -1, -1)
-        self.gridLayout_4.setObjectName("gridLayout_4")
+        self.gridLayout = QtWidgets.QGridLayout(self.scan_groupBox)
+        self.gridLayout.setObjectName("gridLayout")
         self.scan_verticalLayout = QtWidgets.QVBoxLayout()
         self.scan_verticalLayout.setObjectName("scan_verticalLayout")
         self.scan_gridLayout = QtWidgets.QGridLayout()
@@ -151,52 +163,22 @@ class Ui_MainWindow(object):
         self.scan_log_textEdit.setObjectName("scan_log_textEdit")
         self.scanlog_verticalLayout.addWidget(self.scan_log_textEdit)
         self.scan_verticalLayout.addLayout(self.scanlog_verticalLayout)
-        self.gridLayout_4.addLayout(self.scan_verticalLayout, 0, 0, 1, 1)
-        self.gridLayout_5.addWidget(self.scan_groupBox, 0, 0, 1, 1)
-        self.plot_groupBox = QtWidgets.QGroupBox(self.centralwidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
-                                           QtWidgets.QSizePolicy.Preferred)
-        sizePolicy.setHorizontalStretch(2)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(
-            self.plot_groupBox.sizePolicy().hasHeightForWidth())
-        self.plot_groupBox.setSizePolicy(sizePolicy)
-        self.plot_groupBox.setStyleSheet(
-            "QGroupBox {\n"
-            "    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
-            "                                      stop: 0 #E0E0E0, stop: 1 #E0E0E0);\n"
-            "    border: 2px solid gray;\n"
-            "    border-radius: 5px;\n"
-            "    margin-top: 1.5ex; /* leave space at the top for the title */\n"
-            "    margin-bottom: 0.5ex;\n"
-            "}\n"
-            "\n"
-            "QGroupBox::title {\n"
-            "    subcontrol-origin: margin;\n"
-            "    subcontrol-position: top center; /* position at the top center */\n"
-            "    padding: 0 3px;\n"
-            "    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
-            "                                      stop: 0 #EDECEB, stop: 1 #FFFFFF);\n"
-            "}")
-        self.plot_groupBox.setObjectName("plot_groupBox")
-        self.gridLayout = QtWidgets.QGridLayout(self.plot_groupBox)
-        self.gridLayout.setContentsMargins(-1, 20, -1, -1)
-        self.gridLayout.setObjectName("gridLayout")
-        self.scan_plot_widget = MatplotlibCurveWidget(self.plot_groupBox)
-        self.scan_plot_widget.setObjectName("scan_plot_widget")
-        self.gridLayout.addWidget(self.scan_plot_widget, 0, 0, 1, 1)
-        self.show_scan_data_btn = QtWidgets.QPushButton(self.plot_groupBox)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
-                                           QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(
-            self.show_scan_data_btn.sizePolicy().hasHeightForWidth())
-        self.show_scan_data_btn.setSizePolicy(sizePolicy)
-        self.show_scan_data_btn.setObjectName("show_scan_data_btn")
-        self.gridLayout.addWidget(self.show_scan_data_btn, 1, 0, 1, 1)
-        self.gridLayout_5.addWidget(self.plot_groupBox, 0, 1, 2, 1)
-        self.daq_groupBox = QtWidgets.QGroupBox(self.centralwidget)
+        self.gridLayout.addLayout(self.scan_verticalLayout, 0, 0, 1, 1)
+        self.label_8.raise_()
+        self.select_scan_elems_btn.raise_()
+        self.scan_vars_put_lineEdit.raise_()
+        self.label_9.raise_()
+        self.lower_limit_lineEdit.raise_()
+        self.upper_limit_lineEdit.raise_()
+        self.label_10.raise_()
+        self.scan_range_set_btn.raise_()
+        self.label_11.raise_()
+        self.monitor_vars_lineEdit.raise_()
+        self.select_monitor_elems_btn.raise_()
+        self.label_12.raise_()
+        self.line_2.raise_()
+        self.line_3.raise_()
+        self.daq_groupBox = QtWidgets.QGroupBox(self.splitter)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
                                            QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(1)
@@ -225,17 +207,6 @@ class Ui_MainWindow(object):
         self.gridLayout_2 = QtWidgets.QGridLayout(self.daq_groupBox)
         self.gridLayout_2.setContentsMargins(-1, 20, -1, -1)
         self.gridLayout_2.setObjectName("gridLayout_2")
-        self.label = QtWidgets.QLabel(self.daq_groupBox)
-        self.label.setObjectName("label")
-        self.gridLayout_2.addWidget(self.label, 0, 0, 1, 1)
-        self.niter_spinBox = QtWidgets.QSpinBox(self.daq_groupBox)
-        self.niter_spinBox.setMinimum(1)
-        self.niter_spinBox.setProperty("value", 10)
-        self.niter_spinBox.setObjectName("niter_spinBox")
-        self.gridLayout_2.addWidget(self.niter_spinBox, 0, 1, 1, 1)
-        self.label_2 = QtWidgets.QLabel(self.daq_groupBox)
-        self.label_2.setObjectName("label_2")
-        self.gridLayout_2.addWidget(self.label_2, 1, 0, 1, 1)
         self.nshot_spinBox = QtWidgets.QSpinBox(self.daq_groupBox)
         self.nshot_spinBox.setMinimum(1)
         self.nshot_spinBox.setProperty("value", 5)
@@ -247,26 +218,17 @@ class Ui_MainWindow(object):
         self.label_3 = QtWidgets.QLabel(self.daq_groupBox)
         self.label_3.setObjectName("label_3")
         self.gridLayout_2.addWidget(self.label_3, 2, 0, 1, 1)
-        self.waitsec_dSpinBox = QtWidgets.QDoubleSpinBox(self.daq_groupBox)
-        self.waitsec_dSpinBox.setSingleStep(0.5)
-        self.waitsec_dSpinBox.setProperty("value", 1.0)
-        self.waitsec_dSpinBox.setObjectName("waitsec_dSpinBox")
-        self.gridLayout_2.addWidget(self.waitsec_dSpinBox, 2, 1, 1, 1)
         self.label_4 = QtWidgets.QLabel(self.daq_groupBox)
         self.label_4.setObjectName("label_4")
         self.gridLayout_2.addWidget(self.label_4, 2, 2, 1, 1)
         self.label_7 = QtWidgets.QLabel(self.daq_groupBox)
         self.label_7.setObjectName("label_7")
         self.gridLayout_2.addWidget(self.label_7, 3, 0, 1, 1)
-        self.scanrate_dSpinBox = QtWidgets.QDoubleSpinBox(self.daq_groupBox)
-        self.scanrate_dSpinBox.setDecimals(1)
-        self.scanrate_dSpinBox.setMaximum(20.0)
-        self.scanrate_dSpinBox.setProperty("value", 1.0)
-        self.scanrate_dSpinBox.setObjectName("scanrate_dSpinBox")
-        self.gridLayout_2.addWidget(self.scanrate_dSpinBox, 3, 1, 1, 1)
-        self.label_6 = QtWidgets.QLabel(self.daq_groupBox)
-        self.label_6.setObjectName("label_6")
-        self.gridLayout_2.addWidget(self.label_6, 3, 2, 1, 1)
+        self.niter_spinBox = QtWidgets.QSpinBox(self.daq_groupBox)
+        self.niter_spinBox.setMinimum(1)
+        self.niter_spinBox.setProperty("value", 10)
+        self.niter_spinBox.setObjectName("niter_spinBox")
+        self.gridLayout_2.addWidget(self.niter_spinBox, 0, 1, 1, 1)
         self.line = QtWidgets.QFrame(self.daq_groupBox)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
                                            QtWidgets.QSizePolicy.Fixed)
@@ -321,21 +283,72 @@ class Ui_MainWindow(object):
         self.retake_btn.setSizePolicy(sizePolicy)
         self.retake_btn.setObjectName("retake_btn")
         self.horizontalLayout.addWidget(self.retake_btn)
-        self.close_btn = QtWidgets.QPushButton(self.daq_groupBox)
+        self.gridLayout_2.addLayout(self.horizontalLayout, 5, 0, 1, 3)
+        self.waitsec_dSpinBox = QtWidgets.QDoubleSpinBox(self.daq_groupBox)
+        self.waitsec_dSpinBox.setSingleStep(0.5)
+        self.waitsec_dSpinBox.setProperty("value", 1.0)
+        self.waitsec_dSpinBox.setObjectName("waitsec_dSpinBox")
+        self.gridLayout_2.addWidget(self.waitsec_dSpinBox, 2, 1, 1, 1)
+        self.label_2 = QtWidgets.QLabel(self.daq_groupBox)
+        self.label_2.setObjectName("label_2")
+        self.gridLayout_2.addWidget(self.label_2, 1, 0, 1, 1)
+        self.scanrate_dSpinBox = QtWidgets.QDoubleSpinBox(self.daq_groupBox)
+        self.scanrate_dSpinBox.setDecimals(1)
+        self.scanrate_dSpinBox.setMaximum(20.0)
+        self.scanrate_dSpinBox.setProperty("value", 1.0)
+        self.scanrate_dSpinBox.setObjectName("scanrate_dSpinBox")
+        self.gridLayout_2.addWidget(self.scanrate_dSpinBox, 3, 1, 1, 1)
+        self.label_6 = QtWidgets.QLabel(self.daq_groupBox)
+        self.label_6.setObjectName("label_6")
+        self.gridLayout_2.addWidget(self.label_6, 3, 2, 1, 1)
+        self.label = QtWidgets.QLabel(self.daq_groupBox)
+        self.label.setObjectName("label")
+        self.gridLayout_2.addWidget(self.label, 0, 0, 1, 1)
+        self.plot_groupBox = QtWidgets.QGroupBox(self.splitter_2)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
+                                           QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(2)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.plot_groupBox.sizePolicy().hasHeightForWidth())
+        self.plot_groupBox.setSizePolicy(sizePolicy)
+        self.plot_groupBox.setStyleSheet(
+            "QGroupBox {\n"
+            "    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
+            "                                      stop: 0 #E0E0E0, stop: 1 #E0E0E0);\n"
+            "    border: 2px solid gray;\n"
+            "    border-radius: 5px;\n"
+            "    margin-top: 1.5ex; /* leave space at the top for the title */\n"
+            "    margin-bottom: 0.5ex;\n"
+            "}\n"
+            "\n"
+            "QGroupBox::title {\n"
+            "    subcontrol-origin: margin;\n"
+            "    subcontrol-position: top center; /* position at the top center */\n"
+            "    padding: 0 3px;\n"
+            "    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
+            "                                      stop: 0 #EDECEB, stop: 1 #FFFFFF);\n"
+            "}")
+        self.plot_groupBox.setObjectName("plot_groupBox")
+        self.verticalLayout_3 = QtWidgets.QVBoxLayout(self.plot_groupBox)
+        self.verticalLayout_3.setObjectName("verticalLayout_3")
+        self.scan_plot_widget = MatplotlibCurveWidget(self.plot_groupBox)
+        self.scan_plot_widget.setObjectName("scan_plot_widget")
+        self.verticalLayout_3.addWidget(self.scan_plot_widget)
+        self.show_scan_data_btn = QtWidgets.QPushButton(self.plot_groupBox)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
                                            QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(
-            self.close_btn.sizePolicy().hasHeightForWidth())
-        self.close_btn.setSizePolicy(sizePolicy)
-        self.close_btn.setObjectName("close_btn")
-        self.horizontalLayout.addWidget(self.close_btn)
-        self.gridLayout_2.addLayout(self.horizontalLayout, 5, 0, 1, 3)
-        self.gridLayout_5.addWidget(self.daq_groupBox, 1, 0, 1, 1)
+            self.show_scan_data_btn.sizePolicy().hasHeightForWidth())
+        self.show_scan_data_btn.setSizePolicy(sizePolicy)
+        self.show_scan_data_btn.setObjectName("show_scan_data_btn")
+        self.verticalLayout_3.addWidget(self.show_scan_data_btn)
+        self.gridLayout_3.addWidget(self.splitter_2, 0, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1645, 34))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1779, 34))
         self.menubar.setObjectName("menubar")
         self.menu_File = QtWidgets.QMenu(self.menubar)
         self.menu_File.setObjectName("menu_File")
@@ -362,7 +375,6 @@ class Ui_MainWindow(object):
         self.actionAbout_Qt.triggered.connect(MainWindow.onAboutQt)
         self.actionAbout.triggered.connect(MainWindow.onAbout)
         self.actionE_xit.triggered.connect(MainWindow.close)
-        self.close_btn.clicked.connect(MainWindow.close)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -433,24 +445,23 @@ class Ui_MainWindow(object):
             _translate("MainWindow", "VA:LS1_BTS:PM_D2056:XRMS_RD"))
         self.copy_pvname_btn.setText(_translate("MainWindow", "Copy"))
         self.label_12.setText(_translate("MainWindow", "Scan log"))
-        self.plot_groupBox.setTitle(
-            _translate("MainWindow", "Correlation Plot"))
-        self.show_scan_data_btn.setText(
-            _translate("MainWindow", "Output Data"))
         self.daq_groupBox.setTitle(
             _translate("MainWindow", "DAQ Configuration"))
-        self.label.setText(_translate("MainWindow", "Iteration Number"))
-        self.label_2.setText(_translate("MainWindow", "Shot Number"))
         self.label_5.setText(_translate("MainWindow", "per iteration"))
         self.label_3.setText(_translate("MainWindow", "Wait Time"))
         self.label_4.setText(_translate("MainWindow", "Second"))
         self.label_7.setText(_translate("MainWindow", "Scan Rate"))
-        self.label_6.setText(_translate("MainWindow", "Hz"))
         self.start_btn.setText(_translate("MainWindow", "Start"))
         self.pause_btn.setText(_translate("MainWindow", "Pause"))
         self.stop_btn.setText(_translate("MainWindow", "Stop"))
         self.retake_btn.setText(_translate("MainWindow", "Retake"))
-        self.close_btn.setText(_translate("MainWindow", "Close"))
+        self.label_2.setText(_translate("MainWindow", "Shot Number"))
+        self.label_6.setText(_translate("MainWindow", "Hz"))
+        self.label.setText(_translate("MainWindow", "Iteration Number"))
+        self.plot_groupBox.setTitle(
+            _translate("MainWindow", "Correlation Plot"))
+        self.show_scan_data_btn.setText(
+            _translate("MainWindow", "Output Data"))
         self.menu_File.setTitle(_translate("MainWindow", "&File"))
         self.menu_Help.setTitle(_translate("MainWindow", "&Help"))
         self.actionE_xit.setText(_translate("MainWindow", "E&xit"))
