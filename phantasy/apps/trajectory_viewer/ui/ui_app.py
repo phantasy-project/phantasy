@@ -15,16 +15,10 @@ class Ui_MainWindow(object):
         MainWindow.resize(1227, 798)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
-        self.verticalLayout = QtWidgets.QVBoxLayout(self.centralwidget)
+        self.gridLayout_3 = QtWidgets.QGridLayout(self.centralwidget)
+        self.gridLayout_3.setObjectName("gridLayout_3")
+        self.verticalLayout = QtWidgets.QVBoxLayout()
         self.verticalLayout.setObjectName("verticalLayout")
-        self.label = QtWidgets.QLabel(self.centralwidget)
-        self.label.setStyleSheet("QLabel {\n"
-                                 "    font-weight: bold;\n"
-                                 "    font-size: 20pt;\n"
-                                 "}")
-        self.label.setAlignment(QtCore.Qt.AlignCenter)
-        self.label.setObjectName("label")
-        self.verticalLayout.addWidget(self.label)
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.latticeWidget = LatticeWidget(self.centralwidget)
@@ -110,13 +104,37 @@ class Ui_MainWindow(object):
         self.gridLayout.addItem(spacerItem, 2, 4, 1, 1)
         self.horizontalLayout.addWidget(self.groupBox)
         self.verticalLayout.addLayout(self.horizontalLayout)
-        self.matplotlibcurveWidget = MatplotlibCurveWidget(self.centralwidget)
+        self.groupBox_2 = QtWidgets.QGroupBox(self.centralwidget)
+        self.groupBox_2.setStyleSheet(
+            "QGroupBox {\n"
+            "    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
+            "                                      stop: 0 #EDECEB, stop: 1 #EDECEB);\n"
+            "    border: 2px solid gray;\n"
+            "    border-radius: 5px;\n"
+            "    margin-top: 1.5ex; /* leave space at the top for the title */\n"
+            "    margin-bottom: 0.5ex;\n"
+            "}\n"
+            "\n"
+            "QGroupBox::title {\n"
+            "    subcontrol-origin: margin;\n"
+            "    subcontrol-position: top center; /* position at the top center */\n"
+            "    padding: 0 3px;\n"
+            "    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
+            "                                      stop: 0 #EDECEB, stop: 1 #FFFFFF);\n"
+            "}")
+        self.groupBox_2.setTitle("")
+        self.groupBox_2.setObjectName("groupBox_2")
+        self.gridLayout_2 = QtWidgets.QGridLayout(self.groupBox_2)
+        self.gridLayout_2.setObjectName("gridLayout_2")
+        self.matplotlibcurveWidget = MatplotlibCurveWidget(self.groupBox_2)
         self.matplotlibcurveWidget.setProperty("figureTightLayout", True)
         self.matplotlibcurveWidget.setProperty("figureDPI", 100)
         self.matplotlibcurveWidget.setProperty("figureBackgroundColor",
                                                QtGui.QColor(237, 236, 235))
         self.matplotlibcurveWidget.setObjectName("matplotlibcurveWidget")
-        self.verticalLayout.addWidget(self.matplotlibcurveWidget)
+        self.gridLayout_2.addWidget(self.matplotlibcurveWidget, 0, 0, 1, 1)
+        self.verticalLayout.addWidget(self.groupBox_2)
+        self.gridLayout_3.addLayout(self.verticalLayout, 0, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1227, 34))
@@ -154,7 +172,6 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.label.setText(_translate("MainWindow", "Trajectory Viewer"))
         self.groupBox.setTitle(_translate("MainWindow", "Control Panel"))
         self.label_2.setText(_translate("MainWindow", "DAQ Frequency"))
         self.label_3.setText(_translate("MainWindow", "Hz"))
