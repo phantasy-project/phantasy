@@ -14,11 +14,11 @@ from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import QTimer
+from PyQt5.QtTest import QTest
 
 from .utils import PVElement
 from .utils import PVElementReadonly
 from .utils import delayed_exec
-
 
 
 class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
@@ -319,18 +319,8 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         try:
             assert self.daq_cnt < self.scan_shotnum_val
         except AssertionError:
+            # stop DAQ timer
             self.daqtimer.stop()
-
-            # update data: scan_out_all
-            self.scan_out_all[self.current_alter_index_in_daq, :, :] = self.scan_out_per_iter
-
-            # update figure
-
-            # debug only
-            print("-"*20)
-            print(self.current_alter_index_in_daq)
-            print(self.scan_out_per_iter)
-            print("-"*20)
 
             # update scan log
             idx = self.current_alter_index_in_daq
@@ -338,12 +328,28 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
                     idx + 1, self.alter_range_array[idx])
             self.scanlogUpdated.emit(log)
 
-            # clear scan_out_per_iter array
-            # self.scan_out_per_iter = np.zeros((self.scan_shotnum_val, 2))
+            # debug only
+            #print("-"*20)
+            #print(self.current_alter_index_in_daq)
+            #print(self.scan_out_per_iter)
+            #print(self.scan_out_all)
+            #print("-"*20)
+
+            # push finish message
+            if not self.scantimer.isActive():
+                self.scanlogUpdated.emit("Scan routine finished.")
+
+            # update figure
+
         else:
             self.scan_out_per_iter[self.daq_cnt, :] = \
                 self.alter_var_elem.value, \
                 self.monitor_var_elem.value
+
+            # update data: scan_out_all
+            self.scan_out_all[self.current_alter_index_in_daq, :, :] = self.scan_out_per_iter
+
+            # next daq event
             self.daq_cnt += 1
 
     @pyqtSlot()
@@ -352,25 +358,21 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         """
         try:
             assert self.current_alter_index < self.scan_iternum_val
+        except AssertionError:
+            self.scantimer.stop()
+            self.start_btn.setEnabled(True)
+        else:
             # get the current value to be set
             current_alter_val = self.alter_range_array[self.current_alter_index]
             # make set/put operation
             self.alter_var_elem.value = current_alter_val
 
             # wait
-            #milli_sleep(self.scan_waitmsec_val)
-            # start DAQ after wait msec
-            #self.start_daqtimer(self.daqtimer_deltmsec, self.current_alter_index)
-            delayed_exec(self.start_daqtimer, self.scan_waitmsec_val,
-                         self.daqtimer_deltmsec, self.current_alter_index)
+            QTest.qWait(self.scan_waitmsec_val)
+            # start DAQ
+            self.start_daqtimer(self.daqtimer_deltmsec, self.current_alter_index)
 
-        except AssertionError:
-            self.scantimer.stop()
-            self.daqtimer.stop()
-            self.daq_cnt = 0
-            self.scanlogUpdated.emit("Scan routine finished.")
-            self.start_btn.setEnabled(True)
-        else:
+            # to next alter value
             self.current_alter_index += 1
 
     def start_daqtimer(self, deltmsec, idx):
@@ -409,11 +411,11 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
                 self.scan_shotnum_val + 1) * self.daqtimer_deltmsec
 
         # debug
-        print("iter:{iter}, shot#:{shot}, wait_t:{wt}, daq:{daq}".format(
-            iter=self.scan_iternum_val, shot=self.scan_shotnum_val,
-            wt=self.scan_waitmsec_val, daq=self.scan_daqrate_val))
-        print("DAQ Timer interval: {}ms\nSCAN Timer interval: {} ms".format(
-            self.daqtimer_deltmsec, self.scantimer_deltmsec))
+        #print("iter:{iter}, shot#:{shot}, wait_t:{wt}, daq:{daq}".format(
+        #    iter=self.scan_iternum_val, shot=self.scan_shotnum_val,
+        #    wt=self.scan_waitmsec_val, daq=self.scan_daqrate_val))
+        #print("DAQ Timer interval: {}ms\nSCAN Timer interval: {} ms".format(
+        #    self.daqtimer_deltmsec, self.scantimer_deltmsec))
 
     def delayed_check_pv_status(self, pvelem, delay=1000):
         """Check PV element connected or not.
