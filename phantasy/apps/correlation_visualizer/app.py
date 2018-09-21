@@ -12,6 +12,7 @@ from PyQt5.QtGui import QDoubleValidator
 
 from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import QTimer
 
 from .utils import PVElement
@@ -20,6 +21,9 @@ from .utils import PVElementReadonly
 
 
 class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
+
+    # scan log
+    scanlogUpdated = pyqtSignal('QString')
 
     def __init__(self, version):
         super(CorrelationVisualizerWindow, self).__init__()
@@ -56,12 +60,16 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         self.start_btn.clicked.connect(self.on_click_start_btn)
         self.stop_btn.clicked.connect(self.on_click_stop_btn)
         self.retake_btn.clicked.connect(self.on_click_retake_btn)
+        self.pause_btn.clicked.connect(self.on_click_pause_btn)
 
         # events
         self.niter_spinBox.valueChanged.connect(self.set_scan_daq)
         self.nshot_spinBox.valueChanged.connect(self.set_scan_daq)
         self.waitsec_dSpinBox.valueChanged.connect(self.set_scan_daq)
         self.scanrate_dSpinBox.valueChanged.connect(self.set_scan_daq)
+
+        # signals & slots
+        self.scanlogUpdated.connect(self.scan_log_textEdit.append)
 
         # alter vars
         self.scan_vars_put_lineEdit.returnPressed.connect(self.set_alter_vars)
@@ -105,6 +113,12 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 
         # init scan config
         self.init_scan_config()
+
+        # btn's status
+        self.start_btn.setEnabled(True)
+        self.stop_btn.setEnabled(False)
+        self.pause_btn.setEnabled(False)
+        self.retake_btn.setEnabled(False)
 
     @pyqtSlot('QString')
     def on_select_monitor_vars_type(self, val):
@@ -209,38 +223,74 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         # monitor_vars_type_cbb: PV or Element
         self.set_monitor_vars()
 
-        # scan range
-        self.set_alter_range()
-
         # scan daq params
         self.set_scan_daq()
+
+        # scan range
+        self.set_alter_range()
 
         # scan output data
         self.set_scan_outdata()
 
     @pyqtSlot()
     def on_click_start_btn(self):
-        """Start scan routine.
+        """Start a new scan routine, initialize everything.
         """
         # initialize configuration for scan routine
         self.init_scan_config()
+
+        # reset scan log
+        self.scan_log_textEdit.clear()
+        self.scanlogUpdated.emit("Starting scan...")
 
         # reset scan_plot_widget
 
         # start scan
         self.scantimer.start(self.scantimer_deltmsec)
 
+        # update UI
+        self.start_btn.setEnabled(False)
+        self.stop_btn.setEnabled(True)
+        self.pause_btn.setEnabled(True)
+        self.retake_btn.setEnabled(True)
+
     @pyqtSlot()
     def on_click_stop_btn(self):
-        """Stop scan routine.
+        """Stop scan routine, can only start again.
         """
         self.scantimer.stop()
+        self.daqtimer.stop()
+        # publish summary info in scan log
+        self.scanlogUpdated.emit("Scan routine stopped.")
+
+        # update UI
+        self.stop_btn.setEnabled(False)
+        self.start_btn.setEnabled(True)
+        self.pause_btn.setEnabled(False)
+        self.retake_btn.setEnabled(True)
+
+    @pyqtSlot()
+    def on_click_pause_btn(self):
+        """Pause scan routine.
+        """
+        if self.sender().text() == 'Pause':
+            self.pause_btn.setText('Resume')
+            # pause action
+        else:
+            self.pause_btn.setText('Pause')
+            # resume action
+        self.start_btn.setEnabled(False)
+        self.stop_btn.setEnabled(True)
+        self.retake_btn.setEnabled(True)
 
     @pyqtSlot()
     def on_click_retake_btn(self):
         """Re-scan with selected points.
         """
-        pass
+        self.retake_btn.setEnabled(False)
+        self.start_btn.setEnabled(False)
+        self.pause_btn.setEnabled(True)
+        self.stop_btn.setEnabled(True)
 
     def init_timers(self):
         """Initialize timers for DAQ and SCAN control.
@@ -259,7 +309,15 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         except AssertionError:
             self.daqtimer.stop()
             # update figure
+
+            # debug only
             print(self.scan_out_per_iter)
+
+            # update scan log
+            idx = self.current_alter_index_in_daq
+            log = 'Iter #: {0:>3d} is done, scan value: {1:>10.3f}.'.format(
+                    idx + 1, self.alter_range_array[idx])
+            self.scanlogUpdated.emit(log)
         else:
             self.scan_out_per_iter[self.daq_cnt, :] = \
                 self.alter_var_elem.value, \
@@ -271,7 +329,6 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         """Update parameters for next scan iteration.
         """
         try:
-            print(self.current_alter_index, self.scan_iternum_val)
             assert self.current_alter_index < self.scan_iternum_val
             # get the current value to be set
             current_alter_val = self.alter_range_array[self.current_alter_index]
@@ -280,16 +337,19 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 
             # wait
             milli_sleep(self.scan_waitmsec_val)
+            # start DAQ
             self.start_daqtimer(self.daqtimer_deltmsec, self.current_alter_index)
-            self.current_alter_index += 1
         except AssertionError:
             self.scantimer.stop()
             self.daqtimer.stop()
             self.daq_cnt = 0
-            print("scan completed.")
+            self.scanlogUpdated.emit("Scan routine finished.")
+        else:
+            self.current_alter_index += 1
 
     def start_daqtimer(self, deltmsec, idx):
-        """Start DAQ timer.
+        """Start DAQ timer, current alter data *idx* must be reserved within
+        the DAQ routine.
 
         Parameters
         ----------
@@ -298,6 +358,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         idx : int
             Index of the current alter value.
         """
+        self.current_alter_index_in_daq = idx
         self.daq_cnt = 0 # max: self.scan_shotnum_val
         self.daqtimer.start(deltmsec)
 
@@ -325,9 +386,8 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         print("iter:{iter}, shot#:{shot}, wait_t:{wt}, daq:{daq}".format(
             iter=self.scan_iternum_val, shot=self.scan_shotnum_val,
             wt=self.scan_waitmsec_val, daq=self.scan_daqrate_val))
-        print("DAQ Timer: {}\nSCAN Timer: {}".format(
+        print("DAQ Timer interval: {}ms\nSCAN Timer interval: {} ms".format(
             self.daqtimer_deltmsec, self.scantimer_deltmsec))
-
 
     def delayed_check_pv_status(self, pvelem, delay=1000):
         """Check PV element connected or not.
@@ -344,8 +404,9 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
                         QMessageBox.Ok)
         QTimer.singleShot(delay, lambda : check_status(pvelem))
 
+
 def milli_sleep(msec):
     """Sleep for *msec* milliseconds.
     """
-    QTimer.singleShot(msec, lambda :print('waited {} msec'.format(msec)))
-
+    #QTimer.singleShot(msec, lambda :print('waited {} msec'.format(msec)))
+    QTimer.singleShot(msec, lambda:None)
