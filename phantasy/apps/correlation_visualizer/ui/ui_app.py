@@ -142,9 +142,14 @@ class Ui_MainWindow(object):
         self.line_3.setObjectName("line_3")
         self.horizontalLayout_2.addWidget(self.line_3)
         self.scanlog_verticalLayout.addLayout(self.horizontalLayout_2)
-        self.scan_log_textBrowser = QtWidgets.QTextBrowser(self.scan_groupBox)
-        self.scan_log_textBrowser.setObjectName("scan_log_textBrowser")
-        self.scanlog_verticalLayout.addWidget(self.scan_log_textBrowser)
+        self.scan_log_textEdit = QtWidgets.QTextEdit(self.scan_groupBox)
+        font = QtGui.QFont()
+        font.setFamily("Monospace")
+        font.setPointSize(12)
+        self.scan_log_textEdit.setFont(font)
+        self.scan_log_textEdit.setReadOnly(True)
+        self.scan_log_textEdit.setObjectName("scan_log_textEdit")
+        self.scanlog_verticalLayout.addWidget(self.scan_log_textEdit)
         self.scan_verticalLayout.addLayout(self.scanlog_verticalLayout)
         self.gridLayout_4.addLayout(self.scan_verticalLayout, 0, 0, 1, 1)
         self.gridLayout_5.addWidget(self.scan_groupBox, 0, 0, 1, 1)
@@ -180,6 +185,16 @@ class Ui_MainWindow(object):
         self.scan_plot_widget = MatplotlibCurveWidget(self.plot_groupBox)
         self.scan_plot_widget.setObjectName("scan_plot_widget")
         self.gridLayout.addWidget(self.scan_plot_widget, 0, 0, 1, 1)
+        self.show_scan_data_btn = QtWidgets.QPushButton(self.plot_groupBox)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
+                                           QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.show_scan_data_btn.sizePolicy().hasHeightForWidth())
+        self.show_scan_data_btn.setSizePolicy(sizePolicy)
+        self.show_scan_data_btn.setObjectName("show_scan_data_btn")
+        self.gridLayout.addWidget(self.show_scan_data_btn, 1, 0, 1, 1)
         self.gridLayout_5.addWidget(self.plot_groupBox, 0, 1, 2, 1)
         self.daq_groupBox = QtWidgets.QGroupBox(self.centralwidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
@@ -276,6 +291,16 @@ class Ui_MainWindow(object):
         self.start_btn.setSizePolicy(sizePolicy)
         self.start_btn.setObjectName("start_btn")
         self.horizontalLayout.addWidget(self.start_btn)
+        self.pause_btn = QtWidgets.QPushButton(self.daq_groupBox)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
+                                           QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.pause_btn.sizePolicy().hasHeightForWidth())
+        self.pause_btn.setSizePolicy(sizePolicy)
+        self.pause_btn.setObjectName("pause_btn")
+        self.horizontalLayout.addWidget(self.pause_btn)
         self.stop_btn = QtWidgets.QPushButton(self.daq_groupBox)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
                                            QtWidgets.QSizePolicy.Fixed)
@@ -350,6 +375,8 @@ class Ui_MainWindow(object):
                 "MainWindow",
                 "<html><head/><body><p>Variables to scan, if selected \'PV\' mode, input readback PV name.</p></body></html>"
             ))
+        self.scan_vars_get_lineEdit.setText(
+            _translate("MainWindow", "VA:LS1_BTS:QH_D1942:I_RD"))
         self.scan_range_set_btn.setText(_translate("MainWindow", "Range"))
         self.label_8.setText(_translate("MainWindow", "Alter Vars (set)"))
         self.label_9.setText(_translate("MainWindow", "Alter Ranges"))
@@ -359,11 +386,13 @@ class Ui_MainWindow(object):
                 "MainWindow",
                 "<html><head/><body><p>Lower limit of scan range</p></body></html>"
             ))
+        self.lower_limit_lineEdit.setText(_translate("MainWindow", "-100"))
         self.upper_limit_lineEdit.setToolTip(
             _translate(
                 "MainWindow",
                 "<html><head/><body><p>Up limit of scan range</p></body></html>"
             ))
+        self.upper_limit_lineEdit.setText(_translate("MainWindow", "100"))
         self.select_scan_elems_btn.setText(_translate("MainWindow", "Select"))
         self.label_11.setText(_translate("MainWindow", "Monitor Vars"))
         self.label_13.setText(_translate("MainWindow", "Alter Vars (get)"))
@@ -381,6 +410,8 @@ class Ui_MainWindow(object):
                 "MainWindow",
                 "<html><head/><body><p>Variables to scan, if selected \'PV\' mode, input setpoint PV name.</p></body></html>"
             ))
+        self.scan_vars_put_lineEdit.setText(
+            _translate("MainWindow", "VA:LS1_BTS:QH_D1942:I_CSET"))
         self.monitor_vars_type_cbb.setToolTip(
             _translate(
                 "MainWindow",
@@ -398,10 +429,14 @@ class Ui_MainWindow(object):
                 "MainWindow",
                 "<html><head/><body><p>Variables to monitor</p></body></html>")
         )
+        self.monitor_vars_lineEdit.setText(
+            _translate("MainWindow", "VA:LS1_BTS:PM_D2056:XRMS_RD"))
         self.copy_pvname_btn.setText(_translate("MainWindow", "Copy"))
         self.label_12.setText(_translate("MainWindow", "Scan log"))
         self.plot_groupBox.setTitle(
             _translate("MainWindow", "Correlation Plot"))
+        self.show_scan_data_btn.setText(
+            _translate("MainWindow", "Output Data"))
         self.daq_groupBox.setTitle(
             _translate("MainWindow", "DAQ Configuration"))
         self.label.setText(_translate("MainWindow", "Iteration Number"))
@@ -411,10 +446,11 @@ class Ui_MainWindow(object):
         self.label_4.setText(_translate("MainWindow", "Second"))
         self.label_7.setText(_translate("MainWindow", "Scan Rate"))
         self.label_6.setText(_translate("MainWindow", "Hz"))
-        self.start_btn.setText(_translate("MainWindow", "START"))
-        self.stop_btn.setText(_translate("MainWindow", "STOP"))
-        self.retake_btn.setText(_translate("MainWindow", "RETAKE"))
-        self.close_btn.setText(_translate("MainWindow", "CLOSE"))
+        self.start_btn.setText(_translate("MainWindow", "Start"))
+        self.pause_btn.setText(_translate("MainWindow", "Pause"))
+        self.stop_btn.setText(_translate("MainWindow", "Stop"))
+        self.retake_btn.setText(_translate("MainWindow", "Retake"))
+        self.close_btn.setText(_translate("MainWindow", "Close"))
         self.menu_File.setTitle(_translate("MainWindow", "&File"))
         self.menu_Help.setTitle(_translate("MainWindow", "&Help"))
         self.actionE_xit.setText(_translate("MainWindow", "E&xit"))
