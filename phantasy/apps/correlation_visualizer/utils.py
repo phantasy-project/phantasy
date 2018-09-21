@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import epics
+from PyQt5.QtCore import QTimer
 
 
 class PVElement(object):
@@ -58,3 +59,12 @@ class PVElementReadonly(object):
 
     def __repr__(self):
         return str(self._getPV)
+
+
+def delayed_exec(f, delay, *args, **kws):
+    """Execute *f* after *delay* msecm `*args` and `**kws` is for *f*.
+    """
+    def func():
+        return f(*args, **kws)
+    QTimer.singleShot(delay, func)
+
