@@ -101,7 +101,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         """Show scan output data.
         """
         print(self.scan_out_all)
-        print(self.scan_out_all.shape)
+        np.save('/tmp/scan_data.npy', self.scan_out_all)
 
     @pyqtSlot()
     def on_copy_pvname(self):
@@ -324,8 +324,8 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 
             # update scan log
             idx = self.current_alter_index_in_daq
-            log = 'Iter #: {0:>3d} is done, scan value: {1:>10.3f}.'.format(
-                    idx + 1, self.alter_range_array[idx])
+            log = 'Iter: {0:>3d}/[{1:d}] is done, scan value: {2:>10.3f}.'.format(
+                    idx + 1, self.scan_iternum_val, self.alter_range_array[idx])
             self.scanlogUpdated.emit(log)
 
             # debug only
@@ -369,6 +369,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 
             # wait
             QTest.qWait(self.scan_waitmsec_val)
+
             # start DAQ
             self.start_daqtimer(self.daqtimer_deltmsec, self.current_alter_index)
 
@@ -408,14 +409,14 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 
         # SCAN timer timeout interval (between iteration), in msec
         self.scantimer_deltmsec = self.scan_waitmsec_val + (
-                self.scan_shotnum_val + 1) * self.daqtimer_deltmsec
+                self.scan_shotnum_val + 2) * self.daqtimer_deltmsec
 
         # debug
-        #print("iter:{iter}, shot#:{shot}, wait_t:{wt}, daq:{daq}".format(
-        #    iter=self.scan_iternum_val, shot=self.scan_shotnum_val,
-        #    wt=self.scan_waitmsec_val, daq=self.scan_daqrate_val))
-        #print("DAQ Timer interval: {}ms\nSCAN Timer interval: {} ms".format(
-        #    self.daqtimer_deltmsec, self.scantimer_deltmsec))
+        print("iter:{iter}, shot#:{shot}, wait_t:{wt}, daq:{daq}".format(
+            iter=self.scan_iternum_val, shot=self.scan_shotnum_val,
+            wt=self.scan_waitmsec_val, daq=self.scan_daqrate_val))
+        print("DAQ Timer interval: {}ms\nSCAN Timer interval: {} ms".format(
+            self.daqtimer_deltmsec, self.scantimer_deltmsec))
 
     def delayed_check_pv_status(self, pvelem, delay=1000):
         """Check PV element connected or not.

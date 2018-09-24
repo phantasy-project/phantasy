@@ -57,6 +57,8 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
         self.stop_btn.clicked.connect(self.stop_daq)
         self.stop_btn.clicked.connect(self.stop_btn.setEnabled)
         self.stop_btn.clicked.connect(lambda x:self.start_btn.setEnabled(not x))
+        # select element btn
+        self.select_elem_btn.clicked.connect(self.on_select_elements)
         # DAQ freq
         self.freq_dSpinbox.valueChanged[float].connect(self.update_daqfreq)
         # curve
@@ -66,6 +68,28 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
 
         self.daq_timer = QTimer()
         self.daq_timer.timeout.connect(self.on_daq_update)
+
+        # external window stack
+        self._win_stack = []
+        self._external_win = None
+
+    @pyqtSlot()
+    def on_select_elements(self):
+        return
+        from PyQt5.QtWidgets import QWidget, QMainWindow
+        from PyQt5.QtCore import Qt
+        from PyQt5.QtCore import QRect
+        w = QMainWindow()
+        #self._win_stack.append(w)
+        self._external_win = w
+        cw = QWidget()
+        w.setCentralWidget(cw)
+        # add widgets to cw
+        w.resize(600, 400)
+        w.show()
+        w.raise_()
+        w.activateWindow()
+
 
     @pyqtSlot(float)
     def update_daqfreq(self, f):

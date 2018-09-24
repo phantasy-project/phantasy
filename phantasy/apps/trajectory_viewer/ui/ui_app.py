@@ -12,7 +12,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1227, 798)
+        MainWindow.resize(1600, 1200)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout_3 = QtWidgets.QGridLayout(self.centralwidget)
@@ -131,13 +131,14 @@ class Ui_MainWindow(object):
         self.matplotlibcurveWidget.setProperty("figureDPI", 100)
         self.matplotlibcurveWidget.setProperty("figureBackgroundColor",
                                                QtGui.QColor(237, 236, 235))
+        self.matplotlibcurveWidget.setFigureXlabel("")
         self.matplotlibcurveWidget.setObjectName("matplotlibcurveWidget")
         self.gridLayout_2.addWidget(self.matplotlibcurveWidget, 0, 0, 1, 1)
         self.verticalLayout.addWidget(self.groupBox_2)
         self.gridLayout_3.addLayout(self.verticalLayout, 0, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1227, 34))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1600, 34))
         self.menubar.setObjectName("menubar")
         self.menu_File = QtWidgets.QMenu(self.menubar)
         self.menu_File.setObjectName("menu_File")
