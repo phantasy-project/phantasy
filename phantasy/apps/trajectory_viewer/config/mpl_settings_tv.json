@@ -1,25 +1,25 @@
 {
   "curve": [
     {
-      "label": "X",
+      "label": "$X$",
       "line": {
-        "color": "#00AA00",
-        "style": "-.",
+        "color": "#FF0000",
+        "style": "--",
         "width": 2.0
       },
       "line_id": 0,
       "marker": {
         "edgecolor": "#FF0000",
         "facecolor": "#FFFFFF",
-        "size": 6.0,
+        "size": 8.0,
         "style": "s",
-        "width": 1.0
+        "width": 1.5
       }
     },
     {
-      "label": "Y",
+      "label": "$Y$",
       "line": {
-        "color": "#FFAA00",
+        "color": "#5500FF",
         "style": "--",
         "width": 2.0
       },
@@ -27,16 +27,16 @@
       "marker": {
         "edgecolor": "#5500FF",
         "facecolor": "#FFFFFF",
-        "size": 6.0,
+        "size": 8.0,
         "style": "o",
-        "width": 1.0
+        "width": 1.5
       }
     }
   ],
   "figure": {
     "labels": {
-      "font": "Sans Serif,9,-1,5,50,0,0,0,0,0",
-      "xlabel": "s [m]",
+      "font": "Noto Sans,16,-1,5,50,0,0,0,0,0",
+      "xlabel": "$s$ [m]",
       "ylabel": "BPM Readings [mm]"
     },
     "legend": {
@@ -48,11 +48,11 @@
       "value": ""
     },
     "xy_range": {
-      "auto_scale": true,
-      "xmax": 4.4,
-      "xmin": -4.4,
-      "ymax": 10.3251,
-      "ymin": -2.76471
+      "auto_scale": false,
+      "xmax": 160.0,
+      "xmin": 0.0,
+      "ymax": 6.0,
+      "ymin": -6.0
     }
   },
   "style": {
@@ -60,7 +60,7 @@
       "color": "#eeeeee"
     },
     "figsize": {
-      "dpi": 120,
+      "dpi": 100,
       "height": 3,
       "width": 4
     },
@@ -71,7 +71,7 @@
     },
     "ticks": {
       "color": "#000000",
-      "font": "Sans Serif,9,-1,5,50,0,0,0,0,0",
+      "font": "Noto Sans,12,-1,5,50,0,0,0,0,0",
       "mticks_on": true
     }
   }
