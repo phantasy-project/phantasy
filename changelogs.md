@@ -1,3 +1,14 @@
+Version 1.3.0
+-------------
+2018-09-26 [Testing]
+
+- Initial a new app: 'Correlation Visualizer'
+- Enhanced 'Trajectory Viewer' app with version of 1.1
+  - Apply default figure style settings at start up
+- Enhanced orbit correction with ORM
+  - Create a new function: 'get_index_grid' to get sub matrix from ORM
+- Fix matplotlib issues regarding to 1.x and 2.x incompatibilities
+
 Version 1.2.0
 -------------
 2018-09-14 [Testing]
