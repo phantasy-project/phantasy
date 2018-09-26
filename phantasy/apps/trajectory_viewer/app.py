@@ -4,6 +4,7 @@
 from .ui.ui_app import Ui_MainWindow
 from .app_help import HelpDialog
 from .icons import tv_icon
+from .utils import apply_mplcurve_settings
 from phantasy_ui.templates import BaseAppForm
 
 from PyQt5.QtCore import QVariant
@@ -103,6 +104,9 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
         # initial values
         self._bpms = []
         self._daqfreq = 1.0
+
+        # load default figure config
+        apply_mplcurve_settings(self.matplotlibcurveWidget)
 
     @pyqtSlot(QVariant)
     def onLatticeChanged(self, o):
