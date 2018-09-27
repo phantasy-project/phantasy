@@ -49,7 +49,7 @@ install:
     - cd ${TRAVIS_BUILD_DIR}
     - pip install -r requirements-dev.txt
     - cd /tmp
-    - git clone https://github.com/archman/unicorn.git
+    - git clone https://github.com/phantasy-project/unicorn.git
     - cd unicorn && pip install .
     - cd ${TRAVIS_BUILD_DIR}/.ci
     - bash setup_pycfc.sh
