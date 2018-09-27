@@ -10,7 +10,7 @@ setup_git() {
 }
 
 add_files() {
-    cp -arv docs/build/html/* . \
+    cp -arv docs/build/html_new/* . \
         | awk -F'->' '{print $2}' \
         | sed "s/[\'\’\ \‘]//g" > /tmp/filelist
     
