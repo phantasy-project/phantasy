@@ -46,6 +46,23 @@ def get_all_dirs(des_root, src_root):
         )
     return ret
 
+def set_entry_points():
+    r = {}
+    r['console_scripts'] = [
+        'phytool=phantasy.tools.phytool:main',
+        'plot_orbit=phantasy.tools.plot_orbit:main',
+        'correct_orbit=phantasy.tools.correct_orbit:main',
+        'test_phantasy=phantasy.tests:main',
+    ]
+
+    r['gui_scripts'] = [
+        'unicorn_app=phantasy.apps.unicorn:run',
+        'lattice_viewer=phantasy.apps.lattice_viewer:run',
+        'trajectory_viewer=phantasy.apps.trajectory_viewer:run',
+        'correlation_visualizer=phantasy.apps.correlation_visualizer:run',
+    ]
+    return r
+
 setup(
     name=app_name,
     version=app_version,
@@ -60,20 +77,7 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     data_files=get_all_dirs('/etc/phantasy/config', 'demo_mconfig'),
-    entry_points={
-        'console_scripts': [
-            'phytool=phantasy.tools.phytool:main',
-            'plot_orbit=phantasy.tools.plot_orbit:main',
-            'correct_orbit=phantasy.tools.correct_orbit:main',
-            'test_phantasy=phantasy.tests:main',
-        ],
-        'gui_scripts': [
-            'unicorn_app=phantasy.apps.unicorn:run',
-            'lattice_viewer=phantasy.apps.lattice_viewer:run',
-            'trajectory_viewer=phantasy.apps.trajectory_viewer:run',
-            'correlation_visualizer=phantasy.apps.correlation_visualizer:run',
-        ],
-    },
+    entry_points=set_entry_points(),
     classifiers=[
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
