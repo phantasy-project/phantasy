@@ -13,6 +13,7 @@ from PyQt5.QtGui import QDoubleValidator
 from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import QVariant
 from PyQt5.QtCore import QTimer
 from PyQt5.QtTest import QTest
 
@@ -20,11 +21,16 @@ from .utils import PVElement
 from .utils import PVElementReadonly
 from .utils import delayed_exec
 
+from .data import ScanDataModel
+
 
 class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 
     # scan log
     scanlogUpdated = pyqtSignal('QString')
+
+    # scan plot curve w/ errorbar
+    curveUpdated = pyqtSignal(QVariant, QVariant, QVariant, QVariant)
 
     def __init__(self, version):
         super(CorrelationVisualizerWindow, self).__init__()
@@ -72,6 +78,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 
         # signals & slots
         self.scanlogUpdated.connect(self.scan_log_textEdit.append)
+        self.curveUpdated.connect(self.scan_plot_widget.update_curve)
 
         # alter vars
         self.scan_vars_put_lineEdit.returnPressed.connect(self.set_alter_vars)
@@ -340,6 +347,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
                 self.scanlogUpdated.emit("Scan routine finished.")
 
             # update figure
+            self.update_curve()
 
         else:
             self.scan_out_per_iter[self.daq_cnt, :] = \
@@ -432,3 +440,10 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
                         "Cannot connect to the input PV(s).",
                         QMessageBox.Ok)
         QTimer.singleShot(delay, lambda : check_status(pvelem))
+
+    def update_curve(self):
+        """Update scan plot with fresh data.
+        """
+        sm = ScanDataModel(self.scan_out_all)
+        x, y, xerr, yerr = sm.get_xavg(), sm.get_yavg(), sm.get_xerr(), sm.get_yerr()
+        self.curveUpdated.emit(x, y, xerr, yerr)
