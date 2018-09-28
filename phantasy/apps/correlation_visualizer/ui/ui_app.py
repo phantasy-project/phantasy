@@ -157,27 +157,11 @@ class Ui_MainWindow(object):
         self.scan_log_textEdit = QtWidgets.QTextEdit(self.scan_groupBox)
         font = QtGui.QFont()
         font.setFamily("Monospace")
-        font.setPointSize(12)
         self.scan_log_textEdit.setFont(font)
-        self.scan_log_textEdit.setReadOnly(True)
         self.scan_log_textEdit.setObjectName("scan_log_textEdit")
         self.scanlog_verticalLayout.addWidget(self.scan_log_textEdit)
         self.scan_verticalLayout.addLayout(self.scanlog_verticalLayout)
         self.gridLayout.addLayout(self.scan_verticalLayout, 0, 0, 1, 1)
-        self.label_8.raise_()
-        self.select_scan_elems_btn.raise_()
-        self.scan_vars_put_lineEdit.raise_()
-        self.label_9.raise_()
-        self.lower_limit_lineEdit.raise_()
-        self.upper_limit_lineEdit.raise_()
-        self.label_10.raise_()
-        self.scan_range_set_btn.raise_()
-        self.label_11.raise_()
-        self.monitor_vars_lineEdit.raise_()
-        self.select_monitor_elems_btn.raise_()
-        self.label_12.raise_()
-        self.line_2.raise_()
-        self.line_3.raise_()
         self.daq_groupBox = QtWidgets.QGroupBox(self.splitter)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
                                            QtWidgets.QSizePolicy.Preferred)
@@ -332,7 +316,7 @@ class Ui_MainWindow(object):
         self.plot_groupBox.setObjectName("plot_groupBox")
         self.verticalLayout_3 = QtWidgets.QVBoxLayout(self.plot_groupBox)
         self.verticalLayout_3.setObjectName("verticalLayout_3")
-        self.scan_plot_widget = MatplotlibCurveWidget(self.plot_groupBox)
+        self.scan_plot_widget = MatplotlibErrorbarWidget(self.plot_groupBox)
         self.scan_plot_widget.setObjectName("scan_plot_widget")
         self.verticalLayout_3.addWidget(self.scan_plot_widget)
         self.show_scan_data_btn = QtWidgets.QPushButton(self.plot_groupBox)
@@ -348,7 +332,7 @@ class Ui_MainWindow(object):
         self.gridLayout_3.addWidget(self.splitter_2, 0, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1779, 34))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1779, 32))
         self.menubar.setObjectName("menubar")
         self.menu_File = QtWidgets.QMenu(self.menubar)
         self.menu_File.setObjectName("menu_File")
@@ -444,7 +428,7 @@ class Ui_MainWindow(object):
         self.monitor_vars_lineEdit.setText(
             _translate("MainWindow", "VA:LS1_BTS:PM_D2056:XRMS_RD"))
         self.copy_pvname_btn.setText(_translate("MainWindow", "Copy"))
-        self.label_12.setText(_translate("MainWindow", "Scan log"))
+        self.label_12.setText(_translate("MainWindow", "Event Log"))
         self.daq_groupBox.setTitle(
             _translate("MainWindow", "DAQ Configuration"))
         self.label_5.setText(_translate("MainWindow", "per iteration"))
@@ -473,7 +457,7 @@ class Ui_MainWindow(object):
         self.actionAbout_Qt.setText(_translate("MainWindow", "About Qt"))
 
 
-from mpl4qt.widgets.mplcurvewidget import MatplotlibCurveWidget
+from mpl4qt.widgets.mplerrorbarwidget import MatplotlibErrorbarWidget
 
 if __name__ == "__main__":
     import sys
