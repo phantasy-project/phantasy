@@ -52,6 +52,17 @@ class PVElement(object):
     def pvname(self):
         return self._put_pvname, self._get_pvname
 
+    @property
+    def ename(self):
+        """just guess element name.
+        """
+        a, b = self.get_pvname, self.put_pvname
+        n = set(a.rsplit(':', 1)).intersection(b.rsplit(':', 1))
+        if n:
+            return n.pop()
+        else:
+            return 'undefined'
+
 
 class PVElementReadonly(object):
     """Unified interface for `get` to a PV, i.e. readonly.
@@ -85,6 +96,12 @@ class PVElementReadonly(object):
     @property
     def pvname(self):
         return (self._get_pvname,)
+
+    @property
+    def ename(self):
+        """just guess element name.
+        """
+        return self.get_pvname.rsplit(':', 1)[0]
 
 
 def delayed_exec(f, delay, *args, **kws):
