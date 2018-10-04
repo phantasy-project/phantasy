@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import re
 from PyQt5.QtWidgets import QFileDialog
 
 
@@ -18,13 +19,14 @@ def get_open_filename(obj, filter=None, caption=None):
 
     Returns
     -------
-    r : str
-        Selected filename.
+    r : tuple
+        Selected filename and its extension.
     """
-    filepath, _ = QFileDialog.getOpenFileName(obj, caption, "", filter)
+    filepath, filter = QFileDialog.getOpenFileName(obj, caption, "", filter)
     if not filepath:
-        return None
-    return filepath
+        return None, None
+    ext = re.match(r'.*\.(.*)\)', filter).group(1)
+    return filepath, ext
 
 
 def get_save_filename(obj, filter=None, caption=None):
