@@ -61,8 +61,10 @@ class ScanDataModel(object):
 
 
 class DataSheetBase(OrderedDict):
-    def __init__(self, path=None):
+    def __init__(self, path=None, template=None):
         super(DataSheetBase, self).__init__()
+        if template is not None:
+            self.load_template(template)
         if isinstance(path, basestring):
             with open(path, "r") as fp:
                 self.read(fp)
@@ -104,11 +106,11 @@ class DataSheetBase(OrderedDict):
 class JSONDataSheet(DataSheetBase):
     """Save/Open JSON formated data sheet.
     """
-    def __init__(self, path=None):
+    def __init__(self, path=None, template='Quad Scan'):
         super(JSONDataSheet, self).__init__(path)
 
-        # load 'Quad Scan' template
-        self.load_template('Quad Scan')
+        ## load 'Quad Scan' template
+        #self.load_template('Quad Scan')
 
     def read(self, fp):
         self.update(json.load(fp, object_pairs_hook=OrderedDict))
