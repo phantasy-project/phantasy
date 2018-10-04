@@ -60,6 +60,7 @@ def set_entry_points():
         'lattice_viewer=phantasy.apps.lattice_viewer:run',
         'trajectory_viewer=phantasy.apps.trajectory_viewer:run',
         'correlation_visualizer=phantasy.apps.correlation_visualizer:run',
+        'quad_scan=phantasy.apps.quad_scan:run',
     ]
     return r
 
