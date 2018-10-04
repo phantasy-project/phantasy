@@ -367,6 +367,7 @@ class Ui_MainWindow(object):
         self.actionAbout_Qt.triggered.connect(MainWindow.onAboutQt)
         self.actionAbout.triggered.connect(MainWindow.onAbout)
         self.actionE_xit.triggered.connect(MainWindow.close)
+        self.actionQuad_Scan.triggered.connect(MainWindow.onQuadScanAction)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
