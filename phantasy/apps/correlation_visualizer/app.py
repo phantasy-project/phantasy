@@ -7,6 +7,10 @@ from .ui.ui_app import Ui_MainWindow
 from phantasy_ui.templates import BaseAppForm
 
 import numpy as np
+import time
+from collections import OrderedDict
+
+from PyQt5.QtWidgets import qApp
 
 from PyQt5.QtGui import QDoubleValidator
 
@@ -15,13 +19,19 @@ from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import QVariant
 from PyQt5.QtCore import QTimer
-from PyQt5.QtTest import QTest
 
 from .utils import PVElement
 from .utils import PVElementReadonly
-from .utils import delayed_exec
+from phantasy.apps.utils import get_save_filename
+
+from .utils import milli_sleep
 
 from .data import ScanDataModel
+from .data import JSONDataSheet
+
+from phantasy import epoch2human
+
+TS_FMT = "%Y-%m-%d %H:%M:%S %Z"
 
 
 class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
@@ -74,7 +84,8 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         self.nshot_spinBox.valueChanged.connect(self.set_scan_daq)
         self.waitsec_dSpinBox.valueChanged.connect(self.set_scan_daq)
         self.scanrate_dSpinBox.valueChanged.connect(self.set_scan_daq)
-        self.show_scan_data_btn.clicked.connect(self.show_scan_outdata)
+        # output scan data
+        self.save_data_btn.clicked.connect(self.save_data)
 
         # signals & slots
         self.scanlogUpdated.connect(self.scan_log_textEdit.append)
@@ -103,12 +114,61 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         # UI post_init
         self._post_init_ui()
 
+        # q-scan window
+        self.qs_window = None
+
     @pyqtSlot()
-    def show_scan_outdata(self):
-        """Show scan output data.
+    def save_data(self):
+        """save data.
         """
-        print(self.scan_out_all)
-        np.save('/tmp/scan_data.npy', self.scan_out_all)
+        filename = get_save_filename(self, caption="Save data to file",
+                    filter="JSON Files (*.json);;HDF5 Files (*.hdf5 *.h5)")
+
+        if filename is not None:
+            self.__save_scan_data(filename)
+
+    def __save_scan_data(self, filename):
+        """Save scan data.
+        """
+        data_sheet = JSONDataSheet()
+        # task
+        task_dict = OrderedDict()
+        task_dict['start'] = epoch2human(self.ts_start, fmt=TS_FMT)
+        task_dict['stop'] = epoch2human(self.ts_stop, fmt=TS_FMT)
+        task_dict['duration'] = self.ts_stop - self.ts_start
+        task_dict['n_iteration'] = self.scan_iternum_val
+        task_dict['n_shot'] = self.scan_shotnum_val
+        task_dict['n_dim'] = 2
+        task_dict['scan_range'] = self.alter_range_array.tolist()
+        task_dict['t_wait'] = self.scan_waitmsec_val/1000.0
+        task_dict['daq_rate'] = self.scan_daqrate_val
+        data_sheet.update({'task': task_dict})
+
+        # devices
+        dev_dict = OrderedDict()
+        dev_dict['quad'] = {
+                'name': self.alter_var_elem.ename,
+                'readback_pv': self.alter_var_elem.get_pvname,
+                'setpoint_pv': self.alter_var_elem.put_pvname,
+        }
+        dev_dict['monitors'] = []
+        dev_dict['monitors'].append({
+                'name': self.monitor_var_elem.ename,
+                'readback_pv': self.monitor_var_elem.get_pvname,
+        })
+        data_sheet.update({'devices': dev_dict})
+
+        # data
+        data_dict = OrderedDict()
+        data_dict['created'] = epoch2human(time.time(), fmt=TS_FMT)
+        data_dict['filepath'] = filename
+        data_dict['shape'] = self.scan_out_all.shape
+        data_dict['array'] = self.scan_out_all.tolist()
+        data_sheet.update({'data': data_dict})
+
+        # save
+        data_sheet.write(filename)
+        # return flag to indicate success or fail.
 
     @pyqtSlot()
     def on_copy_pvname(self):
@@ -266,6 +326,8 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 
         # start scan
         self.scantimer.start(self.scantimer_deltmsec)
+        # task start timestamp
+        self.ts_start = time.time()
 
         # update UI
         self.start_btn.setEnabled(False)
@@ -336,11 +398,11 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
             self.scanlogUpdated.emit(log)
 
             # debug only
-            #print("-"*20)
+            print("-"*20)
             #print(self.current_alter_index_in_daq)
-            #print(self.scan_out_per_iter)
-            #print(self.scan_out_all)
-            #print("-"*20)
+            print(self.scan_out_per_iter)
+            print(self.scan_out_all)
+            print("-"*20)
 
             # push finish message
             if not self.scantimer.isActive():
@@ -369,6 +431,10 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         except AssertionError:
             self.scantimer.stop()
             self.start_btn.setEnabled(True)
+            #
+            # task stop timestamp
+            self.ts_stop = time.time()
+
         else:
             # get the current value to be set
             current_alter_val = self.alter_range_array[self.current_alter_index]
@@ -376,7 +442,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
             self.alter_var_elem.value = current_alter_val
 
             # wait
-            QTest.qWait(self.scan_waitmsec_val)
+            milli_sleep(qApp, self.scan_waitmsec_val)
 
             # start DAQ
             self.start_daqtimer(self.daqtimer_deltmsec, self.current_alter_index)
@@ -433,13 +499,15 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         ----------
         pvelem : obj
             Instance of `epics.PV`, `PVElement`, `PVElementReadonly`.
+        delay : float
+            Delay milliseconds to check PV status.
         """
         def check_status(elem):
             if not elem.connected:
-                r = QMessageBox.warning(self, "Warning",
+                QMessageBox.warning(self, "Warning",
                         "Cannot connect to the input PV(s).",
                         QMessageBox.Ok)
-        QTimer.singleShot(delay, lambda : check_status(pvelem))
+        QTimer.singleShot(delay, lambda: check_status(pvelem))
 
     def update_curve(self):
         """Update scan plot with fresh data.
@@ -447,3 +515,14 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         sm = ScanDataModel(self.scan_out_all)
         x, y, xerr, yerr = sm.get_xavg(), sm.get_yavg(), sm.get_xerr(), sm.get_yerr()
         self.curveUpdated.emit(x, y, xerr, yerr)
+
+    @pyqtSlot()
+    def onQuadScanAction(self):
+        """Show Quad scan data analysis app.
+        """
+        from phantasy.apps.quad_scan import QuadScanWindow
+        from phantasy.apps.quad_scan import __version__
+
+        if self.qs_window is None:
+            self.qs_window = QuadScanWindow(__version__)
+        self.qs_window.show()
