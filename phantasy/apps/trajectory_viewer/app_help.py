@@ -27,7 +27,7 @@ HELP_QNA = '''
 '''
 
 HELP_LIC = '''
-<p>Copyright (c) 2016-2018, Facility for Rare Isotope Beams<br />All rights reserved.</p>
+<p>Copyright (c) 2018, Facility for Rare Isotope Beams<br />All rights reserved.</p>
 <p>Redistribution and use in source and binary forms, with or without modification,<br />are permitted provided that the following conditions are met:</p>
 <p>1. Redistributions of source code must retain the above copyright notice, this<br /> list of conditions and the following disclaimer.</p>
 <p>2. Redistributions in binary form must reproduce the above copyright notice,<br /> this list of conditions and the following disclaimer in the documentation<br /> and/or other materials provided with the distribution.</p>
