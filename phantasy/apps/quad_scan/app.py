@@ -13,6 +13,8 @@ from PyQt5.QtGui import QDoubleValidator
 from .ui.ui_app import Ui_MainWindow
 from phantasy_ui.templates import BaseAppForm
 
+from .utils import draw_beam_ellipse
+
 from phantasy.apps.utils import get_open_filename
 from phantasy.apps.correlation_visualizer.data import JSONDataSheet
 from phantasy.apps.correlation_visualizer.data import ScanDataModel
@@ -69,6 +71,11 @@ class QuadScanWindow(BaseAppForm, Ui_MainWindow):
                  + self.fitting_input_groupBox.findChildren(QLineEdit)
         for obj in all_objs:
             obj.setValidator(QDoubleValidator())
+
+        # reset beam_ellipse_plot
+        self.beam_ellipse_plot.axes.clear()
+        self.beam_ellipse_plot.axes.axis('off')
+        self.beam_ellipse_plot.update_figure()
 
     @pyqtSlot()
     def onOpen(self):
@@ -128,7 +135,7 @@ class QuadScanWindow(BaseAppForm, Ui_MainWindow):
         l_drift = float(self.distance_lineEdit.text())
         brho = ion_beta * ion_w / ion_z / LIGHT_SPEED
         bg = ion_beta * ion_w / ION_ES
-        
+
         #
         a0 = float(self.coef_a_init_lineEdit.text())
         b0 = float(self.coef_b_init_lineEdit.text())
@@ -136,7 +143,7 @@ class QuadScanWindow(BaseAppForm, Ui_MainWindow):
         method = self.opt_method_comboBox.currentText()
 
         a, b, c, res = parabola_fitting(a0, b0, c0, self.x, self.y, method)
-        
+
         (emit, nemit), (alpha, beta, gamma) = \
             single_quad_scan_analysis((a, b, c), l_quad, l_drift, brho, bg)
 
@@ -146,13 +153,25 @@ class QuadScanWindow(BaseAppForm, Ui_MainWindow):
         self.coef_c_final_lineEdit.setText('{0:.6g}'.format(c))
         self.resi_chisqr_lineEdit.setText('{0:.6g}'.format(res))
 
-        self.emit_lineEdit.setText('{0:.6g}'.format(emit))
-        self.nemit_lineEdit.setText('{0:.6g}'.format(nemit))
+        self.emit_lineEdit.setText('{0:.6g}'.format(emit * 1e6))
+        self.nemit_lineEdit.setText('{0:.6g}'.format(nemit * 1e6))
         self.twiss_alpha_lineEdit.setText('{0:.6g}'.format(alpha))
         self.twiss_beta_lineEdit.setText('{0:.6g}'.format(beta))
         self.twiss_gamma_lineEdit.setText('{0:.6g}'.format(gamma))
 
-        
+        # draw beam ellipse
+        draw_beam_ellipse(self.beam_ellipse_plot.axes, alpha, beta, gamma, emit)
+        self.beam_ellipse_plot.update_figure()
+
+    @pyqtSlot()
+    def on_sync_coefs(self):
+        """Sync the fitted ABC values to be the new set of initial settings.
+        """
+        self.coef_a_init_lineEdit.setText(self.coef_a_final_lineEdit.text())
+        self.coef_b_init_lineEdit.setText(self.coef_b_final_lineEdit.text())
+        self.coef_c_init_lineEdit.setText(self.coef_c_final_lineEdit.text())
+
+
 def single_quad_scan_analysis(params, quad_length, drift_length,
                               rigidity, lorentz_energy):
     """Calculate the emittance and Twiss parameters from parabola coeffients
@@ -178,26 +197,26 @@ def single_quad_scan_analysis(params, quad_length, drift_length,
         Tuple of (geometrical emittance, normalized emittance),
         (alpha, beta, gamma), i.e. the first element is tuple of emittances,
         and the second element is tuple of Twiss parameters.
-        Units: emittance: mm.mrad
+        Units: emittance: m.rad
     """
     a, b, c = params
     lq, d = quad_length, drift_length
     brho, bg = rigidity, lorentz_energy
 
-    s11 = a * brho**2 / d / d / lq / lq                                        
-    s12 = (-b * brho - 2 * d * lq * s11) / (2 * d * d * lq)                    
-    s22 = (c - s11 - 2 * d * s12) / d / d                                      
-    
-    epsilon = (s11 * s22 - s12 ** 2) ** 0.5 * 1e6                            
+    s11 = a * brho**2 / d / d / lq / lq
+    s12 = (-b * brho - 2 * d * lq * s11) / (2 * d * d * lq)
+    s22 = (c - s11 - 2 * d * s12) / d / d
+
+    epsilon = (s11 * s22 - s12 ** 2) ** 0.5
     epsilon_n = epsilon * bg
 
     alpha, beta, gamma = -s12/epsilon, s11/epsilon, s22/epsilon
 
     return (epsilon, epsilon_n), (alpha, beta, gamma)
-    
+
 
 def parabola_fitting(a0, b0, c0, x, y, method):
-    """
+    """Parabola curve fitting.
     """
     p = lmfit.Parameters()
     p.add('a', value=a0)
@@ -210,5 +229,5 @@ def parabola_fitting(a0, b0, c0, x, y, method):
     res = lmfit.minimize(f, p, method, args=(x, y))
 
     a, b, c = res.params['a'].value, res.params['b'].value, res.params['c'].value
-    
+
     return a, b, c, res.chisqr
