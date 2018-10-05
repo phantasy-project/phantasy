@@ -220,7 +220,7 @@ class Ui_MainWindow(object):
         self.toolbox = QtWidgets.QToolBox(self.data_analysis_groupBox)
         self.toolbox.setObjectName("toolbox")
         self.page_params = QtWidgets.QWidget()
-        self.page_params.setGeometry(QtCore.QRect(0, 0, 719, 892))
+        self.page_params.setGeometry(QtCore.QRect(0, 0, 680, 892))
         self.page_params.setObjectName("page_params")
         self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.page_params)
         self.verticalLayout_2.setObjectName("verticalLayout_2")
@@ -335,10 +335,10 @@ class Ui_MainWindow(object):
         self.resi_chisqr_lineEdit.setReadOnly(True)
         self.resi_chisqr_lineEdit.setObjectName("resi_chisqr_lineEdit")
         self.gridLayout_5.addWidget(self.resi_chisqr_lineEdit, 1, 1, 1, 1)
-        self.sync_to_init_pushButton = QtWidgets.QPushButton(
+        self.sync_coefs_pushButton = QtWidgets.QPushButton(
             self.fitting_output_groupBox)
-        self.sync_to_init_pushButton.setObjectName("sync_to_init_pushButton")
-        self.gridLayout_5.addWidget(self.sync_to_init_pushButton, 1, 2, 1, 1)
+        self.sync_coefs_pushButton.setObjectName("sync_coefs_pushButton")
+        self.gridLayout_5.addWidget(self.sync_coefs_pushButton, 1, 2, 1, 1)
         self.verticalLayout_2.addWidget(self.fitting_output_groupBox)
         self.twiss_output_groupBox = QtWidgets.QGroupBox(self.page_params)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
@@ -490,6 +490,7 @@ class Ui_MainWindow(object):
         self.actionE_xit.triggered.connect(MainWindow.close)
         self.actionOpen.triggered.connect(MainWindow.onOpen)
         self.fit_pushButton.clicked.connect(MainWindow.on_fit_parabola)
+        self.sync_coefs_pushButton.clicked.connect(MainWindow.on_sync_coefs)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -505,6 +506,10 @@ class Ui_MainWindow(object):
         self.label_6.setText(_translate("MainWindow", "Beam Size Monitor"))
         self.scan_data_plot_groupBox.setTitle(
             _translate("MainWindow", "Data Visualization"))
+        self.matplotliberrorbarWidget.setFigureXlabel(
+            _translate("MainWindow", "Quad Gradient [T/m]"))
+        self.matplotliberrorbarWidget.setFigureYlabel(
+            _translate("MainWindow", "$\\sigma$ [m]"))
         self.beam_info_groupBox.setTitle(
             _translate("MainWindow", "Accelerator Beam Infomation"))
         self.label_8.setText(_translate("MainWindow", "Q/A"))
@@ -630,23 +635,23 @@ class Ui_MainWindow(object):
                 "<html><head/><body><p><span style=\" font-weight:600; font-style:italic;\">C</span></p></body></html>"
             ))
         self.label_27.setText(_translate("MainWindow", "Residual"))
-        self.sync_to_init_pushButton.setToolTip(
+        self.sync_coefs_pushButton.setToolTip(
             _translate(
                 "MainWindow",
                 "<html><head/><body><p>Sync A,B,C to be initial settings for next fitting iteration.</p></body></html>"
             ))
-        self.sync_to_init_pushButton.setText(_translate("MainWindow", "Sync"))
+        self.sync_coefs_pushButton.setText(_translate("MainWindow", "Sync"))
         self.twiss_output_groupBox.setTitle(
             _translate("MainWindow", "Emittance and Twiss Parameters"))
         self.label_31.setText(
             _translate(
                 "MainWindow",
-                "<html><head/><body><p><span style=\" font-weight:600; font-style:italic;\">ε</span></p></body></html>"
+                "<html><head/><body><p><span style=\" font-weight:600; font-style:italic;\">ε </span><span style=\" font-weight:600;\">[mm&middot;mrad]</span></p></body></html>"
             ))
         self.label_32.setText(
             _translate(
                 "MainWindow",
-                "<html><head/><body><p><span style=\" font-weight:600; font-style:italic;\">ε</span><span style=\" font-weight:600; font-style:italic; vertical-align:sub;\">n</span></p></body></html>"
+                "<html><head/><body><p><span style=\" font-weight:600; font-style:italic;\">ε</span><span style=\" font-weight:600; font-style:italic; vertical-align:sub;\">n </span><span style=\" font-weight:600;\">[mm·mrad]</span></p></body></html>"
             ))
         self.label_28.setText(
             _translate(
