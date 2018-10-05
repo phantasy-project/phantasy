@@ -114,7 +114,7 @@ class QuadScanWindow(BaseAppForm, Ui_MainWindow):
         # show data on figure widget
         x, y = scan_data_model.get_xavg(), scan_data_model.get_yavg()
         xerr, yerr = scan_data_model.get_xerr(), scan_data_model.get_yerr()
-        self.x, self.y = x, y
+        self.x, self.y = x, y**2
         self.curveUpdated.emit(x, y, xerr, yerr)
 
     @pyqtSlot()
@@ -141,16 +141,16 @@ class QuadScanWindow(BaseAppForm, Ui_MainWindow):
             single_quad_scan_analysis((a, b, c), l_quad, l_drift, brho, bg)
 
         # present results
-        self.coef_a_final_lineEdit.setText('{}'.format(a))
-        self.coef_b_final_lineEdit.setText('{}'.format(b))
-        self.coef_c_final_lineEdit.setText('{}'.format(c))
-        self.resi_chisqr_lineEdit.setText('{}'.format(res))
+        self.coef_a_final_lineEdit.setText('{0:.6g}'.format(a))
+        self.coef_b_final_lineEdit.setText('{0:.6g}'.format(b))
+        self.coef_c_final_lineEdit.setText('{0:.6g}'.format(c))
+        self.resi_chisqr_lineEdit.setText('{0:.6g}'.format(res))
 
-        self.emit_lineEdit.setText('{0:.3e}'.format(emit))
-        self.nemit_lineEdit.setText('{0:.3e}'.format(nemit))
-        self.twiss_alpha_lineEdit.setText('{0:.3f}'.format(alpha))
-        self.twiss_beta_lineEdit.setText('{0:.3f}'.format(beta))
-        self.twiss_gamma_lineEdit.setText('{0:.3f}'.format(gamma))
+        self.emit_lineEdit.setText('{0:.6g}'.format(emit))
+        self.nemit_lineEdit.setText('{0:.6g}'.format(nemit))
+        self.twiss_alpha_lineEdit.setText('{0:.6g}'.format(alpha))
+        self.twiss_beta_lineEdit.setText('{0:.6g}'.format(beta))
+        self.twiss_gamma_lineEdit.setText('{0:.6g}'.format(gamma))
 
         
 def single_quad_scan_analysis(params, quad_length, drift_length,
