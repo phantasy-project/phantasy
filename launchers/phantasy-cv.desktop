@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Correlation Visualizer
+Comment=Visualize the correlation between parameters
+Terminal=false
+Exec=correlation_visualizer3
+Icon=phantasy-cv
+StartupNotify=false
+Keywords=Phantasy;correlation;scan;
+Categories=Science;Physics;
