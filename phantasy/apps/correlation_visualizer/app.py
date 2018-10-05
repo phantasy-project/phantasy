@@ -3,7 +3,7 @@
 
 from .ui.ui_app import Ui_MainWindow
 #from .app_help import HelpDialog
-#from .icons import tv_icon
+from .icons import cv_icon
 from phantasy_ui.templates import BaseAppForm
 
 import numpy as np
@@ -18,6 +18,8 @@ from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import QVariant
+from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import QTimer
 
 from .utils import PVElement
@@ -50,7 +52,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 
         # window title/icon
         self.setWindowTitle("Correlation Visualizer")
-        # self.setWindowIcon(QIcon(QPixmap(icon)))
+        self.setWindowIcon(QIcon(QPixmap(cv_icon)))
 
         # set app properties
         self.setAppTitle("Correlation Visualizer")
