@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from .ui.ui_app import Ui_MainWindow
-#from .app_help import HelpDialog
+from .app_help import HelpDialog
 from .icons import cv_icon
 from phantasy_ui.templates import BaseAppForm
 
@@ -528,3 +528,9 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         if self.qs_window is None:
             self.qs_window = QuadScanWindow(__version__)
         self.qs_window.show()
+
+    @pyqtSlot()
+    def onHelp(self):
+        d = HelpDialog(self)
+        d.resize(800, 600)
+        d.exec_()
