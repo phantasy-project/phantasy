@@ -399,20 +399,8 @@ class Ui_MainWindow(object):
         self.twiss_gamma_lineEdit.setObjectName("twiss_gamma_lineEdit")
         self.horizontalLayout_7.addWidget(self.twiss_gamma_lineEdit)
         self.verticalLayout_3.addLayout(self.horizontalLayout_7)
-        self.beam_ellipse_plot = MatplotlibCurveWidget(
+        self.beam_ellipse_plot = MatplotlibBaseWidget(
             self.twiss_output_groupBox)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
-                                           QtWidgets.QSizePolicy.Preferred)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(1)
-        sizePolicy.setHeightForWidth(
-            self.beam_ellipse_plot.sizePolicy().hasHeightForWidth())
-        self.beam_ellipse_plot.setSizePolicy(sizePolicy)
-        self.beam_ellipse_plot.setProperty("figureTightLayout", False)
-        self.beam_ellipse_plot.setFigureWidth(4)
-        self.beam_ellipse_plot.setProperty("figureDPI", 100)
-        self.beam_ellipse_plot.setProperty("figureBackgroundColor",
-                                           QtGui.QColor(237, 236, 235))
         self.beam_ellipse_plot.setObjectName("beam_ellipse_plot")
         self.verticalLayout_3.addWidget(self.beam_ellipse_plot)
         self.verticalLayout_2.addWidget(self.twiss_output_groupBox)
@@ -730,7 +718,7 @@ class Ui_MainWindow(object):
         self.actionE_xit.setShortcut(_translate("MainWindow", "Ctrl+W"))
 
 
-from mpl4qt.widgets.mplcurvewidget import MatplotlibCurveWidget
+from mpl4qt.widgets.mplbasewidget import MatplotlibBaseWidget
 from mpl4qt.widgets.mplerrorbarwidget import MatplotlibErrorbarWidget
 
 if __name__ == "__main__":
