@@ -22,11 +22,17 @@ from phantasy.apps.correlation_visualizer.data import ScanDataModel
 LIGHT_SPEED = 299792458 # [m/s]
 ION_ES = 9.31494e+08  # rest energy [eV/u]
 
+# sample point for fitting curve
+N_SAMPLE = 100
+
 
 class QuadScanWindow(BaseAppForm, Ui_MainWindow):
 
     # scan plot curve w/ errorbar
     curveUpdated = pyqtSignal(QVariant, QVariant, QVariant, QVariant)
+
+    # update fitting curve
+    fitCurveChanged = pyqtSignal(QVariant, QVariant)
 
     def __init__(self, version):
         super(QuadScanWindow, self).__init__()
@@ -77,6 +83,27 @@ class QuadScanWindow(BaseAppForm, Ui_MainWindow):
         self.beam_ellipse_plot.axes.axis('off')
         self.beam_ellipse_plot.update_figure()
 
+        # data viz: matplotliberrorbarWidget
+        # add one more curve for fitting
+        self.matplotliberrorbarWidget.add_curve()
+        # set the line label as 'Fitting'
+        self.matplotliberrorbarWidget.setLineID(1)
+        self.matplotliberrorbarWidget.setLineLabel("Fitting")
+        self.matplotliberrorbarWidget.setLineID(0)
+        self.matplotliberrorbarWidget.setFigureXlabel("Quad Gradient [T/m]")
+        self.matplotliberrorbarWidget.setFigureYlabel("$\sigma^2\,\mathrm{m^2}$")
+        # events
+        self.fitCurveChanged[QVariant, QVariant].connect(self.update_fitting_curve)
+
+
+    @pyqtSlot(QVariant, QVariant)
+    def update_fitting_curve(self, x, y):
+        """Update fitting line.
+        """
+        self.matplotliberrorbarWidget.setLineID(1)
+        self.matplotliberrorbarWidget.setXData(x)
+        self.matplotliberrorbarWidget.setYData(y)
+
     @pyqtSlot()
     def onOpen(self):
         """Open data sheet for quad scan, which is generated from
@@ -122,7 +149,7 @@ class QuadScanWindow(BaseAppForm, Ui_MainWindow):
         x, y = scan_data_model.get_xavg(), scan_data_model.get_yavg()
         xerr, yerr = scan_data_model.get_xerr(), scan_data_model.get_yerr()
         self.x, self.y = x, y**2
-        self.curveUpdated.emit(x, y, xerr, yerr)
+        self.curveUpdated.emit(x, y**2, xerr, yerr)
 
     @pyqtSlot()
     def on_fit_parabola(self):
@@ -162,6 +189,11 @@ class QuadScanWindow(BaseAppForm, Ui_MainWindow):
         # draw beam ellipse
         draw_beam_ellipse(self.beam_ellipse_plot.axes, alpha, beta, gamma, emit)
         self.beam_ellipse_plot.update_figure()
+
+        # viz the fitting curve
+        xx = np.linspace(self.x.min(), self.x.max(), N_SAMPLE)
+        yy = (lambda x:a* x**2 + b * x + c)(xx)
+        self.fitCurveChanged.emit(xx, yy)
 
     @pyqtSlot()
     def on_sync_coefs(self):
