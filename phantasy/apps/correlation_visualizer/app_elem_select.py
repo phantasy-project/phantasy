@@ -6,10 +6,15 @@ import re
 from PyQt5.QtWidgets import QDialog
 from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtCore import QVariant
+from PyQt5.QtCore import Qt
+
+from phantasy_ui.widgets.utils import LatticeDataModel
 
 from phantasy.apps.correlation_visualizer.ui.ui_elem_select import Ui_Dialog
 from phantasy.apps.correlation_visualizer.utils import PVElement
 from phantasy.apps.correlation_visualizer.utils import PVElementReadonly
+from phantasy.apps.correlation_visualizer.utils import milli_sleep1
 from phantasy.apps.correlation_visualizer.utils import delayed_check_pv_status
 
 
@@ -24,7 +29,7 @@ class ElementSelectDialog(QDialog, Ui_Dialog):
 
         # UI
         self.setupUi(self)
-        self.setWindowTitle("Set Alter Element")
+        self.setWindowTitle("Select Element")
 
         # mode
         [o.setEnabled(mode=='alter') for o in
@@ -34,7 +39,7 @@ class ElementSelectDialog(QDialog, Ui_Dialog):
 
         # events
         self.pv_mode_radiobtn.toggled.connect(self.pv_groupBox.setEnabled)
-        self.elem_mode_radiobtn.toggled.connect(self.latticeWidget.setEnabled)
+        self.elem_mode_radiobtn.toggled.connect(self.elem_treeView.setEnabled)
 
         # cmdbtn
         self.ok_btn.clicked.connect(self.on_ok)
@@ -66,13 +71,18 @@ class ElementSelectDialog(QDialog, Ui_Dialog):
         if self.pv_mode_radiobtn.isChecked():
             if self.sel_elem is None:
                 self.set_elem()
-            if self.sel_elem.connected:
-                QMessageBox.information(self, "",
-                        "Device is connected",
-                        QMessageBox.Ok)
-            else:
-                QMessageBox.warning(self, "",
-                        "Device is not connected",
+            try:
+                if self.sel_elem.connected:
+                    QMessageBox.information(self, "",
+                            "Device is connected",
+                            QMessageBox.Ok)
+                else:
+                    QMessageBox.warning(self, "",
+                            "Device is not connected",
+                            QMessageBox.Ok)
+            except:
+                QMessageBox.critical(self, "",
+                        "Validating failed",
                         QMessageBox.Ok)
         else:
             # high-level element
@@ -93,6 +103,8 @@ class ElementSelectDialog(QDialog, Ui_Dialog):
             if getPV_str == '':
                 return
             self.sel_elem = PVElementReadonly(getPV_str)
+
+        milli_sleep1(2000)
         delayed_check_pv_status(self, self.sel_elem, 100)
 
     @pyqtSlot()
@@ -103,6 +115,14 @@ class ElementSelectDialog(QDialog, Ui_Dialog):
         setpv = self.pv_set_lineEdit.text()
         readpv = re.sub(r'(.*)_CSET', r'\1_RD', setpv)
         self.pv_read_lineEdit.setText(readpv)
+
+    @pyqtSlot(QVariant)
+    def on_update_elem_tree(self, o):
+        model = LatticeDataModel(self.elem_treeView, o)
+        model.setHeaderData(0, Qt.Horizontal, "Device Type")
+        #model.setHeaderData(0, Qt.Horizontal, "Device Type")
+        #model.setHeaderData(1, Qt.Horizontal, "Field")
+        self.elem_treeView.setModel(model)
 
 
 if __name__ == '__main__':
