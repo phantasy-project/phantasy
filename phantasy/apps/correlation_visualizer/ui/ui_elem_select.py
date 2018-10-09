@@ -15,6 +15,41 @@ class Ui_Dialog(object):
         Dialog.resize(600, 472)
         self.gridLayout_2 = QtWidgets.QGridLayout(Dialog)
         self.gridLayout_2.setObjectName("gridLayout_2")
+        self.horizontalLayout = QtWidgets.QHBoxLayout()
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        spacerItem = QtWidgets.QSpacerItem(40, 20,
+                                           QtWidgets.QSizePolicy.Expanding,
+                                           QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout.addItem(spacerItem)
+        self.cancel_btn = QtWidgets.QPushButton(Dialog)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
+                                           QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.cancel_btn.sizePolicy().hasHeightForWidth())
+        self.cancel_btn.setSizePolicy(sizePolicy)
+        self.cancel_btn.setAutoDefault(False)
+        self.cancel_btn.setObjectName("cancel_btn")
+        self.horizontalLayout.addWidget(self.cancel_btn)
+        self.validate_btn = QtWidgets.QPushButton(Dialog)
+        self.validate_btn.setObjectName("validate_btn")
+        self.horizontalLayout.addWidget(self.validate_btn)
+        self.ok_btn = QtWidgets.QPushButton(Dialog)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
+                                           QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.ok_btn.sizePolicy().hasHeightForWidth())
+        self.ok_btn.setSizePolicy(sizePolicy)
+        self.ok_btn.setAutoDefault(False)
+        self.ok_btn.setObjectName("ok_btn")
+        self.horizontalLayout.addWidget(self.ok_btn)
+        self.gridLayout_2.addLayout(self.horizontalLayout, 4, 0, 1, 1)
+        self.elem_mode_radiobtn = QtWidgets.QRadioButton(Dialog)
+        self.elem_mode_radiobtn.setObjectName("elem_mode_radiobtn")
+        self.gridLayout_2.addWidget(self.elem_mode_radiobtn, 2, 0, 1, 1)
         self.pv_mode_radiobtn = QtWidgets.QRadioButton(Dialog)
         self.pv_mode_radiobtn.setChecked(True)
         self.pv_mode_radiobtn.setObjectName("pv_mode_radiobtn")
@@ -84,45 +119,9 @@ class Ui_Dialog(object):
         self.pv_set_lbl.setObjectName("pv_set_lbl")
         self.gridLayout.addWidget(self.pv_set_lbl, 0, 0, 1, 1)
         self.gridLayout_2.addWidget(self.pv_groupBox, 1, 0, 1, 1)
-        self.elem_mode_radiobtn = QtWidgets.QRadioButton(Dialog)
-        self.elem_mode_radiobtn.setObjectName("elem_mode_radiobtn")
-        self.gridLayout_2.addWidget(self.elem_mode_radiobtn, 2, 0, 1, 1)
-        self.latticeWidget = LatticeWidget(Dialog)
-        self.latticeWidget.setEnabled(False)
-        self.latticeWidget.setObjectName("latticeWidget")
-        self.gridLayout_2.addWidget(self.latticeWidget, 3, 0, 1, 1)
-        self.horizontalLayout = QtWidgets.QHBoxLayout()
-        self.horizontalLayout.setObjectName("horizontalLayout")
-        spacerItem = QtWidgets.QSpacerItem(40, 20,
-                                           QtWidgets.QSizePolicy.Expanding,
-                                           QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayout.addItem(spacerItem)
-        self.cancel_btn = QtWidgets.QPushButton(Dialog)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
-                                           QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(
-            self.cancel_btn.sizePolicy().hasHeightForWidth())
-        self.cancel_btn.setSizePolicy(sizePolicy)
-        self.cancel_btn.setAutoDefault(False)
-        self.cancel_btn.setObjectName("cancel_btn")
-        self.horizontalLayout.addWidget(self.cancel_btn)
-        self.validate_btn = QtWidgets.QPushButton(Dialog)
-        self.validate_btn.setObjectName("validate_btn")
-        self.horizontalLayout.addWidget(self.validate_btn)
-        self.ok_btn = QtWidgets.QPushButton(Dialog)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
-                                           QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(
-            self.ok_btn.sizePolicy().hasHeightForWidth())
-        self.ok_btn.setSizePolicy(sizePolicy)
-        self.ok_btn.setAutoDefault(False)
-        self.ok_btn.setObjectName("ok_btn")
-        self.horizontalLayout.addWidget(self.ok_btn)
-        self.gridLayout_2.addLayout(self.horizontalLayout, 4, 0, 1, 1)
+        self.elem_treeView = QtWidgets.QTreeView(Dialog)
+        self.elem_treeView.setObjectName("elem_treeView")
+        self.gridLayout_2.addWidget(self.elem_treeView, 3, 0, 1, 1)
 
         self.retranslateUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
@@ -130,6 +129,10 @@ class Ui_Dialog(object):
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
         Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
+        self.cancel_btn.setText(_translate("Dialog", "Cancel"))
+        self.validate_btn.setText(_translate("Dialog", "Validate"))
+        self.ok_btn.setText(_translate("Dialog", "OK"))
+        self.elem_mode_radiobtn.setText(_translate("Dialog", "Element"))
         self.pv_mode_radiobtn.setText(_translate("Dialog", "PV"))
         self.pv_groupBox.setTitle(_translate("Dialog", "Input PVs"))
         self.copy_set_to_read_btn.setToolTip(
@@ -152,13 +155,7 @@ class Ui_Dialog(object):
             ))
         self.label_2.setText(_translate("Dialog", "Readback PV"))
         self.pv_set_lbl.setText(_translate("Dialog", "Setpoint PV"))
-        self.elem_mode_radiobtn.setText(_translate("Dialog", "Element"))
-        self.cancel_btn.setText(_translate("Dialog", "Cancel"))
-        self.validate_btn.setText(_translate("Dialog", "Validate"))
-        self.ok_btn.setText(_translate("Dialog", "OK"))
 
-
-from phantasy_ui.widgets.latticewidget import LatticeWidget
 
 if __name__ == "__main__":
     import sys
