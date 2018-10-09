@@ -4,6 +4,7 @@ import epics
 import time
 import re
 
+from PyQt5.QtCore import QEventLoop
 from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QMessageBox
 
@@ -141,6 +142,11 @@ def milli_sleep(qApp, msec):
     t0 = time.time()
     while (time.time() - t0) * 1000 < msec:
         qApp.processEvents()
+
+def milli_sleep1(msec):
+    loop = QEventLoop()
+    QTimer.singleShot(msec, loop.exit)
+    loop.exec_()
 
 
 def delayed_check_pv_status(obj, pvelem, delay=1000):
