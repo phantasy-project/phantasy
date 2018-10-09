@@ -34,7 +34,7 @@ class QuadScanWindow(BaseAppForm, Ui_MainWindow):
     # update fitting curve
     fitCurveChanged = pyqtSignal(QVariant, QVariant)
 
-    def __init__(self, version):
+    def __init__(self, version, data=None):
         super(QuadScanWindow, self).__init__()
 
         # app version
@@ -63,14 +63,16 @@ class QuadScanWindow(BaseAppForm, Ui_MainWindow):
         # UI
         self.setupUi(self)
 
-        # data from app: Correlation Visualizer
-        self.qs_data = None
-
         # events
         self.curveUpdated.connect(self.matplotliberrorbarWidget.update_curve)
 
         # post init ui
         self.post_init_ui()
+
+        # data from app: Correlation Visualizer
+        # try to load data
+        self.qs_data = data
+        self.update_ui_with_data(self.qs_data)
 
     def post_init_ui(self):
         all_objs = self.beam_info_groupBox.findChildren(QLineEdit) \
@@ -91,7 +93,7 @@ class QuadScanWindow(BaseAppForm, Ui_MainWindow):
         self.matplotliberrorbarWidget.setLineLabel("Fitting")
         self.matplotliberrorbarWidget.setLineID(0)
         self.matplotliberrorbarWidget.setFigureXlabel("Quad Gradient [T/m]")
-        self.matplotliberrorbarWidget.setFigureYlabel("$\sigma^2\,\mathrm{m^2}$")
+        self.matplotliberrorbarWidget.setFigureYlabel("$\sigma^2\,\mathrm{[m^2]}$")
         # events
         self.fitCurveChanged[QVariant, QVariant].connect(self.update_fitting_curve)
 
