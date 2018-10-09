@@ -3,7 +3,9 @@
 import epics
 import time
 import re
+
 from PyQt5.QtCore import QTimer
+from PyQt5.QtWidgets import QMessageBox
 
 
 class PVElement(object):
@@ -21,6 +23,12 @@ class PVElement(object):
         self._get_pvname = get_pv_name
         self._putPV = epics.PV(put_pv_name)
         self._getPV = epics.PV(get_pv_name)
+
+    @property
+    def fname(self):
+        """Default CA field name.
+        """
+        return "<generic field>"
 
     @property
     def value(self):
@@ -52,7 +60,7 @@ class PVElement(object):
         return self._put_pvname, self._get_pvname
 
     @property
-    def ename(self):
+    def name(self):
         """just guess element name.
         """
         a, b = self.get_pvname, self.put_pvname
@@ -61,6 +69,14 @@ class PVElement(object):
             return n.pop()
         else:
             return 'undefined'
+
+    @property
+    def readback(self):
+        return [self.get_pvname]
+
+    @property
+    def setpoint(self):
+        return [self.put_pvname]
 
 
 class PVElementReadonly(object):
@@ -74,6 +90,12 @@ class PVElementReadonly(object):
     def __init__(self, get_pv_name):
         self._get_pvname = get_pv_name
         self._getPV = epics.PV(get_pv_name)
+
+    @property
+    def fname(self):
+        """Default CA field name.
+        """
+        return "<generic field>"
 
     @property
     def value(self):
@@ -97,10 +119,14 @@ class PVElementReadonly(object):
         return (self._get_pvname,)
 
     @property
-    def ename(self):
+    def name(self):
         """just guess element name.
         """
         return self.get_pvname.rsplit(':', 1)[0]
+
+    @property
+    def readback(self):
+        return [self.get_pvname]
 
 
 def delayed_exec(f, delay, *args, **kws):
@@ -115,3 +141,23 @@ def milli_sleep(qApp, msec):
     t0 = time.time()
     while (time.time() - t0) * 1000 < msec:
         qApp.processEvents()
+
+
+def delayed_check_pv_status(obj, pvelem, delay=1000):
+    """Check PV element connected or not.
+
+    Parameters
+    ----------
+    obj :
+        Widget, as parent.
+    pvelem : obj
+        Instance of `epics.PV`, `PVElement`, `PVElementReadonly`.
+    delay : float
+        Delay milliseconds to check PV status.
+    """
+    def check_status(elem):
+        if not elem.connected:
+            QMessageBox.warning(obj, "Warning",
+                    "Cannot connect to the input PV(s).",
+                    QMessageBox.Ok)
+    QTimer.singleShot(delay, lambda: check_status(pvelem))
