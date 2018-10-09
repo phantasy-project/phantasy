@@ -8,6 +8,7 @@ from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtCore import QVariant
 from PyQt5.QtWidgets import QLineEdit
+from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtGui import QDoubleValidator
 
 from .ui.ui_app import Ui_MainWindow
@@ -189,8 +190,13 @@ class QuadScanWindow(BaseAppForm, Ui_MainWindow):
         self.twiss_gamma_lineEdit.setText('{0:.6g}'.format(gamma))
 
         # draw beam ellipse
-        draw_beam_ellipse(self.beam_ellipse_plot.axes, alpha, beta, gamma, emit)
-        self.beam_ellipse_plot.update_figure()
+        try:
+            draw_beam_ellipse(self.beam_ellipse_plot.axes, alpha, beta, gamma, emit)
+            self.beam_ellipse_plot.update_figure()
+        except:
+            QMessageBox.warning(self, "",
+                    "Fatal error encountered.",
+                    QMessageBox.Ok)
 
         # viz the fitting curve
         xx = np.linspace(self.x.min(), self.x.max(), N_SAMPLE)
