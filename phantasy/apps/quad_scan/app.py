@@ -98,7 +98,6 @@ class QuadScanWindow(BaseAppForm, Ui_MainWindow):
         # events
         self.fitCurveChanged[QVariant, QVariant].connect(self.update_fitting_curve)
 
-
     @pyqtSlot(QVariant, QVariant)
     def update_fitting_curve(self, x, y):
         """Update fitting line.
@@ -129,6 +128,7 @@ class QuadScanWindow(BaseAppForm, Ui_MainWindow):
         """
         if data is None:
             return
+
         data_ts_created = data['data']['created']
         task_duration_in_sec = data['task']['duration']
         data_shape = data['data']['shape']
@@ -152,6 +152,8 @@ class QuadScanWindow(BaseAppForm, Ui_MainWindow):
         x, y = scan_data_model.get_xavg(), scan_data_model.get_yavg()
         xerr, yerr = scan_data_model.get_xerr(), scan_data_model.get_yerr()
         self.x, self.y = x, y**2
+        self.matplotliberrorbarWidget.setEbLineID(0)
+        self.matplotliberrorbarWidget.setLineID(0)
         self.curveUpdated.emit(x, y**2, xerr, yerr)
 
     @pyqtSlot()
