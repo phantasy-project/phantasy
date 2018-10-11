@@ -3,8 +3,11 @@
 
 from .ui.ui_app import Ui_MainWindow
 from .app_help import HelpDialog
+from .app_elem_select import ElementSelectDialog
 from .icons import cv_icon
 from phantasy_ui.templates import BaseAppForm
+from phantasy_ui.widgets.elementwidget import ElementWidget
+from phantasy_ui.widgets.latticewidget import LatticeWidget
 
 import numpy as np
 import time
@@ -15,6 +18,9 @@ from PyQt5.QtWidgets import qApp
 from PyQt5.QtGui import QDoubleValidator
 
 from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtWidgets import QDialog
+from PyQt5.QtWidgets import QPushButton
+from PyQt5.QtWidgets import QHBoxLayout
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import QVariant
@@ -43,6 +49,9 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 
     # scan plot curve w/ errorbar
     curveUpdated = pyqtSignal(QVariant, QVariant, QVariant, QVariant)
+
+    # loaded lattice elements
+    elementsTreeChanged = pyqtSignal(QVariant)
 
     def __init__(self, version):
         super(CorrelationVisualizerWindow, self).__init__()
@@ -93,31 +102,125 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         self.scanlogUpdated.connect(self.scan_log_textEdit.append)
         self.curveUpdated.connect(self.scan_plot_widget.update_curve)
 
-        # alter vars
-        self.scan_vars_put_lineEdit.returnPressed.connect(self.set_alter_vars)
-        self.scan_vars_get_lineEdit.returnPressed.connect(self.set_alter_vars)
+        # (new) unified button for setting alter element
+        self.select_alter_elem_btn.clicked.connect(
+                lambda: self.on_select_elem(mode='alter'))
+        self._sel_elem_dialogs = {} # keys: 'alter', 'monitor'
+
+        # (new) main monitor
+        self.select_monitor_elem_btn.clicked.connect(
+                lambda: self.on_select_elem(mode='monitor'))
 
         # alter range
         self.lower_limit_lineEdit.returnPressed.connect(self.set_alter_range)
         self.upper_limit_lineEdit.returnPressed.connect(self.set_alter_range)
 
-        # monitor vars
-        self.monitor_vars_lineEdit.returnPressed.connect(self.set_monitor_vars)
-
-        # scan_vars_type_cbb / monitor_vars_type_cbb
-        # 'PV' for generic PV strings;
-        # 'Element' for high-level element from PHANTASY
-        self.scan_vars_type_cbb.currentTextChanged['QString'].connect(self.on_select_alter_vars_type)
-        self.monitor_vars_type_cbb.currentTextChanged['QString'].connect(self.on_select_monitor_vars_type)
-
-        # copy_pvname_btn, if copy scan put pv string as get pv
-        self.copy_pvname_btn.clicked.connect(self.on_copy_pvname)
+        # (new) inventory for selected elements, key: element name.
+        self.elem_widgets_dict = {}
 
         # UI post_init
         self._post_init_ui()
 
         # q-scan window
         self.qs_window = None
+
+        # lattice-load window
+        self.lattice_load_window = None
+        self._mp = None
+
+        #####
+        # test select monitors
+        #self.select_more_monitor_elems_btn.clicked.connect(self.on_select_monitors)
+        #self.elem_widgets_dict = {}
+        #from phantasy import MachinePortal
+        #self.mp = MachinePortal("VA_LS1FS1", "LINAC")
+        #self.i = 0
+        #self.tableWidget.setHorizontalHeaderLabels(['Element', 'Field'])
+
+        #####
+
+    #def _show(self):
+    #    s = self.sender().text()
+    #    w = self.elem_widgets_dict[s]
+    #    w.setWindowTitle(w.ename())
+    #    w.show()
+
+    #@pyqtSlot()
+    #def on_select_monitors(self):
+    #    """Select monitor elements, put into the below tableWidget.
+    #    """
+    #    from PyQt5.QtWidgets import QWidget
+    #    from PyQt5.QtCore import Qt
+#
+#        elem_obj = self.mp.get_elements(type="QUAD")[self.i]
+#        self.elem_widgets_dict.setdefault(elem_obj.name,
+#                ElementWidget(elem_obj))
+#        btn = QPushButton(elem_obj.name)
+#        btn.clicked.connect(self._show)
+#
+#        w = QWidget()
+#        hbox = QHBoxLayout(w)
+#        hbox.addWidget(btn)
+#        hbox.setAlignment(Qt.AlignCenter)
+#        hbox.setContentsMargins(5,5,5,5)
+#        w.setLayout(hbox)
+#
+#        self.tableWidget.setRowCount(self.i + 1)
+#        self.tableWidget.setCellWidget(self.i, 0, w)
+#        self.tableWidget.resizeColumnsToContents()
+#
+#        self.i += 1
+
+    @pyqtSlot()
+    def on_select_elem(self, mode='alter'):
+        """Select element via PV or high-level element for alter-vars and
+        monitor-vars.
+        """
+        dlg = self._sel_elem_dialogs.setdefault(mode, ElementSelectDialog(self, mode))
+        r = dlg.exec_()
+        self.elementsTreeChanged.connect(dlg.on_update_elem_tree)
+
+        if r == QDialog.Accepted:
+            # update element obj
+            sel_elem = dlg.sel_elem
+            name = sel_elem.name
+            # create elem_info widget, add into *elem_widgets_dict*
+            self.elem_widgets_dict.setdefault(name, ElementWidget(sel_elem))
+
+            elem_btn = QPushButton(name)
+            elem_btn.clicked.connect(lambda: self.on_show_elem_info(name))
+            elem_btn.setToolTip("Element to alter, click to see element detail")
+
+            if mode == 'alter':
+                hbox = QHBoxLayout()
+                hbox.addWidget(elem_btn)
+                hbox.setContentsMargins(0, 0, 0, 0)
+                self.alter_elem_lineEdit.setLayout(hbox)
+                self.alter_elem = sel_elem
+            elif mode == 'monitor':
+                hbox = QHBoxLayout()
+                hbox.addWidget(elem_btn)
+                hbox.setContentsMargins(0, 0, 0, 0)
+                self.monitor_elem_lineEdit.setLayout(hbox)
+                self.monitor_elem = sel_elem
+
+        elif r == QDialog.Rejected:
+            # do not update alter element obj
+            print("cancel")
+            return
+
+    @pyqtSlot()
+    def on_show_elem_info(self, name):
+        """Show element obj info in a popup elementWidget.
+
+        Parameters
+        ----------
+        name : str
+            Element name.
+        """
+        w = self.elem_widgets_dict[name]
+        w.setWindowTitle(name)
+        w.show()
 
     @pyqtSlot()
     def save_data(self):
@@ -129,9 +232,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         if filename is not None:
             self.__save_scan_data(filename)
 
-    def __save_scan_data(self, filename):
-        """Save scan data.
-        """
+    def make_data_sheet(self):
         data_sheet = JSONDataSheet()
         # task
         task_dict = OrderedDict()
@@ -149,41 +250,39 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         # devices
         dev_dict = OrderedDict()
         dev_dict['quad'] = {
-                'name': self.alter_var_elem.ename,
-                'readback_pv': self.alter_var_elem.get_pvname,
-                'setpoint_pv': self.alter_var_elem.put_pvname,
+                'name': self.alter_elem.name,
+                'readback_pv': self.alter_elem.get_pvname,
+                'setpoint_pv': self.alter_elem.put_pvname,
         }
         dev_dict['monitors'] = []
         dev_dict['monitors'].append({
-                'name': self.monitor_var_elem.ename,
-                'readback_pv': self.monitor_var_elem.get_pvname,
+                'name': self.monitor_elem.name,
+                'readback_pv': self.monitor_elem.get_pvname,
         })
         data_sheet.update({'devices': dev_dict})
 
         # data
         data_dict = OrderedDict()
         data_dict['created'] = epoch2human(time.time(), fmt=TS_FMT)
-        data_dict['filepath'] = filename
         data_dict['shape'] = self.scan_out_all.shape
         data_dict['array'] = self.scan_out_all.tolist()
         data_sheet.update({'data': data_dict})
 
+        return data_sheet
+
+    def __save_scan_data(self, filename):
+        """Save scan data.
+        """
+        data_sheet = self.make_data_sheet()
+
+        data_sheet['data'].update({'filepath': filename})
         # save
         data_sheet.write(filename)
         # return flag to indicate success or fail.
 
-    @pyqtSlot()
-    def on_copy_pvname(self):
-        """If copying text from *scan_vars_put_lineEdit* to
-        *scan_vars_get_lineEdit*.
-        """
-        self.scan_vars_get_lineEdit.setText(self.scan_vars_put_lineEdit.text())
-
     def _post_init_ui(self):
         """post init ui
         """
-        self.on_select_alter_vars_type(self.scan_vars_type_cbb.currentText())
-        self.on_select_monitor_vars_type(self.monitor_vars_type_cbb.currentText())
 
         # validators
         self.lower_limit_lineEdit.setValidator(QDoubleValidator())
@@ -204,11 +303,11 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         """
         if val == 'Element':
             # do not accept input
-            self.monitor_vars_lineEdit.setEnabled(False)
-            self.select_monitor_elems_btn.setEnabled(True)
+            self.monitor_main_lineEdit.setEnabled(False)
+            self.select_more_monitor_elems_btn.setEnabled(True)
         else:
-            self.monitor_vars_lineEdit.setEnabled(True)
-            self.select_monitor_elems_btn.setEnabled(False)
+            self.monitor_main_lineEdit.setEnabled(True)
+            self.select_more_monitor_elems_btn.setEnabled(False)
 
     @pyqtSlot('QString')
     def on_select_alter_vars_type(self, val):
@@ -216,38 +315,11 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         """
         if val == 'Element':
             # put and get boxes do not accept input
-            self.scan_vars_put_lineEdit.setEnabled(False)
-            self.scan_vars_get_lineEdit.setEnabled(False)
-            self.copy_pvname_btn.setEnabled(False)
+            self.alter_elem_lineEdit.setEnabled(False)
             self.select_scan_elems_btn.setEnabled(True)
         else:
-            self.scan_vars_get_lineEdit.setEnabled(True)
-            self.scan_vars_put_lineEdit.setEnabled(True)
-            self.copy_pvname_btn.setEnabled(True)
+            self.alter_elem_lineEdit.setEnabled(True)
             self.select_scan_elems_btn.setEnabled(False)
-
-    @pyqtSlot()
-    def set_monitor_vars(self):
-        """Set DAQ interface for vars to be monitored.
-        """
-        getPV_str = self.monitor_vars_lineEdit.text()
-        if getPV_str == '':
-            return
-
-        self.monitor_var_elem = PVElementReadonly(getPV_str)
-        self.delayed_check_pv_status(self.monitor_var_elem)
-
-    @pyqtSlot()
-    def set_alter_vars(self):
-        """Set DAQ interface for vars to be altered.
-        """
-        putPV_str = self.scan_vars_put_lineEdit.text()
-        getPV_str = self.scan_vars_get_lineEdit.text()
-        if putPV_str == '' or getPV_str == '':
-            return
-
-        self.alter_var_elem = PVElement(putPV_str, getPV_str)
-        self.delayed_check_pv_status(self.alter_var_elem)
 
     @pyqtSlot()
     def set_alter_range(self):
@@ -297,12 +369,9 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         4. Scan data out settings
         """
         # vars to be altered:
-        # scan_vars_type_cbb: PV or Element
-        self.set_alter_vars()
 
         # vars to be monitored:
-        # monitor_vars_type_cbb: PV or Element
-        self.set_monitor_vars()
+        #self.set_monitor_vars()
 
         # scan daq params
         self.set_scan_daq()
@@ -415,8 +484,8 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 
         else:
             self.scan_out_per_iter[self.daq_cnt, :] = \
-                self.alter_var_elem.value, \
-                self.monitor_var_elem.value
+                self.alter_elem.value, \
+                self.monitor_elem.value
 
             # update data: scan_out_all
             self.scan_out_all[self.current_alter_index_in_daq, :, :] = self.scan_out_per_iter
@@ -441,7 +510,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
             # get the current value to be set
             current_alter_val = self.alter_range_array[self.current_alter_index]
             # make set/put operation
-            self.alter_var_elem.value = current_alter_val
+            self.alter_elem.value = current_alter_val
 
             # wait
             milli_sleep(qApp, self.scan_waitmsec_val)
@@ -526,11 +595,34 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         from phantasy.apps.quad_scan import __version__
 
         if self.qs_window is None:
-            self.qs_window = QuadScanWindow(__version__)
+            try:
+                self.qs_window = QuadScanWindow(__version__, self.make_data_sheet())
+            except AttributeError:
+                QMessageBox.warning(self, "",
+                    "Scan Routine is not complete, please try again later.",
+                    QMessageBox.Ok)
+                return
         self.qs_window.show()
+
+    @pyqtSlot()
+    def onLoadLatticeAction(self):
+        """Load lattice.
+        """
+        if self.lattice_load_window is None:
+            self.lattice_load_window = LatticeWidget()
+        self.lattice_load_window.show()
+        self.lattice_load_window.latticeChanged.connect(self.update_mp)
+
+    @pyqtSlot(QVariant)
+    def update_mp(self, o):
+        """Update MachinePortal instance, after reload lattice.
+        """
+        self._mp = o
+        self.elementsTreeChanged.emit(o)
 
     @pyqtSlot()
     def onHelp(self):
         d = HelpDialog(self)
         d.resize(800, 600)
         d.exec_()
+
