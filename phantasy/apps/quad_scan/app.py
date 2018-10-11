@@ -113,6 +113,8 @@ class QuadScanWindow(BaseAppForm, Ui_MainWindow):
         """
         filepath, ext = get_open_filename(self,
                 filter="JSON Files (*.json);;HDF5 Files (*.hdf5 *.h5)")
+        if filepath is None:
+            return
         if ext.upper() == 'JSON':
             # process json data sheet
             self.qs_data = JSONDataSheet(filepath)
