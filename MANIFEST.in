@@ -6,3 +6,4 @@ recursive-include phantasy/tests/config *
 recursive-include phantasy/tests/data *
 recursive-include phantasy/tests/lattice *
 recursive-include phantasy/apps/trajectory_viewer/config *
+recursive-include phantasy/apps/wire_scanner/config *
