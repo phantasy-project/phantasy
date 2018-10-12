@@ -1,3 +1,13 @@
+Version 1.4.0
+-------------
+2018-10-12 [Testing]
+
+- First release for GUI apps:
+  - Quad scan
+  - Correlation Visualizer
+- Initiate data sheet for output data
+- Testing wire-scanner device class
+
 Version 1.3.0
 -------------
 2018-09-26 [Testing]
