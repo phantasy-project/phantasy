@@ -14,7 +14,7 @@ class QCallback(object):
 
     def __call__(self, **kws):
         val = kws.get('value')
-        if val == self.goal
+        if val == self.goal:
             self.q.put(val)
             idx, obj = kws.get('cb_info')
             obj.remove_callback(idx)

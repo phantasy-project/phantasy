@@ -12,8 +12,7 @@ from .utils import wait
 
 _LOGGER = logging.getLogger(__name__)
 
-FORK_BIT_MAPPING =
-{
+FORK_BIT_MAPPING = {
     'large': (1, 2,),
     'small': (1,),
     'flapper': (1, 2,),
