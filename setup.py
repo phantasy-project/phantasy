@@ -14,7 +14,7 @@ def read_license():
         return f.read()
 
 
-app_version="1.3.0"
+app_version="1.4.0"
 app_name = "phantasy"
 app_description = 'Physics high-level applications and toolkit for ' \
         'accelerator system'
