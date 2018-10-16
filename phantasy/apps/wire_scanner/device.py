@@ -12,6 +12,11 @@ from .utils import wait
 
 _LOGGER = logging.getLogger(__name__)
 
+try:
+    basestring
+except NameError:
+    basestring = str
+
 FORK_BIT_MAPPING = {
     'large': (1, 2,),
     'small': (1,),
@@ -39,10 +44,11 @@ class Device(object):
     """
     def __init__(self, elem, dconf):
         self.elem = elem
-        if os.path.isfile(dconf):
-            self.dconf = Configuration(dconf)
-        elif isinstance(dconf, Configuration):
+
+        if isinstance(dconf, Configuration):
             self.dconf = dconf
+        elif isinstance(dconf, basestring) and os.path.isfile(dconf):
+            self.dconf = Configuration(dconf)
         else:
             _LOGGER.error("Cannot find device configuration.")
 
@@ -53,11 +59,11 @@ class Device(object):
         self._fork_ids = tuple()
 
         # device type, see .ini file
-        self.dtype = dconf[name].get('type')
+        self.dtype = dconf.get(name, 'type')
 
         # scan range
-        self.scan_start_pos = dconf[name].getarray('start_pos_val')
-        self.scan_stop_pos = dconf[name].getarray('stop_pos_val')
+        self.scan_start_pos = dconf.getarray(name, 'start_pos_val')
+        self.scan_stop_pos = dconf.getarray(name, 'stop_pos_val')
 
     @property
     def scan_start_pos(self):
@@ -181,9 +187,14 @@ class Device(object):
         fld_prefix = kws.get('field_prefix', 'ENABLE_SCAN')
         for fid in self.fork_ids:
             escan_fld_name = '{0}{1}'.format(fld_prefix, fid)
-            setattr(self.elem, init_bit)
-            # wait for signal
-            wait(self.elem.get_field(escan_fld_name).readback_pv[0], 1)
+            fld = self.elem.get_field(escan_fld_name)
+            if fld.value != init_bit:
+                fld.value = init_bit
+                # wait for signal
+                wait(fld.readback_pv[0], init_bit)
+                assert fld.value == init_bit
+            else:
+                _LOGGER.info("Scan already enabled...")
 
     def init_motor_pos(self, outlimit_bit=1, outlimit_val=110, **kws):
         """Move out all forks until outward limit, enable movement,
@@ -212,18 +223,20 @@ class Device(object):
         for fid in self.fork_ids:
             setattr(self.elem, '{0}{1}'.format(mpos_fld_prefix, fid),
                     outlimit_val)
-            # block while motor is moving
             outlimit_fld_name = '{0}{1}'.format(outlimit_fld_prefix, fid)
-            wait(self.elem.get_field(outlimit_fld_name).readback_pv[0], 1)
-            assert getattr(self.elem, outlimit_fld_name) == outlimit_bit
+            outlimit_fld = self.elem.get_field(outlimit_fld_name)
+            if outlimit_fld.value != outlimit_bit:
+                # wait until outlimit reached
+                wait(outlimit_fld.readback_pv[0], outlimit_bit)
+            assert outlimit_fld.value == outlimit_bit
 
     def reset_interlock(self, lock_off_bit=0, **kws):
-        """Reset interlock signals.
+        """Reset interlock signals, when all the forks are at outward limit.
 
         Parameters
         ----------
         lock_off_bit : int
-            Int bit that interlock is off.
+            Int bit that interlock is off, i.e. ready to work.
 
         Keyword Arguments
         -----------------
@@ -235,13 +248,25 @@ class Device(object):
         if self.dtype != 'large': # only for large type PM.
             return
 
+        _LOGGER.info("Reseting interlock...")
+
         self.init_motor_pos()
 
         fld_itlk_prefix = kws.get('field_prefix2', 'INTERLOCK')
-        setattr(self.elem, kws.get('field_prefix1', 'RESET_ITLK'), 1)
-        for fid in self.fork_ids:
-            assert getattr(self.elem, '{0}{1}'.format(
-                fld_itlk_prefix, fid)) == lock_off_bit
+
+        loop_out = False
+        while not loop_out:
+            setattr(self.elem, kws.get('field_prefix1', 'RESET_ITLK'), 1)
+            for fid in self.fork_ids:
+                fld_name = '{0}{1}'.format(fld_itlk_prefix, fid)
+                fld_itlk_status = self.elem.get_field(fld_name)
+                if fld_itlk_status.value != lock_off_bit:
+                    wait(fld.readback_pv[0], lock_off_bit)
+                try:
+                    assert fld_itlk_status.value == lock_off_bit
+                    loop_out = True
+                except assertionError:
+                    _LOGGER.warning("Try to reset interlock again..")
 
     def set_scan_range(self, start=None, stop=None, **kws):
         """Set up fork scan range, from *start* to *stop* pos, the position
@@ -294,6 +319,11 @@ class Device(object):
             String of the field name for start btn, excluding fork id.
         field_prefix2 : str
             String of the field name for scan status, excluding fork id.
+
+        Note
+        ----
+        When one folk is moving, the interlock of this moving folk is off (red),
+        the other folk is disabled (while the interlock is on (green)).
         """
         sbtn_fld_prefix = kws.get('field_prefix1', 'START_SCAN')
         sstatus_fld_prefix = kws.get('field_prefix2', 'SCAN_STATUS')
@@ -303,5 +333,14 @@ class Device(object):
 
             # wait until scan finished, ready for next scan
             sstatus_fld_name = '{0}{1}'.format(sstatus_fld_prefix, fid)
-            wait(self.elem.get_field(sstatus_fld_name).readback_pv[0], "Ready")
+            fld_sstatus = self.elem.get_field(sstatus_fld_name)
+            if fld_sstatus.value != "Ready":
+                # wait ready signal for next scan
+                wait(fld_sstatus.readback_pv[0], "Ready")
 
+            # enable scan
+            self.enable_scan()
+            # reset motors to outlimits
+            self.init_motor_pos()
+            # reset interlock
+            self.reset_interlock()
