@@ -7,6 +7,8 @@ from PyQt5.QtWidgets import QDialog
 from PyQt5.QtWidgets import QStatusBar
 from PyQt5.QtWidgets import QLabel
 from PyQt5.QtWidgets import QHBoxLayout
+from PyQt5.QtWidgets import QAction
+from PyQt5.QtWidgets import QShortcut
 from PyQt5.QtCore import QUrl
 from PyQt5.QtCore import QTimer
 from PyQt5.QtCore import QDateTime
@@ -16,6 +18,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtCore import QThread
 from PyQt5.QtGui import QIcon
 from PyQt5.QtGui import QPixmap
+from PyQt5.QtGui import QKeySequence
 import time
 import random
 
@@ -26,6 +29,13 @@ from .utils import get_service_status
 from .utils import start_unicorn_service
 from .utils import stop_unicorn_service
 from .resources import unicorn_icon
+from .resources import zoom_in_icon
+from .resources import zoom_out_icon
+from .resources import back_icon
+from .resources import forward_icon
+from .resources import quit_icon
+from .resources import home_icon
+
 from .utils import PORT_RANGE
 
 
@@ -44,6 +54,9 @@ class UnicornApp(QMainWindow, Ui_mainWindow):
         # UI
         self.setupUi(self)
         self.setWindowTitle("UNICORN Application")
+
+        # toolbar
+        self.setup_toolbar()
 
         # icon
         self.setWindowIcon(QIcon(QPixmap(unicorn_icon)))
@@ -76,6 +89,10 @@ class UnicornApp(QMainWindow, Ui_mainWindow):
         self.ui_refresher = Refresher(self)
         self.ui_refresher.srv_status_signal.connect(self.set_srv_status)
         self.ui_refresher.start()
+
+        # shortcuts
+        zoom0 = QShortcut(QKeySequence("Ctrl+0"), self)
+        zoom0.activated.connect(self.zoom_reset)
 
     @pyqtSlot(bool)
     def slot_test(self, e):
@@ -206,6 +223,63 @@ class UnicornApp(QMainWindow, Ui_mainWindow):
                     QMessageBox.Ok)
         self.webView.setUrl(QUrl(base_url))
 
+    @pyqtSlot()
+    def zoom_in(self):
+        if self._pageZoom < 200:
+            self._pageZoom += 5
+            self.webView.setZoomFactor(self._pageZoom / 100)
+
+    @pyqtSlot()
+    def zoom_out(self):
+        if self._pageZoom > 50:
+            self._pageZoom -= 5
+            self.webView.setZoomFactor(self._pageZoom / 100)
+
+    @pyqtSlot()
+    def zoom_reset(self):
+        self._pageZoom = 100
+        self.webView.setZoomFactor(self._pageZoom / 100)
+
+    def setup_toolbar(self):
+        """Set up toolbar"""
+        # exit tool
+        exitTool = QAction(QIcon(QPixmap(quit_icon)), 'Exit', self)
+        exitTool.triggered.connect(self.close)
+
+        # zoom in tool
+        zoomInTool = QAction(QIcon(QPixmap(zoom_in_icon)), 'Zoom In', self)
+        zoomInTool.setShortcut(QKeySequence.ZoomIn)
+        zoomInTool.triggered.connect(self.zoom_in)
+
+        # zoom out tool
+        zoomOutTool = QAction(QIcon(QPixmap(zoom_out_icon)), 'Zoom Out', self)
+        zoomOutTool.setShortcut(QKeySequence.ZoomOut)
+        zoomOutTool.triggered.connect(self.zoom_out)
+
+        # home tool
+        homeTool = QAction(QIcon(QPixmap(home_icon)), 'Home Page', self)
+        homeTool.setShortcut('Ctrl+h')
+        homeTool.triggered.connect(lambda: self.webView.setUrl(QUrl(self.get_base_url())))
+
+        # back view
+        backTool = QAction(QIcon(QPixmap(back_icon)), 'Back', self)
+        backTool.setShortcut(QKeySequence.Back)
+        backTool.triggered.connect(lambda x: self.webView.back())
+
+        # forward view
+        forwardTool = QAction(QIcon(QPixmap(forward_icon)), 'Forward', self)
+        forwardTool.setShortcut(QKeySequence.Forward)
+        forwardTool.triggered.connect(lambda x: self.webView.forward())
+
+        # set toolbar
+        self.toolBar.addAction(homeTool)
+        self.toolBar.addSeparator()
+        self.toolBar.addAction(zoomInTool)
+        self.toolBar.addAction(zoomOutTool)
+        self.toolBar.addAction(backTool)
+        self.toolBar.addAction(forwardTool)
+        self.toolBar.addSeparator()
+        self.toolBar.addAction(exitTool)
 
 class Refresher(QThread):
     srv_status_signal = pyqtSignal('QString')    # for service status
