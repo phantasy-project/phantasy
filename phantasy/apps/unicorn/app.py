@@ -215,6 +215,18 @@ class UnicornApp(BaseAppForm, Ui_mainWindow):
         self.toolBar.addSeparator()
         self.toolBar.addAction(exitTool)
 
+    def closeEvent(self, e):
+        r = QMessageBox.warning(self, "Warning", "Exit this application?",
+                QMessageBox.Cancel | QMessageBox.Yes,
+                QMessageBox.Cancel)
+        if r == QMessageBox.Yes:
+            self.ui_refresher.terminate()
+            self._terminate_unicorn()
+            e.accept()
+        else:
+            e.ignore()
+
+
 class Refresher(QThread):
     srv_status_signal = pyqtSignal('QString')    # for service status
     def __init__(self, parent=None):
