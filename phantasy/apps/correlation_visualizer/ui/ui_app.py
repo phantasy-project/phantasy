@@ -23,8 +23,8 @@ class Ui_MainWindow(object):
         self.splitter = QtWidgets.QSplitter(self.splitter_2)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
                                            QtWidgets.QSizePolicy.Expanding)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(1)
+        sizePolicy.setHorizontalStretch(1)
+        sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(
             self.splitter.sizePolicy().hasHeightForWidth())
         self.splitter.setSizePolicy(sizePolicy)
@@ -40,8 +40,9 @@ class Ui_MainWindow(object):
         self.scan_groupBox.setSizePolicy(sizePolicy)
         self.scan_groupBox.setStyleSheet(
             "QGroupBox {\n"
-            "    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
-            "                                      stop: 0 #E0E0E0, stop: 1 #FFFFFF);\n"
+            "    /*background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
+            "                                      stop: 0 #E0E0E0, stop: 1 #E0E0E0);\n"
+            "   */\n"
             "    border: 2px solid gray;\n"
             "    border-radius: 5px;\n"
             "    margin-top: 1.5ex; /* leave space at the top for the title */\n"
@@ -52,8 +53,9 @@ class Ui_MainWindow(object):
             "    subcontrol-origin: margin;\n"
             "    subcontrol-position: top center; /* position at the top center */\n"
             "    padding: 0 3px;\n"
-            "    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
+            "    /*background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
             "                                      stop: 0 #EDECEB, stop: 1 #FFFFFF);\n"
+            "    */\n"
             "}")
         self.scan_groupBox.setObjectName("scan_groupBox")
         self.gridLayout = QtWidgets.QGridLayout(self.scan_groupBox)
@@ -151,10 +153,16 @@ class Ui_MainWindow(object):
         self.scan_log_textEdit = QtWidgets.QTextEdit(self.scan_groupBox)
         font = QtGui.QFont()
         font.setFamily("Monospace")
+        font.setPointSize(8)
         self.scan_log_textEdit.setFont(font)
         self.scan_log_textEdit.setObjectName("scan_log_textEdit")
         self.scanlog_verticalLayout.addWidget(self.scan_log_textEdit)
-        self.gridLayout.addLayout(self.scanlog_verticalLayout, 1, 0, 1, 1)
+        self.gridLayout.addLayout(self.scanlog_verticalLayout, 2, 0, 1, 1)
+        self.tableWidget = QtWidgets.QTableWidget(self.scan_groupBox)
+        self.tableWidget.setColumnCount(2)
+        self.tableWidget.setObjectName("tableWidget")
+        self.tableWidget.setRowCount(0)
+        self.gridLayout.addWidget(self.tableWidget, 1, 0, 1, 1)
         self.daq_groupBox = QtWidgets.QGroupBox(self.splitter)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
                                            QtWidgets.QSizePolicy.Preferred)
@@ -165,8 +173,9 @@ class Ui_MainWindow(object):
         self.daq_groupBox.setSizePolicy(sizePolicy)
         self.daq_groupBox.setStyleSheet(
             "QGroupBox {\n"
-            "    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
-            "                                      stop: 0 #E0E0E0, stop: 1 #FFFFFF);\n"
+            "    /*background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
+            "                                      stop: 0 #E0E0E0, stop: 1 #E0E0E0);\n"
+            "   */\n"
             "    border: 2px solid gray;\n"
             "    border-radius: 5px;\n"
             "    margin-top: 1.5ex; /* leave space at the top for the title */\n"
@@ -177,8 +186,9 @@ class Ui_MainWindow(object):
             "    subcontrol-origin: margin;\n"
             "    subcontrol-position: top center; /* position at the top center */\n"
             "    padding: 0 3px;\n"
-            "    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
+            "    /*background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
             "                                      stop: 0 #EDECEB, stop: 1 #FFFFFF);\n"
+            "    */\n"
             "}")
         self.daq_groupBox.setObjectName("daq_groupBox")
         self.gridLayout_2 = QtWidgets.QGridLayout(self.daq_groupBox)
@@ -292,8 +302,9 @@ class Ui_MainWindow(object):
         self.plot_groupBox.setSizePolicy(sizePolicy)
         self.plot_groupBox.setStyleSheet(
             "QGroupBox {\n"
-            "    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
+            "    /*background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
             "                                      stop: 0 #E0E0E0, stop: 1 #E0E0E0);\n"
+            "   */\n"
             "    border: 2px solid gray;\n"
             "    border-radius: 5px;\n"
             "    margin-top: 1.5ex; /* leave space at the top for the title */\n"
@@ -304,13 +315,16 @@ class Ui_MainWindow(object):
             "    subcontrol-origin: margin;\n"
             "    subcontrol-position: top center; /* position at the top center */\n"
             "    padding: 0 3px;\n"
-            "    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
+            "    /*background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
             "                                      stop: 0 #EDECEB, stop: 1 #FFFFFF);\n"
+            "    */\n"
             "}")
         self.plot_groupBox.setObjectName("plot_groupBox")
         self.gridLayout_4 = QtWidgets.QGridLayout(self.plot_groupBox)
         self.gridLayout_4.setObjectName("gridLayout_4")
         self.scan_plot_widget = MatplotlibErrorbarWidget(self.plot_groupBox)
+        self.scan_plot_widget.setProperty("figureBackgroundColor",
+                                          QtGui.QColor(255, 255, 255))
         self.scan_plot_widget.setFigureAutoScale(True)
         self.scan_plot_widget.setObjectName("scan_plot_widget")
         self.gridLayout_4.addWidget(self.scan_plot_widget, 0, 0, 1, 1)
@@ -326,9 +340,15 @@ class Ui_MainWindow(object):
         self.save_data_btn.setSizePolicy(sizePolicy)
         self.save_data_btn.setObjectName("save_data_btn")
         self.horizontalLayout_3.addWidget(self.save_data_btn)
-        self.pushButton = QtWidgets.QPushButton(self.plot_groupBox)
-        self.pushButton.setObjectName("pushButton")
-        self.horizontalLayout_3.addWidget(self.pushButton)
+        self.auto_labels_btn = QtWidgets.QPushButton(self.plot_groupBox)
+        self.auto_labels_btn.setObjectName("auto_labels_btn")
+        self.horizontalLayout_3.addWidget(self.auto_labels_btn)
+        self.auto_title_btn = QtWidgets.QPushButton(self.plot_groupBox)
+        self.auto_title_btn.setObjectName("auto_title_btn")
+        self.horizontalLayout_3.addWidget(self.auto_title_btn)
+        self.moveto_btn = QtWidgets.QPushButton(self.plot_groupBox)
+        self.moveto_btn.setObjectName("moveto_btn")
+        self.horizontalLayout_3.addWidget(self.moveto_btn)
         spacerItem = QtWidgets.QSpacerItem(40, 20,
                                            QtWidgets.QSizePolicy.Expanding,
                                            QtWidgets.QSizePolicy.Minimum)
@@ -337,7 +357,7 @@ class Ui_MainWindow(object):
         self.gridLayout_3.addWidget(self.splitter_2, 0, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1779, 32))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1779, 39))
         self.menubar.setObjectName("menubar")
         self.menu_File = QtWidgets.QMenu(self.menubar)
         self.menu_File.setObjectName("menu_File")
@@ -431,7 +451,9 @@ class Ui_MainWindow(object):
         self.plot_groupBox.setTitle(
             _translate("MainWindow", "Correlation Plot"))
         self.save_data_btn.setText(_translate("MainWindow", "Save Data"))
-        self.pushButton.setText(_translate("MainWindow", "Auto Labels"))
+        self.auto_labels_btn.setText(_translate("MainWindow", "Auto Labels"))
+        self.auto_title_btn.setText(_translate("MainWindow", "Auto Title"))
+        self.moveto_btn.setText(_translate("MainWindow", "Move To"))
         self.menu_File.setTitle(_translate("MainWindow", "&File"))
         self.menu_Help.setTitle(_translate("MainWindow", "&Help"))
         self.menuTools.setTitle(_translate("MainWindow", "&Tools"))
