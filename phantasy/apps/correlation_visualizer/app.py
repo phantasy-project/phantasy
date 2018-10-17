@@ -97,6 +97,12 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         self.scanrate_dSpinBox.valueChanged.connect(self.set_scan_daq)
         # output scan data
         self.save_data_btn.clicked.connect(self.save_data)
+        # auto xylabels
+        self.auto_labels_btn.clicked.connect(self.on_auto_labels)
+        # auto title
+        self.auto_title_btn.clicked.connect(self.on_auto_title)
+        # move to peak
+        self.moveto_btn.clicked.connect(self.on_moveto)
 
         # signals & slots
         self.scanlogUpdated.connect(self.scan_log_textEdit.append)
@@ -127,6 +133,14 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         # lattice-load window
         self.lattice_load_window = None
         self._mp = None
+
+        # alter/monitor elem default values
+        self.alter_elem = None
+        self.monitor_elem = None
+
+        # vars
+        self.ts_start = None
+        self.ts_stop = None
 
         #####
         # test select monitors
@@ -399,6 +413,8 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         self.scantimer.start(self.scantimer_deltmsec)
         # task start timestamp
         self.ts_start = time.time()
+        # stop timestamp
+        self.ts_stop = None
 
         # update UI
         self.start_btn.setEnabled(False)
@@ -464,7 +480,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 
             # update scan log
             idx = self.current_alter_index_in_daq
-            log = 'Iter: {0:>3d}/[{1:d}] is done, scan value: {2:>10.3f}.'.format(
+            log = 'Iter:{0:>3d}/[{1:d}] is done at value: {2:>9.2f}.'.format(
                     idx + 1, self.scan_iternum_val, self.alter_range_array[idx])
             self.scanlogUpdated.emit(log)
 
@@ -625,4 +641,39 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         d = HelpDialog(self)
         d.resize(800, 600)
         d.exec_()
+
+    @pyqtSlot()
+    def on_auto_labels(self):
+        """Auto fill out the xy labels of figure.
+        """
+        xlabel = get_auto_label(self.alter_elem)
+        ylabel = get_auto_label(self.monitor_elem)
+        self.scan_plot_widget.setFigureXlabel(xlabel)
+        self.scan_plot_widget.setFigureYlabel(ylabel)
+
+    @pyqtSlot()
+    def on_auto_title(self):
+        """Auto fill out the title of figure.
+        """
+        if self.ts_stop is None: # scan routine is not finished
+            return
+        title = "Completed at {ts}\nSCAN Duration: {t:.2g} s".format(
+                    ts=epoch2human(self.ts_stop, fmt=TS_FMT),
+                    t=self.ts_stop-self.ts_start)
+        self.scan_plot_widget.setFigureTitle(title)
+
+
+def get_auto_label(elem):
+    """Return string of element name and field name.
+    """
+    if elem is None:
+        return ''
+    if isinstance(elem, (PVElement, PVElementReadonly)):
+        # return readback pv name
+        label = '{pv}'.format(pv=elem.readback[0])
+    else:
+        # CaElement
+        # return element name and field name.
+        pass
+    return label
 
