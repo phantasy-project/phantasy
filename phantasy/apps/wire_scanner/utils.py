@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import logging
+
+_LOGGER = logging.getLogger(__name__)
+
 try:
     from Queue import Queue, Empty
 except ImportError:
@@ -21,12 +25,14 @@ class QCallback(object):
 
 
 def wait(pv, goal, timeout=60):
+    if pv.value == goal:
+        _LOGGER.warning("Already reached {}...".format(goal))
+        return
     q = Queue(1)
     cid = pv.add_callback(QCallback(q, goal))
     try:
         if q.get(timeout=timeout):
-            print("unblocking, pv reaches {}...".format(goal))
+            _LOGGER.info("{} reached, unblocking...".format(goal))
     except Empty:
-        print("Timeout")
+        _LOGGER.warning("Timeout, not changes detected.")
         pv.remove_callback(cid)
-

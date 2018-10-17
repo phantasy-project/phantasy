@@ -25,8 +25,6 @@ class PrefDialog(QDialog, Ui_Dialog):
         # set url and port
         self.lineEdit_url.setText(self.parent._url)
         self.lineEdit_port.setText(self.parent._port)
-        # set pagezoom
-        self.pageZoom.setCurrentText('{}%'.format(int(self.parent._pageZoom)))
 
         # refresher (UI)
         self.refresher = Refresher(self)
@@ -41,6 +39,11 @@ class PrefDialog(QDialog, Ui_Dialog):
         self.get_all_srv_status_btn.clicked.connect(self.get_all_srv_status)
         self.clean_all_srv_btn.clicked.connect(self.clean_all_srv)
         self.popup_browser_btn.clicked.connect(self.popup_browser)
+        self.pageZoom_slider.valueChanged.connect(
+                lambda x:self.pageZoom_lbl.setText("{} %".format(x)))
+
+        # set pagezoom
+        self.pageZoom_slider.setValue(self.parent._pageZoom)
 
     def on_accept_btn_box(self):
         # url
@@ -52,8 +55,7 @@ class PrefDialog(QDialog, Ui_Dialog):
         self.parent.update_url(QUrl(base_url))
 
         # pageZoom
-        self.parent._pageZoom = float(
-            self.pageZoom.currentText().split('%')[0])
+        self.parent._pageZoom = self.pageZoom_slider.value()
         self.parent.update_pageZoom()
         self.close()
 

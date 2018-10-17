@@ -191,10 +191,15 @@ class Device(object):
             if fld.value != init_bit:
                 fld.value = init_bit
                 # wait for signal
-                wait(fld.readback_pv[0], init_bit)
-                assert fld.value == init_bit
+                wait(fld.readback_pv[0], init_bit, 10)
             else:
                 _LOGGER.info("Scan already enabled...")
+
+            try:
+                assert fld.value == init_bit
+            except AssertionError:
+                self.reset_interlock()
+                self.enable_scan()
 
     def init_motor_pos(self, outlimit_bit=1, outlimit_val=110, **kws):
         """Move out all forks until outward limit, enable movement,
@@ -261,11 +266,11 @@ class Device(object):
                 fld_name = '{0}{1}'.format(fld_itlk_prefix, fid)
                 fld_itlk_status = self.elem.get_field(fld_name)
                 if fld_itlk_status.value != lock_off_bit:
-                    wait(fld.readback_pv[0], lock_off_bit)
+                    wait(fld_itlk_status.readback_pv[0], lock_off_bit)
                 try:
                     assert fld_itlk_status.value == lock_off_bit
                     loop_out = True
-                except assertionError:
+                except AssertionError:
                     _LOGGER.warning("Try to reset interlock again..")
 
     def set_scan_range(self, start=None, stop=None, **kws):
@@ -334,7 +339,7 @@ class Device(object):
             # wait until scan finished, ready for next scan
             sstatus_fld_name = '{0}{1}'.format(sstatus_fld_prefix, fid)
             fld_sstatus = self.elem.get_field(sstatus_fld_name)
-            if fld_sstatus.value != "Ready":
+            if fld_sstatus.readback_pv[0].value != 'Ready':
                 # wait ready signal for next scan
                 wait(fld_sstatus.readback_pv[0], "Ready")
 
