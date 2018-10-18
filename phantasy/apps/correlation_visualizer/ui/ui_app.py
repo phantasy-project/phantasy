@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui_app.ui'
 #
-# Created by: PyQt5 UI code generator 5.10.1
+# Created by: PyQt5 UI code generator 5.5.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -12,7 +12,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1779, 1123)
+        MainWindow.resize(1920, 1200)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout_3 = QtWidgets.QGridLayout(self.centralwidget)
@@ -116,6 +116,15 @@ class Ui_MainWindow(object):
         self.show_other_monitors_btn.setObjectName("show_other_monitors_btn")
         self.scan_gridLayout.addWidget(self.show_other_monitors_btn, 4, 2, 1,
                                        2)
+        self.scan_percentage_dSpinbox = QtWidgets.QDoubleSpinBox(
+            self.scan_groupBox)
+        self.scan_percentage_dSpinbox.setDecimals(1)
+        self.scan_percentage_dSpinbox.setMinimum(-100.0)
+        self.scan_percentage_dSpinbox.setMaximum(100.0)
+        self.scan_percentage_dSpinbox.setSingleStep(0.5)
+        self.scan_percentage_dSpinbox.setObjectName("scan_percentage_dSpinbox")
+        self.scan_gridLayout.addWidget(self.scan_percentage_dSpinbox, 2, 4, 1,
+                                       1)
         self.gridLayout.addLayout(self.scan_gridLayout, 0, 0, 1, 1)
         self.scanlog_verticalLayout = QtWidgets.QVBoxLayout()
         self.scanlog_verticalLayout.setObjectName("scanlog_verticalLayout")
@@ -355,7 +364,7 @@ class Ui_MainWindow(object):
         self.gridLayout_3.addWidget(self.splitter_2, 0, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1779, 30))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1920, 39))
         self.menubar.setObjectName("menubar")
         self.menu_File = QtWidgets.QMenu(self.menubar)
         self.menu_File.setObjectName("menu_File")
@@ -432,6 +441,11 @@ class Ui_MainWindow(object):
             _translate("MainWindow", "Other Selected Monitors (0)"))
         self.show_other_monitors_btn.setText(
             _translate("MainWindow", "Show Monitors"))
+        self.scan_percentage_dSpinbox.setToolTip(
+            _translate(
+                "MainWindow",
+                "<html><head/><body><p>Adjust scan range by percentages.</p></body></html>"
+            ))
         self.label_12.setText(_translate("MainWindow", "Event Log"))
         self.daq_groupBox.setTitle(
             _translate("MainWindow", "DAQ Configuration"))
