@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui_app.ui'
 #
-# Created by: PyQt5 UI code generator 5.5.1
+# Created by: PyQt5 UI code generator 5.10.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -344,6 +344,9 @@ class Ui_MainWindow(object):
         self.moveto_btn = QtWidgets.QPushButton(self.plot_groupBox)
         self.moveto_btn.setObjectName("moveto_btn")
         self.horizontalLayout_3.addWidget(self.moveto_btn)
+        self.set_btn = QtWidgets.QPushButton(self.plot_groupBox)
+        self.set_btn.setObjectName("set_btn")
+        self.horizontalLayout_3.addWidget(self.set_btn)
         spacerItem = QtWidgets.QSpacerItem(40, 20,
                                            QtWidgets.QSizePolicy.Expanding,
                                            QtWidgets.QSizePolicy.Minimum)
@@ -352,7 +355,7 @@ class Ui_MainWindow(object):
         self.gridLayout_3.addWidget(self.splitter_2, 0, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1779, 39))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1779, 30))
         self.menubar.setObjectName("menubar")
         self.menu_File = QtWidgets.QMenu(self.menubar)
         self.menu_File.setObjectName("menu_File")
@@ -449,6 +452,7 @@ class Ui_MainWindow(object):
         self.auto_labels_btn.setText(_translate("MainWindow", "Auto Labels"))
         self.auto_title_btn.setText(_translate("MainWindow", "Auto Title"))
         self.moveto_btn.setText(_translate("MainWindow", "Move To"))
+        self.set_btn.setText(_translate("MainWindow", "Set"))
         self.menu_File.setTitle(_translate("MainWindow", "&File"))
         self.menu_Help.setTitle(_translate("MainWindow", "&Help"))
         self.menuTools.setTitle(_translate("MainWindow", "&Tools"))
