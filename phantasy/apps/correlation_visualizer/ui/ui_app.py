@@ -157,12 +157,7 @@ class Ui_MainWindow(object):
         self.scan_log_textEdit.setFont(font)
         self.scan_log_textEdit.setObjectName("scan_log_textEdit")
         self.scanlog_verticalLayout.addWidget(self.scan_log_textEdit)
-        self.gridLayout.addLayout(self.scanlog_verticalLayout, 2, 0, 1, 1)
-        self.tableWidget = QtWidgets.QTableWidget(self.scan_groupBox)
-        self.tableWidget.setColumnCount(2)
-        self.tableWidget.setObjectName("tableWidget")
-        self.tableWidget.setRowCount(0)
-        self.gridLayout.addWidget(self.tableWidget, 1, 0, 1, 1)
+        self.gridLayout.addLayout(self.scanlog_verticalLayout, 1, 0, 1, 1)
         self.daq_groupBox = QtWidgets.QGroupBox(self.splitter)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
                                            QtWidgets.QSizePolicy.Preferred)
