@@ -13,6 +13,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(1920, 1200)
+        MainWindow.setStyleSheet("")
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout_3 = QtWidgets.QGridLayout(self.centralwidget)
@@ -408,6 +409,37 @@ class Ui_MainWindow(object):
         self.actionLoad_Lattice.triggered.connect(
             MainWindow.onLoadLatticeAction)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        MainWindow.setTabOrder(self.alter_elem_lineEdit,
+                               self.select_alter_elem_btn)
+        MainWindow.setTabOrder(self.select_alter_elem_btn,
+                               self.lower_limit_lineEdit)
+        MainWindow.setTabOrder(self.lower_limit_lineEdit,
+                               self.upper_limit_lineEdit)
+        MainWindow.setTabOrder(self.upper_limit_lineEdit,
+                               self.scan_percentage_dSpinbox)
+        MainWindow.setTabOrder(self.scan_percentage_dSpinbox,
+                               self.monitor_elem_lineEdit)
+        MainWindow.setTabOrder(self.monitor_elem_lineEdit,
+                               self.select_monitor_elem_btn)
+        MainWindow.setTabOrder(self.select_monitor_elem_btn,
+                               self.show_other_monitors_btn)
+        MainWindow.setTabOrder(self.show_other_monitors_btn,
+                               self.select_more_monitor_elems_btn)
+        MainWindow.setTabOrder(self.select_more_monitor_elems_btn,
+                               self.scan_log_textEdit)
+        MainWindow.setTabOrder(self.scan_log_textEdit, self.niter_spinBox)
+        MainWindow.setTabOrder(self.niter_spinBox, self.nshot_spinBox)
+        MainWindow.setTabOrder(self.nshot_spinBox, self.waitsec_dSpinBox)
+        MainWindow.setTabOrder(self.waitsec_dSpinBox, self.scanrate_dSpinBox)
+        MainWindow.setTabOrder(self.scanrate_dSpinBox, self.start_btn)
+        MainWindow.setTabOrder(self.start_btn, self.pause_btn)
+        MainWindow.setTabOrder(self.pause_btn, self.stop_btn)
+        MainWindow.setTabOrder(self.stop_btn, self.retake_btn)
+        MainWindow.setTabOrder(self.retake_btn, self.save_data_btn)
+        MainWindow.setTabOrder(self.save_data_btn, self.auto_labels_btn)
+        MainWindow.setTabOrder(self.auto_labels_btn, self.auto_title_btn)
+        MainWindow.setTabOrder(self.auto_title_btn, self.moveto_btn)
+        MainWindow.setTabOrder(self.moveto_btn, self.set_btn)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
