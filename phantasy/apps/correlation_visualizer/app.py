@@ -28,6 +28,7 @@ from PyQt5.QtCore import QVariant
 from PyQt5.QtGui import QIcon
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import QTimer
+from PyQt5.QtCore import Qt
 
 from .utils import PVElement
 from .utils import PVElementReadonly
@@ -209,23 +210,42 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
             self.elem_widgets_dict.setdefault(name, ElementWidget(sel_elem))
 
             elem_btn = QPushButton(name)
+            elem_btn.setAutoDefault(True)
             elem_btn.clicked.connect(lambda: self.on_show_elem_info(name))
             elem_btn.setToolTip("Element to alter, click to see element detail")
+            elem_btn.setCursor(Qt.PointingHandCursor)
 
             if mode == 'alter':
-                hbox = QHBoxLayout()
-                hbox.addWidget(elem_btn)
-                hbox.setContentsMargins(0, 0, 0, 0)
-                self.alter_elem_lineEdit.setLayout(hbox)
+                current_hbox = self.alter_elem_lineEdit.findChild(QHBoxLayout)
+                if current_hbox is None:
+                    hbox = QHBoxLayout()
+                    hbox.addWidget(elem_btn)
+                    hbox.setContentsMargins(0, 0, 0, 0)
+                    self.alter_elem_lineEdit.setLayout(hbox)
+                else:
+                    current_hbox.itemAt(0).widget().setParent(None)
+                    current_hbox.addWidget(elem_btn)
+                    current_hbox.update()
                 self.alter_elem = sel_elem
+                #
+                # debug
+                #print("Selected element name: ", sel_elem.name)
+                #
+                # initialize scan range
                 x0 = self.alter_elem._putPV.get()
                 self.lower_limit_lineEdit.setText('{}'.format(x0))
                 self.upper_limit_lineEdit.setText('{}'.format(x0))
             elif mode == 'monitor':
-                hbox = QHBoxLayout()
-                hbox.addWidget(elem_btn)
-                hbox.setContentsMargins(0, 0, 0, 0)
-                self.monitor_elem_lineEdit.setLayout(hbox)
+                current_hbox = self.monitor_elem_lineEdit.findChild(QHBoxLayout)
+                if current_hbox is None:
+                    hbox = QHBoxLayout()
+                    hbox.addWidget(elem_btn)
+                    hbox.setContentsMargins(0, 0, 0, 0)
+                    self.monitor_elem_lineEdit.setLayout(hbox)
+                else:
+                    current_hbox.itemAt(0).widget().setParent(None)
+                    current_hbox.addWidget(elem_btn)
+                    current_hbox.update()
                 self.monitor_elem = sel_elem
 
         elif r == QDialog.Rejected:
