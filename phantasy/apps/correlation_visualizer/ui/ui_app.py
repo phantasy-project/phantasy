@@ -74,6 +74,7 @@ class Ui_MainWindow(object):
         self.monitor_elem_lineEdit.setObjectName("monitor_elem_lineEdit")
         self.scan_gridLayout.addWidget(self.monitor_elem_lineEdit, 3, 1, 1, 3)
         self.upper_limit_lineEdit = QtWidgets.QLineEdit(self.scan_groupBox)
+        self.upper_limit_lineEdit.setText("")
         self.upper_limit_lineEdit.setPlaceholderText("")
         self.upper_limit_lineEdit.setObjectName("upper_limit_lineEdit")
         self.scan_gridLayout.addWidget(self.upper_limit_lineEdit, 2, 3, 1, 1)
@@ -84,6 +85,7 @@ class Ui_MainWindow(object):
         self.label_10.setObjectName("label_10")
         self.scan_gridLayout.addWidget(self.label_10, 2, 2, 1, 1)
         self.lower_limit_lineEdit = QtWidgets.QLineEdit(self.scan_groupBox)
+        self.lower_limit_lineEdit.setText("")
         self.lower_limit_lineEdit.setPlaceholderText("")
         self.lower_limit_lineEdit.setObjectName("lower_limit_lineEdit")
         self.scan_gridLayout.addWidget(self.lower_limit_lineEdit, 2, 1, 1, 1)
@@ -423,7 +425,6 @@ class Ui_MainWindow(object):
                 "MainWindow",
                 "<html><head/><body><p>Up limit of scan range</p></body></html>"
             ))
-        self.upper_limit_lineEdit.setText(_translate("MainWindow", "100"))
         self.label_11.setText(_translate("MainWindow", "Monitors"))
         self.label_10.setText(_translate("MainWindow", "To"))
         self.lower_limit_lineEdit.setToolTip(
@@ -431,7 +432,6 @@ class Ui_MainWindow(object):
                 "MainWindow",
                 "<html><head/><body><p>Lower limit of scan range</p></body></html>"
             ))
-        self.lower_limit_lineEdit.setText(_translate("MainWindow", "-100"))
         self.label_8.setText(_translate("MainWindow", "Alter Element"))
         self.select_more_monitor_elems_btn.setText(
             _translate("MainWindow", "More"))
