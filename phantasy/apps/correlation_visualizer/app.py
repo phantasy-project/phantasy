@@ -141,6 +141,8 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         # vars
         self.ts_start = None
         self.ts_stop = None
+        # vline as ruler
+        self.vline = None
 
         #####
         # test select monitors
@@ -485,11 +487,11 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
             self.scanlogUpdated.emit(log)
 
             # debug only
-            print("-"*20)
+            #print("-"*20)
             #print(self.current_alter_index_in_daq)
-            print(self.scan_out_per_iter)
-            print(self.scan_out_all)
-            print("-"*20)
+            #print(self.scan_out_per_iter)
+            #print(self.scan_out_all)
+            #print("-"*20)
 
             # push finish message
             if not self.scantimer.isActive():
@@ -573,11 +575,11 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
                 self.scan_shotnum_val + 2) * self.daqtimer_deltmsec
 
         # debug
-        print("iter:{iter}, shot#:{shot}, wait_t:{wt}, daq:{daq}".format(
-            iter=self.scan_iternum_val, shot=self.scan_shotnum_val,
-            wt=self.scan_waitmsec_val, daq=self.scan_daqrate_val))
-        print("DAQ Timer interval: {}ms\nSCAN Timer interval: {} ms".format(
-            self.daqtimer_deltmsec, self.scantimer_deltmsec))
+        #print("iter:{iter}, shot#:{shot}, wait_t:{wt}, daq:{daq}".format(
+        #    iter=self.scan_iternum_val, shot=self.scan_shotnum_val,
+        #    wt=self.scan_waitmsec_val, daq=self.scan_daqrate_val))
+        #print("DAQ Timer interval: {}ms\nSCAN Timer interval: {} ms".format(
+        #    self.daqtimer_deltmsec, self.scantimer_deltmsec))
 
     def delayed_check_pv_status(self, pvelem, delay=1000):
         """Check PV element connected or not.
@@ -661,6 +663,25 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
                     ts=epoch2human(self.ts_stop, fmt=TS_FMT),
                     t=self.ts_stop-self.ts_start)
         self.scan_plot_widget.setFigureTitle(title)
+
+    @pyqtSlot()
+    def on_moveto(self):
+        """
+        1. Move vline to the `xm` where y reaches max.
+        2. Set alter elem value as `xm`.
+        """
+        sm = ScanDataModel(self.scan_out_all)
+        y = sm.get_yavg()
+        y_min, y_max = y.min(), y.max()
+        xm = self.alter_range_array[np.where(y==y_min)]
+
+        if self.vline is None:
+            self.vline = self.scan_plot_widget.axes.axvline(x=xm,
+                    alpha=0.8, color='r', ls='--')
+            self.scan_plot_widget.update_figure()
+        else:
+            self.vline.set_xdata([xm, xm])
+            self.scan_plot_widget.update_figure()
 
 
 def get_auto_label(elem):
