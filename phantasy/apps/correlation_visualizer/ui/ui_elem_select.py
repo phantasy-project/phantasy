@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui_elem_select.ui'
 #
-# Created by: PyQt5 UI code generator 5.5.1
+# Created by: PyQt5 UI code generator 5.10.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -64,8 +64,9 @@ class Ui_Dialog(object):
         self.pv_groupBox.setSizePolicy(sizePolicy)
         self.pv_groupBox.setStyleSheet(
             "QGroupBox {\n"
-            "    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
+            "    /*background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
             "                                      stop: 0 #E0E0E0, stop: 1 #FFFFFF);\n"
+            "    */\n"
             "    border: 2px solid gray;\n"
             "    border-radius: 5px;\n"
             "    margin-top: 1ex; /* leave space at the top for the title */\n"
@@ -75,8 +76,9 @@ class Ui_Dialog(object):
             "    subcontrol-origin: margin;\n"
             "    subcontrol-position: top center; /* position at the top center */\n"
             "    padding: 0 3px;\n"
-            "    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
+            "    /*background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
             "                                      stop: 0 #EDECEB, stop: 1 #FFFFFF);\n"
+            "    */\n"
             "}")
         self.pv_groupBox.setObjectName("pv_groupBox")
         self.gridLayout = QtWidgets.QGridLayout(self.pv_groupBox)
