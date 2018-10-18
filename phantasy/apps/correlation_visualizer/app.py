@@ -4,6 +4,7 @@
 from .ui.ui_app import Ui_MainWindow
 from .app_help import HelpDialog
 from .app_elem_select import ElementSelectDialog
+from .app_popcombobox import PopComboBoxDialog
 from .icons import cv_icon
 from phantasy_ui.templates import BaseAppForm
 from phantasy_ui.widgets.elementwidget import ElementWidget
@@ -103,6 +104,8 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         self.auto_title_btn.clicked.connect(self.on_auto_title)
         # move to peak
         self.moveto_btn.clicked.connect(self.on_moveto)
+        # set btn: set alter_elem with the value vline pointing to
+        self.set_btn.clicked.connect(self.on_set)
 
         # signals & slots
         self.scanlogUpdated.connect(self.scan_log_textEdit.append)
@@ -411,6 +414,14 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 
         # reset scan_plot_widget
 
+        # set alter element to start point
+        x0 = self.alter_range_array[0]
+        self._x0_set = self.alter_elem._putPV.get()
+        print("current setpoint: {}".format(self._x0_set))
+        print("starting setpoint: {}".format(x0))
+        print("Setting to starting setpoint...")
+        self.alter_elem._putPV.put(x0, wait=True)
+
         # start scan
         self.scantimer.start(self.scantimer_deltmsec)
         # task start timestamp
@@ -432,6 +443,9 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         self.daqtimer.stop()
         # publish summary info in scan log
         self.scanlogUpdated.emit("Scan routine stopped.")
+
+        # set back alter element
+        self._set_back_alter_element()
 
         # update UI
         self.stop_btn.setEnabled(False)
@@ -523,6 +537,9 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
             #
             # task stop timestamp
             self.ts_stop = time.time()
+
+            # set back alter element
+            self._set_back_alter_element()
 
         else:
             # get the current value to be set
@@ -659,7 +676,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         """
         if self.ts_stop is None: # scan routine is not finished
             return
-        title = "Completed at {ts}\nSCAN Duration: {t:.2g} s".format(
+        title = "Completed at {ts}\nSCAN Duration: {t:.2f} s".format(
                     ts=epoch2human(self.ts_stop, fmt=TS_FMT),
                     t=self.ts_stop-self.ts_start)
         self.scan_plot_widget.setFigureTitle(title)
@@ -670,10 +687,16 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         1. Move vline to the `xm` where y reaches max.
         2. Set alter elem value as `xm`.
         """
+        dlg = PopComboBoxDialog()
+        r = dlg.exec_()
+
         sm = ScanDataModel(self.scan_out_all)
         y = sm.get_yavg()
         y_min, y_max = y.min(), y.max()
-        xm = self.alter_range_array[np.where(y==y_min)]
+        if r == 0: # peak
+            xm = self.alter_range_array[np.where(y==y_max)]
+        elif r == 1: # valey
+            xm = self.alter_range_array[np.where(y==y_min)]
 
         if self.vline is None:
             self.vline = self.scan_plot_widget.axes.axvline(x=xm,
@@ -683,6 +706,25 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
             self.vline.set_xdata([xm, xm])
             self.scan_plot_widget.update_figure()
 
+    @pyqtSlot()
+    def on_set(self):
+        """Set alter_elem where vline pointing to
+        """
+        if self.vline is None:
+            QMessageBox.warning(self, "",
+                "No value to set, click MoveTo first",
+                QMessageBox.Ok)
+        else:
+            x0 = self.vline.get_xdata()[0][0]
+            self.alter_elem._putPV.put(x0, wait=True)
+            QMessageBox.information(self, "",
+                "Set alter element to {0:.3f}".format(x0),
+                QMessageBox.Ok)
+
+    def _set_back_alter_element(self):
+        # restore alter elem
+        self.scanlogUpdated.emit("Set back alter element...")
+        self.alter_elem._putPV.put(self._x0_set, wait=True)
 
 def get_auto_label(elem):
     """Return string of element name and field name.
