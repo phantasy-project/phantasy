@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtCore import QVariant
 from PyQt5.QtCore import Qt
+from PyQt5.QtCore import QSize
 
 from phantasy_ui.widgets.utils import LatticeDataModel
 
@@ -35,7 +36,7 @@ class ElementSelectDialog(QDialog, Ui_Dialog):
         [o.setEnabled(mode=='alter') for o in
             (self.pv_set_lbl, self.pv_set_lineEdit, self.copy_set_to_read_btn)]
 
-        self.adjustSize()
+        #self.adjustSize()
 
         # events
         self.pv_mode_radiobtn.toggled.connect(self.pv_groupBox.setEnabled)
@@ -124,6 +125,8 @@ class ElementSelectDialog(QDialog, Ui_Dialog):
         #model.setHeaderData(1, Qt.Horizontal, "Field")
         self.elem_treeView.setModel(model)
 
+    def sizeHint(self):
+        return QSize(600, 400)
 
 if __name__ == '__main__':
     from PyQt5.QtWidgets import QApplication
