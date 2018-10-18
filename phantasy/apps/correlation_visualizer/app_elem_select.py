@@ -43,8 +43,8 @@ class ElementSelectDialog(QDialog, Ui_Dialog):
         self.elem_mode_radiobtn.toggled.connect(self.elem_treeView.setEnabled)
 
         # cmdbtn
-        self.ok_btn.clicked.connect(self.on_ok)
-        self.cancel_btn.clicked.connect(self.on_cancel)
+        self.ok_btn.clicked.connect(self.on_click_ok)
+        self.cancel_btn.clicked.connect(self.on_click_cancel)
         self.validate_btn.clicked.connect(self.on_validate)
 
         # copy_set_to_read_btn, if copy scan put pv string as get pv
@@ -55,13 +55,21 @@ class ElementSelectDialog(QDialog, Ui_Dialog):
         self.pv_read_lineEdit.returnPressed.connect(self.set_elem)
         self.sel_elem = None  # selected element obj
 
+        # validate flag
+        self._already_validated = False
+
     @pyqtSlot()
-    def on_ok(self):
+    def on_click_ok(self):
+        if not self._already_validated:
+            valid_result = self.on_validate()
+            if not valid_result:
+                return
+        self._already_validated = False
         self.close()
         self.setResult(QDialog.Accepted)
 
     @pyqtSlot()
-    def on_cancel(self):
+    def on_click_cancel(self):
         self.close()
         self.setResult(QDialog.Rejected)
 
@@ -70,13 +78,14 @@ class ElementSelectDialog(QDialog, Ui_Dialog):
         """To validate the selected element CA connection.
         """
         if self.pv_mode_radiobtn.isChecked():
-            if self.sel_elem is None:
-                self.set_elem()
+            #if self.sel_elem is None:
+            self.set_elem()
             try:
                 if self.sel_elem.connected:
                     QMessageBox.information(self, "",
                             "Device is connected",
                             QMessageBox.Ok)
+                    return True
                 else:
                     QMessageBox.warning(self, "",
                             "Device is not connected",
@@ -85,9 +94,11 @@ class ElementSelectDialog(QDialog, Ui_Dialog):
                 QMessageBox.critical(self, "",
                         "Validating failed",
                         QMessageBox.Ok)
+            return False
         else:
             # high-level element
             pass
+        self._already_validated = True
 
     @pyqtSlot()
     def set_elem(self):
