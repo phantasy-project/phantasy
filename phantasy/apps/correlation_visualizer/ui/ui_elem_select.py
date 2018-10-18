@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui_elem_select.ui'
 #
-# Created by: PyQt5 UI code generator 5.10.1
+# Created by: PyQt5 UI code generator 5.5.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -12,7 +12,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
-        Dialog.resize(600, 472)
+        Dialog.resize(800, 600)
         self.gridLayout_2 = QtWidgets.QGridLayout(Dialog)
         self.gridLayout_2.setObjectName("gridLayout_2")
         self.horizontalLayout = QtWidgets.QHBoxLayout()
@@ -88,9 +88,6 @@ class Ui_Dialog(object):
         self.copy_set_to_read_btn.setAutoDefault(False)
         self.copy_set_to_read_btn.setObjectName("copy_set_to_read_btn")
         self.gridLayout.addWidget(self.copy_set_to_read_btn, 1, 2, 1, 1)
-        self.pv_set_lineEdit = QtWidgets.QLineEdit(self.pv_groupBox)
-        self.pv_set_lineEdit.setObjectName("pv_set_lineEdit")
-        self.gridLayout.addWidget(self.pv_set_lineEdit, 0, 1, 1, 1)
         self.pv_read_lineEdit = QtWidgets.QLineEdit(self.pv_groupBox)
         self.pv_read_lineEdit.setObjectName("pv_read_lineEdit")
         self.gridLayout.addWidget(self.pv_read_lineEdit, 1, 1, 1, 1)
@@ -120,6 +117,10 @@ class Ui_Dialog(object):
                                      | QtCore.Qt.AlignVCenter)
         self.pv_set_lbl.setObjectName("pv_set_lbl")
         self.gridLayout.addWidget(self.pv_set_lbl, 0, 0, 1, 1)
+        self.pv_set_lineEdit = QtWidgets.QLineEdit(self.pv_groupBox)
+        self.pv_set_lineEdit.setText("")
+        self.pv_set_lineEdit.setObjectName("pv_set_lineEdit")
+        self.gridLayout.addWidget(self.pv_set_lineEdit, 0, 1, 1, 1)
         self.gridLayout_2.addWidget(self.pv_groupBox, 1, 0, 1, 1)
         self.elem_treeView = QtWidgets.QTreeView(Dialog)
         self.elem_treeView.setObjectName("elem_treeView")
@@ -143,13 +144,6 @@ class Ui_Dialog(object):
                 "<html><head/><body><p>Smart copy Setpoint PV to Readback PV</p></body></html>"
             ))
         self.copy_set_to_read_btn.setText(_translate("Dialog", "Copy"))
-        self.pv_set_lineEdit.setToolTip(
-            _translate(
-                "Dialog",
-                "<html><head/><body><p>Press Enter after input</p></body></html>"
-            ))
-        self.pv_set_lineEdit.setText(
-            _translate("Dialog", "VA:LS1_BTS:QH_D1942:I_CSET"))
         self.pv_read_lineEdit.setToolTip(
             _translate(
                 "Dialog",
@@ -157,6 +151,11 @@ class Ui_Dialog(object):
             ))
         self.label_2.setText(_translate("Dialog", "Readback PV"))
         self.pv_set_lbl.setText(_translate("Dialog", "Setpoint PV"))
+        self.pv_set_lineEdit.setToolTip(
+            _translate(
+                "Dialog",
+                "<html><head/><body><p>Press Enter after input</p></body></html>"
+            ))
 
 
 if __name__ == "__main__":
