@@ -166,6 +166,7 @@ class Ui_MainWindow(object):
         font.setFamily("Monospace")
         font.setPointSize(8)
         self.scan_log_textEdit.setFont(font)
+        self.scan_log_textEdit.setReadOnly(True)
         self.scan_log_textEdit.setObjectName("scan_log_textEdit")
         self.scanlog_verticalLayout.addWidget(self.scan_log_textEdit)
         self.gridLayout.addLayout(self.scanlog_verticalLayout, 1, 0, 1, 1)
