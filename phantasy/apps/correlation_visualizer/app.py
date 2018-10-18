@@ -366,9 +366,6 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         srange_val1_str = self.lower_limit_lineEdit.text()
         srange_val2_str = self.upper_limit_lineEdit.text()
         if srange_val1_str == '' or srange_val2_str == '':
-            QMessageBox.warning(self, "Warning",
-                    "Input the value range to scan",
-                    QMessageBox.Ok)
             return
 
         sval1, sval2 = float(srange_val1_str), float(srange_val2_str)
