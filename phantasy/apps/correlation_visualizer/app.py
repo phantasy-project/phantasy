@@ -446,6 +446,9 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         self.pause_btn.setEnabled(True)
         self.retake_btn.setEnabled(True)
 
+        # auto xylabels
+        self.on_auto_labels()
+
     @pyqtSlot()
     def on_click_stop_btn(self):
         """Stop scan routine, can only start again.
@@ -551,6 +554,9 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 
             # set back alter element
             self._set_back_alter_element()
+
+            # auto title
+            self.on_auto_title()
 
         else:
             # get the current value to be set
