@@ -216,6 +216,9 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
                 hbox.setContentsMargins(0, 0, 0, 0)
                 self.alter_elem_lineEdit.setLayout(hbox)
                 self.alter_elem = sel_elem
+                x0 = self.alter_elem._putPV.get()
+                self.lower_limit_lineEdit.setText('{}'.format(x0))
+                self.upper_limit_lineEdit.setText('{}'.format(x0))
             elif mode == 'monitor':
                 hbox = QHBoxLayout()
                 hbox.addWidget(elem_btn)
@@ -346,23 +349,17 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 
         *alter_range_array* : array to iterately alter
         """
-        smin_str = self.lower_limit_lineEdit.text()
-        smax_str = self.upper_limit_lineEdit.text()
-        if smin_str == '' or smax_str == '':
+        srange_val1_str = self.lower_limit_lineEdit.text()
+        srange_val2_str = self.upper_limit_lineEdit.text()
+        if srange_val1_str == '' or srange_val2_str == '':
+            QMessageBox.warning(self, "Warning",
+                    "Input the value range to scan",
+                    QMessageBox.Ok)
             return
 
-        try:
-            smin, smax = float(smin_str), float(smax_str)
-            assert smin < smax
-        except AssertionError:
-            QMessageBox.warning(self, "Warning",
-                    "Lower limit must be less than upper limit.",
-                    QMessageBox.Ok)
-            self.lower_limit_lineEdit.setText(str(smax))
-            self.upper_limit_lineEdit.setText(str(smin))
-        else:
-            self.alter_range_array = np.linspace(
-                smin, smax, self.scan_iternum_val)
+        sval1, sval2 = float(srange_val1_str), float(srange_val2_str)
+        self.alter_range_array = np.linspace(
+            sval1, sval2, self.scan_iternum_val)
 
     def set_scan_outdata(self):
         """Set storage for the data yield from scan.
