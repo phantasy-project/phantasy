@@ -64,6 +64,7 @@ class Ui_MainWindow(object):
         self.scan_gridLayout = QtWidgets.QGridLayout()
         self.scan_gridLayout.setObjectName("scan_gridLayout")
         self.select_alter_elem_btn = QtWidgets.QPushButton(self.scan_groupBox)
+        self.select_alter_elem_btn.setAutoDefault(True)
         self.select_alter_elem_btn.setObjectName("select_alter_elem_btn")
         self.scan_gridLayout.addWidget(self.select_alter_elem_btn, 1, 4, 1, 1)
         self.label_9 = QtWidgets.QLabel(self.scan_groupBox)
@@ -100,12 +101,14 @@ class Ui_MainWindow(object):
         self.scan_gridLayout.addWidget(self.label_8, 1, 0, 1, 1)
         self.select_more_monitor_elems_btn = QtWidgets.QPushButton(
             self.scan_groupBox)
+        self.select_more_monitor_elems_btn.setAutoDefault(True)
         self.select_more_monitor_elems_btn.setObjectName(
             "select_more_monitor_elems_btn")
         self.scan_gridLayout.addWidget(self.select_more_monitor_elems_btn, 4,
                                        4, 1, 1)
         self.select_monitor_elem_btn = QtWidgets.QPushButton(
             self.scan_groupBox)
+        self.select_monitor_elem_btn.setAutoDefault(True)
         self.select_monitor_elem_btn.setObjectName("select_monitor_elem_btn")
         self.scan_gridLayout.addWidget(self.select_monitor_elem_btn, 3, 4, 1,
                                        1)
@@ -116,6 +119,7 @@ class Ui_MainWindow(object):
                                        1, 2)
         self.show_other_monitors_btn = QtWidgets.QPushButton(
             self.scan_groupBox)
+        self.show_other_monitors_btn.setAutoDefault(True)
         self.show_other_monitors_btn.setObjectName("show_other_monitors_btn")
         self.scan_gridLayout.addWidget(self.show_other_monitors_btn, 4, 2, 1,
                                        2)
@@ -246,6 +250,7 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(
             self.start_btn.sizePolicy().hasHeightForWidth())
         self.start_btn.setSizePolicy(sizePolicy)
+        self.start_btn.setAutoDefault(True)
         self.start_btn.setObjectName("start_btn")
         self.horizontalLayout.addWidget(self.start_btn)
         self.pause_btn = QtWidgets.QPushButton(self.daq_groupBox)
@@ -256,6 +261,7 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(
             self.pause_btn.sizePolicy().hasHeightForWidth())
         self.pause_btn.setSizePolicy(sizePolicy)
+        self.pause_btn.setAutoDefault(True)
         self.pause_btn.setObjectName("pause_btn")
         self.horizontalLayout.addWidget(self.pause_btn)
         self.stop_btn = QtWidgets.QPushButton(self.daq_groupBox)
@@ -266,6 +272,7 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(
             self.stop_btn.sizePolicy().hasHeightForWidth())
         self.stop_btn.setSizePolicy(sizePolicy)
+        self.stop_btn.setAutoDefault(True)
         self.stop_btn.setObjectName("stop_btn")
         self.horizontalLayout.addWidget(self.stop_btn)
         self.retake_btn = QtWidgets.QPushButton(self.daq_groupBox)
@@ -276,6 +283,7 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(
             self.retake_btn.sizePolicy().hasHeightForWidth())
         self.retake_btn.setSizePolicy(sizePolicy)
+        self.retake_btn.setAutoDefault(True)
         self.retake_btn.setObjectName("retake_btn")
         self.horizontalLayout.addWidget(self.retake_btn)
         self.gridLayout_2.addLayout(self.horizontalLayout, 5, 0, 1, 3)
@@ -346,18 +354,23 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(
             self.save_data_btn.sizePolicy().hasHeightForWidth())
         self.save_data_btn.setSizePolicy(sizePolicy)
+        self.save_data_btn.setAutoDefault(True)
         self.save_data_btn.setObjectName("save_data_btn")
         self.horizontalLayout_3.addWidget(self.save_data_btn)
         self.auto_labels_btn = QtWidgets.QPushButton(self.plot_groupBox)
+        self.auto_labels_btn.setAutoDefault(True)
         self.auto_labels_btn.setObjectName("auto_labels_btn")
         self.horizontalLayout_3.addWidget(self.auto_labels_btn)
         self.auto_title_btn = QtWidgets.QPushButton(self.plot_groupBox)
+        self.auto_title_btn.setAutoDefault(True)
         self.auto_title_btn.setObjectName("auto_title_btn")
         self.horizontalLayout_3.addWidget(self.auto_title_btn)
         self.moveto_btn = QtWidgets.QPushButton(self.plot_groupBox)
+        self.moveto_btn.setAutoDefault(True)
         self.moveto_btn.setObjectName("moveto_btn")
         self.horizontalLayout_3.addWidget(self.moveto_btn)
         self.set_btn = QtWidgets.QPushButton(self.plot_groupBox)
+        self.set_btn.setAutoDefault(True)
         self.set_btn.setObjectName("set_btn")
         self.horizontalLayout_3.addWidget(self.set_btn)
         spacerItem = QtWidgets.QSpacerItem(40, 20,
