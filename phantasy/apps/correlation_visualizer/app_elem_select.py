@@ -61,8 +61,8 @@ class ElementSelectDialog(QDialog, Ui_Dialog):
     @pyqtSlot()
     def on_click_ok(self):
         if not self._already_validated:
-            valid_result = self.on_validate()
-            if not valid_result:
+            is_valid = self.on_validate()
+            if not is_valid:
                 return
         self._already_validated = False
         self.close()
@@ -85,20 +85,22 @@ class ElementSelectDialog(QDialog, Ui_Dialog):
                     QMessageBox.information(self, "",
                             "Device is connected",
                             QMessageBox.Ok)
-                    return True
+                    is_valid = True
+                    self._already_validated = True
                 else:
                     QMessageBox.warning(self, "",
                             "Device is not connected",
                             QMessageBox.Ok)
+                    is_valid = False
             except:
                 QMessageBox.critical(self, "",
                         "Validating failed",
                         QMessageBox.Ok)
-            return False
+                is_valid = False
         else:
             # high-level element
             pass
-        self._already_validated = True
+        return is_valid
 
     @pyqtSlot()
     def set_elem(self):
