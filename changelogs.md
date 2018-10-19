@@ -1,3 +1,10 @@
+Version 1.4.4
+-------------
+2018-10-19
+
+- Applied improvements to GUI apps.
+- Fixed bugs.
+
 Version 1.4.0
 -------------
 2018-10-12 [Testing]
