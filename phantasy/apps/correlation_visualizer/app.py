@@ -46,6 +46,8 @@ from .utils import milli_sleep
 from .data import ScanDataModel
 from .data import JSONDataSheet
 
+from .scan import ScanTask
+
 from phantasy import epoch2human
 
 TS_FMT = "%Y-%m-%d %H:%M:%S %Z"
@@ -92,6 +94,11 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 
         # timers
         self.init_timers()
+
+        # TESTING
+        # thread test button
+        self.test_btn.clicked.connect(self.on_click_test_btn)
+        # TESTING
 
         # daq ctrl btns
         self.start_btn.clicked.connect(self.on_click_start_btn)
@@ -384,7 +391,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         self.upper_limit_lineEdit.setValidator(QDoubleValidator())
 
         # init scan config
-        self.init_scan_config()
+        #self.init_scan_config()
 
         # btn's status
         self.start_btn.setEnabled(True)
@@ -557,6 +564,12 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         self.start_btn.setEnabled(False)
         self.pause_btn.setEnabled(True)
         self.stop_btn.setEnabled(True)
+
+    @pyqtSlot()
+    def on_click_test_btn(self):
+        """Scan on another thread, testing
+        """
+        pass
 
     def init_timers(self):
         """Initialize timers for DAQ and SCAN control.
