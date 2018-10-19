@@ -4,8 +4,12 @@
 from .ui.ui_app import Ui_MainWindow
 from .app_help import HelpDialog
 from .app_elem_select import ElementSelectDialog
-from .app_popcombobox import PopComboBoxDialog
 from .icons import cv_icon
+from .icons import save_icon
+from .icons import xylabel_icon
+from .icons import title_icon
+from .icons import moveto_icon
+from .icons import set_icon
 from phantasy_ui.templates import BaseAppForm
 from phantasy_ui.widgets.elementwidget import ElementWidget
 from phantasy_ui.widgets.latticewidget import LatticeWidget
@@ -22,6 +26,8 @@ from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtWidgets import QDialog
 from PyQt5.QtWidgets import QPushButton
 from PyQt5.QtWidgets import QHBoxLayout
+from PyQt5.QtWidgets import QMenu
+from PyQt5.QtWidgets import QAction
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import QVariant
@@ -29,6 +35,7 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import QTimer
 from PyQt5.QtCore import Qt
+from PyQt5.QtCore import QSize
 
 from .utils import PVElement
 from .utils import PVElementReadonly
@@ -98,15 +105,15 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         self.waitsec_dSpinBox.valueChanged.connect(self.set_scan_daq)
         self.scanrate_dSpinBox.valueChanged.connect(self.set_scan_daq)
         # output scan data
-        self.save_data_btn.clicked.connect(self.save_data)
+        self.save_data_tbtn.clicked.connect(self.save_data)
         # auto xylabels
-        self.auto_labels_btn.clicked.connect(self.on_auto_labels)
+        self.auto_labels_tbtn.clicked.connect(self.on_auto_labels)
         # auto title
-        self.auto_title_btn.clicked.connect(self.on_auto_title)
-        # move to peak
-        self.moveto_btn.clicked.connect(self.on_moveto)
+        self.auto_title_tbtn.clicked.connect(self.on_auto_title)
+        # move to peak/valley
+        self.moveto_tbtn.clicked.connect(self.on_moveto)
         # set btn: set alter_elem with the value vline pointing to
-        self.set_btn.clicked.connect(self.on_set)
+        self.set_tbtn.clicked.connect(self.on_set)
 
         # signals & slots
         self.scanlogUpdated.connect(self.scan_log_textEdit.append)
@@ -270,6 +277,9 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
     def save_data(self):
         """save data.
         """
+        if self.ts_stop is None:
+            return
+
         filename = get_save_filename(self, caption="Save data to file",
                     filter="JSON Files (*.json);;HDF5 Files (*.hdf5 *.h5)")
 
@@ -327,6 +337,47 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
     def _post_init_ui(self):
         """post init ui
         """
+        # toolbtns
+        # save data
+        self.save_data_tbtn.setIcon(QIcon(QPixmap(save_icon)))
+        self.save_data_tbtn.setIconSize(QSize(48, 48))
+        self.save_data_tbtn.setToolTip("Save data to file")
+        # auto labels
+        self.auto_labels_tbtn.setIcon(QIcon(QPixmap(xylabel_icon)))
+        self.auto_labels_tbtn.setIconSize(QSize(48, 48))
+        self.auto_labels_tbtn.setToolTip("Auto set xy labels")
+        # auto title
+        self.auto_title_tbtn.setIcon(QIcon(QPixmap(title_icon)))
+        self.auto_title_tbtn.setIconSize(QSize(48, 48))
+        self.auto_title_tbtn.setToolTip("Auto set figure title")
+        # move to
+        self.moveto_tbtn.setIcon(QIcon(QPixmap(moveto_icon)))
+        self.moveto_tbtn.setIconSize(QSize(48, 48))
+        self.moveto_tbtn.setToolTip("Move cursor line to...")
+        menu = QMenu(self)
+
+        # to peak
+        peak_action = QAction('Peak', self)
+        peak_action.triggered.connect(lambda: self.on_moveto(pos='peak'))
+
+        # to valley
+        valley_action = QAction('Valley', self)
+        valley_action.triggered.connect(lambda: self.on_moveto(pos='valley'))
+
+        # hide vline
+        hide_action = QAction('Hide', self)
+        hide_action.triggered.connect(lambda: self.on_moveto(pos='hide'))
+
+        menu.addAction(peak_action)
+        menu.addAction(valley_action)
+        menu.addSeparator()
+        menu.addAction(hide_action)
+        self.moveto_tbtn.setMenu(menu)
+
+        # set btn
+        self.set_tbtn.setIcon(QIcon(QPixmap(set_icon)))
+        self.set_tbtn.setIconSize(QSize(48, 48))
+        self.set_tbtn.setToolTip("Set with value vline pointed")
 
         # validators
         self.lower_limit_lineEdit.setValidator(QDoubleValidator())
@@ -716,20 +767,30 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         self.scan_plot_widget.setFigureTitle(title)
 
     @pyqtSlot()
-    def on_moveto(self):
+    def on_moveto(self, pos='peak'):
         """
         1. Move vline to the `xm` where y reaches max.
         2. Set alter elem value as `xm`.
+        Pos: 'peak' (default), 'valley', 'hide'.
         """
-        dlg = PopComboBoxDialog()
-        r = dlg.exec_()
+        if pos == 'hide':
+            # hide vline
+            if self.vline is not None:
+                self.vline.set_visible(False)
+                self.scan_plot_widget.update_figure()
+            return
+
+        if self.ts_stop is None:
+            # no scan completed, do nothing
+            return
 
         sm = ScanDataModel(self.scan_out_all)
         y = sm.get_yavg()
         y_min, y_max = y.min(), y.max()
-        if r == 0: # peak
+
+        if pos == 'peak': # peak
             xm = self.alter_range_array[np.where(y==y_max)]
-        elif r == 1: # valey
+        elif pos == 'valley': # valley
             xm = self.alter_range_array[np.where(y==y_min)]
 
         if self.vline is None:
@@ -737,6 +798,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
                     alpha=0.8, color='r', ls='--')
             self.scan_plot_widget.update_figure()
         else:
+            self.vline.set_visible(True)
             self.vline.set_xdata([xm, xm])
             self.scan_plot_widget.update_figure()
 
