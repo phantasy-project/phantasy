@@ -21,7 +21,11 @@ from __future__ import absolute_import
 from __future__ import division
 
 import re
-from urlparse import urlparse
+
+try:
+        from urlparse import urlparse
+except ImportError:
+        from urllib.parse import urlparse
 
 import scan
 
