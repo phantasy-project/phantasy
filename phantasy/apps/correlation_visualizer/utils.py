@@ -3,6 +3,7 @@
 import epics
 import time
 import re
+import random
 
 from PyQt5.QtCore import QEventLoop
 from PyQt5.QtCore import QTimer
@@ -79,6 +80,14 @@ class PVElement(object):
     def setpoint(self):
         return [self.put_pvname]
 
+    @property
+    def readback_pv(self):
+        return [self._getPV]
+
+    @property
+    def setpoint_pv(self):
+        return [self._putPV]
+
 
 class PVElementReadonly(object):
     """Unified interface for `get` to a PV, i.e. readonly.
@@ -129,6 +138,10 @@ class PVElementReadonly(object):
     def readback(self):
         return [self.get_pvname]
 
+    @property
+    def readback_pv(self):
+        return [self._getPV]
+
 
 def delayed_exec(f, delay, *args, **kws):
     """Execute *f* after *delay* msecm `*args` and `**kws` is for *f*.
@@ -142,6 +155,7 @@ def milli_sleep(qApp, msec):
     t0 = time.time()
     while (time.time() - t0) * 1000 < msec:
         qApp.processEvents()
+
 
 def milli_sleep1(msec):
     loop = QEventLoop()
@@ -167,3 +181,8 @@ def delayed_check_pv_status(obj, pvelem, delay=1000):
                     "Cannot connect to the input PV(s).",
                     QMessageBox.Ok)
     QTimer.singleShot(delay, lambda: check_status(pvelem))
+
+
+def random_string(length=1):
+    chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz'
+    return ''.join([random.choice(chars) for _ in range(length)])
