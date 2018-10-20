@@ -5,11 +5,12 @@ _LOGGER = logging.getLogger(__name__)
 
 try:
     import scan
-    HAS_SCAN = True
 except ImportError:
     HAS_SCAN = False
     _LOGGER.warning("Package 'scanclient' does not exit, some" \
             " features may not be available.")
+else:
+    HAS_SCAN = True
 
 if HAS_SCAN:
     from .baseclient import BaseScanClient
