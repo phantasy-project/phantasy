@@ -40,14 +40,15 @@ class PVElement(object):
 
     @value.setter
     def value(self, x):
-        self._putPV.put(x)
+        self._putPV.put(x, wait=True)
 
     @property
     def connected(self):
         return self._putPV.connected and self._getPV.connected
 
     def __repr__(self):
-        return str(self._getPV), str(self._putPV)
+        return "Element: {name}, cset: {cset}, rd: {rd}".format(
+                name=self.name, cset=str(self._putPV), rd=str(self._getPV))
 
     @property
     def get_pvname(self):
@@ -118,7 +119,8 @@ class PVElementReadonly(object):
         return self._getPV.connected
 
     def __repr__(self):
-        return str(self._getPV)
+        return "Element: {name}, rd: {rd}".format(
+                name=self.name, rd=str(self._getPV))
 
     @property
     def get_pvname(self):
