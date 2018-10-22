@@ -36,9 +36,11 @@ from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import QTimer
 from PyQt5.QtCore import Qt
 from PyQt5.QtCore import QSize
+from PyQt5.QtCore import QThread
 
 from .utils import PVElement
 from .utils import PVElementReadonly
+from .utils import random_string
 from phantasy.apps.utils import get_save_filename
 
 from .utils import milli_sleep
@@ -47,6 +49,7 @@ from .data import ScanDataModel
 from .data import JSONDataSheet
 
 from .scan import ScanTask
+from .scan import ScanWorker
 
 from phantasy import epoch2human
 
@@ -95,11 +98,6 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         # timers
         self.init_timers()
 
-        # TESTING
-        # thread test button
-        self.test_btn.clicked.connect(self.on_click_test_btn)
-        # TESTING
-
         # daq ctrl btns
         self.start_btn.clicked.connect(self.on_click_start_btn)
         self.stop_btn.clicked.connect(self.on_click_stop_btn)
@@ -109,6 +107,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         # events
         self.niter_spinBox.valueChanged.connect(self.set_scan_daq)
         self.nshot_spinBox.valueChanged.connect(self.set_scan_daq)
+
         self.waitsec_dSpinBox.valueChanged.connect(self.set_scan_daq)
         self.scanrate_dSpinBox.valueChanged.connect(self.set_scan_daq)
         # output scan data
@@ -136,8 +135,8 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
                 lambda: self.on_select_elem(mode='monitor'))
 
         # alter range
-        self.lower_limit_lineEdit.returnPressed.connect(self.set_alter_range)
-        self.upper_limit_lineEdit.returnPressed.connect(self.set_alter_range)
+        self.lower_limit_lineEdit.textChanged.connect(self.set_alter_range)
+        self.upper_limit_lineEdit.textChanged.connect(self.set_alter_range)
         # range by percentage
         self.scan_percentage_dSpinbox.valueChanged.connect(self.set_alter_range_by_percentage)
 
@@ -146,6 +145,9 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 
         # UI post_init
         self._post_init_ui()
+
+        # init scan config
+        self.init_scan_config()
 
         # q-scan window
         self.qs_window = None
@@ -240,13 +242,10 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
                     current_hbox.itemAt(0).widget().setParent(None)
                     current_hbox.addWidget(elem_btn)
                     current_hbox.update()
-                self.alter_elem = sel_elem
-                #
-                # debug
-                #print("Selected element name: ", sel_elem.name)
-                #
+                self.scan_task.alter_element = sel_elem
+
                 # initialize scan range
-                x0 = self.alter_elem._putPV.get()
+                x0 = self.scan_task.get_initial_setting()
                 self.lower_limit_lineEdit.setText('{}'.format(x0))
                 self.upper_limit_lineEdit.setText('{}'.format(x0))
             elif mode == 'monitor':
@@ -260,7 +259,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
                     current_hbox.itemAt(0).widget().setParent(None)
                     current_hbox.addWidget(elem_btn)
                     current_hbox.update()
-                self.monitor_elem = sel_elem
+                self.scan_task.monitor_element = sel_elem
 
         elif r == QDialog.Rejected:
             # do not update alter element obj
@@ -390,9 +389,6 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         self.lower_limit_lineEdit.setValidator(QDoubleValidator())
         self.upper_limit_lineEdit.setValidator(QDoubleValidator())
 
-        # init scan config
-        #self.init_scan_config()
-
         # btn's status
         self.start_btn.setEnabled(True)
         self.stop_btn.setEnabled(False)
@@ -449,27 +445,13 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         """
         srange_val1_str = self.lower_limit_lineEdit.text()
         srange_val2_str = self.upper_limit_lineEdit.text()
-        if srange_val1_str == '' or srange_val2_str == '':
-            return
-
-        sval1, sval2 = float(srange_val1_str), float(srange_val2_str)
-        self.alter_range_array = np.linspace(
-            sval1, sval2, self.scan_iternum_val)
-
-    def set_scan_outdata(self):
-        """Set storage for the data yield from scan.
-        """
-        # pre-allocated array for every iteration
-        self.scan_out_per_iter = np.zeros((self.scan_shotnum_val, 2))
-        # pre-allocated array for all the iteration
-        # shape: niter, nshot, ndim (2)
-        self.scan_out_all = np.asarray([
-            [[np.nan, np.nan]] * self.scan_shotnum_val
-            ] * self.scan_iternum_val
-        )
-
-        # set current index at altered, i.e. self.alter_range_array
-        self.current_alter_index = 0
+        try:
+            sval1, sval2 = float(srange_val1_str), float(srange_val2_str)
+        except ValueError:
+            self.scanlogUpdated.emit("Empty input of scan range is invalid...")
+        else:
+            self.scan_task.alter_start = sval1
+            self.scan_task.alter_stop = sval2
 
     def init_scan_config(self):
         """Initialize scan configurations, including:
@@ -479,74 +461,150 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         3. DAQ settings
         4. Scan data out settings
         """
-        # vars to be altered:
-
-        # vars to be monitored:
-        #self.set_monitor_vars()
-
-        # scan daq params
+        task_name = random_string(6)
+        self.scan_task = ScanTask(task_name)
+        # initialize ScanTask
+        # daq
         self.set_scan_daq()
-
         # scan range
         self.set_alter_range()
-
-        # scan output data
-        self.set_scan_outdata()
 
     @pyqtSlot()
     def on_click_start_btn(self):
         """Start a new scan routine, initialize everything.
         """
         # initialize configuration for scan routine
-        self.init_scan_config()
+        # initialize scan out data
+        self.scan_task.init_out_data()
+#        print(self.scan_task)
+#        print("-"*20)
+#        print("alter start : ", self.scan_task.alter_start)
+#        print("alter stop  : ", self.scan_task.alter_stop)
+#        print("alter number: ", self.scan_task.alter_number)
+#        print("shot number : ", self.scan_task.shotnum)
+#        print("alter array : ", self.scan_task.get_alter_array())
+#        print("alter elem  : ", self.scan_task.alter_element)
+#        print("monitor elem: ", self.scan_task.monitor_element)
+#        print("out data    : ", self.scan_task.scan_out_data)
+#        print("initial set : ", self.scan_task.get_initial_setting())
+#        print("-"*20)
+#        print("\n")
 
-        # reset scan log
+        if not self.scan_task.is_valid():
+            QMessageBox.warning(self, "Scan Task Warning",
+                    "Scan Task is not valid", QMessageBox.Ok)
+            return
+
+        # reset scan event log
         self.scan_log_textEdit.clear()
-        self.scanlogUpdated.emit("Starting scan...")
+        self.scanlogUpdated.emit(
+            "Starting scan task: {}".format(self.scan_task.name))
+
+        # set alter element to start point
+        x_start = self.scan_task.alter_start
+        self.scanlogUpdated.emit(
+            "Setting alter element to start value ({})...".format(x_start))
+        self.scan_task.alter_element.value = x_start
+        self.scanlogUpdated.emit(
+            "Alter element reaches start value ({})".format(x_start))
 
         # reset scan_plot_widget
 
-        # set alter element to start point
-        x0 = self.alter_range_array[0]
-        self._x0_set = self.alter_elem._putPV.get()
-        print("current setpoint: {}".format(self._x0_set))
-        print("starting setpoint: {}".format(x0))
-        print("Setting to starting setpoint...")
-        self.alter_elem._putPV.put(x0, wait=True)
+        # scan worker thread
+        self.thread = QThread()
+        self.scan_worker = ScanWorker(self.scan_task)
+        self.scan_worker.moveToThread(self.thread)
+        self.scan_worker.scanOneIterFinished.connect(self.on_one_iter_finished)
+        self.scan_worker.scanAllDataReady.connect(self.on_scan_data_ready)
+        self.scan_worker.scanAllFinished.connect(self.thread.quit)
+        self.scan_worker.scanAllFinished.connect(self.scan_worker.deleteLater)
+        self.scan_worker.scanAllFinished.connect(self.reset_alter_element)
+        self.scan_worker.scanAllFinished.connect(lambda:self.set_btn_status(mode='stop'))
+        self.scan_worker.scanAllFinished.connect(lambda:self.set_timestamp(type='stop'))
+        self.scan_worker.scanAllFinished.connect(self.on_auto_title)
+        # test
+        self.scan_worker.scanAllFinished.connect(self.test_scan_finished)
 
-        # start scan
-        self.scantimer.start(self.scantimer_deltmsec)
-        # task start timestamp
-        self.ts_start = time.time()
-        # stop timestamp
-        self.ts_stop = None
+        self.thread.finished.connect(self.thread.deleteLater)
 
+        # test
+        self.thread.started.connect(self.test_scan_started)
+
+        self.thread.started.connect(lambda:self.set_btn_status(mode='start'))
+        self.thread.started.connect(self.on_auto_labels)
+        self.thread.started.connect(lambda:self.set_timestamp(type='start'))
+
+        self.thread.started.connect(self.scan_worker.run)
+        self.thread.start()
+
+#        # start scan
+#        self.scantimer.start(self.scantimer_deltmsec)
+#        # task start timestamp
+#        self.ts_start = time.time()
+#        # stop timestamp
+#        self.ts_stop = None
+#
         # update UI
-        self.start_btn.setEnabled(False)
-        self.stop_btn.setEnabled(True)
-        self.pause_btn.setEnabled(True)
-        self.retake_btn.setEnabled(True)
+        #self.start_btn.setEnabled(False)
+        #self.stop_btn.setEnabled(True)
+        #self.pause_btn.setEnabled(True)
+        #self.retake_btn.setEnabled(True)
 
         # auto xylabels
-        self.on_auto_labels()
+        #self.on_auto_labels()
+
+    @pyqtSlot(int, float, QVariant)
+    def on_one_iter_finished(self, idx, x, arr):
+        """Every one iteration finished, push event log
+        """
+        niter = self.scan_task.alter_number
+        msg = 'Iter:{0:>3d}/[{1:d}] is done at value: {2:>9.2f}.'.format(
+                idx + 1, niter, x)
+        self.scanlogUpdated.emit(msg)
+        # update scan plot figure
+        self.update_curve(arr)
+
+    @pyqtSlot(QVariant)
+    def on_scan_data_ready(self, arr):
+        """Scan out data is ready.
+        """
+        print(arr)
+
 
     @pyqtSlot()
     def on_click_stop_btn(self):
         """Stop scan routine, can only start again.
         """
-        self.scantimer.stop()
-        self.daqtimer.stop()
+        self.scan_worker.stop()
+
         # publish summary info in scan log
         self.scanlogUpdated.emit("Scan routine stopped.")
+        # set alter element back to original setpoint
 
         # set back alter element
-        self._set_back_alter_element()
+        #self.reset_alter_element()
 
         # update UI
-        self.stop_btn.setEnabled(False)
-        self.start_btn.setEnabled(True)
-        self.pause_btn.setEnabled(False)
-        self.retake_btn.setEnabled(True)
+        #self.stop_btn.setEnabled(False)
+        #self.start_btn.setEnabled(True)
+        #self.pause_btn.setEnabled(False)
+        #self.retake_btn.setEnabled(True)
+    @pyqtSlot()
+    def set_btn_status(self, mode='start'):
+        """Set control btns status for 'start' and 'stop'.
+        """
+        if mode == 'start': # after push start button to start scan
+            print("Thread is started...")
+            self.start_btn.setEnabled(False)
+            self.stop_btn.setEnabled(True)
+            self.pause_btn.setEnabled(True)
+            self.retake_btn.setEnabled(True)
+        elif mode == 'stop': # scan is finished or stopped
+            print("Thread is stopped...")
+            self.start_btn.setEnabled(True)
+            self.stop_btn.setEnabled(False)
+            self.pause_btn.setEnabled(False)
+            self.retake_btn.setEnabled(True)
 
     @pyqtSlot()
     def on_click_pause_btn(self):
@@ -570,12 +628,6 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         self.start_btn.setEnabled(False)
         self.pause_btn.setEnabled(True)
         self.stop_btn.setEnabled(True)
-
-    @pyqtSlot()
-    def on_click_test_btn(self):
-        """Scan on another thread, testing
-        """
-        pass
 
     def init_timers(self):
         """Initialize timers for DAQ and SCAN control.
@@ -640,7 +692,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
             self.ts_stop = time.time()
 
             # set back alter element
-            self._set_back_alter_element()
+            self.reset_alter_element()
 
             # auto title
             self.on_auto_title()
@@ -680,20 +732,27 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         """Set scan DAQ parameters, and timeout for DAQ and SCAN timers.
         """
         # total number of scan points
-        self.scan_iternum_val = self.niter_spinBox.value()
+        #scan_iternum_val 
+        self.scan_task.alter_number = self.niter_spinBox.value()
+
         # time wait after every scan data setup, in msec
-        self.scan_waitmsec_val = self.waitsec_dSpinBox.value() * 1000.0
+        #self.scan_waitmsec_val
+        self.scan_task.t_wait = self.waitsec_dSpinBox.value()
+
         # total shot number for each scan iteration
-        self.scan_shotnum_val = self.nshot_spinBox.value()
-        # scan DAQ rate, in Hz
-        self.scan_daqrate_val = self.scanrate_dSpinBox.value()
+        #scan_shotnum_val
+        self.scan_task.shotnum = self.nshot_spinBox.value()
 
-        # scan DAQ timer timeout interval, in msec
-        self.daqtimer_deltmsec = 1000.0 / self.scan_daqrate_val
+        ## scan DAQ rate, in Hz
+        #self.scan_daqrate_val
+        self.scan_task.daq_rate = self.scanrate_dSpinBox.value()
 
-        # SCAN timer timeout interval (between iteration), in msec
-        self.scantimer_deltmsec = self.scan_waitmsec_val + (
-                self.scan_shotnum_val + 2) * self.daqtimer_deltmsec
+        ## scan DAQ timer timeout interval, in msec
+        #self.daqtimer_deltmsec = 1000.0 / self.scan_daqrate_val
+
+        ## SCAN timer timeout interval (between iteration), in msec
+        #self.scantimer_deltmsec = self.scan_waitmsec_val + (
+        #        self.scan_shotnum_val + 2) * self.daqtimer_deltmsec
 
         # debug
         #print("iter:{iter}, shot#:{shot}, wait_t:{wt}, daq:{daq}".format(
@@ -719,10 +778,10 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
                         QMessageBox.Ok)
         QTimer.singleShot(delay, lambda: check_status(pvelem))
 
-    def update_curve(self):
+    def update_curve(self, arr):
         """Update scan plot with fresh data.
         """
-        sm = ScanDataModel(self.scan_out_all)
+        sm = ScanDataModel(arr)
         x, y, xerr, yerr = sm.get_xavg(), sm.get_yavg(), sm.get_xerr(), sm.get_yerr()
         self.curveUpdated.emit(x, y, xerr, yerr)
 
@@ -769,8 +828,8 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
     def on_auto_labels(self):
         """Auto fill out the xy labels of figure.
         """
-        xlabel = get_auto_label(self.alter_elem)
-        ylabel = get_auto_label(self.monitor_elem)
+        xlabel = get_auto_label(self.scan_task.alter_element)
+        ylabel = get_auto_label(self.scan_task.monitor_element)
         self.scan_plot_widget.setFigureXlabel(xlabel)
         self.scan_plot_widget.setFigureYlabel(ylabel)
 
@@ -778,11 +837,17 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
     def on_auto_title(self):
         """Auto fill out the title of figure.
         """
-        if self.ts_stop is None: # scan routine is not finished
+        ts_stop = self.scan_task.ts_stop
+        if ts_stop is None:
+            QMessageBox.warning(self, "",
+                    "Scan routine is not finished.",
+                    QMessageBox.Ok)
             return
+
+        ts_start = self.scan_task.ts_start
         title = "Completed at {ts}\nSCAN Duration: {t:.2f} s".format(
-                    ts=epoch2human(self.ts_stop, fmt=TS_FMT),
-                    t=self.ts_stop-self.ts_start)
+                    ts=epoch2human(ts_stop, fmt=TS_FMT),
+                    t=ts_stop-ts_start)
         self.scan_plot_widget.setFigureTitle(title)
 
     @pyqtSlot()
@@ -836,10 +901,60 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
                 "Set alter element to {0:.3f}".format(x0),
                 QMessageBox.Ok)
 
-    def _set_back_alter_element(self):
+    def reset_alter_element(self):
+        x0 = self.scan_task.get_initial_setting()
         # restore alter elem
-        self.scanlogUpdated.emit("Set back alter element...")
-        self.alter_elem._putPV.put(self._x0_set, wait=True)
+        self.scanlogUpdated.emit(
+            "Set back alter element value to {}...".format(x0))
+        self.scan_task.alter_element.value = x0
+        self.scanlogUpdated.emit(
+            "Alter element reaches original value ({})".format(x0))
+
+    @pyqtSlot()
+    def set_timestamp(self, type='start'):
+        """Update start timestamp of scan task.
+        """
+        print("---set ts {}...".format(type))
+        if type == 'start':
+            self.scan_task.ts_start = time.time()
+        elif type == 'stop':
+            self.scan_task.ts_stop = time.time()
+
+    # test slots
+    def test_scan_started(self):
+        print(self.scan_task)
+        print("-"*20)
+        print("alter start : ", self.scan_task.alter_start)
+        print("alter stop  : ", self.scan_task.alter_stop)
+        print("alter number: ", self.scan_task.alter_number)
+        print("shot number : ", self.scan_task.shotnum)
+        print("alter array : ", self.scan_task.get_alter_array())
+        print("alter elem  : ", self.scan_task.alter_element)
+        print("monitor elem: ", self.scan_task.monitor_element)
+        print("out data    : ", self.scan_task.scan_out_data)
+        print("initial set : ", self.scan_task.get_initial_setting())
+        print("ts_start    : ", self.scan_task.ts_start)
+        print("ts_stop     : ", self.scan_task.ts_stop)
+        print("-"*20)
+        print("\n")
+
+    def test_scan_finished(self):
+        print(self.scan_task)
+        print("-"*20)
+        print("alter start : ", self.scan_task.alter_start)
+        print("alter stop  : ", self.scan_task.alter_stop)
+        print("alter number: ", self.scan_task.alter_number)
+        print("shot number : ", self.scan_task.shotnum)
+        print("alter array : ", self.scan_task.get_alter_array())
+        print("alter elem  : ", self.scan_task.alter_element)
+        print("monitor elem: ", self.scan_task.monitor_element)
+        print("out data    : ", self.scan_task.scan_out_data)
+        print("initial set : ", self.scan_task.get_initial_setting())
+        print("ts_start    : ", self.scan_task.ts_start)
+        print("ts_stop     : ", self.scan_task.ts_stop)
+        print("-"*20)
+        print("\n")
+
 
 def get_auto_label(elem):
     """Return string of element name and field name.
