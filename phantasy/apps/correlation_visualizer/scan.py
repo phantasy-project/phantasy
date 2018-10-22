@@ -9,7 +9,7 @@ from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtCore import QVariant
 
 from collections import OrderedDict
-from .data import JSONDataSheet
+from phantasy.apps.correlation_visualizer.data import JSONDataSheet
 
 from phantasy import epoch2human
 
@@ -201,9 +201,9 @@ class ScanTask(object):
         if array is not None:
             self._alter_array = np.array(array)
             # update new start, stop and number
-            self.alter_start = array[0]
-            self.alter_stop = array[-1]
-            self.alter_number = self._alter_array.size
+            self._alter_start = array[0]
+            self._alter_stop = array[-1]
+            self._alter_number = self._alter_array.size
         else:
             v1, v2, n = self.alter_start, self.alter_stop, self.alter_number
             self._alter_array = np.linspace(v1, v2, n)
@@ -363,7 +363,7 @@ if __name__ == '__main__':
     task.alter_start = 0
     task.alter_stop = 10
     task.alter_number = 10
-    print(task.get_alter_array())
+    print(task.get_alter_array(), task.alter_step)
 
     task.alter_stop = -10
     print(task.get_alter_array())
@@ -376,5 +376,4 @@ if __name__ == '__main__':
 
     task.set_alter_array([1,3,4,5])
     print(task.get_alter_array())
-    print(task.alter_start, task.alter_stop, task.alter_number)
-
+    print(task.alter_start, task.alter_stop, task.alter_number, task.alter_step)
