@@ -421,8 +421,6 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
                     "Scan Task is not valid", QMessageBox.Ok)
             return
 
-        # reset scan event log
-        self.scan_log_textEdit.clear()
         #
         self.scanlogTextColor.emit(COLOR_INFO)
         self.scanlogUpdated.emit(
