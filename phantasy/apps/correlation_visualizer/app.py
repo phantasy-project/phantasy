@@ -145,8 +145,6 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         # alter range
         self.lower_limit_lineEdit.textChanged.connect(self.set_alter_range)
         self.upper_limit_lineEdit.textChanged.connect(self.set_alter_range)
-        # range by percentage
-        self.scan_percentage_dSpinbox.valueChanged.connect(self.set_alter_range_by_percentage)
 
         # (new) inventory for selected elements, key: element name.
         self.elem_widgets_dict = {}
@@ -359,24 +357,6 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 
         # btn's status
         self.set_btn_status(mode='init')
-
-    @pyqtSlot(float)
-    def set_alter_range_by_percentage(self, x):
-        """Set scan range by percentage.
-        """
-        try:
-            a = float(self.lower_limit_lineEdit.text())
-            b = float(self.upper_limit_lineEdit.text())
-        except ValueError:
-            QMessageBox.warning(self, "Warning",
-                    "Invalid scan range input",
-                    QMessageBox.Ok)
-        else:
-            x0 = (a + b) / 2
-            val1, val2 = x0 * (1 - x / 100), x0 * (1 + x / 100)
-            self.lower_limit_lineEdit.setText('{0:.2f}'.format(val1))
-            self.upper_limit_lineEdit.setText('{0:.2f}'.format(val2))
-            self.set_alter_range()
 
     @pyqtSlot()
     def set_alter_range(self):
