@@ -134,7 +134,7 @@ class QuadScanWindow(BaseAppForm, Ui_MainWindow):
         data_ts_created = data['data']['created']
         task_duration_in_sec = data['task']['duration']
         data_shape = data['data']['shape']
-        quad_name = data['devices']['quad']['name']
+        quad_name = data['devices']['alter_element']['name']
         monitor_names = [m['name'] for m in data['devices']['monitors']]
         scan_range = data['task']['scan_range']
         scan_data_model = ScanDataModel(np.asarray(data['data']['array']))
