@@ -117,22 +117,13 @@ class Ui_MainWindow(object):
         self.show_other_monitors_btn.setObjectName("show_other_monitors_btn")
         self.scan_gridLayout.addWidget(self.show_other_monitors_btn, 5, 2, 1,
                                        2)
-        self.scan_percentage_dSpinbox = QtWidgets.QDoubleSpinBox(
-            self.scan_groupBox)
-        self.scan_percentage_dSpinbox.setDecimals(1)
-        self.scan_percentage_dSpinbox.setMinimum(-100.0)
-        self.scan_percentage_dSpinbox.setMaximum(100.0)
-        self.scan_percentage_dSpinbox.setSingleStep(0.5)
-        self.scan_percentage_dSpinbox.setObjectName("scan_percentage_dSpinbox")
-        self.scan_gridLayout.addWidget(self.scan_percentage_dSpinbox, 2, 4, 1,
-                                       1)
         self.select_alter_elem_btn = QtWidgets.QPushButton(self.scan_groupBox)
         self.select_alter_elem_btn.setAutoDefault(True)
         self.select_alter_elem_btn.setObjectName("select_alter_elem_btn")
         self.scan_gridLayout.addWidget(self.select_alter_elem_btn, 1, 4, 1, 1)
         self.alter_array_btn = QtWidgets.QPushButton(self.scan_groupBox)
         self.alter_array_btn.setObjectName("alter_array_btn")
-        self.scan_gridLayout.addWidget(self.alter_array_btn, 3, 4, 1, 1)
+        self.scan_gridLayout.addWidget(self.alter_array_btn, 2, 4, 1, 1)
         self.gridLayout.addLayout(self.scan_gridLayout, 0, 0, 1, 1)
         self.scanlog_verticalLayout = QtWidgets.QVBoxLayout()
         self.scanlog_verticalLayout.setObjectName("scanlog_verticalLayout")
@@ -464,8 +455,6 @@ class Ui_MainWindow(object):
         MainWindow.setTabOrder(self.lower_limit_lineEdit,
                                self.upper_limit_lineEdit)
         MainWindow.setTabOrder(self.upper_limit_lineEdit,
-                               self.scan_percentage_dSpinbox)
-        MainWindow.setTabOrder(self.scan_percentage_dSpinbox,
                                self.monitor_elem_lineEdit)
         MainWindow.setTabOrder(self.monitor_elem_lineEdit,
                                self.select_monitor_elem_btn)
@@ -528,11 +517,6 @@ class Ui_MainWindow(object):
             _translate("MainWindow", "Other Selected Monitors (0)"))
         self.show_other_monitors_btn.setText(
             _translate("MainWindow", "Show Monitors"))
-        self.scan_percentage_dSpinbox.setToolTip(
-            _translate(
-                "MainWindow",
-                "<html><head/><body><p>Adjust scan range by percentages.</p></body></html>"
-            ))
         self.select_alter_elem_btn.setText(_translate("MainWindow", "Select"))
         self.alter_array_btn.setToolTip(
             _translate(
