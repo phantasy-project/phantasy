@@ -8,6 +8,12 @@ import random
 from PyQt5.QtCore import QEventLoop
 from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtGui import QColor
+
+# https://getbootstrap.com/docs/4.0/utilities/colors/
+COLOR_DANGER = QColor('#DC3545')
+COLOR_INFO = QColor('#17A2B8')
+COLOR_WARNING = QColor('#FFC107')
 
 
 class PVElement(object):
