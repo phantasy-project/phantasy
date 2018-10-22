@@ -33,6 +33,7 @@ from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import QVariant
 from PyQt5.QtGui import QIcon
 from PyQt5.QtGui import QPixmap
+from PyQt5.QtGui import QColor
 from PyQt5.QtCore import QTimer
 from PyQt5.QtCore import Qt
 from PyQt5.QtCore import QSize
@@ -41,6 +42,7 @@ from PyQt5.QtCore import QThread
 from .utils import PVElement
 from .utils import PVElementReadonly
 from .utils import random_string
+from .utils import COLOR_DANGER, COLOR_INFO, COLOR_WARNING
 from phantasy.apps.utils import get_save_filename
 
 from .utils import milli_sleep
@@ -59,6 +61,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 
     # scan log
     scanlogUpdated = pyqtSignal('QString')
+    scanlogTextColor = pyqtSignal(QColor)
 
     # scan plot curve w/ errorbar
     curveUpdated = pyqtSignal(QVariant, QVariant, QVariant, QVariant)
@@ -118,7 +121,8 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         self.set_tbtn.clicked.connect(self.on_set)
 
         # signals & slots
-        self.scanlogUpdated.connect(self.scan_log_textEdit.append)
+        self.scanlogUpdated.connect(self.on_update_log)
+        self.scanlogTextColor.connect(self.scan_log_textEdit.setTextColor)
         self.curveUpdated.connect(self.scan_plot_widget.update_curve)
 
         # (new) unified button for setting alter element
@@ -353,30 +357,6 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         self.pause_btn.setEnabled(False)
         self.retake_btn.setEnabled(False)
 
-    @pyqtSlot('QString')
-    def on_select_monitor_vars_type(self, val):
-        """Select type for monitor var type
-        """
-        if val == 'Element':
-            # do not accept input
-            self.monitor_main_lineEdit.setEnabled(False)
-            self.select_more_monitor_elems_btn.setEnabled(True)
-        else:
-            self.monitor_main_lineEdit.setEnabled(True)
-            self.select_more_monitor_elems_btn.setEnabled(False)
-
-    @pyqtSlot('QString')
-    def on_select_alter_vars_type(self, val):
-        """Select type for alter var type
-        """
-        if val == 'Element':
-            # put and get boxes do not accept input
-            self.alter_elem_lineEdit.setEnabled(False)
-            self.select_scan_elems_btn.setEnabled(True)
-        else:
-            self.alter_elem_lineEdit.setEnabled(True)
-            self.select_scan_elems_btn.setEnabled(False)
-
     @pyqtSlot(float)
     def set_alter_range_by_percentage(self, x):
         """Set scan range by percentage.
@@ -404,6 +384,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         try:
             sval1, sval2 = float(srange_val1_str), float(srange_val2_str)
         except ValueError:
+            self.scanlogTextColor.emit(COLOR_DANGER)
             self.scanlogUpdated.emit("Empty input of scan range is invalid...")
         else:
             self.scan_task.alter_start = sval1
@@ -441,6 +422,8 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 
         # reset scan event log
         self.scan_log_textEdit.clear()
+        #
+        self.scanlogTextColor.emit(COLOR_INFO)
         self.scanlogUpdated.emit(
             "Starting scan task: {}".format(self.scan_task.name))
 
@@ -502,6 +485,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         """Every one iteration finished, push event log
         """
         niter = self.scan_task.alter_number
+        self.scanlogTextColor.emit(COLOR_INFO)
         msg = 'Iter:{0:>3d}/[{1:d}] is done at value: {2:>9.2f}'.format(
                 idx + 1, niter, x)
         self.scanlogUpdated.emit(msg)
@@ -520,19 +504,9 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         """Stop scan routine, can only start again.
         """
         self.scan_worker.stop()
-
-        # publish summary info in scan log
+        self.scanlogTextColor.emit(COLOR_WARNING)
         self.scanlogUpdated.emit("Scan routine stopped.")
-        # set alter element back to original setpoint
 
-        # set back alter element
-        #self.reset_alter_element()
-
-        # update UI
-        #self.stop_btn.setEnabled(False)
-        #self.start_btn.setEnabled(True)
-        #self.pause_btn.setEnabled(False)
-        #self.retake_btn.setEnabled(True)
     @pyqtSlot()
     def set_btn_status(self, mode='start'):
         """Set control btns status for 'start' and 'stop'.
@@ -709,6 +683,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
                 QMessageBox.Ok)
         else:
             x0 = self.vline.get_xdata()[0][0]
+            self.scanlogTextColor.emit(COLOR_INFO)
             self.scanlogUpdated.emit("Set alter element value to {}...".format(x0))
             self.scan_task.alter_element.value = x0
             self.scanlogUpdated.emit("Alter element reaches {}.".format(x0))
@@ -719,6 +694,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
     def reset_alter_element(self):
         x0 = self.scan_task.get_initial_setting()
         # restore alter elem
+        self.scanlogTextColor.emit(COLOR_INFO)
         self.scanlogUpdated.emit(
             "Set back alter element value to {}...".format(x0))
         self.scan_task.alter_element.value = x0
@@ -734,6 +710,13 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
             self.scan_task.ts_start = time.time()
         elif type == 'stop':
             self.scan_task.ts_stop = time.time()
+
+    @pyqtSlot('QString')
+    def on_update_log(self, s):
+        """Update scan event log.
+        """
+        msg = '[{0}] {1}'.format(epoch2human(time.time(), fmt=TS_FMT), s)
+        self.scan_log_textEdit.append(msg)
 
     # test slots
     def test_scan_started(self):
