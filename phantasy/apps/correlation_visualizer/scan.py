@@ -8,6 +8,13 @@ from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtCore import QVariant
 
+from collections import OrderedDict
+from .data import JSONDataSheet
+
+from phantasy import epoch2human
+
+TS_FMT = "%Y-%m-%d %H:%M:%S %Z"
+
 
 class ScanTask(object):
     """Class to abstract scan routine.
@@ -248,6 +255,47 @@ class ScanTask(object):
         """
         return self._val0
 
+    def to_datasheet(self):
+        """return JSONDataSheet object.
+        """
+        data_sheet = JSONDataSheet()
+        # task
+        task_dict = OrderedDict()
+        task_dict['start'] = epoch2human(self.ts_start, fmt=TS_FMT)
+        task_dict['stop'] = epoch2human(self.ts_stop, fmt=TS_FMT)
+        task_dict['duration'] = self.ts_stop - self.ts_start
+        task_dict['n_iteration'] = self.alter_number
+        task_dict['n_shot'] = self.shotnum
+        task_dict['n_dim'] = 2 + len(self.get_extra_monitors())
+        task_dict['scan_range'] = self.get_alter_array().tolist()
+        task_dict['t_wait'] = self.t_wait
+        task_dict['daq_rate'] = self.daq_rate
+        data_sheet.update({'task': task_dict})
+
+        # devices
+        dev_dict = OrderedDict()
+        dev_dict['alter_element'] = {
+                'name': self.alter_element.name,
+                'readback_pv': self.alter_element.get_pvname,
+                'setpoint_pv': self.alter_element.put_pvname,
+        }
+        dev_dict['monitors'] = []
+        for elem in [self.monitor_element] + self.get_extra_monitors():
+            dev_dict['monitors'].append({
+                    'name': elem.name,
+                    'readback_pv': elem.get_pvname,
+            })
+        data_sheet.update({'devices': dev_dict})
+
+        # data
+        data_dict = OrderedDict()
+        data_dict['created'] = epoch2human(time.time(), fmt=TS_FMT)
+        data_dict['shape'] = self.scan_out_data.shape
+        data_dict['array'] = self.scan_out_data.tolist()
+        data_sheet.update({'data': data_dict})
+
+        return data_sheet
+
 
 class ScanWorker(QThread):
     """Perform scan routine.
@@ -301,6 +349,12 @@ class ScanWorker(QThread):
         """Stop scan worker
         """
         self.run_flag = False
+
+    def is_running(self):
+        """Return if scan task is running or not.
+        """
+        return self.run_flag
+
 
 if __name__ == '__main__':
     task = ScanTask("SCAN #1")
