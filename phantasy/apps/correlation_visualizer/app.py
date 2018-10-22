@@ -10,6 +10,7 @@ from .icons import xylabel_icon
 from .icons import title_icon
 from .icons import moveto_icon
 from .icons import set_icon
+from .icons import clean_icon
 from phantasy_ui.templates import BaseAppForm
 from phantasy_ui.widgets.elementwidget import ElementWidget
 from phantasy_ui.widgets.latticewidget import LatticeWidget
@@ -119,6 +120,8 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         self.moveto_tbtn.clicked.connect(self.on_moveto)
         # set btn: set alter_elem with the value vline pointing to
         self.set_tbtn.clicked.connect(self.on_set)
+        # clear log btn
+        self.clear_log_tbtn.clicked.connect(self.scan_log_textEdit.clear)
 
         # signals & slots
         self.scanlogUpdated.connect(self.on_update_log)
@@ -156,13 +159,6 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         self.lattice_load_window = None
         self._mp = None
 
-        # alter/monitor elem default values
-        self.alter_elem = None
-        self.monitor_elem = None
-
-        # vars
-        self.ts_start = None
-        self.ts_stop = None
         # vline as ruler
         self.vline = None
 
@@ -342,6 +338,11 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         menu.addAction(hide_action)
         self.moveto_tbtn.setMenu(menu)
 
+        # clear log btn
+        self.clear_log_tbtn.setIcon(QIcon(QPixmap(clean_icon)))
+        self.clear_log_tbtn.setIconSize(QSize(24, 24))
+        self.clear_log_tbtn.setToolTip("Clear scan event log")
+
         # set btn
         self.set_tbtn.setIcon(QIcon(QPixmap(set_icon)))
         self.set_tbtn.setIconSize(QSize(48, 48))
@@ -430,10 +431,10 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         # set alter element to start point
         x_start = self.scan_task.alter_start
         self.scanlogUpdated.emit(
-            "Setting alter element to start value ({})...".format(x_start))
+            "Setting alter element to {}...".format(x_start))
         self.scan_task.alter_element.value = x_start
         self.scanlogUpdated.emit(
-            "Alter element reaches start value ({})".format(x_start))
+            "Alter element reaches {}".format(x_start))
 
         # reset scan_plot_widget
 
@@ -684,7 +685,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         else:
             x0 = self.vline.get_xdata()[0][0]
             self.scanlogTextColor.emit(COLOR_INFO)
-            self.scanlogUpdated.emit("Set alter element value to {}...".format(x0))
+            self.scanlogUpdated.emit("Setting alter element to {}...".format(x0))
             self.scan_task.alter_element.value = x0
             self.scanlogUpdated.emit("Alter element reaches {}.".format(x0))
             QMessageBox.information(self, "",
@@ -696,7 +697,9 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         # restore alter elem
         self.scanlogTextColor.emit(COLOR_INFO)
         self.scanlogUpdated.emit(
-            "Set back alter element value to {}...".format(x0))
+                "Scan routine is done, reset alter element...")
+        self.scanlogUpdated.emit(
+            "Setting alter element to {}...".format(x0))
         self.scan_task.alter_element.value = x0
         self.scanlogUpdated.emit(
             "Alter element reaches {}".format(x0))
