@@ -89,6 +89,7 @@ class ScanTask(object):
     @alter_element.setter
     def alter_element(self, o):
         self._alter_elem = o
+        self.set_initial_setting()
 
     @property
     def monitor_element(self):
@@ -235,15 +236,17 @@ class ScanTask(object):
         except:
             return False
 
+    def set_initial_setting(self):
+        """Set initial setting for alter element.
+        Every time set alter element, set initial setting.
+        """
+        x0 = self.alter_element.setpoint_pv[0].get()
+        self._val0 = x0
+
     def get_initial_setting(self):
-        try:
-            x0 = self.alter_element.setpoint_pv[0].get()
-        except:
-            print("Cannot get initial setting.")
-            x0 = None
-        finally:
-            self.val0 = x0
-            return x0
+        """Return the initial setting of alter element.
+        """
+        return self._val0
 
 
 class ScanWorker(QThread):
@@ -260,6 +263,7 @@ class ScanWorker(QThread):
         super(ScanWorker, self).__init__(parent)
         self.task = scantask
         self.parent = parent
+        self.run_flag = True
 
     def run(self):
         nshot = self.task.shotnum
@@ -273,7 +277,9 @@ class ScanWorker(QThread):
         daq_delt = 1.0/daq_rate
 
         for idx, x in enumerate(alter_array):
-            print(idx,x)
+            if not self.run_flag:
+                print("Break scan by STOP button")
+                break
             alter_elem.value = x
             print('waiting {} sec'.format(wait_sec))
             time.sleep(wait_sec)
@@ -288,7 +294,13 @@ class ScanWorker(QThread):
 
         self.scanAllDataReady.emit(out_data)
         self.scanAllFinished.emit()
+        #
+        self.run_flag = False
 
+    def stop(self):
+        """Stop scan worker
+        """
+        self.run_flag = False
 
 if __name__ == '__main__':
     task = ScanTask("SCAN #1")
