@@ -4,6 +4,7 @@
 from .ui.ui_app import Ui_MainWindow
 from .app_help import HelpDialog
 from .app_elem_select import ElementSelectDialog
+from .app_array_set import ArraySetDialog
 from .icons import cv_icon
 from .icons import save_icon
 from .icons import xylabel_icon
@@ -122,6 +123,10 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         self.set_tbtn.clicked.connect(self.on_set)
         # clear log btn
         self.clear_log_tbtn.clicked.connect(self.scan_log_textEdit.clear)
+
+        # set alter array btn
+        self.alter_array_btn.clicked.connect(self.on_set_alter_array)
+        self._set_alter_array_dialogs = {} # keys: alter element name
 
         # signals & slots
         self.scanlogUpdated.connect(self.on_update_log)
@@ -353,10 +358,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         self.upper_limit_lineEdit.setValidator(QDoubleValidator())
 
         # btn's status
-        self.start_btn.setEnabled(True)
-        self.stop_btn.setEnabled(False)
-        self.pause_btn.setEnabled(False)
-        self.retake_btn.setEnabled(False)
+        self.set_btn_status(mode='init')
 
     @pyqtSlot(float)
     def set_alter_range_by_percentage(self, x):
@@ -386,7 +388,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
             sval1, sval2 = float(srange_val1_str), float(srange_val2_str)
         except ValueError:
             self.scanlogTextColor.emit(COLOR_DANGER)
-            self.scanlogUpdated.emit("Empty input of scan range is invalid...")
+            self.scanlogUpdated.emit("Empty input of scan range is invalid")
         else:
             self.scan_task.alter_start = sval1
             self.scan_task.alter_stop = sval2
@@ -463,22 +465,6 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         self.thread.started.connect(self.scan_worker.run)
         self.thread.start()
 
-#        # start scan
-#        self.scantimer.start(self.scantimer_deltmsec)
-#        # task start timestamp
-#        self.ts_start = time.time()
-#        # stop timestamp
-#        self.ts_stop = None
-#
-        # update UI
-        #self.start_btn.setEnabled(False)
-        #self.stop_btn.setEnabled(True)
-        #self.pause_btn.setEnabled(True)
-        #self.retake_btn.setEnabled(True)
-
-        # auto xylabels
-        #self.on_auto_labels()
-
     @pyqtSlot(int, float, QVariant)
     def on_one_iter_finished(self, idx, x, arr):
         """Every one iteration finished, push event log
@@ -522,6 +508,11 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
             self.stop_btn.setEnabled(False)
             self.pause_btn.setEnabled(False)
             self.retake_btn.setEnabled(True)
+        elif mode == 'init': # when app is started up
+            self.start_btn.setEnabled(True)
+            self.stop_btn.setEnabled(False)
+            self.pause_btn.setEnabled(False)
+            self.retake_btn.setEnabled(False)
 
     @pyqtSlot()
     def on_click_pause_btn(self):
@@ -553,7 +544,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         # total number of scan points
         self.scan_task.alter_number = self.niter_spinBox.value()
 
-        # time wait after every scan data setup, in msec
+        # time wait after every scan data setup, in sec
         self.scan_task.t_wait = self.waitsec_dSpinBox.value()
 
         # total shot number for each scan iteration
@@ -718,6 +709,27 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         """
         msg = '[{0}] {1}'.format(epoch2human(time.time(), fmt=TS_FMT), s)
         self.scan_log_textEdit.append(msg)
+
+    @pyqtSlot()
+    def on_set_alter_array(self):
+        """Set alter array dialog.
+        """
+        dlg = self._set_alter_array_dialogs.setdefault(
+                self.scan_task.name, ArraySetDialog(self))
+        r = dlg.exec_()
+
+        if r == QDialog.Accepted:
+            arr = dlg.array
+            self.scan_task.set_alter_array(arr)
+            self.niter_spinBox.setValue(self.scan_task.alter_number)
+            v1, v2 = self.scan_task.alter_start, self.scan_task.alter_stop
+            self.lower_limit_lineEdit.setText(str(v1))
+            print(self.scan_task.alter_start, self.scan_task.alter_stop)
+            self.upper_limit_lineEdit.setText(str(v2))
+            print(self.scan_task.alter_start, self.scan_task.alter_stop)
+        elif r == QDialog.Rejected:
+            print("No array set")
+            return
 
     # test slots
     def test_scan_started(self):
