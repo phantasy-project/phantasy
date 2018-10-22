@@ -46,7 +46,6 @@ from phantasy.apps.utils import get_save_filename
 from .utils import milli_sleep
 
 from .data import ScanDataModel
-from .data import JSONDataSheet
 
 from .scan import ScanTask
 from .scan import ScanWorker
@@ -94,9 +93,6 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 
         # UI
         self.setupUi(self)
-
-        # timers
-        self.init_timers()
 
         # daq ctrl btns
         self.start_btn.clicked.connect(self.on_click_start_btn)
@@ -283,7 +279,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
     def save_data(self):
         """save data.
         """
-        if self.ts_stop is None:
+        if self.scan_worker.is_running():
             return
 
         filename = get_save_filename(self, caption="Save data to file",
@@ -292,48 +288,10 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         if filename is not None:
             self.__save_scan_data(filename)
 
-    def make_data_sheet(self):
-        data_sheet = JSONDataSheet()
-        # task
-        task_dict = OrderedDict()
-        task_dict['start'] = epoch2human(self.ts_start, fmt=TS_FMT)
-        task_dict['stop'] = epoch2human(self.ts_stop, fmt=TS_FMT)
-        task_dict['duration'] = self.ts_stop - self.ts_start
-        task_dict['n_iteration'] = self.scan_iternum_val
-        task_dict['n_shot'] = self.scan_shotnum_val
-        task_dict['n_dim'] = 2
-        task_dict['scan_range'] = self.alter_range_array.tolist()
-        task_dict['t_wait'] = self.scan_waitmsec_val/1000.0
-        task_dict['daq_rate'] = self.scan_daqrate_val
-        data_sheet.update({'task': task_dict})
-
-        # devices
-        dev_dict = OrderedDict()
-        dev_dict['quad'] = {
-                'name': self.alter_elem.name,
-                'readback_pv': self.alter_elem.get_pvname,
-                'setpoint_pv': self.alter_elem.put_pvname,
-        }
-        dev_dict['monitors'] = []
-        dev_dict['monitors'].append({
-                'name': self.monitor_elem.name,
-                'readback_pv': self.monitor_elem.get_pvname,
-        })
-        data_sheet.update({'devices': dev_dict})
-
-        # data
-        data_dict = OrderedDict()
-        data_dict['created'] = epoch2human(time.time(), fmt=TS_FMT)
-        data_dict['shape'] = self.scan_out_all.shape
-        data_dict['array'] = self.scan_out_all.tolist()
-        data_sheet.update({'data': data_dict})
-
-        return data_sheet
-
     def __save_scan_data(self, filename):
         """Save scan data.
         """
-        data_sheet = self.make_data_sheet()
+        data_sheet = self.scan_task.to_datasheet()
 
         data_sheet['data'].update({'filepath': filename})
         # save
@@ -440,8 +398,6 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
     @pyqtSlot()
     def set_alter_range(self):
         """Set scan alter vars range.
-
-        *alter_range_array* : array to iterately alter
         """
         srange_val1_str = self.lower_limit_lineEdit.text()
         srange_val2_str = self.upper_limit_lineEdit.text()
@@ -476,20 +432,8 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         # initialize configuration for scan routine
         # initialize scan out data
         self.scan_task.init_out_data()
-#        print(self.scan_task)
-#        print("-"*20)
-#        print("alter start : ", self.scan_task.alter_start)
-#        print("alter stop  : ", self.scan_task.alter_stop)
-#        print("alter number: ", self.scan_task.alter_number)
-#        print("shot number : ", self.scan_task.shotnum)
-#        print("alter array : ", self.scan_task.get_alter_array())
-#        print("alter elem  : ", self.scan_task.alter_element)
-#        print("monitor elem: ", self.scan_task.monitor_element)
-#        print("out data    : ", self.scan_task.scan_out_data)
-#        print("initial set : ", self.scan_task.get_initial_setting())
-#        print("-"*20)
-#        print("\n")
 
+        # check scan config
         if not self.scan_task.is_valid():
             QMessageBox.warning(self, "Scan Task Warning",
                     "Scan Task is not valid", QMessageBox.Ok)
@@ -558,7 +502,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         """Every one iteration finished, push event log
         """
         niter = self.scan_task.alter_number
-        msg = 'Iter:{0:>3d}/[{1:d}] is done at value: {2:>9.2f}.'.format(
+        msg = 'Iter:{0:>3d}/[{1:d}] is done at value: {2:>9.2f}'.format(
                 idx + 1, niter, x)
         self.scanlogUpdated.emit(msg)
         # update scan plot figure
@@ -629,154 +573,21 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         self.pause_btn.setEnabled(True)
         self.stop_btn.setEnabled(True)
 
-    def init_timers(self):
-        """Initialize timers for DAQ and SCAN control.
-        """
-        self.daqtimer = QTimer()
-        self.scantimer = QTimer()
-        self.daqtimer.timeout.connect(self.on_daqtimer_timeout)
-        self.scantimer.timeout.connect(self.on_scantimer_timeout)
-
-    @pyqtSlot()
-    def on_daqtimer_timeout(self):
-        """DAQ within one scan iteration.
-        """
-        try:
-            assert self.daq_cnt < self.scan_shotnum_val
-        except AssertionError:
-            # stop DAQ timer
-            self.daqtimer.stop()
-
-            # update scan log
-            idx = self.current_alter_index_in_daq
-            log = 'Iter:{0:>3d}/[{1:d}] is done at value: {2:>9.2f}.'.format(
-                    idx + 1, self.scan_iternum_val, self.alter_range_array[idx])
-            self.scanlogUpdated.emit(log)
-
-            # debug only
-            #print("-"*20)
-            #print(self.current_alter_index_in_daq)
-            #print(self.scan_out_per_iter)
-            #print(self.scan_out_all)
-            #print("-"*20)
-
-            # push finish message
-            if not self.scantimer.isActive():
-                self.scanlogUpdated.emit("Scan routine finished.")
-
-            # update figure
-            self.update_curve()
-
-        else:
-            self.scan_out_per_iter[self.daq_cnt, :] = \
-                self.alter_elem.value, \
-                self.monitor_elem.value
-
-            # update data: scan_out_all
-            self.scan_out_all[self.current_alter_index_in_daq, :, :] = self.scan_out_per_iter
-
-            # next daq event
-            self.daq_cnt += 1
-
-    @pyqtSlot()
-    def on_scantimer_timeout(self):
-        """Update parameters for next scan iteration.
-        """
-        try:
-            assert self.current_alter_index < self.scan_iternum_val
-        except AssertionError:
-            self.scantimer.stop()
-            self.start_btn.setEnabled(True)
-            #
-            # task stop timestamp
-            self.ts_stop = time.time()
-
-            # set back alter element
-            self.reset_alter_element()
-
-            # auto title
-            self.on_auto_title()
-
-        else:
-            # get the current value to be set
-            current_alter_val = self.alter_range_array[self.current_alter_index]
-            # make set/put operation
-            self.alter_elem.value = current_alter_val
-
-            # wait
-            milli_sleep(qApp, self.scan_waitmsec_val)
-
-            # start DAQ
-            self.start_daqtimer(self.daqtimer_deltmsec, self.current_alter_index)
-
-            # to next alter value
-            self.current_alter_index += 1
-
-    def start_daqtimer(self, deltmsec, idx):
-        """Start DAQ timer, current alter data *idx* must be reserved within
-        the DAQ routine.
-
-        Parameters
-        ----------
-        deltmsec : float
-            Millisecond timeout interval for DAQ timer.
-        idx : int
-            Index of the current alter value.
-        """
-        self.current_alter_index_in_daq = idx
-        self.daq_cnt = 0 # max: self.scan_shotnum_val
-        self.daqtimer.start(deltmsec)
-
     @pyqtSlot()
     def set_scan_daq(self):
         """Set scan DAQ parameters, and timeout for DAQ and SCAN timers.
         """
         # total number of scan points
-        #scan_iternum_val 
         self.scan_task.alter_number = self.niter_spinBox.value()
 
         # time wait after every scan data setup, in msec
-        #self.scan_waitmsec_val
         self.scan_task.t_wait = self.waitsec_dSpinBox.value()
 
         # total shot number for each scan iteration
-        #scan_shotnum_val
         self.scan_task.shotnum = self.nshot_spinBox.value()
 
         ## scan DAQ rate, in Hz
-        #self.scan_daqrate_val
         self.scan_task.daq_rate = self.scanrate_dSpinBox.value()
-
-        ## scan DAQ timer timeout interval, in msec
-        #self.daqtimer_deltmsec = 1000.0 / self.scan_daqrate_val
-
-        ## SCAN timer timeout interval (between iteration), in msec
-        #self.scantimer_deltmsec = self.scan_waitmsec_val + (
-        #        self.scan_shotnum_val + 2) * self.daqtimer_deltmsec
-
-        # debug
-        #print("iter:{iter}, shot#:{shot}, wait_t:{wt}, daq:{daq}".format(
-        #    iter=self.scan_iternum_val, shot=self.scan_shotnum_val,
-        #    wt=self.scan_waitmsec_val, daq=self.scan_daqrate_val))
-        #print("DAQ Timer interval: {}ms\nSCAN Timer interval: {} ms".format(
-        #    self.daqtimer_deltmsec, self.scantimer_deltmsec))
-
-    def delayed_check_pv_status(self, pvelem, delay=1000):
-        """Check PV element connected or not.
-
-        Parameters
-        ----------
-        pvelem : obj
-            Instance of `epics.PV`, `PVElement`, `PVElementReadonly`.
-        delay : float
-            Delay milliseconds to check PV status.
-        """
-        def check_status(elem):
-            if not elem.connected:
-                QMessageBox.warning(self, "Warning",
-                        "Cannot connect to the input PV(s).",
-                        QMessageBox.Ok)
-        QTimer.singleShot(delay, lambda: check_status(pvelem))
 
     def update_curve(self, arr):
         """Update scan plot with fresh data.
@@ -794,7 +605,8 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 
         if self.qs_window is None:
             try:
-                self.qs_window = QuadScanWindow(__version__, self.make_data_sheet())
+                self.qs_window = QuadScanWindow(__version__,
+                        self.scan_task.to_datasheet())
             except AttributeError:
                 QMessageBox.warning(self, "",
                     "Scan Routine is not complete, please try again later.",
@@ -837,14 +649,14 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
     def on_auto_title(self):
         """Auto fill out the title of figure.
         """
-        ts_stop = self.scan_task.ts_stop
-        if ts_stop is None:
+        if self.scan_worker.is_running():
             QMessageBox.warning(self, "",
                     "Scan routine is not finished.",
                     QMessageBox.Ok)
             return
 
         ts_start = self.scan_task.ts_start
+        ts_stop = self.scan_task.ts_stop
         title = "Completed at {ts}\nSCAN Duration: {t:.2f} s".format(
                     ts=epoch2human(ts_stop, fmt=TS_FMT),
                     t=ts_stop-ts_start)
@@ -864,18 +676,19 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
                 self.scan_plot_widget.update_figure()
             return
 
-        if self.ts_stop is None:
-            # no scan completed, do nothing
+        if self.scan_worker.is_running():
+            # scan is not completed, do nothing
             return
 
-        sm = ScanDataModel(self.scan_out_all)
+        sm = ScanDataModel(self.scan_task.scan_out_data)
         y = sm.get_yavg()
         y_min, y_max = y.min(), y.max()
 
+        alter_array = self.scan_task.get_alter_array()
         if pos == 'peak': # peak
-            xm = self.alter_range_array[np.where(y==y_max)]
+            xm = alter_array[np.where(y==y_max)]
         elif pos == 'valley': # valley
-            xm = self.alter_range_array[np.where(y==y_min)]
+            xm = alter_array[np.where(y==y_min)]
 
         if self.vline is None:
             self.vline = self.scan_plot_widget.axes.axvline(x=xm,
@@ -896,7 +709,9 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
                 QMessageBox.Ok)
         else:
             x0 = self.vline.get_xdata()[0][0]
-            self.alter_elem._putPV.put(x0, wait=True)
+            self.scanlogUpdated.emit("Set alter element value to {}...".format(x0))
+            self.scan_task.alter_element.value = x0
+            self.scanlogUpdated.emit("Alter element reaches {}.".format(x0))
             QMessageBox.information(self, "",
                 "Set alter element to {0:.3f}".format(x0),
                 QMessageBox.Ok)
@@ -908,7 +723,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
             "Set back alter element value to {}...".format(x0))
         self.scan_task.alter_element.value = x0
         self.scanlogUpdated.emit(
-            "Alter element reaches original value ({})".format(x0))
+            "Alter element reaches {}".format(x0))
 
     @pyqtSlot()
     def set_timestamp(self, type='start'):
