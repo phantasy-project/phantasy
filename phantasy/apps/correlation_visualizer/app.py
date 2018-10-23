@@ -282,17 +282,24 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
     def save_data(self):
         """save data.
         """
-        if self.scan_worker.is_running():
+        if not hasattr(self, 'scan_worker') or self.scan_worker.is_running():
             return
 
-        filename = get_save_filename(self, caption="Save data to file",
-                    filter="JSON Files (*.json);;HDF5 Files (*.hdf5 *.h5)")
+        filename, ext = get_save_filename(self, caption="Save data to file",
+            filter="JSON Files (*.json);;HDF5 Files (*.hdf5 *.h5);;TXT Files (*.txt *.csv)")
 
-        if filename is not None:
-            self.__save_scan_data(filename)
+        if filename is None:
+            return
+        if ext.upper() == 'JSON':
+            self.__save_data_as_json(filename)
+        elif ext.upper() == 'CSV':
+            self.__save_data_as_array(filename)
+        elif ext.upper() == 'H5':
+            pass
+        QMessageBox.information(self, "", "Save data to {}".format(filename))
 
-    def __save_scan_data(self, filename):
-        """Save scan data.
+    def __save_data_as_json(self, filename):
+        """Save scan data as json datasheet.
         """
         data_sheet = self.scan_task.to_datasheet()
 
@@ -300,6 +307,15 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         # save
         data_sheet.write(filename)
         # return flag to indicate success or fail.
+
+    def __save_data_as_array(self, filename):
+        sm = ScanDataModel(self.scan_task.scan_out_data)
+        x, y, xerr, yerr = sm.get_xavg(), sm.get_yavg(), sm.get_xerr(), sm.get_yerr()
+        header = '<x> <y> x_std  y_std\nx: {}\ny: {}'.format(
+                self.scan_task.alter_element.readback[0],
+                self.scan_task.monitor_element.readback[0])
+        np.savetxt(filename, np.vstack([x,y,xerr,yerr]).T, header=header,
+                   delimiter=',')
 
     def _post_init_ui(self):
         """post init ui
@@ -470,7 +486,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         """
         self.scan_worker.stop()
         self.scanlogTextColor.emit(COLOR_WARNING)
-        self.scanlogUpdated.emit("Scan routine stopped.")
+        self.scanlogUpdated.emit("Scan task stopped.")
 
     @pyqtSlot()
     def set_btn_status(self, mode='start'):
@@ -553,7 +569,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
                         self.scan_task.to_datasheet())
             except AttributeError:
                 QMessageBox.warning(self, "",
-                    "Scan Routine is not complete, please try again later.",
+                    "Scan task is not complete, please try again later.",
                     QMessageBox.Ok)
                 return
         self.qs_window.show()
@@ -595,7 +611,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         """
         if self.scan_worker.is_running():
             QMessageBox.warning(self, "",
-                    "Scan routine is not finished.",
+                    "Scan task is not finished.",
                     QMessageBox.Ok)
             return
 
@@ -666,7 +682,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         # restore alter elem
         self.scanlogTextColor.emit(COLOR_INFO)
         self.scanlogUpdated.emit(
-                "Scan routine is done, reset alter element...")
+                "Scan task is done, reset alter element...")
         self.scanlogUpdated.emit(
             "Setting alter element to {}...".format(x0))
         self.scan_task.alter_element.value = x0
