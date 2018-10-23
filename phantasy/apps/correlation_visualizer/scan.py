@@ -3,7 +3,7 @@
 
 import numpy as np
 import time
-from PyQt5.QtCore import QThread
+from PyQt5.QtCore import QObject
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtCore import QVariant
@@ -297,21 +297,28 @@ class ScanTask(object):
         return data_sheet
 
 
-class ScanWorker(QThread):
+class ScanWorker(QObject):
     """Perform scan routine.
     """
     # the whole scan routine is done
-    scanAllFinished = pyqtSignal()
+    scanFinished = pyqtSignal()
+    # scan routine is stopped by STOP btn
+    scanStopped = pyqtSignal()
+    # scan routine is paused by PAUSE btn
+    scanPaused = pyqtSignal()
+    scanPausedAtIndex = pyqtSignal(int)
     # one iteration is done, param: index and value, array
     scanOneIterFinished = pyqtSignal(int, float, QVariant)
     # scan is done, param: scan out data array
     scanAllDataReady = pyqtSignal(QVariant)
 
-    def __init__(self, scantask, parent=None):
+    def __init__(self, scantask, starting_index=0, parent=None):
         super(ScanWorker, self).__init__(parent)
         self.task = scantask
         self.parent = parent
         self.run_flag = True
+        self.pause_flag = False
+        self.starting_index = starting_index
 
     def run(self):
         nshot = self.task.shotnum
@@ -325,23 +332,33 @@ class ScanWorker(QThread):
         daq_delt = 1.0/daq_rate
 
         for idx, x in enumerate(alter_array):
+            if idx < self.starting_index:
+                continue
+
             if not self.run_flag:
                 print("Break scan by STOP button")
+                self.scanStopped.emit()
                 break
+
+            if self.pause_flag:
+                # save current idx, resume at this idx
+                print("Break scan by PAUSE button")
+                self.scanPaused.emit()
+                self.scanPausedAtIndex.emit(idx)
+                break
+
             alter_elem.value = x
-            print('waiting {} sec'.format(wait_sec))
             time.sleep(wait_sec)
             # DAQ
             for i in range(nshot):
                 tmp_data[i, :] = alter_elem.value, monitor_elem.value
                 time.sleep(daq_delt)
-                print('\twaiting {} sec'.format(daq_delt))
-
             out_data[idx,:,:] = tmp_data
             self.scanOneIterFinished.emit(idx, x, out_data)
 
-        self.scanAllDataReady.emit(out_data)
-        self.scanAllFinished.emit()
+        if idx == alter_array.size - 1:
+            self.scanAllDataReady.emit(out_data)
+            self.scanFinished.emit()
         #
         self.run_flag = False
 
@@ -349,6 +366,11 @@ class ScanWorker(QThread):
         """Stop scan worker
         """
         self.run_flag = False
+
+    def pause(self):
+        """Pause scan worker
+        """
+        self.pause_flag = True
 
     def is_running(self):
         """Return if scan task is running or not.
