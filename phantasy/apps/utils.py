@@ -44,8 +44,8 @@ def get_save_filename(obj, filter=None, caption=None):
 
     Returns
     -------
-    r : str
-        Selected filename.
+    r : tuple
+        Selected filename and its extension.
     """
     filepath, filter = QFileDialog.getSaveFileName(
             obj, caption, "", filter)
@@ -57,5 +57,5 @@ def get_save_filename(obj, filter=None, caption=None):
     else:
         filename = re.sub(r'(.*)', r'\1.{}'.format(ext), filepath)
 
-    return filename
+    return filename, ext
 
