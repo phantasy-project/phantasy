@@ -1,3 +1,16 @@
+Version 1.5.0
+-------------
+2018-10-23
+
+- Correlation Visualizer 2.0:
+  - Run scan work on another thread
+  - Support Pause and Resume
+  - Improved scan event log system
+  - Improved element selection
+  - Improved scan range setting
+  - Features more tool buttons
+  - Bugs fixed
+
 Version 1.4.4
 -------------
 2018-10-19
