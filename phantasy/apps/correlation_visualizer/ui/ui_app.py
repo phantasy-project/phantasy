@@ -165,6 +165,8 @@ class Ui_MainWindow(object):
         font = QtGui.QFont()
         font.setFamily("Monospace")
         font.setPointSize(8)
+        font.setBold(True)
+        font.setWeight(75)
         self.scan_log_textEdit.setFont(font)
         self.scan_log_textEdit.setReadOnly(True)
         self.scan_log_textEdit.setObjectName("scan_log_textEdit")
