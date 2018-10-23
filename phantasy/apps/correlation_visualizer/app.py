@@ -56,7 +56,7 @@ from .scan import ScanWorker
 
 from phantasy import epoch2human
 
-TS_FMT = "%Y-%m-%d %H:%M:%S %Z"
+TS_FMT = "%Y-%m-%d %H:%M:%S"
 
 
 class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
@@ -427,27 +427,47 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         # set alter element to start point
         x_start = self.scan_task.alter_start
         self.scanlogUpdated.emit(
-            "Setting alter element to {}...".format(x_start))
+                "Setting alter element to {0:.3f}...".format(x_start))
         self.scan_task.alter_element.value = x_start
         self.scanlogUpdated.emit(
-            "Alter element reaches {}".format(x_start))
+                "Alter element reaches {0:.3f}".format(x_start))
 
         # reset scan_plot_widget
 
+        # start scan thread
+        self.__start_scan_thread()
+
+    def __resume_scan(self):
+        """Start scan at where paused.
+        """
+        self.scanlogTextColor.emit(COLOR_INFO)
+        self.scanlogUpdated.emit(
+            "Resuming scan task: {}".format(self.scan_task.name))
+        self.__start_scan_thread(self.scan_starting_index)
+
+    def __start_scan_thread(self, starting_index=0):
         # scan worker thread
         self.thread = QThread()
-        self.scan_worker = ScanWorker(self.scan_task)
+        self.scan_worker = ScanWorker(self.scan_task, starting_index)
         self.scan_worker.moveToThread(self.thread)
         self.scan_worker.scanOneIterFinished.connect(self.on_one_iter_finished)
         self.scan_worker.scanAllDataReady.connect(self.on_scan_data_ready)
-        self.scan_worker.scanAllFinished.connect(self.thread.quit)
-        self.scan_worker.scanAllFinished.connect(self.scan_worker.deleteLater)
-        self.scan_worker.scanAllFinished.connect(self.reset_alter_element)
-        self.scan_worker.scanAllFinished.connect(lambda:self.set_btn_status(mode='stop'))
-        self.scan_worker.scanAllFinished.connect(lambda:self.set_timestamp(type='stop'))
-        self.scan_worker.scanAllFinished.connect(self.on_auto_title)
+        self.scan_worker.scanFinished.connect(self.thread.quit)
+        self.scan_worker.scanFinished.connect(self.scan_worker.deleteLater)
+        self.scan_worker.scanFinished.connect(self.reset_alter_element)
+        self.scan_worker.scanFinished.connect(lambda:self.set_btn_status(mode='stop'))
+        self.scan_worker.scanFinished.connect(lambda:self.set_timestamp(type='stop'))
+        self.scan_worker.scanFinished.connect(self.on_auto_title)
+
+        # scan is stopped by STOP btn
+        self.scan_worker.scanStopped.connect(self.scan_worker.scanFinished)
+
+        # scan is paused by PAUSE btn
+        self.scan_worker.scanPaused.connect(lambda:self.set_btn_status(mode='pause'))
+        self.scan_worker.scanPausedAtIndex.connect(self.on_keep_scan_index)
+
         # test
-        self.scan_worker.scanAllFinished.connect(self.test_scan_finished)
+        self.scan_worker.scanFinished.connect(self.test_scan_finished)
 
         self.thread.finished.connect(self.thread.deleteLater)
 
@@ -479,14 +499,14 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         """
         print(arr)
 
-
     @pyqtSlot()
     def on_click_stop_btn(self):
         """Stop scan routine, can only start again.
         """
-        self.scan_worker.stop()
-        self.scanlogTextColor.emit(COLOR_WARNING)
-        self.scanlogUpdated.emit("Scan task stopped.")
+        if self.scan_worker.is_running():
+            self.scan_worker.stop()
+            self.scanlogTextColor.emit(COLOR_WARNING)
+            self.scanlogUpdated.emit("Scan task is stopped.")
 
     @pyqtSlot()
     def set_btn_status(self, mode='start'):
@@ -504,6 +524,10 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
             self.stop_btn.setEnabled(False)
             self.pause_btn.setEnabled(False)
             self.retake_btn.setEnabled(True)
+        elif mode == 'pause': # scan is paused
+            self.start_btn.setEnabled(True)
+            self.stop_btn.setEnabled(False)
+            self.retake_btn.setEnabled(False)
         elif mode == 'init': # when app is started up
             self.start_btn.setEnabled(True)
             self.stop_btn.setEnabled(False)
@@ -517,21 +541,29 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         if self.sender().text() == 'Pause':
             self.pause_btn.setText('Resume')
             # pause action
+            self.scan_worker.pause()
+            self.scanlogTextColor.emit(COLOR_WARNING)
+            self.scanlogUpdated.emit("Scan task is paused, click 'Resume' to continue")
         else:
             self.pause_btn.setText('Pause')
             # resume action
-        self.start_btn.setEnabled(False)
-        self.stop_btn.setEnabled(True)
-        self.retake_btn.setEnabled(True)
+            self.__resume_scan()
+
+    @pyqtSlot(int)
+    def on_keep_scan_index(self, idx):
+        """Keep the index at current scan value.
+        """
+        self.scan_starting_index = idx
 
     @pyqtSlot()
     def on_click_retake_btn(self):
         """Re-scan with selected points.
         """
-        self.retake_btn.setEnabled(False)
-        self.start_btn.setEnabled(False)
-        self.pause_btn.setEnabled(True)
-        self.stop_btn.setEnabled(True)
+        print("To be implemented.")
+        #self.retake_btn.setEnabled(False)
+        #self.start_btn.setEnabled(False)
+        #self.pause_btn.setEnabled(True)
+        #self.stop_btn.setEnabled(True)
 
     @pyqtSlot()
     def set_scan_daq(self):
@@ -670,9 +702,9 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         else:
             x0 = self.vline.get_xdata()[0][0]
             self.scanlogTextColor.emit(COLOR_INFO)
-            self.scanlogUpdated.emit("Setting alter element to {}...".format(x0))
+            self.scanlogUpdated.emit("Setting alter element to {0:.3f}...".format(x0))
             self.scan_task.alter_element.value = x0
-            self.scanlogUpdated.emit("Alter element reaches {}.".format(x0))
+            self.scanlogUpdated.emit("Alter element reaches {0:.3f}.".format(x0))
             QMessageBox.information(self, "",
                 "Set alter element to {0:.3f}".format(x0),
                 QMessageBox.Ok)
@@ -684,10 +716,10 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         self.scanlogUpdated.emit(
                 "Scan task is done, reset alter element...")
         self.scanlogUpdated.emit(
-            "Setting alter element to {}...".format(x0))
+                "Setting alter element to {0:.3f}...".format(x0))
         self.scan_task.alter_element.value = x0
         self.scanlogUpdated.emit(
-            "Alter element reaches {}".format(x0))
+                "Alter element reaches {0:.3f}".format(x0))
 
     @pyqtSlot()
     def set_timestamp(self, type='start'):
@@ -761,6 +793,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         print("ts_stop     : ", self.scan_task.ts_stop)
         print("-"*20)
         print("\n")
+        print("thread is running?", self.thread.isRunning())
 
 
 def get_auto_label(elem):
