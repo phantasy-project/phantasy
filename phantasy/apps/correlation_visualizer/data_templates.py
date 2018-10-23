@@ -26,7 +26,7 @@ def qs_data_sheet_template():
 
     # devices
     dev_dict = OrderedDict()
-    dev_dict['quad'] = {
+    dev_dict['alter_element'] = {
             'name': '<str, element name>',
             'readback_pv': '<str, readback pv name>',
             'setpoint_pv': '<str, setpoint pv name>',
