@@ -454,7 +454,8 @@ class Ui_MainWindow(object):
                                self.lower_limit_lineEdit)
         MainWindow.setTabOrder(self.lower_limit_lineEdit,
                                self.upper_limit_lineEdit)
-        MainWindow.setTabOrder(self.upper_limit_lineEdit,
+        MainWindow.setTabOrder(self.upper_limit_lineEdit, self.alter_array_btn)
+        MainWindow.setTabOrder(self.alter_array_btn,
                                self.monitor_elem_lineEdit)
         MainWindow.setTabOrder(self.monitor_elem_lineEdit,
                                self.select_monitor_elem_btn)
@@ -491,7 +492,7 @@ class Ui_MainWindow(object):
                 "<html><head/><body><p>Variables to monitor</p></body></html>")
         )
         self.monitor_elem_lineEdit.setPlaceholderText(
-            _translate("MainWindow", "Click Select button to set element"))
+            _translate("MainWindow", "Click \'Select\' button to set element"))
         self.upper_limit_lineEdit.setToolTip(
             _translate(
                 "MainWindow",
@@ -507,7 +508,7 @@ class Ui_MainWindow(object):
             ))
         self.lower_limit_lineEdit.setText(_translate("MainWindow", "0"))
         self.alter_elem_lineEdit.setPlaceholderText(
-            _translate("MainWindow", "Click Select button to set element"))
+            _translate("MainWindow", "Click \'Select\' button to set element"))
         self.label_8.setText(_translate("MainWindow", "Alter Element"))
         self.select_more_monitor_elems_btn.setText(
             _translate("MainWindow", "More"))
@@ -529,15 +530,54 @@ class Ui_MainWindow(object):
         self.daq_groupBox.setTitle(
             _translate("MainWindow", "DAQ Configuration"))
         self.niter_label.setText(_translate("MainWindow", "Iteration Number"))
+        self.niter_spinBox.setToolTip(
+            _translate(
+                "MainWindow",
+                "<html><head/><body><p>Total number of points to scan</p></body></html>"
+            ))
         self.label_2.setText(_translate("MainWindow", "Shot Number"))
+        self.nshot_spinBox.setToolTip(
+            _translate(
+                "MainWindow",
+                "<html><head/><body><p>Number of records to be taken at each scan point</p></body></html>"
+            ))
         self.label_5.setText(_translate("MainWindow", "per iteration"))
         self.label_3.setText(_translate("MainWindow", "Additional Wait Time"))
+        self.waitsec_dSpinBox.setToolTip(
+            _translate(
+                "MainWindow",
+                "<html><head/><body><p>Additional wait time after set new scan point</p></body></html>"
+            ))
         self.label_4.setText(_translate("MainWindow", "Second"))
         self.label_7.setText(_translate("MainWindow", "Scan DAQ Rate"))
+        self.scanrate_dSpinBox.setToolTip(
+            _translate(
+                "MainWindow",
+                "<html><head/><body><p>Record number to be taken within one second.</p></body></html>"
+            ))
         self.label_6.setText(_translate("MainWindow", "Hz"))
+        self.start_btn.setToolTip(
+            _translate(
+                "MainWindow",
+                "<html><head/><body><p>Start scan task</p></body></html>"))
         self.start_btn.setText(_translate("MainWindow", "Start"))
+        self.pause_btn.setToolTip(
+            _translate(
+                "MainWindow",
+                "<html><head/><body><p>Pause scan task, click again to resume</p></body></html>"
+            ))
         self.pause_btn.setText(_translate("MainWindow", "Pause"))
+        self.stop_btn.setToolTip(
+            _translate(
+                "MainWindow",
+                "<html><head/><body><p>Stop current running scan task</p></body></html>"
+            ))
         self.stop_btn.setText(_translate("MainWindow", "Stop"))
+        self.retake_btn.setToolTip(
+            _translate(
+                "MainWindow",
+                "<html><head/><body><p>Re-do scan at selected points</p></body></html>"
+            ))
         self.retake_btn.setText(_translate("MainWindow", "Retake"))
         self.plot_groupBox.setTitle(
             _translate("MainWindow", "Correlation Plot"))
