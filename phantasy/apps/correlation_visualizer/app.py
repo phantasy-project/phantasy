@@ -132,6 +132,8 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         self.scanlogUpdated.connect(self.on_update_log)
         self.scanlogTextColor.connect(self.scan_log_textEdit.setTextColor)
         self.curveUpdated.connect(self.scan_plot_widget.update_curve)
+        # point selector
+        self.scan_plot_widget.selectedIndicesUpdated.connect(self.on_select_points)
 
         # (new) unified button for setting alter element
         self.select_alter_elem_btn.clicked.connect(
@@ -154,6 +156,9 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 
         # scan worker
         self.scan_worker = None
+
+        # index array for retake
+        self._indices_for_retake = []
 
         # init scan config
         self.init_scan_config()
@@ -210,6 +215,21 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 #        self.tableWidget.resizeColumnsToContents()
 #
 #        self.i += 1
+
+    @pyqtSlot(QVariant)
+    def on_select_points(self, ind):
+        alter_array = self.scan_task.get_alter_array()
+        self.make_retake_indices(ind)
+
+    def make_retake_indices(self, ind):
+        """Make index array for retake, if ind[i] is already selected,
+        delete, if not add it into.
+        """
+        for i in ind:
+            if i in self._indices_for_retake:
+                self._indices_for_retake.remove(i)
+            else:
+                self._indices_for_retake.append(i)
 
     @pyqtSlot()
     def on_select_elem(self, mode='alter'):
@@ -442,6 +462,13 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         # start scan thread
         self.__start_scan_thread()
 
+    def __retake_scan(self):
+        """Retake at selected points.
+        """
+        self.scanlogTextColor.emit(COLOR_INFO)
+        self.scanlogUpdated.emit("Retake is activated...")
+        self.__start_scan_thread(index_array=self._indices_for_retake)
+
     def __resume_scan(self):
         """Start scan at where paused.
         """
@@ -450,10 +477,12 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
             "Resuming scan task: {}".format(self.scan_task.name))
         self.__start_scan_thread(self.scan_starting_index)
 
-    def __start_scan_thread(self, starting_index=0):
+    def __start_scan_thread(self, starting_index=0, index_array=None):
         # scan worker thread
         self.thread = QThread()
-        self.scan_worker = ScanWorker(self.scan_task, starting_index)
+        self.scan_worker = ScanWorker(self.scan_task,
+                                      starting_index=starting_index,
+                                      index_array=index_array)
         self.scan_worker.moveToThread(self.thread)
         self.scan_worker.scanOneIterFinished.connect(self.on_one_iter_finished)
         self.scan_worker.scanAllDataReady.connect(self.on_scan_data_ready)
@@ -566,11 +595,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
     def on_click_retake_btn(self):
         """Re-scan with selected points.
         """
-        print("To be implemented.")
-        #self.retake_btn.setEnabled(False)
-        #self.start_btn.setEnabled(False)
-        #self.pause_btn.setEnabled(True)
-        #self.stop_btn.setEnabled(True)
+        self.__retake_scan()
 
     @pyqtSlot()
     def set_scan_daq(self):
