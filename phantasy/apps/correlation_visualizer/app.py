@@ -152,6 +152,9 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         # UI post_init
         self._post_init_ui()
 
+        # scan worker
+        self.scan_worker = None
+
         # init scan config
         self.init_scan_config()
 
@@ -282,7 +285,9 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
     def save_data(self):
         """save data.
         """
-        if not hasattr(self, 'scan_worker') or self.scan_worker.is_running():
+        if self.scan_worker is None:
+            return
+        if self.scan_worker.is_running():
             return
 
         filename, ext = get_save_filename(self, caption="Save data to file",
@@ -503,6 +508,8 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
     def on_click_stop_btn(self):
         """Stop scan routine, can only start again.
         """
+        if self.scan_worker is None:
+            return
         if self.scan_worker.is_running():
             self.scan_worker.stop()
             self.scanlogTextColor.emit(COLOR_WARNING)
@@ -641,6 +648,9 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
     def on_auto_title(self):
         """Auto fill out the title of figure.
         """
+        if self.scan_worker is None:
+            return
+
         if self.scan_worker.is_running():
             QMessageBox.warning(self, "",
                     "Scan task is not finished.",
@@ -668,7 +678,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
                 self.scan_plot_widget.update_figure()
             return
 
-        if self.scan_worker.is_running():
+        if self.scan_worker is None or self.scan_worker.is_running():
             # scan is not completed, do nothing
             return
 
