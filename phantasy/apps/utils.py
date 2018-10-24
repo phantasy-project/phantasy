@@ -50,7 +50,7 @@ def get_save_filename(obj, filter=None, caption=None):
     filepath, filter = QFileDialog.getSaveFileName(
             obj, caption, "", filter)
     if not filepath:
-        return None
+        return None, None
     ext = re.match(r'.*\.(.*)\)', filter).group(1)
     if re.match(r'.*\..*', filepath) is not None:
         filename = re.sub(r'([^.]*)(\.)(.*)', r'\1.{}'.format(ext), filepath)
@@ -58,4 +58,3 @@ def get_save_filename(obj, filter=None, caption=None):
         filename = re.sub(r'(.*)', r'\1.{}'.format(ext), filepath)
 
     return filename, ext
-
