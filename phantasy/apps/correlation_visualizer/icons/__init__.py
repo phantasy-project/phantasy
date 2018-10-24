@@ -5,3 +5,4 @@ from .title import icon as title_icon
 from .moveto import icon as moveto_icon
 from .pushbutton import icon as set_icon
 from .clean import icon as clean_icon
+from .points import icon as points_icon
