@@ -1,10 +1,44 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from .ui.ui_app import Ui_MainWindow
+import numpy as np
+import time
+
+from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import QVariant
+from PyQt5.QtCore import Qt
+from PyQt5.QtCore import QSize
+from PyQt5.QtCore import QThread
+
+from PyQt5.QtGui import QColor
+from PyQt5.QtGui import QDoubleValidator
+from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QPixmap
+
+from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtWidgets import QDialog
+from PyQt5.QtWidgets import QPushButton
+from PyQt5.QtWidgets import QHBoxLayout
+from PyQt5.QtWidgets import QMenu
+from PyQt5.QtWidgets import QAction
+
+from phantasy.library.misc import epoch2human
+from phantasy.apps.utils import get_save_filename
+
+from phantasy_ui.templates import BaseAppForm
+from phantasy_ui.widgets.elementwidget import ElementWidget
+from phantasy_ui.widgets.latticewidget import LatticeWidget
+
+from .utils import PVElement
+from .utils import PVElementReadonly
+from .utils import random_string
+from .utils import COLOR_DANGER, COLOR_INFO, COLOR_WARNING
+
 from .app_help import HelpDialog
 from .app_elem_select import ElementSelectDialog
 from .app_array_set import ArraySetDialog
+from .data import ScanDataModel
 from .icons import cv_icon
 from .icons import save_icon
 from .icons import xylabel_icon
@@ -13,51 +47,16 @@ from .icons import moveto_icon
 from .icons import set_icon
 from .icons import clean_icon
 from .icons import points_icon
-from phantasy_ui.templates import BaseAppForm
-from phantasy_ui.widgets.elementwidget import ElementWidget
-from phantasy_ui.widgets.latticewidget import LatticeWidget
-
-import numpy as np
-import time
-from collections import OrderedDict
-
-from PyQt5.QtWidgets import qApp
-
-from PyQt5.QtGui import QDoubleValidator
-
-from PyQt5.QtWidgets import QMessageBox
-from PyQt5.QtWidgets import QDialog
-from PyQt5.QtWidgets import QPushButton
-from PyQt5.QtWidgets import QHBoxLayout
-from PyQt5.QtWidgets import QMenu
-from PyQt5.QtWidgets import QAction
-from PyQt5.QtCore import pyqtSlot
-from PyQt5.QtCore import pyqtSignal
-from PyQt5.QtCore import QVariant
-from PyQt5.QtGui import QIcon
-from PyQt5.QtGui import QPixmap
-from PyQt5.QtGui import QColor
-from PyQt5.QtCore import QTimer
-from PyQt5.QtCore import Qt
-from PyQt5.QtCore import QSize
-from PyQt5.QtCore import QThread
-
-from .utils import PVElement
-from .utils import PVElementReadonly
-from .utils import random_string
-from .utils import COLOR_DANGER, COLOR_INFO, COLOR_WARNING
-from phantasy.apps.utils import get_save_filename
-
-from .utils import milli_sleep
-
-from .data import ScanDataModel
-
 from .scan import ScanTask
 from .scan import ScanWorker
-
-from phantasy import epoch2human
+from .ui.ui_app import Ui_MainWindow
 
 TS_FMT = "%Y-%m-%d %H:%M:%S"
+BOTTOM_TBTN_ICON_SIZE = 32
+SMALL_TBTN_ICON_SIZE = 20
+
+BOTTOM_TBTN_ICON_QSIZE = QSize(BOTTOM_TBTN_ICON_SIZE, BOTTOM_TBTN_ICON_SIZE)
+SMALL_TBTN_ICON_QSIZE = QSize(SMALL_TBTN_ICON_SIZE, SMALL_TBTN_ICON_SIZE)
 
 
 class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
@@ -351,19 +350,19 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         # toolbtns
         # save data
         self.save_data_tbtn.setIcon(QIcon(QPixmap(save_icon)))
-        self.save_data_tbtn.setIconSize(QSize(48, 48))
+        self.save_data_tbtn.setIconSize(BOTTOM_TBTN_ICON_QSIZE)
         self.save_data_tbtn.setToolTip("Save data to file")
         # auto labels
         self.auto_labels_tbtn.setIcon(QIcon(QPixmap(xylabel_icon)))
-        self.auto_labels_tbtn.setIconSize(QSize(48, 48))
+        self.auto_labels_tbtn.setIconSize(BOTTOM_TBTN_ICON_QSIZE)
         self.auto_labels_tbtn.setToolTip("Auto set xy labels")
         # auto title
         self.auto_title_tbtn.setIcon(QIcon(QPixmap(title_icon)))
-        self.auto_title_tbtn.setIconSize(QSize(48, 48))
+        self.auto_title_tbtn.setIconSize(BOTTOM_TBTN_ICON_QSIZE)
         self.auto_title_tbtn.setToolTip("Auto set figure title")
         # move to
         self.moveto_tbtn.setIcon(QIcon(QPixmap(moveto_icon)))
-        self.moveto_tbtn.setIconSize(QSize(48, 48))
+        self.moveto_tbtn.setIconSize(BOTTOM_TBTN_ICON_QSIZE)
         self.moveto_tbtn.setToolTip("Move cursor line to...")
         menu = QMenu(self)
 
@@ -387,17 +386,17 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 
         # clear log btn
         self.clear_log_tbtn.setIcon(QIcon(QPixmap(clean_icon)))
-        self.clear_log_tbtn.setIconSize(QSize(24, 24))
+        self.clear_log_tbtn.setIconSize(SMALL_TBTN_ICON_QSIZE)
         self.clear_log_tbtn.setToolTip("Clear scan event log")
 
         # set btn
         self.set_tbtn.setIcon(QIcon(QPixmap(set_icon)))
-        self.set_tbtn.setIconSize(QSize(48, 48))
+        self.set_tbtn.setIconSize(BOTTOM_TBTN_ICON_QSIZE)
         self.set_tbtn.setToolTip("Set with value vline pointed")
 
         # view retake points btn
         self.view_selected_pts_tbtn.setIcon(QIcon(QPixmap(points_icon)))
-        self.view_selected_pts_tbtn.setIconSize(QSize(48, 48))
+        self.view_selected_pts_tbtn.setIconSize(BOTTOM_TBTN_ICON_QSIZE)
         self.view_selected_pts_tbtn.setToolTip("Show selected points to retake")
 
         # validators
