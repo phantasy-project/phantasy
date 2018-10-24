@@ -401,6 +401,10 @@ class Ui_MainWindow(object):
         self.set_tbtn.setAutoRaise(True)
         self.set_tbtn.setObjectName("set_tbtn")
         self.horizontalLayout_3.addWidget(self.set_tbtn)
+        self.view_selected_pts_tbtn = QtWidgets.QToolButton(self.plot_groupBox)
+        self.view_selected_pts_tbtn.setAutoRaise(True)
+        self.view_selected_pts_tbtn.setObjectName("view_selected_pts_tbtn")
+        self.horizontalLayout_3.addWidget(self.view_selected_pts_tbtn)
         spacerItem = QtWidgets.QSpacerItem(40, 20,
                                            QtWidgets.QSizePolicy.Expanding,
                                            QtWidgets.QSizePolicy.Minimum)
@@ -588,6 +592,7 @@ class Ui_MainWindow(object):
         self.auto_title_tbtn.setText(_translate("MainWindow", "..."))
         self.moveto_tbtn.setText(_translate("MainWindow", "..."))
         self.set_tbtn.setText(_translate("MainWindow", "..."))
+        self.view_selected_pts_tbtn.setText(_translate("MainWindow", "..."))
         self.menu_File.setTitle(_translate("MainWindow", "&File"))
         self.menu_Help.setTitle(_translate("MainWindow", "&Help"))
         self.menuTools.setTitle(_translate("MainWindow", "&Tools"))

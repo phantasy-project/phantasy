@@ -12,6 +12,7 @@ from .icons import title_icon
 from .icons import moveto_icon
 from .icons import set_icon
 from .icons import clean_icon
+from .icons import points_icon
 from phantasy_ui.templates import BaseAppForm
 from phantasy_ui.widgets.elementwidget import ElementWidget
 from phantasy_ui.widgets.latticewidget import LatticeWidget
@@ -123,6 +124,8 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         self.set_tbtn.clicked.connect(self.on_set)
         # clear log btn
         self.clear_log_tbtn.clicked.connect(self.scan_log_textEdit.clear)
+        # view selected points btn
+        self.view_selected_pts_tbtn.clicked.connect(self.on_view_selected_points)
 
         # set alter array btn
         self.alter_array_btn.clicked.connect(self.on_set_alter_array)
@@ -391,6 +394,11 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         self.set_tbtn.setIcon(QIcon(QPixmap(set_icon)))
         self.set_tbtn.setIconSize(QSize(48, 48))
         self.set_tbtn.setToolTip("Set with value vline pointed")
+
+        # view retake points btn
+        self.view_selected_pts_tbtn.setIcon(QIcon(QPixmap(points_icon)))
+        self.view_selected_pts_tbtn.setIconSize(QSize(48, 48))
+        self.view_selected_pts_tbtn.setToolTip("Show selected points to retake")
 
         # validators
         self.lower_limit_lineEdit.setValidator(QDoubleValidator())
@@ -793,6 +801,12 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         elif r == QDialog.Rejected:
             print("No array set")
             return
+
+    @pyqtSlot()
+    def on_view_selected_points(self):
+        """Show selected points to retake.
+        """
+        print(self._indices_for_retake)
 
     # test slots
     def test_scan_started(self):
