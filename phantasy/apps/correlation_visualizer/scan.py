@@ -299,6 +299,15 @@ class ScanTask(object):
 
 class ScanWorker(QObject):
     """Perform scan routine.
+
+    Parameters
+    ----------
+    scantask :
+        `ScanTask` instance, describe scan.
+    starting_index : int
+        Starting index of scan routine.
+    index_array : list
+        List of indices of scan, if defined, overrides *starting_index*.
     """
     # the whole scan routine is done
     scanFinished = pyqtSignal()
@@ -312,13 +321,14 @@ class ScanWorker(QObject):
     # scan is done, param: scan out data array
     scanAllDataReady = pyqtSignal(QVariant)
 
-    def __init__(self, scantask, starting_index=0, parent=None):
+    def __init__(self, scantask, starting_index=0, index_array=None, parent=None):
         super(ScanWorker, self).__init__(parent)
         self.task = scantask
         self.parent = parent
         self.run_flag = True
         self.pause_flag = False
         self.starting_index = starting_index
+        self.index_array = index_array
 
     def run(self):
         nshot = self.task.shotnum
@@ -331,8 +341,15 @@ class ScanWorker(QObject):
         daq_rate = self.task.daq_rate
         daq_delt = 1.0/daq_rate
 
+        index_array = range(self.starting_index, alter_array.size)
+
+        # override index_array if arbitary index array is defined
+        # could be activated by RETAKE
+        if self.index_array is not None:
+            index_array = self.index_array
+
         for idx, x in enumerate(alter_array):
-            if idx < self.starting_index:
+            if idx not in index_array:
                 continue
 
             if not self.run_flag:
