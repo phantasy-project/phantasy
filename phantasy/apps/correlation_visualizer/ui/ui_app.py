@@ -403,6 +403,8 @@ class Ui_MainWindow(object):
         self.set_tbtn.setObjectName("set_tbtn")
         self.horizontalLayout_3.addWidget(self.set_tbtn)
         self.view_selected_pts_tbtn = QtWidgets.QToolButton(self.plot_groupBox)
+        self.view_selected_pts_tbtn.setPopupMode(
+            QtWidgets.QToolButton.MenuButtonPopup)
         self.view_selected_pts_tbtn.setAutoRaise(True)
         self.view_selected_pts_tbtn.setObjectName("view_selected_pts_tbtn")
         self.horizontalLayout_3.addWidget(self.view_selected_pts_tbtn)
