@@ -38,6 +38,7 @@ from .utils import COLOR_DANGER, COLOR_INFO, COLOR_WARNING
 from .app_help import HelpDialog
 from .app_elem_select import ElementSelectDialog
 from .app_array_set import ArraySetDialog
+from .app_points_view import PointsViewWidget
 from .data import ScanDataModel
 from .icons import cv_icon
 from .icons import save_icon
@@ -161,6 +162,8 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 
         # index array for retake
         self._indices_for_retake = []
+        # (x, y) coords when seleted
+        self._indices_for_retake_points = []
 
         # init scan config
         self.init_scan_config()
@@ -172,8 +175,11 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         self.lattice_load_window = None
         self._mp = None
 
-        # vline as ruler
+        # vline as ruler (moveto)
         self.vline = None
+
+        # points selected viewer
+        self.pts_viewer = None
 
         #####
         # test select monitors
@@ -218,20 +224,42 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 #
 #        self.i += 1
 
-    @pyqtSlot(QVariant)
-    def on_select_points(self, ind):
-        alter_array = self.scan_task.get_alter_array()
-        self.make_retake_indices(ind)
+    @pyqtSlot(QVariant, QVariant)
+    def on_select_points(self, ind, pts):
+        self.add_retake_indices(ind, pts)
+        self.on_view_selected_points()
 
-    def make_retake_indices(self, ind):
+    def add_retake_indices(self, ind, pts):
         """Make index array for retake, if ind[i] is already selected,
-        delete, if not add it into.
+        skip, if not add it into.
         """
-        for i in ind:
-            if i in self._indices_for_retake:
-                self._indices_for_retake.remove(i)
+        for i, idx in enumerate(ind):
+            if idx in self._indices_for_retake:
+                continue
             else:
-                self._indices_for_retake.append(i)
+                self._indices_for_retake.append(idx)
+                self._indices_for_retake_points.append(pts[i])
+
+    @pyqtSlot(int)
+    def update_retake_indices_view(self, idx):
+        """Update retake indices array, idx and points, and update points view.
+        """
+        self.remove_idx_from_retake_indices(idx)
+        self.on_view_selected_points()
+
+    def remove_idx_from_retake_indices(self, idx):
+        """Remove *idx* from retake index array.
+        """
+        index_of_idx = self._indices_for_retake.index(idx)
+        self._indices_for_retake.pop(index_of_idx)
+        self._indices_for_retake_points.pop(index_of_idx)
+
+    def clear_retake_indices(self):
+        """Clear selected points for RETAKE to be empty list.
+        """
+        self._indices_for_retake = []
+        self._indices_for_retake_points = []
+        self.on_view_selected_points()
 
     @pyqtSlot()
     def on_select_elem(self, mode='alter'):
@@ -364,8 +392,8 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         self.moveto_tbtn.setIcon(QIcon(QPixmap(moveto_icon)))
         self.moveto_tbtn.setIconSize(BOTTOM_TBTN_ICON_QSIZE)
         self.moveto_tbtn.setToolTip("Move cursor line to...")
-        menu = QMenu(self)
 
+        menu = QMenu(self)
         # to peak
         peak_action = QAction('Peak', self)
         peak_action.triggered.connect(lambda: self.on_moveto(pos='peak'))
@@ -378,6 +406,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         hide_action = QAction('Hide', self)
         hide_action.triggered.connect(lambda: self.on_moveto(pos='hide'))
 
+        # set up menu
         menu.addAction(peak_action)
         menu.addAction(valley_action)
         menu.addSeparator()
@@ -398,6 +427,18 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         self.view_selected_pts_tbtn.setIcon(QIcon(QPixmap(points_icon)))
         self.view_selected_pts_tbtn.setIconSize(BOTTOM_TBTN_ICON_QSIZE)
         self.view_selected_pts_tbtn.setToolTip("Show selected points to retake")
+
+        menu_pts = QMenu(self)
+        # show all selected points
+        show_pts_act = QAction('Show', self)
+        show_pts_act.triggered.connect(self.on_view_selected_points)
+        # clear all points
+        clear_pts_act = QAction('Clear', self)
+        clear_pts_act.triggered.connect(self.clear_retake_indices)
+        # set up menu_pts
+        menu_pts.addAction(show_pts_act)
+        menu_pts.addAction(clear_pts_act)
+        self.view_selected_pts_tbtn.setMenu(menu_pts)
 
         # validators
         self.lower_limit_lineEdit.setValidator(QDoubleValidator())
@@ -805,7 +846,21 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
     def on_view_selected_points(self):
         """Show selected points to retake.
         """
-        print(self._indices_for_retake)
+        alter_array = self.scan_task.get_alter_array()
+        sm = ScanDataModel(self.scan_task.scan_out_data)
+        x_rd, y_rd, sy_rd = sm.get_xavg(), sm.get_yavg(), sm.get_yerr()
+
+        data = []
+        for idx, pts in zip(self._indices_for_retake, self._indices_for_retake_points):
+            # index, alter_value, selected_point_x_pos, selected_point_y_pos, current_y_pos
+            # current_y_pos is updated when clicking this button, if after retaking, this value should be updated)
+            data.append((idx, alter_array[idx], pts[0], pts[1], (y_rd[idx], sy_rd[idx])))
+
+        if self.pts_viewer is None:
+            self.pts_viewer = PointsViewWidget(self, data)
+        else:
+            self.pts_viewer.set_data(data)
+        self.pts_viewer.show()
 
     # test slots
     def test_scan_started(self):
