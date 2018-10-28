@@ -47,8 +47,6 @@ class PointsViewWidget(QWidget, Ui_Form):
             return
         self._preset_table()
         for i, row in enumerate(self.data):
-            hitem = QTableWidgetItem('Point#{}'.format(i+1))
-            self.tableWidget.setVerticalHeaderItem(i, hitem)
             for j, v in enumerate(row):
                 if j == 0: # idx
                     alter_idx = v # index of alter array

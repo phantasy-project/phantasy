@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui_elem_select.ui'
 #
-# Created by: PyQt5 UI code generator 5.5.1
+# Created by: PyQt5 UI code generator 5.10.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -128,6 +128,14 @@ class Ui_Dialog(object):
 
         self.retranslateUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
+        Dialog.setTabOrder(self.pv_mode_radiobtn, self.pv_set_lineEdit)
+        Dialog.setTabOrder(self.pv_set_lineEdit, self.pv_read_lineEdit)
+        Dialog.setTabOrder(self.pv_read_lineEdit, self.copy_set_to_read_btn)
+        Dialog.setTabOrder(self.copy_set_to_read_btn, self.elem_mode_radiobtn)
+        Dialog.setTabOrder(self.elem_mode_radiobtn, self.elem_treeView)
+        Dialog.setTabOrder(self.elem_treeView, self.cancel_btn)
+        Dialog.setTabOrder(self.cancel_btn, self.validate_btn)
+        Dialog.setTabOrder(self.validate_btn, self.ok_btn)
 
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
