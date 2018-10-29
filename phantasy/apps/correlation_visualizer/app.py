@@ -226,6 +226,11 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 
     @pyqtSlot(QVariant, QVariant)
     def on_select_points(self, ind, pts):
+        """*ind*: list of index numbers, *pts*: list of (x, y) coords.
+        e.g. the orignal xarray is [5 4 3 2 1], selected ind is [1 2 4],
+        then pts is [(xi,yi)], xi is x[1], x[2], x[4], i.e. 4, 3, 1, yi is
+        the value at xi.
+        """
         self.add_retake_indices(ind, pts)
         self.on_view_selected_points()
 
