@@ -2,13 +2,16 @@
 # -*- coding: utf-8 -*-
 
 from PyQt5.QtWidgets import QWidget
-from PyQt5.QtWidgets import QPushButton
+from PyQt5.QtWidgets import QToolButton
 from PyQt5.QtWidgets import QTableWidgetItem
 from PyQt5.QtGui import QColor
+from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import Qt
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import QPoint
+from .icons import clean_icon as delete_icon
 
 
 from phantasy.apps.correlation_visualizer.ui.ui_points_view import Ui_Form
@@ -61,8 +64,9 @@ class PointsViewWidget(QWidget, Ui_Form):
                     item.setTextAlignment(Qt.AlignLeft | Qt.AlignVCenter)
                 self.tableWidget.setItem(i, j, item)
             # Add another col for delete btn
-            del_btn= QPushButton("Delete")
-            del_btn.setToolTip("Select/deselect current point")
+            del_btn= QToolButton(self)
+            del_btn.setIcon(QIcon(QPixmap(delete_icon)))
+            del_btn.setToolTip("Delete current selection")
             del_btn.setProperty("alter_idx", alter_idx)
             del_btn.clicked.connect(self.on_delete)
             self.tableWidget.setCellWidget(i, j+1, del_btn)
