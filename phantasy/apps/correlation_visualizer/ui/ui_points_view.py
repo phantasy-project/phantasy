@@ -19,13 +19,29 @@ class Ui_Form(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(Form.sizePolicy().hasHeightForWidth())
         Form.setSizePolicy(sizePolicy)
-        self.gridLayout = QtWidgets.QGridLayout(Form)
-        self.gridLayout.setObjectName("gridLayout")
+        self.verticalLayout = QtWidgets.QVBoxLayout(Form)
+        self.verticalLayout.setObjectName("verticalLayout")
+        self.horizontalLayout = QtWidgets.QHBoxLayout()
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        self.label = QtWidgets.QLabel(Form)
+        self.label.setObjectName("label")
+        self.horizontalLayout.addWidget(self.label)
+        self.update_btn = QtWidgets.QPushButton(Form)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
+                                           QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.update_btn.sizePolicy().hasHeightForWidth())
+        self.update_btn.setSizePolicy(sizePolicy)
+        self.update_btn.setObjectName("update_btn")
+        self.horizontalLayout.addWidget(self.update_btn)
+        self.verticalLayout.addLayout(self.horizontalLayout)
         self.tableWidget = QtWidgets.QTableWidget(Form)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum,
                                            QtWidgets.QSizePolicy.Minimum)
         sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setVerticalStretch(1)
         sizePolicy.setHeightForWidth(
             self.tableWidget.sizePolicy().hasHeightForWidth())
         self.tableWidget.setSizePolicy(sizePolicy)
@@ -40,14 +56,26 @@ class Ui_Form(object):
         self.tableWidget.setRowCount(0)
         self.tableWidget.horizontalHeader().setSortIndicatorShown(False)
         self.tableWidget.horizontalHeader().setStretchLastSection(False)
-        self.gridLayout.addWidget(self.tableWidget, 0, 0, 1, 1)
+        self.verticalLayout.addWidget(self.tableWidget)
 
         self.retranslateUi(Form)
+        self.update_btn.clicked.connect(Form.on_update)
         QtCore.QMetaObject.connectSlotsByName(Form)
 
     def retranslateUi(self, Form):
         _translate = QtCore.QCoreApplication.translate
         Form.setWindowTitle(_translate("Form", "Form"))
+        self.label.setText(
+            _translate(
+                "Form",
+                "<html><head/><body><p>Click <span style=\" font-weight:600;\">RETAKE</span> button to refresh scan routine at these setpoints</p></body></html>"
+            ))
+        self.update_btn.setToolTip(
+            _translate(
+                "Form",
+                "<html><head/><body><p>Update the following table</p></body></html>"
+            ))
+        self.update_btn.setText(_translate("Form", "Update"))
 
 
 if __name__ == "__main__":
