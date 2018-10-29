@@ -33,7 +33,7 @@ from phantasy_ui.widgets.latticewidget import LatticeWidget
 from .utils import PVElement
 from .utils import PVElementReadonly
 from .utils import random_string
-from .utils import COLOR_DANGER, COLOR_INFO, COLOR_WARNING
+from .utils import COLOR_DANGER, COLOR_INFO, COLOR_WARNING, COLOR_PRIMARY
 
 from .app_help import HelpDialog
 from .app_elem_select import ElementSelectDialog
@@ -493,6 +493,8 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
             return
 
         #
+        self.scanlogTextColor.emit(COLOR_PRIMARY)
+        self.scanlogUpdated.emit("[START] button is pushed")
         self.scanlogTextColor.emit(COLOR_INFO)
         self.scanlogUpdated.emit(
             "Starting scan task: {}".format(self.scan_task.name))
@@ -588,6 +590,8 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         if self.scan_worker is None:
             return
         if self.scan_worker.is_running():
+            self.scanlogTextColor.emit(COLOR_PRIMARY)
+            self.scanlogUpdated.emit("[STOP] button is pushed")
             self.scan_worker.stop()
             self.scanlogTextColor.emit(COLOR_WARNING)
             self.scanlogUpdated.emit("Scan task is stopped.")
@@ -625,11 +629,15 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         if self.sender().text() == 'Pause':
             self.pause_btn.setText('Resume')
             # pause action
-            self.scan_worker.pause()
+            self.scanlogTextColor.emit(COLOR_PRIMARY)
+            self.scanlogUpdated.emit("[PAUSE] button is pushed")
             self.scanlogTextColor.emit(COLOR_WARNING)
             self.scanlogUpdated.emit("Scan task is paused, click 'Resume' to continue")
+            self.scan_worker.pause()
         else:
             self.pause_btn.setText('Pause')
+            self.scanlogTextColor.emit(COLOR_PRIMARY)
+            self.scanlogUpdated.emit("[RESUME] button is pushed")
             # resume action
             self.__resume_scan()
 
@@ -643,6 +651,8 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
     def on_click_retake_btn(self):
         """Re-scan with selected points.
         """
+        self.scanlogTextColor.emit(COLOR_PRIMARY)
+        self.scanlogUpdated.emit("[RETAKE] button is pushed")
         self.__retake_scan()
 
     @pyqtSlot()
