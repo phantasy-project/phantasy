@@ -61,6 +61,7 @@ def set_entry_points():
         'trajectory_viewer=phantasy.apps.trajectory_viewer:run',
         'correlation_visualizer=phantasy.apps.correlation_visualizer:run',
         'quad_scan=phantasy.apps.quad_scan:run',
+        'va_launcher=phantasy.apps.va:run',
     ]
     return r
 
