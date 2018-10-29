@@ -175,8 +175,8 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         self.lattice_load_window = None
         self._mp = None
 
-        # vline as ruler (moveto)
-        self.vline = None
+        # moveto flag, set True when moveto some point.
+        self._moveto_flag = False
 
         # points selected viewer
         self.pts_viewer = None
@@ -391,7 +391,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         # move to
         self.moveto_tbtn.setIcon(QIcon(QPixmap(moveto_icon)))
         self.moveto_tbtn.setIconSize(BOTTOM_TBTN_ICON_QSIZE)
-        self.moveto_tbtn.setToolTip("Move cursor line to...")
+        self.moveto_tbtn.setToolTip("Move cross-ruler to...")
 
         menu = QMenu(self)
         # to peak
@@ -402,7 +402,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         valley_action = QAction('Valley', self)
         valley_action.triggered.connect(lambda: self.on_moveto(pos='valley'))
 
-        # hide vline
+        # hide cross-ruler
         hide_action = QAction('Hide', self)
         hide_action.triggered.connect(lambda: self.on_moveto(pos='hide'))
 
@@ -421,7 +421,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         # set btn
         self.set_tbtn.setIcon(QIcon(QPixmap(set_icon)))
         self.set_tbtn.setIconSize(BOTTOM_TBTN_ICON_QSIZE)
-        self.set_tbtn.setToolTip("Set with value vline pointed")
+        self.set_tbtn.setToolTip("Set with value cross-ruler pointed")
 
         # view retake points btn
         self.view_selected_pts_tbtn.setIcon(QIcon(QPixmap(points_icon)))
@@ -739,16 +739,12 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 
     @pyqtSlot()
     def on_moveto(self, pos='peak'):
+        """Move cross-ruler to the `xm` where y reaches max.
+        *Pos*: 'peak' (default), 'valley', 'hide'.
         """
-        1. Move vline to the `xm` where y reaches max.
-        2. Set alter elem value as `xm`.
-        Pos: 'peak' (default), 'valley', 'hide'.
-        """
-        if pos == 'hide':
-            # hide vline
-            if self.vline is not None:
-                self.vline.set_visible(False)
-                self.scan_plot_widget.update_figure()
+        if pos == 'hide':  # hide cross-ruler
+            self.scan_plot_widget.set_visible_hvlines(False)
+            self._moveto_flag = False
             return
 
         if self.scan_worker is None or self.scan_worker.is_running():
@@ -761,29 +757,29 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 
         alter_array = self.scan_task.get_alter_array()
         if pos == 'peak': # peak
-            xm = alter_array[np.where(y==y_max)]
+            xm = alter_array[np.where(y==y_max)][0]
+            ym = y_max
         elif pos == 'valley': # valley
-            xm = alter_array[np.where(y==y_min)]
+            xm = alter_array[np.where(y==y_min)][0]
+            ym = y_min
 
-        if self.vline is None:
-            self.vline = self.scan_plot_widget.axes.axvline(x=xm,
-                    alpha=0.8, color='r', ls='--')
-            self.scan_plot_widget.update_figure()
-        else:
-            self.vline.set_visible(True)
-            self.vline.set_xdata([xm, xm])
-            self.scan_plot_widget.update_figure()
+        # draw/update cross-ruler
+        self.scan_plot_widget.draw_hvlines(xm, ym)
+        self.scan_plot_widget.set_visible_hvlines(True)
+        # set moveto_flag
+        self._moveto_flag = True
 
     @pyqtSlot()
     def on_set(self):
-        """Set alter_elem where vline pointing to
+        """Set alter_elem where cross-ruler pointing to
         """
-        if self.vline is None:
+        if not self._moveto_flag:
             QMessageBox.warning(self, "",
-                "No value to set, click MoveTo first",
+                "No value to set, click 'MoveTo' button or use " +
+                "'Cross-ruler' tool to pick the coordinate to moveto",
                 QMessageBox.Ok)
         else:
-            x0 = self.vline.get_xdata()[0][0]
+            x0 = self.scan_plot_widget._cpoint.get_xdata()[0]
             self.scanlogTextColor.emit(COLOR_INFO)
             self.scanlogUpdated.emit("Setting alter element to {0:.3f}...".format(x0))
             self.scan_task.alter_element.value = x0
