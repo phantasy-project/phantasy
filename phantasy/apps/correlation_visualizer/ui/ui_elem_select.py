@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui_elem_select.ui'
 #
-# Created by: PyQt5 UI code generator 5.10.1
+# Created by: PyQt5 UI code generator 5.5.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -29,7 +29,7 @@ class Ui_Dialog(object):
         sizePolicy.setHeightForWidth(
             self.cancel_btn.sizePolicy().hasHeightForWidth())
         self.cancel_btn.setSizePolicy(sizePolicy)
-        self.cancel_btn.setAutoDefault(False)
+        self.cancel_btn.setAutoDefault(True)
         self.cancel_btn.setObjectName("cancel_btn")
         self.horizontalLayout.addWidget(self.cancel_btn)
         self.validate_btn = QtWidgets.QPushButton(Dialog)
@@ -43,7 +43,7 @@ class Ui_Dialog(object):
         sizePolicy.setHeightForWidth(
             self.ok_btn.sizePolicy().hasHeightForWidth())
         self.ok_btn.setSizePolicy(sizePolicy)
-        self.ok_btn.setAutoDefault(False)
+        self.ok_btn.setAutoDefault(True)
         self.ok_btn.setObjectName("ok_btn")
         self.horizontalLayout.addWidget(self.ok_btn)
         self.gridLayout_2.addLayout(self.horizontalLayout, 4, 0, 1, 1)
@@ -85,7 +85,7 @@ class Ui_Dialog(object):
         self.gridLayout.setContentsMargins(-1, 20, -1, -1)
         self.gridLayout.setObjectName("gridLayout")
         self.copy_set_to_read_btn = QtWidgets.QPushButton(self.pv_groupBox)
-        self.copy_set_to_read_btn.setAutoDefault(False)
+        self.copy_set_to_read_btn.setAutoDefault(True)
         self.copy_set_to_read_btn.setObjectName("copy_set_to_read_btn")
         self.gridLayout.addWidget(self.copy_set_to_read_btn, 1, 2, 1, 1)
         self.pv_read_lineEdit = QtWidgets.QLineEdit(self.pv_groupBox)
