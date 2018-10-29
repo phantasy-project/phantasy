@@ -14,6 +14,7 @@ from PyQt5.QtGui import QColor
 COLOR_DANGER = QColor('#DC3545')
 COLOR_INFO = QColor('#17A2B8')
 COLOR_WARNING = QColor('#FFC107')
+COLOR_PRIMARY = QColor('#007BFF')
 
 
 class PVElement(object):
