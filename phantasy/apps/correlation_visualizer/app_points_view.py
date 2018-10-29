@@ -29,7 +29,7 @@ class PointsViewWidget(QWidget, Ui_Form):
 
         # UI
         self.setupUi(self)
-        self.setWindowTitle("Points Selected by Lasso Tool")
+        self.setWindowTitle("Points Selected by Lasso-selector Tool")
 
         # set and show data
         self.set_data(data)
@@ -97,3 +97,9 @@ class PointsViewWidget(QWidget, Ui_Form):
         """
         self._preset_table()
         self._postset_table()
+
+    @pyqtSlot()
+    def on_update(self):
+        """Update tableWidget.
+        """
+        self.parent.on_view_selected_points()
