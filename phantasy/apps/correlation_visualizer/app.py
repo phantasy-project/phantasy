@@ -861,6 +861,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         else:
             self.pts_viewer.set_data(data)
         self.pts_viewer.show()
+        self.pts_viewer.adjustSize()
 
     # test slots
     def test_scan_started(self):
