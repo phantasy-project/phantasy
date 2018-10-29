@@ -103,3 +103,7 @@ class PointsViewWidget(QWidget, Ui_Form):
         """Update tableWidget.
         """
         self.parent.on_view_selected_points()
+
+    def keyPressEvent(self, e):
+        if e.key() == Qt.Key_Escape:
+            self.close()
