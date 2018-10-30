@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui_app.ui'
 #
-# Created by: PyQt5 UI code generator 5.10.1
+# Created by: PyQt5 UI code generator 5.5.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -12,7 +12,26 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(483, 325)
+        MainWindow.resize(868, 391)
+        MainWindow.setStyleSheet(
+            "QGroupBox {\n"
+            "    /*background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
+            "                                      stop: 0 #E0E0E0, stop: 1 #E0E0E0);\n"
+            "   */\n"
+            "    border: 2px solid gray;\n"
+            "    border-radius: 5px;\n"
+            "    margin-top: 1.5ex; /* leave space at the top for the title */\n"
+            "    margin-bottom: 0.5ex;\n"
+            "}\n"
+            "\n"
+            "QGroupBox::title {\n"
+            "    subcontrol-origin: margin;\n"
+            "    subcontrol-position: top center; /* position at the top center */\n"
+            "    padding: 0 3px;\n"
+            "    /*background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
+            "                                      stop: 0 #EDECEB, stop: 1 #FFFFFF);\n"
+            "    */\n"
+            "}")
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.centralwidget)
@@ -40,27 +59,73 @@ class Ui_MainWindow(object):
         self.gridLayout.addWidget(self.engine_comboBox, 0, 3, 1, 1)
         self.verticalLayout.addWidget(self.config_groupBox)
         self.control_groupBox = QtWidgets.QGroupBox(self.centralwidget)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
+                                           QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.control_groupBox.sizePolicy().hasHeightForWidth())
+        self.control_groupBox.setSizePolicy(sizePolicy)
         self.control_groupBox.setObjectName("control_groupBox")
-        self.gridLayout_2 = QtWidgets.QGridLayout(self.control_groupBox)
-        self.gridLayout_2.setObjectName("gridLayout_2")
+        self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.control_groupBox)
+        self.verticalLayout_2.setObjectName("verticalLayout_2")
+        self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_3.setObjectName("horizontalLayout_3")
         self.run_tbtn = QtWidgets.QToolButton(self.control_groupBox)
         self.run_tbtn.setObjectName("run_tbtn")
-        self.gridLayout_2.addWidget(self.run_tbtn, 0, 0, 1, 1)
+        self.horizontalLayout_3.addWidget(self.run_tbtn)
         self.stop_tbtn = QtWidgets.QToolButton(self.control_groupBox)
         self.stop_tbtn.setObjectName("stop_tbtn")
-        self.gridLayout_2.addWidget(self.stop_tbtn, 0, 1, 1, 1)
+        self.horizontalLayout_3.addWidget(self.stop_tbtn)
+        spacerItem = QtWidgets.QSpacerItem(40, 20,
+                                           QtWidgets.QSizePolicy.Expanding,
+                                           QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_3.addItem(spacerItem)
+        self.verticalLayout_2.addLayout(self.horizontalLayout_3)
+        self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
+        self.va_status_label = QtWidgets.QLabel(self.control_groupBox)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
+                                           QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(4)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.va_status_label.sizePolicy().hasHeightForWidth())
+        self.va_status_label.setSizePolicy(sizePolicy)
+        self.va_status_label.setText("")
+        self.va_status_label.setAlignment(QtCore.Qt.AlignCenter)
+        self.va_status_label.setObjectName("va_status_label")
+        self.horizontalLayout_2.addWidget(self.va_status_label)
         self.label_3 = QtWidgets.QLabel(self.control_groupBox)
         self.label_3.setObjectName("label_3")
-        self.gridLayout_2.addWidget(self.label_3, 0, 2, 1, 1)
-        self.uptime_lineEdit = QtWidgets.QLineEdit(self.control_groupBox)
-        self.uptime_lineEdit.setObjectName("uptime_lineEdit")
-        self.gridLayout_2.addWidget(self.uptime_lineEdit, 0, 3, 1, 1)
+        self.horizontalLayout_2.addWidget(self.label_3)
+        self.uptime_label = QtWidgets.QLabel(self.control_groupBox)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
+                                           QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(1)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.uptime_label.sizePolicy().hasHeightForWidth())
+        self.uptime_label.setSizePolicy(sizePolicy)
+        self.uptime_label.setStyleSheet("QLabel {\n"
+                                        "    font-family: monospace;\n"
+                                        "}")
+        self.uptime_label.setAlignment(QtCore.Qt.AlignRight
+                                       | QtCore.Qt.AlignTrailing
+                                       | QtCore.Qt.AlignVCenter)
+        self.uptime_label.setObjectName("uptime_label")
+        self.horizontalLayout_2.addWidget(self.uptime_label)
+        self.verticalLayout_2.addLayout(self.horizontalLayout_2)
+        spacerItem1 = QtWidgets.QSpacerItem(20, 40,
+                                            QtWidgets.QSizePolicy.Minimum,
+                                            QtWidgets.QSizePolicy.Expanding)
+        self.verticalLayout_2.addItem(spacerItem1)
         self.verticalLayout.addWidget(self.control_groupBox)
         self.tools_groupBox = QtWidgets.QGroupBox(self.centralwidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
                                            QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(1)
+        sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(
             self.tools_groupBox.sizePolicy().hasHeightForWidth())
         self.tools_groupBox.setSizePolicy(sizePolicy)
@@ -76,10 +141,14 @@ class Ui_MainWindow(object):
         self.view_log_tbtn = QtWidgets.QToolButton(self.tools_groupBox)
         self.view_log_tbtn.setObjectName("view_log_tbtn")
         self.horizontalLayout.addWidget(self.view_log_tbtn)
+        spacerItem2 = QtWidgets.QSpacerItem(40, 20,
+                                            QtWidgets.QSizePolicy.Expanding,
+                                            QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout.addItem(spacerItem2)
         self.verticalLayout.addWidget(self.tools_groupBox)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 483, 29))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 868, 30))
         self.menubar.setObjectName("menubar")
         self.menu_Help = QtWidgets.QMenu(self.menubar)
         self.menu_Help.setObjectName("menu_Help")
@@ -108,11 +177,8 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         MainWindow.setTabOrder(self.mach_comboBox, self.engine_comboBox)
         MainWindow.setTabOrder(self.engine_comboBox, self.run_tbtn)
-        MainWindow.setTabOrder(self.run_tbtn, self.stop_tbtn)
-        MainWindow.setTabOrder(self.stop_tbtn, self.uptime_lineEdit)
-        MainWindow.setTabOrder(self.uptime_lineEdit, self.open_notebook_tbtn)
+        MainWindow.setTabOrder(self.run_tbtn, self.open_notebook_tbtn)
         MainWindow.setTabOrder(self.open_notebook_tbtn, self.open_workdir_tbtn)
-        MainWindow.setTabOrder(self.open_workdir_tbtn, self.view_log_tbtn)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -131,6 +197,7 @@ class Ui_MainWindow(object):
         self.run_tbtn.setText(_translate("MainWindow", "RUN"))
         self.stop_tbtn.setText(_translate("MainWindow", "STOP"))
         self.label_3.setText(_translate("MainWindow", "Uptime"))
+        self.uptime_label.setText(_translate("MainWindow", "00:00:00"))
         self.tools_groupBox.setTitle(_translate("MainWindow", "Tools"))
         self.open_notebook_tbtn.setText(_translate("MainWindow", "Notebook"))
         self.open_workdir_tbtn.setText(_translate("MainWindow", "Work Dir"))
