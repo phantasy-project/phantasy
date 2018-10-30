@@ -4,15 +4,21 @@
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import QProcess
+from PyQt5.QtCore import QTimer
+from PyQt5.QtGui import QColor
+from PyQt5.QtWidgets import QToolButton
+import time
 
 from phantasy_ui.templates import BaseAppForm
+from phantasy.apps.utils import uptime
 
 from .ui.ui_app import Ui_MainWindow
+from .app_vainfo import VAProcessInfoWidget
 
 
 class VALauncherWindow(BaseAppForm, Ui_MainWindow):
-    #
-    vaStatusChanged = pyqtSignal('QString')
+    # va status changed, message to set, color of the string
+    vaStatusChanged = pyqtSignal('QString', QColor)
 
     def __init__(self, version):
         super(VALauncherWindow, self).__init__()
@@ -42,12 +48,40 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
         # UI
         self.setupUi(self)
 
-        # status
-        self.vaStatusChanged.connect(self.statusInfoChanged)
+        # events
+        # va status
+        self.vaStatusChanged.connect(self.on_va_status_changed)
 
-        # initialization
+        # timer for uptime
+        self.uptimer = QTimer(self)
+        self.uptimer.timeout.connect(self.on_update_uptime)
+
+        # post ui init
+        self._post_ui_init()
+
+        # initialize va_process
+        self.va_process = None
+
+        # va process info widget
+        self._va_info_widget = None
+
+    def _post_ui_init(self):
+        # uptime label
+        self.uptime_label.setText("00:00:00")
+
+        # initialization, va config
         self.on_machine_changed(self.mach_comboBox.currentText())
         self.on_engine_changed(self.engine_comboBox.currentText())
+
+        # disable all tools buttons
+        self.enable_all_tools_buttons(False)
+
+    @pyqtSlot()
+    def on_update_uptime(self):
+        """Update uptime box.
+        """
+        up_secs = time.time() - self.start_time
+        self.uptime_label.setText(uptime(up_secs))
 
     @pyqtSlot()
     def on_run_va(self):
@@ -60,20 +94,33 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
         arguments = [run_cmd, '--mach', mach, '-v']
         va.start('/usr/local/bin/phytool', arguments)
 
-        # start
+        # start va
         va.started.connect(self.on_va_started)
-        va.errorOccurred.connect(self.on_error_occurred)
+        #va.errorOccurred.connect(self.on_error_occurred)
 
     def on_error_occurred(self, err):
         print("Error (code: {}) occurred...".format(err))
+
+    @pyqtSlot('QString', QColor)
+    def on_va_status_changed(self, s, color):
+        self.va_status_label.setText(s)
+        self.va_status_label.setStyleSheet(
+                """QLabel {{
+                    background-color:{c};
+                    color: white;
+                    border: 1px solid {c};
+                    border-radius: 5px;
+                    padding: 1px;
+                }}""".format(c=color.name()))
 
     @pyqtSlot()
     def on_va_started(self):
         """VA is started.
         """
-        print("VA is started...")
-        self.vaStatusChanged.emit(
-            "<html><p style=″color:#4E9A06;″>VA is Running...</p></html>")
+        self.start_time = time.time()
+        self.uptimer.start(1000)
+        self.vaStatusChanged.emit("Running", QColor("#4E9A06"))
+        self.enable_all_tools_buttons()
 
     @pyqtSlot()
     def on_stop_va(self):
@@ -82,17 +129,43 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
         pid = self.va_process.processId()
         self.va_process.kill()
         print("VA ({}) is stopped...".format(pid))
-        self.vaStatusChanged.emit(
-            "<html><p style=″color:#EF2929;″>VA is Not Running...</p></html>")
+        self.vaStatusChanged.emit("Stopped", QColor("#EF2929"))
+        self.uptimer.stop()
+        self.enable_all_tools_buttons(False)
 
     @pyqtSlot('QString')
     def on_machine_changed(self, s):
         """Machine is changed.
         """
-        print(s)
         self._mach = s
 
     @pyqtSlot('QString')
     def on_engine_changed(self, s):
         self._engine = s
         self._run_cmd = '{}-vastart'.format(s.lower())
+
+    @pyqtSlot()
+    def on_view_va_info(self):
+        """View va process information.
+        """
+        if self.va_process is None:
+            return
+
+        if self._va_info_widget is None:
+            w = VAProcessInfoWidget(self.va_process.processId())
+            self._va_info_widget = w
+        self._va_info_widget.show_widget()
+
+    def enable_all_tools_buttons(self, enable=True):
+        """Disable all buttons in tools groupbox.
+        """
+        for btn in self.tools_groupBox.findChildren(QToolButton):
+            btn.setEnabled(enable)
+
+    def closeEvent(self, e):
+        try:
+            self.on_stop_va()
+            self.va_process.waitForFinished()
+        except:
+            pass
+        self.close()
