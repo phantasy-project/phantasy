@@ -2,13 +2,18 @@
 # -*- coding: utf-8 -*-
 
 from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import QProcess
 
 from phantasy_ui.templates import BaseAppForm
 
 from .ui.ui_app import Ui_MainWindow
 
+
 class VALauncherWindow(BaseAppForm, Ui_MainWindow):
+    #
+    vaStatusChanged = pyqtSignal('QString')
+
     def __init__(self, version):
         super(VALauncherWindow, self).__init__()
 
@@ -20,7 +25,7 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
 #        self.setWindowIcon(QIcon(QPixmap(va_icon)))
 
         # set app properties
-        self.setAppTitle("Virtual Accelerator Launcher")
+        self.setAppTitle("VA Launcher")
         self.setAppVersion(self._version)
 
         # about info
@@ -37,6 +42,9 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
         # UI
         self.setupUi(self)
 
+        # status
+        self.vaStatusChanged.connect(self.statusInfoChanged)
+
         # initialization
         self.on_machine_changed(self.mach_comboBox.currentText())
         self.on_engine_changed(self.engine_comboBox.currentText())
@@ -48,21 +56,34 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
         mach = self._mach
         run_cmd = self._run_cmd
         va = QProcess()
+        self.va_process = va
         arguments = [run_cmd, '--mach', mach, '-v']
-        va.startDetached('/usr/local/bin/phytool', arguments)
+        va.start('/usr/local/bin/phytool', arguments)
 
-        if not va.waitForStarted():
-            print("Failed to start")
-            return False
-        if not va.waitForFinished():
-            print("Failed to finish")
-            return False
+        # start
+        va.started.connect(self.on_va_started)
+        va.errorOccurred.connect(self.on_error_occurred)
+
+    def on_error_occurred(self, err):
+        print("Error (code: {}) occurred...".format(err))
+
+    @pyqtSlot()
+    def on_va_started(self):
+        """VA is started.
+        """
+        print("VA is started...")
+        self.vaStatusChanged.emit(
+            "<html><p style=″color:#4E9A06;″>VA is Running...</p></html>")
 
     @pyqtSlot()
     def on_stop_va(self):
         """Stop VA.
         """
-        pass
+        pid = self.va_process.processId()
+        self.va_process.kill()
+        print("VA ({}) is stopped...".format(pid))
+        self.vaStatusChanged.emit(
+            "<html><p style=″color:#EF2929;″>VA is Not Running...</p></html>")
 
     @pyqtSlot('QString')
     def on_machine_changed(self, s):
