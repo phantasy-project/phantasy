@@ -115,6 +115,11 @@ class ScanTask(object):
             return
         self._extra_monitor_elem.append(elem)
 
+    def del_extra_monitor(self, i):
+        """Delete one extra monitor according to index *i*.
+        """
+        self._extra_monitor_elem.pop(i)
+
     def add_extra_monitors(self, elems):
         """Add a list of elems as extra monitors.
         """
