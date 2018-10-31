@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui_app.ui'
 #
-# Created by: PyQt5 UI code generator 5.5.1
+# Created by: PyQt5 UI code generator 5.10.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -12,7 +12,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(868, 391)
+        MainWindow.resize(481, 329)
         MainWindow.setStyleSheet(
             "QGroupBox {\n"
             "    /*background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
@@ -81,6 +81,76 @@ class Ui_MainWindow(object):
                                            QtWidgets.QSizePolicy.Expanding,
                                            QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_3.addItem(spacerItem)
+        self.label_4 = QtWidgets.QLabel(self.control_groupBox)
+        self.label_4.setObjectName("label_4")
+        self.horizontalLayout_3.addWidget(self.label_4)
+        self.noise_slider = QtWidgets.QSlider(self.control_groupBox)
+        self.noise_slider.setStyleSheet(
+            "QSlider::groove:horizontal {\n"
+            "border: 1px solid #bbb;\n"
+            "background: white;\n"
+            "height: 12px;\n"
+            "border-radius: 4px;\n"
+            "}\n"
+            "\n"
+            "QSlider::sub-page:horizontal {\n"
+            "background: qlineargradient(x1: 0, y1: 0,    x2: 0, y2: 1,\n"
+            "    stop: 0 #10BAF0, stop: 1 #10BAF0);\n"
+            "background: qlineargradient(x1: 0, y1: 0.2, x2: 1, y2: 1,\n"
+            "    stop: 0 #10BAF0, stop: 1 #10BAF0);\n"
+            "border: 1px solid #777;\n"
+            "height: 10px;\n"
+            "border-radius: 4px;\n"
+            "}\n"
+            "\n"
+            "QSlider::add-page:horizontal {\n"
+            "background: #fff;\n"
+            "border: 1px solid #777;\n"
+            "height: 10px;\n"
+            "border-radius: 4px;\n"
+            "}\n"
+            "\n"
+            "QSlider::handle:horizontal {\n"
+            "background: qlineargradient(x1:0, y1:0, x2:1, y2:1,\n"
+            "    stop:0 #eee, stop:1 #ccc);\n"
+            "border: 1px solid #777;\n"
+            "width: 15px;\n"
+            "margin-top: -2px;\n"
+            "margin-bottom: -2px;\n"
+            "border-radius: 4px;\n"
+            "}\n"
+            "\n"
+            "QSlider::handle:horizontal:hover {\n"
+            "background: qlineargradient(x1:0, y1:0, x2:1, y2:1,\n"
+            "    stop:0 #fff, stop:1 #ddd);\n"
+            "border: 1px solid #444;\n"
+            "border-radius: 4px;\n"
+            "}\n"
+            "\n"
+            "QSlider::sub-page:horizontal:disabled {\n"
+            "background: #bbb;\n"
+            "border-color: #999;\n"
+            "}\n"
+            "\n"
+            "QSlider::add-page:horizontal:disabled {\n"
+            "background: #eee;\n"
+            "border-color: #999;\n"
+            "}\n"
+            "\n"
+            "QSlider::handle:horizontal:disabled {\n"
+            "background: #eee;\n"
+            "border: 1px solid #aaa;\n"
+            "border-radius: 4px;\n"
+            "}")
+        self.noise_slider.setMinimum(0)
+        self.noise_slider.setMaximum(50)
+        self.noise_slider.setProperty("value", 1)
+        self.noise_slider.setOrientation(QtCore.Qt.Horizontal)
+        self.noise_slider.setObjectName("noise_slider")
+        self.horizontalLayout_3.addWidget(self.noise_slider)
+        self.noise_label = QtWidgets.QLabel(self.control_groupBox)
+        self.noise_label.setObjectName("noise_label")
+        self.horizontalLayout_3.addWidget(self.noise_label)
         self.verticalLayout_2.addLayout(self.horizontalLayout_3)
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
@@ -116,10 +186,6 @@ class Ui_MainWindow(object):
         self.uptime_label.setObjectName("uptime_label")
         self.horizontalLayout_2.addWidget(self.uptime_label)
         self.verticalLayout_2.addLayout(self.horizontalLayout_2)
-        spacerItem1 = QtWidgets.QSpacerItem(20, 40,
-                                            QtWidgets.QSizePolicy.Minimum,
-                                            QtWidgets.QSizePolicy.Expanding)
-        self.verticalLayout_2.addItem(spacerItem1)
         self.gridLayout_2.addWidget(self.control_groupBox, 1, 0, 1, 1)
         self.tools_groupBox = QtWidgets.QGroupBox(self.centralwidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
@@ -144,14 +210,14 @@ class Ui_MainWindow(object):
         self.va_info_btn = QtWidgets.QToolButton(self.tools_groupBox)
         self.va_info_btn.setObjectName("va_info_btn")
         self.horizontalLayout.addWidget(self.va_info_btn)
-        spacerItem2 = QtWidgets.QSpacerItem(40, 20,
+        spacerItem1 = QtWidgets.QSpacerItem(40, 20,
                                             QtWidgets.QSizePolicy.Expanding,
                                             QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayout.addItem(spacerItem2)
+        self.horizontalLayout.addItem(spacerItem1)
         self.gridLayout_2.addWidget(self.tools_groupBox, 2, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 868, 30))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 481, 29))
         self.menubar.setObjectName("menubar")
         self.menu_Help = QtWidgets.QMenu(self.menubar)
         self.menu_Help.setObjectName("menu_Help")
@@ -207,6 +273,8 @@ class Ui_MainWindow(object):
         self.control_groupBox.setTitle(_translate("MainWindow", "Control"))
         self.run_tbtn.setText(_translate("MainWindow", "RUN"))
         self.stop_tbtn.setText(_translate("MainWindow", "STOP"))
+        self.label_4.setText(_translate("MainWindow", "Noise Level"))
+        self.noise_label.setText(_translate("MainWindow", "%"))
         self.label_3.setText(_translate("MainWindow", "Uptime"))
         self.uptime_label.setText(_translate("MainWindow", "00:00:00"))
         self.tools_groupBox.setTitle(_translate("MainWindow", "Tools"))
