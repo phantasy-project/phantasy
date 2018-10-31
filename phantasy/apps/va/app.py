@@ -39,7 +39,7 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
         self.app_about_info = """
             <html>
             <h4>About Virtual Accelerator Launcher</h4>
-            <p>App for FRIB virtual accelerators management,
+            <p>Start virtual accelerators of FRIB for app development,
             current version is {}.
             </p>
             <p>Copyright (C) 2018 Facility for Rare Isotope Beams and other contributors.</p>
