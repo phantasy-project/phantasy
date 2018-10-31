@@ -39,6 +39,7 @@ from .app_help import HelpDialog
 from .app_elem_select import ElementSelectDialog
 from .app_array_set import ArraySetDialog
 from .app_points_view import PointsViewWidget
+from .app_monitors_view import MonitorsViewWidget
 from .data import ScanDataModel
 from .icons import cv_icon
 from .icons import save_icon
@@ -71,6 +72,9 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 
     # loaded lattice elements
     elementsTreeChanged = pyqtSignal(QVariant)
+
+    # number of extra monitors
+    extraMonitorsNumberChanged = pyqtSignal(int)
 
     def __init__(self, version):
         super(CorrelationVisualizerWindow, self).__init__()
@@ -147,9 +151,22 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         self.select_monitor_elem_btn.clicked.connect(
                 lambda: self.on_select_elem(mode='monitor'))
 
+        # additional monitors
+        self.select_more_monitor_elems_btn.clicked.connect(
+                self.on_select_extra_elem)
+        # list of element name, ElementWidget keeps in self.elem_widgets_dict
+        self._extra_monitors = []
+        self.show_extra_monitors_btn.clicked.connect(
+                self.on_show_extra_monitors)
+        # widget for monitors view
+        self.monitors_viewer = None
+
         # alter range
         self.lower_limit_lineEdit.textChanged.connect(self.set_alter_range)
         self.upper_limit_lineEdit.textChanged.connect(self.set_alter_range)
+
+        # extra monitors counter
+        self.extraMonitorsNumberChanged[int].connect(self.on_extra_monitors_number_changed)
 
         # (new) inventory for selected elements, key: element name.
         self.elem_widgets_dict = {}
@@ -322,6 +339,75 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
             # do not update alter element obj
             print("cancel")
             return
+
+    @pyqtSlot()
+    def on_select_extra_elem(self):
+        """Select element as extra monitor(s).
+        """
+        dlg = ElementSelectDialog(self, 'monitor', mp=self._mp)
+        r = dlg.exec_()
+        if r == QDialog.Accepted:
+            sel_elem = dlg.sel_elem
+            #name = sel_elem.name
+            # temp solution, should be replace with ename + fname
+            name = sel_elem.get_pvname
+            # add new monitor
+            self.elem_widgets_dict.setdefault(name, ElementWidget(sel_elem))
+            if name in self._extra_monitors:
+                return
+            self._extra_monitors.append(name)
+            # add to scan task
+            self.scan_task.add_extra_monitor(sel_elem)
+            # update the counter for the total number of extra monitors
+            self.extraMonitorsNumberChanged.emit(len(self._extra_monitors))
+            # show afterward by default
+            self.on_show_extra_monitors()
+
+        elif r == QDialog.Rejected:
+            print("cancel")
+            return
+
+    @pyqtSlot(int)
+    def on_extra_monitors_number_changed(self, n):
+        """Update the counter of total number of extra monitors.
+        """
+        self.extra_monitors_counter_lbl.setText("Extra Monitors ({})".format(n))
+
+    @pyqtSlot()
+    def on_show_extra_monitors(self):
+        """Showo extra monitors.
+        """
+        for name in self._extra_monitors:
+            print(name)
+            print(self.elem_widgets_dict[name])
+
+        # show all extra monitors of scan task
+        print(self.scan_task.get_extra_monitors())
+
+        data = [(name, self.elem_widgets_dict[name]) for name in self._extra_monitors]
+        if self.monitors_viewer is None:
+            self.monitors_viewer = MonitorsViewWidget(self, data)
+        else:
+            self.monitors_viewer.set_data(data)
+        self.monitors_viewer.show()
+        self.monitors_viewer.adjustSize()
+
+    @pyqtSlot('QString')
+    def update_extra_monitors(self, name):
+        """Update extra monitors, after deletion.
+        1. remove name from _extra_monitors
+        2. remove key of name from elem_widgets_dict
+        3. remove from scan_task
+        4. update view
+        """
+        print("Delete monitor of name: ", name)
+        idx = self._extra_monitors.index(name)
+        self._extra_monitors.remove(name)
+        item_to_del = self.elem_widgets_dict.pop(name)
+        print(item_to_del)
+        self.scan_task.del_extra_monitor(idx)
+        self.extraMonitorsNumberChanged.emit(len(self._extra_monitors))
+        self.on_show_extra_monitors()
 
     @pyqtSlot()
     def on_show_elem_info(self, name):
