@@ -66,33 +66,31 @@ class Ui_MainWindow(object):
         self.label_9 = QtWidgets.QLabel(self.scan_groupBox)
         self.label_9.setObjectName("label_9")
         self.scan_gridLayout.addWidget(self.label_9, 2, 0, 1, 1)
-        self.monitor_elem_lineEdit = QtWidgets.QLineEdit(self.scan_groupBox)
-        self.monitor_elem_lineEdit.setText("")
-        self.monitor_elem_lineEdit.setReadOnly(True)
-        self.monitor_elem_lineEdit.setObjectName("monitor_elem_lineEdit")
-        self.scan_gridLayout.addWidget(self.monitor_elem_lineEdit, 4, 1, 1, 3)
-        self.upper_limit_lineEdit = QtWidgets.QLineEdit(self.scan_groupBox)
-        self.upper_limit_lineEdit.setPlaceholderText("")
-        self.upper_limit_lineEdit.setObjectName("upper_limit_lineEdit")
-        self.scan_gridLayout.addWidget(self.upper_limit_lineEdit, 2, 3, 1, 1)
-        self.label_11 = QtWidgets.QLabel(self.scan_groupBox)
-        self.label_11.setObjectName("label_11")
-        self.scan_gridLayout.addWidget(self.label_11, 4, 0, 1, 1)
+        self.alter_array_btn = QtWidgets.QPushButton(self.scan_groupBox)
+        self.alter_array_btn.setObjectName("alter_array_btn")
+        self.scan_gridLayout.addWidget(self.alter_array_btn, 2, 4, 1, 1)
         self.label_10 = QtWidgets.QLabel(self.scan_groupBox)
         self.label_10.setObjectName("label_10")
         self.scan_gridLayout.addWidget(self.label_10, 2, 2, 1, 1)
+        self.label_8 = QtWidgets.QLabel(self.scan_groupBox)
+        self.label_8.setObjectName("label_8")
+        self.scan_gridLayout.addWidget(self.label_8, 1, 0, 1, 1)
+        self.select_monitor_elem_btn = QtWidgets.QPushButton(
+            self.scan_groupBox)
+        self.select_monitor_elem_btn.setAutoDefault(True)
+        self.select_monitor_elem_btn.setObjectName("select_monitor_elem_btn")
+        self.scan_gridLayout.addWidget(self.select_monitor_elem_btn, 4, 4, 1,
+                                       1)
+        self.show_extra_monitors_btn = QtWidgets.QPushButton(
+            self.scan_groupBox)
+        self.show_extra_monitors_btn.setAutoDefault(True)
+        self.show_extra_monitors_btn.setObjectName("show_extra_monitors_btn")
+        self.scan_gridLayout.addWidget(self.show_extra_monitors_btn, 5, 2, 1,
+                                       2)
         self.lower_limit_lineEdit = QtWidgets.QLineEdit(self.scan_groupBox)
         self.lower_limit_lineEdit.setPlaceholderText("")
         self.lower_limit_lineEdit.setObjectName("lower_limit_lineEdit")
         self.scan_gridLayout.addWidget(self.lower_limit_lineEdit, 2, 1, 1, 1)
-        self.alter_elem_lineEdit = QtWidgets.QLineEdit(self.scan_groupBox)
-        self.alter_elem_lineEdit.setText("")
-        self.alter_elem_lineEdit.setReadOnly(True)
-        self.alter_elem_lineEdit.setObjectName("alter_elem_lineEdit")
-        self.scan_gridLayout.addWidget(self.alter_elem_lineEdit, 1, 1, 1, 3)
-        self.label_8 = QtWidgets.QLabel(self.scan_groupBox)
-        self.label_8.setObjectName("label_8")
-        self.scan_gridLayout.addWidget(self.label_8, 1, 0, 1, 1)
         self.select_more_monitor_elems_btn = QtWidgets.QPushButton(
             self.scan_groupBox)
         self.select_more_monitor_elems_btn.setAutoDefault(True)
@@ -100,30 +98,32 @@ class Ui_MainWindow(object):
             "select_more_monitor_elems_btn")
         self.scan_gridLayout.addWidget(self.select_more_monitor_elems_btn, 5,
                                        4, 1, 1)
-        self.select_monitor_elem_btn = QtWidgets.QPushButton(
-            self.scan_groupBox)
-        self.select_monitor_elem_btn.setAutoDefault(True)
-        self.select_monitor_elem_btn.setObjectName("select_monitor_elem_btn")
-        self.scan_gridLayout.addWidget(self.select_monitor_elem_btn, 4, 4, 1,
-                                       1)
-        self.other_monitors_counter_lbl = QtWidgets.QLabel(self.scan_groupBox)
-        self.other_monitors_counter_lbl.setObjectName(
-            "other_monitors_counter_lbl")
-        self.scan_gridLayout.addWidget(self.other_monitors_counter_lbl, 5, 0,
+        self.extra_monitors_counter_lbl = QtWidgets.QLabel(self.scan_groupBox)
+        self.extra_monitors_counter_lbl.setObjectName(
+            "extra_monitors_counter_lbl")
+        self.scan_gridLayout.addWidget(self.extra_monitors_counter_lbl, 5, 0,
                                        1, 2)
-        self.show_other_monitors_btn = QtWidgets.QPushButton(
-            self.scan_groupBox)
-        self.show_other_monitors_btn.setAutoDefault(True)
-        self.show_other_monitors_btn.setObjectName("show_other_monitors_btn")
-        self.scan_gridLayout.addWidget(self.show_other_monitors_btn, 5, 2, 1,
-                                       2)
+        self.upper_limit_lineEdit = QtWidgets.QLineEdit(self.scan_groupBox)
+        self.upper_limit_lineEdit.setPlaceholderText("")
+        self.upper_limit_lineEdit.setObjectName("upper_limit_lineEdit")
+        self.scan_gridLayout.addWidget(self.upper_limit_lineEdit, 2, 3, 1, 1)
+        self.monitor_elem_lineEdit = QtWidgets.QLineEdit(self.scan_groupBox)
+        self.monitor_elem_lineEdit.setText("")
+        self.monitor_elem_lineEdit.setReadOnly(True)
+        self.monitor_elem_lineEdit.setObjectName("monitor_elem_lineEdit")
+        self.scan_gridLayout.addWidget(self.monitor_elem_lineEdit, 4, 1, 1, 3)
+        self.label_11 = QtWidgets.QLabel(self.scan_groupBox)
+        self.label_11.setObjectName("label_11")
+        self.scan_gridLayout.addWidget(self.label_11, 4, 0, 1, 1)
         self.select_alter_elem_btn = QtWidgets.QPushButton(self.scan_groupBox)
         self.select_alter_elem_btn.setAutoDefault(True)
         self.select_alter_elem_btn.setObjectName("select_alter_elem_btn")
         self.scan_gridLayout.addWidget(self.select_alter_elem_btn, 1, 4, 1, 1)
-        self.alter_array_btn = QtWidgets.QPushButton(self.scan_groupBox)
-        self.alter_array_btn.setObjectName("alter_array_btn")
-        self.scan_gridLayout.addWidget(self.alter_array_btn, 2, 4, 1, 1)
+        self.alter_elem_lineEdit = QtWidgets.QLineEdit(self.scan_groupBox)
+        self.alter_elem_lineEdit.setText("")
+        self.alter_elem_lineEdit.setReadOnly(True)
+        self.alter_elem_lineEdit.setObjectName("alter_elem_lineEdit")
+        self.scan_gridLayout.addWidget(self.alter_elem_lineEdit, 1, 1, 1, 3)
         self.gridLayout.addLayout(self.scan_gridLayout, 0, 0, 1, 1)
         self.scanlog_verticalLayout = QtWidgets.QVBoxLayout()
         self.scanlog_verticalLayout.setObjectName("scanlog_verticalLayout")
@@ -469,8 +469,8 @@ class Ui_MainWindow(object):
         MainWindow.setTabOrder(self.monitor_elem_lineEdit,
                                self.select_monitor_elem_btn)
         MainWindow.setTabOrder(self.select_monitor_elem_btn,
-                               self.show_other_monitors_btn)
-        MainWindow.setTabOrder(self.show_other_monitors_btn,
+                               self.show_extra_monitors_btn)
+        MainWindow.setTabOrder(self.show_extra_monitors_btn,
                                self.select_more_monitor_elems_btn)
         MainWindow.setTabOrder(self.select_more_monitor_elems_btn,
                                self.clear_log_tbtn)
@@ -495,6 +495,34 @@ class Ui_MainWindow(object):
         self.scan_groupBox.setTitle(
             _translate("MainWindow", "Scan Configuration"))
         self.label_9.setText(_translate("MainWindow", "Alter Range"))
+        self.alter_array_btn.setToolTip(
+            _translate(
+                "MainWindow",
+                "<html><head/><body><p>Set alter range by array</p></body></html>"
+            ))
+        self.alter_array_btn.setText(_translate("MainWindow", "Array"))
+        self.label_10.setText(_translate("MainWindow", "To"))
+        self.label_8.setText(_translate("MainWindow", "Alter Element"))
+        self.select_monitor_elem_btn.setText(
+            _translate("MainWindow", "Select"))
+        self.show_extra_monitors_btn.setText(
+            _translate("MainWindow", "Show Monitors"))
+        self.lower_limit_lineEdit.setToolTip(
+            _translate(
+                "MainWindow",
+                "<html><head/><body><p>Start value of scan range</p></body></html>"
+            ))
+        self.lower_limit_lineEdit.setText(_translate("MainWindow", "0"))
+        self.select_more_monitor_elems_btn.setText(
+            _translate("MainWindow", "More"))
+        self.extra_monitors_counter_lbl.setText(
+            _translate("MainWindow", "Extra Monitors (0)"))
+        self.upper_limit_lineEdit.setToolTip(
+            _translate(
+                "MainWindow",
+                "<html><head/><body><p>Stop value of scan range</p></body></html>"
+            ))
+        self.upper_limit_lineEdit.setText(_translate("MainWindow", "1"))
         self.monitor_elem_lineEdit.setToolTip(
             _translate(
                 "MainWindow",
@@ -502,38 +530,10 @@ class Ui_MainWindow(object):
         )
         self.monitor_elem_lineEdit.setPlaceholderText(
             _translate("MainWindow", "Click \'Select\' button to set element"))
-        self.upper_limit_lineEdit.setToolTip(
-            _translate(
-                "MainWindow",
-                "<html><head/><body><p>Stop value of scan range</p></body></html>"
-            ))
-        self.upper_limit_lineEdit.setText(_translate("MainWindow", "1"))
         self.label_11.setText(_translate("MainWindow", "Monitor"))
-        self.label_10.setText(_translate("MainWindow", "To"))
-        self.lower_limit_lineEdit.setToolTip(
-            _translate(
-                "MainWindow",
-                "<html><head/><body><p>Start value of scan range</p></body></html>"
-            ))
-        self.lower_limit_lineEdit.setText(_translate("MainWindow", "0"))
+        self.select_alter_elem_btn.setText(_translate("MainWindow", "Select"))
         self.alter_elem_lineEdit.setPlaceholderText(
             _translate("MainWindow", "Click \'Select\' button to set element"))
-        self.label_8.setText(_translate("MainWindow", "Alter Element"))
-        self.select_more_monitor_elems_btn.setText(
-            _translate("MainWindow", "More"))
-        self.select_monitor_elem_btn.setText(
-            _translate("MainWindow", "Select"))
-        self.other_monitors_counter_lbl.setText(
-            _translate("MainWindow", "Other Selected Monitors (0)"))
-        self.show_other_monitors_btn.setText(
-            _translate("MainWindow", "Show Monitors"))
-        self.select_alter_elem_btn.setText(_translate("MainWindow", "Select"))
-        self.alter_array_btn.setToolTip(
-            _translate(
-                "MainWindow",
-                "<html><head/><body><p>Set alter range by array</p></body></html>"
-            ))
-        self.alter_array_btn.setText(_translate("MainWindow", "Array"))
         self.label_12.setText(_translate("MainWindow", "Event Log"))
         self.clear_log_tbtn.setText(_translate("MainWindow", "Clear"))
         self.daq_groupBox.setTitle(
