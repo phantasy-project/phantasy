@@ -162,7 +162,7 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
 
     @pyqtSlot()
     def on_view_va_info(self):
-        """View va process information.
+        """VA info tool button: view va process information.
         """
         if self.va_process is None:
             return
@@ -171,6 +171,17 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
             w = VAProcessInfoWidget(self.va_process.processId())
             self._va_info_widget = w
         self._va_info_widget.show_widget()
+
+    @pyqtSlot()
+    def on_launch_notebook(self):
+        """Notebook tool button: launch jupyter notebook with predefined
+        python environment.
+        """
+        mach = self._mach
+        p = QProcess(self)
+        cmd = "/home/tong/.local/bin/jupyter-notebook"
+        args = ["/home/tong/Dropbox/FRIB/work/phantasy-project/phantasy/phantasy/apps/quad_scan/tests/autofill_from_model.ipynb"]
+        p.start(cmd, args)
 
     def enable_all_tools_buttons(self, enable=True):
         """Disable all buttons in tools groupbox.
@@ -190,6 +201,6 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
     def on_change_noise(self, i):
         """Update VA noise level.
         """
-        if self.noise_pv is not None and self.noise_pv.is_connected:
+        if self.noise_pv is not None and self.noise_pv.connected:
             v = i * 0.001
             self.noise_pv.put(v, wait=True)
