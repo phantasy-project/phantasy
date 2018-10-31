@@ -6,6 +6,8 @@ from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import QProcess
 from PyQt5.QtCore import QTimer
 from PyQt5.QtGui import QColor
+from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QToolButton
 import epics
 import time
@@ -15,6 +17,7 @@ from phantasy.apps.utils import uptime
 
 from .ui.ui_app import Ui_MainWindow
 from .app_vainfo import VAProcessInfoWidget
+from .icons import va_icon
 
 
 class VALauncherWindow(BaseAppForm, Ui_MainWindow):
@@ -29,7 +32,7 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
 
         # window title/icon
         self.setWindowTitle("Virtual Accelerator Launcher")
-#        self.setWindowIcon(QIcon(QPixmap(va_icon)))
+        self.setWindowIcon(QIcon(QPixmap(va_icon)))
 
         # set app properties
         self.setAppTitle("VA Launcher")
