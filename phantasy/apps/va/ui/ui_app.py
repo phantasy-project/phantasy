@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui_app.ui'
 #
-# Created by: PyQt5 UI code generator 5.10.1
+# Created by: PyQt5 UI code generator 5.5.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -12,7 +12,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(481, 329)
+        MainWindow.resize(600, 362)
         MainWindow.setStyleSheet(
             "QGroupBox {\n"
             "    /*background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
@@ -217,7 +217,7 @@ class Ui_MainWindow(object):
         self.gridLayout_2.addWidget(self.tools_groupBox, 2, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 481, 29))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 600, 30))
         self.menubar.setObjectName("menubar")
         self.menu_Help = QtWidgets.QMenu(self.menubar)
         self.menu_Help.setObjectName("menu_Help")
@@ -251,6 +251,7 @@ class Ui_MainWindow(object):
             MainWindow.on_engine_changed)
         self.actionE_xit.triggered.connect(MainWindow.close)
         self.va_info_btn.clicked.connect(MainWindow.on_view_va_info)
+        self.open_notebook_btn.clicked.connect(MainWindow.on_launch_notebook)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         MainWindow.setTabOrder(self.mach_comboBox, self.engine_comboBox)
         MainWindow.setTabOrder(self.engine_comboBox, self.run_tbtn)
