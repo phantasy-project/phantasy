@@ -7,6 +7,7 @@ from PyQt5.QtCore import QProcess
 from PyQt5.QtCore import QTimer
 from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import QToolButton
+import epics
 import time
 
 from phantasy_ui.templates import BaseAppForm
@@ -48,9 +49,22 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
         # UI
         self.setupUi(self)
 
+        # initialize va_process
+        self.va_process = None
+
+        # va process info widget
+        self._va_info_widget = None
+
+        # noise pv
+        self.noise_pv = None
+
         # events
         # va status
         self.vaStatusChanged.connect(self.on_va_status_changed)
+        # 0.001 * i -> 0.1% * i
+        self.noise_slider.valueChanged.connect(
+                lambda i:self.noise_label.setText("{:.1f}%".format(i*0.1)))
+        self.noise_slider.valueChanged.connect(self.on_change_noise)
 
         # timer for uptime
         self.uptimer = QTimer(self)
@@ -58,12 +72,6 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
 
         # post ui init
         self._post_ui_init()
-
-        # initialize va_process
-        self.va_process = None
-
-        # va process info widget
-        self._va_info_widget = None
 
     def _post_ui_init(self):
         # uptime label
@@ -75,6 +83,9 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
 
         # disable all tools buttons
         self.enable_all_tools_buttons(False)
+
+        # noise level
+        self.noise_slider.valueChanged.emit(1)
 
     @pyqtSlot()
     def on_update_uptime(self):
@@ -112,6 +123,8 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
                     border-radius: 5px;
                     padding: 1px;
                 }}""".format(c=color.name()))
+        # noise pv
+        self.noise_pv = epics.PV('VA:SVR:NOISE')
 
     @pyqtSlot()
     def on_va_started(self):
@@ -169,3 +182,11 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
         except:
             pass
         self.close()
+
+    @pyqtSlot(int)
+    def on_change_noise(self, i):
+        """Update VA noise level.
+        """
+        if self.noise_pv is not None and self.noise_pv.is_connected:
+            v = i * 0.001
+            self.noise_pv.put(v, wait=True)
