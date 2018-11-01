@@ -12,7 +12,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(674, 410)
+        MainWindow.resize(502, 365)
         MainWindow.setStyleSheet(
             "QGroupBox {\n"
             "    /*background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
@@ -57,12 +57,6 @@ class Ui_MainWindow(object):
         self.engine_comboBox.addItem("")
         self.engine_comboBox.addItem("")
         self.gridLayout.addWidget(self.engine_comboBox, 0, 3, 1, 1)
-        self.label_5 = QtWidgets.QLabel(self.config_groupBox)
-        self.label_5.setObjectName("label_5")
-        self.gridLayout.addWidget(self.label_5, 1, 0, 1, 1)
-        self.pvprefix_lineEdit = QtWidgets.QLineEdit(self.config_groupBox)
-        self.pvprefix_lineEdit.setObjectName("pvprefix_lineEdit")
-        self.gridLayout.addWidget(self.pvprefix_lineEdit, 1, 1, 1, 1)
         self.gridLayout_2.addWidget(self.config_groupBox, 0, 0, 1, 1)
         self.control_groupBox = QtWidgets.QGroupBox(self.centralwidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
@@ -199,15 +193,11 @@ class Ui_MainWindow(object):
         self.horizontalLayout = QtWidgets.QHBoxLayout(self.tools_groupBox)
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.open_notebook_btn = QtWidgets.QToolButton(self.tools_groupBox)
+        self.open_notebook_btn.setAutoRaise(True)
         self.open_notebook_btn.setObjectName("open_notebook_btn")
         self.horizontalLayout.addWidget(self.open_notebook_btn)
-        self.open_workdir_btn = QtWidgets.QToolButton(self.tools_groupBox)
-        self.open_workdir_btn.setObjectName("open_workdir_btn")
-        self.horizontalLayout.addWidget(self.open_workdir_btn)
-        self.view_log_btn = QtWidgets.QToolButton(self.tools_groupBox)
-        self.view_log_btn.setObjectName("view_log_btn")
-        self.horizontalLayout.addWidget(self.view_log_btn)
         self.va_info_btn = QtWidgets.QToolButton(self.tools_groupBox)
+        self.va_info_btn.setAutoRaise(True)
         self.va_info_btn.setObjectName("va_info_btn")
         self.horizontalLayout.addWidget(self.va_info_btn)
         spacerItem1 = QtWidgets.QSpacerItem(40, 20,
@@ -217,7 +207,7 @@ class Ui_MainWindow(object):
         self.gridLayout_2.addWidget(self.tools_groupBox, 2, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 674, 30))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 502, 30))
         self.menubar.setObjectName("menubar")
         self.menu_Help = QtWidgets.QMenu(self.menubar)
         self.menu_Help.setObjectName("menu_Help")
@@ -256,7 +246,6 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         MainWindow.setTabOrder(self.mach_comboBox, self.engine_comboBox)
         MainWindow.setTabOrder(self.engine_comboBox, self.open_notebook_btn)
-        MainWindow.setTabOrder(self.open_notebook_btn, self.open_workdir_btn)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -271,16 +260,13 @@ class Ui_MainWindow(object):
         self.label_2.setText(_translate("MainWindow", "Model Engine"))
         self.engine_comboBox.setItemText(0, _translate("MainWindow", "FLAME"))
         self.engine_comboBox.setItemText(1, _translate("MainWindow", "IMPACT"))
-        self.label_5.setText(_translate("MainWindow", "PV Prefix"))
         self.control_groupBox.setTitle(_translate("MainWindow", "Control"))
         self.label_4.setText(_translate("MainWindow", "Noise Level"))
         self.noise_label.setText(_translate("MainWindow", "%"))
         self.label_3.setText(_translate("MainWindow", "Uptime"))
         self.uptime_label.setText(_translate("MainWindow", "00:00:00"))
         self.tools_groupBox.setTitle(_translate("MainWindow", "Tools"))
-        self.open_notebook_btn.setText(_translate("MainWindow", "Notebook"))
-        self.open_workdir_btn.setText(_translate("MainWindow", "Work Dir"))
-        self.view_log_btn.setText(_translate("MainWindow", "Log"))
+        self.open_notebook_btn.setText(_translate("MainWindow", "RUN-NB"))
         self.va_info_btn.setText(_translate("MainWindow", "VA Info"))
         self.menu_Help.setTitle(_translate("MainWindow", "&Help"))
         self.menu_File.setTitle(_translate("MainWindow", "&File"))
