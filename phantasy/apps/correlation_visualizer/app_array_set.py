@@ -46,7 +46,7 @@ class ArraySetDialog(QDialog, Ui_Dialog):
             QMessageBox.warning(self, "", "Input values are invalid",
                     QMessageBox.Ok)
         else:
-            self.array = np.arange(v_from, v_to, v_step)
+            self.array = np.arange(v_from, v_to + v_step, v_step)
             self.data_textEdit.setPlainText(str(self.array.tolist()))
 
     @pyqtSlot()
