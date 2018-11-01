@@ -288,7 +288,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         """Select element via PV or high-level element for alter-vars and
         monitor-vars.
         """
-        dlg = self._sel_elem_dialogs.setdefault(mode, ElementSelectDialog(self, mode))
+        dlg = self._sel_elem_dialogs.setdefault(mode, ElementSelectDialog(self, mode, mp=self._mp))
         r = dlg.exec_()
         self.elementsTreeChanged.connect(dlg.on_update_elem_tree)
 
