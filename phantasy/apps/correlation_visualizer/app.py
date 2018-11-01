@@ -456,11 +456,23 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 
     def __save_data_as_array(self, filename):
         sm = ScanDataModel(self.scan_task.scan_out_data)
-        x, y, xerr, yerr = sm.get_xavg(), sm.get_yavg(), sm.get_xerr(), sm.get_yerr()
-        header = '<x> <y> x_std  y_std\nx: {}\ny: {}'.format(
+        ynerr = [] # [yi, yi_err, ...], y0:x, y1:y
+        for i in range(0, sm.shape[-1]):
+            ynerr.append(sm.get_avg()[:, i])
+            ynerr.append(sm.get_err()[:, i])
+
+        header = 'App: Correlation Visualizer {}\n'.format(self._version)
+        header += 'Data table saved on {}\n'.format(epoch2human(time.time(), fmt=TS_FMT))
+        header += 'Scan job is done on {}\n'.format(epoch2human(self.scan_task.ts_stop, fmt=TS_FMT))
+        header += 'Columns ({}) definitions: standard error comes after average reading\n'.format(2 * sm.shape[-1])
+        header += '<x> x_std <y> y_std <y1> y1_std ...\n'
+        header += 'x: {}\ny: {}\n'.format(
                 self.scan_task.alter_element.readback[0],
                 self.scan_task.monitor_element.readback[0])
-        np.savetxt(filename, np.vstack([x,y,xerr,yerr]).T, header=header,
+        header += 'yi is the i-th extra monitor\n'
+        for i,elem in enumerate(self.scan_task.get_extra_monitors()):
+            header += 'Extra monitor {}: {}\n'.format(i+1, elem.readback[0])
+        np.savetxt(filename, np.vstack(ynerr).T, header=header,
                    delimiter=',')
 
     def _post_init_ui(self):
