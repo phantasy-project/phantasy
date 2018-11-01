@@ -550,6 +550,10 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         # btn's status
         self.set_btn_status(mode='init')
 
+        # clear init curve data
+        empty_arr = np.asarray([])
+        self.curveUpdated.emit(empty_arr, empty_arr, empty_arr, empty_arr)
+
     @pyqtSlot()
     def set_alter_range(self):
         """Set scan alter vars range.
