@@ -93,11 +93,11 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
         # tools
         # notebook
         self.open_notebook_btn.setIcon(QIcon(QPixmap(nb_run_icon)))
-        self.open_notebook_btn.setIconSize(QSize(48, 48))
+        self.open_notebook_btn.setIconSize(QSize(32, 32))
         self.open_notebook_btn.setToolTip("Launch Jupyter-notebook")
         # va info
         self.va_info_btn.setIcon(QIcon(QPixmap(info_icon)))
-        self.va_info_btn.setIconSize(QSize(48, 48))
+        self.va_info_btn.setIconSize(QSize(32, 32))
         self.va_info_btn.setToolTip("Show VA running status")
 
 
