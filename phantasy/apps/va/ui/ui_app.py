@@ -12,7 +12,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(502, 365)
+        MainWindow.resize(580, 370)
         MainWindow.setStyleSheet(
             "QGroupBox {\n"
             "    /*background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
@@ -207,7 +207,7 @@ class Ui_MainWindow(object):
         self.gridLayout_2.addWidget(self.tools_groupBox, 2, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 502, 30))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 580, 30))
         self.menubar.setObjectName("menubar")
         self.menu_Help = QtWidgets.QMenu(self.menubar)
         self.menu_Help.setObjectName("menu_Help")
