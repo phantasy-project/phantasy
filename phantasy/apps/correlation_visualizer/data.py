@@ -59,6 +59,16 @@ class ScanDataModel(object):
     def get_yavg(self):
         return self._avg[:, 1]
 
+    def get_avg(self):
+        """Return array of averages, shape of (t, w).
+        """
+        return self._avg
+
+    def get_err(self):
+        """Return array of standard errors, shape of (t, w).
+        """
+        return self._std
+
 
 class DataSheetBase(OrderedDict):
     def __init__(self, path=None, template=None):
