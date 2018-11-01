@@ -377,13 +377,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
     def on_show_extra_monitors(self):
         """Showo extra monitors.
         """
-        for name in self._extra_monitors:
-            print(name)
-            print(self.elem_widgets_dict[name])
-
         # show all extra monitors of scan task
-        print(self.scan_task.get_extra_monitors())
-
         data = [(name, self.elem_widgets_dict[name]) for name in self._extra_monitors]
         if self.monitors_viewer is None:
             self.monitors_viewer = MonitorsViewWidget(self, data)
@@ -455,6 +449,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         # return flag to indicate success or fail.
 
     def __save_data_as_array(self, filename):
+        """csv/txt"""
         sm = ScanDataModel(self.scan_task.scan_out_data)
         ynerr = [] # [yi, yi_err, ...], y0:x, y1:y
         for i in range(0, sm.shape[-1]):
@@ -473,7 +468,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         for i,elem in enumerate(self.scan_task.get_extra_monitors()):
             header += 'Extra monitor {}: {}\n'.format(i+1, elem.readback[0])
         np.savetxt(filename, np.vstack(ynerr).T, header=header,
-                   delimiter=',')
+                   delimiter='\t')
 
     def _post_init_ui(self):
         """post init ui
