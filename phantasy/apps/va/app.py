@@ -5,10 +5,12 @@ from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import QProcess
 from PyQt5.QtCore import QTimer
+from PyQt5.QtCore import QSize
 from PyQt5.QtGui import QColor
 from PyQt5.QtGui import QIcon
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QToolButton
+from PyQt5.QtWidgets import QAction
 import epics
 import time
 
@@ -18,6 +20,8 @@ from phantasy.apps.utils import uptime
 from .ui.ui_app import Ui_MainWindow
 from .app_vainfo import VAProcessInfoWidget
 from .icons import va_icon
+from .icons import run_icon
+from .icons import stop_icon
 
 
 class VALauncherWindow(BaseAppForm, Ui_MainWindow):
@@ -77,6 +81,9 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
         self._post_ui_init()
 
     def _post_ui_init(self):
+        # run&stop tbtn: run
+        self._setup_toolbar()
+
         # uptime label
         self.uptime_label.setText("00:00:00")
 
@@ -89,6 +96,22 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
 
         # noise level
         self.noise_slider.valueChanged.emit(1)
+
+    def _setup_toolbar(self):
+        va_run_tool = QAction(QIcon(QPixmap(run_icon)), "Run", self)
+        va_stop_tool = QAction(QIcon(QPixmap(stop_icon)), "Stop", self)
+        va_run_tool.setToolTip("RUN VA")
+        va_stop_tool.setToolTip("STOP VA")
+        va_run_tool.triggered.connect(self.on_run_va)
+        va_stop_tool.triggered.connect(self.on_stop_va)
+
+        va_run_tool.setEnabled(True)
+        va_stop_tool.setEnabled(False)
+        self.va_run_tool = va_run_tool
+        self.va_stop_tool = va_stop_tool
+
+        self.toolBar.addAction(va_run_tool)
+        self.toolBar.addAction(va_stop_tool)
 
     @pyqtSlot()
     def on_update_uptime(self):
@@ -137,6 +160,8 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
         self.uptimer.start(1000)
         self.vaStatusChanged.emit("Running", QColor("#4E9A06"))
         self.enable_all_tools_buttons()
+        self.va_run_tool.setEnabled(False)
+        self.va_stop_tool.setEnabled(True)
 
     @pyqtSlot()
     def on_stop_va(self):
@@ -148,6 +173,8 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
         self.vaStatusChanged.emit("Stopped", QColor("#EF2929"))
         self.uptimer.stop()
         self.enable_all_tools_buttons(False)
+        self.va_run_tool.setEnabled(True)
+        self.va_stop_tool.setEnabled(False)
 
     @pyqtSlot('QString')
     def on_machine_changed(self, s):
@@ -195,7 +222,7 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
             self.va_process.waitForFinished()
         except:
             pass
-        self.close()
+        BaseAppForm.closeEvent(self, e)
 
     @pyqtSlot(int)
     def on_change_noise(self, i):
