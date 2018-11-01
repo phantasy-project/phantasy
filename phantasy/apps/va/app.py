@@ -13,6 +13,7 @@ from PyQt5.QtWidgets import QToolButton
 from PyQt5.QtWidgets import QAction
 import epics
 import time
+import os
 
 from phantasy_ui.templates import BaseAppForm
 from phantasy.apps.utils import uptime
@@ -22,6 +23,11 @@ from .app_vainfo import VAProcessInfoWidget
 from .icons import va_icon
 from .icons import run_icon
 from .icons import stop_icon
+from .icons import nb_run_icon
+from .icons import nb_stop_icon
+from .icons import info_icon
+
+CURDIR = os.path.dirname(__file__)
 
 
 class VALauncherWindow(BaseAppForm, Ui_MainWindow):
@@ -84,6 +90,17 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
         # run&stop tbtn: run
         self._setup_toolbar()
 
+        # tools
+        # notebook
+        self.open_notebook_btn.setIcon(QIcon(QPixmap(nb_run_icon)))
+        self.open_notebook_btn.setIconSize(QSize(48, 48))
+        self.open_notebook_btn.setToolTip("Launch Jupyter-notebook")
+        # va info
+        self.va_info_btn.setIcon(QIcon(QPixmap(info_icon)))
+        self.va_info_btn.setIconSize(QSize(48, 48))
+        self.va_info_btn.setToolTip("Show VA running status")
+
+
         # uptime label
         self.uptime_label.setText("00:00:00")
 
@@ -129,7 +146,7 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
         va = QProcess()
         self.va_process = va
         arguments = [run_cmd, '--mach', mach, '-v']
-        va.start('/usr/local/bin/phytool', arguments)
+        va.start('phytool', arguments)
 
         # start va
         va.started.connect(self.on_va_started)
@@ -204,11 +221,24 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
         """Notebook tool button: launch jupyter notebook with predefined
         python environment.
         """
-        mach = self._mach
-        p = QProcess(self)
-        cmd = "/home/tong/.local/bin/jupyter-notebook"
-        args = ["/home/tong/Dropbox/FRIB/work/phantasy-project/phantasy/phantasy/apps/quad_scan/tests/autofill_from_model.ipynb"]
-        p.start(cmd, args)
+        obj = self.sender()
+        def on_nb_started():
+            obj.setText("STOP-NB")
+            obj.setIcon(QIcon(QPixmap(nb_stop_icon)))
+            obj.setToolTip("Stop Jupyter-notebook")
+
+        if obj.text() == "RUN-NB":
+            mach = self._mach
+            self.nb_p = p = QProcess(self)
+            cmd = "jupyter-notebook"
+            args = [os.path.join(CURDIR, 'nb', "{}.ipynb".format(self._mach))]
+            p.start(cmd, args)
+            p.started.connect(on_nb_started)
+        elif obj.text() == "STOP-NB":
+            self.nb_p.kill()
+            obj.setText("RUN-NB")
+            obj.setIcon(QIcon(QPixmap(nb_run_icon)))
+            obj.setToolTip("Launch Jupyter-notebook")
 
     def enable_all_tools_buttons(self, enable=True):
         """Disable all buttons in tools groupbox.
