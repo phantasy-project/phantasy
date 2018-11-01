@@ -21,7 +21,7 @@ from phantasy.apps.correlation_visualizer.utils import delayed_check_pv_status
 
 class ElementSelectDialog(QDialog, Ui_Dialog):
 
-    def __init__(self, parent=None, mode='alter'):
+    def __init__(self, parent=None, mode='alter', mp=None):
         # mode: 'alter' or 'monitor'
         # monitor: only show readback PV
         super(ElementSelectDialog, self).__init__()
@@ -57,6 +57,14 @@ class ElementSelectDialog(QDialog, Ui_Dialog):
 
         # validate flag
         self._already_validated = False
+
+        # set element tree view if mp is defined
+        if mp is not None:
+            self.on_update_elem_tree(mp)
+
+        # post ui init
+        self.pv_mode_radiobtn.toggled.emit(True)
+        self.elem_mode_radiobtn.toggled.emit(False)
 
     @pyqtSlot()
     def on_click_ok(self):
