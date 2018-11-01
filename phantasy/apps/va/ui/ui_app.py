@@ -12,7 +12,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(600, 362)
+        MainWindow.resize(674, 410)
         MainWindow.setStyleSheet(
             "QGroupBox {\n"
             "    /*background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
@@ -57,6 +57,12 @@ class Ui_MainWindow(object):
         self.engine_comboBox.addItem("")
         self.engine_comboBox.addItem("")
         self.gridLayout.addWidget(self.engine_comboBox, 0, 3, 1, 1)
+        self.label_5 = QtWidgets.QLabel(self.config_groupBox)
+        self.label_5.setObjectName("label_5")
+        self.gridLayout.addWidget(self.label_5, 1, 0, 1, 1)
+        self.pvprefix_lineEdit = QtWidgets.QLineEdit(self.config_groupBox)
+        self.pvprefix_lineEdit.setObjectName("pvprefix_lineEdit")
+        self.gridLayout.addWidget(self.pvprefix_lineEdit, 1, 1, 1, 1)
         self.gridLayout_2.addWidget(self.config_groupBox, 0, 0, 1, 1)
         self.control_groupBox = QtWidgets.QGroupBox(self.centralwidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
@@ -71,16 +77,6 @@ class Ui_MainWindow(object):
         self.verticalLayout_2.setObjectName("verticalLayout_2")
         self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_3.setObjectName("horizontalLayout_3")
-        self.run_tbtn = QtWidgets.QToolButton(self.control_groupBox)
-        self.run_tbtn.setObjectName("run_tbtn")
-        self.horizontalLayout_3.addWidget(self.run_tbtn)
-        self.stop_tbtn = QtWidgets.QToolButton(self.control_groupBox)
-        self.stop_tbtn.setObjectName("stop_tbtn")
-        self.horizontalLayout_3.addWidget(self.stop_tbtn)
-        spacerItem = QtWidgets.QSpacerItem(40, 20,
-                                           QtWidgets.QSizePolicy.Expanding,
-                                           QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayout_3.addItem(spacerItem)
         self.label_4 = QtWidgets.QLabel(self.control_groupBox)
         self.label_4.setObjectName("label_4")
         self.horizontalLayout_3.addWidget(self.label_4)
@@ -151,6 +147,10 @@ class Ui_MainWindow(object):
         self.noise_label = QtWidgets.QLabel(self.control_groupBox)
         self.noise_label.setObjectName("noise_label")
         self.horizontalLayout_3.addWidget(self.noise_label)
+        spacerItem = QtWidgets.QSpacerItem(40, 20,
+                                           QtWidgets.QSizePolicy.Expanding,
+                                           QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_3.addItem(spacerItem)
         self.verticalLayout_2.addLayout(self.horizontalLayout_3)
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
@@ -217,13 +217,16 @@ class Ui_MainWindow(object):
         self.gridLayout_2.addWidget(self.tools_groupBox, 2, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 600, 30))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 674, 30))
         self.menubar.setObjectName("menubar")
         self.menu_Help = QtWidgets.QMenu(self.menubar)
         self.menu_Help.setObjectName("menu_Help")
         self.menu_File = QtWidgets.QMenu(self.menubar)
         self.menu_File.setObjectName("menu_File")
         MainWindow.setMenuBar(self.menubar)
+        self.toolBar = QtWidgets.QToolBar(MainWindow)
+        self.toolBar.setObjectName("toolBar")
+        MainWindow.addToolBar(QtCore.Qt.TopToolBarArea, self.toolBar)
         self.actionAbout = QtWidgets.QAction(MainWindow)
         self.actionAbout.setObjectName("actionAbout")
         self.actionAbout_Qt = QtWidgets.QAction(MainWindow)
@@ -243,8 +246,6 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
         self.actionAbout.triggered.connect(MainWindow.onAbout)
         self.actionAbout_Qt.triggered.connect(MainWindow.onAboutQt)
-        self.run_tbtn.clicked.connect(MainWindow.on_run_va)
-        self.stop_tbtn.clicked.connect(MainWindow.on_stop_va)
         self.mach_comboBox.currentTextChanged['QString'].connect(
             MainWindow.on_machine_changed)
         self.engine_comboBox.currentTextChanged['QString'].connect(
@@ -254,8 +255,7 @@ class Ui_MainWindow(object):
         self.open_notebook_btn.clicked.connect(MainWindow.on_launch_notebook)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         MainWindow.setTabOrder(self.mach_comboBox, self.engine_comboBox)
-        MainWindow.setTabOrder(self.engine_comboBox, self.run_tbtn)
-        MainWindow.setTabOrder(self.run_tbtn, self.open_notebook_btn)
+        MainWindow.setTabOrder(self.engine_comboBox, self.open_notebook_btn)
         MainWindow.setTabOrder(self.open_notebook_btn, self.open_workdir_btn)
 
     def retranslateUi(self, MainWindow):
@@ -264,16 +264,15 @@ class Ui_MainWindow(object):
         self.config_groupBox.setTitle(
             _translate("MainWindow", "Configuration"))
         self.label.setText(_translate("MainWindow", "Accelerator"))
-        self.mach_comboBox.setItemText(0, _translate("MainWindow", "LEBT"))
-        self.mach_comboBox.setItemText(1, _translate("MainWindow", "MEBT"))
+        self.mach_comboBox.setItemText(0, _translate("MainWindow", "VA_LEBT"))
+        self.mach_comboBox.setItemText(1, _translate("MainWindow", "VA_MEBT"))
         self.mach_comboBox.setItemText(2, _translate("MainWindow",
                                                      "VA_LS1FS1"))
         self.label_2.setText(_translate("MainWindow", "Model Engine"))
         self.engine_comboBox.setItemText(0, _translate("MainWindow", "FLAME"))
         self.engine_comboBox.setItemText(1, _translate("MainWindow", "IMPACT"))
+        self.label_5.setText(_translate("MainWindow", "PV Prefix"))
         self.control_groupBox.setTitle(_translate("MainWindow", "Control"))
-        self.run_tbtn.setText(_translate("MainWindow", "RUN"))
-        self.stop_tbtn.setText(_translate("MainWindow", "STOP"))
         self.label_4.setText(_translate("MainWindow", "Noise Level"))
         self.noise_label.setText(_translate("MainWindow", "%"))
         self.label_3.setText(_translate("MainWindow", "Uptime"))
@@ -285,6 +284,7 @@ class Ui_MainWindow(object):
         self.va_info_btn.setText(_translate("MainWindow", "VA Info"))
         self.menu_Help.setTitle(_translate("MainWindow", "&Help"))
         self.menu_File.setTitle(_translate("MainWindow", "&File"))
+        self.toolBar.setWindowTitle(_translate("MainWindow", "toolBar"))
         self.actionAbout.setText(_translate("MainWindow", "About"))
         self.actionAbout.setShortcut(_translate("MainWindow", "Ctrl+A"))
         self.actionAbout_Qt.setText(_translate("MainWindow", "About Qt"))
