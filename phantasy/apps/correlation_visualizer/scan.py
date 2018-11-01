@@ -340,6 +340,8 @@ class ScanWorker(QObject):
         alter_array = self.task.get_alter_array()
         alter_elem = self.task.alter_element
         monitor_elem = self.task.monitor_element
+        extra_monitors = self.task.get_extra_monitors()
+        all_monitors = [alter_elem, monitor_elem] + extra_monitors
         out_data = self.task.scan_out_data
         tmp_data = self.task.scan_out_data_per_iter
         wait_sec = self.task.t_wait
@@ -373,7 +375,7 @@ class ScanWorker(QObject):
             time.sleep(wait_sec)
             # DAQ
             for i in range(nshot):
-                tmp_data[i, :] = alter_elem.value, monitor_elem.value
+                tmp_data[i, :] = [elem.value for elem in all_monitors]
                 time.sleep(daq_delt)
             out_data[idx,:,:] = tmp_data
             self.scanOneIterFinished.emit(idx, x, out_data)
