@@ -135,6 +135,9 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         self.alter_array_btn.clicked.connect(self.on_set_alter_array)
         self._set_alter_array_dialogs = {} # keys: alter element name
 
+        # enable arbitary alter array input
+        self.enable_arbitary_array_chkbox.toggled.connect(self.on_toggle_array)
+
         # signals & slots
         self.scanlogUpdated.connect(self.on_update_log)
         self.scanlogTextColor.connect(self.scan_log_textEdit.setTextColor)
@@ -240,6 +243,29 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 #        self.tableWidget.resizeColumnsToContents()
 #
 #        self.i += 1
+
+    @pyqtSlot(bool)
+    def on_toggle_array(self, ischecked):
+        """If checked,
+        1. disconnect textChanged of lower_limit_lineEdit, upper_limit_lineEdit
+        2. disconnect valueChanged of niter_spinBox
+        3. disable lower_limit_lineEdit, upper_limit_lineEdit, niter_spinBox
+        if not checked, connect 1&2 and enable 3.
+        """
+        if ischecked:
+            self.lower_limit_lineEdit.textChanged.disconnect()
+            self.upper_limit_lineEdit.textChanged.disconnect()
+            self.niter_spinBox.valueChanged.disconnect()
+            self.lower_limit_lineEdit.setEnabled(False)
+            self.upper_limit_lineEdit.setEnabled(False)
+            self.niter_spinBox.setEnabled(False)
+        else:
+            self.lower_limit_lineEdit.textChanged.connect(self.set_alter_range)
+            self.upper_limit_lineEdit.textChanged.connect(self.set_alter_range)
+            self.niter_spinBox.valueChanged.connect(self.set_scan_daq)
+            self.lower_limit_lineEdit.setEnabled(True)
+            self.upper_limit_lineEdit.setEnabled(True)
+            self.niter_spinBox.setEnabled(True)
 
     @pyqtSlot(QVariant, QVariant)
     def on_select_points(self, ind, pts):
@@ -398,7 +424,6 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         idx = self._extra_monitors.index(name)
         self._extra_monitors.remove(name)
         item_to_del = self.elem_widgets_dict.pop(name)
-        print(item_to_del)
         self.scan_task.del_extra_monitor(idx)
         self.extraMonitorsNumberChanged.emit(len(self._extra_monitors))
         self.on_show_extra_monitors()
@@ -943,9 +968,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
             self.niter_spinBox.setValue(self.scan_task.alter_number)
             v1, v2 = self.scan_task.alter_start, self.scan_task.alter_stop
             self.lower_limit_lineEdit.setText(str(v1))
-            print(self.scan_task.alter_start, self.scan_task.alter_stop)
             self.upper_limit_lineEdit.setText(str(v2))
-            print(self.scan_task.alter_start, self.scan_task.alter_stop)
         elif r == QDialog.Rejected:
             print("No array set")
             return
