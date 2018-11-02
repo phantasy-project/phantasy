@@ -1,3 +1,80 @@
+Version 1.6.0
+-------------
+2018-11-02
+
+- Correlation Visualizer App:
+  - MNT/CV: Bump up version to 2.1.
+  - UI/CV: Generate py file from ui with pyuic5 5.5.1.
+  - UI/CV: Make plainText widget of Set array widget readonly.
+  - UI/CV: Add chkbox to turn on/off arbitary alter array option.
+  - ENH/CV: Support arbitary alter array input.
+  - ENG/CV: Add implementation of extra monitors view.
+  - UI/CV: Add widget for extra monitors view.
+  - ENH/CV: Change delimiter to tab when saving data into csv.
+  - ENH/CV: Clear the startup template curve.
+  - ENH/CV: Save extra monitor data into csv table.
+  - ENH/CV: Return all avg and stderr array from ScanDataModel.
+  - ENH/CV: Record readings of extra monitors to scan task.
+  - UI/CV: Update widgets for extra monitors.
+  - ENH/CV: Implement the logic to add extra monitors.
+  - ENH/CV: Add method to remove extra monitor from scan task.
+  - UI/CV: Fix view_selected_pts_tbtn popup mode.
+  - MNT/CV: Clean import section and manage icon size by macro.
+  - UI/CV: Add text label for all tool buttons.
+  - ENH/CV: Implement view_selected_pts_tbtn for RETAKE.
+  - UI/CV: Add icon for show retake points tool button.
+  - UI/CV: Make scan event log font bold.
+  - ENH/CV: Implement RETAKE feature.
+  - FIX: Include the end valule of arange when building a array.
+  - FIX: Not disable element selection mode when PV mode is enabled.
+  - FIX: When lattice is loaded, but not shown in elem selection widget.
+  - FIX: PV connection should be checked by PV.connected attr.
+  - ENH: Add keyboard shortcut ESC to close points viewer.
+  - ENH: Note on_select_points slot which accepts ind,pts from lasso tool.
+  - ENH: Update event log for button clicking.
+  - ENH: Add color: COLOR_PRIMARY, for button clicking event log.
+  - ENH: Implement update button for points viewer widget.
+  - UI: Add Update button for tableWidget refreshing.
+  - UI: Set buttons autodefault.
+  - ENH: Adjust points view widget size.
+  - ENH: Use delete toolbutton to delete selected point.
+  - UI: Auto fit tableWidget size regarding contents.
+  - UI: Update tab order.
+  - ENH: Points for retaking could be visually selected/deselected.
+  - ENH: Add widget for viewing selected points for RETAKE.
+  - BUG: Fix get_save_filename crashes when nothing is selected.
+  - ENH: Add 'index_array' to ScanWorker to support RETAKE.
+  - BUG: Fix issues that crash app when click buttons when no scan is running.
+
+- VA Launcher App:
+  - UI/VA: Update window size.
+  - ENH/VA: Make toolbuttons size as 32x32.
+  - ENH/VA: Update icons for notebook and va info button.
+  - UI/VA: Add widget for va info.
+  - UI/VA: Update layout.
+  - UI/VA: Add icon for va info btn.
+  - UI/VA: Add icons for notebook run/stop.
+  - ENH/VA: Implement toolbar for run/stop VA.
+  - UI/VA: Update layout and use toolbar for run/stop VA.
+  - FIX/VA: Capture process stop exception when shown va info.
+  - ENH/VA: Add icons for run/stop toolbutton.
+  - UI/VA: Add slot for clicking Notebook button.
+  - ENH/VA: Add app icon for VA launcher.
+  - MNT/VA: Bump up version to 1.0.
+  - MNT/VA: Update about info.
+  - ENH/VA: Implement noise level slider.
+  - ENH/VA: Add ESC keyshort to exit vainfo widget.
+  - UI/VA: Add slider to contorl VA noise level.
+  - ENH/VA: New module for va info widget.
+  - ENH/VA: Add more tools buttons, enhanced start/stop logic.
+  - UI/VA: Update layout.
+  - ENH: Add function to convert seconds to uptime string.
+  - UI/VA: Update layout.
+  - ENH/VA: Implement RUN and STOP button.
+  - ENH: Changed moveto and set toolbutton to make use of cross-ruler.
+  - MNT: Add entry point for va_launcher.
+  - ENH/VA: Initial virtual accelerator launcher app.
+
 Version 1.5.0
 -------------
 2018-10-23
