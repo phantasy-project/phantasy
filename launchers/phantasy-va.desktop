@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=FRIB Virtual Accelerators
+Comment=Virtual Accelerators for FRIB
+Terminal=false
+Exec=va_launcher3
+Icon=phantasy-va
+StartupNotify=false
+Keywords=Phantasy;VA;
+Categories=Science;Physics;
