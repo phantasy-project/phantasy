@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui_array_set.ui'
 #
-# Created by: PyQt5 UI code generator 5.5.1
+# Created by: PyQt5 UI code generator 5.10.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -40,6 +40,7 @@ class Ui_Dialog(object):
         self.horizontalLayout.addWidget(self.generate_btn)
         self.verticalLayout.addLayout(self.horizontalLayout)
         self.data_textEdit = QtWidgets.QTextEdit(Dialog)
+        self.data_textEdit.setReadOnly(True)
         self.data_textEdit.setObjectName("data_textEdit")
         self.verticalLayout.addWidget(self.data_textEdit)
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
