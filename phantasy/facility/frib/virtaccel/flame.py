@@ -189,7 +189,7 @@ class VirtualAcceleratorFactory(object):
         self.data_dir = kwargs.get("data_dir", None)
         self.work_dir = kwargs.get("work_dir", None)
 
-        # machine: read from config file
+        # machine: read from config file, the PV prefix
         if self.config is not None:
             self.machine = self.config.get_default('machine')
         # if valid keyword 'machine' is provided, override machine.
@@ -265,7 +265,7 @@ class VirtualAcceleratorFactory(object):
         # pv prefix, machine in config
         if (machine is not None) and not isinstance(machine, basestring):
             raise TypeError("VirtAccelFactory: 'machine' property much be type string or None")
-        self._machine = machine
+        self._machine = machine.upper()
 
     @property
     def data_dir(self):
@@ -540,6 +540,14 @@ class VirtualAccelerator(object):
             raise TypeError("VirtualAccelerator: 'work_dir' property much be type string or None")
         self._work_dir = work_dir
 
+    def __prefix_pv(self, pv):
+        """Prefix *pv* with _chanprefix (if not '') and ':'.
+        """
+        if self._chanprefix != '':
+            return '{}:{}'.format(self._chanprefix, pv)
+        else:
+            return pv
+
     def append_rw(self, cset, rset, read, field, desc="Element", egu="", prec=5, drvh=None, drvl=None, drvabs=None, drvrel=None, drvratio=None):
         """Append a set of read/write channels to this virtual accelerator.
         The algorithm to set EPICS DRVH/DRVL is as:
@@ -585,6 +593,9 @@ class VirtualAccelerator(object):
             drvh = val + abs(val*drvratio)
             drvl = val - abs(val*drvratio)
 
+        # prefix pvs
+        cset, rset, read = self.__prefix_pv(cset), self.__prefix_pv(rset), self.__prefix_pv(read)
+
         self._epicsdb.append(("ao", cset, OrderedDict([
                 ("DESC", "{} Set Point".format(desc)),
                 ("VAL", val),
@@ -629,6 +640,9 @@ class VirtualAccelerator(object):
         """
         if self.is_started():
             raise RuntimeError("VirtualAccelerator: Cannot append RO channel when started")
+
+        # prefix pvs
+        read = self.__prefix_pv(read)
 
         self._epicsdb.append(("ai", read, OrderedDict([
                 ("DESC", "{} Read Back".format(desc)),
