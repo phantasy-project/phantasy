@@ -337,7 +337,9 @@ class VirtualAcceleratorFactory(object):
         else:
             # IMPORTANT: chanprefix must
             # be converted from unicode
-            chanprefix = str(m.group(1))
+            # if find prefix from the raw channel, do not prefix any more.
+            chanprefix = ''
+            #chanprefix = str(m.group(1))
 
         va = VirtualAccelerator(latfactory, settings, chanprefix, data_dir, work_dir)
 
