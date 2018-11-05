@@ -4,6 +4,7 @@
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import QProcess
+from PyQt5.QtCore import QProcessEnvironment
 from PyQt5.QtCore import QTimer
 from PyQt5.QtCore import QSize
 from PyQt5.QtGui import QColor
@@ -141,9 +142,12 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
     def on_run_va(self):
         """Run VA.
         """
+        env = QProcessEnvironment.systemEnvironment()
+        env.insert('PHANTASY_CONFIG_DIR', '/usr/lib/phantasy-machines')
         mach = self._mach
         run_cmd = self._run_cmd
         va = QProcess()
+        va.setProcessEnvironment(env)
         self.va_process = va
         arguments = [run_cmd, '--mach', mach, '-v']
         va.start('phytool', arguments)
