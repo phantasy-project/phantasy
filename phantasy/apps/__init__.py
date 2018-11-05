@@ -8,3 +8,9 @@ Applications
 # except ImportError:
 #     print("'phantasy-apps' is required...")
 
+
+import os
+
+k = "PHANTASY_CONFIG_DIR"
+os.environ.setdefault(k, "/usr/lib/phantasy-machines")
+
