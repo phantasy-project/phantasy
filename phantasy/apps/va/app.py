@@ -143,7 +143,9 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
         """Run VA.
         """
         env = QProcessEnvironment.systemEnvironment()
-        env.insert('PHANTASY_CONFIG_DIR', '/usr/lib/phantasy-machines')
+        k = 'PHANTASY_CONFIG_DIR'
+        if k not in env.keys():
+            env.insert(k '/usr/lib/phantasy-machines')
         mach = self._mach
         run_cmd = self._run_cmd
         va = QProcess()
