@@ -235,7 +235,10 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
             mach = self._mach
             self.nb_p = p = QProcess(self)
             cmd = "jupyter-notebook"
-            args = [os.path.join(CURDIR, 'nb', "{}.ipynb".format(self._mach))]
+            nbfile = os.path.join(CURDIR, 'nb', "{}.ipynb".format(self._mach))
+            args = []
+            if os.path.isfile(nbfile):
+                args.append(nbfile)
             p.start(cmd, args)
             p.started.connect(on_nb_started)
         elif obj.text() == "STOP-NB":
