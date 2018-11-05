@@ -33,6 +33,7 @@ class VAProcessInfoWidget(QWidget, Ui_Form):
 
     def show_widget(self):
         self.refresh_timer.start(1000)
+        self.adjustSize()
         self.show()
 
     def on_update_info(self):
