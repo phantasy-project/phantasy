@@ -27,14 +27,13 @@ _LOGGER = logging.getLogger(__name__)
 
 # HOME = os.environ['HOME'] will NOT work on Windows,
 # unless %HOME% is set on Windows, which is not the case by default.
-_home_hla = os.path.join(os.path.expanduser('~'), '.phantasy')
-PHANTASY_CONFIG_DIR = os.environ.get("PHANTASY_CONFIG_DIR", _home_hla)
+_HOME_DEFAULT = os.path.join(os.path.expanduser('~'), '.phantasy')
 
 
 class Configuration(ConfigParser):
     """Configuration wraps the standand python config
     parser to provide convenient helper methods.
-       
+
     Parameters
     ----------
     config_path : str
@@ -76,7 +75,7 @@ class Configuration(ConfigParser):
         ----------
         option :
             Name of configuration option.
-        cmd : 
+        cmd :
             If True, then relative paths must start with a '.' or contain a
             path separator otherwise it is considered absolute,
             ``False`` by default.
@@ -154,7 +153,7 @@ class Configuration(ConfigParser):
             Name of configuration option.
         check_default :
             Check the default section for the option (default: False).
-        cmd : 
+        cmd :
             If True, then relative paths must start with a '.' or contain a
             path separator otherwise it is considered absolute,
             ``False`` by default.
@@ -184,7 +183,7 @@ class Configuration(ConfigParser):
         # to not exist in the configuration.
         return (bool(section) and ConfigParser.has_option(self, section, option)) or \
                     (check_default and self.has_default(option))
-    
+
     def to_dict(self, flat=False, ordered=True):
         """Convert configuration into dict.
 
@@ -209,19 +208,19 @@ class Configuration(ConfigParser):
         else:
             for sn in self.sections():
                     rdict[sn] = fdict(self.items(sn))
-        return rdict 
+        return rdict
 
 
 def _find_machine_path(machine):
     """Try to find a machine configuration path.
     If *machine* comes with a full path, it assume the configuration file is
     under the same path.
-    
+
     It searches 3 different ways:
       - a absolute path from parameter
       - environment variable: PHANTASY_CONFIG_DIR,
       - the package directory
-    
+
     Parameters
     ----------
     machine : str
@@ -242,8 +241,9 @@ def _find_machine_path(machine):
         return machine, mname
 
     # try "machine" in PHANTASY_CONFIG_DIR and ~/.phantasy/ (default)
-    _LOGGER.info("Searching configuration under path: '%s' '%s'" % (PHANTASY_CONFIG_DIR, machine))
-    home_machine = os.path.join(PHANTASY_CONFIG_DIR, machine)
+    phantasy_config_dir = os.environ.get("PHANTASY_CONFIG_DIR", _HOME_DEFAULT)
+    _LOGGER.info("Searching configuration under path: '%s' '%s'" % (phantasy_config_dir, machine))
+    home_machine = os.path.join(phantasy_config_dir, machine)
     if os.path.isdir(home_machine):
         mname = os.path.basename(os.path.realpath(machine))
         return home_machine, mname
@@ -283,7 +283,7 @@ def find_machine_config(machine, **kwargs):
     Returns
     -------
     ret : tuple
-        Tuple of (config, machdir, machname), where *config* is 
+        Tuple of (config, machdir, machname), where *config* is
         ``Configuration`` object, *machdir* is full path of the machine,
         *machname* is name of the machine.
 
