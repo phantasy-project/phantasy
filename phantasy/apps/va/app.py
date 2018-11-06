@@ -81,6 +81,9 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
         # noise pv
         self.noise_pv = None
 
+        # pv prefix
+        self._prefix = None
+
         # events
         # va status
         self.vaStatusChanged.connect(self.on_va_status_changed)
@@ -163,10 +166,13 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
         mach = self._mach
         segm = self._segm
         run_cmd = self._run_cmd
+        prefix = self._prefix
         va = QProcess()
         va.setProcessEnvironment(env)
         self.va_process = va
         arguments = [run_cmd, '--mach', mach, '--subm', segm, '-v']
+        if prefix is not None and prefix != '':
+            arguments.extend(['--pv-prefix', prefix])
         va.start('phytool', arguments)
 
         # start va
@@ -248,7 +254,6 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
     def on_segment_changed(self, s):
         """Segment is changed.
         """
-        print("segment is changed to", s)
         self._segm = s
 
     @pyqtSlot('QString')
