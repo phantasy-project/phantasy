@@ -84,6 +84,9 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
         # pv prefix
         self._prefix = None
 
+        # CA local only
+        self._ca_local_only = False
+
         # events
         # va status
         self.vaStatusChanged.connect(self.on_va_status_changed)
@@ -170,9 +173,11 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
         va = QProcess()
         va.setProcessEnvironment(env)
         self.va_process = va
-        arguments = [run_cmd, '--mach', mach, '--subm', segm, '-v']
+        arguments = [run_cmd, '--mach', mach, '--subm', segm]
         if prefix is not None and prefix != '':
             arguments.extend(['--pv-prefix', prefix])
+        if self._ca_local_only:
+            arguments.append("-l")
         va.start('phytool', arguments)
 
         # start va
@@ -327,3 +332,9 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
         if self.noise_pv is not None and self.noise_pv.connected:
             v = i * 0.001
             self.noise_pv.put(v, wait=True)
+
+    @pyqtSlot(bool)
+    def on_localonly(self, f):
+        """CA localhost only or not.
+        """
+        self._ca_local_only = f
