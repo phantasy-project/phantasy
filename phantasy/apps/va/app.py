@@ -80,6 +80,7 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
 
         # noise pv
         self.noise_pv = None
+        self._noise_pv_name = 'VA:SVR:NOISE'
 
         # pv prefix
         self._prefix = None
@@ -132,9 +133,6 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
         # disable all tools buttons
         self.enable_all_tools_buttons(False)
 
-        # noise level
-        self.noise_slider.valueChanged.emit(1)
-
     def _setup_toolbar(self):
         va_run_tool = QAction(QIcon(QPixmap(run_icon)), "Run", self)
         va_stop_tool = QAction(QIcon(QPixmap(stop_icon)), "Stop", self)
@@ -174,8 +172,9 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
         va.setProcessEnvironment(env)
         self.va_process = va
         arguments = [run_cmd, '--mach', mach, '--subm', segm]
-        if prefix is not None and prefix != '':
+        if prefix is not None and prefix not in ('', 'NONE'):
             arguments.extend(['--pv-prefix', prefix])
+            self._noise_pv_name = "{}:SVR:NOISE".format(prefix)
         if self._ca_local_only:
             arguments.append("-l")
         va.start('phytool', arguments)
@@ -198,8 +197,6 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
                     border-radius: 5px;
                     padding: 1px;
                 }}""".format(c=color.name()))
-        # noise pv
-        self.noise_pv = epics.PV('VA:SVR:NOISE')
 
     @pyqtSlot()
     def on_va_started(self):
@@ -211,6 +208,10 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
         self.update_widgets_visibility(status="STARTED")
         # reset VAProcessInfoWidget
         self._va_info_widget = None
+        # noise pv
+        self.noise_pv = epics.PV(self._noise_pv_name,
+                                 connection_callback=self.__on_connection_changed,
+                                 callback=self.__on_value_changed)
 
     def update_widgets_visibility(self, status="STARTED"):
         """Enable/Disable widgets when VA is STARTED or STOPPED.
@@ -265,7 +266,7 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
     def on_pvprefix_changed(self, s):
         """PV string prefix is changed.
         """
-        self._prefix = s
+        self._prefix = s.upper()
 
     @pyqtSlot('QString')
     def on_engine_changed(self, s):
@@ -338,3 +339,21 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
         """CA localhost only or not.
         """
         self._ca_local_only = f
+
+    def __on_connection_changed(self, pvname=None, conn=None, **kws):
+        if conn:
+            self.enable_noise_controls()
+        else:
+            self.enable_noise_controls(False)
+
+    def __on_value_changed(self, pvname=None, value=None, host=None, **kws):
+        v = int(value / 0.001)
+        self.noise_slider.setValue(v)
+
+    def enable_noise_controls(self, enable=True):
+        """Enable controls for noise or not.
+        """
+        for o in (self.noise_slider, self.noise_label):
+            o.setEnabled(enable)
+
+
