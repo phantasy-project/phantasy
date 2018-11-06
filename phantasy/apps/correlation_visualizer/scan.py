@@ -5,7 +5,6 @@ import numpy as np
 import time
 from PyQt5.QtCore import QObject
 from PyQt5.QtCore import pyqtSignal
-from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtCore import QVariant
 
 from collections import OrderedDict
@@ -19,6 +18,7 @@ TS_FMT = "%Y-%m-%d %H:%M:%S %Z"
 class ScanTask(object):
     """Class to abstract scan routine.
     """
+
     def __init__(self, name):
         # task name identifier
         self.name = name
@@ -219,8 +219,9 @@ class ScanTask(object):
         ndim = 2 + len(self.get_extra_monitors())
         self._scan_out_per_iter = np.zeros((self.shotnum, ndim))
         self._scan_out_all = np.asarray([
-            [np.ones(ndim) * np.nan] * self.shotnum
-        ] * self.alter_number)
+                                            [np.ones(
+                                                ndim) * np.nan] * self.shotnum
+                                        ] * self.alter_number)
 
     @property
     def scan_out_data_per_iter(self):
@@ -232,9 +233,9 @@ class ScanTask(object):
 
     def __repr__(self):
         return "Scan Task: {name}\nAlter array: {array}".format(
-                name=self.name,
-                array=str(self.get_alter_array()),
-                )
+            name=self.name,
+            array=str(self.get_alter_array()),
+        )
 
     def is_valid(self):
         """Check scan task, if valid return True, otherwise return False.
@@ -280,15 +281,15 @@ class ScanTask(object):
         # devices
         dev_dict = OrderedDict()
         dev_dict['alter_element'] = {
-                'name': self.alter_element.name,
-                'readback_pv': self.alter_element.get_pvname,
-                'setpoint_pv': self.alter_element.put_pvname,
+            'name': self.alter_element.name,
+            'readback_pv': self.alter_element.get_pvname,
+            'setpoint_pv': self.alter_element.put_pvname,
         }
         dev_dict['monitors'] = []
         for elem in [self.monitor_element] + self.get_extra_monitors():
             dev_dict['monitors'].append({
-                    'name': elem.name,
-                    'readback_pv': elem.get_pvname,
+                'name': elem.name,
+                'readback_pv': elem.get_pvname,
             })
         data_sheet.update({'devices': dev_dict})
 
@@ -326,7 +327,8 @@ class ScanWorker(QObject):
     # scan is done, param: scan out data array
     scanAllDataReady = pyqtSignal(QVariant)
 
-    def __init__(self, scantask, starting_index=0, index_array=None, parent=None):
+    def __init__(self, scantask, starting_index=0, index_array=None,
+                 parent=None):
         super(ScanWorker, self).__init__(parent)
         self.task = scantask
         self.parent = parent
@@ -346,7 +348,7 @@ class ScanWorker(QObject):
         tmp_data = self.task.scan_out_data_per_iter
         wait_sec = self.task.t_wait
         daq_rate = self.task.daq_rate
-        daq_delt = 1.0/daq_rate
+        daq_delt = 1.0 / daq_rate
 
         index_array = range(self.starting_index, alter_array.size)
 
@@ -377,7 +379,7 @@ class ScanWorker(QObject):
             for i in range(nshot):
                 tmp_data[i, :] = [elem.value for elem in all_monitors]
                 time.sleep(daq_delt)
-            out_data[idx,:,:] = tmp_data
+            out_data[idx, :, :] = tmp_data
             self.scanOneIterFinished.emit(idx, x, out_data)
 
         if idx == alter_array.size - 1:
@@ -420,6 +422,6 @@ if __name__ == '__main__':
     task.alter_start = 10
     print(task.get_alter_array())
 
-    task.set_alter_array([1,3,4,5])
+    task.set_alter_array([1, 3, 4, 5])
     print(task.get_alter_array())
     print(task.alter_start, task.alter_stop, task.alter_number, task.alter_step)
