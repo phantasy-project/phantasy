@@ -84,6 +84,24 @@ class ArraySetDialog(QDialog, Ui_Dialog):
         self.close()
         self.setResult(QDialog.Rejected)
 
+    @pyqtSlot()
+    def on_text_changed(self):
+        """Text (array) is changed.
+        """
+        o = self.sender()
+        array = self.__plainText_to_array(o.toPlainText())
+        if array is not None:
+            self.array = array
+
+    def __plainText_to_array(self, text):
+        """Convert plain text to array.
+        """
+        try:
+            a = np.asarray(eval(text))
+        except:
+            a = None
+        return a
+
 
 if __name__ == '__main__':
     from PyQt5.QtWidgets import QApplication
