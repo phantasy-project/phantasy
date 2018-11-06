@@ -27,8 +27,9 @@ class Ui_MainWindow(object):
         self.groupBox = QtWidgets.QGroupBox(self.centralwidget)
         self.groupBox.setStyleSheet(
             "QGroupBox {\n"
-            "    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
-            "                                      stop: 0 #E0E0E0, stop: 1 #FFFFFF);\n"
+            "    /*background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
+            "                                      stop: 0 #E0E0E0, stop: 1 #E0E0E0);\n"
+            "   */\n"
             "    border: 2px solid gray;\n"
             "    border-radius: 5px;\n"
             "    margin-top: 1.5ex; /* leave space at the top for the title */\n"
@@ -39,8 +40,9 @@ class Ui_MainWindow(object):
             "    subcontrol-origin: margin;\n"
             "    subcontrol-position: top center; /* position at the top center */\n"
             "    padding: 0 3px;\n"
-            "    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
+            "    /*background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
             "                                      stop: 0 #EDECEB, stop: 1 #FFFFFF);\n"
+            "    */\n"
             "}")
         self.groupBox.setAlignment(QtCore.Qt.AlignLeading | QtCore.Qt.AlignLeft
                                    | QtCore.Qt.AlignVCenter)
@@ -107,8 +109,9 @@ class Ui_MainWindow(object):
         self.groupBox_2 = QtWidgets.QGroupBox(self.centralwidget)
         self.groupBox_2.setStyleSheet(
             "QGroupBox {\n"
-            "    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
-            "                                      stop: 0 #EDECEB, stop: 1 #EDECEB);\n"
+            "    /*background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
+            "                                      stop: 0 #E0E0E0, stop: 1 #E0E0E0);\n"
+            "   */\n"
             "    border: 2px solid gray;\n"
             "    border-radius: 5px;\n"
             "    margin-top: 1.5ex; /* leave space at the top for the title */\n"
@@ -119,8 +122,9 @@ class Ui_MainWindow(object):
             "    subcontrol-origin: margin;\n"
             "    subcontrol-position: top center; /* position at the top center */\n"
             "    padding: 0 3px;\n"
-            "    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
+            "    /*background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
             "                                      stop: 0 #EDECEB, stop: 1 #FFFFFF);\n"
+            "    */\n"
             "}")
         self.groupBox_2.setTitle("")
         self.groupBox_2.setObjectName("groupBox_2")
@@ -134,7 +138,7 @@ class Ui_MainWindow(object):
         self.gridLayout_3.addLayout(self.verticalLayout, 0, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1600, 32))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1600, 30))
         self.menubar.setObjectName("menubar")
         self.menu_File = QtWidgets.QMenu(self.menubar)
         self.menu_File.setObjectName("menu_File")
