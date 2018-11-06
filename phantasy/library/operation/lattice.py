@@ -25,7 +25,7 @@ from phantasy.library.misc import simplify_data
 from phantasy.library.parser import find_machine_config
 from phantasy.library.pv import DataSource
 #from phantasy.library.layout import build_layout
-#from phantasy.library.parser import Configuration
+from phantasy.library.parser import Configuration
 #from phantasy.library.settings import Settings
 from unicorn.utils import UnicornData
 from unicorn.utils import get_func
@@ -66,6 +66,13 @@ def load_lattice(machine, segment=None, **kws):
         If not 0, show output, 0 by default.
     sort : True or False
         Sort lattice with s-position or not, default is False.
+    prefix : str
+        String prefix to all channels, this parameter is crucial to the
+        virtual accelerator (VA) modeling, when '--pv-prefix' argument is
+        used when starting up the VA rather than the one defined in the
+        configuration file (e.g. phantasy.cfg). If this parameter is not
+        defined, will use the one defined by 'machine' in 'DEFAULT' section
+        of configuration file.
 
     Returns
     -------
@@ -87,6 +94,7 @@ def load_lattice(machine, segment=None, **kws):
     save_cache = kws.get('save_cache', False)
     verbose = kws.get('verbose', 0)
     sort_flag = kws.get('sort', False)
+    pv_prefix = kws.get('prefix', None)
 
     # if use_cache:
     #    try:
@@ -144,16 +152,16 @@ def load_lattice(machine, segment=None, **kws):
             model_data_dir = os.path.expanduser(
                 os.path.join(work_dir, model_data_dir))
 
-        # # config file
-        # config_file = d_msect.get(INI_DICT['KEYNAME_CONFIG_FILE'],
-        #                           INI_DICT['DEFAULT_CONFIG_FILE'])
-        # if config_file is not None:
-        #     if not os.path.isabs(config_file):
-        #         config_file = os.path.join(mdir, config_file)
-        #     config = Configuration(config_file)
-        # else:
-        #     raise RuntimeError("Lattice configuration for '%s' not specified" %
-        #                        (msect,))
+        # config file
+        config_file = d_msect.get(INI_DICT['KEYNAME_CONFIG_FILE'],
+                                  INI_DICT['DEFAULT_CONFIG_FILE'])
+        if config_file is not None:
+            if not os.path.isabs(config_file):
+                config_file = os.path.join(mdir, config_file)
+            config = Configuration(config_file)
+        else:
+            raise RuntimeError("Lattice configuration for '%s' not specified" %
+                               (msect,))
 
         # # layout file
         # layout_file = d_msect.get(INI_DICT['KEYNAME_LAYOUT_FILE'],
@@ -244,11 +252,12 @@ def load_lattice(machine, segment=None, **kws):
                              mconf=mconfig,
                              model=simulation_code,
                              #layout=layout,
-                             #config=config,
+                             config=config,
                              #settings=settings,
                              udata=udata,
                              data_dir=data_dir,
-                             sort=sort_flag)
+                             sort=sort_flag,
+                             prefix=pv_prefix)
 
         #         if IMPACT_ELEMENT_MAP is not None:
         #             lat.createLatticeModelMap(IMPACT_ELEMENT_MAP)
@@ -326,12 +335,19 @@ def create_lattice(latname, pv_data, tag, **kws):
         e.g.'/tmp/model_hGe1sq'.
     #layout :
     #    Lattice layout object.
-    #config :
-    #    Lattice configuration object.
+    config :
+        Lattice configuration object.
     settings :
         Lattice settings object.
     sort : True or False
         Sort lattice with s-position or not, default is False.
+    prefix : str
+        String prefix to all channels, this parameter is crucial to the
+        virtual accelerator (VA) modeling, when '--pv-prefix' argument is
+        used when starting up the VA rather than the one defined in the
+        configuration file (e.g. phantasy.cfg). If this parameter is not
+        defined, will use the one defined by 'machine' in 'DEFAULT' section
+        of configuration file.
 
     Returns
     ---------
@@ -353,6 +369,14 @@ def create_lattice(latname, pv_data, tag, **kws):
     """
     udata = kws.get('udata', None)
     data_source = kws.get('source', None)
+    prefix = kws.get('prefix', None)
+
+    config = kws.get('config', None)
+    if config is not None:
+        pv_prefix = config.get_default('machine')
+    if prefix is not None:
+        pv_prefix = prefix
+
     if data_source is None:
         _LOGGER.warning("PV data source type should be explicitly defined.")
     if udata is None:
@@ -407,11 +431,13 @@ def create_lattice(latname, pv_data, tag, **kws):
 
         # update element
         if pv_name:
+            # add prefix
+            pv_name_prefixed = prefix_pv(pv_name, pv_prefix)
             # add 'u_policy' as keyword argument
             # this policy should created from unicorn_policy
             # u_policy: {'p': fn_p, 'n': fn_n}
             u_policy = get_unicorn_policy(elem.name, udata)
-            elem.process_pv(pv_name, pv_props, pv_tags, u_policy=u_policy)
+            elem.process_pv(pv_name_prefixed, pv_props, pv_tags, u_policy=u_policy)
 
     # update group
     lat.update_groups()
@@ -429,6 +455,21 @@ def create_lattice(latname, pv_data, tag, **kws):
     _LOGGER.info("'{0:s}' has {1:d} elements".format(lat.name, lat.size()))
 
     return lat
+
+
+def prefix_pv(pv, prefix):
+    """Prefix *pv* with *prefix:* if *prefix* is not empty and None.
+    """
+    m = re.match("(.*:)?(.*):(.*):(.*)", pv)
+    if m.group(1) is None:
+        chanprefix = prefix
+    else:
+        chanprefix = ''
+
+    if chanprefix != '':
+        return '{}:{}'.format(chanprefix, pv)
+    else:
+        return pv
 
 
 def get_unicorn_policy(ename, udata=None):

@@ -201,49 +201,6 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         # points selected viewer
         self.pts_viewer = None
 
-        #####
-        # test select monitors
-        #self.select_more_monitor_elems_btn.clicked.connect(self.on_select_monitors)
-        #self.elem_widgets_dict = {}
-        #from phantasy import MachinePortal
-        #self.mp = MachinePortal("VA_LS1FS1", "LINAC")
-        #self.i = 0
-        #self.tableWidget.setHorizontalHeaderLabels(['Element', 'Field'])
-
-        #####
-
-    #def _show(self):
-    #    s = self.sender().text()
-    #    w = self.elem_widgets_dict[s]
-    #    w.setWindowTitle(w.ename())
-    #    w.show()
-
-    #@pyqtSlot()
-    #def on_select_monitors(self):
-    #    """Select monitor elements, put into the below tableWidget.
-    #    """
-    #    from PyQt5.QtWidgets import QWidget
-    #    from PyQt5.QtCore import Qt
-#
-#        elem_obj = self.mp.get_elements(type="QUAD")[self.i]
-#        self.elem_widgets_dict.setdefault(elem_obj.name,
-#                ElementWidget(elem_obj))
-#        btn = QPushButton(elem_obj.name)
-#        btn.clicked.connect(self._show)
-#
-#        w = QWidget()
-#        hbox = QHBoxLayout(w)
-#        hbox.addWidget(btn)
-#        hbox.setAlignment(Qt.AlignCenter)
-#        hbox.setContentsMargins(5,5,5,5)
-#        w.setLayout(hbox)
-#
-#        self.tableWidget.setRowCount(self.i + 1)
-#        self.tableWidget.setCellWidget(self.i, 0, w)
-#        self.tableWidget.resizeColumnsToContents()
-#
-#        self.i += 1
-
     @pyqtSlot(bool)
     def on_toggle_array(self, ischecked):
         """If checked,
@@ -420,10 +377,8 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         3. remove from scan_task
         4. update view
         """
-        print("Delete monitor of name: ", name)
         idx = self._extra_monitors.index(name)
         self._extra_monitors.remove(name)
-        item_to_del = self.elem_widgets_dict.pop(name)
         self.scan_task.del_extra_monitor(idx)
         self.extraMonitorsNumberChanged.emit(len(self._extra_monitors))
         self.on_show_extra_monitors()

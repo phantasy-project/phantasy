@@ -5,13 +5,11 @@ from PyQt5.QtWidgets import QWidget
 from PyQt5.QtWidgets import QPushButton
 from PyQt5.QtWidgets import QToolButton
 from PyQt5.QtWidgets import QTableWidgetItem
-from PyQt5.QtGui import QColor
 from PyQt5.QtGui import QIcon
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import Qt
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtCore import pyqtSignal
-from PyQt5.QtCore import QPoint
 from .icons import clean_icon as delete_icon
 
 

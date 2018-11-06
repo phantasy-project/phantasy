@@ -43,6 +43,7 @@ parser.add_argument("--start", help="name of accelerator element to start proces
 parser.add_argument("--end", help="name of accelerator element to end processing")
 parser.add_argument("--data", dest="datapath", help="path to directory with FLAME data")
 parser.add_argument("--work", dest="workpath", help="path to directory for executing FLAME")
+parser.add_argument("--pv-prefix", dest="pvprefix", help="string prefix to each PV name")
 
 print_help = parser.print_help
 
@@ -96,7 +97,8 @@ def main():
 
     try:
         va = build_flame_virtaccel(layout, config=config, channels=channels, settings=settings,
-                                   start=args.start, end=args.end, data_dir=args.datapath, work_dir=args.workpath)
+                                   start=args.start, end=args.end, data_dir=args.datapath, work_dir=args.workpath,
+                                   machine=args.pvprefix)
     except Exception as e:
         if args.verbosity > 0: traceback.print_exc()
         print("Error building virtual accelerator:", e, file=sys.stderr)

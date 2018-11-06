@@ -1,3 +1,35 @@
+Version 1.6.1
+-------------
+2018-11-06
+
+- MNT: Bump up version to 1.6.1.
+- MNT/CV: Bump up version to 2.2.
+- ENH/CV: Array set dialog supports updating array by edit text.
+- UI/CV: Array set dialog update, textEdit readonly off.
+- STY: Clean up and reformat.
+- UI/TV: Update frame background color.
+- ENH/VA: Noise slider is synced when pv is changed externally.
+- UI/VA: Set initial noise slider 0 and disable widgets.
+- FIX: PV prefix for NOISE, CNT and CHARGE channels.
+- ENH/VA: Implement CA localhost only option.
+- UI/VA: Add checkbox to limit CA localhost only.
+- ENH/VA: Implement PV prefix option of VA configuration.
+- FIX: VA info crashes when switching VA.
+- ENH: Update create lattice function to support pvprefix.
+- ENH: Add 'prefix' key arg to MachinePortal for specified pv prefix.
+- FIX: Do not prefix when prefix found from the orignal channels.
+- ENH: flame VA support '--pv-prefix' to prefix channels with any string.
+- ENH: Add '--pv-prefix' argument for flame-vastart.
+- ENH/VA: Set PHANTASY_CONFIG_DIR if not set.
+- ENH: Set PHANTASY_CONFIG_DIR for all apps if not set.
+- MNT/VA: Bump up version to 1.1.
+- ENH/VA: Add notebook templates for Notebook launch button.
+- FIX/VA: Open ipynb file if existing.
+- FIX: Make PHANTASY_CONFIG_DIR configurable during runtime.
+- FIX/VA: Fix va info widget size.
+- ENH/VA: Set up environment vars for va process.
+- MNT: Add launcher and icon for VA launcher app.
+
 Version 1.6.0
 -------------
 2018-11-02

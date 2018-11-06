@@ -48,7 +48,7 @@ class MachinePortal(object):
 
     Parameters
     ----------
-    machine: str
+    machine : str
         Name of the accelerator machine, typically, use one folder of the
         machine name to host all the related configuration files, also could
         be the path of the configuration folder, "FRIB" by default.
@@ -62,6 +62,13 @@ class MachinePortal(object):
 
     Keyword Arguments
     -----------------
+    prefix : str
+        String prefix to all channels, this parameter is crucial to the
+        virtual accelerator (VA) modeling, when '--pv-prefix' argument is
+        used when starting up the VA rather than the one defined in the
+        configuration file (e.g. phantasy.cfg). If this parameter is not
+        defined, will use the one defined by 'machine' in 'DEFAULT' section
+        of configuration file.
     verbose : int
         If set nonzero, print out verbose message.
 

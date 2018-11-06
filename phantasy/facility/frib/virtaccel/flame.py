@@ -159,6 +159,8 @@ def build_virtaccel(layout, **kwargs):
         Path of directory containing FLAME data files.
     work_dir :
         Path of directory for execution of FLAME.
+    machine : str
+        String prefix to all PV names, override Config defined one.
 
     Returns
     -------
@@ -186,6 +188,13 @@ class VirtualAcceleratorFactory(object):
         self.end = kwargs.get("end", None)
         self.data_dir = kwargs.get("data_dir", None)
         self.work_dir = kwargs.get("work_dir", None)
+
+        # machine: read from config file, the PV prefix
+        if self.config is not None:
+            self.machine = self.config.get_default('machine')
+        # if valid keyword 'machine' is provided, override machine.
+        if kwargs.get('machine', None) is not None:
+            self.machine = kwargs.get("machine")
 
     @property
     def layout(self):
@@ -253,9 +262,10 @@ class VirtualAcceleratorFactory(object):
 
     @machine.setter
     def machine(self, machine):
+        # pv prefix, machine in config
         if (machine is not None) and not isinstance(machine, basestring):
             raise TypeError("VirtAccelFactory: 'machine' property much be type string or None")
-        self._machine = machine
+        self._machine = machine.upper()
 
     @property
     def data_dir(self):
@@ -322,11 +332,14 @@ class VirtualAcceleratorFactory(object):
             raise RuntimeError("VirtAccelFactory: Error determining channel prefix, check channel names")
 
         if m.group(1) is None:
-            chanprefix = None
+            # if not match, use machine prop.
+            chanprefix = self.machine
         else:
             # IMPORTANT: chanprefix must
             # be converted from unicode
-            chanprefix = str(m.group(1))
+            # if find prefix from the raw channel, do not prefix any more.
+            chanprefix = ''
+            #chanprefix = str(m.group(1))
 
         va = VirtualAccelerator(latfactory, settings, chanprefix, data_dir, work_dir)
 
@@ -529,6 +542,14 @@ class VirtualAccelerator(object):
             raise TypeError("VirtualAccelerator: 'work_dir' property much be type string or None")
         self._work_dir = work_dir
 
+    def __prefix_pv(self, pv):
+        """Prefix *pv* with _chanprefix (if not '') and ':'.
+        """
+        if self._chanprefix != '':
+            return '{}:{}'.format(self._chanprefix, pv)
+        else:
+            return pv
+
     def append_rw(self, cset, rset, read, field, desc="Element", egu="", prec=5, drvh=None, drvl=None, drvabs=None, drvrel=None, drvratio=None):
         """Append a set of read/write channels to this virtual accelerator.
         The algorithm to set EPICS DRVH/DRVL is as:
@@ -574,6 +595,9 @@ class VirtualAccelerator(object):
             drvh = val + abs(val*drvratio)
             drvl = val - abs(val*drvratio)
 
+        # prefix pvs
+        cset, rset, read = self.__prefix_pv(cset), self.__prefix_pv(rset), self.__prefix_pv(read)
+
         self._epicsdb.append(("ao", cset, OrderedDict([
                 ("DESC", "{} Set Point".format(desc)),
                 ("VAL", val),
@@ -618,6 +642,9 @@ class VirtualAccelerator(object):
         """
         if self.is_started():
             raise RuntimeError("VirtualAccelerator: Cannot append RO channel when started")
+
+        # prefix pvs
+        read = self.__prefix_pv(read)
 
         self._epicsdb.append(("ai", read, OrderedDict([
                 ("DESC", "{} Read Back".format(desc)),
@@ -755,7 +782,7 @@ class VirtualAccelerator(object):
         if self._chanprefix is None:
             chanprefix = ""
         else:
-            chanprefix = self._chanprefix
+            chanprefix = self._chanprefix + ':'
 
         # Add channel for sample counting
         sample_cnt = chanprefix + "SVR:CNT"
@@ -766,7 +793,7 @@ class VirtualAccelerator(object):
             ])))
 
         # Add channel for VA configuration and control
-        channoise = chanprefix+"SVR:NOISE"
+        channoise = chanprefix + "SVR:NOISE"
 
         self._epicsdb.append(("ao", channoise, OrderedDict([
                 ("DESC", "Noise level of Virtual Accelerator"),
@@ -814,7 +841,6 @@ class VirtualAccelerator(object):
         else:
             abs_data_dir = os.path.abspath(self.data_dir)
             self._latfactory.dataDir = os.path.abspath(self.data_dir)
-        print(self._latfactory.dataDir)
 
         with open(epicsdbpath, "w") as outfile:
             self._write_epicsdb(outfile)

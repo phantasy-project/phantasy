@@ -12,7 +12,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(580, 370)
+        MainWindow.resize(750, 444)
         MainWindow.setStyleSheet(
             "QGroupBox {\n"
             "    /*background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
@@ -41,15 +41,26 @@ class Ui_MainWindow(object):
         self.gridLayout = QtWidgets.QGridLayout(self.config_groupBox)
         self.gridLayout.setObjectName("gridLayout")
         self.label = QtWidgets.QLabel(self.config_groupBox)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
+                                           QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.label.sizePolicy().hasHeightForWidth())
+        self.label.setSizePolicy(sizePolicy)
         self.label.setObjectName("label")
         self.gridLayout.addWidget(self.label, 0, 0, 1, 1)
         self.mach_comboBox = QtWidgets.QComboBox(self.config_groupBox)
         self.mach_comboBox.setObjectName("mach_comboBox")
-        self.mach_comboBox.addItem("")
-        self.mach_comboBox.addItem("")
-        self.mach_comboBox.addItem("")
         self.gridLayout.addWidget(self.mach_comboBox, 0, 1, 1, 1)
         self.label_2 = QtWidgets.QLabel(self.config_groupBox)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
+                                           QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.label_2.sizePolicy().hasHeightForWidth())
+        self.label_2.setSizePolicy(sizePolicy)
         self.label_2.setObjectName("label_2")
         self.gridLayout.addWidget(self.label_2, 0, 2, 1, 1)
         self.engine_comboBox = QtWidgets.QComboBox(self.config_groupBox)
@@ -57,6 +68,24 @@ class Ui_MainWindow(object):
         self.engine_comboBox.addItem("")
         self.engine_comboBox.addItem("")
         self.gridLayout.addWidget(self.engine_comboBox, 0, 3, 1, 1)
+        self.label_6 = QtWidgets.QLabel(self.config_groupBox)
+        self.label_6.setObjectName("label_6")
+        self.gridLayout.addWidget(self.label_6, 1, 0, 1, 1)
+        self.segm_comboBox = QtWidgets.QComboBox(self.config_groupBox)
+        self.segm_comboBox.setObjectName("segm_comboBox")
+        self.gridLayout.addWidget(self.segm_comboBox, 1, 1, 1, 1)
+        self.label_5 = QtWidgets.QLabel(self.config_groupBox)
+        self.label_5.setObjectName("label_5")
+        self.gridLayout.addWidget(self.label_5, 1, 2, 1, 1)
+        self.prefix_comboBox = QtWidgets.QComboBox(self.config_groupBox)
+        self.prefix_comboBox.setEditable(True)
+        self.prefix_comboBox.setObjectName("prefix_comboBox")
+        self.prefix_comboBox.addItem("")
+        self.prefix_comboBox.addItem("")
+        self.gridLayout.addWidget(self.prefix_comboBox, 1, 3, 1, 1)
+        self.localonly_chkbox = QtWidgets.QCheckBox(self.config_groupBox)
+        self.localonly_chkbox.setObjectName("localonly_chkbox")
+        self.gridLayout.addWidget(self.localonly_chkbox, 2, 2, 1, 2)
         self.gridLayout_2.addWidget(self.config_groupBox, 0, 0, 1, 1)
         self.control_groupBox = QtWidgets.QGroupBox(self.centralwidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
@@ -75,6 +104,7 @@ class Ui_MainWindow(object):
         self.label_4.setObjectName("label_4")
         self.horizontalLayout_3.addWidget(self.label_4)
         self.noise_slider = QtWidgets.QSlider(self.control_groupBox)
+        self.noise_slider.setEnabled(False)
         self.noise_slider.setStyleSheet(
             "QSlider::groove:horizontal {\n"
             "border: 1px solid #bbb;\n"
@@ -134,11 +164,12 @@ class Ui_MainWindow(object):
             "}")
         self.noise_slider.setMinimum(0)
         self.noise_slider.setMaximum(50)
-        self.noise_slider.setProperty("value", 1)
+        self.noise_slider.setProperty("value", 0)
         self.noise_slider.setOrientation(QtCore.Qt.Horizontal)
         self.noise_slider.setObjectName("noise_slider")
         self.horizontalLayout_3.addWidget(self.noise_slider)
         self.noise_label = QtWidgets.QLabel(self.control_groupBox)
+        self.noise_label.setEnabled(False)
         self.noise_label.setObjectName("noise_label")
         self.horizontalLayout_3.addWidget(self.noise_label)
         spacerItem = QtWidgets.QSpacerItem(40, 20,
@@ -207,7 +238,7 @@ class Ui_MainWindow(object):
         self.gridLayout_2.addWidget(self.tools_groupBox, 2, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 580, 30))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 750, 30))
         self.menubar.setObjectName("menubar")
         self.menu_Help = QtWidgets.QMenu(self.menubar)
         self.menu_Help.setObjectName("menu_Help")
@@ -243,23 +274,35 @@ class Ui_MainWindow(object):
         self.actionE_xit.triggered.connect(MainWindow.close)
         self.va_info_btn.clicked.connect(MainWindow.on_view_va_info)
         self.open_notebook_btn.clicked.connect(MainWindow.on_launch_notebook)
+        self.segm_comboBox.currentTextChanged['QString'].connect(
+            MainWindow.on_segment_changed)
+        self.prefix_comboBox.editTextChanged['QString'].connect(
+            MainWindow.on_pvprefix_changed)
+        self.localonly_chkbox.toggled['bool'].connect(MainWindow.on_localonly)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
-        MainWindow.setTabOrder(self.mach_comboBox, self.engine_comboBox)
-        MainWindow.setTabOrder(self.engine_comboBox, self.open_notebook_btn)
+        MainWindow.setTabOrder(self.mach_comboBox, self.segm_comboBox)
+        MainWindow.setTabOrder(self.segm_comboBox, self.engine_comboBox)
+        MainWindow.setTabOrder(self.engine_comboBox, self.prefix_comboBox)
+        MainWindow.setTabOrder(self.prefix_comboBox, self.localonly_chkbox)
+        MainWindow.setTabOrder(self.localonly_chkbox, self.noise_slider)
+        MainWindow.setTabOrder(self.noise_slider, self.open_notebook_btn)
+        MainWindow.setTabOrder(self.open_notebook_btn, self.va_info_btn)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.config_groupBox.setTitle(
             _translate("MainWindow", "Configuration"))
-        self.label.setText(_translate("MainWindow", "Accelerator"))
-        self.mach_comboBox.setItemText(0, _translate("MainWindow", "VA_LEBT"))
-        self.mach_comboBox.setItemText(1, _translate("MainWindow", "VA_MEBT"))
-        self.mach_comboBox.setItemText(2, _translate("MainWindow",
-                                                     "VA_LS1FS1"))
+        self.label.setText(_translate("MainWindow", "Machine"))
         self.label_2.setText(_translate("MainWindow", "Model Engine"))
         self.engine_comboBox.setItemText(0, _translate("MainWindow", "FLAME"))
         self.engine_comboBox.setItemText(1, _translate("MainWindow", "IMPACT"))
+        self.label_6.setText(_translate("MainWindow", "Segment"))
+        self.label_5.setText(_translate("MainWindow", "PV Prefix"))
+        self.prefix_comboBox.setItemText(0, _translate("MainWindow", "None"))
+        self.prefix_comboBox.setItemText(1, _translate("MainWindow", "VA"))
+        self.localonly_chkbox.setText(
+            _translate("MainWindow", "Limit CA Local Only"))
         self.control_groupBox.setTitle(_translate("MainWindow", "Control"))
         self.label_4.setText(_translate("MainWindow", "Noise Level"))
         self.noise_label.setText(_translate("MainWindow", "%"))
