@@ -104,6 +104,7 @@ class Ui_MainWindow(object):
         self.label_4.setObjectName("label_4")
         self.horizontalLayout_3.addWidget(self.label_4)
         self.noise_slider = QtWidgets.QSlider(self.control_groupBox)
+        self.noise_slider.setEnabled(False)
         self.noise_slider.setStyleSheet(
             "QSlider::groove:horizontal {\n"
             "border: 1px solid #bbb;\n"
@@ -163,11 +164,12 @@ class Ui_MainWindow(object):
             "}")
         self.noise_slider.setMinimum(0)
         self.noise_slider.setMaximum(50)
-        self.noise_slider.setProperty("value", 1)
+        self.noise_slider.setProperty("value", 0)
         self.noise_slider.setOrientation(QtCore.Qt.Horizontal)
         self.noise_slider.setObjectName("noise_slider")
         self.horizontalLayout_3.addWidget(self.noise_slider)
         self.noise_label = QtWidgets.QLabel(self.control_groupBox)
+        self.noise_label.setEnabled(False)
         self.noise_label.setObjectName("noise_label")
         self.horizontalLayout_3.addWidget(self.noise_label)
         spacerItem = QtWidgets.QSpacerItem(40, 20,
