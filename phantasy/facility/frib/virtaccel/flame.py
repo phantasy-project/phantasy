@@ -782,7 +782,7 @@ class VirtualAccelerator(object):
         if self._chanprefix is None:
             chanprefix = ""
         else:
-            chanprefix = self._chanprefix
+            chanprefix = self._chanprefix + ':'
 
         # Add channel for sample counting
         sample_cnt = chanprefix + "SVR:CNT"
@@ -793,7 +793,7 @@ class VirtualAccelerator(object):
             ])))
 
         # Add channel for VA configuration and control
-        channoise = chanprefix+"SVR:NOISE"
+        channoise = chanprefix + "SVR:NOISE"
 
         self._epicsdb.append(("ao", channoise, OrderedDict([
                 ("DESC", "Noise level of Virtual Accelerator"),
