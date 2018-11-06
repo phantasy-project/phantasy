@@ -40,7 +40,7 @@ class Ui_Dialog(object):
         self.horizontalLayout.addWidget(self.generate_btn)
         self.verticalLayout.addLayout(self.horizontalLayout)
         self.data_textEdit = QtWidgets.QTextEdit(Dialog)
-        self.data_textEdit.setReadOnly(True)
+        self.data_textEdit.setReadOnly(False)
         self.data_textEdit.setObjectName("data_textEdit")
         self.verticalLayout.addWidget(self.data_textEdit)
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
@@ -82,6 +82,7 @@ class Ui_Dialog(object):
         self.verticalLayout.addLayout(self.horizontalLayout_2)
 
         self.retranslateUi(Dialog)
+        self.data_textEdit.textChanged.connect(Dialog.on_text_changed)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
     def retranslateUi(self, Dialog):
@@ -91,6 +92,11 @@ class Ui_Dialog(object):
         self.label_2.setText(_translate("Dialog", "To"))
         self.label_3.setText(_translate("Dialog", "of Step"))
         self.generate_btn.setText(_translate("Dialog", "Generate"))
+        self.data_textEdit.setToolTip(
+            _translate(
+                "Dialog",
+                "<html><head/><body><p>Manual changes on the text also updates the alter array</p></body></html>"
+            ))
         self.import_btn.setToolTip(
             _translate(
                 "Dialog",
