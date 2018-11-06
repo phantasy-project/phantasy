@@ -30,6 +30,15 @@ from .icons import info_icon
 
 CURDIR = os.path.dirname(__file__)
 
+MACHINE_DICT = {
+    'VA_LEBT': ('LEBT',),
+    'VA_MEBT': ('MEBT',),
+    #'VA_LS1FS1': ('LINAC', 'LS1', 'FS1',),
+    'VA_LS1FS1': ('LINAC',),
+}
+
+MACHINE_LIST = sorted(list(MACHINE_DICT.keys()))
+
 
 class VALauncherWindow(BaseAppForm, Ui_MainWindow):
     # va status changed, message to set, color of the string
@@ -88,6 +97,12 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
         self._post_ui_init()
 
     def _post_ui_init(self):
+        # fill out mach/segm combobox
+        self.mach_comboBox.clear()
+        self.mach_comboBox.addItems(MACHINE_LIST)
+        self.mach_comboBox.setCurrentText(MACHINE_LIST[0])
+        self.mach_comboBox.currentTextChanged.emit(MACHINE_LIST[0])
+
         # run&stop tbtn: run
         self._setup_toolbar()
 
@@ -100,7 +115,6 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
         self.va_info_btn.setIcon(QIcon(QPixmap(info_icon)))
         self.va_info_btn.setIconSize(QSize(32, 32))
         self.va_info_btn.setToolTip("Show VA running status")
-
 
         # uptime label
         self.uptime_label.setText("00:00:00")
@@ -147,11 +161,12 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
         if k not in env.keys():
             env.insert(k, '/usr/lib/phantasy-machines')
         mach = self._mach
+        segm = self._segm
         run_cmd = self._run_cmd
         va = QProcess()
         va.setProcessEnvironment(env)
         self.va_process = va
-        arguments = [run_cmd, '--mach', mach, '-v']
+        arguments = [run_cmd, '--mach', mach, '--subm', segm, '-v']
         va.start('phytool', arguments)
 
         # start va
@@ -182,9 +197,29 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
         self.start_time = time.time()
         self.uptimer.start(1000)
         self.vaStatusChanged.emit("Running", QColor("#4E9A06"))
-        self.enable_all_tools_buttons()
-        self.va_run_tool.setEnabled(False)
-        self.va_stop_tool.setEnabled(True)
+        self.update_widgets_visibility(status="STARTED")
+        # reset VAProcessInfoWidget
+        self._va_info_widget = None
+
+    def update_widgets_visibility(self, status="STARTED"):
+        """Enable/Disable widgets when VA is STARTED or STOPPED.
+        """
+        if status == 'STARTED':
+            # enable tool buttons panel
+            # enable VA STOP, disable VA START
+            # disable VA configuration panel
+            self.enable_all_tools_buttons()
+            self.va_run_tool.setEnabled(False)
+            self.va_stop_tool.setEnabled(True)
+            self.config_groupBox.setEnabled(False)
+        elif status == 'STOPPED':
+            # disable tool buttons panel
+            # disable VA STOP, enable VA START
+            # enable VA configuration panel
+            self.enable_all_tools_buttons(False)
+            self.va_run_tool.setEnabled(True)
+            self.va_stop_tool.setEnabled(False)
+            self.config_groupBox.setEnabled(True)
 
     @pyqtSlot()
     def on_stop_va(self):
@@ -195,15 +230,32 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
         print("VA ({}) is stopped...".format(pid))
         self.vaStatusChanged.emit("Stopped", QColor("#EF2929"))
         self.uptimer.stop()
-        self.enable_all_tools_buttons(False)
-        self.va_run_tool.setEnabled(True)
-        self.va_stop_tool.setEnabled(False)
+        self.update_widgets_visibility(status="STOPPED")
 
     @pyqtSlot('QString')
     def on_machine_changed(self, s):
-        """Machine is changed.
+        """Machine is changed, update segm_combob items.
         """
         self._mach = s
+        self.segm_comboBox.currentTextChanged.disconnect()
+        self.segm_comboBox.clear()
+        self.segm_comboBox.currentTextChanged.connect(self.on_segment_changed)
+        seg_names = MACHINE_DICT[s]
+        self.segm_comboBox.addItems(seg_names)
+        self.segm_comboBox.setCurrentText(seg_names[0])
+
+    @pyqtSlot('QString')
+    def on_segment_changed(self, s):
+        """Segment is changed.
+        """
+        print("segment is changed to", s)
+        self._segm = s
+
+    @pyqtSlot('QString')
+    def on_pvprefix_changed(self, s):
+        """PV string prefix is changed.
+        """
+        self._prefix = s
 
     @pyqtSlot('QString')
     def on_engine_changed(self, s):
