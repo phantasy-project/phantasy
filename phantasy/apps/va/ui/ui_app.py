@@ -12,7 +12,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(750, 444)
+        MainWindow.resize(787, 430)
         MainWindow.setStyleSheet(
             "QGroupBox {\n"
             "    /*background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
@@ -39,6 +39,7 @@ class Ui_MainWindow(object):
         self.config_groupBox = QtWidgets.QGroupBox(self.centralwidget)
         self.config_groupBox.setObjectName("config_groupBox")
         self.gridLayout = QtWidgets.QGridLayout(self.config_groupBox)
+        self.gridLayout.setContentsMargins(5, 5, 5, 5)
         self.gridLayout.setObjectName("gridLayout")
         self.label = QtWidgets.QLabel(self.config_groupBox)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
@@ -87,6 +88,31 @@ class Ui_MainWindow(object):
         self.localonly_chkbox.setObjectName("localonly_chkbox")
         self.gridLayout.addWidget(self.localonly_chkbox, 2, 2, 1, 2)
         self.gridLayout_2.addWidget(self.config_groupBox, 0, 0, 1, 1)
+        self.tools_groupBox = QtWidgets.QGroupBox(self.centralwidget)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
+                                           QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.tools_groupBox.sizePolicy().hasHeightForWidth())
+        self.tools_groupBox.setSizePolicy(sizePolicy)
+        self.tools_groupBox.setObjectName("tools_groupBox")
+        self.horizontalLayout = QtWidgets.QHBoxLayout(self.tools_groupBox)
+        self.horizontalLayout.setContentsMargins(5, 5, 5, 5)
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        self.open_notebook_btn = QtWidgets.QToolButton(self.tools_groupBox)
+        self.open_notebook_btn.setAutoRaise(True)
+        self.open_notebook_btn.setObjectName("open_notebook_btn")
+        self.horizontalLayout.addWidget(self.open_notebook_btn)
+        self.va_info_btn = QtWidgets.QToolButton(self.tools_groupBox)
+        self.va_info_btn.setAutoRaise(True)
+        self.va_info_btn.setObjectName("va_info_btn")
+        self.horizontalLayout.addWidget(self.va_info_btn)
+        spacerItem = QtWidgets.QSpacerItem(40, 20,
+                                           QtWidgets.QSizePolicy.Expanding,
+                                           QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout.addItem(spacerItem)
+        self.gridLayout_2.addWidget(self.tools_groupBox, 3, 0, 1, 1)
         self.control_groupBox = QtWidgets.QGroupBox(self.centralwidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
                                            QtWidgets.QSizePolicy.Preferred)
@@ -97,6 +123,8 @@ class Ui_MainWindow(object):
         self.control_groupBox.setSizePolicy(sizePolicy)
         self.control_groupBox.setObjectName("control_groupBox")
         self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.control_groupBox)
+        self.verticalLayout_2.setContentsMargins(5, 5, 5, 5)
+        self.verticalLayout_2.setSpacing(9)
         self.verticalLayout_2.setObjectName("verticalLayout_2")
         self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_3.setObjectName("horizontalLayout_3")
@@ -172,32 +200,48 @@ class Ui_MainWindow(object):
         self.noise_label.setEnabled(False)
         self.noise_label.setObjectName("noise_label")
         self.horizontalLayout_3.addWidget(self.noise_label)
-        spacerItem = QtWidgets.QSpacerItem(40, 20,
-                                           QtWidgets.QSizePolicy.Expanding,
-                                           QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayout_3.addItem(spacerItem)
+        spacerItem1 = QtWidgets.QSpacerItem(40, 20,
+                                            QtWidgets.QSizePolicy.Expanding,
+                                            QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_3.addItem(spacerItem1)
         self.verticalLayout_2.addLayout(self.horizontalLayout_3)
+        self.gridLayout_2.addWidget(self.control_groupBox, 1, 0, 1, 1)
+        self.groupBox = QtWidgets.QGroupBox(self.centralwidget)
+        self.groupBox.setObjectName("groupBox")
+        self.horizontalLayout_4 = QtWidgets.QHBoxLayout(self.groupBox)
+        self.horizontalLayout_4.setContentsMargins(5, 5, 5, 5)
+        self.horizontalLayout_4.setObjectName("horizontalLayout_4")
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
-        self.va_status_label = QtWidgets.QLabel(self.control_groupBox)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
+        self.va_status_label = QtWidgets.QLabel(self.groupBox)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
                                            QtWidgets.QSizePolicy.Preferred)
-        sizePolicy.setHorizontalStretch(4)
+        sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(
             self.va_status_label.sizePolicy().hasHeightForWidth())
         self.va_status_label.setSizePolicy(sizePolicy)
-        self.va_status_label.setText("")
+        self.va_status_label.setStyleSheet("QLabel {\n"
+                                           "    background-color: red;\n"
+                                           "    color: white;\n"
+                                           "    border: 1px solid red;\n"
+                                           "    border-radius: 5px;\n"
+                                           "    padding: 1px;\n"
+                                           "} ")
         self.va_status_label.setAlignment(QtCore.Qt.AlignCenter)
         self.va_status_label.setObjectName("va_status_label")
         self.horizontalLayout_2.addWidget(self.va_status_label)
-        self.label_3 = QtWidgets.QLabel(self.control_groupBox)
+        spacerItem2 = QtWidgets.QSpacerItem(40, 20,
+                                            QtWidgets.QSizePolicy.Expanding,
+                                            QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_2.addItem(spacerItem2)
+        self.label_3 = QtWidgets.QLabel(self.groupBox)
         self.label_3.setObjectName("label_3")
         self.horizontalLayout_2.addWidget(self.label_3)
-        self.uptime_label = QtWidgets.QLabel(self.control_groupBox)
+        self.uptime_label = QtWidgets.QLabel(self.groupBox)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
                                            QtWidgets.QSizePolicy.Preferred)
-        sizePolicy.setHorizontalStretch(1)
+        sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(
             self.uptime_label.sizePolicy().hasHeightForWidth())
@@ -210,35 +254,11 @@ class Ui_MainWindow(object):
                                        | QtCore.Qt.AlignVCenter)
         self.uptime_label.setObjectName("uptime_label")
         self.horizontalLayout_2.addWidget(self.uptime_label)
-        self.verticalLayout_2.addLayout(self.horizontalLayout_2)
-        self.gridLayout_2.addWidget(self.control_groupBox, 1, 0, 1, 1)
-        self.tools_groupBox = QtWidgets.QGroupBox(self.centralwidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
-                                           QtWidgets.QSizePolicy.Preferred)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(
-            self.tools_groupBox.sizePolicy().hasHeightForWidth())
-        self.tools_groupBox.setSizePolicy(sizePolicy)
-        self.tools_groupBox.setObjectName("tools_groupBox")
-        self.horizontalLayout = QtWidgets.QHBoxLayout(self.tools_groupBox)
-        self.horizontalLayout.setObjectName("horizontalLayout")
-        self.open_notebook_btn = QtWidgets.QToolButton(self.tools_groupBox)
-        self.open_notebook_btn.setAutoRaise(True)
-        self.open_notebook_btn.setObjectName("open_notebook_btn")
-        self.horizontalLayout.addWidget(self.open_notebook_btn)
-        self.va_info_btn = QtWidgets.QToolButton(self.tools_groupBox)
-        self.va_info_btn.setAutoRaise(True)
-        self.va_info_btn.setObjectName("va_info_btn")
-        self.horizontalLayout.addWidget(self.va_info_btn)
-        spacerItem1 = QtWidgets.QSpacerItem(40, 20,
-                                            QtWidgets.QSizePolicy.Expanding,
-                                            QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayout.addItem(spacerItem1)
-        self.gridLayout_2.addWidget(self.tools_groupBox, 2, 0, 1, 1)
+        self.horizontalLayout_4.addLayout(self.horizontalLayout_2)
+        self.gridLayout_2.addWidget(self.groupBox, 2, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 750, 30))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 787, 30))
         self.menubar.setObjectName("menubar")
         self.menu_Help = QtWidgets.QMenu(self.menubar)
         self.menu_Help.setObjectName("menu_Help")
@@ -303,14 +323,16 @@ class Ui_MainWindow(object):
         self.prefix_comboBox.setItemText(1, _translate("MainWindow", "VA"))
         self.localonly_chkbox.setText(
             _translate("MainWindow", "Limit CA Local Only"))
-        self.control_groupBox.setTitle(_translate("MainWindow", "Control"))
-        self.label_4.setText(_translate("MainWindow", "Noise Level"))
-        self.noise_label.setText(_translate("MainWindow", "%"))
-        self.label_3.setText(_translate("MainWindow", "Uptime"))
-        self.uptime_label.setText(_translate("MainWindow", "00:00:00"))
         self.tools_groupBox.setTitle(_translate("MainWindow", "Tools"))
         self.open_notebook_btn.setText(_translate("MainWindow", "RUN-NB"))
         self.va_info_btn.setText(_translate("MainWindow", "VA Info"))
+        self.control_groupBox.setTitle(_translate("MainWindow", "Control"))
+        self.label_4.setText(_translate("MainWindow", "Noise Level"))
+        self.noise_label.setText(_translate("MainWindow", "%"))
+        self.groupBox.setTitle(_translate("MainWindow", "Status"))
+        self.va_status_label.setText(_translate("MainWindow", "Stopped"))
+        self.label_3.setText(_translate("MainWindow", "Uptime"))
+        self.uptime_label.setText(_translate("MainWindow", "00:00:00"))
         self.menu_Help.setTitle(_translate("MainWindow", "&Help"))
         self.menu_File.setTitle(_translate("MainWindow", "&File"))
         self.toolBar.setWindowTitle(_translate("MainWindow", "toolBar"))
