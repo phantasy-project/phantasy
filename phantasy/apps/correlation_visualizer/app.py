@@ -49,6 +49,8 @@ from .icons import moveto_icon
 from .icons import set_icon
 from .icons import clean_icon
 from .icons import points_icon
+from .icons import inc_fs_icon
+from .icons import dec_fs_icon
 from .scan import ScanTask
 from .scan import ScanWorker
 from .ui.ui_app import Ui_MainWindow
@@ -128,6 +130,11 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         self.set_tbtn.clicked.connect(self.on_set)
         # clear log btn
         self.clear_log_tbtn.clicked.connect(self.scan_log_textEdit.clear)
+        # fs +
+        self.inc_fontsize_tbtn.clicked.connect(lambda: self.update_logfontsize(mode="+"))
+        # fs -
+        self.dec_fontsize_tbtn.clicked.connect(lambda: self.update_logfontsize(mode="-"))
+
         # view selected points btn
         self.view_selected_pts_tbtn.clicked.connect(self.on_view_selected_points)
 
@@ -354,7 +361,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
     def on_extra_monitors_number_changed(self, n):
         """Update the counter of total number of extra monitors.
         """
-        self.extra_monitors_counter_lbl.setText("Extra Monitors ({})".format(n))
+        self.extra_monitors_counter_lbl.setText("Monitors ({})".format(n))
 
     @pyqtSlot()
     def on_show_extra_monitors(self):
@@ -491,10 +498,20 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         menu.addAction(hide_action)
         self.moveto_tbtn.setMenu(menu)
 
+        # scan event log textedit
         # clear log btn
         self.clear_log_tbtn.setIcon(QIcon(QPixmap(clean_icon)))
         self.clear_log_tbtn.setIconSize(SMALL_TBTN_ICON_QSIZE)
         self.clear_log_tbtn.setToolTip("Clear scan event log")
+
+        # fontsize + btn
+        self.inc_fontsize_tbtn.setIcon(QIcon(QPixmap(inc_fs_icon)))
+        self.inc_fontsize_tbtn.setIconSize(SMALL_TBTN_ICON_QSIZE)
+        self.inc_fontsize_tbtn.setToolTip("Increase Fontsize")
+        # fontsize - btn
+        self.dec_fontsize_tbtn.setIcon(QIcon(QPixmap(dec_fs_icon)))
+        self.dec_fontsize_tbtn.setIconSize(SMALL_TBTN_ICON_QSIZE)
+        self.dec_fontsize_tbtn.setToolTip("Decrease Fontsize")
 
         # set btn
         self.set_tbtn.setIcon(QIcon(QPixmap(set_icon)))
@@ -948,6 +965,16 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
             self.pts_viewer.set_data(data)
         self.pts_viewer.show()
         self.pts_viewer.adjustSize()
+
+    @pyqtSlot()
+    def update_logfontsize(self, mode="+"):
+        """Grow/shrink scan eventlog fontsize.
+        """
+        font = self.scan_log_textEdit.currentFont()
+        ps = font.pointSize()
+        new_ps = ps + 1 if mode == '+' else ps - 1
+        font.setPointSize(new_ps)
+        self.scan_log_textEdit.setCurrentFont(font)
 
     # test slots
     def test_scan_started(self):
