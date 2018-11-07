@@ -1,3 +1,10 @@
+Version 1.6.2
+-------------
+2018-11-07
+
+- FIX: Tests configuration files after re-introducing 'config' keyword
+  argument to 'load_lattice' function.
+
 Version 1.6.1
 -------------
 2018-11-06
