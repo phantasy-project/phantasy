@@ -788,7 +788,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
             try:
                 self.qs_window = QuadScanWindow(__version__,
                         self.scan_task.to_datasheet())
-            except AttributeError:
+            except (AttributeError, TypeError):
                 QMessageBox.warning(self, "",
                     "Scan task is not complete, please try again later.",
                     QMessageBox.Ok)
