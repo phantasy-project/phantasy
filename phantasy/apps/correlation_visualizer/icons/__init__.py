@@ -6,3 +6,5 @@ from .moveto import icon as moveto_icon
 from .pushbutton import icon as set_icon
 from .clean import icon as clean_icon
 from .points import icon as points_icon
+from .increase_fontsize import icon as inc_fs_icon
+from .decrease_fontsize import icon as dec_fs_icon
