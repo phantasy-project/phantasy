@@ -113,16 +113,6 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
         # run&stop tbtn: run
         self._setup_toolbar()
 
-        # tools
-        # notebook
-        self.open_notebook_btn.setIcon(QIcon(QPixmap(nb_run_icon)))
-        self.open_notebook_btn.setIconSize(QSize(32, 32))
-        self.open_notebook_btn.setToolTip("Launch Jupyter-notebook")
-        # va info
-        self.va_info_btn.setIcon(QIcon(QPixmap(info_icon)))
-        self.va_info_btn.setIconSize(QSize(32, 32))
-        self.va_info_btn.setToolTip("Show VA running status")
-
         # uptime label
         self.uptime_label.setText("00:00:00")
 
@@ -130,24 +120,29 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
         self.on_machine_changed(self.mach_comboBox.currentText())
         self.on_engine_changed(self.engine_comboBox.currentText())
 
-        # disable all tools buttons
-        self.enable_all_tools_buttons(False)
+        # disable all other tools
+        self.enable_all_tools(False)
 
     def _setup_toolbar(self):
-        va_run_tool = QAction(QIcon(QPixmap(run_icon)), "Run", self)
-        va_stop_tool = QAction(QIcon(QPixmap(stop_icon)), "Stop", self)
-        va_run_tool.setToolTip("RUN VA")
-        va_stop_tool.setToolTip("STOP VA")
-        va_run_tool.triggered.connect(self.on_run_va)
-        va_stop_tool.triggered.connect(self.on_stop_va)
+        # va run tool
+        self.va_run_tool.setIcon(QIcon(QPixmap(run_icon)))
+        self.va_run_tool.setToolTip("RUN VA")
 
-        va_run_tool.setEnabled(True)
-        va_stop_tool.setEnabled(False)
-        self.va_run_tool = va_run_tool
-        self.va_stop_tool = va_stop_tool
+        # va stop tool
+        self.va_stop_tool.setIcon(QIcon(QPixmap(stop_icon)))
+        self.va_stop_tool.setToolTip("STOP VA")
 
-        self.toolBar.addAction(va_run_tool)
-        self.toolBar.addAction(va_stop_tool)
+        # notebook tool
+        self.nb_tool.setIcon(QIcon(QPixmap(nb_run_icon)))
+        self.nb_tool.setToolTip("Launch Jupyter-notebook")
+
+        # va info tool
+        self.va_info_tool.setIcon(QIcon(QPixmap(info_icon)))
+        self.va_info_tool.setToolTip("Show VA running status")
+
+        # initial visibility
+        self.va_run_tool.setEnabled(True)
+        self.va_stop_tool.setEnabled(False)
 
     @pyqtSlot()
     def on_update_uptime(self):
@@ -195,7 +190,7 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
                     color: white;
                     border: 1px solid {c};
                     border-radius: 5px;
-                    padding: 1px;
+                    padding: 2px;
                 }}""".format(c=color.name()))
 
     @pyqtSlot()
@@ -206,6 +201,14 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
         self.uptimer.start(1000)
         self.vaStatusChanged.emit("Running", QColor("#4E9A06"))
         self.update_widgets_visibility(status="STARTED")
+        self.va_name_label.setText(
+            "{}/{}, PV prefixed with {}".format(
+                self._mach, self._segm, self._prefix))
+        if self._prefix == 'NONE' or self._prefix is None:
+            self.va_name_label.setToolTip(
+                "PV prefixed with default one, e.g. 'VA'")
+        else:
+            self.va_name_label.setToolTip('')
         # reset VAProcessInfoWidget
         self._va_info_widget = None
         # noise pv
@@ -220,7 +223,7 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
             # enable tool buttons panel
             # enable VA STOP, disable VA START
             # disable VA configuration panel
-            self.enable_all_tools_buttons()
+            self.enable_all_tools()
             self.va_run_tool.setEnabled(False)
             self.va_stop_tool.setEnabled(True)
             self.config_groupBox.setEnabled(False)
@@ -228,7 +231,7 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
             # disable tool buttons panel
             # disable VA STOP, enable VA START
             # enable VA configuration panel
-            self.enable_all_tools_buttons(False)
+            self.enable_all_tools(False)
             self.va_run_tool.setEnabled(True)
             self.va_stop_tool.setEnabled(False)
             self.config_groupBox.setEnabled(True)
@@ -312,11 +315,10 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
             obj.setIcon(QIcon(QPixmap(nb_run_icon)))
             obj.setToolTip("Launch Jupyter-notebook")
 
-    def enable_all_tools_buttons(self, enable=True):
-        """Disable all buttons in tools groupbox.
+    def enable_all_tools(self, enable=True):
+        """Enable/disable all tools, except RUN/STOP VA tools.
         """
-        for btn in self.tools_groupBox.findChildren(QToolButton):
-            btn.setEnabled(enable)
+        [t.setEnabled(enable) for t in (self.nb_tool, self.va_info_tool)]
 
     def closeEvent(self, e):
         try:
