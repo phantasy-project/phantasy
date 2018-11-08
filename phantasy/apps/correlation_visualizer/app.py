@@ -934,6 +934,9 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         if r == QDialog.Accepted:
             self._mps_pvname = self.mps_config_widget.pvname
             self.mps_pv = epics.PV(self._mps_pvname)
+            # re-check MPS guardian
+            if self.actionMPS_guardian.isChecked():
+                self.actionMPS_guardian.toggled.emit(True)
         else:
             pass
 
