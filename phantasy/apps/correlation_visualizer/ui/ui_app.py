@@ -612,6 +612,7 @@ class Ui_MainWindow(object):
             MainWindow.onLoadLatticeAction)
         self.actionMPS_guardian.toggled['bool'].connect(
             MainWindow.onEnableMPSGuardian)
+        self.mps_status_btn.clicked.connect(MainWindow.on_config_mps)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         MainWindow.setTabOrder(self.alter_elem_lineEdit,
                                self.select_alter_elem_btn)
