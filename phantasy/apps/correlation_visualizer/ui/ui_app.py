@@ -190,7 +190,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_5.addWidget(self.show_extra_monitors_btn)
         self.gridLayout_2.addLayout(self.horizontalLayout_5, 3, 3, 1, 1)
         self.horizontalLayout_6 = QtWidgets.QHBoxLayout()
-        self.horizontalLayout_6.setSpacing(0)
+        self.horizontalLayout_6.setSpacing(3)
         self.horizontalLayout_6.setObjectName("horizontalLayout_6")
         self.enable_arbitary_array_chkbox = QtWidgets.QCheckBox(self.widget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum,
@@ -537,7 +537,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_4.addWidget(self.splitter_2)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1920, 30))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1920, 29))
         self.menubar.setObjectName("menubar")
         self.menu_File = QtWidgets.QMenu(self.menubar)
         self.menu_File.setObjectName("menu_File")
@@ -623,7 +623,7 @@ class Ui_MainWindow(object):
             _translate("MainWindow", "Scan Configuration"))
         self.label_8.setText(_translate("MainWindow", "Alter Element"))
         self.alter_elem_lineEdit.setPlaceholderText(
-            _translate("MainWindow", "Click \'Select\' button to set element"))
+            _translate("MainWindow", "Click \'Select\' to set element"))
         self.upper_limit_lineEdit.setToolTip(
             _translate(
                 "MainWindow",
@@ -637,7 +637,7 @@ class Ui_MainWindow(object):
                 "<html><head/><body><p>Variables to monitor</p></body></html>")
         )
         self.monitor_elem_lineEdit.setPlaceholderText(
-            _translate("MainWindow", "Click \'Select\' button to set element"))
+            _translate("MainWindow", "Click \'Select\' to set element"))
         self.select_monitor_elem_btn.setText(
             _translate("MainWindow", "Select"))
         self.extra_monitors_counter_lbl.setText(
