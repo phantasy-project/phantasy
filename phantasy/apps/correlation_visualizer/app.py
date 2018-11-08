@@ -229,7 +229,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 
     @pyqtSlot(bool)
     def on_pause_scan(self, f):
-        if f:
+        if f and self.pause_btn.isEnabled():
             self.pause_btn.setText('Resume')
             # pause action
             self.scanlogTextColor.emit(COLOR_DANGER)
