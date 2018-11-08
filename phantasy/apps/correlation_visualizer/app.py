@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import epics
 import numpy as np
 import time
+from functools import partial
 
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtCore import pyqtSignal
@@ -40,6 +42,7 @@ from .app_elem_select import ElementSelectDialog
 from .app_array_set import ArraySetDialog
 from .app_points_view import PointsViewWidget
 from .app_monitors_view import MonitorsViewWidget
+from .app_mps_config import MpsConfigWidget
 from .data import ScanDataModel
 from .icons import cv_icon
 from .icons import save_icon
@@ -77,6 +80,15 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 
     # number of extra monitors
     extraMonitorsNumberChanged = pyqtSignal(int)
+
+    # MPS connection is changed, only when MPS guardian is enabled.
+    mpsConnectionChanged = pyqtSignal(bool)
+
+    # MPS status is changed
+    mpsStatusChanged = pyqtSignal(int)
+
+    # signal to trig PAUSE action
+    pauseScan = pyqtSignal(bool)
 
     def __init__(self, version):
         super(CorrelationVisualizerWindow, self).__init__()
@@ -207,6 +219,27 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 
         # points selected viewer
         self.pts_viewer = None
+
+        # mps config widget
+        self.mps_config_widget = None
+        self._mps_pvname = 'VA:SVR:MpsStatus'
+        self.mps_pv = epics.PV(self._mps_pvname)
+        #
+        self.pauseScan[bool].connect(self.on_pause_scan)
+
+    @pyqtSlot(bool)
+    def on_pause_scan(self, f):
+        if f:
+            self.pause_btn.setText('Resume')
+            # pause action
+            self.scanlogTextColor.emit(COLOR_DANGER)
+            self.scanlogUpdated.emit("Scan is paused by MPS")
+            self.scanlogTextColor.emit(COLOR_WARNING)
+            self.scanlogUpdated.emit("Scan task is paused, click 'Resume' to continue")
+            self.scan_worker.pause()
+            QMessageBox.warning(self, "MPS Guardian Says",
+                    "Scan is paused by MPS, click 'Resume' button to continue.",
+                    QMessageBox.Ok)
 
     @pyqtSlot(bool)
     def on_toggle_array(self, ischecked):
@@ -546,6 +579,20 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         empty_arr = np.asarray([])
         self.curveUpdated.emit(empty_arr, empty_arr, empty_arr, empty_arr)
 
+        # MPS guardian status
+        mps_skipped_icon = QIcon(QPixmap(":/icons/mps_skipped.png"))
+        mps_normal_icon = QIcon(QPixmap(":/icons/mps_normal.png"))
+        mps_fault_icon = QIcon(QPixmap(":/icons/mps_fault.png"))
+        mps_disconnected_icon = QIcon(QPixmap(":/icons/mps_disconnected.png"))
+        mps_connected_icon = QIcon(QPixmap(":/icons/mps_connected.png"))
+        self._mps_status_icons = {
+            'skipped': mps_skipped_icon,
+            'disconnected': mps_disconnected_icon,
+            'connected': mps_connected_icon,
+            'normal': mps_normal_icon,
+            'fault': mps_fault_icon
+        }
+
     @pyqtSlot()
     def set_alter_range(self):
         """Set scan alter vars range.
@@ -810,6 +857,85 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         """
         self._mp = o
         self.elementsTreeChanged.emit(o)
+
+    @pyqtSlot(bool)
+    def onEnableMPSGuardian(self, f):
+        """Enable MPS guardian or not.
+        """
+        btn = self.mps_status_btn
+        def on_mps_connected(pvname=None, conn=None, **kws):
+            # MPS connection is changed
+            self.mpsConnectionChanged.emit(conn)
+
+        def on_mps_changed(value, **kws):
+            # MPS status is changed
+            self.mpsStatusChanged.emit(value)
+
+        if f:  # enable MPS guardian
+            self.mps_pv.connection_callbacks = [on_mps_connected]
+            self.mps_pv.add_callback(on_mps_changed)
+            self.mpsConnectionChanged.connect(
+                    partial(self.on_update_mps_status, reason='conn'))
+            self.mpsStatusChanged.connect(
+                    partial(self.on_update_mps_status, reason='val'))
+            # if connected, set
+            if self.mps_pv.connected:
+                self.mpsConnectionChanged.emit(True)
+                self.mpsStatusChanged.emit(self.mps_pv.get())
+            else:
+                self.mpsConnectionChanged.emit(False)
+        else:  # not enable MPS guardian, MPS may be still running
+            self.mpsConnectionChanged.disconnect()
+            self.mpsStatusChanged.disconnect()
+            btn.setIcon(self._mps_status_icons['skipped'])
+            btn.setToolTip("MPS guardian is disabled")
+
+    @pyqtSlot()
+    def on_update_mps_status(self, change, reason='conn'):
+        """Update MPS status button icon when MPS guardian is enabled.
+        *change* is bool when *readon* is 'conn', while integer when
+        *reason* is 'val'.
+        """
+        btn = self.mps_status_btn
+        if reason == 'conn':
+            if change:  # MPS is connected
+                print("set btn to connected icon")
+                btn.setIcon(self._mps_status_icons['connected'])
+                btn.setToolTip("MPS guardian is enabled, connection is established")
+            else:  # MPS is disconnected
+                print("set btn to disconnected icon")
+                btn.setIcon(self._mps_status_icons['disconnected'])
+                btn.setToolTip("MPS guardian is enabled, connection is lost")
+        else:  # val
+            self._set_mps_status_btn(change)
+
+    def _set_mps_status_btn(self, v):
+        """Check MPS status readings, and set indicators.
+        """
+        btn = self.mps_status_btn
+        if v > 0:
+            print("set btn to fault icon")
+            btn.setIcon(self._mps_status_icons['fault'])
+            btn.setToolTip("MPS guardian is enabled, status is Fault")
+            # pause scan
+            self.pauseScan.emit(True)
+        else:
+            print("set btn to normal icon")
+            btn.setIcon(self._mps_status_icons['normal'])
+            btn.setToolTip("MPS guardian is enabled, status is Normal")
+
+    @pyqtSlot()
+    def on_config_mps(self):
+        """Config MPS: PV for the status.
+        """
+        if self.mps_config_widget is None:
+            self.mps_config_widget = MpsConfigWidget(self)
+        r = self.mps_config_widget.exec_()
+        if r == QDialog.Accepted:
+            self._mps_pvname = self.mps_config_widget.pvname
+            self.mps_pv = epics.PV(self._mps_pvname)
+        else:
+            pass
 
     @pyqtSlot()
     def onHelp(self):
