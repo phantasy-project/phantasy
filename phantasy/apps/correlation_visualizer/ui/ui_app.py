@@ -418,6 +418,35 @@ class Ui_MainWindow(object):
         self.gridLayout.addWidget(self.line, 4, 0, 1, 3)
         self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_3.setObjectName("horizontalLayout_3")
+        self.mps_status_btn = QtWidgets.QToolButton(self.daq_groupBox)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
+                                           QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.mps_status_btn.sizePolicy().hasHeightForWidth())
+        self.mps_status_btn.setSizePolicy(sizePolicy)
+        self.mps_status_btn.setMinimumSize(QtCore.QSize(36, 36))
+        self.mps_status_btn.setMaximumSize(QtCore.QSize(36, 36))
+        self.mps_status_btn.setText("")
+        icon = QtGui.QIcon()
+        icon.addPixmap(
+            QtGui.QPixmap(":/icons/mps_skipped.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.mps_status_btn.setIcon(icon)
+        self.mps_status_btn.setIconSize(QtCore.QSize(36, 36))
+        self.mps_status_btn.setAutoRaise(True)
+        self.mps_status_btn.setObjectName("mps_status_btn")
+        self.horizontalLayout_3.addWidget(self.mps_status_btn)
+        spacerItem2 = QtWidgets.QSpacerItem(20, 20,
+                                            QtWidgets.QSizePolicy.Expanding,
+                                            QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_3.addItem(spacerItem2)
+        self.line_2 = QtWidgets.QFrame(self.daq_groupBox)
+        self.line_2.setFrameShape(QtWidgets.QFrame.VLine)
+        self.line_2.setFrameShadow(QtWidgets.QFrame.Sunken)
+        self.line_2.setObjectName("line_2")
+        self.horizontalLayout_3.addWidget(self.line_2)
         self.start_btn = QtWidgets.QPushButton(self.daq_groupBox)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
                                            QtWidgets.QSizePolicy.Fixed)
@@ -529,15 +558,15 @@ class Ui_MainWindow(object):
         self.view_selected_pts_tbtn.setAutoRaise(True)
         self.view_selected_pts_tbtn.setObjectName("view_selected_pts_tbtn")
         self.horizontalLayout.addWidget(self.view_selected_pts_tbtn)
-        spacerItem2 = QtWidgets.QSpacerItem(40, 20,
+        spacerItem3 = QtWidgets.QSpacerItem(40, 20,
                                             QtWidgets.QSizePolicy.Expanding,
                                             QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayout.addItem(spacerItem2)
+        self.horizontalLayout.addItem(spacerItem3)
         self.verticalLayout.addLayout(self.horizontalLayout)
         self.horizontalLayout_4.addWidget(self.splitter_2)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1920, 29))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1920, 30))
         self.menubar.setObjectName("menubar")
         self.menu_File = QtWidgets.QMenu(self.menubar)
         self.menu_File.setObjectName("menu_File")
@@ -558,6 +587,9 @@ class Ui_MainWindow(object):
         self.actionQuad_Scan.setObjectName("actionQuad_Scan")
         self.actionLoad_Lattice = QtWidgets.QAction(MainWindow)
         self.actionLoad_Lattice.setObjectName("actionLoad_Lattice")
+        self.actionMPS_guardian = QtWidgets.QAction(MainWindow)
+        self.actionMPS_guardian.setCheckable(True)
+        self.actionMPS_guardian.setObjectName("actionMPS_guardian")
         self.menu_File.addAction(self.actionE_xit)
         self.menu_Help.addAction(self.actionContents)
         self.menu_Help.addSeparator()
@@ -565,6 +597,7 @@ class Ui_MainWindow(object):
         self.menu_Help.addAction(self.actionAbout_Qt)
         self.menuTools.addAction(self.actionQuad_Scan)
         self.menuTools.addAction(self.actionLoad_Lattice)
+        self.menuTools.addAction(self.actionMPS_guardian)
         self.menubar.addAction(self.menu_File.menuAction())
         self.menubar.addAction(self.menuTools.menuAction())
         self.menubar.addAction(self.menu_Help.menuAction())
@@ -577,6 +610,8 @@ class Ui_MainWindow(object):
         self.actionContents.triggered.connect(MainWindow.onHelp)
         self.actionLoad_Lattice.triggered.connect(
             MainWindow.onLoadLatticeAction)
+        self.actionMPS_guardian.toggled['bool'].connect(
+            MainWindow.onEnableMPSGuardian)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         MainWindow.setTabOrder(self.alter_elem_lineEdit,
                                self.select_alter_elem_btn)
@@ -619,6 +654,11 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        MainWindow.setToolTip(
+            _translate(
+                "MainWindow",
+                "<html><head/><body><p>MPS guardian is not enabled.</p></body></html>"
+            ))
         self.scan_groupBox.setTitle(
             _translate("MainWindow", "Scan Configuration"))
         self.label_8.setText(_translate("MainWindow", "Alter Element"))
@@ -699,6 +739,11 @@ class Ui_MainWindow(object):
                 "<html><head/><body><p>Record number to be taken within one second.</p></body></html>"
             ))
         self.label_6.setText(_translate("MainWindow", "Hz"))
+        self.mps_status_btn.setToolTip(
+            _translate(
+                "MainWindow",
+                "<html><head/><body><p>MPS guardian is not enabled.</p></body></html>"
+            ))
         self.start_btn.setToolTip(
             _translate(
                 "MainWindow",
@@ -722,6 +767,11 @@ class Ui_MainWindow(object):
                 "<html><head/><body><p>Re-do scan at selected points</p></body></html>"
             ))
         self.retake_btn.setText(_translate("MainWindow", "Retake"))
+        self.plot_groupBox.setToolTip(
+            _translate(
+                "MainWindow",
+                "<html><head/><body><p>MPS guardian is not enabled.</p></body></html>"
+            ))
         self.plot_groupBox.setTitle(
             _translate("MainWindow", "Correlation Plot"))
         self.save_data_tbtn.setText(_translate("MainWindow", "save_data"))
@@ -744,9 +794,17 @@ class Ui_MainWindow(object):
             _translate("MainWindow", "Quad Scan Analysis"))
         self.actionLoad_Lattice.setText(
             _translate("MainWindow", "Load Lattice"))
+        self.actionMPS_guardian.setText(
+            _translate("MainWindow", "MPS Guardian"))
+        self.actionMPS_guardian.setToolTip(
+            _translate(
+                "MainWindow",
+                "<html><head/><body><p>Check to enable MPS Guardian</p></body></html>"
+            ))
 
 
 from mpl4qt.widgets.mplerrorbarwidget import MatplotlibErrorbarWidget
+from . import resources_rc
 
 if __name__ == "__main__":
     import sys
