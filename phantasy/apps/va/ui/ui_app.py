@@ -12,7 +12,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(787, 430)
+        MainWindow.resize(712, 367)
         MainWindow.setStyleSheet(
             "QGroupBox {\n"
             "    /*background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
@@ -35,11 +35,12 @@ class Ui_MainWindow(object):
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout_2 = QtWidgets.QGridLayout(self.centralwidget)
+        self.gridLayout_2.setContentsMargins(6, 6, 6, 6)
         self.gridLayout_2.setObjectName("gridLayout_2")
         self.config_groupBox = QtWidgets.QGroupBox(self.centralwidget)
         self.config_groupBox.setObjectName("config_groupBox")
         self.gridLayout = QtWidgets.QGridLayout(self.config_groupBox)
-        self.gridLayout.setContentsMargins(5, 5, 5, 5)
+        self.gridLayout.setContentsMargins(5, 9, 5, 5)
         self.gridLayout.setObjectName("gridLayout")
         self.label = QtWidgets.QLabel(self.config_groupBox)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
@@ -88,31 +89,6 @@ class Ui_MainWindow(object):
         self.localonly_chkbox.setObjectName("localonly_chkbox")
         self.gridLayout.addWidget(self.localonly_chkbox, 2, 2, 1, 2)
         self.gridLayout_2.addWidget(self.config_groupBox, 0, 0, 1, 1)
-        self.tools_groupBox = QtWidgets.QGroupBox(self.centralwidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
-                                           QtWidgets.QSizePolicy.Preferred)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(
-            self.tools_groupBox.sizePolicy().hasHeightForWidth())
-        self.tools_groupBox.setSizePolicy(sizePolicy)
-        self.tools_groupBox.setObjectName("tools_groupBox")
-        self.horizontalLayout = QtWidgets.QHBoxLayout(self.tools_groupBox)
-        self.horizontalLayout.setContentsMargins(5, 5, 5, 5)
-        self.horizontalLayout.setObjectName("horizontalLayout")
-        self.open_notebook_btn = QtWidgets.QToolButton(self.tools_groupBox)
-        self.open_notebook_btn.setAutoRaise(True)
-        self.open_notebook_btn.setObjectName("open_notebook_btn")
-        self.horizontalLayout.addWidget(self.open_notebook_btn)
-        self.va_info_btn = QtWidgets.QToolButton(self.tools_groupBox)
-        self.va_info_btn.setAutoRaise(True)
-        self.va_info_btn.setObjectName("va_info_btn")
-        self.horizontalLayout.addWidget(self.va_info_btn)
-        spacerItem = QtWidgets.QSpacerItem(40, 20,
-                                           QtWidgets.QSizePolicy.Expanding,
-                                           QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayout.addItem(spacerItem)
-        self.gridLayout_2.addWidget(self.tools_groupBox, 3, 0, 1, 1)
         self.control_groupBox = QtWidgets.QGroupBox(self.centralwidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
                                            QtWidgets.QSizePolicy.Preferred)
@@ -200,10 +176,10 @@ class Ui_MainWindow(object):
         self.noise_label.setEnabled(False)
         self.noise_label.setObjectName("noise_label")
         self.horizontalLayout_3.addWidget(self.noise_label)
-        spacerItem1 = QtWidgets.QSpacerItem(40, 20,
-                                            QtWidgets.QSizePolicy.Expanding,
-                                            QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayout_3.addItem(spacerItem1)
+        spacerItem = QtWidgets.QSpacerItem(40, 20,
+                                           QtWidgets.QSizePolicy.Expanding,
+                                           QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_3.addItem(spacerItem)
         self.verticalLayout_2.addLayout(self.horizontalLayout_3)
         self.gridLayout_2.addWidget(self.control_groupBox, 1, 0, 1, 1)
         self.groupBox = QtWidgets.QGroupBox(self.centralwidget)
@@ -226,15 +202,22 @@ class Ui_MainWindow(object):
                                            "    color: white;\n"
                                            "    border: 1px solid red;\n"
                                            "    border-radius: 5px;\n"
-                                           "    padding: 1px;\n"
+                                           "    padding: 2px;\n"
                                            "} ")
         self.va_status_label.setAlignment(QtCore.Qt.AlignCenter)
         self.va_status_label.setObjectName("va_status_label")
         self.horizontalLayout_2.addWidget(self.va_status_label)
-        spacerItem2 = QtWidgets.QSpacerItem(40, 20,
+        self.va_name_label = QtWidgets.QLabel(self.groupBox)
+        font = QtGui.QFont()
+        font.setItalic(True)
+        self.va_name_label.setFont(font)
+        self.va_name_label.setText("")
+        self.va_name_label.setObjectName("va_name_label")
+        self.horizontalLayout_2.addWidget(self.va_name_label)
+        spacerItem1 = QtWidgets.QSpacerItem(40, 20,
                                             QtWidgets.QSizePolicy.Expanding,
                                             QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayout_2.addItem(spacerItem2)
+        self.horizontalLayout_2.addItem(spacerItem1)
         self.label_3 = QtWidgets.QLabel(self.groupBox)
         self.label_3.setObjectName("label_3")
         self.horizontalLayout_2.addWidget(self.label_3)
@@ -258,7 +241,7 @@ class Ui_MainWindow(object):
         self.gridLayout_2.addWidget(self.groupBox, 2, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 787, 30))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 712, 29))
         self.menubar.setObjectName("menubar")
         self.menu_Help = QtWidgets.QMenu(self.menubar)
         self.menu_Help.setObjectName("menu_Help")
@@ -276,6 +259,14 @@ class Ui_MainWindow(object):
         self.actionContents.setObjectName("actionContents")
         self.actionE_xit = QtWidgets.QAction(MainWindow)
         self.actionE_xit.setObjectName("actionE_xit")
+        self.nb_tool = QtWidgets.QAction(MainWindow)
+        self.nb_tool.setObjectName("nb_tool")
+        self.va_info_tool = QtWidgets.QAction(MainWindow)
+        self.va_info_tool.setObjectName("va_info_tool")
+        self.va_run_tool = QtWidgets.QAction(MainWindow)
+        self.va_run_tool.setObjectName("va_run_tool")
+        self.va_stop_tool = QtWidgets.QAction(MainWindow)
+        self.va_stop_tool.setObjectName("va_stop_tool")
         self.menu_Help.addAction(self.actionContents)
         self.menu_Help.addSeparator()
         self.menu_Help.addAction(self.actionAbout)
@@ -283,6 +274,10 @@ class Ui_MainWindow(object):
         self.menu_File.addAction(self.actionE_xit)
         self.menubar.addAction(self.menu_File.menuAction())
         self.menubar.addAction(self.menu_Help.menuAction())
+        self.toolBar.addAction(self.va_run_tool)
+        self.toolBar.addAction(self.va_stop_tool)
+        self.toolBar.addAction(self.nb_tool)
+        self.toolBar.addAction(self.va_info_tool)
 
         self.retranslateUi(MainWindow)
         self.actionAbout.triggered.connect(MainWindow.onAbout)
@@ -292,21 +287,21 @@ class Ui_MainWindow(object):
         self.engine_comboBox.currentTextChanged['QString'].connect(
             MainWindow.on_engine_changed)
         self.actionE_xit.triggered.connect(MainWindow.close)
-        self.va_info_btn.clicked.connect(MainWindow.on_view_va_info)
-        self.open_notebook_btn.clicked.connect(MainWindow.on_launch_notebook)
         self.segm_comboBox.currentTextChanged['QString'].connect(
             MainWindow.on_segment_changed)
         self.prefix_comboBox.editTextChanged['QString'].connect(
             MainWindow.on_pvprefix_changed)
         self.localonly_chkbox.toggled['bool'].connect(MainWindow.on_localonly)
+        self.va_run_tool.triggered.connect(MainWindow.on_run_va)
+        self.va_stop_tool.triggered.connect(MainWindow.on_stop_va)
+        self.nb_tool.triggered.connect(MainWindow.on_launch_notebook)
+        self.va_info_tool.triggered.connect(MainWindow.on_view_va_info)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         MainWindow.setTabOrder(self.mach_comboBox, self.segm_comboBox)
         MainWindow.setTabOrder(self.segm_comboBox, self.engine_comboBox)
         MainWindow.setTabOrder(self.engine_comboBox, self.prefix_comboBox)
         MainWindow.setTabOrder(self.prefix_comboBox, self.localonly_chkbox)
         MainWindow.setTabOrder(self.localonly_chkbox, self.noise_slider)
-        MainWindow.setTabOrder(self.noise_slider, self.open_notebook_btn)
-        MainWindow.setTabOrder(self.open_notebook_btn, self.va_info_btn)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -323,9 +318,6 @@ class Ui_MainWindow(object):
         self.prefix_comboBox.setItemText(1, _translate("MainWindow", "VA"))
         self.localonly_chkbox.setText(
             _translate("MainWindow", "Limit CA Local Only"))
-        self.tools_groupBox.setTitle(_translate("MainWindow", "Tools"))
-        self.open_notebook_btn.setText(_translate("MainWindow", "RUN-NB"))
-        self.va_info_btn.setText(_translate("MainWindow", "VA Info"))
         self.control_groupBox.setTitle(_translate("MainWindow", "Control"))
         self.label_4.setText(_translate("MainWindow", "Noise Level"))
         self.noise_label.setText(_translate("MainWindow", "%"))
@@ -343,6 +335,10 @@ class Ui_MainWindow(object):
         self.actionContents.setShortcut(_translate("MainWindow", "F1"))
         self.actionE_xit.setText(_translate("MainWindow", "E&xit"))
         self.actionE_xit.setShortcut(_translate("MainWindow", "Ctrl+W"))
+        self.nb_tool.setText(_translate("MainWindow", "RUN-NB"))
+        self.va_info_tool.setText(_translate("MainWindow", "VA Info"))
+        self.va_run_tool.setText(_translate("MainWindow", "RUN VA"))
+        self.va_stop_tool.setText(_translate("MainWindow", "STOP VA"))
 
 
 if __name__ == "__main__":
