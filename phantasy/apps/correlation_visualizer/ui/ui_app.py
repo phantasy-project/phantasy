@@ -13,6 +13,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(1920, 1200)
+        MainWindow.setToolTip("")
         MainWindow.setStyleSheet("")
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
@@ -500,6 +501,7 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(
             self.plot_groupBox.sizePolicy().hasHeightForWidth())
         self.plot_groupBox.setSizePolicy(sizePolicy)
+        self.plot_groupBox.setToolTip("")
         self.plot_groupBox.setStyleSheet(
             "QGroupBox {\n"
             "    /*background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
@@ -655,11 +657,6 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        MainWindow.setToolTip(
-            _translate(
-                "MainWindow",
-                "<html><head/><body><p>MPS guardian is not enabled.</p></body></html>"
-            ))
         self.scan_groupBox.setTitle(
             _translate("MainWindow", "Scan Configuration"))
         self.label_8.setText(_translate("MainWindow", "Alter Element"))
@@ -743,7 +740,7 @@ class Ui_MainWindow(object):
         self.mps_status_btn.setToolTip(
             _translate(
                 "MainWindow",
-                "<html><head/><body><p>MPS guardian is not enabled.</p></body></html>"
+                "<html><head/><body><p>MPS guardian is not enabled</p></body></html>"
             ))
         self.start_btn.setToolTip(
             _translate(
@@ -768,11 +765,6 @@ class Ui_MainWindow(object):
                 "<html><head/><body><p>Re-do scan at selected points</p></body></html>"
             ))
         self.retake_btn.setText(_translate("MainWindow", "Retake"))
-        self.plot_groupBox.setToolTip(
-            _translate(
-                "MainWindow",
-                "<html><head/><body><p>MPS guardian is not enabled.</p></body></html>"
-            ))
         self.plot_groupBox.setTitle(
             _translate("MainWindow", "Correlation Plot"))
         self.save_data_tbtn.setText(_translate("MainWindow", "save_data"))
