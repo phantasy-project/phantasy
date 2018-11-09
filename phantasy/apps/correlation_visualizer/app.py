@@ -65,6 +65,10 @@ SMALL_TBTN_ICON_SIZE = 20
 BOTTOM_TBTN_ICON_QSIZE = QSize(BOTTOM_TBTN_ICON_SIZE, BOTTOM_TBTN_ICON_SIZE)
 SMALL_TBTN_ICON_QSIZE = QSize(SMALL_TBTN_ICON_SIZE, SMALL_TBTN_ICON_SIZE)
 
+# MPS status
+MPS_STATUS = ["Fault", "Disable", "Monitor", "Enable"]
+MPS_ENABLE = MPS_STATUS.index("Enable")
+
 
 class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 
@@ -360,7 +364,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 
         elif r == QDialog.Rejected:
             # do not update alter element obj
-            print("cancel")
+            #print("cancel")
             return
 
     @pyqtSlot()
@@ -387,7 +391,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
             self.on_show_extra_monitors()
 
         elif r == QDialog.Rejected:
-            print("cancel")
+            #print("cancel")
             return
 
     @pyqtSlot(int)
@@ -899,11 +903,11 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         btn = self.mps_status_btn
         if reason == 'conn':
             if change:  # MPS is connected
-                print("set btn to connected icon")
+                #print("set btn to connected icon")
                 btn.setIcon(self._mps_status_icons['connected'])
                 btn.setToolTip("MPS guardian is enabled, connection is established")
             else:  # MPS is disconnected
-                print("set btn to disconnected icon")
+                #print("set btn to disconnected icon")
                 btn.setIcon(self._mps_status_icons['disconnected'])
                 btn.setToolTip("MPS guardian is enabled, connection is lost")
         else:  # val
@@ -913,14 +917,14 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         """Check MPS status readings, and set indicators.
         """
         btn = self.mps_status_btn
-        if v > 0:
-            print("set btn to fault icon")
+        if v != MPS_ENABLE:
+            #print("set btn to fault icon")
             btn.setIcon(self._mps_status_icons['fault'])
             btn.setToolTip("MPS guardian is enabled, status is Fault")
             # pause scan
             self.pauseScan.emit(True)
         else:
-            print("set btn to normal icon")
+            #print("set btn to normal icon")
             btn.setIcon(self._mps_status_icons['normal'])
             btn.setToolTip("MPS guardian is enabled, status is Normal")
 
