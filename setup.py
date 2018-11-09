@@ -14,7 +14,7 @@ def read_license():
         return f.read()
 
 
-app_version="1.6.2"
+app_version="1.6.3"
 app_name = "phantasy"
 app_description = 'Physics high-level applications and toolkit for ' \
         'accelerator system'
@@ -62,6 +62,7 @@ def set_entry_points():
         'correlation_visualizer=phantasy.apps.correlation_visualizer:run',
         'quad_scan=phantasy.apps.quad_scan:run',
         'va_launcher=phantasy.apps.va:run',
+        'orm=phantasy.apps.orm:run',
     ]
     return r
 
