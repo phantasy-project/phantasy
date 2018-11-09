@@ -801,7 +801,7 @@ class VirtualAccelerator(object):
                 ("PREC", 5)
             ])))
 
-        chanstat = chanprefix+"SVR:STATUS"
+        chanstat = chanprefix + "SVR:STATUS"
 
         self._epicsdb.append(("bi", chanstat, OrderedDict([
                 ("DESC", "Status of Virtual Accelerator"),
@@ -811,7 +811,21 @@ class VirtualAccelerator(object):
                 ("PINI", "1")
             ])))
 
-        chancharge = chanprefix+"SVR:CHARGE"
+        # MPS status
+        chan_mps_stat = chanprefix + "SVR:MpsStatus"
+
+        self._epicsdb.append(("mbbi", chan_mps_stat, OrderedDict([
+                ("DESC", "MPS Status of Virtual Accelerator"),
+                ("VAL", 3),
+                ("ZRST", "Fault"),
+                ("ONST", "Disable"),
+                ("TWST", "Monitor"),
+                ("THST", "Enable"),
+                ("PINI", "1")
+            ])))
+
+        #
+        chancharge = chanprefix + "SVR:CHARGE"
 
         self._epicsdb.append(("ai", chancharge, OrderedDict([
                 ("DESC", "Q/M of Virtual Accelerator"),
