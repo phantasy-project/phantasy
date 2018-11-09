@@ -1,3 +1,13 @@
+Version 1.6.3
+-------------
+2018-11-09
+
+- FLAME VA: Add support for MPS status control
+- VA Launcher App: Support MPS status simulation control
+- Correlation Visualizer App: Support Pause scan by MPS
+- Initial ORM app
+- Other fixes
+
 Version 1.6.2
 -------------
 2018-11-07
