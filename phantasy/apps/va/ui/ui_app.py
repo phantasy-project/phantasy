@@ -12,7 +12,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(712, 367)
+        MainWindow.resize(729, 413)
         MainWindow.setStyleSheet(
             "QGroupBox {\n"
             "    /*background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
@@ -181,6 +181,70 @@ class Ui_MainWindow(object):
                                            QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_3.addItem(spacerItem)
         self.verticalLayout_2.addLayout(self.horizontalLayout_3)
+        self.horizontalLayout = QtWidgets.QHBoxLayout()
+        self.horizontalLayout.setContentsMargins(-1, 0, -1, -1)
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        self.label_7 = QtWidgets.QLabel(self.control_groupBox)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
+                                           QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.label_7.sizePolicy().hasHeightForWidth())
+        self.label_7.setSizePolicy(sizePolicy)
+        self.label_7.setObjectName("label_7")
+        self.horizontalLayout.addWidget(self.label_7)
+        self.mps_fault_radiobtn = QtWidgets.QRadioButton(self.control_groupBox)
+        self.mps_fault_radiobtn.setEnabled(False)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
+                                           QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.mps_fault_radiobtn.sizePolicy().hasHeightForWidth())
+        self.mps_fault_radiobtn.setSizePolicy(sizePolicy)
+        self.mps_fault_radiobtn.setObjectName("mps_fault_radiobtn")
+        self.horizontalLayout.addWidget(self.mps_fault_radiobtn)
+        self.mps_disable_radiobtn = QtWidgets.QRadioButton(
+            self.control_groupBox)
+        self.mps_disable_radiobtn.setEnabled(False)
+        self.mps_disable_radiobtn.setObjectName("mps_disable_radiobtn")
+        self.horizontalLayout.addWidget(self.mps_disable_radiobtn)
+        self.mps_monitor_radiobtn = QtWidgets.QRadioButton(
+            self.control_groupBox)
+        self.mps_monitor_radiobtn.setEnabled(False)
+        self.mps_monitor_radiobtn.setObjectName("mps_monitor_radiobtn")
+        self.horizontalLayout.addWidget(self.mps_monitor_radiobtn)
+        self.mps_enable_radiobtn = QtWidgets.QRadioButton(
+            self.control_groupBox)
+        self.mps_enable_radiobtn.setEnabled(False)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
+                                           QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.mps_enable_radiobtn.sizePolicy().hasHeightForWidth())
+        self.mps_enable_radiobtn.setSizePolicy(sizePolicy)
+        self.mps_enable_radiobtn.setObjectName("mps_enable_radiobtn")
+        self.horizontalLayout.addWidget(self.mps_enable_radiobtn)
+        self.mps_pvname_lbl = QtWidgets.QLabel(self.control_groupBox)
+        self.mps_pvname_lbl.setEnabled(False)
+        font = QtGui.QFont()
+        font.setFamily("monospace")
+        self.mps_pvname_lbl.setFont(font)
+        self.mps_pvname_lbl.setStyleSheet("QLabel {\n"
+                                          "    font-family: monospace;\n"
+                                          "}")
+        self.mps_pvname_lbl.setText("")
+        self.mps_pvname_lbl.setTextInteractionFlags(
+            QtCore.Qt.LinksAccessibleByMouse)
+        self.mps_pvname_lbl.setObjectName("mps_pvname_lbl")
+        self.horizontalLayout.addWidget(self.mps_pvname_lbl)
+        spacerItem1 = QtWidgets.QSpacerItem(40, 20,
+                                            QtWidgets.QSizePolicy.Expanding,
+                                            QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout.addItem(spacerItem1)
+        self.verticalLayout_2.addLayout(self.horizontalLayout)
         self.gridLayout_2.addWidget(self.control_groupBox, 1, 0, 1, 1)
         self.groupBox = QtWidgets.QGroupBox(self.centralwidget)
         self.groupBox.setObjectName("groupBox")
@@ -214,10 +278,10 @@ class Ui_MainWindow(object):
         self.va_name_label.setText("")
         self.va_name_label.setObjectName("va_name_label")
         self.horizontalLayout_2.addWidget(self.va_name_label)
-        spacerItem1 = QtWidgets.QSpacerItem(40, 20,
+        spacerItem2 = QtWidgets.QSpacerItem(40, 20,
                                             QtWidgets.QSizePolicy.Expanding,
                                             QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayout_2.addItem(spacerItem1)
+        self.horizontalLayout_2.addItem(spacerItem2)
         self.label_3 = QtWidgets.QLabel(self.groupBox)
         self.label_3.setObjectName("label_3")
         self.horizontalLayout_2.addWidget(self.label_3)
@@ -241,7 +305,7 @@ class Ui_MainWindow(object):
         self.gridLayout_2.addWidget(self.groupBox, 2, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 712, 29))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 729, 30))
         self.menubar.setObjectName("menubar")
         self.menu_Help = QtWidgets.QMenu(self.menubar)
         self.menu_Help.setObjectName("menu_Help")
@@ -276,6 +340,7 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menu_Help.menuAction())
         self.toolBar.addAction(self.va_run_tool)
         self.toolBar.addAction(self.va_stop_tool)
+        self.toolBar.addSeparator()
         self.toolBar.addAction(self.nb_tool)
         self.toolBar.addAction(self.va_info_tool)
 
@@ -320,7 +385,12 @@ class Ui_MainWindow(object):
             _translate("MainWindow", "Limit CA Local Only"))
         self.control_groupBox.setTitle(_translate("MainWindow", "Control"))
         self.label_4.setText(_translate("MainWindow", "Noise Level"))
-        self.noise_label.setText(_translate("MainWindow", "%"))
+        self.noise_label.setText(_translate("MainWindow", "0.0%"))
+        self.label_7.setText(_translate("MainWindow", "MPS Status"))
+        self.mps_fault_radiobtn.setText(_translate("MainWindow", "Fault"))
+        self.mps_disable_radiobtn.setText(_translate("MainWindow", "Disable"))
+        self.mps_monitor_radiobtn.setText(_translate("MainWindow", "Monitor"))
+        self.mps_enable_radiobtn.setText(_translate("MainWindow", "Enable"))
         self.groupBox.setTitle(_translate("MainWindow", "Status"))
         self.va_status_label.setText(_translate("MainWindow", "Stopped"))
         self.label_3.setText(_translate("MainWindow", "Uptime"))
