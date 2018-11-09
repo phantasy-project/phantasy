@@ -15,6 +15,7 @@ from PyQt5.QtWidgets import QAction
 import epics
 import time
 import os
+from functools import partial
 
 from phantasy_ui.templates import BaseAppForm
 from phantasy.apps.utils import uptime
@@ -38,6 +39,13 @@ MACHINE_DICT = {
 }
 
 MACHINE_LIST = sorted(list(MACHINE_DICT.keys()))
+
+# MPS status
+MPS_STATUS = ["Fault", "Disable", "Monitor", "Enable"]
+MPS_ENABLE = MPS_STATUS.index("Enable")
+MPS_FAULT = MPS_STATUS.index("Fault")
+MPS_DISABLE = MPS_STATUS.index("Disable")
+MPS_MONITOR = MPS_STATUS.index("Monitor")
 
 
 class VALauncherWindow(BaseAppForm, Ui_MainWindow):
@@ -82,6 +90,10 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
         self.noise_pv = None
         self._noise_pv_name = 'VA:SVR:NOISE'
 
+        # mps status pv
+        self.mps_pv = None
+        self._mps_pv_name = 'VA:SVR:MpsStatus'
+
         # pv prefix
         self._prefix = None
 
@@ -95,6 +107,16 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
         self.noise_slider.valueChanged.connect(
                 lambda i:self.noise_label.setText("{:.1f}%".format(i*0.1)))
         self.noise_slider.valueChanged.connect(self.on_change_noise)
+
+        # mps status
+        self.mps_fault_radiobtn.toggled[bool].connect(
+                partial(self.on_change_mps, "Fault")),
+        self.mps_disable_radiobtn.toggled[bool].connect(
+                partial(self.on_change_mps, "Disable"))
+        self.mps_monitor_radiobtn.toggled[bool].connect(
+                partial(self.on_change_mps, "Monitor"))
+        self.mps_enable_radiobtn.toggled[bool].connect(
+                partial(self.on_change_mps, "Enable"))
 
         # timer for uptime
         self.uptimer = QTimer(self)
@@ -170,6 +192,7 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
         if prefix is not None and prefix not in ('', 'NONE'):
             arguments.extend(['--pv-prefix', prefix])
             self._noise_pv_name = "{}:SVR:NOISE".format(prefix)
+            self._mps_pv_name = "{}:SVR:MpsStatus".format(prefix)
         if self._ca_local_only:
             arguments.append("-l")
         va.start('phytool', arguments)
@@ -213,8 +236,12 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
         self._va_info_widget = None
         # noise pv
         self.noise_pv = epics.PV(self._noise_pv_name,
-                                 connection_callback=self.__on_connection_changed,
-                                 callback=self.__on_value_changed)
+            connection_callback=partial(self.__on_connection_changed, name="noise"),
+            callback=partial(self.__on_value_changed, name="noise"))
+        # mps status pv
+        self.mps_pv = epics.PV(self._mps_pv_name,
+            connection_callback=partial(self.__on_connection_changed, name="mps"),
+            callback=partial(self.__on_value_changed, name="mps"))
 
     def update_widgets_visibility(self, status="STARTED"):
         """Enable/Disable widgets when VA is STARTED or STOPPED.
@@ -337,20 +364,44 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
             self.noise_pv.put(v, wait=True)
 
     @pyqtSlot(bool)
+    def on_change_mps(self, status, f):
+        if f:
+            self.mps_pv.put(status)
+
+    @pyqtSlot(bool)
     def on_localonly(self, f):
         """CA localhost only or not.
         """
         self._ca_local_only = f
 
-    def __on_connection_changed(self, pvname=None, conn=None, **kws):
-        if conn:
-            self.enable_noise_controls()
+    def __on_connection_changed(self, name="noise", pvname=None, conn=None, **kws):
+        if name == "noise":
+            if conn:
+                self.enable_noise_controls()
+            else:
+                self.enable_noise_controls(False)
         else:
-            self.enable_noise_controls(False)
+            # mps
+            if conn:
+                self.enable_mps_controls()
+                self.mps_pvname_lbl.setText(self._mps_pv_name)
+            else:
+                self.enable_mps_controls(False)
 
-    def __on_value_changed(self, pvname=None, value=None, host=None, **kws):
-        v = int(value / 0.001)
-        self.noise_slider.setValue(v)
+    def __on_value_changed(self, name="noise", pvname=None, value=None, host=None, **kws):
+        if name == "noise":
+            v = int(value / 0.001)
+            self.noise_slider.setValue(v)
+        else:
+            # mps
+            if value == MPS_ENABLE:
+                self.mps_enable_radiobtn.setChecked(True)
+            elif value == MPS_FAULT:
+                self.mps_fault_radiobtn.setChecked(True)
+            elif value == MPS_MONITOR:
+                self.mps_monitor_radiobtn.setChecked(True)
+            elif value == MPS_ENABLE:
+                self.mps_enable_radiobtn.setChecked(True)
 
     def enable_noise_controls(self, enable=True):
         """Enable controls for noise or not.
@@ -358,4 +409,10 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
         for o in (self.noise_slider, self.noise_label):
             o.setEnabled(enable)
 
-
+    def enable_mps_controls(self, enable=True):
+        """Enable controls for mps status or not.
+        """
+        for o in (self.mps_fault_radiobtn, self.mps_disable_radiobtn,
+                  self.mps_monitor_radiobtn, self.mps_enable_radiobtn,
+                  self.mps_pvname_lbl):
+            o.setEnabled(enable)
