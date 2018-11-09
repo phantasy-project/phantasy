@@ -892,7 +892,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
             self.mpsConnectionChanged.disconnect()
             self.mpsStatusChanged.disconnect()
             btn.setIcon(self._mps_status_icons['skipped'])
-            btn.setToolTip("MPS guardian is disabled")
+            btn.setToolTip("MPS guardian is not enabled")
 
     @pyqtSlot()
     def on_update_mps_status(self, change, reason='conn'):
