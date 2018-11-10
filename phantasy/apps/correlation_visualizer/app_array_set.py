@@ -34,6 +34,9 @@ class ArraySetDialog(QDialog, Ui_Dialog):
         self.vto_lineEdit.setValidator(QDoubleValidator())
         self.vstep_lineEdit.setValidator(QDoubleValidator())
 
+        # default array
+        self.array = None
+
     @pyqtSlot()
     def on_generate_array(self):
         """Generate array and show.
@@ -71,11 +74,18 @@ class ArraySetDialog(QDialog, Ui_Dialog):
 
     @pyqtSlot()
     def on_click_ok(self):
+        if self.array is None:
+            QMessageBox.warning(self, "Alter Array Set",
+                    "No Array is Set",
+                    QMessageBox.Ok)
+            return
+
         if self.array.size != 0:
             self.close()
             self.setResult(QDialog.Accepted)
         else:
-            QMessageBox.warning(self, "", "Empty Array is not valid",
+            QMessageBox.warning(self, "Alter Array Set",
+                    "Empty Array is not valid",
                     QMessageBox.Ok)
             return
 
@@ -101,6 +111,19 @@ class ArraySetDialog(QDialog, Ui_Dialog):
         except:
             a = None
         return a
+
+    @pyqtSlot()
+    def on_sort_array(self):
+        """Sort array and refresh the data_textEdit.
+        """
+        obj = self.sender()
+        if obj == self.sort_asc_tbtn:
+            # sort ascending
+            array = sorted(self.array)
+        elif obj == self.sort_desc_tbtn:
+            # sort descending
+            array = sorted(self.array, reverse=True)
+        self.data_textEdit.setPlainText(str(array))
 
 
 if __name__ == '__main__':
