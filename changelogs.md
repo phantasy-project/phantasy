@@ -1,3 +1,11 @@
+Version 1.6.4
+-------------
+2018-11-10
+
+- Correlation Visualizer App:
+  - Array Set: Support sorting
+  - Fix app crashes by None array 
+
 Version 1.6.3
 -------------
 2018-11-09
