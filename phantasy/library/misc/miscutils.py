@@ -58,7 +58,7 @@ def flatten(nnn):
 
     :param nnn: recursively defined list or tuple
     :return: flattened list
-    
+
     :Example:
 
     >>> l0 = [1,2,3,[4,5],[6,[7,8,[9,10,['x',['y']]]]]]
@@ -76,7 +76,11 @@ def get_intersection(*args):
     Returns
     -------
     res : list
-    
+
+    Note
+    ----
+    The order of the returned list may be not consistent with the input.
+
     Examples
     --------
     >>> a, b, c = [], [], []
@@ -101,7 +105,7 @@ def get_intersection(*args):
         return list()
     for v in vs:
         s = s.intersection(v)
-    return list(s)    
+    return list(s)
 
 
 def machine_setter(_latfile=None, _machine=None, _handle_name=None):
@@ -136,7 +140,7 @@ def bisect_index(x, val):
     ----------
     x : List, sequence
         Sorted sequence.
-    val : 
+    val :
         Value to be located.
 
     Returns
@@ -162,7 +166,7 @@ def bisect_index(x, val):
 
 def pattern_filter(x, pattern):
     """Get sub sequence from sequence by applying filter.
-    
+
     Parameters
     ----------
     x : sequence
@@ -203,11 +207,11 @@ def expand_list_to_dict(x, keys):
         List of (tuple and str).
     keys : list
         List of keys.
-    
+
     Returns
     -------
     ret : dict
-    
+
     Examples
     --------
     >>> x = ['k?', ('k2', 3), ('a1', 's')]
@@ -227,7 +231,7 @@ def expand_list_to_dict(x, keys):
 
 def simplify_data(raw_data):
     """Convert CFS formatted data into simple tuple.
-    
+
     Parameters
     ----------
     raw_data : dict or list(dict)
@@ -274,7 +278,7 @@ def complicate_data(raw_data, **kws):
     raw_data : list or list(list)
         Each list element is of the format:
         ``PV name (str), PV properties (dict), PV tags (list(str))``
-    
+
     Keyword Arguments
     -----------------
     owner : str
@@ -429,7 +433,7 @@ def epoch2human(ts, **kws):
     -----------------
     fmt : str
         Format to convert, default is `%Y-%m-%d %H:%M:%S.%f`.
-    
+
     Returns
     -------
     t : str
