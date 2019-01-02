@@ -385,7 +385,7 @@ class Device(object):
 
     def _sync_data(self):
         # retrieve data from PVs
-        if self.dtype == 'large'
+        if self.dtype == 'large':
             self.__sync_data_large_dtype()
         elif self.dtype == 'flapper':
             self.__sync_data_flapper_dtype()
