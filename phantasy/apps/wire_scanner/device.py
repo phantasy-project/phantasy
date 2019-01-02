@@ -65,6 +65,19 @@ class Device(object):
         self.scan_start_pos = dconf.getarray(name, 'start_pos_val')
         self.scan_stop_pos = dconf.getarray(name, 'stop_pos_val')
 
+        # wire offsets
+        self.wire_offset = dconf.getarray(name, 'wire_pos_offset')
+
+    @property
+    def wire_offset(self):
+        """list[float]: Additional offsets to all wires.
+        """
+        return self._wire_offset
+
+    @wire_offset.setter
+    def wire_offset(self, arr):
+        self._wire_offset = [float(i) for i in arr]
+
     @property
     def scan_start_pos(self):
         """list[float]: Scan start positions of all forks.
@@ -94,7 +107,7 @@ class Device(object):
     @dtype.setter
     def dtype(self, s):
         self._dtype = s
-        #
+        # meanwhile, configure fork_ids tuple
         self._fork_ids = FORK_BIT_MAPPING[self._dtype]
 
     @property
@@ -349,3 +362,153 @@ class Device(object):
             self.init_motor_pos()
             # reset interlock
             self.reset_interlock()
+
+    def sync_data(self, mode='live', filename=None):
+        """Synchronize data to device, if *mode* is 'live', read data from
+        EPICS controls network thru pre-established CA; otherwise, read
+        from local file, if valid *filename* is provided.
+
+        After synchronization, the measured data could be accessed from
+        properties, property names depends on device type.
+
+        Parameters
+        ----------
+        mode : str
+            Synchronization mode, 'live' or 'file'.
+        filename : str
+            Path of data file if *mode* is not 'live'.
+        """
+        if mode == 'live':
+            self._sync_data()
+        elif isinstance(filename, basestring) and os.path.isfile(filename):
+            self._sync_data_from_file(filename)
+
+    def _sync_data(self):
+        # retrieve data from PVs
+        if self.dtype == 'large'
+            self.__sync_data_large_dtype()
+        elif self.dtype == 'flapper':
+            self.__sync_data_flapper_dtype()
+        elif self.dtype == 'small':
+            self.__sync_data_small_dtype()
+
+    def __sync_data_large_dtype(self):
+        # retrieve data from PVs for large type, fork 6in and 12in.
+        fork1_ppot_raw = self.elem.FORK1_PPOT_RAW
+        fork1_ppot_val = self.elem.FORK1_PPOT_VAL
+        fork1_offset = self.elem.FORK1_OFFSET
+        fork1_signal = self.elem.FORK1_SIGNAL
+
+        fork2_ppot_raw = self.elem.FORK2_PPOT_RAW
+        fork2_ppot_val1 = self.elem.FORK2_PPOT_VAL1
+        fork2_ppot_val2 = self.elem.FORK2_PPOT_VAL2
+        fork2_offset1 = self.elem.FORK2_OFFSET1
+        fork2_offset2 = self.elem.FORK2_OFFSET2
+        fork2_signal1 = self.elem.FORK2_SIGNAL1
+        fork2_signal2 = self.elem.FORK2_SIGNAL2
+
+        # fork1
+        fork1_data = OrderedDict()
+        fork1_data['ppot_raw'] = fork1_ppot_raw
+        fork1_data['ppot_val'] = fork1_ppot_val
+        fork1_data['offset'] = fork1_offset
+        fork1_data['signal'] = fork1_signal
+        # fork2
+        fork2_data = OrderedDict()
+        fork2_data['ppot_raw'] = fork2_ppot_raw
+        fork2_data['ppot_val1'] = fork2_ppot_val1
+        fork2_data['ppot_val2'] = fork2_ppot_val2
+        fork2_data['offset1'] = fork2_offset1
+        fork2_data['offset2'] = fork2_offset2
+        fork2_data['signal1'] = fork2_signal1
+        fork2_data['signal2'] = fork2_signal2
+
+        # data sheet
+        data_sheet = JSONDataSheet()
+        data_sheet.update({'fork1': fork1_data})
+        data_sheet.update({'fork2': fork2_data})
+
+        # Add other info
+        self.data_sheet = data_sheet
+
+    def __sync_data_flapper_dtype(self):
+        # retrieve data from PVs for flapper type
+        fork1_ppot_raw = self.elem.FORK1_PPOT_RAW
+        fork1_ppot_val = self.elem.FORK1_PPOT_VAL
+        fork1_offset = self.elem.FORK1_OFFSET
+        fork1_signal = self.elem.FORK1_SIGNAL
+        fork2_ppot_raw = self.elem.FORK2_PPOT_RAW
+        fork2_ppot_val = self.elem.FORK2_PPOT_VAL
+        fork2_offset = self.elem.FORK2_OFFSET
+        fork2_signal = self.elem.FORK2_SIGNAL
+
+        # fork1
+        fork1_data = OrderedDict()
+        fork1_data['ppot_raw'] = fork1_ppot_raw
+        fork1_data['ppot_val'] = fork1_ppot_val
+        fork1_data['offset'] = fork1_offset
+        fork1_data['signal'] = fork1_signal
+        # fork2
+        fork2_data = OrderedDict()
+        fork2_data['ppot_raw'] = fork2_ppot_raw
+        fork2_data['ppot_val'] = fork2_ppot_val
+        fork2_data['offset'] = fork2_offset
+        fork2_data['signal'] = fork2_signal
+
+        # data sheet
+        data_sheet = JSONDataSheet()
+        data_sheet.update({'fork1': fork1_data})
+        data_sheet.update({'fork2': fork2_data})
+
+        # Add other info
+        self.data_sheet = data_sheet
+
+    def __sync_data_small_dtype(self):
+        # retrieve data from PVs for flapper type
+        fork1_ppot_raw = self.elem.FORK1_PPOT_RAW
+        fork1_ppot_val1 = self.elem.FORK1_PPOT_VAL1
+        fork1_ppot_val2 = self.elem.FORK1_PPOT_VAL2
+        fork1_ppot_val3 = self.elem.FORK1_PPOT_VAL3
+        fork1_offset1 = self.elem.FORK1_OFFSET1
+        fork1_offset2 = self.elem.FORK1_OFFSET2
+        fork1_offset3 = self.elem.FORK1_OFFSET3
+        fork1_signal1 = self.elem.FORK1_SIGNAL1
+        fork1_signal2 = self.elem.FORK1_SIGNAL2
+        fork1_signal3 = self.elem.FORK1_SIGNAL3
+
+        # fork1
+        fork1_data = OrderedDict()
+        fork1_data['ppot_raw'] = fork1_ppot_raw
+        fork1_data['ppot_val1'] = fork1_ppot_val1
+        fork1_data['ppot_val2'] = fork1_ppot_val2
+        fork1_data['ppot_val3'] = fork1_ppot_val3
+        fork1_data['offset1'] = fork1_offset1
+        fork1_data['offset2'] = fork1_offset2
+        fork1_data['offset3'] = fork1_offset3
+        fork1_data['signal1'] = fork1_signal1
+        fork1_data['signal2'] = fork1_signal2
+        fork1_data['signal3'] = fork1_signal3
+
+        # data sheet
+        data_sheet = JSONDataSheet()
+        data_sheet.update({'fork1': fork1_data})
+
+        # Add other info
+        self.data_sheet = data_sheet
+
+
+    def _sync_data_from_file(self, filename):
+        # read data from file
+        self.data_sheet = JSONDataSheet(filename)
+
+
+    def save_data(self, filename=None):
+        """Save data into file named *filename*.
+
+        Parameters
+        ----------
+        filename : str
+            If not defined, device_name + timestamp + .json will be used.
+        """
+        self.data_sheet.write(filename)
+
