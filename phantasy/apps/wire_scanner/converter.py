@@ -53,8 +53,8 @@ def main():
         logging.getLogger().setLevel(logging.DEBUG)
 
     ifile, ofile = args.datfilepath, args.jsonfilepath
-    if not (os.path.isfile(ifile) and os.path.isfile(ofile)):
-        print("Invalid file path")
+    if not os.path.isfile(ifile):
+        print("Invalid input file path")
         print_help()
         sys.exit(1)
 
