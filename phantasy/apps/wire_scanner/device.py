@@ -7,6 +7,7 @@ import os
 import logging
 
 from phantasy import Configuration
+from phantasy.apps.correlation_visualizer.data import JSONDataSheet
 
 from .utils import wait
 
@@ -395,9 +396,9 @@ class Device(object):
     def __sync_data_large_dtype(self):
         # retrieve data from PVs for large type, fork 6in and 12in.
         fork1_ppot_raw = self.elem.FORK1_PPOT_RAW
-        fork1_ppot_val = self.elem.FORK1_PPOT_VAL
-        fork1_offset = self.elem.FORK1_OFFSET
-        fork1_signal = self.elem.FORK1_SIGNAL
+        fork1_ppot_val1 = self.elem.FORK1_PPOT_VAL1
+        fork1_offset1 = self.elem.FORK1_OFFSET1
+        fork1_signal1 = self.elem.FORK1_SIGNAL1
 
         fork2_ppot_raw = self.elem.FORK2_PPOT_RAW
         fork2_ppot_val1 = self.elem.FORK2_PPOT_VAL1
@@ -410,9 +411,9 @@ class Device(object):
         # fork1
         fork1_data = OrderedDict()
         fork1_data['ppot_raw'] = fork1_ppot_raw
-        fork1_data['ppot_val'] = fork1_ppot_val
-        fork1_data['offset'] = fork1_offset
-        fork1_data['signal'] = fork1_signal
+        fork1_data['ppot_val1'] = fork1_ppot_val1
+        fork1_data['offset1'] = fork1_offset1
+        fork1_data['signal1'] = fork1_signal1
         # fork2
         fork2_data = OrderedDict()
         fork2_data['ppot_raw'] = fork2_ppot_raw
@@ -434,26 +435,26 @@ class Device(object):
     def __sync_data_flapper_dtype(self):
         # retrieve data from PVs for flapper type
         fork1_ppot_raw = self.elem.FORK1_PPOT_RAW
-        fork1_ppot_val = self.elem.FORK1_PPOT_VAL
-        fork1_offset = self.elem.FORK1_OFFSET
-        fork1_signal = self.elem.FORK1_SIGNAL
+        fork1_ppot_val1 = self.elem.FORK1_PPOT_VAL1
+        fork1_offset1 = self.elem.FORK1_OFFSET1
+        fork1_signal1 = self.elem.FORK1_SIGNAL1
         fork2_ppot_raw = self.elem.FORK2_PPOT_RAW
-        fork2_ppot_val = self.elem.FORK2_PPOT_VAL
-        fork2_offset = self.elem.FORK2_OFFSET
-        fork2_signal = self.elem.FORK2_SIGNAL
+        fork2_ppot_val1 = self.elem.FORK2_PPOT_VAL1
+        fork2_offset1 = self.elem.FORK2_OFFSET1
+        fork2_signal1 = self.elem.FORK2_SIGNAL1
 
         # fork1
         fork1_data = OrderedDict()
         fork1_data['ppot_raw'] = fork1_ppot_raw
-        fork1_data['ppot_val'] = fork1_ppot_val
-        fork1_data['offset'] = fork1_offset
-        fork1_data['signal'] = fork1_signal
+        fork1_data['ppot_val1'] = fork1_ppot_val1
+        fork1_data['offset1'] = fork1_offset1
+        fork1_data['signal1'] = fork1_signal1
         # fork2
         fork2_data = OrderedDict()
         fork2_data['ppot_raw'] = fork2_ppot_raw
-        fork2_data['ppot_val'] = fork2_ppot_val
-        fork2_data['offset'] = fork2_offset
-        fork2_data['signal'] = fork2_signal
+        fork2_data['ppot_val1'] = fork2_ppot_val1
+        fork2_data['offset1'] = fork2_offset1
+        fork2_data['signal1'] = fork2_signal1
 
         # data sheet
         data_sheet = JSONDataSheet()
