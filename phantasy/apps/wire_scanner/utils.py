@@ -34,5 +34,5 @@ def wait(pv, goal, timeout=60):
         if q.get(timeout=timeout):
             _LOGGER.info("{} reached, unblocking...".format(goal))
     except Empty:
-        _LOGGER.warning("Timeout, not changes detected.")
+        _LOGGER.warning("Timeout, no changes detected.")
         pv.remove_callback(cid)
