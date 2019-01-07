@@ -53,6 +53,7 @@ def set_entry_points():
         'plot_orbit=phantasy.tools.plot_orbit:main',
         'correct_orbit=phantasy.tools.correct_orbit:main',
         'test_phantasy=phantasy.tests:main',
+        'pm_dat2json=phantasy.apps.wire_scanner.converter:main',
     ]
 
     r['gui_scripts'] = [
@@ -63,6 +64,7 @@ def set_entry_points():
         'quad_scan=phantasy.apps.quad_scan:run',
         'va_launcher=phantasy.apps.va:run',
         'orm=phantasy.apps.orm:run',
+        'wire_scanner=phantasy.apps.wire_scanner:run',
     ]
     return r
 
