@@ -18,7 +18,10 @@ All input PV parameters are list type, while value for writing is a scalar.
 
 
 def _default_read_policy(x):
-    return sum(i.value for i in x)/len(x)
+    try:
+        return sum(i.value for i in x)/len(x)
+    except:
+        return None
 
 
 def _default_write_policy(x, v, **kws):
