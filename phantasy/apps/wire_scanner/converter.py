@@ -67,7 +67,7 @@ def main():
             pv_name = row[0]
             ts = ' '.join(row[1:3])
             if 'OFST' not in pv_name:
-                val = [float(x) for x in row[4:]]
+                val = [float(x) for x in row[4:] if x != '0']
             else:
                 val = float(row[3])
             row_dict = {'timestamp': ts, 'value': val, 'pv': pv_name}
