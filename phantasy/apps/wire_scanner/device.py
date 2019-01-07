@@ -13,6 +13,7 @@ from phantasy import epoch2human
 from phantasy.apps.correlation_visualizer.data import JSONDataSheet
 
 from .utils import wait
+from .utils import find_dconf
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -47,7 +48,10 @@ class Device(object):
         CaElement object, which is one element of high-level lattice.
     dconf : callable or str
         Configuration object for this device, or file path of the
-        configuration file (.ini file).
+        configuration file (.ini file). If not given, will read from
+        the following locations, `~/.phantasy/ws.ini`,
+        `/etc/phantasy/ws.ini` or from the package directory, see the
+        loaded full path: `Device.dconf.config_path`.
 
     See Also
     --------
@@ -56,10 +60,12 @@ class Device(object):
     :class:`~phantasy.Configuration`
     """
 
-    def __init__(self, elem, dconf):
+    def __init__(self, elem, dconf=None):
         self.elem = elem
 
-        if isinstance(dconf, Configuration):
+        if dconf is None:
+            self.dconf = Configuration(find_dconf())
+        elif isinstance(dconf, Configuration):
             self.dconf = dconf
         elif isinstance(dconf, basestring) and os.path.isfile(dconf):
             self.dconf = Configuration(dconf)
@@ -73,17 +79,17 @@ class Device(object):
         self._fork_ids = tuple()
 
         # device type, see .ini file
-        self.dtype = dconf.get(name, 'type')
+        self.dtype = self.dconf.get(name, 'type')
 
         # coord
-        self.coord = dconf.get(name, 'coord')
+        self.coord = self.dconf.get(name, 'coord')
 
         # scan range
-        self.scan_start_pos = dconf.getarray(name, 'start_pos_val')
-        self.scan_stop_pos = dconf.getarray(name, 'stop_pos_val')
+        self.scan_start_pos = self.dconf.getarray(name, 'start_pos_val')
+        self.scan_stop_pos = self.dconf.getarray(name, 'stop_pos_val')
 
         # wire offsets
-        self.wire_offset = dconf.getarray(name, 'wire_pos_offset')
+        self.wire_offset = self.dconf.getarray(name, 'wire_pos_offset')
 
         # initial data sheet
         self.data_sheet = None
@@ -784,6 +790,7 @@ class PMData(object):
             dx = float(i) * 0.1
             sumt = 0.0
             for idat in range(ndat - 1):
+                if dat[idat][1] == 0: continue
                 sig = 0.5 * (dat[idat][1] + dat[idat + 1][1]
                              ) * np.fabs(dat[idat][0] - dat[idat + 1][0])
                 pos = 0.5 * (dat[idat + 1][0] + dat[idat][0])
