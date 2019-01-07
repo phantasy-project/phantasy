@@ -1,17 +1,22 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 """Class built upon a collection of CaField(s) attached to PM element.
 """
 import os
+import time
+import numpy as np
 import logging
+from collections import OrderedDict
 
 from phantasy import Configuration
+from phantasy import epoch2human
 from phantasy.apps.correlation_visualizer.data import JSONDataSheet
 
 from .utils import wait
 
 _LOGGER = logging.getLogger(__name__)
+
+TS_FMT = "%Y-%m-%d %H:%M:%S %Z"
 
 try:
     basestring
@@ -19,10 +24,17 @@ except NameError:
     basestring = str
 
 FORK_BIT_MAPPING = {
-    'large': (1, 2,),
-    'small': (1,),
-    'flapper': (1, 2,),
+    'large': (
+        1,
+        2,
+    ),
+    'small': (1, ),
+    'flapper': (
+        1,
+        2,
+    ),
 }
+
 
 class Device(object):
     """Build wire-scanner devices from CaElement, which family is 'PM'.
@@ -43,6 +55,7 @@ class Device(object):
     :class:`~phantasy.MachinePortal`
     :class:`~phantasy.Configuration`
     """
+
     def __init__(self, elem, dconf):
         self.elem = elem
 
@@ -62,12 +75,18 @@ class Device(object):
         # device type, see .ini file
         self.dtype = dconf.get(name, 'type')
 
+        # coord
+        self.coord = dconf.get(name, 'coord')
+
         # scan range
         self.scan_start_pos = dconf.getarray(name, 'start_pos_val')
         self.scan_stop_pos = dconf.getarray(name, 'stop_pos_val')
 
         # wire offsets
         self.wire_offset = dconf.getarray(name, 'wire_pos_offset')
+
+        # initial data sheet
+        self.data_sheet = None
 
     @property
     def wire_offset(self):
@@ -264,7 +283,7 @@ class Device(object):
         field_prefix2 : str
             String of the field name for interlock, excluding fork id.
         """
-        if self.dtype != 'large': # only for large type PM.
+        if self.dtype != 'large':  # only for large type PM.
             return
 
         _LOGGER.info("Reseting interlock...")
@@ -314,10 +333,8 @@ class Device(object):
         stop_fld_prefix = kws.get('field_prefix2', 'STOP_POS')
 
         for fid, vstart, vstop in zip(self.fork_ids, start, stop):
-            setattr(self.elem, '{0}{1}'.format(
-                start_fld_prefix, fid), vstart)
-            setattr(self.elem, '{0}{1}'.format(
-                stop_fld_prefix, fid), vstop)
+            setattr(self.elem, '{0}{1}'.format(start_fld_prefix, fid), vstart)
+            setattr(self.elem, '{0}{1}'.format(stop_fld_prefix, fid), vstop)
 
     def set_bias_volt(self):
         """Apply bias voltage.
@@ -381,7 +398,7 @@ class Device(object):
         """
         if mode == 'live':
             self._sync_data()
-        elif isinstance(filename, basestring) and os.path.isfile(filename):
+        else:
             self._sync_data_from_file(filename)
 
     def _sync_data(self):
@@ -497,19 +514,482 @@ class Device(object):
         # Add other info
         self.data_sheet = data_sheet
 
-
     def _sync_data_from_file(self, filename):
         # read data from file
         self.data_sheet = JSONDataSheet(filename)
 
-
     def save_data(self, filename=None):
-        """Save data into file named *filename*.
+        """Save data (before analysis) into file named *filename*.
 
         Parameters
         ----------
         filename : str
             If not defined, device_name + timestamp + .json will be used.
         """
+        if 'device' not in self.data_sheet:
+            self.data_sheet['device'] = {
+                'type': self.dtype,
+                'scan_start_pos': self.scan_start_pos,
+                'scan_stop_pos': self.scan_stop_pos,
+                'extra_offset': self.wire_offset
+            }
+        ctime = epoch2human(time.time(), fmt=TS_FMT)
+        info_dict = OrderedDict()
+        info_dict['created'] = ctime
+        self.data_sheet.update({'info': info_dict})
+
+        if filename is None:
+            filename = '{0}_{1}.json'.format(self.name, ctime.strip())
         self.data_sheet.write(filename)
 
+
+class PMData(object):
+    """PM data class for analysis, constructed with `Device` instance.
+
+    Parameters
+    ----------
+    device : Device
+        Instance of `Device`.
+    """
+
+    def __init__(self, device):
+
+        if device.data_sheet is None:
+            _LOGGER.warning("Device data is not ready, try after sync_data()")
+        else:
+            self.device = device
+            if device.dtype == 'large':
+                # wire on fork1: u
+                # wires on fork2: v, w(x or y)
+                self.raw_pos1 = np.asarray(
+                    device.data_sheet['data']['fork1']['ppot_raw']['value'])
+                self.raw_pos2 = np.asarray(
+                    device.data_sheet['data']['fork2']['ppot_raw']['value'])
+                self.signal_u = np.asarray(
+                    device.data_sheet['data']['fork1']['signal1']['value'])
+                self.signal_v = np.asarray(
+                    device.data_sheet['data']['fork2']['signal1']['value'])
+                self.signal_w = np.asarray(
+                    device.data_sheet['data']['fork2']['signal2']['value'])
+                self.offset_u = np.asarray(
+                    device.data_sheet['data']['fork1']['offset1']['value'])
+                self.offset_v = np.asarray(
+                    device.data_sheet['data']['fork2']['offset1']['value'])
+                self.offset_w = np.asarray(
+                    device.data_sheet['data']['fork2']['offset2']['value'])
+
+    def get_middle_pos(self, fac, th_factor=0.2):
+        """Get middle position on fork2 for large type.
+
+        Parameters
+        ----------
+        fac : float
+            Projection factor.
+        th_factor : float
+            Threshold factor of signals to keep.
+        """
+        th_v, th_w = th_factor * self.signal_v.max(
+        ), th_factor * self.signal_w.max()
+        offset_v, offset_w = self.offset_v, self.offset_w
+        ran = 20 if self.device.dtype == 'small' else 40
+        d = []
+        for pos, sv, sw in zip(self.raw_pos2, self.signal_v, self.signal_w):
+            if (sv > th_v and -ran < pos + offset_v < ran) or \
+               (sw > th_w and -ran < pos + offset_w < ran):
+                d.append([pos, sv + sw * fac])
+        c = self.__calc_center(d)
+        return c
+
+    def analyze_wire(self,
+                     pos,
+                     signal0,
+                     dtype,
+                     mid1,
+                     mid2,
+                     wid,
+                     coord,
+                     offset,
+                     norder=0):
+        """Wire data analysis, return tuple of (sum, center, rms) info.
+
+        pos: ppot_raw
+        signal0: wire signal
+        dtype: PM type
+        mid1:
+        mid2:
+        wid: wire id, 0,1,2
+        coord = self.device.coord  # Luvx
+        offset: wire pos offset read from PV
+        norder: int, noise polyfit order
+        """
+        # copy of orignal signal array
+        signal = signal0.copy()
+
+        # string name of wire
+        wid_name = coord[wid + 1]
+
+        # extra offset defined in config file
+        extra_offset = self.device.wire_offset[wid]
+
+        # effective offset to position
+        eff_offset = offset - extra_offset
+
+        if dtype == 'large':
+            if wid_name == 'x':
+                xy_coef = -1.0 / np.sqrt(2.0)
+            elif wid_name == 'y':
+                xy_coef = 1.0 / np.sqrt(2.0)
+            else:
+                xy_coef = 1.0
+        elif dtype == 'flapper':
+            if wid_name == 'x':
+                xy_coef = -1.0
+            elif wid_name == 'y':
+                xy_coef = 1.0
+        elif dtype == 'small':
+            if wid_name in ("x", "y"):
+                xy_coef = 1.0 / np.sqrt(2.0)
+            else:
+                xy_coef = 1.0
+
+        pos_adjusted = (pos + eff_offset) * xy_coef
+        # pos window for bkgd noise estimation
+        pos_window = self.__get_range(pos, mid1, mid2)
+        bgcoefs, bgstdv = self.__get_background_noise(pos, signal, pos_window,
+                                                      norder)
+
+        # substract background noise
+        bkgd_signal = np.polyval(bgcoefs, pos)
+        signal -= bkgd_signal
+
+        signal[signal < 3.0 * bgstdv] = 0
+        signal[pos < pos_window[0]] = 0
+        signal[pos > pos_window[1]] = 0
+
+
+        # weighted center position
+
+        #weighted_sum = np.sum(signal)
+        #weighted_center_pos0 = c0 = np.sum(signal * pos) / np.sum(signal)
+        s, avg_pos, avg_pos2 = self.__trapz_avg(signal, pos)
+        weighted_center_pos0 = c0 = avg_pos
+        weighted_sum = s
+
+        # weighted_rms
+        #weighted_rms2 = np.sum(signal * (pos - c0) **2) / np.sum(signal)
+        weighted_rms2 = avg_pos2
+        if weighted_rms2 > 0:
+            weighted_rms = (weighted_rms2)**0.5
+        else:
+            weighted_rms = np.nan
+
+        # apply offset
+        if dtype != 'small' and wid_name == 'x':
+            c1 = -1 * (c0 + offset)
+            c = -1 * (c0 + eff_offset)
+        else:
+            c1 = c0 + offset
+            c = c0 + eff_offset
+
+        # beamsize with percentage ratio
+        dat1 = np.vstack((pos, signal)).T
+        r90p = self.__calc__percent_beamsize(dat1, s, c0, 0.9)
+        r99p = self.__calc__percent_beamsize(dat1, s, c0, 0.99)
+
+        # return dict
+        ret = {
+            'sum': weighted_sum * 1e6,
+            'rms': weighted_rms,
+            'center0': c0,  # wire center pos
+            'center1': c1,  # c0 + offset
+            'center': c,  # c0 + effective offset
+            'rms90p': r90p,  # rms with 90%
+            'rms99p': r99p,  # rms with 99%
+        }
+
+        return ret
+
+    def __get_range(self, pos, mid1, mid2):
+        # get pos window for analysis.
+        lower, upper = mid1, mid2
+        min_pos, max_pos = pos.min(), pos.max()
+        if mid1 < min_pos: lower = min_pos + 1
+        if mid2 > max_pos: upper = max_pos + 1
+        return lower, upper
+
+    def __get_background_noise(self, pos, signal, pos_window, norder):
+        # calculate background noise with the data beyond *pos_window*
+        lower, upper = pos_window
+        idx_left = (pos >= lower) & (pos < lower + 3)
+        idx_right = (pos > upper - 3) & (pos <= upper)
+        p1s, s1s = pos[idx_left], signal[idx_left]
+        p2s, s2s = pos[idx_right], signal[idx_right]
+
+        if norder == 0:  # const
+            cb1, stdv1 = 999, 999
+            cb2, stdv2 = 999, 999
+            if idx_left.any():
+                cb1, stdv1 = s1s.mean(), s1s.std()
+            if idx_right.any():
+                cb2, stdv2 = s2s.mean(), s2s.std()
+
+            if np.abs(cb1 - cb2) < 5.0 * min(stdv1, stdv2):
+                n1, n2 = len(idx_left), len(idx_right)
+                cb = (cb1 * n1 + cb2 * n2) / (n1 + n2)
+                stdv = (stdv1 * n1 + stdv2 * n2) / (n1 + n2)
+            else:
+                cb, stdv = min(cb1, cb2), min(stdv1, stdv2)
+            coefs = [cb]
+        else:
+            p12s = np.hstack([p1s, p2s])
+            s12s = np.hstack([s1s, s2s])
+            coefs = np.polyfit(p12s, s12s, norder)
+            stdv = np.polyval(coefs, p12s).std()
+
+        return coefs, stdv
+
+    def __calc_center(self, dat):
+        # calculate central position.
+        ndat = len(dat)
+        s, c = 0., 0.
+        for i in range(ndat - 1):
+            pos1, sig1 = dat[i + 1][0], dat[i + 1][1]
+            pos2, sig2 = dat[i][0], dat[i][1]
+
+            sig = (sig1 + sig2) / 2.
+            pos = (pos1 + pos2) / 2.
+            dpos = np.fabs(pos2 - pos1)
+
+            s += sig * dpos
+            c += sig * pos * dpos
+        return c / s
+
+    def __calc__percent_beamsize(self, dat, sum0, cen, ratio):
+        # should be refactored
+        ndat = len(dat)
+        #cnt = 0
+        #for _,v in enumerate(dat[:,1]):
+        #    if v == 0.0:
+        #        continue
+        #    cnt += 1
+        #print(cnt)
+
+        dxmax1 = np.fabs(dat[0][0] - cen)
+        dxmax2 = np.fabs(dat[ndat - 1][0] - cen)
+        dxmax = max(dxmax1, dxmax2)
+
+        rlast = 0.0
+        dxlast = 0.0
+        for i in range(1, int(dxmax / 0.1)):
+            dx = float(i) * 0.1
+            sumt = 0.0
+            for idat in range(ndat - 1):
+                sig = 0.5 * (dat[idat][1] + dat[idat + 1][1]
+                             ) * np.fabs(dat[idat][0] - dat[idat + 1][0])
+                pos = 0.5 * (dat[idat + 1][0] + dat[idat][0])
+
+                if cen - 1 * dx < pos < cen + 1 * dx:
+                    sumt += sig
+            r = sumt / sum0
+
+            #print str(dx)+'\t'+str(r)
+            if rlast < ratio and r > ratio:
+                #print r
+                c1 = (dx - dxlast) / (r - rlast)
+                c0 = dx - c1 * r
+                dxx = c1 * ratio + c0
+                _LOGGER.debug(
+                    str(100 * ratio) + '% : ' + str(dx) + '\t' + str(r) +
+                    '\t' + str(rlast) + '\t' + str(dxx))
+                break
+
+            rlast = r
+            dxlast = dx
+
+        return dxx
+
+    def __smooth_array(self, x):
+        # smooth array *x* by average every two consecutive points
+        return 0.5 * (x[:-1] + x[1:])
+
+    def __get_xyuv_center(self,
+                          c6in,
+                          c12in1,
+                          c12in2,
+                          coord,
+                          offset=[0.0, 0.0, 0.0]):  #+ Right-hand system
+        u, v, x, y = -999., -999., -999., -999.
+        #print offset
+        #o6in = offset[0]
+        #o12in1 = offset[1]
+        #o12in2 = offset[2]
+        if coord == "Luvx":
+            u = c6in
+            v = c12in1
+            x1 = (u - v) / np.sqrt(2)
+            x2 = (c12in2) / np.sqrt(2)
+            x = (x1 + x2) / 2.
+            y = (u + v) / np.sqrt(2)
+            _LOGGER.debug("x1: " + str(x1) + "\tx2:" + str(x2))
+            """
+            u=c6in-offset[0]
+            v=c12in1-offset[1]
+            x1 = (u-v)/np.sqrt(2)
+            x2 = (-c12in2+offset[2])/np.sqrt(2)
+            x=(x1+x2)/2.
+            #x=(u-v)/np.sqrt(2)
+            y=(u+v)/np.sqrt(2)
+            if self.debug:
+                print "x1: "+str(x1)+"\tx2:"+str(x2)
+                f1.write("x1: "+str(x1)+"\tx2:"+str(x2)+"\n")
+            """
+        elif coord == "Luvy":
+            u = c6in
+            v = c12in1
+            x = (u - v) / np.sqrt(2)
+            y1 = (u + v) / np.sqrt(2)
+            y2 = (c12in2) / np.sqrt(2)
+            y = (y1 + y2) / 2.
+            _LOGGER.debug("y1: " + str(y1) + "\ty2: " + str(y2))
+            """
+            u=c6in-offset[0]
+            v=c12in1-offset[1]
+            x=(u-v)/np.sqrt(2)
+            y1 = (u+v)/np.sqrt(2)
+            y2 = (c12in2-offset[2])/np.sqrt(2)
+            y = (y1+y2)/2.
+            if self.debug:
+                print "y1: "+str(y1)+"\ty2: "+str(y2)
+                f1.write("y1: "+str(y1)+"\ty2: "+str(y2)+"\n")
+                #y=(u+v)/np.sqrt(2)
+            """
+        elif coord == 'Suxy':
+            x = (c12in1) / np.sqrt(2)
+            y = (c12in2) / np.sqrt(2)
+            u = c6in
+            v = u - np.sqrt(2) * x
+            _LOGGER.debug(
+                "x1: " + str(x) + "\tx2:" + str(-1 * y + np.sqrt(2) * u))
+        elif coord == "Fxy":
+            '''
+            x=-1*(c6in-offset[0])
+            y=c12in1-offset[1]
+            '''
+            x = (c6in)
+            y = c12in1
+
+        return x, y, u, v
+
+    def __get_xyuv_size(self, r6in, r12in1, r12in2, coord):
+        #print coord
+        #print str(r6in)+'\t'+str(r12in1)+'\t'+str(r12in2)
+        u, v, x, y = -999., -999., -999., -999.
+        if coord == "Luvx":
+            u = r6in
+            v = r12in1
+            x = r12in2 / np.sqrt(2)
+            y = np.sqrt(u * u + v * v - x * x)
+        elif coord == "Luvy":
+            u = r6in
+            v = r12in1
+            y = r12in2 / np.sqrt(2)
+            x = np.sqrt(u * u + v * v - y * y)
+        elif coord == 'Suxy':
+            u = r6in
+            x = r12in1 / np.sqrt(2)
+            y = r12in2 / np.sqrt(2)
+            v = np.sqrt(x * x + y * y - u * u)
+        elif coord == "Fxy":
+            x = r6in
+            y = r12in1
+            u = -999.
+            v = -999.
+        return x, y, u, v
+
+    def __get_cxy(self, xrms, yrms, urms, vrms):
+        if min(xrms, yrms, urms, vrms) < -900.:
+            cxy = -999.
+        else:
+            cxy = -(vrms**2 - urms**2) / (2.0 * xrms * yrms)
+        return cxy
+
+    def analyze(self):
+        """Analyze all the data of this ws device
+        """
+        mid = self.get_middle_pos(1 / np.sqrt(2))
+        dtype = self.device.dtype
+        coord = self.device.coord
+        extra_offset = self.device.wire_offset
+        norder = 1
+
+        # u wire
+        ret1 = self.analyze_wire(self.raw_pos1, self.signal_u, dtype, -999,
+                                 999, 0, coord, self.offset_u, norder)
+
+        # v wire
+        ret2 = self.analyze_wire(self.raw_pos2, self.signal_v, dtype, mid - 10,
+                                 999, 1, coord, self.offset_v, norder)
+
+        # w wire (x/y)
+        ret3 = self.analyze_wire(self.raw_pos2, self.signal_w, dtype, -999,
+                                 mid + 10, 2, coord, self.offset_w, norder)
+
+        # corrected centers
+        xc, yc, uc, vc = self.__get_xyuv_center(
+                ret1['center'], ret2['center'],
+                ret3['center'], coord, extra_offset)
+
+        xyuv_c = {'xc': xc, 'yc': yc, 'uc': uc, 'vc': vc}
+
+        # corrected rms size
+        try:
+            xr,yr,ur,vr = self.__get_xyuv_size(ret1['rms'],ret2['rms'],ret3['rms'],coord)
+        except:
+            xr,yr,ur,vr = -999.,-999.,-999.,-999.
+        try:
+            x90p,y90p,u90p,v90p = self.__get_xyuv_size(ret1['rms90p'],ret2['rms90p'],ret3['rms90p'],coord)
+        except:
+            x90p,y90p,u90p,v90p = -999.,-999.,-999.,-999.
+        try:
+            x99p,y99p,u99p,v99p = self.__get_xyuv_size(ret1['rms99p'],ret2['rms99p'],ret3['rms99p'],coord)
+        except:
+            x99p,y99p,u99p,v99p = -999.,-999.,-999.,-999.
+
+        try:
+            cxy = self.__get_cxy(xr,yr,ur,vr)
+        except:
+            cxy = -999.
+        try:
+            cxy90p = self.__get_cxy(x90p,y90p,u90p,v90p)
+        except:
+            cxy90p = -999.
+        try:
+            cxy99p = self.__get_cxy(x99p,y99p,u99p,v99p)
+        except:
+            cxy99p = -999.
+
+        xyuv_r = {'rms_x': xr, 'rms_y': yr, 'rms_u': ur, 'rms_v': vr}
+        xyuv90_r = {'rms90_x': x90p, 'rms90_y': y90p, 'rms90_u': u90p, 'rms90_v': v90p}
+        xyuv99_r = {'rms99_x': x99p, 'rms99_y': y99p, 'rms99_u': u99p, 'rms99_v': v99p}
+
+        xy_cor = {'cxy90': cxy90p, 'cxy99p': cxy99p}
+
+        return ret1, ret2, ret3, xyuv_c, xyuv_r, xyuv90_r, xyuv99_r, xy_cor
+
+    def __trapz_avg(self, y, x):
+        # trapzoid average x and x^2 (-<x>) over y
+        # <x> = sum(y*x)/sum(y)
+        # <x^2> = sum(y*x^2)/sum(y)
+        xy = np.asarray(sorted(np.vstack([x, y]).T.tolist()))
+
+        x1, x2 = xy[:, 0][:-1], xy[:, 0][1:]
+        y1, y2 = xy[:, 1][:-1], xy[:, 1][1:]
+        dx = x2 - x1
+        xs = np.sum((x1 + x2) / 2.0 * dx * (y1 + y2) / 2.0)
+        s = np.sum((y1 + y2) / 2.0 * dx)
+
+        x_avg = xs / s
+
+        x2s = np.sum(((x1 + x2) / 2.0 - x_avg)**2 * dx * (y1 + y2) / 2.0)
+
+        return s, x_avg, x2s / s
