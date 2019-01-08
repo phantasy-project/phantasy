@@ -42,26 +42,14 @@ parser.add_argument("-v", dest="verbosity", action='store_true',
 
 print_help = parser.print_help
 
-def main():
-    if len(sys.argv) < 2:
-        print_help()
-        sys.exit(1)
 
-    args = parser.parse_args(sys.argv[1:])
-
-    if args.verbosity:
-        logging.getLogger().setLevel(logging.DEBUG)
-
-    ifile, ofile = args.datfilepath, args.jsonfilepath
-    if not os.path.isfile(ifile):
-        print("Invalid input file path")
-        print_help()
-        sys.exit(1)
-
+def read_from_datfile(filepath):
+    """Read data from *filepath*, return a dict.
+    """
     data_dict = {}
 
-    _LOGGER.debug("Reading data from {}...".format(ifile))
-    with open(ifile, 'r') as f:
+    _LOGGER.debug("Reading data from {}...".format(filepath))
+    with open(filepath, 'r') as f:
         for line in f:
             row = line.split()
             pv_name = row[0]
@@ -81,9 +69,35 @@ def main():
             data_dict[fork_name].update({key_name: row_dict})
             _LOGGER.debug("Processing line starts with {}...".format(pv_name))
 
-    _LOGGER.debug("Saving data into {}...".format(ofile))
-    with open(ofile, 'w') as f:
+    return data_dict
+
+
+def save_to_jsonfile(filepath, data_dict):
+    """Save *data_dict* as json formatted *filepath*.
+    """
+    _LOGGER.debug("Saving data into {}...".format(filepath))
+    with open(filepath, 'w') as f:
         json.dump({'data': data_dict}, f, indent=2, sort_keys=True)
+
+
+def main():
+    if len(sys.argv) < 2:
+        print_help()
+        sys.exit(1)
+
+    args = parser.parse_args(sys.argv[1:])
+
+    if args.verbosity:
+        logging.getLogger().setLevel(logging.DEBUG)
+
+    ifile, ofile = args.datfilepath, args.jsonfilepath
+    if not os.path.isfile(ifile):
+        print("Invalid input file path")
+        print_help()
+        sys.exit(1)
+
+    data_dict = read_from_datfile(ifile)
+    save_to_jsonfile(ofile, data_dict)
 
     return 0
 
