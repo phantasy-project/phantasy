@@ -12,11 +12,11 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1400, 1056)
+        MainWindow.resize(1693, 1431)
         MainWindow.setStyleSheet("QLineEdit {\n"
                                  "    border: 0.5px solid gray;\n"
-                                 "    padding: 0 5px;\n"
-                                 "    border-radius: 5px;\n"
+                                 "    padding: 1 5px;\n"
+                                 "    border-radius: 3px;\n"
                                  "}")
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
@@ -36,7 +36,7 @@ class Ui_MainWindow(object):
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
                                            QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(1)
+        sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(
             self.controls_groupBox.sizePolicy().hasHeightForWidth())
         self.controls_groupBox.setSizePolicy(sizePolicy)
@@ -119,6 +119,91 @@ class Ui_MainWindow(object):
         self.label_5 = QtWidgets.QLabel(self.controls_groupBox)
         self.label_5.setObjectName("label_5")
         self.gridLayout_3.addWidget(self.label_5, 2, 5, 1, 1)
+        self.advctrl_groupBox = QtWidgets.QGroupBox(self.controls_groupBox)
+        self.advctrl_groupBox.setObjectName("advctrl_groupBox")
+        self.gridLayout_4 = QtWidgets.QGridLayout(self.advctrl_groupBox)
+        self.gridLayout_4.setObjectName("gridLayout_4")
+        self.startpos2_lineEdit = QtWidgets.QLineEdit(self.advctrl_groupBox)
+        self.startpos2_lineEdit.setAlignment(QtCore.Qt.AlignCenter)
+        self.startpos2_lineEdit.setObjectName("startpos2_lineEdit")
+        self.gridLayout_4.addWidget(self.startpos2_lineEdit, 2, 3, 1, 1)
+        self.init_potentiometer_btn = QtWidgets.QPushButton(
+            self.advctrl_groupBox)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
+                                           QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(1)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.init_potentiometer_btn.sizePolicy().hasHeightForWidth())
+        self.init_potentiometer_btn.setSizePolicy(sizePolicy)
+        self.init_potentiometer_btn.setObjectName("init_potentiometer_btn")
+        self.gridLayout_4.addWidget(self.init_potentiometer_btn, 0, 0, 1, 1)
+        self.enable_scan_btn = QtWidgets.QPushButton(self.advctrl_groupBox)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
+                                           QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(1)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.enable_scan_btn.sizePolicy().hasHeightForWidth())
+        self.enable_scan_btn.setSizePolicy(sizePolicy)
+        self.enable_scan_btn.setObjectName("enable_scan_btn")
+        self.gridLayout_4.addWidget(self.enable_scan_btn, 0, 2, 1, 1)
+        self.reset_interlock_btn = QtWidgets.QPushButton(self.advctrl_groupBox)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
+                                           QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(1)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.reset_interlock_btn.sizePolicy().hasHeightForWidth())
+        self.reset_interlock_btn.setSizePolicy(sizePolicy)
+        self.reset_interlock_btn.setObjectName("reset_interlock_btn")
+        self.gridLayout_4.addWidget(self.reset_interlock_btn, 0, 3, 1, 1)
+        self.init_motor_pos_btn = QtWidgets.QPushButton(self.advctrl_groupBox)
+        self.init_motor_pos_btn.setObjectName("init_motor_pos_btn")
+        self.gridLayout_4.addWidget(self.init_motor_pos_btn, 1, 0, 1, 1)
+        self.set_bias_volt_btn = QtWidgets.QPushButton(self.advctrl_groupBox)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
+                                           QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(1)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.set_bias_volt_btn.sizePolicy().hasHeightForWidth())
+        self.set_bias_volt_btn.setSizePolicy(sizePolicy)
+        self.set_bias_volt_btn.setObjectName("set_bias_volt_btn")
+        self.gridLayout_4.addWidget(self.set_bias_volt_btn, 0, 4, 1, 1)
+        self.mode_btn = QtWidgets.QPushButton(self.advctrl_groupBox)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
+                                           QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(1)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.mode_btn.sizePolicy().hasHeightForWidth())
+        self.mode_btn.setSizePolicy(sizePolicy)
+        self.mode_btn.setObjectName("mode_btn")
+        self.gridLayout_4.addWidget(self.mode_btn, 0, 5, 1, 1)
+        self.label_10 = QtWidgets.QLabel(self.advctrl_groupBox)
+        self.label_10.setObjectName("label_10")
+        self.gridLayout_4.addWidget(self.label_10, 1, 2, 1, 1)
+        self.stoppos2_lineEdit = QtWidgets.QLineEdit(self.advctrl_groupBox)
+        self.stoppos2_lineEdit.setAlignment(QtCore.Qt.AlignCenter)
+        self.stoppos2_lineEdit.setObjectName("stoppos2_lineEdit")
+        self.gridLayout_4.addWidget(self.stoppos2_lineEdit, 2, 5, 1, 1)
+        self.outlimit_lineEdit = QtWidgets.QLineEdit(self.advctrl_groupBox)
+        self.outlimit_lineEdit.setAlignment(QtCore.Qt.AlignCenter)
+        self.outlimit_lineEdit.setObjectName("outlimit_lineEdit")
+        self.gridLayout_4.addWidget(self.outlimit_lineEdit, 1, 3, 1, 1)
+        self.set_scan_range_btn = QtWidgets.QPushButton(self.advctrl_groupBox)
+        self.set_scan_range_btn.setObjectName("set_scan_range_btn")
+        self.gridLayout_4.addWidget(self.set_scan_range_btn, 2, 0, 1, 1)
+        self.startpos1_lineEdit = QtWidgets.QLineEdit(self.advctrl_groupBox)
+        self.startpos1_lineEdit.setAlignment(QtCore.Qt.AlignCenter)
+        self.startpos1_lineEdit.setObjectName("startpos1_lineEdit")
+        self.gridLayout_4.addWidget(self.startpos1_lineEdit, 2, 2, 1, 1)
+        self.stoppos1_lineEdit = QtWidgets.QLineEdit(self.advctrl_groupBox)
+        self.stoppos1_lineEdit.setAlignment(QtCore.Qt.AlignCenter)
+        self.stoppos1_lineEdit.setObjectName("stoppos1_lineEdit")
+        self.gridLayout_4.addWidget(self.stoppos1_lineEdit, 2, 4, 1, 1)
+        self.gridLayout_3.addWidget(self.advctrl_groupBox, 5, 0, 1, 10)
         self.pm_names_cbb = QtWidgets.QComboBox(self.controls_groupBox)
         self.pm_names_cbb.setStyleSheet("QComboBox {\n"
                                         "    font-family: monospace;\n"
@@ -133,40 +218,6 @@ class Ui_MainWindow(object):
         self.stop_pos1_lineEdit.setAlignment(QtCore.Qt.AlignCenter)
         self.stop_pos1_lineEdit.setObjectName("stop_pos1_lineEdit")
         self.gridLayout_3.addWidget(self.stop_pos1_lineEdit, 3, 6, 1, 1)
-        self.offset3_lineEdit = QtWidgets.QLineEdit(self.controls_groupBox)
-        self.offset3_lineEdit.setStyleSheet("")
-        self.offset3_lineEdit.setAlignment(QtCore.Qt.AlignCenter)
-        self.offset3_lineEdit.setObjectName("offset3_lineEdit")
-        self.gridLayout_3.addWidget(self.offset3_lineEdit, 3, 4, 1, 1)
-        self.label_4 = QtWidgets.QLabel(self.controls_groupBox)
-        self.label_4.setObjectName("label_4")
-        self.gridLayout_3.addWidget(self.label_4, 2, 3, 1, 1)
-        self.coord_lineEdit = QtWidgets.QLineEdit(self.controls_groupBox)
-        self.coord_lineEdit.setStyleSheet("")
-        self.coord_lineEdit.setAlignment(QtCore.Qt.AlignCenter)
-        self.coord_lineEdit.setReadOnly(True)
-        self.coord_lineEdit.setObjectName("coord_lineEdit")
-        self.gridLayout_3.addWidget(self.coord_lineEdit, 2, 4, 1, 1)
-        self.label_9 = QtWidgets.QLabel(self.controls_groupBox)
-        self.label_9.setObjectName("label_9")
-        self.gridLayout_3.addWidget(self.label_9, 3, 1, 1, 1)
-        self.offset1_lineEdit = QtWidgets.QLineEdit(self.controls_groupBox)
-        self.offset1_lineEdit.setStyleSheet("")
-        self.offset1_lineEdit.setAlignment(QtCore.Qt.AlignCenter)
-        self.offset1_lineEdit.setObjectName("offset1_lineEdit")
-        self.gridLayout_3.addWidget(self.offset1_lineEdit, 3, 2, 1, 1)
-        self.label_2 = QtWidgets.QLabel(self.controls_groupBox)
-        self.label_2.setObjectName("label_2")
-        self.gridLayout_3.addWidget(self.label_2, 2, 0, 1, 1)
-        self.line = QtWidgets.QFrame(self.controls_groupBox)
-        self.line.setFrameShape(QtWidgets.QFrame.HLine)
-        self.line.setFrameShadow(QtWidgets.QFrame.Sunken)
-        self.line.setObjectName("line")
-        self.gridLayout_3.addWidget(self.line, 1, 0, 1, 10)
-        spacerItem = QtWidgets.QSpacerItem(20, 40,
-                                           QtWidgets.QSizePolicy.Minimum,
-                                           QtWidgets.QSizePolicy.Expanding)
-        self.gridLayout_3.addItem(spacerItem, 6, 0, 1, 1)
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_2.setSpacing(4)
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
@@ -198,86 +249,36 @@ class Ui_MainWindow(object):
         self.emstop_btn.setObjectName("emstop_btn")
         self.horizontalLayout_2.addWidget(self.emstop_btn)
         self.gridLayout_3.addLayout(self.horizontalLayout_2, 4, 0, 1, 10)
-        self.advctrl_groupBox = QtWidgets.QGroupBox(self.controls_groupBox)
-        self.advctrl_groupBox.setObjectName("advctrl_groupBox")
-        self.gridLayout_4 = QtWidgets.QGridLayout(self.advctrl_groupBox)
-        self.gridLayout_4.setObjectName("gridLayout_4")
-        self.label_11 = QtWidgets.QLabel(self.advctrl_groupBox)
-        self.label_11.setObjectName("label_11")
-        self.gridLayout_4.addWidget(self.label_11, 2, 1, 1, 1)
-        self.lineEdit_2 = QtWidgets.QLineEdit(self.advctrl_groupBox)
-        self.lineEdit_2.setObjectName("lineEdit_2")
-        self.gridLayout_4.addWidget(self.lineEdit_2, 2, 2, 1, 1)
-        self.pushButton_2 = QtWidgets.QPushButton(self.advctrl_groupBox)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
-                                           QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(1)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(
-            self.pushButton_2.sizePolicy().hasHeightForWidth())
-        self.pushButton_2.setSizePolicy(sizePolicy)
-        self.pushButton_2.setObjectName("pushButton_2")
-        self.gridLayout_4.addWidget(self.pushButton_2, 0, 0, 1, 1)
-        self.pushButton_3 = QtWidgets.QPushButton(self.advctrl_groupBox)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
-                                           QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(1)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(
-            self.pushButton_3.sizePolicy().hasHeightForWidth())
-        self.pushButton_3.setSizePolicy(sizePolicy)
-        self.pushButton_3.setObjectName("pushButton_3")
-        self.gridLayout_4.addWidget(self.pushButton_3, 0, 1, 1, 1)
-        self.pushButton_8 = QtWidgets.QPushButton(self.advctrl_groupBox)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
-                                           QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(1)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(
-            self.pushButton_8.sizePolicy().hasHeightForWidth())
-        self.pushButton_8.setSizePolicy(sizePolicy)
-        self.pushButton_8.setObjectName("pushButton_8")
-        self.gridLayout_4.addWidget(self.pushButton_8, 0, 2, 1, 1)
-        self.pushButton_7 = QtWidgets.QPushButton(self.advctrl_groupBox)
-        self.pushButton_7.setObjectName("pushButton_7")
-        self.gridLayout_4.addWidget(self.pushButton_7, 1, 0, 1, 1)
-        self.pushButton_5 = QtWidgets.QPushButton(self.advctrl_groupBox)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
-                                           QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(1)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(
-            self.pushButton_5.sizePolicy().hasHeightForWidth())
-        self.pushButton_5.setSizePolicy(sizePolicy)
-        self.pushButton_5.setObjectName("pushButton_5")
-        self.gridLayout_4.addWidget(self.pushButton_5, 0, 3, 1, 1)
-        self.pushButton_6 = QtWidgets.QPushButton(self.advctrl_groupBox)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
-                                           QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(1)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(
-            self.pushButton_6.sizePolicy().hasHeightForWidth())
-        self.pushButton_6.setSizePolicy(sizePolicy)
-        self.pushButton_6.setObjectName("pushButton_6")
-        self.gridLayout_4.addWidget(self.pushButton_6, 0, 4, 1, 1)
-        self.label_10 = QtWidgets.QLabel(self.advctrl_groupBox)
-        self.label_10.setObjectName("label_10")
-        self.gridLayout_4.addWidget(self.label_10, 1, 1, 1, 1)
-        self.label_12 = QtWidgets.QLabel(self.advctrl_groupBox)
-        self.label_12.setObjectName("label_12")
-        self.gridLayout_4.addWidget(self.label_12, 2, 3, 1, 1)
-        self.lineEdit_5 = QtWidgets.QLineEdit(self.advctrl_groupBox)
-        self.lineEdit_5.setObjectName("lineEdit_5")
-        self.gridLayout_4.addWidget(self.lineEdit_5, 2, 4, 1, 1)
-        self.lineEdit = QtWidgets.QLineEdit(self.advctrl_groupBox)
-        self.lineEdit.setText("")
-        self.lineEdit.setObjectName("lineEdit")
-        self.gridLayout_4.addWidget(self.lineEdit, 1, 2, 1, 1)
-        self.pushButton_4 = QtWidgets.QPushButton(self.advctrl_groupBox)
-        self.pushButton_4.setObjectName("pushButton_4")
-        self.gridLayout_4.addWidget(self.pushButton_4, 2, 0, 1, 1)
-        self.gridLayout_3.addWidget(self.advctrl_groupBox, 5, 0, 1, 10)
+        self.offset3_lineEdit = QtWidgets.QLineEdit(self.controls_groupBox)
+        self.offset3_lineEdit.setStyleSheet("")
+        self.offset3_lineEdit.setAlignment(QtCore.Qt.AlignCenter)
+        self.offset3_lineEdit.setObjectName("offset3_lineEdit")
+        self.gridLayout_3.addWidget(self.offset3_lineEdit, 3, 4, 1, 1)
+        self.label_4 = QtWidgets.QLabel(self.controls_groupBox)
+        self.label_4.setObjectName("label_4")
+        self.gridLayout_3.addWidget(self.label_4, 2, 3, 1, 1)
+        self.coord_lineEdit = QtWidgets.QLineEdit(self.controls_groupBox)
+        self.coord_lineEdit.setStyleSheet("")
+        self.coord_lineEdit.setAlignment(QtCore.Qt.AlignCenter)
+        self.coord_lineEdit.setReadOnly(True)
+        self.coord_lineEdit.setObjectName("coord_lineEdit")
+        self.gridLayout_3.addWidget(self.coord_lineEdit, 2, 4, 1, 1)
+        self.label_9 = QtWidgets.QLabel(self.controls_groupBox)
+        self.label_9.setObjectName("label_9")
+        self.gridLayout_3.addWidget(self.label_9, 3, 1, 1, 1)
+        self.offset1_lineEdit = QtWidgets.QLineEdit(self.controls_groupBox)
+        self.offset1_lineEdit.setStyleSheet("")
+        self.offset1_lineEdit.setAlignment(QtCore.Qt.AlignCenter)
+        self.offset1_lineEdit.setObjectName("offset1_lineEdit")
+        self.gridLayout_3.addWidget(self.offset1_lineEdit, 3, 2, 1, 1)
+        self.label_2 = QtWidgets.QLabel(self.controls_groupBox)
+        self.label_2.setObjectName("label_2")
+        self.gridLayout_3.addWidget(self.label_2, 2, 0, 1, 1)
+        self.line = QtWidgets.QFrame(self.controls_groupBox)
+        self.line.setFrameShape(QtWidgets.QFrame.HLine)
+        self.line.setFrameShadow(QtWidgets.QFrame.Sunken)
+        self.line.setObjectName("line")
+        self.gridLayout_3.addWidget(self.line, 1, 0, 1, 10)
         self.label_2.raise_()
         self.label.raise_()
         self.pm_names_cbb.raise_()
@@ -304,13 +305,20 @@ class Ui_MainWindow(object):
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
                                            QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(4)
+        sizePolicy.setVerticalStretch(1)
         sizePolicy.setHeightForWidth(
             self.splitter.sizePolicy().hasHeightForWidth())
         self.splitter.setSizePolicy(sizePolicy)
         self.splitter.setOrientation(QtCore.Qt.Horizontal)
         self.splitter.setObjectName("splitter")
         self.groupBox = QtWidgets.QGroupBox(self.splitter)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
+                                           QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(1)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.groupBox.sizePolicy().hasHeightForWidth())
+        self.groupBox.setSizePolicy(sizePolicy)
         self.groupBox.setStyleSheet(
             "QGroupBox {\n"
             "    /*background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
@@ -334,11 +342,26 @@ class Ui_MainWindow(object):
         self.gridLayout_2 = QtWidgets.QGridLayout(self.groupBox)
         self.gridLayout_2.setObjectName("gridLayout_2")
         self.matplotlibcurveWidget = MatplotlibCurveWidget(self.groupBox)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
+                                           QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(1)
+        sizePolicy.setHeightForWidth(
+            self.matplotlibcurveWidget.sizePolicy().hasHeightForWidth())
+        self.matplotlibcurveWidget.setSizePolicy(sizePolicy)
         self.matplotlibcurveWidget.setObjectName("matplotlibcurveWidget")
         self.gridLayout_2.addWidget(self.matplotlibcurveWidget, 0, 0, 1, 1)
         self.matplotlibcurveWidget.raise_()
         self.controls_groupBox.raise_()
         self.groupBox_2 = QtWidgets.QGroupBox(self.splitter)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
+                                           QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.groupBox_2.sizePolicy().hasHeightForWidth())
+        self.groupBox_2.setSizePolicy(sizePolicy)
+        self.groupBox_2.setMinimumSize(QtCore.QSize(400, 0))
         self.groupBox_2.setStyleSheet(
             "QGroupBox {\n"
             "    /*background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
@@ -362,7 +385,7 @@ class Ui_MainWindow(object):
         self.gridLayout.addWidget(self.splitter_2, 0, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1400, 30))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1693, 30))
         self.menubar.setObjectName("menubar")
         self.menu_File = QtWidgets.QMenu(self.menubar)
         self.menu_File.setObjectName("menu_File")
@@ -370,6 +393,10 @@ class Ui_MainWindow(object):
         self.menu_Help.setObjectName("menu_Help")
         self.menu_Config = QtWidgets.QMenu(self.menubar)
         self.menu_Config.setObjectName("menu_Config")
+        self.menu_Data = QtWidgets.QMenu(self.menubar)
+        self.menu_Data.setObjectName("menu_Data")
+        self.menuDe_vice = QtWidgets.QMenu(self.menubar)
+        self.menuDe_vice.setObjectName("menuDe_vice")
         MainWindow.setMenuBar(self.menubar)
         self.actionE_xit = QtWidgets.QAction(MainWindow)
         self.actionE_xit.setObjectName("actionE_xit")
@@ -392,6 +419,17 @@ class Ui_MainWindow(object):
         self.actionSimulation_Mode = QtWidgets.QAction(MainWindow)
         self.actionSimulation_Mode.setCheckable(True)
         self.actionSimulation_Mode.setObjectName("actionSimulation_Mode")
+        self.actionSync = QtWidgets.QAction(MainWindow)
+        self.actionSync.setObjectName("actionSync")
+        self.actionLoad = QtWidgets.QAction(MainWindow)
+        self.actionLoad.setObjectName("actionLoad")
+        self.actionSave = QtWidgets.QAction(MainWindow)
+        self.actionSave.setObjectName("actionSave")
+        self.actionLocate_Configuration = QtWidgets.QAction(MainWindow)
+        self.actionLocate_Configuration.setObjectName(
+            "actionLocate_Configuration")
+        self.actionDAT2JSON = QtWidgets.QAction(MainWindow)
+        self.actionDAT2JSON.setObjectName("actionDAT2JSON")
         self.menu_File.addAction(self.actionE_xit)
         self.menu_Help.addAction(self.actionContents)
         self.menu_Help.addSeparator()
@@ -401,9 +439,17 @@ class Ui_MainWindow(object):
         self.menu_Config.addAction(self.actionSave_Configuration)
         self.menu_Config.addAction(self.actionLoad_Configuration)
         self.menu_Config.addAction(self.actionSaveAs_Configuration)
-        self.menu_Config.addAction(self.actionSimulation_Mode)
+        self.menu_Config.addSeparator()
+        self.menu_Config.addAction(self.actionLocate_Configuration)
+        self.menu_Data.addAction(self.actionSync)
+        self.menu_Data.addAction(self.actionLoad)
+        self.menu_Data.addAction(self.actionSave)
+        self.menu_Data.addAction(self.actionDAT2JSON)
+        self.menuDe_vice.addAction(self.actionSimulation_Mode)
         self.menubar.addAction(self.menu_File.menuAction())
         self.menubar.addAction(self.menu_Config.menuAction())
+        self.menubar.addAction(self.menuDe_vice.menuAction())
+        self.menubar.addAction(self.menu_Data.menuAction())
         self.menubar.addAction(self.menu_Help.menuAction())
 
         self.retranslateUi(MainWindow)
@@ -426,6 +472,12 @@ class Ui_MainWindow(object):
         self.actionSimulation_Mode.toggled['bool'].connect(
             MainWindow.on_enable_simulation_mode)
         self.emstop_btn.clicked.connect(MainWindow.on_emstop_device)
+        self.actionSync.triggered.connect(MainWindow.on_sync_data)
+        self.actionLoad.triggered.connect(MainWindow.on_load_data)
+        self.actionSave.triggered.connect(MainWindow.on_save_data)
+        self.actionLocate_Configuration.triggered.connect(
+            MainWindow.on_locate_config)
+        self.actionDAT2JSON.triggered.connect(MainWindow.on_dat2json)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -442,10 +494,43 @@ class Ui_MainWindow(object):
         self.label_7.setText(_translate("MainWindow", "Stop Pos (Fork2)"))
         self.label_3.setText(_translate("MainWindow", "Type"))
         self.label_5.setText(_translate("MainWindow", "Start Pos (Fork1)"))
+        self.advctrl_groupBox.setTitle(
+            _translate("MainWindow", "Advanced Control"))
+        self.startpos2_lineEdit.setToolTip(
+            _translate(
+                "MainWindow",
+                "<html><head/><body><p>Start position of fork2</p></body></html>"
+            ))
+        self.init_potentiometer_btn.setText(
+            _translate("MainWindow", "Initialize Potentimeter"))
+        self.enable_scan_btn.setText(_translate("MainWindow", "Enable Scan"))
+        self.reset_interlock_btn.setText(
+            _translate("MainWindow", "Reset Interlock"))
+        self.init_motor_pos_btn.setText(
+            _translate("MainWindow", "Initialize Motor"))
+        self.set_bias_volt_btn.setText(
+            _translate("MainWindow", "Set Bias Voltage"))
+        self.mode_btn.setText(_translate("MainWindow", "Move"))
+        self.label_10.setText(_translate("MainWindow", "Out Limit"))
+        self.stoppos2_lineEdit.setToolTip(
+            _translate(
+                "MainWindow",
+                "<html><head/><body><p>Stop position of fork2</p></body></html>"
+            ))
+        self.outlimit_lineEdit.setText(_translate("MainWindow", "110"))
+        self.set_scan_range_btn.setText(
+            _translate("MainWindow", "Set Scan Range"))
+        self.startpos1_lineEdit.setToolTip(
+            _translate(
+                "MainWindow",
+                "<html><head/><body><p>Start position of fork1</p></body></html>"
+            ))
+        self.stoppos1_lineEdit.setToolTip(
+            _translate(
+                "MainWindow",
+                "<html><head/><body><p>Stop position of fork1</p></body></html>"
+            ))
         self.label_8.setText(_translate("MainWindow", "Stop Pos (Fork2)"))
-        self.label_4.setText(_translate("MainWindow", "Coordinate"))
-        self.label_9.setText(_translate("MainWindow", "Wire Offsets"))
-        self.label_2.setText(_translate("MainWindow", "Configuration"))
         self.run_btn.setText(_translate("MainWindow", "Run"))
         self.advctrl_chkbox.setText(_translate("MainWindow", "Advanced"))
         self.emstop_btn.setToolTip(
@@ -453,24 +538,16 @@ class Ui_MainWindow(object):
                 "MainWindow",
                 "<html><head/><body><p>Emergency Stop</p></body></html>"))
         self.emstop_btn.setText(_translate("MainWindow", "..."))
-        self.advctrl_groupBox.setTitle(
-            _translate("MainWindow", "Advanced Control"))
-        self.label_11.setText(_translate("MainWindow", "From"))
-        self.pushButton_2.setText(
-            _translate("MainWindow", "Initialize Potentimeter"))
-        self.pushButton_3.setText(_translate("MainWindow", "Enable Scan"))
-        self.pushButton_8.setText(_translate("MainWindow", "Reset Interlock"))
-        self.pushButton_7.setText(_translate("MainWindow", "Initialize Motor"))
-        self.pushButton_5.setText(_translate("MainWindow", "Set Bias Voltage"))
-        self.pushButton_6.setText(_translate("MainWindow", "Move"))
-        self.label_10.setText(_translate("MainWindow", "Out Limit"))
-        self.label_12.setText(_translate("MainWindow", "To"))
-        self.pushButton_4.setText(_translate("MainWindow", "Set Scan Range"))
+        self.label_4.setText(_translate("MainWindow", "Coordinate"))
+        self.label_9.setText(_translate("MainWindow", "Wire Offsets"))
+        self.label_2.setText(_translate("MainWindow", "Configuration"))
         self.groupBox.setTitle(_translate("MainWindow", "Data Plot"))
         self.groupBox_2.setTitle(_translate("MainWindow", "Data Analysis"))
         self.menu_File.setTitle(_translate("MainWindow", "&File"))
         self.menu_Help.setTitle(_translate("MainWindow", "&Help"))
         self.menu_Config.setTitle(_translate("MainWindow", "Configuration"))
+        self.menu_Data.setTitle(_translate("MainWindow", "&Data"))
+        self.menuDe_vice.setTitle(_translate("MainWindow", "De&vice"))
         self.actionE_xit.setText(_translate("MainWindow", "E&xit"))
         self.actionE_xit.setShortcut(_translate("MainWindow", "Ctrl+W"))
         self.actionContents.setText(_translate("MainWindow", "Contents"))
@@ -487,6 +564,15 @@ class Ui_MainWindow(object):
             _translate("MainWindow", "Reload"))
         self.actionSimulation_Mode.setText(
             _translate("MainWindow", "Simulation Mode"))
+        self.actionSync.setText(_translate("MainWindow", "Sync"))
+        self.actionLoad.setText(_translate("MainWindow", "Load"))
+        self.actionSave.setText(_translate("MainWindow", "Save"))
+        self.actionLocate_Configuration.setText(
+            _translate("MainWindow", "Locate"))
+        self.actionDAT2JSON.setText(_translate("MainWindow", "Converter"))
+        self.actionDAT2JSON.setToolTip(
+            _translate("MainWindow",
+                       "Convert .dat file to .json formatted data file."))
 
 
 from mpl4qt.widgets.mplcurvewidget import MatplotlibCurveWidget
