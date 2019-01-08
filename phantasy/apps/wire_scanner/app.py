@@ -5,6 +5,7 @@
 """
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import QThread
 from PyQt5.QtWidgets import QLineEdit
 
 from functools import partial
@@ -15,13 +16,11 @@ from phantasy import Configuration
 from phantasy.apps.wire_scanner.utils import find_dconf
 from phantasy.apps.wire_scanner.device import Device
 
+from .app_utils import DeviceRunner
 from .ui.ui_app import Ui_MainWindow
 
 
 class WireScannerWindow(BaseAppForm, Ui_MainWindow):
-
-    # ws config is changed
-    confChanged = pyqtSignal()
 
     def __init__(self, version):
         super(WireScannerWindow, self).__init__()
@@ -51,17 +50,18 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         # UI
         self.setupUi(self)
 
+        # variable initialization
+        self._ws_device = None
+        self._device_mode = "doSomethingReal"
+
         # events
         self.pm_names_cbb.currentTextChanged.connect(self.on_pm_name_changed)
         for o in self.controls_groupBox.findChildren(QLineEdit):
             o.textChanged.connect(self.highlight_text)
 
-        #self.confChanged.connect(self.on_update_device)
-
         # init ui
         self.post_init_ui()
 
- 
     def post_init_ui(self):
         # all PMs
         all_pms_dict = self.get_all_pms()
@@ -81,6 +81,12 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         self._dconf = self.get_device_config()
         self.on_update_device()
 
+        # update visibility of advctrl groupbox
+        self.advctrl_groupBox.setVisible(self.advctrl_chkbox.isChecked())
+
+        # hide run status progressbar
+        self.run_progressbar.setVisible(False)
+        self.emstop_btn.setVisible(False)
 
     @pyqtSlot('QString')
     def on_pm_name_changed(self, n):
@@ -89,12 +95,11 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         self._current_pm_name = n
         self._current_pm_elem = self._all_pms_dict[n]
         #
-#        self.confChanged.emit()
         self.on_update_device()
 
     def on_update_device(self):
         # update ws device object.
-        
+
         # ws device
         ws = Device(self._current_pm_elem, self._dconf)
         self._ws_device = ws
@@ -110,6 +115,57 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         self.offset2_lineEdit.setText(str(ws.wire_offset[1]))
         self.offset3_lineEdit.setText(str(ws.wire_offset[2]))
 
+    @pyqtSlot()
+    def on_run_device(self):
+        """Run device in the all-in-one style.
+        """
+        if self._ws_device is None:
+            return
+
+        device = self._ws_device
+
+        self.run_progressbar.setVisible(True)
+        self.emstop_btn.setVisible(True)
+        self.run_progressbar.setValue(0)
+        self.thread = QThread()
+        oplist = [
+            device.init_potentiometer,
+            device.enable_scan,
+            device.init_motor_pos,
+            device.reset_interlock,
+            device.set_scan_range,
+            device.set_bias_volt,
+            device.move,
+            device.init_motor_pos,
+        ]
+        self.device_runner = DeviceRunner(oplist, device, self._device_mode)
+        self.device_runner.moveToThread(self.thread)
+        self.device_runner.update_progress.connect(self.update_progress_bar)
+        #self.device_runner.results.connect(self.display_results)
+        self.device_runner.finished.connect(self.complete)
+        self.device_runner.finished.connect(self.thread.quit)
+        self.device_runner.finished.connect(self.device_runner.deleteLater)
+        self.thread.finished.connect(self.thread.deleteLater)
+        self.thread.started.connect(self.device_runner.run)
+        self.thread.start()
+
+        self.run_btn.setEnabled(False)
+
+    @pyqtSlot(float, 'QString')
+    def update_progress_bar(self, x, s):
+        self.run_progressbar.setValue(x)
+        self.run_progressbar.setFormat("Running: {}... (%p%)".format(s))
+
+    @pyqtSlot(dict)
+    def display_results(self, results):
+        for k, v in results.items():
+            self.result_box.append('%s: %s' % (k, v))
+
+    @pyqtSlot()
+    def complete(self):
+        self.run_btn.setEnabled(True)
+        self.run_progressbar.setVisible(False)
+        self.emstop_btn.setVisible(False)
 
     @pyqtSlot()
     def on_show_device_details(self):
@@ -149,6 +205,25 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         """Reload configuration.
         """
         print("Reload")
+
+    @pyqtSlot(bool)
+    def on_show_advanced_ctrlpanel(self, f):
+        """Show/hide advanced control panel.
+        """
+        self.advctrl_groupBox.setVisible(f)
+
+    @pyqtSlot(bool)
+    def on_enable_simulation_mode(self, f):
+        if f:
+            self._device_mode = "simulation"
+        else:
+            self._device_mode = "doSomethingReal"
+
+    @pyqtSlot()
+    def on_emstop_device(self):
+        """Emergency stop running device.
+        """
+        self.device_runner.stop()
 
     def get_all_pms(self):
         """Return all PM elements.
