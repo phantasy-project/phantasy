@@ -7,6 +7,7 @@ from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import QThread
 from PyQt5.QtWidgets import QLineEdit
+from PyQt5.QtGui import QDoubleValidator
 
 from functools import partial
 
@@ -58,6 +59,14 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         self.pm_names_cbb.currentTextChanged.connect(self.on_pm_name_changed)
         for o in self.controls_groupBox.findChildren(QLineEdit):
             o.textChanged.connect(self.highlight_text)
+
+        # validator
+        for o in (self.start_pos1_lineEdit, self.start_pos2_lineEdit,
+                  self.stop_pos1_lineEdit, self.stop_pos2_lineEdit,
+                  self.offset1_lineEdit, self.offset2_lineEdit,
+                  self.offset3_lineEdit, self.outlimit_lineEdit,
+                  self.start_pos_lineEdit, self.stop_pos_lineEdit):
+            o.setValidator(QDoubleValidator())
 
         # init ui
         self.post_init_ui()
