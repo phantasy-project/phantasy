@@ -357,11 +357,6 @@ class Ui_MainWindow(object):
         self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_3.setContentsMargins(-1, 0, -1, -1)
         self.horizontalLayout_3.setObjectName("horizontalLayout_3")
-        self.auto_scale_btn = QtWidgets.QPushButton(self.groupBox)
-        self.auto_scale_btn.setCheckable(True)
-        self.auto_scale_btn.setChecked(False)
-        self.auto_scale_btn.setObjectName("auto_scale_btn")
-        self.horizontalLayout_3.addWidget(self.auto_scale_btn)
         self.legend_btn = QtWidgets.QPushButton(self.groupBox)
         self.legend_btn.setCheckable(True)
         self.legend_btn.setObjectName("legend_btn")
@@ -450,19 +445,6 @@ class Ui_MainWindow(object):
         self.groupBox_2.setObjectName("groupBox_2")
         self.gridLayout_9 = QtWidgets.QGridLayout(self.groupBox_2)
         self.gridLayout_9.setObjectName("gridLayout_9")
-        self.analyze_btn = QtWidgets.QPushButton(self.groupBox_2)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
-                                           QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(
-            self.analyze_btn.sizePolicy().hasHeightForWidth())
-        self.analyze_btn.setSizePolicy(sizePolicy)
-        self.analyze_btn.setObjectName("analyze_btn")
-        self.gridLayout_9.addWidget(self.analyze_btn, 0, 0, 1, 1)
-        self.adv_analysis_chkbox = QtWidgets.QCheckBox(self.groupBox_2)
-        self.adv_analysis_chkbox.setObjectName("adv_analysis_chkbox")
-        self.gridLayout_9.addWidget(self.adv_analysis_chkbox, 0, 1, 1, 1)
         self.adv_analysis_groupBox = QtWidgets.QGroupBox(self.groupBox_2)
         self.adv_analysis_groupBox.setObjectName("adv_analysis_groupBox")
         self.gridLayout_5 = QtWidgets.QGridLayout(self.adv_analysis_groupBox)
@@ -514,12 +496,12 @@ class Ui_MainWindow(object):
         self.lineEdit_3 = QtWidgets.QLineEdit(self.adv_analysis_groupBox)
         self.lineEdit_3.setObjectName("lineEdit_3")
         self.gridLayout_5.addWidget(self.lineEdit_3, 3, 2, 1, 1)
-        self.gridLayout_9.addWidget(self.adv_analysis_groupBox, 1, 0, 1, 2)
+        self.gridLayout_9.addWidget(self.adv_analysis_groupBox, 2, 0, 1, 2)
         self.groupBox_3 = QtWidgets.QGroupBox(self.groupBox_2)
         self.groupBox_3.setObjectName("groupBox_3")
         self.gridLayout_8 = QtWidgets.QGridLayout(self.groupBox_3)
-        self.gridLayout_8.setContentsMargins(4, 4, 4, 4)
-        self.gridLayout_8.setSpacing(5)
+        self.gridLayout_8.setContentsMargins(8, 4, 8, 8)
+        self.gridLayout_8.setSpacing(8)
         self.gridLayout_8.setObjectName("gridLayout_8")
         self.groupBox_4 = QtWidgets.QGroupBox(self.groupBox_3)
         self.groupBox_4.setObjectName("groupBox_4")
@@ -938,11 +920,33 @@ class Ui_MainWindow(object):
         self.label_34.setObjectName("label_34")
         self.gridLayout_7.addWidget(self.label_34, 7, 1, 1, 1)
         self.gridLayout_8.addWidget(self.groupBox_5, 1, 0, 1, 1)
-        self.gridLayout_9.addWidget(self.groupBox_3, 2, 0, 1, 2)
+        self.gridLayout_9.addWidget(self.groupBox_3, 3, 0, 1, 2)
+        self.analyze_btn = QtWidgets.QPushButton(self.groupBox_2)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
+                                           QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.analyze_btn.sizePolicy().hasHeightForWidth())
+        self.analyze_btn.setSizePolicy(sizePolicy)
+        self.analyze_btn.setObjectName("analyze_btn")
+        self.gridLayout_9.addWidget(self.analyze_btn, 1, 0, 1, 1)
         spacerItem5 = QtWidgets.QSpacerItem(20, 40,
                                             QtWidgets.QSizePolicy.Minimum,
                                             QtWidgets.QSizePolicy.Expanding)
-        self.gridLayout_9.addItem(spacerItem5, 3, 0, 1, 1)
+        self.gridLayout_9.addItem(spacerItem5, 4, 0, 1, 1)
+        self.horizontalLayout_4 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_4.setContentsMargins(-1, 0, -1, -1)
+        self.horizontalLayout_4.setObjectName("horizontalLayout_4")
+        self.adv_analysis_chkbox = QtWidgets.QCheckBox(self.groupBox_2)
+        self.adv_analysis_chkbox.setObjectName("adv_analysis_chkbox")
+        self.horizontalLayout_4.addWidget(self.adv_analysis_chkbox)
+        self.analysis_progressbar = QtWidgets.QProgressBar(self.groupBox_2)
+        self.analysis_progressbar.setMaximum(0)
+        self.analysis_progressbar.setProperty("value", -1)
+        self.analysis_progressbar.setObjectName("analysis_progressbar")
+        self.horizontalLayout_4.addWidget(self.analysis_progressbar)
+        self.gridLayout_9.addLayout(self.horizontalLayout_4, 1, 1, 1, 1)
         self.gridLayout.addWidget(self.splitter_2, 0, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
@@ -1047,8 +1051,6 @@ class Ui_MainWindow(object):
         self.adv_analysis_chkbox.toggled['bool'].connect(
             MainWindow.on_show_advanced_analysis_panel)
         self.analyze_btn.clicked.connect(MainWindow.on_analyze_data)
-        self.auto_scale_btn.clicked['bool'].connect(
-            self.matplotlibcurveWidget.setFigureAutoScale)
         self.legend_btn.clicked['bool'].connect(
             self.matplotlibcurveWidget.setLegendToggle)
         self.grid_btn.clicked['bool'].connect(
@@ -1125,7 +1127,6 @@ class Ui_MainWindow(object):
         self.label_9.setText(_translate("MainWindow", "Wire Offsets"))
         self.label_2.setText(_translate("MainWindow", "Configuration"))
         self.groupBox.setTitle(_translate("MainWindow", "Data Plot"))
-        self.auto_scale_btn.setText(_translate("MainWindow", "Auto Scale"))
         self.legend_btn.setText(_translate("MainWindow", "Legend"))
         self.grid_btn.setText(_translate("MainWindow", "Grid"))
         self.plot_data_smoving_btn.setText(
@@ -1143,8 +1144,6 @@ class Ui_MainWindow(object):
         self.plot_data_subnoise_btn.setText(
             _translate("MainWindow", "(-) Noise"))
         self.groupBox_2.setTitle(_translate("MainWindow", "Data Analysis"))
-        self.analyze_btn.setText(_translate("MainWindow", "Analyze"))
-        self.adv_analysis_chkbox.setText(_translate("MainWindow", "Advanced"))
         self.adv_analysis_groupBox.setTitle(
             _translate("MainWindow", "Advanced Analysis"))
         self.label_13.setText(_translate("MainWindow", "Middle Positions"))
@@ -1203,6 +1202,8 @@ class Ui_MainWindow(object):
                 "MainWindow",
                 "<html><head/><body><p>ρ<span style=\" vertical-align:sub;\">xy</span><span style=\" vertical-align:super;\">100%</span></p></body></html>"
             ))
+        self.analyze_btn.setText(_translate("MainWindow", "Analyze"))
+        self.adv_analysis_chkbox.setText(_translate("MainWindow", "Advanced"))
         self.menu_File.setTitle(_translate("MainWindow", "&File"))
         self.menu_Help.setTitle(_translate("MainWindow", "&Help"))
         self.menu_Config.setTitle(_translate("MainWindow", "Configuration"))
