@@ -24,7 +24,6 @@ from phantasy.apps.wire_scanner.device import PMData
 from phantasy.apps.utils import get_open_filename
 from phantasy.apps.utils import get_save_filename
 
-
 from .app_utils import DeviceRunner
 from .ui.ui_app import Ui_MainWindow
 
@@ -256,25 +255,71 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
     def on_loadfrom_config(self):
         """Load configuration from a file.
         """
-        print("Load From")
+        filepath, ext = get_open_filename(self, filter="INI Files (*.ini)")
+        if filepath is None:
+            return
+
+        try:
+            dconf_copy = Configuration(self._dconf.config_path)
+            self._dconf = Configuration(filepath)
+        except:
+            self._dconf = dconf_copy
+            QMessageBox.warning(self, "Load Configuration",
+                    "Failed to load configuration file from {}".format(filepath),
+                    QMessageBox.Ok)
+        else:
+            QMessageBox.information(self, "Load Configuration",
+                    "Loaded configuration file from {}".format(filepath),
+                    QMessageBox.Ok)
+        finally:
+            self.on_update_device()
+
+        print("Load config from {}".format(filepath))
 
     @pyqtSlot()
     def on_saveas_config(self):
         """Save configuration to a file.
         """
-        print("Save As")
+        filepath, ext = get_save_filename(self, filter="INI Files (*.ini)")
+        if filepath is None:
+            return
+        self.__save_config_to_file(filepath)
+        print("Save config as {}".format(filepath))
 
     @pyqtSlot()
     def on_save_config(self):
         """Save configuration.
         """
-        print("Save")
+        filepath = self._dconf.config_path
+        self.__save_config_to_file(filepath)
+        print("Save config to {}".format(filepath))
+
+    def __save_config_to_file(self, filepath):
+        try:
+            with open(filepath, 'w') as f:
+                self._dconf.write(f)
+        except:
+            QMessageBox.warning(self, "Save Configuration",
+                    "Failed to save configuration file to {}".format(filepath),
+                    QMessageBox.Ok)
+        else:
+            QMessageBox.information(self, "Save Configuration",
+                    "Saved configuration file to {}".format(filepath),
+                    QMessageBox.Ok)
 
     @pyqtSlot()
     def on_reload_config(self):
         """Reload configuration.
         """
-        print("Reload")
+        filepath = self._dconf.config_path
+
+        self._dconf = Configuration(self._dconf.config_path)
+        self.on_update_device()
+        QMessageBox.information(self, "Reload Configuration",
+                "Reloaded configuration file from {}".format(filepath),
+                QMessageBox.Ok)
+
+        print("Reload config from {}".format(filepath))
 
     @pyqtSlot(bool)
     def on_show_advanced_ctrlpanel(self, f):
