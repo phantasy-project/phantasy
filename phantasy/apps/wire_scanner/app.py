@@ -7,6 +7,7 @@ from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtCore import QThread
 from PyQt5.QtCore import QUrl
+from PyQt5.QtCore import QVariant
 from PyQt5.QtGui import QDesktopServices
 from PyQt5.QtGui import QDoubleValidator
 from PyQt5.QtWidgets import QLineEdit
@@ -19,14 +20,22 @@ from phantasy import MachinePortal
 from phantasy import Configuration
 from phantasy.apps.wire_scanner.utils import find_dconf
 from phantasy.apps.wire_scanner.device import Device
+from phantasy.apps.wire_scanner.device import PMData
 from phantasy.apps.utils import get_open_filename
 from phantasy.apps.utils import get_save_filename
+
 
 from .app_utils import DeviceRunner
 from .ui.ui_app import Ui_MainWindow
 
+FIELD_OF_INTEREST_LIST = ["XCEN", "YCEN", "XRMS", "YRMS", "XYRMS", "CXY"]
+
 
 class WireScannerWindow(BaseAppForm, Ui_MainWindow):
+
+    lineChanged = pyqtSignal(int)
+    xdataChanged = pyqtSignal(QVariant)
+    ydataChanged = pyqtSignal(QVariant)
 
     def __init__(self, version):
         super(WireScannerWindow, self).__init__()
@@ -58,19 +67,25 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
 
         # variable initialization
         self._ws_device = None
+        self._ws_data = None
         self._device_mode = "live"
         # widgets
         self._data_converter_dlg = None
 
         # events
         self.pm_names_cbb.currentTextChanged.connect(self.on_pm_name_changed)
-        for o in self.controls_groupBox.findChildren(QLineEdit):
+        for o in self.findChildren(QLineEdit):
             o.textChanged.connect(self.highlight_text)
 
         self.start_pos1_lineEdit.textChanged.connect(self.startpos1_lineEdit.setText)
         self.start_pos2_lineEdit.textChanged.connect(self.startpos2_lineEdit.setText)
         self.stop_pos1_lineEdit.textChanged.connect(self.stoppos1_lineEdit.setText)
         self.stop_pos2_lineEdit.textChanged.connect(self.stoppos2_lineEdit.setText)
+
+        # curves
+        self.lineChanged.connect(self.matplotlibcurveWidget.setLineID)
+        self.xdataChanged.connect(self.matplotlibcurveWidget.setXData)
+        self.ydataChanged.connect(self.matplotlibcurveWidget.setYData)
 
         # validator
         for o in (self.start_pos1_lineEdit, self.start_pos2_lineEdit,
@@ -83,6 +98,15 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
 
         # init ui
         self.post_init_ui()
+
+        # init data plot
+        self.init_data_plot()
+
+    def init_data_plot(self):
+        """Initial data plot.
+        """
+        self.matplotlibcurveWidget.add_curve()
+        self.matplotlibcurveWidget.add_curve()
 
     def post_init_ui(self):
         # all PMs
@@ -105,6 +129,8 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
 
         # update visibility of advctrl groupbox
         self.advctrl_groupBox.setVisible(self.advctrl_chkbox.isChecked())
+        # adv analysis groupbox
+        self.adv_analysis_groupBox.setVisible(self.adv_analysis_chkbox.isChecked())
 
         # hide run status progressbar
         self.run_progressbar.setVisible(False)
@@ -137,41 +163,63 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         self.offset2_lineEdit.setText(str(ws.wire_offset[1]))
         self.offset3_lineEdit.setText(str(ws.wire_offset[2]))
 
+    def run_device(self, what_to_do, evt_sender):
+        if self._ws_device is None:
+            return
+        device = self._ws_device
+        oplist = [getattr(device, i) for i in what_to_do]
+        self.__run_device(oplist, evt_sender, device)
+
     @pyqtSlot()
     def on_run_device(self):
         """Run device in the all-in-one style.
         """
-        if self._ws_device is None:
-            return
-
-        device = self._ws_device
-
-        self.run_progressbar.setVisible(True)
-        self.emstop_btn.setVisible(True)
-        self.run_progressbar.setValue(0)
-        self.thread = QThread()
         oplist = [
-            device.init_potentiometer,
-            device.enable_scan,
-            device.init_motor_pos,
-            device.reset_interlock,
-            device.set_scan_range,
-            device.set_bias_volt,
-            device.move,
-            device.init_motor_pos,
+            'init_potentiometer',
+            'enable_scan',
+            'init_motor_pos',
+            'reset_interlock',
+            'set_scan_range',
+            'set_bias_volt',
+            'move',
+            'init_motor_pos',
         ]
-        self.device_runner = DeviceRunner(oplist, device, self._device_mode)
-        self.device_runner.moveToThread(self.thread)
-        self.device_runner.update_progress.connect(self.update_progress_bar)
-        #self.device_runner.results.connect(self.display_results)
-        self.device_runner.finished.connect(self.complete)
-        self.device_runner.finished.connect(self.thread.quit)
-        self.device_runner.finished.connect(self.device_runner.deleteLater)
-        self.thread.finished.connect(self.thread.deleteLater)
-        self.thread.started.connect(self.device_runner.run)
-        self.thread.start()
+        self.run_device(oplist, self.sender())
 
-        self.run_btn.setEnabled(False)
+    @pyqtSlot()
+    def on_init_potentimeter(self):
+        oplist = ['init_potentiometer']
+        self.run_device(oplist, self.sender())
+
+    @pyqtSlot()
+    def on_enable_scan(self):
+        oplist = ['enable_scan']
+        self.run_device(oplist, self.sender())
+
+    @pyqtSlot()
+    def on_reset_interlock(self):
+        oplist = ['reset_interlock']
+        self.run_device(oplist, self.sender())
+
+    @pyqtSlot()
+    def on_set_bias_volt(self):
+        oplist = ['set_bias_volt']
+        self.run_device(oplist, self.sender())
+
+    @pyqtSlot()
+    def on_move(self):
+        oplist = ['move']
+        self.run_device(oplist, self.sender())
+
+    @pyqtSlot()
+    def on_init_motor_pos(self):
+        oplist = ['init_motor_pos']
+        self.run_device(oplist, self.sender(), )
+
+    @pyqtSlot()
+    def on_set_scan_range(self):
+        oplist = ['set_scan_range']
+        self.run_device(oplist, self.sender())
 
     @pyqtSlot(float, 'QString')
     def update_progress_bar(self, x, s):
@@ -184,8 +232,8 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
             self.result_box.append('%s: %s' % (k, v))
 
     @pyqtSlot()
-    def complete(self):
-        self.run_btn.setEnabled(True)
+    def complete(self, sender_obj):
+        sender_obj.setEnabled(True)
         self.run_progressbar.setVisible(False)
         self.emstop_btn.setVisible(False)
 
@@ -194,7 +242,7 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         """Show selected PM details.
         """
         from phantasy_ui.widgets.elementwidget import ElementWidget
-        self._current_pm_widget = ElementWidget(self._current_pm_elem)
+        self._current_pm_widget = ElementWidget(self._current_pm_elem, fields=FIELD_OF_INTEREST_LIST)
         self._current_pm_widget.show()
 
     @pyqtSlot()
@@ -235,6 +283,13 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         self.advctrl_groupBox.setVisible(f)
 
     @pyqtSlot(bool)
+    def on_show_advanced_analysis_panel(self, f):
+        """Show/hide advanced data analysis panel.
+        """
+        self.adv_analysis_groupBox.setVisible(f)
+
+
+    @pyqtSlot(bool)
     def on_enable_simulation_mode(self, f):
         if f:
             self._device_mode = "simulation"
@@ -266,6 +321,8 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
             QMessageBox.information(self, "Load Data",
                     "Successfully loaded data from {}".format(filepath),
                     QMessageBox.Ok)
+            # plot data
+            self.on_plot_raw_data()
 
     @pyqtSlot()
     def on_save_data(self):
@@ -294,7 +351,18 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         print("Sync data from PVs")
         if self._ws_device is None:
             return
-        self._ws_device.sync_data(mode='live')
+        try:
+            self._ws_device.sync_data(mode='live')
+        except:
+            QMessageBox.critical(self, "Sync Data",
+                    "Failed to sync data from controls network",
+                    QMessageBox.Ok)
+        else:
+            QMessageBox.information(self, "Sync Data",
+                    "Successfully synced data",
+                    QMessageBox.Ok)
+        #
+        self.on_plot_raw_data()
 
     @pyqtSlot()
     def on_dat2json(self):
@@ -326,3 +394,144 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         path = find_dconf() if path is None else path
         dconf = Configuration(path)
         return dconf
+
+    @pyqtSlot()
+    def on_plot_raw_data(self):
+        """Plot raw data.
+        """
+        if self._ws_data is None:
+            try:
+                self._ws_data = PMData(self._ws_device)
+            except RuntimeError:
+                QMessageBox.warning(self, "Plot Raw Data",
+                        "Data is not ready, sync or load first.",
+                        QMessageBox.Ok)
+                return
+        ws_data = self._ws_data
+        # u
+        self.lineChanged.emit(0)
+        self.xdataChanged.emit(ws_data.raw_pos1)
+        self.ydataChanged.emit(ws_data.signal_u)
+        self.matplotlibcurveWidget.setLineLabel("u")
+        # v
+        self.lineChanged.emit(1)
+        self.xdataChanged.emit(ws_data.raw_pos2)
+        self.ydataChanged.emit(ws_data.signal_v)
+        self.matplotlibcurveWidget.setLineLabel("v")
+        # w
+        self.lineChanged.emit(2)
+        self.xdataChanged.emit(ws_data.raw_pos2)
+        self.ydataChanged.emit(ws_data.signal_w)
+        self.matplotlibcurveWidget.setLineLabel("w(x/y)")
+
+        #
+        self.matplotlibcurveWidget.setFigureXlabel("Pos [mm]")
+        self.matplotlibcurveWidget.setFigureYlabel("Signal [A]")
+
+    @pyqtSlot()
+    def on_plot_with_adjusted_pos(self):
+        """Plot data with s(adjusted to beam frame), signal.
+        """
+        if self._ws_data is None:
+            self._ws_data = PMData(self._ws_device)
+
+        # u
+        self.lineChanged.emit(0)
+        s0 = self._ws_data.adjust_position(
+                self._ws_data.raw_pos1, 0,
+                self._ws_data.offset_u,)
+        self.xdataChanged.emit(s0)
+        self.ydataChanged.emit(self._ws_data.signal_u)
+
+        # v
+        self.lineChanged.emit(1)
+        s1 = self._ws_data.adjust_position(
+                self._ws_data.raw_pos2, 1,
+                self._ws_data.offset_v,)
+        self.xdataChanged.emit(s1)
+        self.ydataChanged.emit(self._ws_data.signal_v)
+
+        # w
+        self.lineChanged.emit(2)
+        s2 = self._ws_data.adjust_position(
+                self._ws_data.raw_pos2, 2,
+                self._ws_data.offset_w,)
+        self.xdataChanged.emit(s2)
+        self.ydataChanged.emit(self._ws_data.signal_w)
+
+
+    @pyqtSlot()
+    def on_plot_after_subnoise(self):
+        """Plot data after background noise substraction.
+        """
+        pass
+
+    @pyqtSlot()
+    def on_analyze_data(self):
+        """Analyze data in the all-in-one style.
+        """
+        if self._ws_data is None:
+            self._ws_data = PMData(self._ws_device)
+        ret1, ret2, ret3, xyuv_c, xyuv_r, xyuv90_r, xyuv99_r, xy_cor = self._ws_data.analyze()
+
+        # show results
+        w11_sum = ret1['sum']
+        w11_center = ret1['center']
+        w11_rms = ret1['rms']
+        for o,v in zip(
+                ['w11_{}_lineEdit'.format(s) for s in ('sum', 'center', 'rms')],
+                [w11_sum, w11_center, w11_rms]):
+            getattr(self, o).setText("{0:.5g}".format(v))
+
+        w21_sum = ret2['sum']
+        w21_center = ret2['center']
+        w21_rms = ret2['rms']
+        for o,v in zip(
+                ['w21_{}_lineEdit'.format(s) for s in ('sum', 'center', 'rms')],
+                [w21_sum, w21_center, w21_rms]):
+            getattr(self, o).setText("{0:.5g}".format(v))
+
+        w22_sum = ret3['sum']
+        w22_center = ret3['center']
+        w22_rms = ret3['rms']
+        for o,v in zip(
+                ['w22_{}_lineEdit'.format(s) for s in ('sum', 'center', 'rms')],
+                [w22_sum, w22_center, w22_rms]):
+            getattr(self, o).setText("{0:.5g}".format(v))
+
+        # xyuv
+        xc, yc, uc, vc = xyuv_c['xc'], xyuv_c['yc'], xyuv_c['uc'], xyuv_c['vc']
+        xrms, yrms, urms, vrms = xyuv_r['rms_x'], xyuv_r['rms_y'], xyuv_r['rms_u'], xyuv_r['rms_v']
+        xrms90, yrms90, urms90, vrms90 = xyuv90_r['rms90_x'], xyuv90_r['rms90_y'], xyuv90_r['rms90_u'], xyuv90_r['rms90_v']
+        xrms99, yrms99, urms99, vrms99 = xyuv99_r['rms99_x'], xyuv99_r['rms99_y'], xyuv99_r['rms99_u'], xyuv99_r['rms99_v']
+        cxy, cxy90, cxy99 = xy_cor['cxy'], xy_cor['cxy90'], xy_cor['cxy99']
+
+        for o,v in zip(
+                ['{}_lineEdit'.format(s) for s in ('xc', 'yc', 'uc', 'vc')] +
+                ['{}_lineEdit'.format(s) for s in ('xrms', 'yrms', 'urms', 'vrms')] +
+                ['{}_lineEdit'.format(s) for s in ('xrms90', 'yrms90', 'urms90', 'vrms90')] +
+                ['{}_lineEdit'.format(s) for s in ('xrms99', 'yrms99', 'urms99', 'vrms99')] +
+                ['{}_lineEdit'.format(s) for s in ('cxy', 'cxy90', 'cxy99')],
+                [xc, yc, uc, vc, xrms, yrms, urms, vrms, xrms90, yrms90, urms90, vrms90, xrms99, yrms99, urms99, vrms99, cxy, cxy90, cxy99]):
+            getattr(self, o).setText("{0:.5g}".format(v))
+
+
+    def __run_device(self, oplist, sender_obj, device):
+        self.run_progressbar.setVisible(True)
+        self.emstop_btn.setVisible(True)
+        self.run_progressbar.setValue(0)
+        self.thread = QThread()
+
+        self.device_runner = DeviceRunner(oplist, device, self._device_mode)
+        self.device_runner.moveToThread(self.thread)
+        self.device_runner.update_progress.connect(self.update_progress_bar)
+        #self.device_runner.results.connect(self.display_results)
+        self.device_runner.finished.connect(partial(self.complete, sender_obj))
+        self.device_runner.finished.connect(self.thread.quit)
+        self.device_runner.finished.connect(self.device_runner.deleteLater)
+        self.thread.finished.connect(self.thread.deleteLater)
+        self.thread.started.connect(self.device_runner.run)
+        self.thread.start()
+
+        sender_obj.setEnabled(False)
+
