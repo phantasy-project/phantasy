@@ -562,6 +562,7 @@ class PMData(object):
 
         if device.data_sheet is None:
             _LOGGER.warning("Device data is not ready, try after sync_data()")
+            raise RuntimeError
         else:
             self.device = device
             if device.dtype == 'large':
@@ -584,7 +585,7 @@ class PMData(object):
                 self.offset_w = np.asarray(
                     device.data_sheet['data']['fork2']['offset2']['value'])
 
-    def get_middle_pos(self, fac, th_factor=0.2):
+    def get_middle_pos(self, fac, th_factor=0.2, ran=None):
         """Get middle position on fork2 for large type.
 
         Parameters
@@ -593,11 +594,14 @@ class PMData(object):
             Projection factor.
         th_factor : float
             Threshold factor of signals to keep.
+        ran : float
+            If set, range is (-ran, ran).
         """
         th_v, th_w = th_factor * self.signal_v.max(
         ), th_factor * self.signal_w.max()
         offset_v, offset_w = self.offset_v, self.offset_w
-        ran = 20 if self.device.dtype == 'small' else 40
+        if ran is None:
+            ran = 20 if self.device.dtype == 'small' else 40
         d = []
         for pos, sv, sw in zip(self.raw_pos2, self.signal_v, self.signal_w):
             if (sv > th_v and -ran < pos + offset_v < ran) or \
@@ -636,29 +640,9 @@ class PMData(object):
 
         # extra offset defined in config file
         extra_offset = self.device.wire_offset[wid]
-
-        # effective offset to position
         eff_offset = offset - extra_offset
 
-        if dtype == 'large':
-            if wid_name == 'x':
-                xy_coef = -1.0 / np.sqrt(2.0)
-            elif wid_name == 'y':
-                xy_coef = 1.0 / np.sqrt(2.0)
-            else:
-                xy_coef = 1.0
-        elif dtype == 'flapper':
-            if wid_name == 'x':
-                xy_coef = -1.0
-            elif wid_name == 'y':
-                xy_coef = 1.0
-        elif dtype == 'small':
-            if wid_name in ("x", "y"):
-                xy_coef = 1.0 / np.sqrt(2.0)
-            else:
-                xy_coef = 1.0
-
-        pos_adjusted = (pos + eff_offset) * xy_coef
+        pos_adjusted = self.adjust_position(pos, wid, offset)
         # pos window for bkgd noise estimation
         pos_window = self.__get_range(pos, mid1, mid2)
         bgcoefs, bgstdv = self.__get_background_noise(pos, signal, pos_window,
@@ -713,7 +697,39 @@ class PMData(object):
             'rms99p': r99p,  # rms with 99%
         }
 
-        return ret
+        return ret, pos_adjusted
+
+    def adjust_position(self, s, wid, offset):
+        """Return adjusted position to beam frame.
+        """
+        # effective offset to position
+        extra_offset = self.device.wire_offset[wid]
+        eff_offset = offset - extra_offset
+
+        dtype = self.device.dtype
+        coord = self.device.coord
+        wid_name = coord[wid + 1]
+
+        if dtype == 'large':
+            if wid_name == 'x':
+                xy_coef = -1.0 / np.sqrt(2.0)
+            elif wid_name == 'y':
+                xy_coef = 1.0 / np.sqrt(2.0)
+            else:
+                xy_coef = 1.0
+        elif dtype == 'flapper':
+            if wid_name == 'x':
+                xy_coef = -1.0
+            elif wid_name == 'y':
+                xy_coef = 1.0
+        elif dtype == 'small':
+            if wid_name in ("x", "y"):
+                xy_coef = 1.0 / np.sqrt(2.0)
+            else:
+                xy_coef = 1.0
+
+        return (s + eff_offset) * xy_coef
+
 
     def __get_range(self, pos, mid1, mid2):
         # get pos window for analysis.
@@ -930,15 +946,15 @@ class PMData(object):
         norder = 1
 
         # u wire
-        ret1 = self.analyze_wire(self.raw_pos1, self.signal_u, dtype, -999,
+        ret1, _ = self.analyze_wire(self.raw_pos1, self.signal_u, dtype, -999,
                                  999, 0, coord, self.offset_u, norder)
 
         # v wire
-        ret2 = self.analyze_wire(self.raw_pos2, self.signal_v, dtype, mid - 10,
+        ret2, _ = self.analyze_wire(self.raw_pos2, self.signal_v, dtype, mid - 10,
                                  999, 1, coord, self.offset_v, norder)
 
         # w wire (x/y)
-        ret3 = self.analyze_wire(self.raw_pos2, self.signal_w, dtype, -999,
+        ret3, _ = self.analyze_wire(self.raw_pos2, self.signal_w, dtype, -999,
                                  mid + 10, 2, coord, self.offset_w, norder)
 
         # corrected centers
@@ -979,7 +995,7 @@ class PMData(object):
         xyuv90_r = {'rms90_x': x90p, 'rms90_y': y90p, 'rms90_u': u90p, 'rms90_v': v90p}
         xyuv99_r = {'rms99_x': x99p, 'rms99_y': y99p, 'rms99_u': u99p, 'rms99_v': v99p}
 
-        xy_cor = {'cxy90': cxy90p, 'cxy99p': cxy99p}
+        xy_cor = {'cxy': cxy, 'cxy90': cxy90p, 'cxy99': cxy99p}
 
         return ret1, ret2, ret3, xyuv_c, xyuv_r, xyuv90_r, xyuv99_r, xy_cor
 
