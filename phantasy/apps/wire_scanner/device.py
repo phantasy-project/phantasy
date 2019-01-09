@@ -991,13 +991,13 @@ class PMData(object):
         except:
             cxy99p = -999.
 
-        xyuv_r = {'rms_x': xr, 'rms_y': yr, 'rms_u': ur, 'rms_v': vr}
-        xyuv90_r = {'rms90_x': x90p, 'rms90_y': y90p, 'rms90_u': u90p, 'rms90_v': v90p}
-        xyuv99_r = {'rms99_x': x99p, 'rms99_y': y99p, 'rms99_u': u99p, 'rms99_v': v99p}
+        xyuv_r = {'rms_x': xr, 'rms_y': yr, 'rms_u': ur, 'rms_v': vr,
+                  'rms90_x': x90p, 'rms90_y': y90p, 'rms90_u': u90p, 'rms90_v': v90p,
+                  'rms99_x': x99p, 'rms99_y': y99p, 'rms99_u': u99p, 'rms99_v': v99p}
 
         xy_cor = {'cxy': cxy, 'cxy90': cxy90p, 'cxy99': cxy99p}
 
-        return ret1, ret2, ret3, xyuv_c, xyuv_r, xyuv90_r, xyuv99_r, xy_cor
+        return ret1, ret2, ret3, xyuv_c, xyuv_r, xy_cor
 
     def __trapz_avg(self, y, x):
         # trapzoid average x and x^2 (-<x>) over y
