@@ -14,6 +14,7 @@ from PyQt5.QtWidgets import QLineEdit
 from PyQt5.QtWidgets import QMessageBox
 
 from functools import partial
+import json
 
 from phantasy_ui.templates import BaseAppForm
 from phantasy import MachinePortal
@@ -25,6 +26,7 @@ from phantasy.apps.utils import get_open_filename
 from phantasy.apps.utils import get_save_filename
 
 from .app_utils import DeviceRunner
+from .app_utils import DataAnalyzer
 from .ui.ui_app import Ui_MainWindow
 
 FIELD_OF_INTEREST_LIST = ["XCEN", "YCEN", "XRMS", "YRMS", "XYRMS", "CXY"]
@@ -134,6 +136,7 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         # hide run status progressbar
         self.run_progressbar.setVisible(False)
         self.emstop_btn.setVisible(False)
+        self.analysis_progressbar.setVisible(False)
 
     @pyqtSlot('QString')
     def on_pm_name_changed(self, n):
@@ -356,7 +359,13 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
                 filter="JSON Files (*.json)")
         if filepath is None:
             return
+
         try:
+            with open(filepath, 'r') as f:
+                d = json.load(f)
+            ename = d['ename']
+            # locate device combobox
+            self.pm_names_cbb.setCurrentText(ename)
             self._ws_device.sync_data(mode='file', filename=filepath)
         except:
             QMessageBox.critical(self, "Load Data",
@@ -366,8 +375,10 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
             QMessageBox.information(self, "Load Data",
                     "Successfully loaded data from {}".format(filepath),
                     QMessageBox.Ok)
-            # plot data
+            # plot data, new PMData instance
+            self._ws_data = PMData(self._ws_device)
             self.on_plot_raw_data()
+
 
     @pyqtSlot()
     def on_save_data(self):
@@ -453,6 +464,8 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
                         QMessageBox.Ok)
                 return
         ws_data = self._ws_data
+        # toggle autoscale
+        self.matplotlibcurveWidget.setFigureAutoScale(False)
         # u
         self.lineChanged.emit(0)
         self.xdataChanged.emit(ws_data.raw_pos1)
@@ -472,6 +485,8 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         #
         self.matplotlibcurveWidget.setFigureXlabel("Pos [mm]")
         self.matplotlibcurveWidget.setFigureYlabel("Signal [A]")
+        #
+        self.matplotlibcurveWidget.setFigureAutoScale(True)
 
     @pyqtSlot()
     def on_plot_with_adjusted_pos(self):
@@ -517,39 +532,45 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         """
         if self._ws_data is None:
             self._ws_data = PMData(self._ws_device)
-        ret1, ret2, ret3, xyuv_c, xyuv_r, xyuv90_r, xyuv99_r, xy_cor = self._ws_data.analyze()
 
-        # show results
-        w11_sum = ret1['sum']
-        w11_center = ret1['center']
-        w11_rms = ret1['rms']
+        self.analysis_progressbar.setVisible(True)
+        self.thread1 = QThread()
+        self.data_analyzer = DataAnalyzer(self._ws_data)
+        self.data_analyzer.moveToThread(self.thread1)
+        self.data_analyzer.resultsReady.connect(self.on_results_ready)
+        self.data_analyzer.finished.connect(self.on_analysis_complete)
+        self.data_analyzer.finished.connect(self.thread1.quit)
+        self.data_analyzer.finished.connect(self.data_analyzer.deleteLater)
+        self.thread1.finished.connect(self.thread1.deleteLater)
+        self.thread1.started.connect(self.data_analyzer.run)
+        self.thread1.start()
+        self.analyze_btn.setEnabled(False)
+
+    @pyqtSlot(dict)
+    def on_results_ready(self, d):
+        """Display results.
+        """
         for o,v in zip(
                 ['w11_{}_lineEdit'.format(s) for s in ('sum', 'center', 'rms')],
-                [w11_sum, w11_center, w11_rms]):
+                [d['sum1'], d['cen1'], d['rms1']]):
             getattr(self, o).setText("{0:.5g}".format(v))
 
-        w21_sum = ret2['sum']
-        w21_center = ret2['center']
-        w21_rms = ret2['rms']
         for o,v in zip(
                 ['w21_{}_lineEdit'.format(s) for s in ('sum', 'center', 'rms')],
-                [w21_sum, w21_center, w21_rms]):
+                [d['sum2'], d['cen2'], d['rms2']]):
             getattr(self, o).setText("{0:.5g}".format(v))
 
-        w22_sum = ret3['sum']
-        w22_center = ret3['center']
-        w22_rms = ret3['rms']
         for o,v in zip(
                 ['w22_{}_lineEdit'.format(s) for s in ('sum', 'center', 'rms')],
-                [w22_sum, w22_center, w22_rms]):
+                [d['sum3'], d['cen3'], d['rms3']]):
             getattr(self, o).setText("{0:.5g}".format(v))
 
         # xyuv
-        xc, yc, uc, vc = xyuv_c['xc'], xyuv_c['yc'], xyuv_c['uc'], xyuv_c['vc']
-        xrms, yrms, urms, vrms = xyuv_r['rms_x'], xyuv_r['rms_y'], xyuv_r['rms_u'], xyuv_r['rms_v']
-        xrms90, yrms90, urms90, vrms90 = xyuv90_r['rms90_x'], xyuv90_r['rms90_y'], xyuv90_r['rms90_u'], xyuv90_r['rms90_v']
-        xrms99, yrms99, urms99, vrms99 = xyuv99_r['rms99_x'], xyuv99_r['rms99_y'], xyuv99_r['rms99_u'], xyuv99_r['rms99_v']
-        cxy, cxy90, cxy99 = xy_cor['cxy'], xy_cor['cxy90'], xy_cor['cxy99']
+        xc, yc, uc, vc = d['xcen'], d['ycen'], d['ucen'], d['vcen']
+        xrms, yrms, urms, vrms = d['xrms'], d['yrms'], d['urms'], d['vrms']
+        xrms90, yrms90, urms90, vrms90 = d['x90p'], d['y90p'], d['u90p'], d['v90p']
+        xrms99, yrms99, urms99, vrms99 = d['x99p'], d['y99p'], d['u99p'], d['v99p']
+        cxy, cxy90, cxy99 = d['cxy'], d['cxy90p'], d['cxy99p']
 
         for o,v in zip(
                 ['{}_lineEdit'.format(s) for s in ('xc', 'yc', 'uc', 'vc')] +
@@ -559,6 +580,13 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
                 ['{}_lineEdit'.format(s) for s in ('cxy', 'cxy90', 'cxy99')],
                 [xc, yc, uc, vc, xrms, yrms, urms, vrms, xrms90, yrms90, urms90, vrms90, xrms99, yrms99, urms99, vrms99, cxy, cxy90, cxy99]):
             getattr(self, o).setText("{0:.5g}".format(v))
+
+
+    @pyqtSlot()
+    def on_analysis_complete(self):
+        print("data analysis is completed")
+        self.analysis_progressbar.setVisible(False)
+        self.analyze_btn.setEnabled(True)
 
 
     def __run_device(self, oplist, sender_obj, device):
