@@ -56,3 +56,65 @@ class DeviceRunner(QObject):
         results = {'status': 'ok'}
         self.results.emit(results)
 
+
+class DataAnalyzer(QObject):
+    finished = pyqtSignal()
+    resultsReady = pyqtSignal(dict)
+    """Data analysis for PM data.
+
+    Parameters
+    ----------
+    ws_data : PMData
+        Object of PMData instance.
+    """
+    def __init__(self, ws_data):
+        super(DataAnalyzer, self).__init__()
+        self.ws_data = ws_data
+
+    def run(self):
+        ret1, ret2, ret3, \
+        xyuv_c, xyuv_r, \
+        xy_cor = self.ws_data.analyze()
+        ret = {
+            'sum1': ret1['sum'],
+            'sum2': ret2['sum'],
+            'sum3': ret3['sum'],
+            'cen1': ret1['center'],
+            'cen2': ret2['center'],
+            'cen3': ret3['center'],
+            'cen01': ret1['center0'],
+            'cen02': ret2['center0'],
+            'cen03': ret3['center0'],
+            'rms1': ret1['rms'],
+            'rms2': ret2['rms'],
+            'rms3': ret3['rms'],
+            'r90p1': ret1['rms90p'],
+            'r90p2': ret2['rms90p'],
+            'r90p3': ret3['rms90p'],
+            'r99p1': ret1['rms99p'],
+            'r99p2': ret2['rms99p'],
+            'r99p3': ret3['rms99p'],
+            'xrms': xyuv_r['rms_x'] ,
+            'yrms': xyuv_r['rms_y'],
+            'urms': xyuv_r['rms_u'],
+            'vrms': xyuv_r['rms_v'],
+            'x90p': xyuv_r['rms90_x'],
+            'y90p': xyuv_r['rms90_y'],
+            'u90p': xyuv_r['rms90_u'],
+            'v90p': xyuv_r['rms90_v'],
+            'x99p': xyuv_r['rms99_x'],
+            'y99p': xyuv_r['rms99_y'],
+            'u99p': xyuv_r['rms99_u'],
+            'v99p': xyuv_r['rms99_v'],
+            'xcen': xyuv_c['xc'],
+            'ycen': xyuv_c['yc'],
+            'ucen': xyuv_c['uc'],
+            'vcen': xyuv_c['vc'],
+            'cxy': xy_cor['cxy'],
+            'cxy90p': xy_cor['cxy90'],
+            'cxy99p': xy_cor['cxy99'],
+        }
+
+        self.resultsReady.emit(ret)
+        self.finished.emit()
+
