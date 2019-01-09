@@ -6,6 +6,7 @@
 
 import json
 import os
+import re
 import logging
 import sys
 from argparse import ArgumentParser
@@ -69,15 +70,16 @@ def read_from_datfile(filepath):
             data_dict[fork_name].update({key_name: row_dict})
             _LOGGER.debug("Processing line starts with {}...".format(pv_name))
 
-    return data_dict
+    ename = re.sub(r"(.*):(.*):(.*)", r"\1:\2", pv_name)
+    return data_dict, ename
 
 
-def save_to_jsonfile(filepath, data_dict):
+def save_to_jsonfile(filepath, data_dict, ename):
     """Save *data_dict* as json formatted *filepath*.
     """
     _LOGGER.debug("Saving data into {}...".format(filepath))
     with open(filepath, 'w') as f:
-        json.dump({'data': data_dict}, f, indent=2, sort_keys=True)
+        json.dump({'ename':ename, 'data': data_dict}, f, indent=2, sort_keys=True)
 
 
 def main():
@@ -96,8 +98,8 @@ def main():
         print_help()
         sys.exit(1)
 
-    data_dict = read_from_datfile(ifile)
-    save_to_jsonfile(ofile, data_dict)
+    data_dict, ename = read_from_datfile(ifile)
+    save_to_jsonfile(ofile, data_dict, ename)
 
     return 0
 

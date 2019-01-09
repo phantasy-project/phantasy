@@ -69,9 +69,9 @@ class Dat2JsonDialog(QDialog, Ui_Dialog):
         datfilepath = self.datfilepath_lineEdit.text()
         jsonfilepath = self.jsonfilepath_lineEdit.text()
         try:
-            data_dict = read_from_datfile(datfilepath)
+            data_dict, ename = read_from_datfile(datfilepath)
             if not data_dict: raise RuntimeError
-            save_to_jsonfile(jsonfilepath, data_dict)
+            save_to_jsonfile(jsonfilepath, data_dict, ename)
         except:
             QMessageBox.critical(self, "Data Converter",
                     "Failed to convert dat file.", QMessageBox.Ok)
