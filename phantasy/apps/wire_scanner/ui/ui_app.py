@@ -925,16 +925,6 @@ class Ui_MainWindow(object):
                                             QtWidgets.QSizePolicy.Minimum,
                                             QtWidgets.QSizePolicy.Expanding)
         self.gridLayout_9.addItem(spacerItem5, 6, 0, 1, 1)
-        self.analyze_btn = QtWidgets.QPushButton(self.groupBox_2)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
-                                           QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(
-            self.analyze_btn.sizePolicy().hasHeightForWidth())
-        self.analyze_btn.setSizePolicy(sizePolicy)
-        self.analyze_btn.setObjectName("analyze_btn")
-        self.gridLayout_9.addWidget(self.analyze_btn, 1, 0, 1, 1)
         self.data_filepath_lineEdit = QtWidgets.QLineEdit(self.groupBox_2)
         self.data_filepath_lineEdit.setReadOnly(True)
         self.data_filepath_lineEdit.setObjectName("data_filepath_lineEdit")
@@ -942,18 +932,6 @@ class Ui_MainWindow(object):
         self.label_35 = QtWidgets.QLabel(self.groupBox_2)
         self.label_35.setObjectName("label_35")
         self.gridLayout_9.addWidget(self.label_35, 3, 0, 1, 1)
-        self.horizontalLayout_4 = QtWidgets.QHBoxLayout()
-        self.horizontalLayout_4.setContentsMargins(-1, 0, -1, -1)
-        self.horizontalLayout_4.setObjectName("horizontalLayout_4")
-        self.adv_analysis_chkbox = QtWidgets.QCheckBox(self.groupBox_2)
-        self.adv_analysis_chkbox.setObjectName("adv_analysis_chkbox")
-        self.horizontalLayout_4.addWidget(self.adv_analysis_chkbox)
-        self.analysis_progressbar = QtWidgets.QProgressBar(self.groupBox_2)
-        self.analysis_progressbar.setMaximum(0)
-        self.analysis_progressbar.setProperty("value", -1)
-        self.analysis_progressbar.setObjectName("analysis_progressbar")
-        self.horizontalLayout_4.addWidget(self.analysis_progressbar)
-        self.gridLayout_9.addLayout(self.horizontalLayout_4, 1, 1, 1, 2)
         self.horizontalLayout_5 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_5.setContentsMargins(-1, -1, 0, -1)
         self.horizontalLayout_5.setObjectName("horizontalLayout_5")
@@ -972,6 +950,37 @@ class Ui_MainWindow(object):
         self.data_path_locate_btn.setObjectName("data_path_locate_btn")
         self.horizontalLayout_5.addWidget(self.data_path_locate_btn)
         self.gridLayout_9.addLayout(self.horizontalLayout_5, 3, 1, 1, 2)
+        self.horizontalLayout_4 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_4.setContentsMargins(-1, 0, -1, -1)
+        self.horizontalLayout_4.setObjectName("horizontalLayout_4")
+        self.analyze_btn = QtWidgets.QPushButton(self.groupBox_2)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
+                                           QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.analyze_btn.sizePolicy().hasHeightForWidth())
+        self.analyze_btn.setSizePolicy(sizePolicy)
+        self.analyze_btn.setObjectName("analyze_btn")
+        self.horizontalLayout_4.addWidget(self.analyze_btn)
+        self.sync_results_btn = QtWidgets.QToolButton(self.groupBox_2)
+        icon2 = QtGui.QIcon()
+        icon2.addPixmap(
+            QtGui.QPixmap(":/icons/sync.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.sync_results_btn.setIcon(icon2)
+        self.sync_results_btn.setIconSize(QtCore.QSize(24, 24))
+        self.sync_results_btn.setObjectName("sync_results_btn")
+        self.horizontalLayout_4.addWidget(self.sync_results_btn)
+        self.adv_analysis_chkbox = QtWidgets.QCheckBox(self.groupBox_2)
+        self.adv_analysis_chkbox.setObjectName("adv_analysis_chkbox")
+        self.horizontalLayout_4.addWidget(self.adv_analysis_chkbox)
+        self.analysis_progressbar = QtWidgets.QProgressBar(self.groupBox_2)
+        self.analysis_progressbar.setMaximum(0)
+        self.analysis_progressbar.setProperty("value", -1)
+        self.analysis_progressbar.setObjectName("analysis_progressbar")
+        self.horizontalLayout_4.addWidget(self.analysis_progressbar)
+        self.gridLayout_9.addLayout(self.horizontalLayout_4, 1, 0, 1, 3)
         self.gridLayout.addWidget(self.splitter_2, 0, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
@@ -1011,10 +1020,6 @@ class Ui_MainWindow(object):
         self.actionSimulation_Mode.setCheckable(True)
         self.actionSimulation_Mode.setObjectName("actionSimulation_Mode")
         self.actionSync = QtWidgets.QAction(MainWindow)
-        icon2 = QtGui.QIcon()
-        icon2.addPixmap(
-            QtGui.QPixmap(":/icons/sync.png"), QtGui.QIcon.Normal,
-            QtGui.QIcon.Off)
         self.actionSync.setIcon(icon2)
         self.actionSync.setObjectName("actionSync")
         self.actionLoad = QtWidgets.QAction(MainWindow)
@@ -1256,10 +1261,16 @@ class Ui_MainWindow(object):
                 "MainWindow",
                 "<html><head/><body><p>ρ<span style=\" vertical-align:sub;\">xy</span><span style=\" vertical-align:super;\">100%</span></p></body></html>"
             ))
-        self.analyze_btn.setText(_translate("MainWindow", "Analyze"))
         self.label_35.setText(_translate("MainWindow", "Data Path"))
-        self.adv_analysis_chkbox.setText(_translate("MainWindow", "Advanced"))
         self.data_path_locate_btn.setText(_translate("MainWindow", "Locate"))
+        self.analyze_btn.setText(_translate("MainWindow", "Analyze"))
+        self.sync_results_btn.setToolTip(
+            _translate(
+                "MainWindow",
+                "<html><head/><body><p>Sync results with IOC</p></body></html>"
+            ))
+        self.sync_results_btn.setText(_translate("MainWindow", "..."))
+        self.adv_analysis_chkbox.setText(_translate("MainWindow", "Advanced"))
         self.menu_File.setTitle(_translate("MainWindow", "&File"))
         self.menu_Help.setTitle(_translate("MainWindow", "&Help"))
         self.menu_Config.setTitle(_translate("MainWindow", "Configuration"))
