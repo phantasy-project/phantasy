@@ -36,6 +36,8 @@ FORK_BIT_MAPPING = {
     ),
 }
 
+FACTOR_A2UA = 1.0 # before 2018.08, 1.0e6
+
 
 class Device(object):
     """Build wire-scanner devices from CaElement, which family is 'PM'.
@@ -566,45 +568,50 @@ class PMData(object):
         else:
             self.device = device
             dtype = self.device.dtype
-            data = device.data_sheet
+            data = device.data_sheet['data']
             if dtype == 'large':
                 # wire on fork1: u
                 # wires on fork2: v, w(x or y)
-                self.raw_pos1 = np.asarray(
-                    data['data']['fork1']['ppot_raw']['value'])
-                self.raw_pos2 = np.asarray(
-                    data['data']['fork2']['ppot_raw']['value'])
-                self.signal_u = np.asarray(
-                    data['data']['fork1']['signal1']['value'])
-                self.signal_v = np.asarray(
-                    data['data']['fork2']['signal1']['value'])
-                self.signal_w = np.asarray(
-                    data['data']['fork2']['signal2']['value'])
-                self.offset_u = np.asarray(
-                    data['data']['fork1']['offset1']['value'])
-                self.offset_v = np.asarray(
-                    data['data']['fork2']['offset1']['value'])
-                self.offset_w = np.asarray(
-                    data['data']['fork2']['offset2']['value'])
+                self.raw_pos1 = np.asarray(data['fork1']['ppot_raw']['value'])
+                self.raw_pos2 = np.asarray(data['fork2']['ppot_raw']['value'])
+                self.signal_u = np.asarray(data['fork1']['signal1']['value'])
+                self.signal_v = np.asarray(data['fork2']['signal1']['value'])
+                self.signal_w = np.asarray(data['fork2']['signal2']['value'])
+                self.offset_u = np.asarray(data['fork1']['offset1']['value'])
+                self.offset_v = np.asarray(data['fork2']['offset1']['value'])
+                self.offset_w = np.asarray(data['fork2']['offset2']['value'])
             elif dtype == 'flapper':
-                self.raw_pos1 = np.asarray(
-                    data['data']['fork1']['ppot_raw']['value'])
-                self.raw_pos2 = np.asarray(
-                    data['data']['fork2']['ppot_raw']['value'])
-                self.signal_u = np.asarray(
-                    data['data']['fork1']['signal1']['value'])
-                self.signal_v = np.asarray(
-                    data['data']['fork2']['signal1']['value'])
+                self.raw_pos1 = np.asarray(data['fork1']['ppot_raw']['value'])
+                self.raw_pos2 = np.asarray(data['fork2']['ppot_raw']['value'])
+                self.signal_u = np.asarray(data['fork1']['signal1']['value'])
+                self.signal_v = np.asarray(data['fork2']['signal1']['value'])
                 self.offset_u = 0
                 self.offset_v = 0
             elif dtype == 'small':
-                pass
+                self.raw_pos1 = np.asarray(data['fork']['ppot_raw']['value'])
+                self.raw_pos2 = self.raw_pos1
+                self.signal_u = np.asarray(data['fork']['signal1']['value'])
+                self.signal_v = np.asarray(data['fork']['signal2']['value'])
+                self.signal_w = np.asarray(data['fork']['signal3']['value'])
+                self.offset_u = np.asarray(data['fork']['offset1']['value'])
+                self.offset_v = np.asarray(data['fork']['offset2']['value'])
+                self.offset_w = np.asarray(data['fork']['offset3']['value'])
 
-    def get_middle_pos(self, fac, th_factor=0.2, ran=None):
+    def get_middle_pos(self, fac, pos, signal1, signal2, offset1, offset2, th_factor=0.2, ran=None):
         """Get middle position on fork2 for large type.
 
         Parameters
         ----------
+        pos : array
+            Position.
+        signal1 : array
+            Wire signal array.
+        signal2 : array
+            Wire signal array.
+        offset1 : float
+            Offset of wire1.
+        offset2 : float
+            Offset of wire2.
         fac : float
             Projection factor.
         th_factor : float
@@ -612,16 +619,14 @@ class PMData(object):
         ran : float
             If set, range is (-ran, ran).
         """
-        th_v, th_w = th_factor * self.signal_v.max(
-        ), th_factor * self.signal_w.max()
-        offset_v, offset_w = self.offset_v, self.offset_w
+        th1, th2 = th_factor * signal1.max(), th_factor * signal2.max()
         if ran is None:
             ran = 20 if self.device.dtype == 'small' else 40
         d = []
-        for pos, sv, sw in zip(self.raw_pos2, self.signal_v, self.signal_w):
-            if (sv > th_v and -ran < pos + offset_v < ran) or \
-               (sw > th_w and -ran < pos + offset_w < ran):
-                d.append([pos, sv + sw * fac])
+        for pos, s1, s2 in zip(pos, signal1, signal2):
+            if (s1 > th1 and -ran < pos + offset1 < ran) or \
+               (s2 > th2 and -ran < pos + offset2 < ran):
+                d.append([pos, s1 + s2 * fac])
         c = self.__calc_center(d)
         return c
 
@@ -704,7 +709,7 @@ class PMData(object):
 
         # return dict
         ret = {
-            'sum': weighted_sum * 1e6,
+            'sum': weighted_sum * FACTOR_A2UA,
             'rms': weighted_rms,
             'center0': c0,  # wire center pos
             'center1': c1,  # c0 + offset
@@ -961,7 +966,8 @@ class PMData(object):
         extra_offset = self.device.wire_offset
 
         if dtype == "large":
-            mid = self.get_middle_pos(1 / np.sqrt(2))
+            mid = self.get_middle_pos(1.0 / np.sqrt(2.0), self.raw_pos2,
+                    self.signal_v, self.signal_w, self.offset_v, self.offset_w)
             # u wire
             ret1, _ = self.analyze_wire(self.raw_pos1, self.signal_u, dtype, -999,
                                      999, 0, coord, self.offset_u, norder)
@@ -972,38 +978,6 @@ class PMData(object):
             ret3, _ = self.analyze_wire(self.raw_pos2, self.signal_w, dtype, -999,
                                      mid + 10, 2, coord, self.offset_w, norder)
 
-            # corrected centers
-            xc, yc, uc, vc = self.__get_xyuv_center(
-                    ret1['center'], ret2['center'],
-                    ret3['center'], coord, extra_offset)
-
-            # corrected rms size
-            try:
-                xr,yr,ur,vr = self.__get_xyuv_size(ret1['rms'],ret2['rms'],ret3['rms'],coord)
-            except:
-                xr,yr,ur,vr = np.nan, np.nan, np.nan, np.nan
-            try:
-                x90p,y90p,u90p,v90p = self.__get_xyuv_size(ret1['rms90p'],ret2['rms90p'],ret3['rms90p'],coord)
-            except:
-                x90p,y90p,u90p,v90p = np.nan, np.nan, np.nan, np.nan
-            try:
-                x99p,y99p,u99p,v99p = self.__get_xyuv_size(ret1['rms99p'],ret2['rms99p'],ret3['rms99p'],coord)
-            except:
-                x99p,y99p,u99p,v99p = np.nan, np.nan, np.nan, np.nan
-
-            try:
-                cxy = self.__get_cxy(xr,yr,ur,vr)
-            except:
-                cxy = np.nan
-            try:
-                cxy90p = self.__get_cxy(x90p,y90p,u90p,v90p)
-            except:
-                cxy90p = np.nan
-            try:
-                cxy99p = self.__get_cxy(x99p,y99p,u99p,v99p)
-            except:
-                cxy99p = np.nan
-
         elif dtype == "flapper":
             # u(x) wire
             ret1, _ = self.analyze_wire(self.raw_pos1, self.signal_u, dtype, -999,
@@ -1011,17 +985,53 @@ class PMData(object):
             # v(y) wire
             ret2, _ = self.analyze_wire(self.raw_pos2, self.signal_v, dtype, -999,
                                      999, 1, coord, self.offset_v, norder)
-
             ret3 = {"sum": np.nan, "rms": np.nan, "center0": np.nan, "center1": np.nan,
                     "center": np.nan, "rms90p": np.nan, "rms99p": np.nan}
 
-            xc, yc, uc, vc = self.__get_xyuv_center(
-                    ret1['center'], ret2['center'],
-                    ret3['center'], coord, extra_offset)
+        elif dtype == "small":
+            mid12 = self.get_middle_pos(1.0 / np.sqrt(2.0), self.raw_pos1,
+                        self.signal_u, self.signal_v, self.offset_u, self.offset_v)
+            mid23 = self.get_middle_pos(1.0, self.raw_pos1,
+                        self.signal_v, self.signal_w, self.offset_v, self.offset_w)
+            print(mid12, mid23)
+            ret1, _ = self.analyze_wire(self.raw_pos1, self.signal_u, dtype, mid12,
+                        999, 0, coord, self.offset_u, norder)
+            ret2, _ = self.analyze_wire(self.raw_pos1, self.signal_v, dtype, mid23,
+                        mid12, 1, coord, self.offset_v, norder)
+            ret3, _ = self.analyze_wire(self.raw_pos1, self.signal_w, dtype, -999,
+                        mid23, 2, coord, self.offset_w, norder)
+
+        # corrected centers
+        xc, yc, uc, vc = self.__get_xyuv_center(
+                ret1['center'], ret2['center'],
+                ret3['center'], coord, extra_offset)
+
+        # corrected rms size
+        try:
             xr,yr,ur,vr = self.__get_xyuv_size(ret1['rms'],ret2['rms'],ret3['rms'],coord)
+        except:
+            xr,yr,ur,vr = np.nan, np.nan, np.nan, np.nan
+        try:
             x90p,y90p,u90p,v90p = self.__get_xyuv_size(ret1['rms90p'],ret2['rms90p'],ret3['rms90p'],coord)
+        except:
+            x90p,y90p,u90p,v90p = np.nan, np.nan, np.nan, np.nan
+        try:
             x99p,y99p,u99p,v99p = self.__get_xyuv_size(ret1['rms99p'],ret2['rms99p'],ret3['rms99p'],coord)
-            cxy, cxy90p, cxy99p = np.nan, np.nan, np.nan
+        except:
+            x99p,y99p,u99p,v99p = np.nan, np.nan, np.nan, np.nan
+
+        try:
+            cxy = self.__get_cxy(xr,yr,ur,vr)
+        except:
+            cxy = np.nan
+        try:
+            cxy90p = self.__get_cxy(x90p,y90p,u90p,v90p)
+        except:
+            cxy90p = np.nan
+        try:
+            cxy99p = self.__get_cxy(x99p,y99p,u99p,v99p)
+        except:
+            cxy99p = np.nan
 
         xyuv_c = {'xc': xc, 'yc': yc, 'uc': uc, 'vc': vc}
         xyuv_r = {'rms_x': xr, 'rms_y': yr, 'rms_u': ur, 'rms_v': vr,
@@ -1030,10 +1040,6 @@ class PMData(object):
         xy_cor = {'cxy': cxy, 'cxy90': cxy90p, 'cxy99': cxy99p}
 
         return ret1, ret2, ret3, xyuv_c, xyuv_r, xy_cor
-
-
-
-
 
     def __avg(self, y, x):
         s = abs(np.trapz(y, x))
