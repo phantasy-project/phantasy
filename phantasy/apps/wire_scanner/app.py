@@ -76,6 +76,8 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         self._sig1_subnoise = None
         self._sig2_subnoise = None
         self._sig3_subnoise = None
+        # dict of results for ioc (device)
+        self._results_for_ioc = {}
         # a2ua
         self.__factor_a2ua = 1.0
         # widgets
@@ -118,7 +120,6 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         self.matplotlibcurveWidget.setYTickFormat("Custom", "%g")
         self.xdataChanged.emit([])
         self.ydataChanged.emit([])
-        self.matplotlibcurveWidget.setFigureAutoScale(True)
         self.matplotlibcurveWidget.add_curve()
         self.matplotlibcurveWidget.add_curve()
 
@@ -413,9 +414,14 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
             # plot data, new PMData instance
             self._ws_data = PMData(self._ws_device)
             self.on_plot_raw_data()
+            # toggle autoscale on and off
+            self.matplotlibcurveWidget.setFigureAutoScale(True)
+            self.matplotlibcurveWidget.setFigureAutoScale(False)
 
             # put filepath in data_filepath_lineEdit
             self.data_filepath_lineEdit.setText(filepath)
+            # reset results for ioc dict
+            self._results_for_ioc = {}
 
     @pyqtSlot()
     def on_locate_data_file(self):
@@ -463,6 +469,12 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
                     QMessageBox.Ok)
         #
         self.on_plot_raw_data()
+        # toggle autoscale on and off
+        self.matplotlibcurveWidget.setFigureAutoScale(True)
+        self.matplotlibcurveWidget.setFigureAutoScale(False)
+
+        # reset results for ioc dict
+        self._results_for_ioc = {}
 
     @pyqtSlot()
     def on_dat2json(self):
@@ -508,8 +520,8 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
                         QMessageBox.Ok)
                 return
         ws_data = self._ws_data
-        # toggle autoscale
-        self.matplotlibcurveWidget.setFigureAutoScale(False)
+        ## toggle autoscale
+        #self.matplotlibcurveWidget.setFigureAutoScale(False)
         # u
         self.lineChanged.emit(0)
         self.xdataChanged.emit(ws_data.raw_pos1)
@@ -536,7 +548,7 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         self.matplotlibcurveWidget.setFigureXlabel("Pos [mm]")
         self.matplotlibcurveWidget.setFigureYlabel("Signal [A]")
         #
-        self.matplotlibcurveWidget.setFigureAutoScale(True)
+        #self.matplotlibcurveWidget.setFigureAutoScale(True)
 
     @pyqtSlot()
     def on_plot_with_adjusted_pos(self):
@@ -658,6 +670,12 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
                 [xc, yc, uc, vc, xrms, yrms, urms, vrms, xrms90, yrms90, urms90, vrms90, xrms99, yrms99, urms99, vrms99, cxy, cxy90, cxy99]):
             getattr(self, o).setText("{0:.5g}".format(v))
 
+        # results for ioc (device)
+        self._results_for_ioc = {
+                'xcen': xc, 'ycen': yc,
+                'xrms': xrms, 'yrms': yrms,
+                'cxy': cxy}
+
     @pyqtSlot()
     def on_analysis_complete(self):
         print("data analysis is completed")
@@ -682,4 +700,17 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         self.thread.start()
 
         sender_obj.setEnabled(False)
+
+    @pyqtSlot()
+    def on_sync_results_to_ioc(self):
+        """Sync analyzed results back to device (IOC), the dynamic fields are:
+        'XCEN', 'YCEN', 'XRMS', 'YRMS', 'CXY'.
+        """
+        if self._results_for_ioc == {}:
+            QMessageBox.warning(self, "Sync Results To Device",
+                    "Results are not ready, Analyze first.",
+                    QMessageBox.Ok)
+            return
+        for k, v in self._results_for_ioc.items():
+            setattr(self._ws_device.elem, k.upper(), v)
 
