@@ -70,6 +70,8 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         self._ws_device = None
         self._ws_data = None
         self._device_mode = "live"
+        # a2ua
+        self.__factor_a2ua = 1.0
         # widgets
         self._data_converter_dlg = None
 
@@ -336,6 +338,19 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         """
         self.adv_analysis_groupBox.setVisible(f)
 
+    @pyqtSlot(bool)
+    def on_amp_to_micro_amp(self, f):
+        """If checked, change FACTOR_A2UA as 1e6.
+        """
+        if f:
+            self.__factor_a2ua = 1.0e6
+        else:
+            self.__factor_a2ua = 1.0
+        # update results -> sum row
+        for o in (self.w11_sum_lineEdit, self.w21_sum_lineEdit, self.w22_sum_lineEdit):
+            s = o.text()
+            if s != '' and s != 'nan':
+                o.setText('{0:.5g}'.format(float(s) * self.__factor_a2ua))
 
     @pyqtSlot(bool)
     def on_enable_simulation_mode(self, f):
@@ -568,17 +583,17 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         """
         for o,v in zip(
                 ['w11_{}_lineEdit'.format(s) for s in ('sum', 'center', 'rms')],
-                [d['sum1'], d['cen1'], d['rms1']]):
+                [d['sum1'] * self.__factor_a2ua, d['cen1'], d['rms1']]):
             getattr(self, o).setText("{0:.5g}".format(v))
 
         for o,v in zip(
                 ['w21_{}_lineEdit'.format(s) for s in ('sum', 'center', 'rms')],
-                [d['sum2'], d['cen2'], d['rms2']]):
+                [d['sum2'] * self.__factor_a2ua, d['cen2'], d['rms2']]):
             getattr(self, o).setText("{0:.5g}".format(v))
 
         for o,v in zip(
                 ['w22_{}_lineEdit'.format(s) for s in ('sum', 'center', 'rms')],
-                [d['sum3'], d['cen3'], d['rms3']]):
+                [d['sum3'] * self.__factor_a2ua, d['cen3'], d['rms3']]):
             getattr(self, o).setText("{0:.5g}".format(v))
 
         # xyuv
