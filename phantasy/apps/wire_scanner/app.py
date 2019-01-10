@@ -485,11 +485,17 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         self.xdataChanged.emit(ws_data.raw_pos2)
         self.ydataChanged.emit(ws_data.signal_v)
         self.matplotlibcurveWidget.setLineLabel("v")
+
         # w
         self.lineChanged.emit(2)
-        self.xdataChanged.emit(ws_data.raw_pos2)
-        self.ydataChanged.emit(ws_data.signal_w)
-        self.matplotlibcurveWidget.setLineLabel("w(x/y)")
+        if self._ws_data.device.dtype != 'flapper':
+            self.xdataChanged.emit(ws_data.raw_pos2)
+            self.ydataChanged.emit(ws_data.signal_w)
+            self.matplotlibcurveWidget.setLineLabel("w(x/y)")
+        else:
+            self.xdataChanged.emit([])
+            self.ydataChanged.emit([])
+            self.matplotlibcurveWidget.setLineLabel("")
 
         #
         self.matplotlibcurveWidget.setFigureXlabel("Pos [mm]")
@@ -520,13 +526,14 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         self.xdataChanged.emit(s1)
         self.ydataChanged.emit(self._ws_data.signal_v)
 
-        # w
-        self.lineChanged.emit(2)
-        s2 = self._ws_data.adjust_position(
-                self._ws_data.raw_pos2, 2,
-                self._ws_data.offset_w,)
-        self.xdataChanged.emit(s2)
-        self.ydataChanged.emit(self._ws_data.signal_w)
+        if self._ws_data.device.dtype != "flapper":
+            # w
+            self.lineChanged.emit(2)
+            s2 = self._ws_data.adjust_position(
+                    self._ws_data.raw_pos2, 2,
+                    self._ws_data.offset_w,)
+            self.xdataChanged.emit(s2)
+            self.ydataChanged.emit(self._ws_data.signal_w)
 
 
     @pyqtSlot()
