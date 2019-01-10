@@ -96,6 +96,9 @@ class Device(object):
         # bias voltages
         self.bias_voltage = self.dconf.getarray(name, 'bias_voltage')
 
+        # other misc info
+        self.misc_info = self.dconf.get(name, 'info')
+
         # initial data sheet
         self.data_sheet = None
 
