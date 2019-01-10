@@ -108,6 +108,10 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
     def init_data_plot(self):
         """Initial data plot.
         """
+        self.matplotlibcurveWidget.setFigureAutoScale(False)
+        self.xdataChanged.emit([])
+        self.ydataChanged.emit([])
+        self.matplotlibcurveWidget.setFigureAutoScale(True)
         self.matplotlibcurveWidget.add_curve()
         self.matplotlibcurveWidget.add_curve()
 
@@ -483,7 +487,7 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
             try:
                 self._ws_data = PMData(self._ws_device)
             except RuntimeError:
-                QMessageBox.warning(self, "Plot Raw Data",
+                QMessageBox.critical(self, "Plot Data",
                         "Data is not ready, sync or load first.",
                         QMessageBox.Ok)
                 return
@@ -523,8 +527,13 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         """Plot data with s(adjusted to beam frame), signal.
         """
         if self._ws_data is None:
-            self._ws_data = PMData(self._ws_device)
-
+            try:
+                self._ws_data = PMData(self._ws_device)
+            except RuntimeError:
+                QMessageBox.critical(self, "Plot Data",
+                        "Data is not ready, sync or load first.",
+                        QMessageBox.Ok)
+                return
         # u
         self.lineChanged.emit(0)
         s0 = self._ws_data.adjust_position(
@@ -561,8 +570,13 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
     def on_analyze_data(self):
         """Analyze data in the all-in-one style.
         """
-        if self._ws_data is None:
+        try:
             self._ws_data = PMData(self._ws_device)
+        except:
+            QMessageBox.critical(self, "Analyze Data",
+                    "Data is not ready, failed to analyze.",
+                    QMessageBox.Ok)
+            return
 
         self.analysis_progressbar.setVisible(True)
         self.thread1 = QThread()
