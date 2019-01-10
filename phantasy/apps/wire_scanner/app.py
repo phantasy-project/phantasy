@@ -17,6 +17,7 @@ from PyQt5.QtWidgets import QMessageBox
 
 from functools import partial
 import json
+import numpy as np
 
 from phantasy_ui.templates import BaseAppForm
 from phantasy import MachinePortal
@@ -414,9 +415,7 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
             # plot data, new PMData instance
             self._ws_data = PMData(self._ws_device)
             self.on_plot_raw_data()
-            # toggle autoscale on and off
-            self.matplotlibcurveWidget.setFigureAutoScale(True)
-            self.matplotlibcurveWidget.setFigureAutoScale(False)
+            self.on_reset_xyscale()
 
             # put filepath in data_filepath_lineEdit
             self.data_filepath_lineEdit.setText(filepath)
@@ -469,9 +468,7 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
                     QMessageBox.Ok)
         #
         self.on_plot_raw_data()
-        # toggle autoscale on and off
-        self.matplotlibcurveWidget.setFigureAutoScale(True)
-        self.matplotlibcurveWidget.setFigureAutoScale(False)
+        self.on_reset_xyscale()
 
         # reset results for ioc dict
         self._results_for_ioc = {}
@@ -520,8 +517,6 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
                         QMessageBox.Ok)
                 return
         ws_data = self._ws_data
-        ## toggle autoscale
-        #self.matplotlibcurveWidget.setFigureAutoScale(False)
         # u
         self.lineChanged.emit(0)
         self.xdataChanged.emit(ws_data.raw_pos1)
@@ -547,8 +542,6 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         #
         self.matplotlibcurveWidget.setFigureXlabel("Pos [mm]")
         self.matplotlibcurveWidget.setFigureYlabel("Signal [A]")
-        #
-        #self.matplotlibcurveWidget.setFigureAutoScale(True)
 
     @pyqtSlot()
     def on_plot_with_adjusted_pos(self):
@@ -682,6 +675,19 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         self.analysis_progressbar.setVisible(False)
         self.analyze_btn.setEnabled(True)
 
+        wpos_list = [self._ws_data._pos_window1, self._ws_data._pos_window2, self._ws_data._pos_window3]
+        for i, iwpos in enumerate(wpos_list):
+            if iwpos is None:
+                sl, sr = np.nan, np.nan
+            else:
+                sl, sr = iwpos
+            getattr(self, 'wpos{}_left_lineEdit'.format(i+1)).setText('{0:.5g}'.format(sl))
+            getattr(self, 'wpos{}_right_lineEdit'.format(i+1)).setText('{0:.5g}'.format(sr))
+
+        print(self._ws_data._pos_window1)
+        print(self._ws_data._pos_window2)
+        print(self._ws_data._pos_window3)
+
     def __run_device(self, oplist, sender_obj, device):
         self.run_progressbar.setVisible(True)
         self.emstop_btn.setVisible(True)
@@ -714,3 +720,9 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         for k, v in self._results_for_ioc.items():
             setattr(self._ws_device.elem, k.upper(), v)
 
+    @pyqtSlot()
+    def on_reset_xyscale(self):
+        """Reset xy data scale.
+        """
+        self.matplotlibcurveWidget.setFigureAutoScale(True)
+        self.matplotlibcurveWidget.setFigureAutoScale(False)
