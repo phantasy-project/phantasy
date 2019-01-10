@@ -496,7 +496,7 @@ class Ui_MainWindow(object):
         self.lineEdit_3 = QtWidgets.QLineEdit(self.adv_analysis_groupBox)
         self.lineEdit_3.setObjectName("lineEdit_3")
         self.gridLayout_5.addWidget(self.lineEdit_3, 3, 2, 1, 1)
-        self.gridLayout_9.addWidget(self.adv_analysis_groupBox, 2, 0, 1, 2)
+        self.gridLayout_9.addWidget(self.adv_analysis_groupBox, 2, 0, 1, 3)
         self.groupBox_3 = QtWidgets.QGroupBox(self.groupBox_2)
         self.groupBox_3.setObjectName("groupBox_3")
         self.gridLayout_8 = QtWidgets.QGridLayout(self.groupBox_3)
@@ -920,7 +920,11 @@ class Ui_MainWindow(object):
         self.label_34.setObjectName("label_34")
         self.gridLayout_7.addWidget(self.label_34, 7, 1, 1, 1)
         self.gridLayout_8.addWidget(self.groupBox_5, 1, 0, 1, 1)
-        self.gridLayout_9.addWidget(self.groupBox_3, 3, 0, 1, 2)
+        self.gridLayout_9.addWidget(self.groupBox_3, 5, 0, 1, 3)
+        spacerItem5 = QtWidgets.QSpacerItem(20, 40,
+                                            QtWidgets.QSizePolicy.Minimum,
+                                            QtWidgets.QSizePolicy.Expanding)
+        self.gridLayout_9.addItem(spacerItem5, 6, 0, 1, 1)
         self.analyze_btn = QtWidgets.QPushButton(self.groupBox_2)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
                                            QtWidgets.QSizePolicy.Fixed)
@@ -931,10 +935,13 @@ class Ui_MainWindow(object):
         self.analyze_btn.setSizePolicy(sizePolicy)
         self.analyze_btn.setObjectName("analyze_btn")
         self.gridLayout_9.addWidget(self.analyze_btn, 1, 0, 1, 1)
-        spacerItem5 = QtWidgets.QSpacerItem(20, 40,
-                                            QtWidgets.QSizePolicy.Minimum,
-                                            QtWidgets.QSizePolicy.Expanding)
-        self.gridLayout_9.addItem(spacerItem5, 4, 0, 1, 1)
+        self.data_filepath_lineEdit = QtWidgets.QLineEdit(self.groupBox_2)
+        self.data_filepath_lineEdit.setReadOnly(True)
+        self.data_filepath_lineEdit.setObjectName("data_filepath_lineEdit")
+        self.gridLayout_9.addWidget(self.data_filepath_lineEdit, 4, 0, 1, 3)
+        self.label_35 = QtWidgets.QLabel(self.groupBox_2)
+        self.label_35.setObjectName("label_35")
+        self.gridLayout_9.addWidget(self.label_35, 3, 0, 1, 1)
         self.horizontalLayout_4 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_4.setContentsMargins(-1, 0, -1, -1)
         self.horizontalLayout_4.setObjectName("horizontalLayout_4")
@@ -946,7 +953,25 @@ class Ui_MainWindow(object):
         self.analysis_progressbar.setProperty("value", -1)
         self.analysis_progressbar.setObjectName("analysis_progressbar")
         self.horizontalLayout_4.addWidget(self.analysis_progressbar)
-        self.gridLayout_9.addLayout(self.horizontalLayout_4, 1, 1, 1, 1)
+        self.gridLayout_9.addLayout(self.horizontalLayout_4, 1, 1, 1, 2)
+        self.horizontalLayout_5 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_5.setContentsMargins(-1, -1, 0, -1)
+        self.horizontalLayout_5.setObjectName("horizontalLayout_5")
+        spacerItem6 = QtWidgets.QSpacerItem(40, 20,
+                                            QtWidgets.QSizePolicy.Expanding,
+                                            QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_5.addItem(spacerItem6)
+        self.data_path_locate_btn = QtWidgets.QPushButton(self.groupBox_2)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
+                                           QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.data_path_locate_btn.sizePolicy().hasHeightForWidth())
+        self.data_path_locate_btn.setSizePolicy(sizePolicy)
+        self.data_path_locate_btn.setObjectName("data_path_locate_btn")
+        self.horizontalLayout_5.addWidget(self.data_path_locate_btn)
+        self.gridLayout_9.addLayout(self.horizontalLayout_5, 3, 1, 1, 2)
         self.gridLayout.addWidget(self.splitter_2, 0, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
@@ -959,6 +984,7 @@ class Ui_MainWindow(object):
         self.menu_Config = QtWidgets.QMenu(self.menubar)
         self.menu_Config.setObjectName("menu_Config")
         self.menu_Data = QtWidgets.QMenu(self.menubar)
+        self.menu_Data.setToolTipsVisible(True)
         self.menu_Data.setObjectName("menu_Data")
         self.menuDe_vice = QtWidgets.QMenu(self.menubar)
         self.menuDe_vice.setObjectName("menuDe_vice")
@@ -985,16 +1011,39 @@ class Ui_MainWindow(object):
         self.actionSimulation_Mode.setCheckable(True)
         self.actionSimulation_Mode.setObjectName("actionSimulation_Mode")
         self.actionSync = QtWidgets.QAction(MainWindow)
+        icon2 = QtGui.QIcon()
+        icon2.addPixmap(
+            QtGui.QPixmap(":/icons/sync.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.actionSync.setIcon(icon2)
         self.actionSync.setObjectName("actionSync")
         self.actionLoad = QtWidgets.QAction(MainWindow)
+        icon3 = QtGui.QIcon()
+        icon3.addPixmap(
+            QtGui.QPixmap(":/icons/load.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.actionLoad.setIcon(icon3)
         self.actionLoad.setObjectName("actionLoad")
         self.actionSave = QtWidgets.QAction(MainWindow)
+        icon4 = QtGui.QIcon()
+        icon4.addPixmap(
+            QtGui.QPixmap(":/icons/save.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.actionSave.setIcon(icon4)
         self.actionSave.setObjectName("actionSave")
         self.actionLocate_Configuration = QtWidgets.QAction(MainWindow)
         self.actionLocate_Configuration.setObjectName(
             "actionLocate_Configuration")
         self.actionDAT2JSON = QtWidgets.QAction(MainWindow)
+        icon5 = QtGui.QIcon()
+        icon5.addPixmap(
+            QtGui.QPixmap(":/icons/json.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.actionDAT2JSON.setIcon(icon5)
         self.actionDAT2JSON.setObjectName("actionDAT2JSON")
+        self.actionTo_MicroAmp = QtWidgets.QAction(MainWindow)
+        self.actionTo_MicroAmp.setCheckable(True)
+        self.actionTo_MicroAmp.setObjectName("actionTo_MicroAmp")
         self.menu_File.addAction(self.actionE_xit)
         self.menu_Help.addAction(self.actionContents)
         self.menu_Help.addSeparator()
@@ -1010,6 +1059,7 @@ class Ui_MainWindow(object):
         self.menu_Data.addAction(self.actionLoad)
         self.menu_Data.addAction(self.actionSave)
         self.menu_Data.addAction(self.actionDAT2JSON)
+        self.menu_Data.addAction(self.actionTo_MicroAmp)
         self.menuDe_vice.addAction(self.actionSimulation_Mode)
         self.menubar.addAction(self.menu_File.menuAction())
         self.menubar.addAction(self.menu_Config.menuAction())
@@ -1063,6 +1113,10 @@ class Ui_MainWindow(object):
         self.mode_btn.clicked.connect(MainWindow.on_move)
         self.init_motor_pos_btn.clicked.connect(MainWindow.on_init_motor_pos)
         self.set_scan_range_btn.clicked.connect(MainWindow.on_set_scan_range)
+        self.data_path_locate_btn.clicked.connect(
+            MainWindow.on_locate_data_file)
+        self.actionTo_MicroAmp.toggled['bool'].connect(
+            MainWindow.on_amp_to_micro_amp)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -1203,7 +1257,9 @@ class Ui_MainWindow(object):
                 "<html><head/><body><p>ρ<span style=\" vertical-align:sub;\">xy</span><span style=\" vertical-align:super;\">100%</span></p></body></html>"
             ))
         self.analyze_btn.setText(_translate("MainWindow", "Analyze"))
+        self.label_35.setText(_translate("MainWindow", "Data Path"))
         self.adv_analysis_chkbox.setText(_translate("MainWindow", "Advanced"))
+        self.data_path_locate_btn.setText(_translate("MainWindow", "Locate"))
         self.menu_File.setTitle(_translate("MainWindow", "&File"))
         self.menu_Help.setTitle(_translate("MainWindow", "&Help"))
         self.menu_Config.setTitle(_translate("MainWindow", "Configuration"))
@@ -1226,14 +1282,40 @@ class Ui_MainWindow(object):
         self.actionSimulation_Mode.setText(
             _translate("MainWindow", "Simulation Mode"))
         self.actionSync.setText(_translate("MainWindow", "Sync"))
+        self.actionSync.setToolTip(
+            _translate(
+                "MainWindow",
+                "<html><head/><body><p>Retrieve data from controls network</p></body></html>"
+            ))
+        self.actionSync.setShortcut(_translate("MainWindow", "Ctrl+Shift+S"))
         self.actionLoad.setText(_translate("MainWindow", "Load"))
+        self.actionLoad.setToolTip(
+            _translate(
+                "MainWindow",
+                "<html><head/><body><p>Load data from file</p></body></html>"))
+        self.actionLoad.setShortcut(_translate("MainWindow", "Ctrl+L"))
         self.actionSave.setText(_translate("MainWindow", "Save"))
+        self.actionSave.setToolTip(
+            _translate(
+                "MainWindow",
+                "<html><head/><body><p>Save data to file</p></body></html>"))
+        self.actionSave.setShortcut(_translate("MainWindow", "Ctrl+S"))
         self.actionLocate_Configuration.setText(
             _translate("MainWindow", "Locate"))
         self.actionDAT2JSON.setText(_translate("MainWindow", "Converter"))
         self.actionDAT2JSON.setToolTip(
             _translate("MainWindow",
                        "Convert .dat file to .json formatted data file."))
+        self.actionDAT2JSON.setShortcut(
+            _translate("MainWindow", "Ctrl+Shift+C"))
+        self.actionTo_MicroAmp.setText(_translate("MainWindow", "To MicroAmp"))
+        self.actionTo_MicroAmp.setToolTip(
+            _translate(
+                "MainWindow",
+                "<html><head/><body><p>Convert signal from A to μA</p></body></html>"
+            ))
+        self.actionTo_MicroAmp.setShortcut(
+            _translate("MainWindow", "Ctrl+Shift+A"))
 
 
 from mpl4qt.widgets.mplcurvewidget import MatplotlibCurveWidget
