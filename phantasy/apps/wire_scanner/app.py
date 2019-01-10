@@ -72,6 +72,10 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         self._ws_device = None
         self._ws_data = None
         self._device_mode = "live"
+        # signals after subnoise
+        self._sig1_subnoise = None
+        self._sig2_subnoise = None
+        self._sig3_subnoise = None
         # a2ua
         self.__factor_a2ua = 1.0
         # widgets
@@ -111,6 +115,7 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         """Initial data plot.
         """
         self.matplotlibcurveWidget.setFigureAutoScale(False)
+        self.matplotlibcurveWidget.setYTickFormat("Custom", "%g")
         self.xdataChanged.emit([])
         self.ydataChanged.emit([])
         self.matplotlibcurveWidget.setFigureAutoScale(True)
@@ -551,7 +556,7 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
                 self._ws_data.raw_pos1, 0,
                 self._ws_data.offset_u,)
         self.xdataChanged.emit(s0)
-        self.ydataChanged.emit(self._ws_data.signal_u)
+        #self.ydataChanged.emit(self._ws_data.signal_u)
 
         # v
         self.lineChanged.emit(1)
@@ -559,7 +564,7 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
                 self._ws_data.raw_pos2, 1,
                 self._ws_data.offset_v,)
         self.xdataChanged.emit(s1)
-        self.ydataChanged.emit(self._ws_data.signal_v)
+        #self.ydataChanged.emit(self._ws_data.signal_v)
 
         if self._ws_data.device.dtype != "flapper":
             # w
@@ -568,14 +573,30 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
                     self._ws_data.raw_pos2, 2,
                     self._ws_data.offset_w,)
             self.xdataChanged.emit(s2)
-            self.ydataChanged.emit(self._ws_data.signal_w)
-
+            #self.ydataChanged.emit(self._ws_data.signal_w)
 
     @pyqtSlot()
     def on_plot_after_subnoise(self):
         """Plot data after background noise substraction.
         """
-        pass
+        try:
+            sig1 = self._ws_data._sig1_subnoise
+            sig2 = self._ws_data._sig2_subnoise
+            sig3 = self._ws_data._sig3_subnoise
+            if sig1 is None or sig2 is None or sig3 is None:
+                raise RuntimeError
+        except:
+            QMessageBox.critical(self, "Plot Data",
+                    "Data is not ready, if synced/loaded, analyze first.",
+                    QMessageBox.Ok)
+        else:
+            self.lineChanged.emit(0)
+            self.ydataChanged.emit(sig1)
+            self.lineChanged.emit(1)
+            self.ydataChanged.emit(sig2)
+            if self._ws_data.device.dtype != "flapper":
+                self.lineChanged.emit(2)
+                self.ydataChanged.emit(sig3)
 
     @pyqtSlot()
     def on_analyze_data(self):
@@ -604,7 +625,7 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
 
     @pyqtSlot(dict)
     def on_results_ready(self, d):
-        """Display results.
+        """Display results, d: dict of results.
         """
         for o,v in zip(
                 ['w11_{}_lineEdit'.format(s) for s in ('sum', 'center', 'rms')],
@@ -637,13 +658,11 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
                 [xc, yc, uc, vc, xrms, yrms, urms, vrms, xrms90, yrms90, urms90, vrms90, xrms99, yrms99, urms99, vrms99, cxy, cxy90, cxy99]):
             getattr(self, o).setText("{0:.5g}".format(v))
 
-
     @pyqtSlot()
     def on_analysis_complete(self):
         print("data analysis is completed")
         self.analysis_progressbar.setVisible(False)
         self.analyze_btn.setEnabled(True)
-
 
     def __run_device(self, oplist, sender_obj, device):
         self.run_progressbar.setVisible(True)
