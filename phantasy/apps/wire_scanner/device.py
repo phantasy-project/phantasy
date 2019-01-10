@@ -93,6 +93,9 @@ class Device(object):
         # wire offsets
         self.wire_offset = self.dconf.getarray(name, 'wire_pos_offset')
 
+        # bias voltages
+        self.bias_voltage = self.dconf.getarray(name, 'bias_voltage')
+
         # initial data sheet
         self.data_sheet = None
 
@@ -105,6 +108,16 @@ class Device(object):
     @wire_offset.setter
     def wire_offset(self, arr):
         self._wire_offset = [float(i) for i in arr]
+
+    @property
+    def bias_voltage(self):
+        """list[float]: Bias voltages.
+        """
+        return self._bias_voltage
+
+    @bias_voltage.setter
+    def bias_voltage(self, arr):
+        self._bias_voltage = [float(i) for i in arr]
 
     @property
     def scan_start_pos(self):
@@ -537,9 +550,11 @@ class Device(object):
         if 'device' not in self.data_sheet:
             self.data_sheet['device'] = {
                 'type': self.dtype,
+                'coordinate': self.coord,
                 'scan_start_pos': self.scan_start_pos,
                 'scan_stop_pos': self.scan_stop_pos,
-                'extra_offset': self.wire_offset
+                'extra_offset': self.wire_offset,
+                'bias_voltage': self.bias_voltage
             }
         ctime = epoch2human(time.time(), fmt=TS_FMT)
         info_dict = OrderedDict()
@@ -585,8 +600,8 @@ class PMData(object):
                 self.raw_pos2 = np.asarray(data['fork2']['ppot_raw']['value'])
                 self.signal_u = np.asarray(data['fork1']['signal1']['value'])
                 self.signal_v = np.asarray(data['fork2']['signal1']['value'])
-                self.offset_u = 0
-                self.offset_v = 0
+                self.offset_u = np.asarray(data['fork1'].get('offset1', {'value': 0})['value'])
+                self.offset_v = np.asarray(data['fork2'].get('offset1', {'value': 0})['value'])
             elif dtype == 'small':
                 self.raw_pos1 = np.asarray(data['fork']['ppot_raw']['value'])
                 self.raw_pos2 = self.raw_pos1
