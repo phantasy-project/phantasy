@@ -751,7 +751,6 @@ class PMData(object):
 
         return (s + eff_offset) * xy_coef
 
-
     def __get_range(self, pos, mid1, mid2):
         # get pos window for analysis.
         lower, upper = mid1, mid2
@@ -1039,7 +1038,47 @@ class PMData(object):
                   'rms99_x': x99p, 'rms99_y': y99p, 'rms99_u': u99p, 'rms99_v': v99p}
         xy_cor = {'cxy': cxy, 'cxy90': cxy90p, 'cxy99': cxy99p}
 
-        return ret1, ret2, ret3, xyuv_c, xyuv_r, xy_cor
+        #return ret1, ret2, ret3, xyuv_c, xyuv_r, xy_cor
+        ret = {
+            'sum1': ret1['sum'],
+            'sum2': ret2['sum'],
+            'sum3': ret3['sum'],
+            'cen1': ret1['center'],
+            'cen2': ret2['center'],
+            'cen3': ret3['center'],
+            'cen01': ret1['center0'],
+            'cen02': ret2['center0'],
+            'cen03': ret3['center0'],
+            'rms1': ret1['rms'],
+            'rms2': ret2['rms'],
+            'rms3': ret3['rms'],
+            'r90p1': ret1['rms90p'],
+            'r90p2': ret2['rms90p'],
+            'r90p3': ret3['rms90p'],
+            'r99p1': ret1['rms99p'],
+            'r99p2': ret2['rms99p'],
+            'r99p3': ret3['rms99p'],
+            'xrms': xyuv_r['rms_x'] ,
+            'yrms': xyuv_r['rms_y'],
+            'urms': xyuv_r['rms_u'],
+            'vrms': xyuv_r['rms_v'],
+            'x90p': xyuv_r['rms90_x'],
+            'y90p': xyuv_r['rms90_y'],
+            'u90p': xyuv_r['rms90_u'],
+            'v90p': xyuv_r['rms90_v'],
+            'x99p': xyuv_r['rms99_x'],
+            'y99p': xyuv_r['rms99_y'],
+            'u99p': xyuv_r['rms99_u'],
+            'v99p': xyuv_r['rms99_v'],
+            'xcen': xyuv_c['xc'],
+            'ycen': xyuv_c['yc'],
+            'ucen': xyuv_c['uc'],
+            'vcen': xyuv_c['vc'],
+            'cxy': xy_cor['cxy'],
+            'cxy90p': xy_cor['cxy90'],
+            'cxy99p': xy_cor['cxy99'],
+        }
+        return ret
 
     def __avg(self, y, x):
         s = abs(np.trapz(y, x))
