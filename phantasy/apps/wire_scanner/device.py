@@ -585,6 +585,11 @@ class PMData(object):
         self._sig2_subnoise = None
         self._sig3_subnoise = None
 
+        # position windows seleced for analysis
+        self._pos_window1 = None
+        self._pos_window2 = None
+        self._pos_window3 = None
+
         if device.data_sheet is None:
             _LOGGER.warning("Device data is not ready, try after sync_data()")
             raise RuntimeError
@@ -741,7 +746,7 @@ class PMData(object):
             'rms99p': r99p,  # rms with 99%
         }
 
-        return ret, pos_adjusted, signal
+        return ret, pos_adjusted, signal, pos_window
 
     def adjust_position(self, s, wid, offset):
         """Return adjusted position to beam frame.
@@ -991,21 +996,21 @@ class PMData(object):
             mid = self.get_middle_pos(1.0 / np.sqrt(2.0), self.raw_pos2,
                     self.signal_v, self.signal_w, self.offset_v, self.offset_w)
             # u wire
-            ret1, _, sig1_subnoise = self.analyze_wire(self.raw_pos1, self.signal_u, dtype, -999,
+            ret1, _, sig1_subnoise, wpos1 = self.analyze_wire(self.raw_pos1, self.signal_u, dtype, -999,
                                      999, 0, coord, self.offset_u, norder)
             # v wire
-            ret2, _, sig2_subnoise = self.analyze_wire(self.raw_pos2, self.signal_v, dtype, mid - 10,
+            ret2, _, sig2_subnoise, wpos2 = self.analyze_wire(self.raw_pos2, self.signal_v, dtype, mid - 10,
                                      999, 1, coord, self.offset_v, norder)
             # w wire (x/y)
-            ret3, _, sig3_subnoise = self.analyze_wire(self.raw_pos2, self.signal_w, dtype, -999,
+            ret3, _, sig3_subnoise, wpos3 = self.analyze_wire(self.raw_pos2, self.signal_w, dtype, -999,
                                      mid + 10, 2, coord, self.offset_w, norder)
 
         elif dtype == "flapper":
             # u(x) wire
-            ret1, _, sig1_subnoise = self.analyze_wire(self.raw_pos1, self.signal_u, dtype, -999,
+            ret1, _, sig1_subnoise, wpos1 = self.analyze_wire(self.raw_pos1, self.signal_u, dtype, -999,
                                      999, 0, coord, self.offset_u, norder)
             # v(y) wire
-            ret2, _, sig2_subnoise = self.analyze_wire(self.raw_pos2, self.signal_v, dtype, -999,
+            ret2, _, sig2_subnoise, wpos2 = self.analyze_wire(self.raw_pos2, self.signal_v, dtype, -999,
                                      999, 1, coord, self.offset_v, norder)
             ret3 = {"sum": np.nan, "rms": np.nan, "center0": np.nan, "center1": np.nan,
                     "center": np.nan, "rms90p": np.nan, "rms99p": np.nan}
@@ -1016,12 +1021,11 @@ class PMData(object):
                         self.signal_u, self.signal_v, self.offset_u, self.offset_v)
             mid23 = self.get_middle_pos(1.0, self.raw_pos1,
                         self.signal_v, self.signal_w, self.offset_v, self.offset_w)
-            print(mid12, mid23)
-            ret1, _, sig1_subnoise = self.analyze_wire(self.raw_pos1, self.signal_u, dtype, mid12,
+            ret1, _, sig1_subnoise, wpos1 = self.analyze_wire(self.raw_pos1, self.signal_u, dtype, mid12,
                         999, 0, coord, self.offset_u, norder)
-            ret2, _, sig2_subnoise = self.analyze_wire(self.raw_pos1, self.signal_v, dtype, mid23,
+            ret2, _, sig2_subnoise, wpos2 = self.analyze_wire(self.raw_pos1, self.signal_v, dtype, mid23,
                         mid12, 1, coord, self.offset_v, norder)
-            ret3, _, sig3_subnoise = self.analyze_wire(self.raw_pos1, self.signal_w, dtype, -999,
+            ret3, _, sig3_subnoise, wpos3 = self.analyze_wire(self.raw_pos1, self.signal_w, dtype, -999,
                         mid23, 2, coord, self.offset_w, norder)
 
         # corrected centers
@@ -1104,6 +1108,9 @@ class PMData(object):
         self._sig1_subnoise = sig1_subnoise
         self._sig2_subnoise = sig2_subnoise
         self._sig3_subnoise = sig3_subnoise
+        self._pos_window1 = wpos1
+        self._pos_window2 = wpos2
+        self._pos_window3 = wpos3
         return ret
 
     def __avg(self, y, x):
