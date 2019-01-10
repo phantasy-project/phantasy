@@ -565,25 +565,40 @@ class PMData(object):
             raise RuntimeError
         else:
             self.device = device
-            if device.dtype == 'large':
+            dtype = self.device.dtype
+            data = device.data_sheet
+            if dtype == 'large':
                 # wire on fork1: u
                 # wires on fork2: v, w(x or y)
                 self.raw_pos1 = np.asarray(
-                    device.data_sheet['data']['fork1']['ppot_raw']['value'])
+                    data['data']['fork1']['ppot_raw']['value'])
                 self.raw_pos2 = np.asarray(
-                    device.data_sheet['data']['fork2']['ppot_raw']['value'])
+                    data['data']['fork2']['ppot_raw']['value'])
                 self.signal_u = np.asarray(
-                    device.data_sheet['data']['fork1']['signal1']['value'])
+                    data['data']['fork1']['signal1']['value'])
                 self.signal_v = np.asarray(
-                    device.data_sheet['data']['fork2']['signal1']['value'])
+                    data['data']['fork2']['signal1']['value'])
                 self.signal_w = np.asarray(
-                    device.data_sheet['data']['fork2']['signal2']['value'])
+                    data['data']['fork2']['signal2']['value'])
                 self.offset_u = np.asarray(
-                    device.data_sheet['data']['fork1']['offset1']['value'])
+                    data['data']['fork1']['offset1']['value'])
                 self.offset_v = np.asarray(
-                    device.data_sheet['data']['fork2']['offset1']['value'])
+                    data['data']['fork2']['offset1']['value'])
                 self.offset_w = np.asarray(
-                    device.data_sheet['data']['fork2']['offset2']['value'])
+                    data['data']['fork2']['offset2']['value'])
+            elif dtype == 'flapper':
+                self.raw_pos1 = np.asarray(
+                    data['data']['fork1']['ppot_raw']['value'])
+                self.raw_pos2 = np.asarray(
+                    data['data']['fork2']['ppot_raw']['value'])
+                self.signal_u = np.asarray(
+                    data['data']['fork1']['signal1']['value'])
+                self.signal_v = np.asarray(
+                    data['data']['fork2']['signal1']['value'])
+                self.offset_u = 0
+                self.offset_v = 0
+            elif dtype == 'small':
+                pass
 
     def get_middle_pos(self, fac, th_factor=0.2, ran=None):
         """Get middle position on fork2 for large type.
@@ -661,7 +676,8 @@ class PMData(object):
 
         #weighted_sum = np.sum(signal)
         #weighted_center_pos0 = c0 = np.sum(signal * pos) / np.sum(signal)
-        s, avg_pos, avg_pos2 = self.__trapz_avg(signal, pos)
+        #s, avg_pos, avg_pos2 = self.__trapz_avg(signal, pos)
+        s, avg_pos, avg_pos2 = self.__avg(signal, pos)
         weighted_center_pos0 = c0 = avg_pos
         weighted_sum = s
 
@@ -787,6 +803,7 @@ class PMData(object):
         return c / s
 
     def __calc__percent_beamsize(self, dat, sum0, cen, ratio):
+        print(sum0, cen)
         # should be refactored
         ndat = len(dat)
         #cnt = 0
@@ -841,7 +858,7 @@ class PMData(object):
                           c12in2,
                           coord,
                           offset=[0.0, 0.0, 0.0]):  #+ Right-hand system
-        u, v, x, y = -999., -999., -999., -999.
+        u, v, x, y = np.nan, np.nan, np.nan, np.nan
         #print offset
         #o6in = offset[0]
         #o12in1 = offset[1]
@@ -906,7 +923,7 @@ class PMData(object):
     def __get_xyuv_size(self, r6in, r12in1, r12in2, coord):
         #print coord
         #print str(r6in)+'\t'+str(r12in1)+'\t'+str(r12in2)
-        u, v, x, y = -999., -999., -999., -999.
+        u, v, x, y = np.nan, np.nan, np.nan, np.nan
         if coord == "Luvx":
             u = r6in
             v = r12in1
@@ -925,79 +942,104 @@ class PMData(object):
         elif coord == "Fxy":
             x = r6in
             y = r12in1
-            u = -999.
-            v = -999.
+            u = np.nan
+            v = np.nan
         return x, y, u, v
 
     def __get_cxy(self, xrms, yrms, urms, vrms):
         if min(xrms, yrms, urms, vrms) < -900.:
-            cxy = -999.
+            cxy = np.nan
         else:
             cxy = -(vrms**2 - urms**2) / (2.0 * xrms * yrms)
         return cxy
 
-    def analyze(self):
+    def analyze(self, norder=1):
         """Analyze all the data of this ws device
         """
-        mid = self.get_middle_pos(1 / np.sqrt(2))
         dtype = self.device.dtype
         coord = self.device.coord
         extra_offset = self.device.wire_offset
-        norder = 1
 
-        # u wire
-        ret1, _ = self.analyze_wire(self.raw_pos1, self.signal_u, dtype, -999,
-                                 999, 0, coord, self.offset_u, norder)
+        if dtype == "large":
+            mid = self.get_middle_pos(1 / np.sqrt(2))
+            # u wire
+            ret1, _ = self.analyze_wire(self.raw_pos1, self.signal_u, dtype, -999,
+                                     999, 0, coord, self.offset_u, norder)
+            # v wire
+            ret2, _ = self.analyze_wire(self.raw_pos2, self.signal_v, dtype, mid - 10,
+                                     999, 1, coord, self.offset_v, norder)
+            # w wire (x/y)
+            ret3, _ = self.analyze_wire(self.raw_pos2, self.signal_w, dtype, -999,
+                                     mid + 10, 2, coord, self.offset_w, norder)
 
-        # v wire
-        ret2, _ = self.analyze_wire(self.raw_pos2, self.signal_v, dtype, mid - 10,
-                                 999, 1, coord, self.offset_v, norder)
+            # corrected centers
+            xc, yc, uc, vc = self.__get_xyuv_center(
+                    ret1['center'], ret2['center'],
+                    ret3['center'], coord, extra_offset)
 
-        # w wire (x/y)
-        ret3, _ = self.analyze_wire(self.raw_pos2, self.signal_w, dtype, -999,
-                                 mid + 10, 2, coord, self.offset_w, norder)
+            # corrected rms size
+            try:
+                xr,yr,ur,vr = self.__get_xyuv_size(ret1['rms'],ret2['rms'],ret3['rms'],coord)
+            except:
+                xr,yr,ur,vr = np.nan, np.nan, np.nan, np.nan
+            try:
+                x90p,y90p,u90p,v90p = self.__get_xyuv_size(ret1['rms90p'],ret2['rms90p'],ret3['rms90p'],coord)
+            except:
+                x90p,y90p,u90p,v90p = np.nan, np.nan, np.nan, np.nan
+            try:
+                x99p,y99p,u99p,v99p = self.__get_xyuv_size(ret1['rms99p'],ret2['rms99p'],ret3['rms99p'],coord)
+            except:
+                x99p,y99p,u99p,v99p = np.nan, np.nan, np.nan, np.nan
 
-        # corrected centers
-        xc, yc, uc, vc = self.__get_xyuv_center(
-                ret1['center'], ret2['center'],
-                ret3['center'], coord, extra_offset)
+            try:
+                cxy = self.__get_cxy(xr,yr,ur,vr)
+            except:
+                cxy = np.nan
+            try:
+                cxy90p = self.__get_cxy(x90p,y90p,u90p,v90p)
+            except:
+                cxy90p = np.nan
+            try:
+                cxy99p = self.__get_cxy(x99p,y99p,u99p,v99p)
+            except:
+                cxy99p = np.nan
+
+        elif dtype == "flapper":
+            # u(x) wire
+            ret1, _ = self.analyze_wire(self.raw_pos1, self.signal_u, dtype, -999,
+                                     999, 0, coord, self.offset_u, norder)
+            # v(y) wire
+            ret2, _ = self.analyze_wire(self.raw_pos2, self.signal_v, dtype, -999,
+                                     999, 1, coord, self.offset_v, norder)
+
+            ret3 = {"sum": np.nan, "rms": np.nan, "center0": np.nan, "center1": np.nan,
+                    "center": np.nan, "rms90p": np.nan, "rms99p": np.nan}
+
+            xc, yc, uc, vc = self.__get_xyuv_center(
+                    ret1['center'], ret2['center'],
+                    ret3['center'], coord, extra_offset)
+            xr,yr,ur,vr = self.__get_xyuv_size(ret1['rms'],ret2['rms'],ret3['rms'],coord)
+            x90p,y90p,u90p,v90p = self.__get_xyuv_size(ret1['rms90p'],ret2['rms90p'],ret3['rms90p'],coord)
+            x99p,y99p,u99p,v99p = self.__get_xyuv_size(ret1['rms99p'],ret2['rms99p'],ret3['rms99p'],coord)
+            cxy, cxy90p, cxy99p = np.nan, np.nan, np.nan
 
         xyuv_c = {'xc': xc, 'yc': yc, 'uc': uc, 'vc': vc}
-
-        # corrected rms size
-        try:
-            xr,yr,ur,vr = self.__get_xyuv_size(ret1['rms'],ret2['rms'],ret3['rms'],coord)
-        except:
-            xr,yr,ur,vr = -999.,-999.,-999.,-999.
-        try:
-            x90p,y90p,u90p,v90p = self.__get_xyuv_size(ret1['rms90p'],ret2['rms90p'],ret3['rms90p'],coord)
-        except:
-            x90p,y90p,u90p,v90p = -999.,-999.,-999.,-999.
-        try:
-            x99p,y99p,u99p,v99p = self.__get_xyuv_size(ret1['rms99p'],ret2['rms99p'],ret3['rms99p'],coord)
-        except:
-            x99p,y99p,u99p,v99p = -999.,-999.,-999.,-999.
-
-        try:
-            cxy = self.__get_cxy(xr,yr,ur,vr)
-        except:
-            cxy = -999.
-        try:
-            cxy90p = self.__get_cxy(x90p,y90p,u90p,v90p)
-        except:
-            cxy90p = -999.
-        try:
-            cxy99p = self.__get_cxy(x99p,y99p,u99p,v99p)
-        except:
-            cxy99p = -999.
-
         xyuv_r = {'rms_x': xr, 'rms_y': yr, 'rms_u': ur, 'rms_v': vr,
                   'rms90_x': x90p, 'rms90_y': y90p, 'rms90_u': u90p, 'rms90_v': v90p,
                   'rms99_x': x99p, 'rms99_y': y99p, 'rms99_u': u99p, 'rms99_v': v99p}
-
         xy_cor = {'cxy': cxy, 'cxy90': cxy90p, 'cxy99': cxy99p}
 
         return ret1, ret2, ret3, xyuv_c, xyuv_r, xy_cor
+
+
+
+
+
+    def __avg(self, y, x):
+        s = abs(np.trapz(y, x))
+        x_avg = np.sum(x * y) / np.sum(y)
+        x2_avg = np.sum((x - x_avg) ** 2 * y) / np.sum(y)
+        return s, x_avg, x2_avg
 
     def __trapz_avg(self, y, x):
         # trapzoid average x and x^2 (-<x>) over y
