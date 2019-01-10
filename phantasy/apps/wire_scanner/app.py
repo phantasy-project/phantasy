@@ -379,6 +379,15 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
             self._ws_data = PMData(self._ws_device)
             self.on_plot_raw_data()
 
+            # put filepath in data_filepath_lineEdit
+            self.data_filepath_lineEdit.setText(filepath)
+
+    @pyqtSlot()
+    def on_locate_data_file(self):
+        """Locate loaded data file.
+        """
+        path = self.data_filepath_lineEdit.text()
+        QDesktopServices.openUrl(QUrl(path))
 
     @pyqtSlot()
     def on_save_data(self):
