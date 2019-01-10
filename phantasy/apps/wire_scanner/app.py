@@ -5,11 +5,13 @@
 """
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtCore import Qt
 from PyQt5.QtCore import QThread
 from PyQt5.QtCore import QUrl
 from PyQt5.QtCore import QVariant
 from PyQt5.QtGui import QDesktopServices
 from PyQt5.QtGui import QDoubleValidator
+from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QLineEdit
 from PyQt5.QtWidgets import QMessageBox
 
@@ -159,6 +161,15 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         # ws device
         ws = Device(self._current_pm_elem, self._dconf)
         self._ws_device = ws
+
+        if ws.misc_info == "Installed":
+            pixmap = QPixmap(":/icons/installed.png")
+            tt = "Device is ready to use"
+        else:
+            pixmap = QPixmap(":/icons/not-installed.png")
+            tt = "Device is not ready to use"
+        self.info_lbl.setPixmap(pixmap)
+        self.info_lbl.setToolTip(tt)
 
         # display configuration
         self.dtype_lineEdit.setText(ws.dtype)
