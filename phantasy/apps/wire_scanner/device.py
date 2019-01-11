@@ -1015,6 +1015,7 @@ class PMData(object):
             ret3 = {"sum": np.nan, "rms": np.nan, "center0": np.nan, "center1": np.nan,
                     "center": np.nan, "rms90p": np.nan, "rms99p": np.nan}
             sig3_subnoise = []
+            wpos3 = None
 
         elif dtype == "small":
             mid12 = self.get_middle_pos(1.0 / np.sqrt(2.0), self.raw_pos1,
