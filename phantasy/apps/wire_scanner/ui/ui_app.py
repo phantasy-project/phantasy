@@ -686,10 +686,6 @@ class Ui_MainWindow(object):
         self.analysis_progressbar.setProperty("value", -1)
         self.analysis_progressbar.setObjectName("analysis_progressbar")
         self.horizontalLayout_4.addWidget(self.analysis_progressbar)
-        spacerItem3 = QtWidgets.QSpacerItem(40, 20,
-                                            QtWidgets.QSizePolicy.Expanding,
-                                            QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayout_4.addItem(spacerItem3)
         self.analyzed_status_lbl = QtWidgets.QLabel(self.groupBox_2)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
                                            QtWidgets.QSizePolicy.Preferred)
@@ -711,10 +707,10 @@ class Ui_MainWindow(object):
         self.sync_results_btn.setObjectName("sync_results_btn")
         self.horizontalLayout_4.addWidget(self.sync_results_btn)
         self.gridLayout_9.addLayout(self.horizontalLayout_4, 1, 0, 1, 3)
-        spacerItem4 = QtWidgets.QSpacerItem(20, 40,
+        spacerItem3 = QtWidgets.QSpacerItem(20, 40,
                                             QtWidgets.QSizePolicy.Minimum,
                                             QtWidgets.QSizePolicy.Expanding)
-        self.gridLayout_9.addItem(spacerItem4, 8, 0, 1, 1)
+        self.gridLayout_9.addItem(spacerItem3, 8, 0, 1, 1)
         self.horizontalLayout_6 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_6.setContentsMargins(-1, 0, -1, -1)
         self.horizontalLayout_6.setObjectName("horizontalLayout_6")
@@ -794,7 +790,7 @@ class Ui_MainWindow(object):
         self.label_20.setObjectName("label_20")
         self.gridLayout_6.addWidget(self.label_20, 1, 0, 1, 1)
         self.w11_sum_lineEdit = QtWidgets.QLineEdit(self.results_wires_gb)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
                                            QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -809,7 +805,7 @@ class Ui_MainWindow(object):
         self.w11_sum_lineEdit.setObjectName("w11_sum_lineEdit")
         self.gridLayout_6.addWidget(self.w11_sum_lineEdit, 1, 1, 1, 1)
         self.w21_sum_lineEdit = QtWidgets.QLineEdit(self.results_wires_gb)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
                                            QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -824,7 +820,7 @@ class Ui_MainWindow(object):
         self.w21_sum_lineEdit.setObjectName("w21_sum_lineEdit")
         self.gridLayout_6.addWidget(self.w21_sum_lineEdit, 1, 2, 1, 1)
         self.w22_sum_lineEdit = QtWidgets.QLineEdit(self.results_wires_gb)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
                                            QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -852,7 +848,7 @@ class Ui_MainWindow(object):
         self.label_21.setObjectName("label_21")
         self.gridLayout_6.addWidget(self.label_21, 2, 0, 1, 1)
         self.w11_center_lineEdit = QtWidgets.QLineEdit(self.results_wires_gb)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
                                            QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -867,7 +863,7 @@ class Ui_MainWindow(object):
         self.w11_center_lineEdit.setObjectName("w11_center_lineEdit")
         self.gridLayout_6.addWidget(self.w11_center_lineEdit, 2, 1, 1, 1)
         self.w21_center_lineEdit = QtWidgets.QLineEdit(self.results_wires_gb)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
                                            QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -882,7 +878,7 @@ class Ui_MainWindow(object):
         self.w21_center_lineEdit.setObjectName("w21_center_lineEdit")
         self.gridLayout_6.addWidget(self.w21_center_lineEdit, 2, 2, 1, 1)
         self.w22_center_lineEdit = QtWidgets.QLineEdit(self.results_wires_gb)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
                                            QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -910,7 +906,7 @@ class Ui_MainWindow(object):
         self.label_22.setObjectName("label_22")
         self.gridLayout_6.addWidget(self.label_22, 3, 0, 1, 1)
         self.w11_rms_lineEdit = QtWidgets.QLineEdit(self.results_wires_gb)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
                                            QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -925,7 +921,7 @@ class Ui_MainWindow(object):
         self.w11_rms_lineEdit.setObjectName("w11_rms_lineEdit")
         self.gridLayout_6.addWidget(self.w11_rms_lineEdit, 3, 1, 1, 1)
         self.w21_rms_lineEdit = QtWidgets.QLineEdit(self.results_wires_gb)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
                                            QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -940,7 +936,7 @@ class Ui_MainWindow(object):
         self.w21_rms_lineEdit.setObjectName("w21_rms_lineEdit")
         self.gridLayout_6.addWidget(self.w21_rms_lineEdit, 3, 2, 1, 1)
         self.w22_rms_lineEdit = QtWidgets.QLineEdit(self.results_wires_gb)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
                                            QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -1451,12 +1447,14 @@ class Ui_MainWindow(object):
         self.fontsize_inc_btn.setToolTip(
             _translate(
                 "MainWindow",
-                "<html><head/><body><p>Increase fontsize</p></body></html>"))
+                "<html><head/><body><p>Increase fontsize (CTRL + 0 to restore)</p></body></html>"
+            ))
         self.fontsize_inc_btn.setText(_translate("MainWindow", "..."))
         self.fontsize_dec_btn.setToolTip(
             _translate(
                 "MainWindow",
-                "<html><head/><body><p>Decrease fontsize</p></body></html>"))
+                "<html><head/><body><p>Decrease fontsize (CTRL + 0 to restore)</p></body></html>"
+            ))
         self.fontsize_dec_btn.setText(_translate("MainWindow", "..."))
         self.results_wires_gb.setTitle(_translate("MainWindow", "Wires"))
         self.label_17.setText(_translate("MainWindow", "U"))
