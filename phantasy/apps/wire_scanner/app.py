@@ -104,6 +104,11 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         self.xdataChanged.connect(self.matplotlibcurveWidget.setXData)
         self.ydataChanged.connect(self.matplotlibcurveWidget.setYData)
 
+        # hide lines button
+        self.hide_curve1_btn.toggled[bool].connect(partial(self.on_hide_curve, 1))
+        self.hide_curve2_btn.toggled[bool].connect(partial(self.on_hide_curve, 2))
+        self.hide_curve3_btn.toggled[bool].connect(partial(self.on_hide_curve, 3))
+
         # validator
         for o in (self.start_pos1_lineEdit, self.start_pos2_lineEdit,
                   self.stop_pos1_lineEdit, self.stop_pos2_lineEdit,
@@ -773,3 +778,9 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
                 o.set_visible(False)
         self.matplotlibcurveWidget.update_figure()
 
+    @pyqtSlot(bool)
+    def on_hide_curve(self, line_id, show):
+        """Hide curve indicated by *line_id* (1, 2, 3) or not.
+        """
+        self.lineChanged.emit(line_id - 1)
+        self.matplotlibcurveWidget.setLineVisible(not show)
