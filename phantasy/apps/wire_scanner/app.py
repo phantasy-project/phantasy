@@ -12,12 +12,16 @@ from PyQt5.QtCore import QVariant
 from PyQt5.QtGui import QDesktopServices
 from PyQt5.QtGui import QDoubleValidator
 from PyQt5.QtGui import QPixmap
+from PyQt5.QtGui import QKeySequence
+from PyQt5.QtWidgets import QLabel
 from PyQt5.QtWidgets import QLineEdit
 from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtWidgets import QShortcut
 
 from functools import partial
 import json
 import numpy as np
+import os
 
 from phantasy_ui.templates import BaseAppForm
 from phantasy_ui.widgets.elementwidget import ElementWidget
@@ -37,6 +41,8 @@ from .utils import apply_mplcurve_settings
 from .ui.ui_app import Ui_MainWindow
 
 FIELD_OF_INTEREST_LIST = ["XCEN", "YCEN", "XRMS", "YRMS", "XYRMS", "CXY"]
+
+FONTSIZE_MIN, FONTSIZE_MAX = 4, 24
 
 
 class WireScannerWindow(BaseAppForm, Ui_MainWindow):
@@ -97,6 +103,8 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         self._wpos1_art = None
         self._wpos2_art = None
         self._wpos3_art = None
+        # default lineEdit fontsize
+        self.__default_lineEdit_fontsize = self.w11_sum_lineEdit.font().pointSize()
 
         # events
         self.pm_names_cbb.currentTextChanged.connect(self.on_pm_name_changed)
@@ -111,6 +119,9 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         # fontsize
         self.fontsize_inc_btn.clicked.connect(partial(self.update_fontsize, '+'))
         self.fontsize_dec_btn.clicked.connect(partial(self.update_fontsize, '-'))
+
+        # loaded datafile path
+        self.data_filepath_lineEdit.textChanged.connect(self.on_datafilepath_changed)
 
         # curves
         self.lineChanged.connect(self.matplotlibcurveWidget.setLineID)
@@ -182,8 +193,12 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
 
         # all lineEdit obje for results display
         self.__all_results_lineEdits = \
-                self.results_wires_gb.findChildren(QLineEdit) + \
-                self.results_beam_gb.findChildren(QLineEdit)
+                self.results_wires_gb.findChildren((QLineEdit, QLabel)) + \
+                self.results_beam_gb.findChildren((QLineEdit, QLabel))
+
+        # keyshort
+        fs_reset = QShortcut(QKeySequence("Ctrl+0"), self)
+        fs_reset.activated.connect(self.reset_fontsize)
 
     @pyqtSlot('QString')
     def on_pm_name_changed(self, n):
@@ -725,12 +740,8 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
                 sl, sr = np.nan, np.nan
             else:
                 sl, sr = iwpos
-            getattr(self, 'wpos{}_left_lineEdit'.format(i+1)).setText('{0:.4g}'.format(sl))
-            getattr(self, 'wpos{}_right_lineEdit'.format(i+1)).setText('{0:.4g}'.format(sr))
-
-        print(self._ws_data._pos_window1)
-        print(self._ws_data._pos_window2)
-        print(self._ws_data._pos_window3)
+            getattr(self, 'wpos{}_left_lineEdit'.format(i+1)).setText('{0:.5g}'.format(sl))
+            getattr(self, 'wpos{}_right_lineEdit'.format(i+1)).setText('{0:.5g}'.format(sr))
 
     def __run_device(self, oplist, sender_obj, device):
         self.run_progressbar.setVisible(True)
@@ -817,12 +828,27 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         self.matplotlibcurveWidget.setLineVisible(not show)
 
     @pyqtSlot()
-    def update_fontsize(self, mode="+"):
+    def update_fontsize(self, mode="+", fontsize=None):
         """Grow/shrink fontsize (results display panel)
         """
         for o in self.__all_results_lineEdits:
             font = o.font()
             ps = font.pointSize()
             new_ps = ps + 1 if mode == '+' else ps - 1
+            if new_ps > FONTSIZE_MAX  or new_ps < FONTSIZE_MIN: new_ps = self.__default_lineEdit_fontsize
             font.setPointSize(new_ps)
             o.setFont(font)
+
+    @pyqtSlot()
+    def reset_fontsize(self):
+        for o in self.__all_results_lineEdits:
+            font = o.font()
+            font.setPointSize(self.__default_lineEdit_fontsize)
+            o.setFont(font)
+
+    @pyqtSlot('QString')
+    def on_datafilepath_changed(self, filepath):
+        """Data filepath is changed.
+        """
+        filename = os.path.basename(filepath) + "\n"
+        self.matplotlibcurveWidget.setFigureTitle(filename)
