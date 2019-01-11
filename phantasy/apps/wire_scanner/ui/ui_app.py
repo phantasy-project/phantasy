@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui_app.ui'
 #
-# Created by: PyQt5 UI code generator 5.10.1
+# Created by: PyQt5 UI code generator 5.5.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -78,6 +78,12 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(
             self.run_btn.sizePolicy().hasHeightForWidth())
         self.run_btn.setSizePolicy(sizePolicy)
+        icon = QtGui.QIcon()
+        icon.addPixmap(
+            QtGui.QPixmap(":/icons/run.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.run_btn.setIcon(icon)
+        self.run_btn.setIconSize(QtCore.QSize(24, 24))
         self.run_btn.setObjectName("run_btn")
         self.horizontalLayout_2.addWidget(self.run_btn)
         self.advctrl_chkbox = QtWidgets.QCheckBox(self.controls_groupBox)
@@ -88,11 +94,11 @@ class Ui_MainWindow(object):
         self.run_progressbar.setObjectName("run_progressbar")
         self.horizontalLayout_2.addWidget(self.run_progressbar)
         self.emstop_btn = QtWidgets.QToolButton(self.controls_groupBox)
-        icon = QtGui.QIcon()
-        icon.addPixmap(
+        icon1 = QtGui.QIcon()
+        icon1.addPixmap(
             QtGui.QPixmap(":/icons/stop.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.emstop_btn.setIcon(icon)
+        self.emstop_btn.setIcon(icon1)
         self.emstop_btn.setIconSize(QtCore.QSize(24, 24))
         self.emstop_btn.setAutoRaise(True)
         self.emstop_btn.setObjectName("emstop_btn")
@@ -181,11 +187,11 @@ class Ui_MainWindow(object):
         self.label_4.setObjectName("label_4")
         self.gridLayout_3.addWidget(self.label_4, 2, 4, 1, 1)
         self.pm_detail_btn = QtWidgets.QToolButton(self.controls_groupBox)
-        icon1 = QtGui.QIcon()
-        icon1.addPixmap(
+        icon2 = QtGui.QIcon()
+        icon2.addPixmap(
             QtGui.QPixmap(":/icons/browse.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.pm_detail_btn.setIcon(icon1)
+        self.pm_detail_btn.setIcon(icon2)
         self.pm_detail_btn.setAutoRaise(True)
         self.pm_detail_btn.setObjectName("pm_detail_btn")
         self.gridLayout_3.addWidget(self.pm_detail_btn, 0, 6, 1, 1)
@@ -387,71 +393,72 @@ class Ui_MainWindow(object):
         self.horizontalLayout_3.setContentsMargins(-1, 0, -1, -1)
         self.horizontalLayout_3.setObjectName("horizontalLayout_3")
         self.reset_xyscale_btn = QtWidgets.QPushButton(self.groupBox)
+        icon3 = QtGui.QIcon()
+        icon3.addPixmap(
+            QtGui.QPixmap(":/icons/reset_scale.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.reset_xyscale_btn.setIcon(icon3)
+        self.reset_xyscale_btn.setIconSize(QtCore.QSize(24, 24))
         self.reset_xyscale_btn.setObjectName("reset_xyscale_btn")
         self.horizontalLayout_3.addWidget(self.reset_xyscale_btn)
         self.legend_btn = QtWidgets.QPushButton(self.groupBox)
+        icon4 = QtGui.QIcon()
+        icon4.addPixmap(
+            QtGui.QPixmap(":/icons/label.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.legend_btn.setIcon(icon4)
+        self.legend_btn.setIconSize(QtCore.QSize(24, 24))
         self.legend_btn.setCheckable(True)
         self.legend_btn.setObjectName("legend_btn")
         self.horizontalLayout_3.addWidget(self.legend_btn)
         self.grid_btn = QtWidgets.QPushButton(self.groupBox)
+        icon5 = QtGui.QIcon()
+        icon5.addPixmap(
+            QtGui.QPixmap(":/icons/grid.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.grid_btn.setIcon(icon5)
+        self.grid_btn.setIconSize(QtCore.QSize(24, 24))
         self.grid_btn.setCheckable(True)
         self.grid_btn.setObjectName("grid_btn")
         self.horizontalLayout_3.addWidget(self.grid_btn)
-        self.hide_curve2_btn = QtWidgets.QToolButton(self.groupBox)
-        self.hide_curve2_btn.setStyleSheet(
-            "QToolButton {\n"
-            "    background-color: rgb(255, 0, 0);\n"
-            "    border: 2px solid rgb(255, 0, 0);\n"
-            "    border-radius: 5px;\n"
-            "    font-family: monospace;\n"
-            "    color: white;\n"
-            "}\n"
-            "\n"
-            "QToolButton:checked {\n"
-            "    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
-            "                                      stop: 0 #dadbde, stop: 1 #f6f7fa);\n"
-            "}")
-        self.hide_curve2_btn.setCheckable(True)
-        self.hide_curve2_btn.setObjectName("hide_curve2_btn")
-        self.horizontalLayout_3.addWidget(self.hide_curve2_btn)
-        self.hide_curve1_btn = QtWidgets.QToolButton(self.groupBox)
-        self.hide_curve1_btn.setStyleSheet(
-            "QToolButton {\n"
-            "    background-color: rgb(31, 119, 180);\n"
-            "    border: 2px solid rgb(31, 119, 180);\n"
-            "    border-radius: 5px;\n"
-            "    font-family: monospace;\n"
-            "    color: white;\n"
-            "}\n"
-            "\n"
-            "QToolButton:checked {\n"
-            "    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
-            "                                      stop: 0 #dadbde, stop: 1 #f6f7fa);\n"
-            "}")
-        self.hide_curve1_btn.setCheckable(True)
-        self.hide_curve1_btn.setObjectName("hide_curve1_btn")
-        self.horizontalLayout_3.addWidget(self.hide_curve1_btn)
-        self.hide_curve3_btn = QtWidgets.QToolButton(self.groupBox)
-        self.hide_curve3_btn.setStyleSheet(
-            "QToolButton {\n"
-            "    background-color: rgb(255, 127, 14);\n"
-            "    border: 2px solid rgb(255, 127, 14);\n"
-            "    border-radius: 5px;\n"
-            "    font-family: monospace;\n"
-            "    color: white;\n"
-            "}\n"
-            "\n"
-            "QToolButton:checked {\n"
-            "    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
-            "                                      stop: 0 #dadbde, stop: 1 #f6f7fa);\n"
-            "}")
-        self.hide_curve3_btn.setCheckable(True)
-        self.hide_curve3_btn.setObjectName("hide_curve3_btn")
-        self.horizontalLayout_3.addWidget(self.hide_curve3_btn)
         spacerItem = QtWidgets.QSpacerItem(40, 20,
                                            QtWidgets.QSizePolicy.Expanding,
                                            QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_3.addItem(spacerItem)
+        self.hide_curve2_btn = QtWidgets.QToolButton(self.groupBox)
+        self.hide_curve2_btn.setStyleSheet("")
+        icon6 = QtGui.QIcon()
+        icon6.addPixmap(
+            QtGui.QPixmap(":/icons/u.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.hide_curve2_btn.setIcon(icon6)
+        self.hide_curve2_btn.setIconSize(QtCore.QSize(24, 24))
+        self.hide_curve2_btn.setCheckable(True)
+        self.hide_curve2_btn.setAutoRaise(True)
+        self.hide_curve2_btn.setObjectName("hide_curve2_btn")
+        self.horizontalLayout_3.addWidget(self.hide_curve2_btn)
+        self.hide_curve1_btn = QtWidgets.QToolButton(self.groupBox)
+        icon7 = QtGui.QIcon()
+        icon7.addPixmap(
+            QtGui.QPixmap(":/icons/v.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.hide_curve1_btn.setIcon(icon7)
+        self.hide_curve1_btn.setIconSize(QtCore.QSize(24, 24))
+        self.hide_curve1_btn.setCheckable(True)
+        self.hide_curve1_btn.setAutoRaise(True)
+        self.hide_curve1_btn.setObjectName("hide_curve1_btn")
+        self.horizontalLayout_3.addWidget(self.hide_curve1_btn)
+        self.hide_curve3_btn = QtWidgets.QToolButton(self.groupBox)
+        icon8 = QtGui.QIcon()
+        icon8.addPixmap(
+            QtGui.QPixmap(":/icons/w.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.hide_curve3_btn.setIcon(icon8)
+        self.hide_curve3_btn.setIconSize(QtCore.QSize(24, 24))
+        self.hide_curve3_btn.setCheckable(True)
+        self.hide_curve3_btn.setAutoRaise(True)
+        self.hide_curve3_btn.setObjectName("hide_curve3_btn")
+        self.horizontalLayout_3.addWidget(self.hide_curve3_btn)
         self.gridLayout_2.addLayout(self.horizontalLayout_3, 0, 0, 1, 1)
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setContentsMargins(-1, 0, -1, -1)
@@ -464,11 +471,14 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(
             self.plot_data_smoving_btn.sizePolicy().hasHeightForWidth())
         self.plot_data_smoving_btn.setSizePolicy(sizePolicy)
+        icon9 = QtGui.QIcon()
+        icon9.addPixmap(
+            QtGui.QPixmap(":/icons/line-chart.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.plot_data_smoving_btn.setIcon(icon9)
+        self.plot_data_smoving_btn.setIconSize(QtCore.QSize(24, 24))
         self.plot_data_smoving_btn.setObjectName("plot_data_smoving_btn")
         self.horizontalLayout.addWidget(self.plot_data_smoving_btn)
-        self.label_11 = QtWidgets.QLabel(self.groupBox)
-        self.label_11.setObjectName("label_11")
-        self.horizontalLayout.addWidget(self.label_11)
         self.plot_data_sbeam_btn = QtWidgets.QPushButton(self.groupBox)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
                                            QtWidgets.QSizePolicy.Fixed)
@@ -477,11 +487,10 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(
             self.plot_data_sbeam_btn.sizePolicy().hasHeightForWidth())
         self.plot_data_sbeam_btn.setSizePolicy(sizePolicy)
+        self.plot_data_sbeam_btn.setIcon(icon9)
+        self.plot_data_sbeam_btn.setIconSize(QtCore.QSize(24, 24))
         self.plot_data_sbeam_btn.setObjectName("plot_data_sbeam_btn")
         self.horizontalLayout.addWidget(self.plot_data_sbeam_btn)
-        self.label_12 = QtWidgets.QLabel(self.groupBox)
-        self.label_12.setObjectName("label_12")
-        self.horizontalLayout.addWidget(self.label_12)
         self.plot_data_subnoise_btn = QtWidgets.QPushButton(self.groupBox)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
                                            QtWidgets.QSizePolicy.Fixed)
@@ -490,6 +499,12 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(
             self.plot_data_subnoise_btn.sizePolicy().hasHeightForWidth())
         self.plot_data_subnoise_btn.setSizePolicy(sizePolicy)
+        icon10 = QtGui.QIcon()
+        icon10.addPixmap(
+            QtGui.QPixmap(":/icons/minus.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.plot_data_subnoise_btn.setIcon(icon10)
+        self.plot_data_subnoise_btn.setIconSize(QtCore.QSize(24, 24))
         self.plot_data_subnoise_btn.setObjectName("plot_data_subnoise_btn")
         self.horizontalLayout.addWidget(self.plot_data_subnoise_btn)
         spacerItem1 = QtWidgets.QSpacerItem(40, 20,
@@ -576,25 +591,25 @@ class Ui_MainWindow(object):
         self.wpos3_right_lineEdit.setObjectName("wpos3_right_lineEdit")
         self.gridLayout_5.addWidget(self.wpos3_right_lineEdit, 3, 4, 1, 1)
         self.plot_wpos1_btn = QtWidgets.QToolButton(self.adv_analysis_groupBox)
-        icon2 = QtGui.QIcon()
-        icon2.addPixmap(
+        icon11 = QtGui.QIcon()
+        icon11.addPixmap(
             QtGui.QPixmap(":/icons/show.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.plot_wpos1_btn.setIcon(icon2)
+        self.plot_wpos1_btn.setIcon(icon11)
         self.plot_wpos1_btn.setIconSize(QtCore.QSize(24, 24))
         self.plot_wpos1_btn.setCheckable(True)
         self.plot_wpos1_btn.setAutoRaise(True)
         self.plot_wpos1_btn.setObjectName("plot_wpos1_btn")
         self.gridLayout_5.addWidget(self.plot_wpos1_btn, 1, 0, 1, 1)
         self.plot_wpos2_btn = QtWidgets.QToolButton(self.adv_analysis_groupBox)
-        self.plot_wpos2_btn.setIcon(icon2)
+        self.plot_wpos2_btn.setIcon(icon11)
         self.plot_wpos2_btn.setIconSize(QtCore.QSize(24, 24))
         self.plot_wpos2_btn.setCheckable(True)
         self.plot_wpos2_btn.setAutoRaise(True)
         self.plot_wpos2_btn.setObjectName("plot_wpos2_btn")
         self.gridLayout_5.addWidget(self.plot_wpos2_btn, 2, 0, 1, 1)
         self.plot_wpos3_btn = QtWidgets.QToolButton(self.adv_analysis_groupBox)
-        self.plot_wpos3_btn.setIcon(icon2)
+        self.plot_wpos3_btn.setIcon(icon11)
         self.plot_wpos3_btn.setIconSize(QtCore.QSize(24, 24))
         self.plot_wpos3_btn.setCheckable(True)
         self.plot_wpos3_btn.setAutoRaise(True)
@@ -1080,11 +1095,11 @@ class Ui_MainWindow(object):
         self.analyze_btn.setObjectName("analyze_btn")
         self.horizontalLayout_4.addWidget(self.analyze_btn)
         self.sync_results_btn = QtWidgets.QToolButton(self.groupBox_2)
-        icon3 = QtGui.QIcon()
-        icon3.addPixmap(
+        icon12 = QtGui.QIcon()
+        icon12.addPixmap(
             QtGui.QPixmap(":/icons/sync.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.sync_results_btn.setIcon(icon3)
+        self.sync_results_btn.setIcon(icon12)
         self.sync_results_btn.setIconSize(QtCore.QSize(24, 24))
         self.sync_results_btn.setObjectName("sync_results_btn")
         self.horizontalLayout_4.addWidget(self.sync_results_btn)
@@ -1104,7 +1119,7 @@ class Ui_MainWindow(object):
         self.gridLayout.addWidget(self.splitter_2, 0, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1779, 29))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1779, 30))
         self.menubar.setObjectName("menubar")
         self.menu_File = QtWidgets.QMenu(self.menubar)
         self.menu_File.setObjectName("menu_File")
@@ -1140,31 +1155,31 @@ class Ui_MainWindow(object):
         self.actionSimulation_Mode.setCheckable(True)
         self.actionSimulation_Mode.setObjectName("actionSimulation_Mode")
         self.actionSync = QtWidgets.QAction(MainWindow)
-        self.actionSync.setIcon(icon3)
+        self.actionSync.setIcon(icon12)
         self.actionSync.setObjectName("actionSync")
         self.actionLoad = QtWidgets.QAction(MainWindow)
-        icon4 = QtGui.QIcon()
-        icon4.addPixmap(
+        icon13 = QtGui.QIcon()
+        icon13.addPixmap(
             QtGui.QPixmap(":/icons/load.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.actionLoad.setIcon(icon4)
+        self.actionLoad.setIcon(icon13)
         self.actionLoad.setObjectName("actionLoad")
         self.actionSave = QtWidgets.QAction(MainWindow)
-        icon5 = QtGui.QIcon()
-        icon5.addPixmap(
+        icon14 = QtGui.QIcon()
+        icon14.addPixmap(
             QtGui.QPixmap(":/icons/save.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.actionSave.setIcon(icon5)
+        self.actionSave.setIcon(icon14)
         self.actionSave.setObjectName("actionSave")
         self.actionLocate_Configuration = QtWidgets.QAction(MainWindow)
         self.actionLocate_Configuration.setObjectName(
             "actionLocate_Configuration")
         self.actionDAT2JSON = QtWidgets.QAction(MainWindow)
-        icon6 = QtGui.QIcon()
-        icon6.addPixmap(
+        icon15 = QtGui.QIcon()
+        icon15.addPixmap(
             QtGui.QPixmap(":/icons/json.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.actionDAT2JSON.setIcon(icon6)
+        self.actionDAT2JSON.setIcon(icon15)
         self.actionDAT2JSON.setObjectName("actionDAT2JSON")
         self.actionTo_MicroAmp = QtWidgets.QAction(MainWindow)
         self.actionTo_MicroAmp.setCheckable(True)
@@ -1221,15 +1236,11 @@ class Ui_MainWindow(object):
         self.plot_data_smoving_btn.clicked.connect(MainWindow.on_plot_raw_data)
         self.plot_data_sbeam_btn.clicked.connect(
             MainWindow.on_plot_with_adjusted_pos)
-        self.plot_data_subnoise_btn.clicked.connect(
-            MainWindow.on_plot_after_subnoise)
         self.adv_analysis_chkbox.toggled['bool'].connect(
             MainWindow.on_show_advanced_analysis_panel)
         self.analyze_btn.clicked.connect(MainWindow.on_analyze_data)
         self.legend_btn.clicked['bool'].connect(
             self.matplotlibcurveWidget.setLegendToggle)
-        self.grid_btn.clicked['bool'].connect(
-            self.matplotlibcurveWidget.setFigureGridToggle)
         self.init_potentiometer_btn.clicked.connect(
             MainWindow.on_init_potentimeter)
         self.enable_scan_btn.clicked.connect(MainWindow.on_enable_scan)
@@ -1248,6 +1259,8 @@ class Ui_MainWindow(object):
         self.plot_wpos1_btn.toggled['bool'].connect(MainWindow.on_plot_wpos1)
         self.plot_wpos2_btn.toggled['bool'].connect(MainWindow.on_plot_wpos2)
         self.plot_wpos3_btn.toggled['bool'].connect(MainWindow.on_plot_wpos3)
+        self.grid_btn.toggled['bool'].connect(
+            self.matplotlibcurveWidget.setFigureGridToggle)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -1312,8 +1325,20 @@ class Ui_MainWindow(object):
                 "<html><head/><body><p>Stop position of fork1</p></body></html>"
             ))
         self.groupBox.setTitle(_translate("MainWindow", "Data Plot"))
-        self.reset_xyscale_btn.setText(_translate("MainWindow", "Reset Scale"))
+        self.reset_xyscale_btn.setToolTip(
+            _translate(
+                "MainWindow",
+                "<html><head/><body><p>Rest x and y scale</p></body></html>"))
+        self.reset_xyscale_btn.setText(_translate("MainWindow", "Scale"))
+        self.legend_btn.setToolTip(
+            _translate(
+                "MainWindow",
+                "<html><head/><body><p>Show/hide legend</p></body></html>"))
         self.legend_btn.setText(_translate("MainWindow", "Legend"))
+        self.grid_btn.setToolTip(
+            _translate(
+                "MainWindow",
+                "<html><head/><body><p>Show/hide grid</p></body></html>"))
         self.grid_btn.setText(_translate("MainWindow", "Grid"))
         self.hide_curve2_btn.setToolTip(
             _translate(
@@ -1330,23 +1355,28 @@ class Ui_MainWindow(object):
         self.hide_curve3_btn.setToolTip(
             _translate(
                 "MainWindow",
-                "<html><head/><body><p>Press down to hide curve W.</p></body></html>"
+                "<html><head/><body><p>Press down to hide curve W (X ot Y).</p></body></html>"
             ))
         self.hide_curve3_btn.setText(_translate("MainWindow", "W"))
-        self.plot_data_smoving_btn.setText(
-            _translate("MainWindow", "Raw (Moving Frame)"))
-        self.label_11.setText(
+        self.plot_data_smoving_btn.setToolTip(
             _translate(
                 "MainWindow",
-                "<html><head/><body><p align=\"center\"><span style=\" font-weight:600;\">→</span></p></body></html>"
+                "<html><head/><body><p>Plot raw data (fork frame)</p></body></html>"
             ))
-        self.plot_data_sbeam_btn.setText(
-            _translate("MainWindow", "To Beam Frame"))
-        self.label_12.setText(
-            _translate("MainWindow",
-                       "<html><head/><body><p>&rarr;</p></body></html>"))
-        self.plot_data_subnoise_btn.setText(
-            _translate("MainWindow", "(-) Noise"))
+        self.plot_data_smoving_btn.setText(
+            _translate("MainWindow", "Original"))
+        self.plot_data_sbeam_btn.setToolTip(
+            _translate(
+                "MainWindow",
+                "<html><head/><body><p>Convert position to beam frame</p></body></html>"
+            ))
+        self.plot_data_sbeam_btn.setText(_translate("MainWindow", "To Beam"))
+        self.plot_data_subnoise_btn.setToolTip(
+            _translate(
+                "MainWindow",
+                "<html><head/><body><p>Plot signals after noise substraction</p></body></html>"
+            ))
+        self.plot_data_subnoise_btn.setText(_translate("MainWindow", "Noise"))
         self.groupBox_2.setTitle(_translate("MainWindow", "Data Analysis"))
         self.adv_analysis_groupBox.setTitle(
             _translate("MainWindow", "Advanced Analysis"))
