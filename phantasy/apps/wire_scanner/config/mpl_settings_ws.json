@@ -60,7 +60,7 @@
       "show": false
     },
     "title": {
-      "font": "Sans,10,-1,5,50,0,0,0,0,0",
+      "font": "Sans,12,-1,5,50,0,0,0,0,0",
       "value": ""
     },
     "xy_range": {
@@ -87,7 +87,7 @@
     },
     "ticks": {
       "color": "#000000",
-      "font": "Sans,10,-1,5,50,0,0,0,0,0",
+      "font": "Sans Serif,9,-1,5,50,0,0,0,0,0",
       "mticks_on": false
     }
   }
