@@ -1,0 +1,94 @@
+{
+  "curve": [
+    {
+      "label": "u",
+      "line": {
+        "color": "#FF0000",
+        "style": "-",
+        "width": 2.0
+      },
+      "line_id": 0,
+      "marker": {
+        "edgecolor": "#FF0000",
+        "facecolor": "#FF0000",
+        "size": 6.0,
+        "style": "None",
+        "width": 1.0
+      }
+    },
+    {
+      "label": "v",
+      "line": {
+        "color": "#1F77B4",
+        "style": "-",
+        "width": 2.0
+      },
+      "line_id": 1,
+      "marker": {
+        "edgecolor": "#1F77B4",
+        "facecolor": "#1F77B4",
+        "size": 6.0,
+        "style": "None",
+        "width": 1.0
+      }
+    },
+    {
+      "label": "w(x/y)",
+      "line": {
+        "color": "#FF7F0E",
+        "style": "-",
+        "width": 2.0
+      },
+      "line_id": 2,
+      "marker": {
+        "edgecolor": "#FF7F0E",
+        "facecolor": "#FF7F0E",
+        "size": 6.0,
+        "style": "None",
+        "width": 1.0
+      }
+    }
+  ],
+  "figure": {
+    "labels": {
+      "font": "Sans,10,-1,5,50,0,0,0,0,0",
+      "xlabel": "Pos [mm]",
+      "ylabel": "Signal [A]"
+    },
+    "legend": {
+      "location": 0,
+      "show": true
+    },
+    "title": {
+      "font": "Sans,10,-1,5,50,0,0,0,0,0",
+      "value": ""
+    },
+    "xy_range": {
+      "auto_scale": false,
+      "xmax": 11.9038,
+      "xmin": -283.711,
+      "ymax": 3.67441e-06,
+      "ymin": -2.44299e-07
+    }
+  },
+  "style": {
+    "background": {
+      "color": "#efebe7"
+    },
+    "figsize": {
+      "dpi": 120,
+      "height": 3,
+      "width": 4
+    },
+    "layout": {
+      "grid_color": "#808080",
+      "grid_on": false,
+      "tight_on": false
+    },
+    "ticks": {
+      "color": "#000000",
+      "font": "Sans,10,-1,5,50,0,0,0,0,0",
+      "mticks_on": false
+    }
+  }
+}
