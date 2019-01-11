@@ -1094,6 +1094,36 @@ class Ui_MainWindow(object):
         self.analyze_btn.setSizePolicy(sizePolicy)
         self.analyze_btn.setObjectName("analyze_btn")
         self.horizontalLayout_4.addWidget(self.analyze_btn)
+        self.adv_analysis_chkbox = QtWidgets.QCheckBox(self.groupBox_2)
+        self.adv_analysis_chkbox.setObjectName("adv_analysis_chkbox")
+        self.horizontalLayout_4.addWidget(self.adv_analysis_chkbox)
+        self.analysis_progressbar = QtWidgets.QProgressBar(self.groupBox_2)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
+                                           QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(1)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.analysis_progressbar.sizePolicy().hasHeightForWidth())
+        self.analysis_progressbar.setSizePolicy(sizePolicy)
+        self.analysis_progressbar.setMaximum(0)
+        self.analysis_progressbar.setProperty("value", -1)
+        self.analysis_progressbar.setObjectName("analysis_progressbar")
+        self.horizontalLayout_4.addWidget(self.analysis_progressbar)
+        spacerItem3 = QtWidgets.QSpacerItem(40, 20,
+                                            QtWidgets.QSizePolicy.Expanding,
+                                            QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_4.addItem(spacerItem3)
+        self.analyzed_status_lbl = QtWidgets.QLabel(self.groupBox_2)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
+                                           QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.analyzed_status_lbl.sizePolicy().hasHeightForWidth())
+        self.analyzed_status_lbl.setSizePolicy(sizePolicy)
+        self.analyzed_status_lbl.setText("")
+        self.analyzed_status_lbl.setObjectName("analyzed_status_lbl")
+        self.horizontalLayout_4.addWidget(self.analyzed_status_lbl)
         self.sync_results_btn = QtWidgets.QToolButton(self.groupBox_2)
         icon12 = QtGui.QIcon()
         icon12.addPixmap(
@@ -1103,19 +1133,11 @@ class Ui_MainWindow(object):
         self.sync_results_btn.setIconSize(QtCore.QSize(24, 24))
         self.sync_results_btn.setObjectName("sync_results_btn")
         self.horizontalLayout_4.addWidget(self.sync_results_btn)
-        self.adv_analysis_chkbox = QtWidgets.QCheckBox(self.groupBox_2)
-        self.adv_analysis_chkbox.setObjectName("adv_analysis_chkbox")
-        self.horizontalLayout_4.addWidget(self.adv_analysis_chkbox)
-        self.analysis_progressbar = QtWidgets.QProgressBar(self.groupBox_2)
-        self.analysis_progressbar.setMaximum(0)
-        self.analysis_progressbar.setProperty("value", -1)
-        self.analysis_progressbar.setObjectName("analysis_progressbar")
-        self.horizontalLayout_4.addWidget(self.analysis_progressbar)
         self.gridLayout_9.addLayout(self.horizontalLayout_4, 1, 0, 1, 3)
-        spacerItem3 = QtWidgets.QSpacerItem(20, 40,
+        spacerItem4 = QtWidgets.QSpacerItem(20, 40,
                                             QtWidgets.QSizePolicy.Minimum,
                                             QtWidgets.QSizePolicy.Expanding)
-        self.gridLayout_9.addItem(spacerItem3, 6, 0, 1, 1)
+        self.gridLayout_9.addItem(spacerItem4, 6, 0, 1, 1)
         self.gridLayout.addWidget(self.splitter_2, 0, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
@@ -1444,13 +1466,13 @@ class Ui_MainWindow(object):
         self.label_35.setText(_translate("MainWindow", "Data Path"))
         self.data_path_locate_btn.setText(_translate("MainWindow", "Locate"))
         self.analyze_btn.setText(_translate("MainWindow", "Analyze"))
+        self.adv_analysis_chkbox.setText(_translate("MainWindow", "Advanced"))
         self.sync_results_btn.setToolTip(
             _translate(
                 "MainWindow",
                 "<html><head/><body><p>Push back analyzed results to device (XCEN, YCEN, XRMS, YRMS and CXY).</p></body></html>"
             ))
         self.sync_results_btn.setText(_translate("MainWindow", "..."))
-        self.adv_analysis_chkbox.setText(_translate("MainWindow", "Advanced"))
         self.menu_File.setTitle(_translate("MainWindow", "&File"))
         self.menu_Help.setTitle(_translate("MainWindow", "&Help"))
         self.menu_Config.setTitle(_translate("MainWindow", "Configuration"))
