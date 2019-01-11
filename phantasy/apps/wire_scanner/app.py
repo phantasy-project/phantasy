@@ -61,7 +61,8 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
             <html>
             <h4>About Wire Scanner App</h4>
             <p>This app is created to ease the usage of wire-scanner
-            devices, current version is {}.
+            devices, including the DAQ and post data analysis,
+            current version is {}.
             </p>
             <p>Copyright (C) 2019 Facility for Rare Isotope Beams and other contributors.</p>
             </html>
