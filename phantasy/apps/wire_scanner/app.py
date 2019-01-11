@@ -82,6 +82,7 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         self._results_for_ioc = {}
         # a2ua
         self.__factor_a2ua = 1.0
+        self.__signal_unit = "A"
         # widgets
         self._data_converter_dlg = None
         # pos windows artists
@@ -380,8 +381,12 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         """
         if f:
             self.__factor_a2ua = 1.0e6
+            self.__signal_unit = "$\mu$A"
         else:
             self.__factor_a2ua = 1.0
+            self.__signal_unit = "A"
+        # update ylabel
+        self.matplotlibcurveWidget.setFigureYlabel("Signal [{}]".format(self.__signal_unit))
         # update results -> sum row
         for o in (self.w11_sum_lineEdit, self.w21_sum_lineEdit, self.w22_sum_lineEdit):
             s = o.text()
@@ -535,19 +540,19 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         self.lineChanged.emit(0)
         self.xdataChanged.emit(ws_data.raw_pos1)
         self.ydataChanged.emit(ws_data.signal_u)
-        self.matplotlibcurveWidget.setLineLabel("u")
+        #self.matplotlibcurveWidget.setLineLabel("u")
         # v
         self.lineChanged.emit(1)
         self.xdataChanged.emit(ws_data.raw_pos2)
         self.ydataChanged.emit(ws_data.signal_v)
-        self.matplotlibcurveWidget.setLineLabel("v")
+        #self.matplotlibcurveWidget.setLineLabel("v")
 
         # w
         self.lineChanged.emit(2)
         if self._ws_data.device.dtype != 'flapper':
             self.xdataChanged.emit(ws_data.raw_pos2)
             self.ydataChanged.emit(ws_data.signal_w)
-            self.matplotlibcurveWidget.setLineLabel("w(x/y)")
+            #self.matplotlibcurveWidget.setLineLabel("w")
         else:
             self.xdataChanged.emit([])
             self.ydataChanged.emit([])
@@ -555,7 +560,8 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
 
         #
         self.matplotlibcurveWidget.setFigureXlabel("Pos [mm]")
-        self.matplotlibcurveWidget.setFigureYlabel("Signal [A]")
+        self.matplotlibcurveWidget.setFigureYlabel(
+                "Signal [{}]".format(self.__signal_unit))
 
     @pyqtSlot()
     def on_plot_with_adjusted_pos(self):
