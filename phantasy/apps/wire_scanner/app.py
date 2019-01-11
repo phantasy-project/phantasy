@@ -314,8 +314,13 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
     def on_show_device_details(self):
         """Show selected PM details.
         """
-        self._current_pm_widget = ElementWidget(self._current_pm_elem, fields=FIELD_OF_INTEREST_LIST)
-        self._current_pm_widget.show()
+        if self._device_mode == 'live':
+            self._current_pm_widget = ElementWidget(self._current_pm_elem, fields=FIELD_OF_INTEREST_LIST)
+            self._current_pm_widget.show()
+        else:
+            QMessageBox.warning(self, "Device Details",
+                    "Not supported in 'Simulation' mode",
+                    QMessageBox.Ok)
 
     @pyqtSlot()
     def onHelp(self):
