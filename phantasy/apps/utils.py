@@ -29,7 +29,7 @@ def get_open_filename(obj, filter=None, caption=None):
     return filepath, ext
 
 
-def get_save_filename(obj, filter=None, caption=None):
+def get_save_filename(obj, filter=None, cdir='', caption=None):
     """Get file for saving data.
 
     Parameters
@@ -39,6 +39,8 @@ def get_save_filename(obj, filter=None, caption=None):
     filter : str
         File fileters, see `QFileDialog.setNameFilter`,
         e.g. ``JSON Files (*.json);;HDF5 Files (*.hdf5 *.h5)``
+    cdir : str
+        Current directory to locate.
     caption : str
         Caption of file dialog.
 
@@ -48,7 +50,7 @@ def get_save_filename(obj, filter=None, caption=None):
         Selected filename and its extension.
     """
     filepath, filter = QFileDialog.getSaveFileName(
-            obj, caption, "", filter)
+            obj, caption, cdir, filter)
     if not filepath:
         return None, None
     ext = re.match(r'.*\.(.*)\)', filter).group(1)
@@ -63,7 +65,7 @@ def get_save_filename(obj, filter=None, caption=None):
 def uptime(t):
     """Convert *t* in second to uptime with the tuple of days, hours,
     minutes, and seconds, and return string of uptime.
-    
+
     Examples
     --------
     >>> assert uptime(12345) == "03:25:45"
