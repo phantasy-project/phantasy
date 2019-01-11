@@ -30,6 +30,7 @@ from phantasy.apps.utils import get_save_filename
 
 from .app_utils import DeviceRunner
 from .app_utils import DataAnalyzer
+from .utils import apply_mplcurve_settings
 from .ui.ui_app import Ui_MainWindow
 
 FIELD_OF_INTEREST_LIST = ["XCEN", "YCEN", "XRMS", "YRMS", "XYRMS", "CXY"]
@@ -127,6 +128,9 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         self.ydataChanged.emit([])
         self.matplotlibcurveWidget.add_curve()
         self.matplotlibcurveWidget.add_curve()
+
+        # load default mpl curve config
+        apply_mplcurve_settings(self.matplotlibcurveWidget)
 
     def post_init_ui(self):
         # all PMs
