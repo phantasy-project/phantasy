@@ -83,6 +83,10 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         self.__factor_a2ua = 1.0
         # widgets
         self._data_converter_dlg = None
+        # pos windows artists
+        self._wpos1_art = None
+        self._wpos2_art = None
+        self._wpos3_art = None
 
         # events
         self.pm_names_cbb.currentTextChanged.connect(self.on_pm_name_changed)
@@ -726,3 +730,42 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         """
         self.matplotlibcurveWidget.setFigureAutoScale(True)
         self.matplotlibcurveWidget.setFigureAutoScale(False)
+
+    @pyqtSlot(bool)
+    def on_plot_wpos1(self, show):
+        """Plot position window 1.
+        """
+        self.__show_wpos(show, 1)
+
+    @pyqtSlot(bool)
+    def on_plot_wpos2(self, show):
+        """Plot position window 2.
+        """
+        self.__show_wpos(show, 2)
+
+    @pyqtSlot(bool)
+    def on_plot_wpos3(self, show):
+        """Plot position window 3.
+        """
+        self.__show_wpos(show, 3)
+
+    def __show_wpos(self, show, i):
+        # i: int: (wid+1) 1,2,3
+        art_obj_name = '_wpos{}_art'.format(i)
+        if show:
+            x1 = float(getattr(self, 'wpos{}_left_lineEdit'.format(i)).text())
+            x2 = float(getattr(self, 'wpos{}_right_lineEdit'.format(i)).text())
+            print("plot wpos{}: {}, {}".format(i, x1, x2))
+            if getattr(self, art_obj_name) is None:
+                ax = self.matplotlibcurveWidget.axes
+                o = ax.axvspan(x1, x2, alpha=0.3, color='gray', zorder=-10)
+                setattr(self, art_obj_name, o)
+            art_obj = getattr(self, art_obj_name)
+            art_obj.set_xy([(x1, 0), (x1, 1), (x2, 1), (x2, 0), (x1, 0)])
+            art_obj.set_visible(True)
+        else:
+            o = getattr(self, art_obj_name)
+            if o is not None:
+                o.set_visible(False)
+        self.matplotlibcurveWidget.update_figure()
+
