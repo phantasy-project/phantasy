@@ -36,7 +36,7 @@ class Dat2JsonDialog(QDialog, Ui_Dialog):
         self.datfilepath_lineEdit.setText(filepath)
         if self.jsonfilepath_lineEdit.text() == '':
             filename = os.path.basename(filepath)
-            jsonfilename = re.sub(r'(.*).dat', r'ws_\1.json', filename)
+            jsonfilename = re.sub(r'(.*).dat', r'\1_mdata.json', filename)
             jsonfilepath = os.path.join(
                     os.path.dirname(filepath),
                     jsonfilename)
