@@ -3,6 +3,7 @@
 
 import json
 import os
+import re
 from collections import OrderedDict
 import time
 
@@ -126,11 +127,27 @@ class SaveDataDialog(QDialog, Ui_Dialog):
         self.rdatapath_lineEdit.setText(filepath)
 
     def get_default_filepath(self, data_type="mdata"):
-        """Return default filepath for saving.
+        """Return default filepath for saving, including two cases:
+        1. device_mode (or operation mode) is "simulation":
+            ts inherits from loaded file path
+        2. device mode (or operation mode) is "live":
+            ts is generated from current timestamp
         """
         try:
+            cts = time.strftime('%Y%m%d_%H%M%S', time.localtime())
+            mode = self.parent._device_mode
+            # loaded data filepath, simulation mode
+            datafilename = os.path.basename(
+                    self.parent.data_filepath_lineEdit.text())
             ename = self.parent._ws_data.device.elem.name.replace(':', '_')
-            ts = time.strftime('%Y%m%d_%H%M%S', time.localtime())
+            if mode == 'live':
+                ts = cts
+            else:
+                m = re.match(r'.*([0-9]{8}_[0-9]{6}).*', datafilename)
+                if m is not None:
+                    ts = m.group(1)
+                else:
+                    ts = cts
             if data_type == 'mdata':
                 filepath = '{}_{}_mdata.json'.format(ename, ts)
             elif data_type == 'rdata':
