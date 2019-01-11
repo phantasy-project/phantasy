@@ -136,6 +136,7 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
 
         # load default mpl curve config
         apply_mplcurve_settings(self.matplotlibcurveWidget)
+        self.matplotlibcurveWidget.setFigureAutoScale(False)
 
     def post_init_ui(self):
         # all PMs
