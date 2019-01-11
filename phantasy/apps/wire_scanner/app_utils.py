@@ -76,6 +76,7 @@ class DataAnalyzer(QObject):
             ret = self.ws_data.analyze()
         except:
             print("Processing data ERROR...")
+            self.resultsReady.emit({})
         else:
             self.resultsReady.emit(ret)
         finally:

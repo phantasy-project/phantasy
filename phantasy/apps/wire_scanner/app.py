@@ -652,6 +652,15 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
     def on_results_ready(self, d):
         """Display results, d: dict of results.
         """
+        pixmap = ":/icons/success.png"
+        if d == {}:
+            # error
+            pixmap = ":/icons/fail.png"
+            self.analyzed_status_lbl.setPixmap(QPixmap(pixmap))
+            self.analyzed_status_lbl.setToolTip("Failed to process data")
+            return
+        self.analyzed_status_lbl.setPixmap(QPixmap(pixmap))
+        self.analyzed_status_lbl.setToolTip("Data processed without error")
         for o,v in zip(
                 ['w11_{}_lineEdit'.format(s) for s in ('sum', 'center', 'rms')],
                 [d['sum1'] * self.__factor_a2ua, d['cen1'], d['rms1']]):
