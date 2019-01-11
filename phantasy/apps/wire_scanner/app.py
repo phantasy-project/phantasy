@@ -497,12 +497,18 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         print("Sync data from PVs")
         if self._ws_device is None:
             return
+        if self._device_mode != 'live':
+            QMessageBox.warning(self, "Sync Data",
+                    "Current operation mode is 'Simulation', only support loading data",
+                    QMessageBox.Ok)
+            return
         try:
             self._ws_device.sync_data(mode='live')
         except:
             QMessageBox.critical(self, "Sync Data",
                     "Failed to sync data from controls network",
                     QMessageBox.Ok)
+            return
         else:
             QMessageBox.information(self, "Sync Data",
                     "Successfully synced data",
