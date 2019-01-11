@@ -33,7 +33,7 @@
       }
     },
     {
-      "label": "w(x/y)",
+      "label": "w",
       "line": {
         "color": "#FF7F0E",
         "style": "-",
@@ -64,7 +64,7 @@
       "value": ""
     },
     "xy_range": {
-      "auto_scale": false,
+      "auto_scale": true,
       "xmax": 11.9038,
       "xmin": -283.711,
       "ymax": 3.67441e-06,
@@ -73,7 +73,7 @@
   },
   "style": {
     "background": {
-      "color": "#efebe7"
+      "color": "#f0f0f0"
     },
     "figsize": {
       "dpi": 120,
