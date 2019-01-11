@@ -20,6 +20,7 @@ import json
 import numpy as np
 
 from phantasy_ui.templates import BaseAppForm
+from phantasy_ui.widgets.elementwidget import ElementWidget
 from phantasy import MachinePortal
 from phantasy import Configuration
 from phantasy.apps.wire_scanner.utils import find_dconf
@@ -30,6 +31,8 @@ from phantasy.apps.utils import get_save_filename
 
 from .app_utils import DeviceRunner
 from .app_utils import DataAnalyzer
+from .app_save import SaveDataDialog
+from .app_dat2json import Dat2JsonDialog
 from .utils import apply_mplcurve_settings
 from .ui.ui_app import Ui_MainWindow
 
@@ -81,11 +84,15 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         self._sig3_subnoise = None
         # dict of results for ioc (device)
         self._results_for_ioc = {}
+        # detailed results and measured data
+        self._detailed_rdata = {}
+        self._detailed_mdata = {}
         # a2ua
         self.__factor_a2ua = 1.0
         self.__signal_unit = "A"
         # widgets
         self._data_converter_dlg = None
+        self._data_saving_dlg = None
         # pos windows artists
         self._wpos1_art = None
         self._wpos2_art = None
@@ -283,7 +290,6 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
     def on_show_device_details(self):
         """Show selected PM details.
         """
-        from phantasy_ui.widgets.elementwidget import ElementWidget
         self._current_pm_widget = ElementWidget(self._current_pm_elem, fields=FIELD_OF_INTEREST_LIST)
         self._current_pm_widget.show()
 
@@ -441,6 +447,9 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
             self.data_filepath_lineEdit.setText(filepath)
             # reset results for ioc dict
             self._results_for_ioc = {}
+            # detail measured data
+            self._detailed_mdata = self._ws_device.data_sheet
+            self._ws_device.detail_data_sheet(self._detailed_mdata)
 
     @pyqtSlot()
     def on_locate_data_file(self):
@@ -453,21 +462,9 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
     def on_save_data(self):
         """Save data into file.
         """
-        print("Save data to file")
-        filepath, ext = get_save_filename(self,
-                filter="JSON Files (*.json)")
-        if filepath is None:
-            return
-        try:
-            self._ws_device.save_data(filepath)
-        except:
-            QMessageBox.critical(self, "Save Data",
-                    "Failed to save data to {}".format(filepath),
-                    QMessageBox.Ok)
-        else:
-            QMessageBox.information(self, "Save Data",
-                    "Successfully saved data to {}".format(filepath),
-                    QMessageBox.Ok)
+        if self._data_saving_dlg is None:
+            self._data_saving_dlg = SaveDataDialog(self)
+        self._data_saving_dlg.exec_()
 
     @pyqtSlot()
     def on_sync_data(self):
@@ -492,13 +489,16 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
 
         # reset results for ioc dict
         self._results_for_ioc = {}
+        # detail measured data
+        self._detailed_mdata = self._ws_device.data_sheet
+        self._ws_device.detail_data_sheet(self._detailed_mdata)
 
     @pyqtSlot()
     def on_dat2json(self):
         """Convert data file from old .dat to new .json format.
         """
-        from .app_dat2json import Dat2JsonDialog
-        self._data_converter_dlg = Dat2JsonDialog()
+        if self._data_saving_dlg is None:
+            self._data_converter_dlg = Dat2JsonDialog()
         self._data_converter_dlg.show()
 
     @pyqtSlot()
@@ -698,6 +698,10 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
                 'xcen': xc, 'ycen': yc,
                 'xrms': xrms, 'yrms': yrms,
                 'cxy': cxy}
+        # detailed results dict
+        rdata = {'results': d}
+        self._ws_device.detail_data_sheet(rdata)
+        self._detailed_rdata = rdata
 
     @pyqtSlot()
     def on_analysis_complete(self):
