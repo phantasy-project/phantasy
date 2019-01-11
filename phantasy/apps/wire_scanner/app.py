@@ -108,6 +108,10 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         self.stop_pos1_lineEdit.textChanged.connect(self.stoppos1_lineEdit.setText)
         self.stop_pos2_lineEdit.textChanged.connect(self.stoppos2_lineEdit.setText)
 
+        # fontsize
+        self.fontsize_inc_btn.clicked.connect(partial(self.update_fontsize, '+'))
+        self.fontsize_dec_btn.clicked.connect(partial(self.update_fontsize, '-'))
+
         # curves
         self.lineChanged.connect(self.matplotlibcurveWidget.setLineID)
         self.xdataChanged.connect(self.matplotlibcurveWidget.setXData)
@@ -175,6 +179,11 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         self.run_progressbar.setVisible(False)
         self.emstop_btn.setVisible(False)
         self.analysis_progressbar.setVisible(False)
+
+        # all lineEdit obje for results display
+        self.__all_results_lineEdits = \
+                self.results_wires_gb.findChildren(QLineEdit) + \
+                self.results_beam_gb.findChildren(QLineEdit)
 
     @pyqtSlot('QString')
     def on_pm_name_changed(self, n):
@@ -806,3 +815,14 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         """
         self.lineChanged.emit(line_id - 1)
         self.matplotlibcurveWidget.setLineVisible(not show)
+
+    @pyqtSlot()
+    def update_fontsize(self, mode="+"):
+        """Grow/shrink fontsize (results display panel)
+        """
+        for o in self.__all_results_lineEdits:
+            font = o.font()
+            ps = font.pointSize()
+            new_ps = ps + 1 if mode == '+' else ps - 1
+            font.setPointSize(new_ps)
+            o.setFont(font)
