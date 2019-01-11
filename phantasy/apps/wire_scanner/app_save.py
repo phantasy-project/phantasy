@@ -35,7 +35,8 @@ class SaveDataDialog(QDialog, Ui_Dialog):
         self.rdatapath_lineEdit.setText(rdatapath)
 
         # default save option
-        self.save_all_combined_rbtn.setChecked(True)
+        # self.save_all_combined_rbtn.setChecked(True)
+        self.save_all_separated_rbtn.setChecked(True)
 
     @pyqtSlot()
     def on_save_data(self):
@@ -136,6 +137,7 @@ class SaveDataDialog(QDialog, Ui_Dialog):
                 filepath = '{}_{}_rdata.json'.format(ename, ts)
         except:
             filepath = ''
-        return os.path.abspath(filepath)
+        return os.path.abspath(
+                os.path.expanduser(os.path.join('~', filepath)))
 
 
