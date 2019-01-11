@@ -192,6 +192,7 @@ class Ui_MainWindow(object):
             QtGui.QPixmap(":/icons/browse.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
         self.pm_detail_btn.setIcon(icon2)
+        self.pm_detail_btn.setIconSize(QtCore.QSize(20, 20))
         self.pm_detail_btn.setAutoRaise(True)
         self.pm_detail_btn.setObjectName("pm_detail_btn")
         self.gridLayout_3.addWidget(self.pm_detail_btn, 0, 6, 1, 1)
@@ -1528,6 +1529,8 @@ class Ui_MainWindow(object):
             _translate("MainWindow", "Reload"))
         self.actionSimulation_Mode.setText(
             _translate("MainWindow", "Simulation Mode"))
+        self.actionSimulation_Mode.setShortcut(
+            _translate("MainWindow", "Ctrl+Shift+M"))
         self.actionSync.setText(_translate("MainWindow", "Sync"))
         self.actionSync.setToolTip(
             _translate(
