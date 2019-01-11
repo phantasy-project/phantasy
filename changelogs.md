@@ -1,3 +1,20 @@
+Version 1.7.0
+-------------
+2019-01-11
+
+- Wire Scanner App:
+  - Support offine data analysis, load/save data
+  - Configuration file management
+  - Unified data interface
+  - other features
+- Bug fixes and improvement
+
+Version 1.6.5
+-------------
+2019-01-02
+
+- Implement data interface for wire-scanner app (testing)
+
 Version 1.6.4
 -------------
 2018-11-10
