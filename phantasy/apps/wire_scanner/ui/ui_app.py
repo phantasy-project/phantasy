@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui_app.ui'
 #
-# Created by: PyQt5 UI code generator 5.5.1
+# Created by: PyQt5 UI code generator 5.10.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -397,6 +397,57 @@ class Ui_MainWindow(object):
         self.grid_btn.setCheckable(True)
         self.grid_btn.setObjectName("grid_btn")
         self.horizontalLayout_3.addWidget(self.grid_btn)
+        self.hide_curve2_btn = QtWidgets.QToolButton(self.groupBox)
+        self.hide_curve2_btn.setStyleSheet(
+            "QToolButton {\n"
+            "    background-color: rgb(255, 0, 0);\n"
+            "    border: 2px solid rgb(255, 0, 0);\n"
+            "    border-radius: 5px;\n"
+            "    font-family: monospace;\n"
+            "    color: white;\n"
+            "}\n"
+            "\n"
+            "QToolButton:checked {\n"
+            "    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
+            "                                      stop: 0 #dadbde, stop: 1 #f6f7fa);\n"
+            "}")
+        self.hide_curve2_btn.setCheckable(True)
+        self.hide_curve2_btn.setObjectName("hide_curve2_btn")
+        self.horizontalLayout_3.addWidget(self.hide_curve2_btn)
+        self.hide_curve1_btn = QtWidgets.QToolButton(self.groupBox)
+        self.hide_curve1_btn.setStyleSheet(
+            "QToolButton {\n"
+            "    background-color: rgb(31, 119, 180);\n"
+            "    border: 2px solid rgb(31, 119, 180);\n"
+            "    border-radius: 5px;\n"
+            "    font-family: monospace;\n"
+            "    color: white;\n"
+            "}\n"
+            "\n"
+            "QToolButton:checked {\n"
+            "    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
+            "                                      stop: 0 #dadbde, stop: 1 #f6f7fa);\n"
+            "}")
+        self.hide_curve1_btn.setCheckable(True)
+        self.hide_curve1_btn.setObjectName("hide_curve1_btn")
+        self.horizontalLayout_3.addWidget(self.hide_curve1_btn)
+        self.hide_curve3_btn = QtWidgets.QToolButton(self.groupBox)
+        self.hide_curve3_btn.setStyleSheet(
+            "QToolButton {\n"
+            "    background-color: rgb(255, 127, 14);\n"
+            "    border: 2px solid rgb(255, 127, 14);\n"
+            "    border-radius: 5px;\n"
+            "    font-family: monospace;\n"
+            "    color: white;\n"
+            "}\n"
+            "\n"
+            "QToolButton:checked {\n"
+            "    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
+            "                                      stop: 0 #dadbde, stop: 1 #f6f7fa);\n"
+            "}")
+        self.hide_curve3_btn.setCheckable(True)
+        self.hide_curve3_btn.setObjectName("hide_curve3_btn")
+        self.horizontalLayout_3.addWidget(self.hide_curve3_btn)
         spacerItem = QtWidgets.QSpacerItem(40, 20,
                                            QtWidgets.QSizePolicy.Expanding,
                                            QtWidgets.QSizePolicy.Minimum)
@@ -1053,7 +1104,7 @@ class Ui_MainWindow(object):
         self.gridLayout.addWidget(self.splitter_2, 0, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1779, 30))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1779, 29))
         self.menubar.setObjectName("menubar")
         self.menu_File = QtWidgets.QMenu(self.menubar)
         self.menu_File.setObjectName("menu_File")
@@ -1264,6 +1315,24 @@ class Ui_MainWindow(object):
         self.reset_xyscale_btn.setText(_translate("MainWindow", "Reset Scale"))
         self.legend_btn.setText(_translate("MainWindow", "Legend"))
         self.grid_btn.setText(_translate("MainWindow", "Grid"))
+        self.hide_curve2_btn.setToolTip(
+            _translate(
+                "MainWindow",
+                "<html><head/><body><p>Press down to hide curve U</p></body></html>"
+            ))
+        self.hide_curve2_btn.setText(_translate("MainWindow", "U"))
+        self.hide_curve1_btn.setToolTip(
+            _translate(
+                "MainWindow",
+                "<html><head/><body><p>Press down to hide curve V</p></body></html>"
+            ))
+        self.hide_curve1_btn.setText(_translate("MainWindow", "V"))
+        self.hide_curve3_btn.setToolTip(
+            _translate(
+                "MainWindow",
+                "<html><head/><body><p>Press down to hide curve W.</p></body></html>"
+            ))
+        self.hide_curve3_btn.setText(_translate("MainWindow", "W"))
         self.plot_data_smoving_btn.setText(
             _translate("MainWindow", "Raw (Moving Frame)"))
         self.label_11.setText(
