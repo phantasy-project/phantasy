@@ -542,6 +542,20 @@ class Device(object):
         # read data from file
         self.data_sheet = JSONDataSheet(filename)
 
+    def detail_data_sheet(self, data):
+        """Detail the input data sheet *data* (dict) with device information.
+        """
+        if 'device' not in data:
+            data['device'] = {
+                'type': self.dtype,
+                'coordinate': self.coord,
+                'scan_start_pos': self.scan_start_pos,
+                'scan_stop_pos': self.scan_stop_pos,
+                'extra_offset': self.wire_offset,
+                'bias_voltage': self.bias_voltage,
+                'element': self.name,
+            }
+
     def save_data(self, filename=None):
         """Save data (before analysis) into file named *filename*.
 
@@ -550,15 +564,7 @@ class Device(object):
         filename : str
             If not defined, device_name + timestamp + .json will be used.
         """
-        if 'device' not in self.data_sheet:
-            self.data_sheet['device'] = {
-                'type': self.dtype,
-                'coordinate': self.coord,
-                'scan_start_pos': self.scan_start_pos,
-                'scan_stop_pos': self.scan_stop_pos,
-                'extra_offset': self.wire_offset,
-                'bias_voltage': self.bias_voltage
-            }
+        self.detail_data_sheet(self.data_sheet)
         ctime = epoch2human(time.time(), fmt=TS_FMT)
         info_dict = OrderedDict()
         info_dict['created'] = ctime
@@ -589,6 +595,9 @@ class PMData(object):
         self._pos_window1 = None
         self._pos_window2 = None
         self._pos_window3 = None
+
+        # analyzed results after analyze()
+        self._results = {}
 
         if device.data_sheet is None:
             _LOGGER.warning("Device data is not ready, try after sync_data()")
@@ -1112,6 +1121,7 @@ class PMData(object):
         self._pos_window1 = wpos1
         self._pos_window2 = wpos2
         self._pos_window3 = wpos3
+        self._results = ret
         return ret
 
     def __avg(self, y, x):
