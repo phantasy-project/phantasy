@@ -398,7 +398,7 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         for o in (self.w11_sum_lineEdit, self.w21_sum_lineEdit, self.w22_sum_lineEdit):
             s = o.text()
             if s != '' and s != 'nan':
-                o.setText('{0:.5g}'.format(float(s) * self.__factor_a2ua))
+                o.setText('{0:.4g}'.format(float(s) * self.__factor_a2ua))
 
     @pyqtSlot(bool)
     def on_enable_simulation_mode(self, f):
@@ -653,6 +653,7 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
     def on_results_ready(self, d):
         """Display results, d: dict of results.
         """
+        FMT = "{0:.4g}"
         pixmap = ":/icons/success.png"
         if d == {}:
             # error
@@ -665,17 +666,17 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         for o,v in zip(
                 ['w11_{}_lineEdit'.format(s) for s in ('sum', 'center', 'rms')],
                 [d['sum1'] * self.__factor_a2ua, d['cen1'], d['rms1']]):
-            getattr(self, o).setText("{0:.5g}".format(v))
+            getattr(self, o).setText(FMT.format(v))
 
         for o,v in zip(
                 ['w21_{}_lineEdit'.format(s) for s in ('sum', 'center', 'rms')],
                 [d['sum2'] * self.__factor_a2ua, d['cen2'], d['rms2']]):
-            getattr(self, o).setText("{0:.5g}".format(v))
+            getattr(self, o).setText(FMT.format(v))
 
         for o,v in zip(
                 ['w22_{}_lineEdit'.format(s) for s in ('sum', 'center', 'rms')],
                 [d['sum3'] * self.__factor_a2ua, d['cen3'], d['rms3']]):
-            getattr(self, o).setText("{0:.5g}".format(v))
+            getattr(self, o).setText(FMT.format(v))
 
         # xyuv
         xc, yc, uc, vc = d['xcen'], d['ycen'], d['ucen'], d['vcen']
@@ -691,7 +692,7 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
                 ['{}_lineEdit'.format(s) for s in ('xrms99', 'yrms99', 'urms99', 'vrms99')] +
                 ['{}_lineEdit'.format(s) for s in ('cxy', 'cxy90', 'cxy99')],
                 [xc, yc, uc, vc, xrms, yrms, urms, vrms, xrms90, yrms90, urms90, vrms90, xrms99, yrms99, urms99, vrms99, cxy, cxy90, cxy99]):
-            getattr(self, o).setText("{0:.5g}".format(v))
+            getattr(self, o).setText(FMT.format(v))
 
         # results for ioc (device)
         self._results_for_ioc = {
@@ -715,8 +716,8 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
                 sl, sr = np.nan, np.nan
             else:
                 sl, sr = iwpos
-            getattr(self, 'wpos{}_left_lineEdit'.format(i+1)).setText('{0:.5g}'.format(sl))
-            getattr(self, 'wpos{}_right_lineEdit'.format(i+1)).setText('{0:.5g}'.format(sr))
+            getattr(self, 'wpos{}_left_lineEdit'.format(i+1)).setText('{0:.4g}'.format(sl))
+            getattr(self, 'wpos{}_right_lineEdit'.format(i+1)).setText('{0:.4g}'.format(sr))
 
         print(self._ws_data._pos_window1)
         print(self._ws_data._pos_window2)
