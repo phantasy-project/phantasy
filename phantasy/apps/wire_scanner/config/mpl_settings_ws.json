@@ -57,7 +57,7 @@
     },
     "legend": {
       "location": 0,
-      "show": true
+      "show": false
     },
     "title": {
       "font": "Sans,10,-1,5,50,0,0,0,0,0",
