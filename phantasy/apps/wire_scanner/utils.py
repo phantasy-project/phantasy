@@ -3,6 +3,9 @@
 
 import logging
 import os
+import numpy as np
+
+from phantasy import epoch2human
 
 from mpl4qt.widgets.utils import MatplotlibCurveWidgetSettings
 
@@ -91,3 +94,25 @@ def apply_mplcurve_settings(mplcurveWidget, json_path=None):
         json_path = find_mplconf()
     s = MatplotlibCurveWidgetSettings(json_path)
     mplcurveWidget.apply_mpl_settings(s)
+
+
+def get_value_with_timestamp(elem, fname):
+    """Get field (readback) value with timestamp, value is de-serialized.
+
+    Parameters
+    ----------
+    elem :
+        High-level element object.
+    fname : str
+        Dynamic field name of element.
+
+    Returns
+    -------
+    ret : dict
+        Value of current readback pv, Keys: 'pv', 'value', 'timestamp'.
+    """
+    fld = elem.get_field(fname)
+    pv_name, pv = fld.readback[0], fld.readback_pv[0]
+    val, ts = pv.get(), epoch2human(pv.timestamp)
+    if isinstance(val, np.ndarray): val = val.tolist()
+    return {'pv': pv_name, 'value': val, 'timestamp': ts}
