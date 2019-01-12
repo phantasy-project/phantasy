@@ -290,8 +290,8 @@ class Device(object):
             outlimit_fld = self.elem.get_field(outlimit_fld_name)
             if outlimit_fld.value != outlimit_bit:
                 # wait until outlimit reached
-                wait(outlimit_fld.readback_pv[0], outlimit_bit)
-            print(outlimit_fld.value, outlimit_bit)
+                wait(outlimit_fld.readback_pv[0], outlimit_bit, 10)
+            print("outlimit value: ", outlimit_fld.value)
             assert outlimit_fld.value == outlimit_bit
 
     def reset_interlock(self, lock_off_bit=0, **kws):
@@ -396,15 +396,18 @@ class Device(object):
             # wait until scan finished, ready for next scan
             sstatus_fld_name = '{0}{1}'.format(sstatus_fld_prefix, fid)
             fld_sstatus = self.elem.get_field(sstatus_fld_name)
-            if fld_sstatus.readback_pv[0].value != 'Ready':
+            if fld_sstatus.readback_pv[0].get(as_string=True, timetout=2.0) != 'Ready':
                 # wait ready signal for next scan
-                wait(fld_sstatus.readback_pv[0], "Ready")
+                wait(fld_sstatus.readback_pv[0], "Ready", 10)
 
             # enable scan
+            print("  Move: Enable scan")
             self.enable_scan()
             # reset motors to outlimits
+            print("  Move: init motor pos")
             self.init_motor_pos()
             # reset interlock
+            print(" Move: reset interlock")
             self.reset_interlock()
 
     def sync_data(self, mode='live', filename=None):
