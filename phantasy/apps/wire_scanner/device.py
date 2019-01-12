@@ -14,10 +14,11 @@ from phantasy.apps.correlation_visualizer.data import JSONDataSheet
 
 from .utils import wait
 from .utils import find_dconf
+from .utils import get_value_with_timestamp
 
 _LOGGER = logging.getLogger(__name__)
 
-TS_FMT = "%Y-%m-%d %H:%M:%S %Z"
+TS_FMT = "%Y-%m-%d %H:%M:%S"
 
 try:
     basestring
@@ -290,6 +291,7 @@ class Device(object):
             if outlimit_fld.value != outlimit_bit:
                 # wait until outlimit reached
                 wait(outlimit_fld.readback_pv[0], outlimit_bit)
+            print(outlimit_fld.value, outlimit_bit)
             assert outlimit_fld.value == outlimit_bit
 
     def reset_interlock(self, lock_off_bit=0, **kws):
@@ -434,109 +436,65 @@ class Device(object):
         elif self.dtype == 'small':
             self.__sync_data_small_dtype()
 
-    def __sync_data_large_dtype(self):
-        # retrieve data from PVs for large type, fork 6in and 12in.
-        fork1_ppot_raw = self.elem.FORK1_PPOT_RAW
-        fork1_ppot_val1 = self.elem.FORK1_PPOT_VAL1
-        fork1_offset1 = self.elem.FORK1_OFFSET1
-        fork1_signal1 = self.elem.FORK1_SIGNAL1
-
-        fork2_ppot_raw = self.elem.FORK2_PPOT_RAW
-        fork2_ppot_val1 = self.elem.FORK2_PPOT_VAL1
-        fork2_ppot_val2 = self.elem.FORK2_PPOT_VAL2
-        fork2_offset1 = self.elem.FORK2_OFFSET1
-        fork2_offset2 = self.elem.FORK2_OFFSET2
-        fork2_signal1 = self.elem.FORK2_SIGNAL1
-        fork2_signal2 = self.elem.FORK2_SIGNAL2
-
-        # fork1
-        fork1_data = OrderedDict()
-        fork1_data['ppot_raw'] = fork1_ppot_raw
-        fork1_data['ppot_val1'] = fork1_ppot_val1
-        fork1_data['offset1'] = fork1_offset1
-        fork1_data['signal1'] = fork1_signal1
-        # fork2
-        fork2_data = OrderedDict()
-        fork2_data['ppot_raw'] = fork2_ppot_raw
-        fork2_data['ppot_val1'] = fork2_ppot_val1
-        fork2_data['ppot_val2'] = fork2_ppot_val2
-        fork2_data['offset1'] = fork2_offset1
-        fork2_data['offset2'] = fork2_offset2
-        fork2_data['signal1'] = fork2_signal1
-        fork2_data['signal2'] = fork2_signal2
+    def __sync_data_to_sheet(self, k1, k2, f1, f2):
+        # make data sheet from live data
+        # ki: dict key names of forki data
+        # fi: field names wrt ki
+        ## k2 and f2 could be []
 
         # data sheet
         data_sheet = JSONDataSheet()
-        data_sheet.update({'fork1': fork1_data})
-        data_sheet.update({'fork2': fork2_data})
+        data_sheet['data'] = {}
 
-        # Add other info
-        self.data_sheet = data_sheet
+        # fork1
+        fork1_data = OrderedDict()
+        for k, fname in zip(k1, f1):
+            fork1_data[k] = get_value_with_timestamp(self.elem, fname)
+        data_sheet['data'].update({'fork1': fork1_data})
+
+        if k2 != []:
+            # fork2
+            fork2_data = OrderedDict()
+            for k, fname in zip(k2, f2):
+                fork2_data[k] = get_value_with_timestamp(self.elem, fname)
+            data_sheet['data'].update({'fork2': fork2_data})
+
+        return data_sheet
+
+    def __sync_data_large_dtype(self):
+        # retrieve data from PVs for large type, fork 6in and 12in.
+        k1 = ['ppot_raw', 'ppot_val1', 'offset1', 'signal1'],
+        f1 = ['FORK1_PPOT_RAW', 'FORK1_PPOT_VAL1', 'FORK1_OFFSET1',
+              'FORK1_SIGNAL1']
+        k2 = ['ppot_raw', 'ppot_val1', 'ppot_val2', 'offset1', 'offset2',
+              'signal1', 'signal2'],
+        f2 = ['FORK2_PPOT_RAW', 'FORK2_PPOT_VAL1', 'FORK2_PPOT_VAL2',
+              'FORK2_OFFSET1', 'FORK2_OFFSET2', 'FORK2_SIGNAL1',
+              'FORK2_SIGNAL2']
+        self.data_sheet = self.__sync_data_to_sheet(k1, k2, f1, f2)
 
     def __sync_data_flapper_dtype(self):
         # retrieve data from PVs for flapper type
-        fork1_ppot_raw = self.elem.FORK1_PPOT_RAW
-        fork1_ppot_val1 = self.elem.FORK1_PPOT_VAL1
-        fork1_offset1 = self.elem.FORK1_OFFSET1
-        fork1_signal1 = self.elem.FORK1_SIGNAL1
-        fork2_ppot_raw = self.elem.FORK2_PPOT_RAW
-        fork2_ppot_val1 = self.elem.FORK2_PPOT_VAL1
-        fork2_offset1 = self.elem.FORK2_OFFSET1
-        fork2_signal1 = self.elem.FORK2_SIGNAL1
-
-        # fork1
-        fork1_data = OrderedDict()
-        fork1_data['ppot_raw'] = fork1_ppot_raw
-        fork1_data['ppot_val1'] = fork1_ppot_val1
-        fork1_data['offset1'] = fork1_offset1
-        fork1_data['signal1'] = fork1_signal1
-        # fork2
-        fork2_data = OrderedDict()
-        fork2_data['ppot_raw'] = fork2_ppot_raw
-        fork2_data['ppot_val1'] = fork2_ppot_val1
-        fork2_data['offset1'] = fork2_offset1
-        fork2_data['signal1'] = fork2_signal1
-
-        # data sheet
-        data_sheet = JSONDataSheet()
-        data_sheet.update({'fork1': fork1_data})
-        data_sheet.update({'fork2': fork2_data})
-
-        # Add other info
-        self.data_sheet = data_sheet
+        k1 = ['ppot_raw', 'ppot_val1', 'offset1', 'signal1'],
+        f1 = ['FORK1_PPOT_RAW', 'FORK1_PPOT_VAL1', 'FORK1_OFFSET1',
+              'FORK1_SIGNAL1']
+        k2 = ['ppot_raw', 'ppot_val1', 'offset1', 'signal1'],
+        f2 = ['FORK2_PPOT_RAW', 'FORK2_PPOT_VAL1', 'FORK2_OFFSET1',
+              'FORK2_SIGNAL1']
+        self.data_sheet = self.__sync_data_to_sheet(k1, k2, f1, f2)
 
     def __sync_data_small_dtype(self):
         # retrieve data from PVs for flapper type
-        fork1_ppot_raw = self.elem.FORK1_PPOT_RAW
-        fork1_ppot_val1 = self.elem.FORK1_PPOT_VAL1
-        fork1_ppot_val2 = self.elem.FORK1_PPOT_VAL2
-        fork1_ppot_val3 = self.elem.FORK1_PPOT_VAL3
-        fork1_offset1 = self.elem.FORK1_OFFSET1
-        fork1_offset2 = self.elem.FORK1_OFFSET2
-        fork1_offset3 = self.elem.FORK1_OFFSET3
-        fork1_signal1 = self.elem.FORK1_SIGNAL1
-        fork1_signal2 = self.elem.FORK1_SIGNAL2
-        fork1_signal3 = self.elem.FORK1_SIGNAL3
-
-        # fork1
-        fork1_data = OrderedDict()
-        fork1_data['ppot_raw'] = fork1_ppot_raw
-        fork1_data['ppot_val1'] = fork1_ppot_val1
-        fork1_data['ppot_val2'] = fork1_ppot_val2
-        fork1_data['ppot_val3'] = fork1_ppot_val3
-        fork1_data['offset1'] = fork1_offset1
-        fork1_data['offset2'] = fork1_offset2
-        fork1_data['offset3'] = fork1_offset3
-        fork1_data['signal1'] = fork1_signal1
-        fork1_data['signal2'] = fork1_signal2
-        fork1_data['signal3'] = fork1_signal3
-
-        # data sheet
-        data_sheet = JSONDataSheet()
-        data_sheet.update({'fork1': fork1_data})
-
-        # Add other info
-        self.data_sheet = data_sheet
+        k1 = ['ppot_raw',
+              'ppot_val1', 'ppot_val2', 'ppot_val3',
+              'offset1', 'offset2', 'offset3',
+              'signal1', 'signal2', 'signal3'],
+        f1 = ['FORK1_PPOT_RAW',
+              'FORK1_PPOT_VAL1', 'FORK1_PPOT_VAL2', 'FORK1_PPOT_VAL3',
+              'FORK1_OFFSET1', 'FORK1_OFFSET2', 'FORK1_OFFSET3',
+              'FORK1_SIGNAL1', 'FORK1_SIGNAL2', 'FORK1_SIGNAL3']
+        k2 = f2 = []
+        self.data_sheet = self.__sync_data_to_sheet(k1, k2, f1, f2)
 
     def _sync_data_from_file(self, filename):
         # read data from file
@@ -609,6 +567,7 @@ class PMData(object):
             if dtype == 'large':
                 # wire on fork1: u
                 # wires on fork2: v, w(x or y)
+                # device.data_sheet.write("/user/zhangt/test_phantasy/data.json")
                 self.raw_pos1 = np.asarray(data['fork1']['ppot_raw']['value'])
                 self.raw_pos2 = np.asarray(data['fork2']['ppot_raw']['value'])
                 self.signal_u = np.asarray(data['fork1']['signal1']['value'])
