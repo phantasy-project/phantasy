@@ -44,6 +44,7 @@ class DeviceRunner(QObject):
                 print(f.__name__)
                 time.sleep(2)
             else:
+                print("{} is running".format(f.__name__))
                 f()
             self.count += 1
         self.send_results()
@@ -51,6 +52,7 @@ class DeviceRunner(QObject):
 
     def stop(self):
         self.run_flag = False
+        # add routine to foce stop device?
 
     def send_results(self):
         results = {'status': 'ok'}

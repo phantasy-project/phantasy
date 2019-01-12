@@ -441,6 +441,7 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         """Emergency stop running device.
         """
         self.device_runner.stop()
+        self.thread.terminate()
 
     @pyqtSlot()
     def on_load_data(self):
@@ -518,7 +519,7 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
             QMessageBox.information(self, "Sync Data",
                     "Successfully synced data",
                     QMessageBox.Ok)
-        #
+
         self.on_plot_raw_data()
         self.on_reset_xyscale()
 
