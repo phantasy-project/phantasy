@@ -31,3 +31,6 @@ _trial_temp/
 .coverage
 .noseids
 .ipynb_checkpoints
+
+*.ui
+*.png
