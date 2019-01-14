@@ -321,15 +321,14 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 
         if r == QDialog.Accepted:
             # update element obj (CaField)
-            sel_elem = dlg.sel_elem
-            sel_elem_display = dlg.sel_elem_display
+            sel_elem = dlg.sel_elem # CaField
+            sel_elem_display = dlg.sel_elem_display # CaElement
             # ename + [fname]
             if dlg.sel_field is None:
-                name = sel_elem_display.name
+                name = sel_elem_display.ename
             else:
                 name = '{0} [{1}]'.format(sel_elem_display.name, dlg.sel_field)
             # create elem_info widget, add into *elem_widgets_dict*
-            print(name, dlg.sel_field, sel_elem.name)
             self.elem_widgets_dict.setdefault(
                     name, ElementWidget(sel_elem_display, fields=dlg.sel_field))
 
@@ -376,17 +375,25 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 
     @pyqtSlot()
     def on_select_extra_elem(self):
+        # to be changed
         """Select element as extra monitor(s).
         """
         dlg = ElementSelectDialog(self, 'monitor', mp=self._mp)
         r = dlg.exec_()
         if r == QDialog.Accepted:
             sel_elem = dlg.sel_elem
-            #name = sel_elem.name
-            # temp solution, should be replace with ename + fname
-            name = sel_elem.get_pvname
+            sel_elem_display = dlg.sel_elem_display
+
+            if dlg.sel_field is None:
+                name = sel_elem_display.ename
+            else:
+                #key name: (ename, fname)
+                name = '{0} [{1}]'.format(sel_elem_display.name, sel_elem.name)
+
             # add new monitor
-            self.elem_widgets_dict.setdefault(name, ElementWidget(sel_elem))
+            self.elem_widgets_dict.setdefault(
+                    name, ElementWidget(sel_elem_display, fields=dlg.sel_field))
+
             if name in self._extra_monitors:
                 return
             self._extra_monitors.append(name)
