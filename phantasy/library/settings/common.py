@@ -58,8 +58,8 @@ def snp2dict(snpfile):
     """
     f = open(snpfile, 'r')
     csv_data = csv.reader(f, delimiter=',', skipinitialspace=True)
-    csv_data.next()
-    header = csv_data.next()
+    next(csv_data)
+    header = next(csv_data)
     ipv, ival = header.index('PV'), header.index('VALUE')
     settings = {line[ipv]: line[ival] for line in csv_data if line}
     f.close()
