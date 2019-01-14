@@ -559,6 +559,7 @@ class PMData(object):
 
         # analyzed results after analyze()
         self._results = {}
+        self._results_for_ioc = {}
 
         if device.data_sheet is None:
             _LOGGER.warning("Device data is not ready, try after sync_data()")
@@ -1084,7 +1085,16 @@ class PMData(object):
         self._pos_window2 = wpos2
         self._pos_window3 = wpos3
         self._results = ret
+        self._results_for_ioc = {
+                'xcen': ret['xcen'], 'ycen': ret['ycen'],
+                'xrms': ret['xrms'], 'yrms': ret['yrms'],
+                'cxy': ret['cxy']}
         return ret
+
+    def sync_results_to_ioc(self):
+        # sync analyzed results to IOC.
+        for k, v in self._results_for_ioc.items():
+            setattr(self.device.elem, k.upper(), v)
 
     def __avg(self, y, x):
         s = abs(np.trapz(y, x))
