@@ -123,6 +123,9 @@ class Ui_Dialog(object):
         self.gridLayout.addWidget(self.pv_set_lineEdit, 0, 1, 1, 1)
         self.gridLayout_2.addWidget(self.pv_groupBox, 1, 0, 1, 1)
         self.elem_treeView = QtWidgets.QTreeView(Dialog)
+        self.elem_treeView.setStyleSheet("QTreeView {\n"
+                                         "    font-family: monospace;\n"
+                                         "}")
         self.elem_treeView.setObjectName("elem_treeView")
         self.gridLayout_2.addWidget(self.elem_treeView, 3, 0, 1, 1)
 

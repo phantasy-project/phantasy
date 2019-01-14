@@ -12,7 +12,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1920, 1200)
+        MainWindow.resize(1920, 1440)
         MainWindow.setToolTip("")
         MainWindow.setStyleSheet("")
         self.centralwidget = QtWidgets.QWidget(MainWindow)
@@ -787,6 +787,8 @@ class Ui_MainWindow(object):
             _translate("MainWindow", "Quad Scan Analysis"))
         self.actionLoad_Lattice.setText(
             _translate("MainWindow", "Load Lattice"))
+        self.actionLoad_Lattice.setShortcut(
+            _translate("MainWindow", "Ctrl+Shift+L"))
         self.actionMPS_guardian.setText(
             _translate("MainWindow", "MPS Guardian"))
         self.actionMPS_guardian.setToolTip(
@@ -794,6 +796,8 @@ class Ui_MainWindow(object):
                 "MainWindow",
                 "<html><head/><body><p>Check to enable MPS Guardian</p></body></html>"
             ))
+        self.actionMPS_guardian.setShortcut(
+            _translate("MainWindow", "Ctrl+Shift+M"))
 
 
 from mpl4qt.widgets.mplerrorbarwidget import MatplotlibErrorbarWidget
