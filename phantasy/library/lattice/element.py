@@ -101,6 +101,8 @@ class BaseElement(object):
         else:
             _LOGGER.warning("'name': Input should be a string.")
 
+    ename = name
+
     @property
     def index(self):
         """int: Element index, ``-1`` if not given."""
