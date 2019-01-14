@@ -23,6 +23,7 @@ class MonitorsViewWidget(QWidget, Ui_Form):
     removeElement = pyqtSignal('QString')
 
     def __init__(self, parent, data):
+        # data: name ('ename [fname]'), ElementWidget, ...
         super(MonitorsViewWidget, self).__init__()
         self.parent = parent
 
@@ -53,13 +54,13 @@ class MonitorsViewWidget(QWidget, Ui_Form):
             for j, v in enumerate(row):
                 if j == 0:
                     name = v
-                    item = QTableWidgetItem(v)
+                    item = QTableWidgetItem(name)
                     item.setTextAlignment(Qt.AlignLeft | Qt.AlignVCenter)
                     self.tableWidget.setItem(i, j, item)
                 elif j == 1: # elementWidget
                     elem_widget = v
 
-                    elem_btn = QPushButton(name)
+                    elem_btn = QPushButton(name.split()[0])
                     elem_btn.setAutoDefault(True)
                     elem_btn.clicked.connect(
                         lambda: self.on_show_elem_info(name, elem_widget))
@@ -72,7 +73,7 @@ class MonitorsViewWidget(QWidget, Ui_Form):
             del_btn= QToolButton(self)
             del_btn.setIcon(QIcon(QPixmap(delete_icon)))
             del_btn.setToolTip("Delete current selection")
-            del_btn.setProperty("ename", name)
+            del_btn.setProperty("name", name)
             del_btn.clicked.connect(self.on_delete)
             self.tableWidget.setCellWidget(i, j+1, del_btn)
         self._postset_table()
@@ -81,7 +82,7 @@ class MonitorsViewWidget(QWidget, Ui_Form):
     def on_delete(self):
         """Delete point.
         """
-        self.removeElement.emit(self.sender().property("ename"))
+        self.removeElement.emit(self.sender().property("name"))
 
     def _postset_table(self):
         """
