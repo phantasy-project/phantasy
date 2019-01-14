@@ -779,13 +779,20 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         """Sync analyzed results back to device (IOC), the dynamic fields are:
         'XCEN', 'YCEN', 'XRMS', 'YRMS', 'CXY'.
         """
-        if self._results_for_ioc == {}:
+        try:
+            if self._ws_data._results_for_ioc == {}:
+                raise RuntimeError
+            self._ws_data.sync_results_to_ioc()
+            #for k, v in self._results_for_ioc.items():
+            #    setattr(self._ws_device.elem, k.upper(), v)
+        except:
             QMessageBox.warning(self, "Sync Results To Device",
                     "Results are not ready, Analyze first.",
                     QMessageBox.Ok)
-            return
-        for k, v in self._results_for_ioc.items():
-            setattr(self._ws_device.elem, k.upper(), v)
+        else:
+            QMessageBox.information(self, "Sync Results to Device",
+                    "Results are synced to device.",
+                    QMessageBox.Ok)
 
     @pyqtSlot()
     def on_reset_xyscale(self):
