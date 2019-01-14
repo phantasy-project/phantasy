@@ -34,6 +34,8 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
 
 
+from . import resources_rc
+
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
