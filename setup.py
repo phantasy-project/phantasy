@@ -65,6 +65,7 @@ def set_entry_points():
         'va_launcher=phantasy.apps.va:run',
         'orm=phantasy.apps.orm:run',
         'wire_scanner=phantasy.apps.wire_scanner:run',
+        'settings_manager=phantasy.apps.settings_manager:run',
     ]
     return r
 
