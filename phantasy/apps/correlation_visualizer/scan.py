@@ -12,7 +12,7 @@ from phantasy.apps.correlation_visualizer.data import JSONDataSheet
 
 from phantasy import epoch2human
 
-TS_FMT = "%Y-%m-%d %H:%M:%S %Z"
+TS_FMT = "%Y-%m-%d %H:%M:%S"
 
 
 class ScanTask(object):
@@ -281,15 +281,17 @@ class ScanTask(object):
         # devices
         dev_dict = OrderedDict()
         dev_dict['alter_element'] = {
-            'name': self.alter_element.name,
-            'readback_pv': self.alter_element.get_pvname,
-            'setpoint_pv': self.alter_element.put_pvname,
+            'name': self.alter_element.ename,
+            'field': self.alter_element.name,
+            'readback_pv': self.alter_element.get_pv_name('readback'),
+            'setpoint_pv': self.alter_element.get_pv_name('setpoint'),
         }
         dev_dict['monitors'] = []
         for elem in [self.monitor_element] + self.get_extra_monitors():
             dev_dict['monitors'].append({
-                'name': elem.name,
-                'readback_pv': elem.get_pvname,
+                'name': elem.ename,
+                'field': elem.name,
+                'readback_pv': elem.get_pv_name('readback'),
             })
         data_sheet.update({'devices': dev_dict})
 
