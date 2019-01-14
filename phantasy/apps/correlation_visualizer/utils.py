@@ -39,6 +39,8 @@ class PVElement(object):
         """
         return "<generic field>"
 
+    name = fname
+
     @property
     def value(self):
         """generic attribute name to present this PV element's value.
@@ -57,23 +59,22 @@ class PVElement(object):
         return "Element: {name}, cset: {cset}, rd: {rd}".format(
                 name=self.name, cset=str(self._putPV), rd=str(self._getPV))
 
-    @property
-    def get_pvname(self):
-        return self._get_pvname
-
-    @property
-    def put_pvname(self):
-        return self._put_pvname
+    def get_pv_name(self, type='readback'):
+        if type == 'readback':
+            pv = self._get_pvname
+        elif type == 'setpoint':
+            pv = self._put_pvname
+        return pv
 
     @property
     def pvname(self):
         return self._put_pvname, self._get_pvname
 
     @property
-    def name(self):
+    def ename(self):
         """just guess element name.
         """
-        a, b = self.get_pvname, self.put_pvname
+        a, b = self.get_pv_name('readback'), self.get_pv_name('setpoint')
         n = set(a.rsplit(':', 1)).intersection(b.rsplit(':', 1))
         if n:
             return n.pop()
@@ -82,11 +83,11 @@ class PVElement(object):
 
     @property
     def readback(self):
-        return [self.get_pvname]
+        return [self._get_pvname]
 
     @property
     def setpoint(self):
-        return [self.put_pvname]
+        return [self._put_pvname]
 
     @property
     def readback_pv(self):
@@ -115,6 +116,8 @@ class PVElementReadonly(object):
         """
         return "<generic field>"
 
+    name = fname
+
     @property
     def value(self):
         """generic attribute name to present this PV element's value.
@@ -130,26 +133,29 @@ class PVElementReadonly(object):
                 name=self.name, rd=str(self._getPV))
 
     @property
-    def get_pvname(self):
-        return self._get_pvname
-
-    @property
     def pvname(self):
         return (self._get_pvname,)
 
     @property
-    def name(self):
+    def ename(self):
         """just guess element name.
         """
-        return self.get_pvname.rsplit(':', 1)[0]
+        return self.get_pv_name('readback').rsplit(':', 1)[0]
 
     @property
     def readback(self):
-        return [self.get_pvname]
+        return [self.get_pv_name('readback')]
 
     @property
     def readback_pv(self):
         return [self._getPV]
+
+    def get_pv_name(self, type='readback'):
+        if type == 'readback':
+            pv = self._get_pvname
+        elif type == 'setpoint':
+            pv = self._put_pvname
+        return pv
 
 
 def delayed_exec(f, delay, *args, **kws):
