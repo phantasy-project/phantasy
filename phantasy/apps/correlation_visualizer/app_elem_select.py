@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import re
+from collections import OrderedDict
 
 from PyQt5.QtWidgets import QDialog
 from PyQt5.QtWidgets import QMessageBox
@@ -55,6 +56,9 @@ class ElementSelectDialog(QDialog, Ui_Dialog):
         self.pv_read_lineEdit.returnPressed.connect(self.set_elem)
         self.sel_elem = None  # selected element obj
 
+        # Element mode
+        self.sel_field = None # seleted field name
+
         # validate flag
         self._already_validated = False
 
@@ -65,6 +69,9 @@ class ElementSelectDialog(QDialog, Ui_Dialog):
         # post ui init
         self.pv_mode_radiobtn.toggled.emit(True)
         self.elem_mode_radiobtn.toggled.emit(False)
+
+        # Element mode, selected elements
+        self.__element = OrderedDict()
 
     @pyqtSlot()
     def on_click_ok(self):
@@ -107,8 +114,34 @@ class ElementSelectDialog(QDialog, Ui_Dialog):
                 is_valid = False
         else:
             # high-level element
-            pass
+            self.set_elem_high_level()
+            try:
+                if self.sel_elem.connected:
+                    QMessageBox.information(self, "",
+                            "Device is connected",
+                            QMessageBox.Ok)
+                    is_valid = True
+                    self._already_validated = True
+                else:
+                    QMessageBox.warning(self, "",
+                            "Device is not connected",
+                            QMessageBox.Ok)
+                    is_valid = False
+            except:
+                QMessageBox.critical(self, "",
+                        "Validating failed",
+                        QMessageBox.Ok)
+                is_valid = False
+
         return is_valid
+
+    def set_elem_high_level(self):
+        """Build Element from selected high-level element.
+        """
+        for k, v in self.__element.items():
+            self.sel_elem = v.get_field(k[1])
+            self.sel_field = self.sel_elem.name
+            self.sel_elem_display = v
 
     @pyqtSlot()
     def set_elem(self):
@@ -125,6 +158,8 @@ class ElementSelectDialog(QDialog, Ui_Dialog):
             if getPV_str == '':
                 return
             self.sel_elem = PVElementReadonly(getPV_str)
+
+        self.sel_elem_display = self.sel_elem
 
         milli_sleep1(2000)
         delayed_check_pv_status(self, self.sel_elem, 100)
@@ -145,12 +180,17 @@ class ElementSelectDialog(QDialog, Ui_Dialog):
         model.set_model()
         tv.model().itemSelected.connect(self.on_element_selected)
 
-    @pyqtSlot('QString', 'QString')
-    def on_element_selected(self, ename, fname):
-        print("{}: {}".format(ename, fname))
+    @pyqtSlot('QString', 'QString', QVariant)
+    def on_element_selected(self, ename, fname, elem):
+        ekey = (ename, fname)
+        if ekey not in self.__element:
+            self.__element.update([(ekey, elem)])
+        else:
+            self.__element.pop(ekey)
 
     def sizeHint(self):
         return QSize(600, 400)
+
 
 if __name__ == '__main__':
     from PyQt5.QtWidgets import QApplication
