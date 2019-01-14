@@ -747,6 +747,12 @@ class CaField(object):
         """
         return self.readback_pv[0].connected
 
+    def get_pv_name(self, type='readback'):
+        if type == 'readback':
+            pv = self.readback[0]
+        elif type == 'setpoint':
+            pv = self.setpoint[0]
+        return pv
 
 class CaElement(BaseElement):
     """Element with Channel Access support.
