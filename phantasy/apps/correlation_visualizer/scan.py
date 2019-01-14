@@ -340,6 +340,9 @@ class ScanWorker(QObject):
         self.index_array = index_array
 
     def run(self):
+        # enames of wire-scanners that have been processed
+        self._processed_ws = []
+
         nshot = self.task.shotnum
         alter_array = self.task.get_alter_array()
         alter_elem = self.task.alter_element
@@ -379,7 +382,8 @@ class ScanWorker(QObject):
             time.sleep(wait_sec)
             # DAQ
             for i in range(nshot):
-                tmp_data[i, :] = [elem.value for elem in all_monitors]
+                #tmp_data[i, :] = [elem.value for elem in all_monitors]
+                tmp_data[i, :] = self.get_readings(i, all_monitors)
                 time.sleep(daq_delt)
             out_data[idx, :, :] = tmp_data
             self.scanOneIterFinished.emit(idx, x, out_data)
@@ -389,6 +393,15 @@ class ScanWorker(QObject):
             self.scanFinished.emit()
         #
         self.run_flag = False
+
+    def get_readings(self, i, all_elements):
+        # all_elements: list of PVElement/Readonly, or CaField
+        readings = []
+        for elem in all_elements:
+            if 'PM' in elem.ename:
+                self.process_ws(elem.ename)
+            readings.append(elem.value)
+        return readings
 
     def stop(self):
         """Stop scan worker
@@ -404,6 +417,37 @@ class ScanWorker(QObject):
         """Return if scan task is running or not.
         """
         return self.run_flag
+
+    def process_ws(self, ename, machine="FRIB", segment="LEBT"):
+        if ename in self._processed_ws:
+            return
+        print("Processing", ename)
+
+        from phantasy import MachinePortal
+        from phantasy.apps.wire_scanner.device import Device
+        from phantasy.apps.wire_scanner.device import PMData
+
+        mp = MachinePortal(machine, segment)
+
+        # process wire-scanner
+        elem = mp.get_elements(name=ename)[0]
+
+        ws = Device(elem)
+        # online
+        ws.run_all()
+
+        # offline test
+        #fn1 = '/home/tong/Dropbox/FRIB/work/phantasy-project/phantasy/phantasy/apps/wire_scanner/tests/ws_data/ws_FE_LEBT_PM_D0808_20180209_143830.json'
+        #fn2 = '/home/tong/Dropbox/FRIB/work/phantasy-project/phantasy/phantasy/apps/wire_scanner/tests/ws_data/ws_FE_LEBT_PM_D0808_20180329_121955.json'
+        #import random
+        #ws.sync_data(mode='file', filename=random.choice([fn1, fn2]))
+
+        ws_data = PMData(ws)
+        ws_data.analyze()
+        ws_data.sync_results_to_ioc()
+
+        # put processed flag
+        self._processed_ws.append(ename)
 
 
 if __name__ == '__main__':
