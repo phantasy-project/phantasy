@@ -160,6 +160,7 @@ class ElementSelectDialog(QDialog, Ui_Dialog):
             self.sel_elem = PVElementReadonly(getPV_str)
 
         self.sel_elem_display = self.sel_elem
+        self.sel_field = None
 
         milli_sleep1(2000)
         delayed_check_pv_status(self, self.sel_elem, 100)
