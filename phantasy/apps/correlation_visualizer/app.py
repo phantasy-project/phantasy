@@ -69,6 +69,8 @@ SMALL_TBTN_ICON_QSIZE = QSize(SMALL_TBTN_ICON_SIZE, SMALL_TBTN_ICON_SIZE)
 MPS_STATUS = ["Fault", "Disable", "Monitor", "Enable"]
 MPS_ENABLE = MPS_STATUS.index("Enable")
 
+# default MPS pv name
+MPS_PV_DEFAULT = 'MPS_FPS:MSTR_N0001:MpsStatus' # FRIB MPS
 
 class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 
@@ -226,7 +228,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 
         # mps config widget
         self.mps_config_widget = None
-        self._mps_pvname = 'VA:SVR:MpsStatus'
+        self._mps_pvname = MPS_PV_DEFAULT
         self.mps_pv = epics.PV(self._mps_pvname)
         #
         self.pauseScan[bool].connect(self.on_pause_scan)
