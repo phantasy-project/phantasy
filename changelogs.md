@@ -1,3 +1,18 @@
+Version 1.7.2
+-------------
+2019-01-14
+
+- Correlation Visualizer App:
+  - Fix default MPS status PV name (FRIB)
+  - Fix static element name in ElementWidget display, which introduces changes to phantasy core
+  - [Testing] Add routine to process DAQ when device is wire-scanner
+
+- Wire Scanner App:
+  - Refactor sync results to IOC to the method of PMData
+
+- Core of phantasy:
+  - Add 'ename' as the alias of 'name' for BaseElement class
+
 Version 1.7.1
 -------------
 2019-01-14
