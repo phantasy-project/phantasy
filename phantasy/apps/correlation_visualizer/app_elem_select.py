@@ -140,11 +140,14 @@ class ElementSelectDialog(QDialog, Ui_Dialog):
 
     @pyqtSlot(QVariant)
     def on_update_elem_tree(self, o):
-        model = LatticeDataModel(self.elem_treeView, o)
-        model.setHeaderData(0, Qt.Horizontal, "Device Type")
-        #model.setHeaderData(0, Qt.Horizontal, "Device Type")
-        #model.setHeaderData(1, Qt.Horizontal, "Field")
-        self.elem_treeView.setModel(model)
+        tv = self.elem_treeView
+        model = LatticeDataModel(tv, o)
+        model.set_model()
+        tv.model().itemSelected.connect(self.on_element_selected)
+
+    @pyqtSlot('QString', 'QString')
+    def on_element_selected(self, ename, fname):
+        print("{}: {}".format(ename, fname))
 
     def sizeHint(self):
         return QSize(600, 400)
