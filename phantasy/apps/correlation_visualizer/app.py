@@ -320,11 +320,18 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         self.elementsTreeChanged.connect(dlg.on_update_elem_tree)
 
         if r == QDialog.Accepted:
-            # update element obj
+            # update element obj (CaField)
             sel_elem = dlg.sel_elem
-            name = sel_elem.name
+            sel_elem_display = dlg.sel_elem_display
+            # ename + [fname]
+            if dlg.sel_field is None:
+                name = sel_elem_display.name
+            else:
+                name = '{0} [{1}]'.format(sel_elem_display.name, dlg.sel_field)
             # create elem_info widget, add into *elem_widgets_dict*
-            self.elem_widgets_dict.setdefault(name, ElementWidget(sel_elem))
+            print(name, dlg.sel_field, sel_elem.name)
+            self.elem_widgets_dict.setdefault(
+                    name, ElementWidget(sel_elem_display, fields=dlg.sel_field))
 
             elem_btn = QPushButton(name)
             elem_btn.setAutoDefault(True)
@@ -1155,8 +1162,9 @@ def get_auto_label(elem):
         # return readback pv name
         label = '{pv}'.format(pv=elem.readback[0])
     else:
-        # CaElement
+        # !elem is CaField!
+        # CaField
         # return element name and field name.
-        pass
+        label = '{en} [{fn}]'.format(en=elem.ename, fn=elem.name)
     return label
 
