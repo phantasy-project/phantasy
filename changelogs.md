@@ -1,3 +1,15 @@
+Version 1.7.1
+-------------
+2019-01-14
+
+- Correlation Visualizer App:
+  - Support scan against high-level elements
+  - Unified APIs for PVElement(Readonly) and CaField
+  - Updated UI
+- Wire Scanner App:
+  - Fix DAQ when working with real devices
+  - Updated UI
+
 Version 1.7.0
 -------------
 2019-01-11
