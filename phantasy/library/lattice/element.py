@@ -742,6 +742,11 @@ class CaField(object):
             pvobj.remove_callback(cid)
             return pvobj.value, 0.0, convert_epoch(pvobj.timestamp, ts_format), []
 
+    def connected(self):
+        """Check if the readback is connected.
+        """
+        return self.readback_pv[0].connected
+
 
 class CaElement(BaseElement):
     """Element with Channel Access support.
