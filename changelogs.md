@@ -1,3 +1,10 @@
+Version 1.8.0
+-------------
+2019-01-14
+
+- Fix csv stream next() compatibility with Python 3
+- Create a new app: Settings Manager
+
 Version 1.7.2
 -------------
 2019-01-14
