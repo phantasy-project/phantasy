@@ -95,7 +95,7 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         self._detailed_mdata = {}
         # a2ua
         self.__factor_a2ua = 1.0
-        self.__signal_unit = "A"
+        self.__signal_unit = "$\mu$A"
         # widgets
         self._data_converter_dlg = None
         self._data_saving_dlg = None
@@ -299,11 +299,6 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         self.run_progressbar.setValue(x)
         self.run_progressbar.setFormat("Running: {}... (%p%)".format(s))
 
-    @pyqtSlot(dict)
-    def display_results(self, results):
-        for k, v in results.items():
-            self.result_box.append('%s: %s' % (k, v))
-
     @pyqtSlot()
     def complete(self, sender_obj):
         sender_obj.setEnabled(True)
@@ -417,10 +412,10 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         """
         if f:
             self.__factor_a2ua = 1.0e6
-            self.__signal_unit = "$\mu$A"
+            self.__signal_unit = "A"
         else:
             self.__factor_a2ua = 1.0
-            self.__signal_unit = "A"
+            self.__signal_unit = "$\mu$A"
         # update ylabel
         self.matplotlibcurveWidget.setFigureYlabel("Signal [{}]".format(self.__signal_unit))
         # update results -> sum row
@@ -564,14 +559,13 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
     def on_plot_raw_data(self):
         """Plot raw data.
         """
-        if self._ws_data is None:
-            try:
-                self._ws_data = PMData(self._ws_device)
-            except RuntimeError:
-                QMessageBox.critical(self, "Plot Data",
-                        "Data is not ready, sync or load first.",
-                        QMessageBox.Ok)
-                return
+        try:
+            self._ws_data = PMData(self._ws_device)
+        except RuntimeError:
+            QMessageBox.critical(self, "Plot Data",
+                    "Data is not ready, sync or load first.",
+                    QMessageBox.Ok)
+            return
         ws_data = self._ws_data
         # u
         self.lineChanged.emit(0)
