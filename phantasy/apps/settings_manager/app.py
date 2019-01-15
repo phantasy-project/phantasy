@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtCore import QVariant
+from PyQt5.QtWidgets import QMessageBox
 
 from phantasy_ui.templates import BaseAppForm
 
 from .utils import SettingsModel
+from .app_loadfrom import LoadSettingsDialog
 
 from .ui.ui_app import Ui_MainWindow
 
@@ -38,36 +42,69 @@ class SettingsManagerWindow(BaseAppForm, Ui_MainWindow):
         # UI
         self.setupUi(self)
 
-        # testing
-        self.settings = get_settings()
-        self.on_show_settings()
+        # post init ui
+        self.__post_init_ui()
 
         #
         self.adjustSize()
 
-    def on_show_settings(self):
-        model = SettingsModel(self.treeView, self.settings)
+    @pyqtSlot(QVariant)
+    def on_lattice_changed(self, o):
+        """Lattice is changed, mp.
+        """
+        self.__mp = o
+
+    @pyqtSlot(QVariant, QVariant)
+    def on_settings_loaded(self, flat_settings, settings):
+        """Settings are loaded.
+        """
+        self.__flat_settings = flat_settings
+        self.__settings = settings
+        self.__on_show_settings()
+
+    def __on_show_settings(self):
+        # visualize settings
+        model = SettingsModel(self.treeView, self.__flat_settings)
         model.set_model()
 
+    def __post_init_ui(self):
+        # placeholders
+        self._load_from_dlg = None
+        self.__mp = None
+        self.__settings = None
+        self.__flat_settings = None
 
-def get_settings():
-    from phantasy import MachinePortal
-    from phantasy import generate_settings
-    import os
+    def on_save(self):
+        """Save settings to file.
+        """
+        print("Save settings to file")
 
-    mp = MachinePortal(machine='FRIB', segment='LEBT')
-    lat = mp.work_lattice_conf
-    rpath = "/home/tong/Dropbox/FRIB/work/phantasy-project/phantasy-examples/notebooks/work_with_save_restore"
-    snpfile = os.path.join(rpath, 'Ar_LEBT_to_MEBT_20180321.snp')
-    settings_read = generate_settings(snpfile=snpfile, lattice=lat, only_physics=False)
+    @pyqtSlot()
+    def on_load_from_snp(self):
+        """Load settings from .snp file.
+        """
+        if self._load_from_dlg is None:
+            self._load_from_dlg = LoadSettingsDialog()
+        self._load_from_dlg.settingsLoaded.connect(self.on_settings_loaded)
+        self._load_from_dlg.latticeChanged.connect(self.on_lattice_changed)
+        self._load_from_dlg.show()
 
-    flat_settings = []
-    for ename, econf in settings_read.items():
-        elem = lat.get_elements(name=ename)[0]
-        for fname, fval0 in econf.items():
-            confline = (elem, fname, fval0)
-            flat_settings.append(confline)
-    return flat_settings
+    @pyqtSlot()
+    def on_apply_settings(self):
+        """Apply (selected) settings to machine.
+        """
+        if self.__settings is None:
+            return
+        try:
+            lat = self.__mp.work_lattice_conf
+            lat.settings = self.__settings
+            lat.sync_settings(data_source='model')
+        except:
+            QMessageBox.warning(self, "Apply Settings",
+                    "Failed to apply settings to accelerator.",
+                    QMessageBox.Ok)
 
-
-
+        else:
+            QMessageBox.information(self, "Apply Settings",
+                    "Successfully applied settings to accelerator.",
+                    QMessageBox.Ok)
