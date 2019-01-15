@@ -4,6 +4,7 @@
 from PyQt5.QtCore import QObject
 from PyQt5.QtCore import pyqtSignal
 
+import numpy as np
 import time
 
 
@@ -11,6 +12,7 @@ class DeviceRunner(QObject):
     finished = pyqtSignal()
     update_progress = pyqtSignal(float, 'QString')
     results = pyqtSignal(dict)
+    sync_data = pyqtSignal()
     """Run wire-scanner device by executing prefined function one by one.
 
     Parameters
@@ -34,6 +36,9 @@ class DeviceRunner(QObject):
         self.func = func_list
         self.func_length = len(self.func)
 
+        # if emit sync_data after finished
+        self._post_sync = np.anp([f.__name__ == 'move' for f in func_list])
+
     def run(self):
         while self.run_flag and self.count < self.func_length:
             f = self.func[self.count]
@@ -49,10 +54,12 @@ class DeviceRunner(QObject):
             self.count += 1
         self.send_results()
         self.finished.emit()
+        if self._post_sync:
+            self.sync_data.emit()
 
     def stop(self):
         self.run_flag = False
-        # add routine to foce stop device?
+        # add routine to force stop device?
 
     def send_results(self):
         results = {'status': 'ok'}
