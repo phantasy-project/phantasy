@@ -291,7 +291,6 @@ class Device(object):
             if outlimit_fld.value != outlimit_bit:
                 # wait until outlimit reached
                 wait(outlimit_fld.readback_pv[0], outlimit_bit, 10)
-            print("outlimit value: ", outlimit_fld.value)
             assert outlimit_fld.value == outlimit_bit
 
     def reset_interlock(self, lock_off_bit=0, **kws):
@@ -325,7 +324,7 @@ class Device(object):
                 fld_name = '{0}{1}'.format(fld_itlk_prefix, fid)
                 fld_itlk_status = self.elem.get_field(fld_name)
                 if fld_itlk_status.value != lock_off_bit:
-                    wait(fld_itlk_status.readback_pv[0], lock_off_bit)
+                    wait(fld_itlk_status.readback_pv[0], lock_off_bit, 10)
                 try:
                     assert fld_itlk_status.value == lock_off_bit
                     loop_out = True
