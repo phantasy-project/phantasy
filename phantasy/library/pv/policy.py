@@ -21,7 +21,7 @@ def _default_read_policy(x):
     try:
         return sum(i.value for i in x)/len(x)
     except:
-        return None
+        return x[0].value
 
 
 def _default_write_policy(x, v, **kws):
