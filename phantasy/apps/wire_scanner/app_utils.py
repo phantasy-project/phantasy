@@ -37,7 +37,7 @@ class DeviceRunner(QObject):
         self.func_length = len(self.func)
 
         # if emit sync_data after finished
-        self._post_sync = np.anp([f.__name__ == 'move' for f in func_list])
+        self._post_sync = np.any([f.__name__ == 'move' for f in func_list])
 
     def run(self):
         while self.run_flag and self.count < self.func_length:
