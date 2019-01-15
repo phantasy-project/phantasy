@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Settings Manager
+Comment=Manage Accelerator Settings
+Terminal=false
+Exec=settings_manager3
+Icon=phantasy-sm
+StartupNotify=false
+Keywords=Phantasy;settings;
+Categories=Science;Physics;
