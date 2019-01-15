@@ -12,7 +12,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1920, 1499)
+        MainWindow.resize(1920, 1565)
         icon = QtGui.QIcon()
         icon.addPixmap(
             QtGui.QPixmap(":/icons/ws.png"), QtGui.QIcon.Normal,
@@ -220,10 +220,6 @@ class Ui_MainWindow(object):
         self.advctrl_groupBox.setObjectName("advctrl_groupBox")
         self.gridLayout_4 = QtWidgets.QGridLayout(self.advctrl_groupBox)
         self.gridLayout_4.setObjectName("gridLayout_4")
-        self.startpos2_lineEdit = QtWidgets.QLineEdit(self.advctrl_groupBox)
-        self.startpos2_lineEdit.setAlignment(QtCore.Qt.AlignCenter)
-        self.startpos2_lineEdit.setObjectName("startpos2_lineEdit")
-        self.gridLayout_4.addWidget(self.startpos2_lineEdit, 2, 3, 1, 1)
         self.init_potentiometer_btn = QtWidgets.QPushButton(
             self.advctrl_groupBox)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
@@ -233,6 +229,12 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(
             self.init_potentiometer_btn.sizePolicy().hasHeightForWidth())
         self.init_potentiometer_btn.setSizePolicy(sizePolicy)
+        icon4 = QtGui.QIcon()
+        icon4.addPixmap(
+            QtGui.QPixmap(":/icons/one.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.init_potentiometer_btn.setIcon(icon4)
+        self.init_potentiometer_btn.setIconSize(QtCore.QSize(24, 24))
         self.init_potentiometer_btn.setObjectName("init_potentiometer_btn")
         self.gridLayout_4.addWidget(self.init_potentiometer_btn, 0, 0, 1, 1)
         self.enable_scan_btn = QtWidgets.QPushButton(self.advctrl_groupBox)
@@ -243,8 +245,30 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(
             self.enable_scan_btn.sizePolicy().hasHeightForWidth())
         self.enable_scan_btn.setSizePolicy(sizePolicy)
+        icon5 = QtGui.QIcon()
+        icon5.addPixmap(
+            QtGui.QPixmap(":/icons/two.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.enable_scan_btn.setIcon(icon5)
+        self.enable_scan_btn.setIconSize(QtCore.QSize(24, 24))
         self.enable_scan_btn.setObjectName("enable_scan_btn")
-        self.gridLayout_4.addWidget(self.enable_scan_btn, 0, 2, 1, 1)
+        self.gridLayout_4.addWidget(self.enable_scan_btn, 0, 1, 1, 1)
+        self.init_motor_pos_btn = QtWidgets.QPushButton(self.advctrl_groupBox)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum,
+                                           QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(1)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.init_motor_pos_btn.sizePolicy().hasHeightForWidth())
+        self.init_motor_pos_btn.setSizePolicy(sizePolicy)
+        icon6 = QtGui.QIcon()
+        icon6.addPixmap(
+            QtGui.QPixmap(":/icons/three.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.init_motor_pos_btn.setIcon(icon6)
+        self.init_motor_pos_btn.setIconSize(QtCore.QSize(24, 24))
+        self.init_motor_pos_btn.setObjectName("init_motor_pos_btn")
+        self.gridLayout_4.addWidget(self.init_motor_pos_btn, 0, 2, 1, 1)
         self.reset_interlock_btn = QtWidgets.QPushButton(self.advctrl_groupBox)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
                                            QtWidgets.QSizePolicy.Fixed)
@@ -253,11 +277,30 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(
             self.reset_interlock_btn.sizePolicy().hasHeightForWidth())
         self.reset_interlock_btn.setSizePolicy(sizePolicy)
+        icon7 = QtGui.QIcon()
+        icon7.addPixmap(
+            QtGui.QPixmap(":/icons/four.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.reset_interlock_btn.setIcon(icon7)
+        self.reset_interlock_btn.setIconSize(QtCore.QSize(24, 24))
         self.reset_interlock_btn.setObjectName("reset_interlock_btn")
         self.gridLayout_4.addWidget(self.reset_interlock_btn, 0, 3, 1, 1)
-        self.init_motor_pos_btn = QtWidgets.QPushButton(self.advctrl_groupBox)
-        self.init_motor_pos_btn.setObjectName("init_motor_pos_btn")
-        self.gridLayout_4.addWidget(self.init_motor_pos_btn, 1, 0, 1, 1)
+        self.set_scan_range_btn = QtWidgets.QPushButton(self.advctrl_groupBox)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum,
+                                           QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(1)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.set_scan_range_btn.sizePolicy().hasHeightForWidth())
+        self.set_scan_range_btn.setSizePolicy(sizePolicy)
+        icon8 = QtGui.QIcon()
+        icon8.addPixmap(
+            QtGui.QPixmap(":/icons/five.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.set_scan_range_btn.setIcon(icon8)
+        self.set_scan_range_btn.setIconSize(QtCore.QSize(24, 24))
+        self.set_scan_range_btn.setObjectName("set_scan_range_btn")
+        self.gridLayout_4.addWidget(self.set_scan_range_btn, 0, 4, 1, 1)
         self.set_bias_volt_btn = QtWidgets.QPushButton(self.advctrl_groupBox)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
                                            QtWidgets.QSizePolicy.Fixed)
@@ -266,8 +309,14 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(
             self.set_bias_volt_btn.sizePolicy().hasHeightForWidth())
         self.set_bias_volt_btn.setSizePolicy(sizePolicy)
+        icon9 = QtGui.QIcon()
+        icon9.addPixmap(
+            QtGui.QPixmap(":/icons/six.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.set_bias_volt_btn.setIcon(icon9)
+        self.set_bias_volt_btn.setIconSize(QtCore.QSize(24, 24))
         self.set_bias_volt_btn.setObjectName("set_bias_volt_btn")
-        self.gridLayout_4.addWidget(self.set_bias_volt_btn, 0, 4, 1, 1)
+        self.gridLayout_4.addWidget(self.set_bias_volt_btn, 0, 5, 1, 1)
         self.mode_btn = QtWidgets.QPushButton(self.advctrl_groupBox)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
                                            QtWidgets.QSizePolicy.Fixed)
@@ -276,30 +325,34 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(
             self.mode_btn.sizePolicy().hasHeightForWidth())
         self.mode_btn.setSizePolicy(sizePolicy)
+        icon10 = QtGui.QIcon()
+        icon10.addPixmap(
+            QtGui.QPixmap(":/icons/seven.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.mode_btn.setIcon(icon10)
+        self.mode_btn.setIconSize(QtCore.QSize(24, 24))
         self.mode_btn.setObjectName("mode_btn")
-        self.gridLayout_4.addWidget(self.mode_btn, 0, 5, 1, 1)
-        self.label_10 = QtWidgets.QLabel(self.advctrl_groupBox)
-        self.label_10.setObjectName("label_10")
-        self.gridLayout_4.addWidget(self.label_10, 1, 2, 1, 1)
-        self.stoppos2_lineEdit = QtWidgets.QLineEdit(self.advctrl_groupBox)
-        self.stoppos2_lineEdit.setAlignment(QtCore.Qt.AlignCenter)
-        self.stoppos2_lineEdit.setObjectName("stoppos2_lineEdit")
-        self.gridLayout_4.addWidget(self.stoppos2_lineEdit, 2, 5, 1, 1)
-        self.outlimit_lineEdit = QtWidgets.QLineEdit(self.advctrl_groupBox)
-        self.outlimit_lineEdit.setAlignment(QtCore.Qt.AlignCenter)
-        self.outlimit_lineEdit.setObjectName("outlimit_lineEdit")
-        self.gridLayout_4.addWidget(self.outlimit_lineEdit, 1, 3, 1, 1)
-        self.set_scan_range_btn = QtWidgets.QPushButton(self.advctrl_groupBox)
-        self.set_scan_range_btn.setObjectName("set_scan_range_btn")
-        self.gridLayout_4.addWidget(self.set_scan_range_btn, 2, 0, 1, 1)
+        self.gridLayout_4.addWidget(self.mode_btn, 0, 6, 1, 1)
         self.startpos1_lineEdit = QtWidgets.QLineEdit(self.advctrl_groupBox)
         self.startpos1_lineEdit.setAlignment(QtCore.Qt.AlignCenter)
         self.startpos1_lineEdit.setObjectName("startpos1_lineEdit")
-        self.gridLayout_4.addWidget(self.startpos1_lineEdit, 2, 2, 1, 1)
+        self.gridLayout_4.addWidget(self.startpos1_lineEdit, 1, 4, 1, 1)
+        self.startpos2_lineEdit = QtWidgets.QLineEdit(self.advctrl_groupBox)
+        self.startpos2_lineEdit.setAlignment(QtCore.Qt.AlignCenter)
+        self.startpos2_lineEdit.setObjectName("startpos2_lineEdit")
+        self.gridLayout_4.addWidget(self.startpos2_lineEdit, 2, 4, 1, 1)
         self.stoppos1_lineEdit = QtWidgets.QLineEdit(self.advctrl_groupBox)
         self.stoppos1_lineEdit.setAlignment(QtCore.Qt.AlignCenter)
         self.stoppos1_lineEdit.setObjectName("stoppos1_lineEdit")
-        self.gridLayout_4.addWidget(self.stoppos1_lineEdit, 2, 4, 1, 1)
+        self.gridLayout_4.addWidget(self.stoppos1_lineEdit, 3, 4, 1, 1)
+        self.stoppos2_lineEdit = QtWidgets.QLineEdit(self.advctrl_groupBox)
+        self.stoppos2_lineEdit.setAlignment(QtCore.Qt.AlignCenter)
+        self.stoppos2_lineEdit.setObjectName("stoppos2_lineEdit")
+        self.gridLayout_4.addWidget(self.stoppos2_lineEdit, 4, 4, 1, 1)
+        self.outlimit_lineEdit = QtWidgets.QLineEdit(self.advctrl_groupBox)
+        self.outlimit_lineEdit.setAlignment(QtCore.Qt.AlignCenter)
+        self.outlimit_lineEdit.setObjectName("outlimit_lineEdit")
+        self.gridLayout_4.addWidget(self.outlimit_lineEdit, 1, 2, 1, 1)
         self.gridLayout_3.addWidget(self.advctrl_groupBox, 5, 0, 1, 13)
         self.stop_pos2_lineEdit = QtWidgets.QLineEdit(self.controls_groupBox)
         self.stop_pos2_lineEdit.setStyleSheet("")
@@ -400,30 +453,30 @@ class Ui_MainWindow(object):
         self.horizontalLayout_3.setContentsMargins(-1, 0, -1, -1)
         self.horizontalLayout_3.setObjectName("horizontalLayout_3")
         self.reset_xyscale_btn = QtWidgets.QPushButton(self.groupBox)
-        icon4 = QtGui.QIcon()
-        icon4.addPixmap(
+        icon11 = QtGui.QIcon()
+        icon11.addPixmap(
             QtGui.QPixmap(":/icons/reset_scale.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.reset_xyscale_btn.setIcon(icon4)
+        self.reset_xyscale_btn.setIcon(icon11)
         self.reset_xyscale_btn.setIconSize(QtCore.QSize(24, 24))
         self.reset_xyscale_btn.setObjectName("reset_xyscale_btn")
         self.horizontalLayout_3.addWidget(self.reset_xyscale_btn)
         self.legend_btn = QtWidgets.QPushButton(self.groupBox)
-        icon5 = QtGui.QIcon()
-        icon5.addPixmap(
+        icon12 = QtGui.QIcon()
+        icon12.addPixmap(
             QtGui.QPixmap(":/icons/label.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.legend_btn.setIcon(icon5)
+        self.legend_btn.setIcon(icon12)
         self.legend_btn.setIconSize(QtCore.QSize(24, 24))
         self.legend_btn.setCheckable(True)
         self.legend_btn.setObjectName("legend_btn")
         self.horizontalLayout_3.addWidget(self.legend_btn)
         self.grid_btn = QtWidgets.QPushButton(self.groupBox)
-        icon6 = QtGui.QIcon()
-        icon6.addPixmap(
+        icon13 = QtGui.QIcon()
+        icon13.addPixmap(
             QtGui.QPixmap(":/icons/grid.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.grid_btn.setIcon(icon6)
+        self.grid_btn.setIcon(icon13)
         self.grid_btn.setIconSize(QtCore.QSize(24, 24))
         self.grid_btn.setCheckable(True)
         self.grid_btn.setObjectName("grid_btn")
@@ -434,33 +487,33 @@ class Ui_MainWindow(object):
         self.horizontalLayout_3.addItem(spacerItem)
         self.hide_curve2_btn = QtWidgets.QToolButton(self.groupBox)
         self.hide_curve2_btn.setStyleSheet("")
-        icon7 = QtGui.QIcon()
-        icon7.addPixmap(
+        icon14 = QtGui.QIcon()
+        icon14.addPixmap(
             QtGui.QPixmap(":/icons/u.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.hide_curve2_btn.setIcon(icon7)
+        self.hide_curve2_btn.setIcon(icon14)
         self.hide_curve2_btn.setIconSize(QtCore.QSize(24, 24))
         self.hide_curve2_btn.setCheckable(True)
         self.hide_curve2_btn.setAutoRaise(True)
         self.hide_curve2_btn.setObjectName("hide_curve2_btn")
         self.horizontalLayout_3.addWidget(self.hide_curve2_btn)
         self.hide_curve1_btn = QtWidgets.QToolButton(self.groupBox)
-        icon8 = QtGui.QIcon()
-        icon8.addPixmap(
+        icon15 = QtGui.QIcon()
+        icon15.addPixmap(
             QtGui.QPixmap(":/icons/v.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.hide_curve1_btn.setIcon(icon8)
+        self.hide_curve1_btn.setIcon(icon15)
         self.hide_curve1_btn.setIconSize(QtCore.QSize(24, 24))
         self.hide_curve1_btn.setCheckable(True)
         self.hide_curve1_btn.setAutoRaise(True)
         self.hide_curve1_btn.setObjectName("hide_curve1_btn")
         self.horizontalLayout_3.addWidget(self.hide_curve1_btn)
         self.hide_curve3_btn = QtWidgets.QToolButton(self.groupBox)
-        icon9 = QtGui.QIcon()
-        icon9.addPixmap(
+        icon16 = QtGui.QIcon()
+        icon16.addPixmap(
             QtGui.QPixmap(":/icons/w.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.hide_curve3_btn.setIcon(icon9)
+        self.hide_curve3_btn.setIcon(icon16)
         self.hide_curve3_btn.setIconSize(QtCore.QSize(24, 24))
         self.hide_curve3_btn.setCheckable(True)
         self.hide_curve3_btn.setAutoRaise(True)
@@ -478,11 +531,11 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(
             self.plot_data_smoving_btn.sizePolicy().hasHeightForWidth())
         self.plot_data_smoving_btn.setSizePolicy(sizePolicy)
-        icon10 = QtGui.QIcon()
-        icon10.addPixmap(
+        icon17 = QtGui.QIcon()
+        icon17.addPixmap(
             QtGui.QPixmap(":/icons/line-chart.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.plot_data_smoving_btn.setIcon(icon10)
+        self.plot_data_smoving_btn.setIcon(icon17)
         self.plot_data_smoving_btn.setIconSize(QtCore.QSize(24, 24))
         self.plot_data_smoving_btn.setObjectName("plot_data_smoving_btn")
         self.horizontalLayout.addWidget(self.plot_data_smoving_btn)
@@ -494,7 +547,7 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(
             self.plot_data_sbeam_btn.sizePolicy().hasHeightForWidth())
         self.plot_data_sbeam_btn.setSizePolicy(sizePolicy)
-        self.plot_data_sbeam_btn.setIcon(icon10)
+        self.plot_data_sbeam_btn.setIcon(icon17)
         self.plot_data_sbeam_btn.setIconSize(QtCore.QSize(24, 24))
         self.plot_data_sbeam_btn.setObjectName("plot_data_sbeam_btn")
         self.horizontalLayout.addWidget(self.plot_data_sbeam_btn)
@@ -506,11 +559,11 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(
             self.plot_data_subnoise_btn.sizePolicy().hasHeightForWidth())
         self.plot_data_subnoise_btn.setSizePolicy(sizePolicy)
-        icon11 = QtGui.QIcon()
-        icon11.addPixmap(
+        icon18 = QtGui.QIcon()
+        icon18.addPixmap(
             QtGui.QPixmap(":/icons/minus.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.plot_data_subnoise_btn.setIcon(icon11)
+        self.plot_data_subnoise_btn.setIcon(icon18)
         self.plot_data_subnoise_btn.setIconSize(QtCore.QSize(24, 24))
         self.plot_data_subnoise_btn.setObjectName("plot_data_subnoise_btn")
         self.horizontalLayout.addWidget(self.plot_data_subnoise_btn)
@@ -599,25 +652,25 @@ class Ui_MainWindow(object):
         self.wpos3_right_lineEdit.setObjectName("wpos3_right_lineEdit")
         self.gridLayout_5.addWidget(self.wpos3_right_lineEdit, 3, 4, 1, 1)
         self.plot_wpos1_btn = QtWidgets.QToolButton(self.adv_analysis_groupBox)
-        icon12 = QtGui.QIcon()
-        icon12.addPixmap(
+        icon19 = QtGui.QIcon()
+        icon19.addPixmap(
             QtGui.QPixmap(":/icons/show.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.plot_wpos1_btn.setIcon(icon12)
+        self.plot_wpos1_btn.setIcon(icon19)
         self.plot_wpos1_btn.setIconSize(QtCore.QSize(24, 24))
         self.plot_wpos1_btn.setCheckable(True)
         self.plot_wpos1_btn.setAutoRaise(True)
         self.plot_wpos1_btn.setObjectName("plot_wpos1_btn")
         self.gridLayout_5.addWidget(self.plot_wpos1_btn, 1, 0, 1, 1)
         self.plot_wpos2_btn = QtWidgets.QToolButton(self.adv_analysis_groupBox)
-        self.plot_wpos2_btn.setIcon(icon12)
+        self.plot_wpos2_btn.setIcon(icon19)
         self.plot_wpos2_btn.setIconSize(QtCore.QSize(24, 24))
         self.plot_wpos2_btn.setCheckable(True)
         self.plot_wpos2_btn.setAutoRaise(True)
         self.plot_wpos2_btn.setObjectName("plot_wpos2_btn")
         self.gridLayout_5.addWidget(self.plot_wpos2_btn, 2, 0, 1, 1)
         self.plot_wpos3_btn = QtWidgets.QToolButton(self.adv_analysis_groupBox)
-        self.plot_wpos3_btn.setIcon(icon12)
+        self.plot_wpos3_btn.setIcon(icon19)
         self.plot_wpos3_btn.setIconSize(QtCore.QSize(24, 24))
         self.plot_wpos3_btn.setCheckable(True)
         self.plot_wpos3_btn.setAutoRaise(True)
@@ -705,11 +758,11 @@ class Ui_MainWindow(object):
         self.analyzed_status_lbl.setObjectName("analyzed_status_lbl")
         self.horizontalLayout_4.addWidget(self.analyzed_status_lbl)
         self.sync_results_btn = QtWidgets.QToolButton(self.groupBox_2)
-        icon13 = QtGui.QIcon()
-        icon13.addPixmap(
+        icon20 = QtGui.QIcon()
+        icon20.addPixmap(
             QtGui.QPixmap(":/icons/sync.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.sync_results_btn.setIcon(icon13)
+        self.sync_results_btn.setIcon(icon20)
         self.sync_results_btn.setIconSize(QtCore.QSize(24, 24))
         self.sync_results_btn.setObjectName("sync_results_btn")
         self.horizontalLayout_4.addWidget(self.sync_results_btn)
@@ -725,21 +778,21 @@ class Ui_MainWindow(object):
         self.label_11.setObjectName("label_11")
         self.horizontalLayout_6.addWidget(self.label_11)
         self.fontsize_inc_btn = QtWidgets.QToolButton(self.groupBox_2)
-        icon14 = QtGui.QIcon()
-        icon14.addPixmap(
+        icon21 = QtGui.QIcon()
+        icon21.addPixmap(
             QtGui.QPixmap(":/icons/increase_fontsize.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.fontsize_inc_btn.setIcon(icon14)
+        self.fontsize_inc_btn.setIcon(icon21)
         self.fontsize_inc_btn.setIconSize(QtCore.QSize(20, 20))
         self.fontsize_inc_btn.setAutoRaise(True)
         self.fontsize_inc_btn.setObjectName("fontsize_inc_btn")
         self.horizontalLayout_6.addWidget(self.fontsize_inc_btn)
         self.fontsize_dec_btn = QtWidgets.QToolButton(self.groupBox_2)
-        icon15 = QtGui.QIcon()
-        icon15.addPixmap(
+        icon22 = QtGui.QIcon()
+        icon22.addPixmap(
             QtGui.QPixmap(":/icons/decrease_fontsize.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.fontsize_dec_btn.setIcon(icon15)
+        self.fontsize_dec_btn.setIcon(icon22)
         self.fontsize_dec_btn.setIconSize(QtCore.QSize(20, 20))
         self.fontsize_dec_btn.setAutoRaise(True)
         self.fontsize_dec_btn.setObjectName("fontsize_dec_btn")
@@ -1203,31 +1256,31 @@ class Ui_MainWindow(object):
         self.actionSimulation_Mode.setCheckable(True)
         self.actionSimulation_Mode.setObjectName("actionSimulation_Mode")
         self.actionSync = QtWidgets.QAction(MainWindow)
-        self.actionSync.setIcon(icon13)
+        self.actionSync.setIcon(icon20)
         self.actionSync.setObjectName("actionSync")
         self.actionLoad = QtWidgets.QAction(MainWindow)
-        icon16 = QtGui.QIcon()
-        icon16.addPixmap(
+        icon23 = QtGui.QIcon()
+        icon23.addPixmap(
             QtGui.QPixmap(":/icons/load.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.actionLoad.setIcon(icon16)
+        self.actionLoad.setIcon(icon23)
         self.actionLoad.setObjectName("actionLoad")
         self.actionSave = QtWidgets.QAction(MainWindow)
-        icon17 = QtGui.QIcon()
-        icon17.addPixmap(
+        icon24 = QtGui.QIcon()
+        icon24.addPixmap(
             QtGui.QPixmap(":/icons/save.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.actionSave.setIcon(icon17)
+        self.actionSave.setIcon(icon24)
         self.actionSave.setObjectName("actionSave")
         self.actionLocate_Configuration = QtWidgets.QAction(MainWindow)
         self.actionLocate_Configuration.setObjectName(
             "actionLocate_Configuration")
         self.actionDAT2JSON = QtWidgets.QAction(MainWindow)
-        icon18 = QtGui.QIcon()
-        icon18.addPixmap(
+        icon25 = QtGui.QIcon()
+        icon25.addPixmap(
             QtGui.QPixmap(":/icons/json.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.actionDAT2JSON.setIcon(icon18)
+        self.actionDAT2JSON.setIcon(icon25)
         self.actionDAT2JSON.setObjectName("actionDAT2JSON")
         self.actionTo_MicroAmp = QtWidgets.QAction(MainWindow)
         self.actionTo_MicroAmp.setCheckable(True)
@@ -1340,40 +1393,43 @@ class Ui_MainWindow(object):
         self.label_5.setText(_translate("MainWindow", "Start Pos (Fork1)"))
         self.advctrl_groupBox.setTitle(
             _translate("MainWindow", "Advanced Control"))
-        self.startpos2_lineEdit.setToolTip(
-            _translate(
-                "MainWindow",
-                "<html><head/><body><p>Start position of fork2</p></body></html>"
-            ))
         self.init_potentiometer_btn.setText(
             _translate("MainWindow", "Initialize Potentimeter"))
         self.enable_scan_btn.setText(_translate("MainWindow", "Enable Scan"))
+        self.init_motor_pos_btn.setText(
+            _translate("MainWindow", "Pull out Motors"))
         self.reset_interlock_btn.setText(
             _translate("MainWindow", "Reset Interlock"))
-        self.init_motor_pos_btn.setText(
-            _translate("MainWindow", "Initialize Motor"))
-        self.set_bias_volt_btn.setText(
-            _translate("MainWindow", "Set Bias Voltage"))
-        self.mode_btn.setText(_translate("MainWindow", "Move"))
-        self.label_10.setText(_translate("MainWindow", "Out Limit"))
-        self.stoppos2_lineEdit.setToolTip(
-            _translate(
-                "MainWindow",
-                "<html><head/><body><p>Stop position of fork2</p></body></html>"
-            ))
-        self.outlimit_lineEdit.setText(_translate("MainWindow", "110"))
         self.set_scan_range_btn.setText(
             _translate("MainWindow", "Set Scan Range"))
+        self.set_bias_volt_btn.setText(
+            _translate("MainWindow", "Set Bias Voltage"))
+        self.mode_btn.setText(_translate("MainWindow", "Move Forks"))
         self.startpos1_lineEdit.setToolTip(
             _translate(
                 "MainWindow",
                 "<html><head/><body><p>Start position of fork1</p></body></html>"
+            ))
+        self.startpos2_lineEdit.setToolTip(
+            _translate(
+                "MainWindow",
+                "<html><head/><body><p>Start position of fork2</p></body></html>"
             ))
         self.stoppos1_lineEdit.setToolTip(
             _translate(
                 "MainWindow",
                 "<html><head/><body><p>Stop position of fork1</p></body></html>"
             ))
+        self.stoppos2_lineEdit.setToolTip(
+            _translate(
+                "MainWindow",
+                "<html><head/><body><p>Stop position of fork2</p></body></html>"
+            ))
+        self.outlimit_lineEdit.setToolTip(
+            _translate(
+                "MainWindow",
+                "<html><head/><body><p>Out limit position</p></body></html>"))
+        self.outlimit_lineEdit.setText(_translate("MainWindow", "110"))
         self.groupBox.setTitle(_translate("MainWindow", "Data Plot"))
         self.reset_xyscale_btn.setToolTip(
             _translate(
