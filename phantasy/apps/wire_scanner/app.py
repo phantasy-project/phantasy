@@ -451,7 +451,7 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         try:
             with open(filepath, 'r') as f:
                 d = json.load(f)
-            ename = d['ename']
+            ename = _get_element_name(d)
             # locate device combobox
             self.pm_names_cbb.setCurrentText(ename)
             self._ws_device.sync_data(mode='file', filename=filepath)
@@ -865,3 +865,14 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         """
         filename = os.path.basename(filepath) + "\n"
         self.matplotlibcurveWidget.setFigureTitle(filename)
+
+
+def _get_element_name(data):
+    # get element from loaded data dict.
+    try:
+        # data file is saved from live mode
+        return data['device']['element']
+    except:
+        # if data file is converted from old dat file
+        return data['ename']
+
