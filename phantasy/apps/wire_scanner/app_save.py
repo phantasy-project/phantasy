@@ -17,7 +17,7 @@ from phantasy.apps.utils import get_save_filename
 
 from .ui.ui_save import Ui_Dialog
 
-TS_FMT = "%Y-%m-%d %H:%M:%S %Z"
+TS_FMT = "%Y-%m-%d %H:%M:%S"
 
 
 class SaveDataDialog(QDialog, Ui_Dialog):
@@ -93,11 +93,11 @@ class SaveDataDialog(QDialog, Ui_Dialog):
                 json.dump(data, f, indent=2, sort_keys=True)
         except:
             QMessageBox.critical(self, "Save Data",
-                    "Failed to save data to {}".format(filepath),
+                    "Failed to save data to {}.".format(filepath),
                     QMessageBox.Ok)
         else:
             QMessageBox.information(self, "Save Data",
-                    "Successfully saved data to {}".format(filepath),
+                    "Successfully saved data to {}.".format(filepath),
                     QMessageBox.Ok)
 
     @pyqtSlot()

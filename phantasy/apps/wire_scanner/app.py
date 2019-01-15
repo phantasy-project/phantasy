@@ -314,7 +314,7 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
             self._current_pm_widget.show()
         else:
             QMessageBox.warning(self, "Device Details",
-                    "Not supported in 'Simulation' mode",
+                    "Not supported in 'Simulation' mode.",
                     QMessageBox.Ok)
 
     @pyqtSlot()
@@ -338,11 +338,11 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         except:
             self._dconf = dconf_copy
             QMessageBox.warning(self, "Load Configuration",
-                    "Failed to load configuration file from {}".format(filepath),
+                    "Failed to load configuration file from {}.".format(filepath),
                     QMessageBox.Ok)
         else:
             QMessageBox.information(self, "Load Configuration",
-                    "Loaded configuration file from {}".format(filepath),
+                    "Loaded configuration file from {}.".format(filepath),
                     QMessageBox.Ok)
         finally:
             self.on_update_device()
@@ -389,7 +389,7 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         self._dconf = Configuration(self._dconf.config_path)
         self.on_update_device()
         QMessageBox.information(self, "Reload Configuration",
-                "Reloaded configuration file from {}".format(filepath),
+                "Reloaded configuration file from {}.".format(filepath),
                 QMessageBox.Ok)
 
         print("Reload config from {}".format(filepath))
@@ -457,11 +457,11 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
             self._ws_device.sync_data(mode='file', filename=filepath)
         except:
             QMessageBox.critical(self, "Load Data",
-                    "Failed to load data from {}".format(filepath),
+                    "Failed to load data from {}.".format(filepath),
                     QMessageBox.Ok)
         else:
             QMessageBox.information(self, "Load Data",
-                    "Successfully loaded data from {}".format(filepath),
+                    "Successfully loaded data from {}.".format(filepath),
                     QMessageBox.Ok)
             # plot data, new PMData instance
             self._ws_data = PMData(self._ws_device)
@@ -498,21 +498,22 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         print("Sync data from PVs")
         if self._ws_device is None:
             return
+        ename = self._ws_device.elem.name
         if self._device_mode != 'live':
             QMessageBox.warning(self, "Sync Data",
-                    "Current operation mode is 'Simulation', only support loading data",
+                    "Current operation mode is 'Simulation', sync data is not supported, only support loading data.",
                     QMessageBox.Ok)
             return
         try:
             self._ws_device.sync_data(mode='live')
         except:
             QMessageBox.critical(self, "Sync Data",
-                    "Failed to sync data from controls network",
+                    "Failed to sync data from controls network for {}.".format(ename),
                     QMessageBox.Ok)
             return
         else:
             QMessageBox.information(self, "Sync Data",
-                    "Successfully synced data",
+                    "Successfully synced data for {}.".format(ename),
                     QMessageBox.Ok)
 
         self.on_plot_raw_data()
@@ -777,8 +778,6 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
             if self._ws_data._results_for_ioc == {}:
                 raise RuntimeError
             self._ws_data.sync_results_to_ioc()
-            #for k, v in self._results_for_ioc.items():
-            #    setattr(self._ws_device.elem, k.upper(), v)
         except:
             QMessageBox.warning(self, "Sync Results To Device",
                     "Results are not ready, Analyze first.",
