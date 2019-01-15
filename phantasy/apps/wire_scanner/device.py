@@ -467,37 +467,55 @@ class Device(object):
 
     def __sync_data_large_dtype(self):
         # retrieve data from PVs for large type, fork 6in and 12in.
-        k1 = ['ppot_raw', 'ppot_val1', 'offset1', 'signal1'],
-        f1 = ['FORK1_PPOT_RAW', 'FORK1_PPOT_VAL1', 'FORK1_OFFSET1',
-              'FORK1_SIGNAL1']
-        k2 = ['ppot_raw', 'ppot_val1', 'ppot_val2', 'offset1', 'offset2',
-              'signal1', 'signal2'],
-        f2 = ['FORK2_PPOT_RAW', 'FORK2_PPOT_VAL1', 'FORK2_PPOT_VAL2',
-              'FORK2_OFFSET1', 'FORK2_OFFSET2', 'FORK2_SIGNAL1',
-              'FORK2_SIGNAL2']
+        k1 = ('ppot_raw',
+              'ppot_val1',
+              'offset1',
+              'signal1')
+        f1 = ('FORK1_PPOT_RAW',
+              'FORK1_PPOT_VAL1',
+              'FORK1_OFFSET1',
+              'FORK1_SIGNAL1')
+        k2 = ('ppot_raw',
+              'ppot_val1', 'ppot_val2',
+              'offset1', 'offset2',
+              'signal1', 'signal2')
+        f2 = ('FORK2_PPOT_RAW',
+              'FORK2_PPOT_VAL1', 'FORK2_PPOT_VAL2',
+              'FORK2_OFFSET1', 'FORK2_OFFSET2',
+              'FORK2_SIGNAL1', 'FORK2_SIGNAL2')
         self.data_sheet = self.__sync_data_to_sheet(k1, k2, f1, f2)
 
     def __sync_data_flapper_dtype(self):
         # retrieve data from PVs for flapper type
-        k1 = ['ppot_raw', 'ppot_val1', 'offset1', 'signal1'],
-        f1 = ['FORK1_PPOT_RAW', 'FORK1_PPOT_VAL1', 'FORK1_OFFSET1',
-              'FORK1_SIGNAL1']
-        k2 = ['ppot_raw', 'ppot_val1', 'offset1', 'signal1'],
-        f2 = ['FORK2_PPOT_RAW', 'FORK2_PPOT_VAL1', 'FORK2_OFFSET1',
-              'FORK2_SIGNAL1']
+        k1 = ('ppot_raw',
+              'ppot_val1',
+              'offset1',
+              'signal1')
+        f1 = ('FORK1_PPOT_RAW',
+              'FORK1_PPOT_VAL1',
+              'FORK1_OFFSET1',
+              'FORK1_SIGNAL1')
+        k2 = ('ppot_raw',
+              'ppot_val1',
+              'offset1',
+              'signal1')
+        f2 = ('FORK2_PPOT_RAW',
+              'FORK2_PPOT_VAL1',
+              'FORK2_OFFSET1',
+              'FORK2_SIGNAL1')
         self.data_sheet = self.__sync_data_to_sheet(k1, k2, f1, f2)
 
     def __sync_data_small_dtype(self):
         # retrieve data from PVs for flapper type
-        k1 = ['ppot_raw',
+        k1 = ('ppot_raw',
               'ppot_val1', 'ppot_val2', 'ppot_val3',
               'offset1', 'offset2', 'offset3',
-              'signal1', 'signal2', 'signal3'],
-        f1 = ['FORK1_PPOT_RAW',
+              'signal1', 'signal2', 'signal3')
+        f1 = ('FORK1_PPOT_RAW',
               'FORK1_PPOT_VAL1', 'FORK1_PPOT_VAL2', 'FORK1_PPOT_VAL3',
               'FORK1_OFFSET1', 'FORK1_OFFSET2', 'FORK1_OFFSET3',
-              'FORK1_SIGNAL1', 'FORK1_SIGNAL2', 'FORK1_SIGNAL3']
-        k2 = f2 = []
+              'FORK1_SIGNAL1', 'FORK1_SIGNAL2', 'FORK1_SIGNAL3')
+        k2 = f2 = ()
         self.data_sheet = self.__sync_data_to_sheet(k1, k2, f1, f2)
 
     def _sync_data_from_file(self, filename):
