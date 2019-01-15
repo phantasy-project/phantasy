@@ -392,12 +392,14 @@ class Device(object):
             sbtn_fld_name = '{0}{1}'.format(sbtn_fld_prefix, fid)
             setattr(self.elem, sbtn_fld_name, enable_bit)
 
+            time.sleep(2.0)
+
             # wait until scan finished, ready for next scan
             sstatus_fld_name = '{0}{1}'.format(sstatus_fld_prefix, fid)
             fld_sstatus = self.elem.get_field(sstatus_fld_name)
-            if fld_sstatus.readback_pv[0].get(as_string=True, timetout=2.0) != 'Ready':
+            if fld_sstatus.value != 'Ready':
                 # wait ready signal for next scan
-                wait(fld_sstatus.readback_pv[0], "Ready", 10)
+                wait(fld_sstatus.readback_pv[0], "Ready", 300)
 
             # enable scan
             print("  Move: Enable scan")
@@ -406,7 +408,7 @@ class Device(object):
             print("  Move: init motor pos")
             self.init_motor_pos()
             # reset interlock
-            print(" Move: reset interlock")
+            print("  Move: reset interlock")
             self.reset_interlock()
 
     def sync_data(self, mode='live', filename=None):
