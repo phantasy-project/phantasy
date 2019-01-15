@@ -758,7 +758,7 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         self.device_runner = DeviceRunner(oplist, device, self._device_mode)
         self.device_runner.moveToThread(self.thread)
         self.device_runner.update_progress.connect(self.update_progress_bar)
-        #self.device_runner.results.connect(self.display_results)
+        self.device_runner.sync_data.connect(self.on_sync_data)
         self.device_runner.finished.connect(partial(self.complete, sender_obj))
         self.device_runner.finished.connect(self.thread.quit)
         self.device_runner.finished.connect(self.device_runner.deleteLater)
