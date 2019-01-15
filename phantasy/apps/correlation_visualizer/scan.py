@@ -434,7 +434,11 @@ class ScanWorker(QObject):
 
         ws = Device(elem)
         # online
+        print("Run device...")
         ws.run_all()
+        
+        print("Sync data...")
+        ws.sync_data(mode='live')
 
         # offline test
         #fn1 = '/home/tong/Dropbox/FRIB/work/phantasy-project/phantasy/phantasy/apps/wire_scanner/tests/ws_data/ws_FE_LEBT_PM_D0808_20180209_143830.json'
@@ -442,8 +446,11 @@ class ScanWorker(QObject):
         #import random
         #ws.sync_data(mode='file', filename=random.choice([fn1, fn2]))
 
+        print("Analyzing data...")
         ws_data = PMData(ws)
         ws_data.analyze()
+
+        print("Sync results to device...")
         ws_data.sync_results_to_ioc()
 
         # put processed flag
