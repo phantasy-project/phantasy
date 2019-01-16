@@ -4,6 +4,7 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QStandardItem
 from PyQt5.QtGui import QStandardItemModel
+from PyQt5.QtWidgets import QAbstractScrollArea
 
 from collections import OrderedDict
 
@@ -12,7 +13,7 @@ try:
 except NameError:
     basestring = str
 
-COLUMN_NAMES1 = ['Device', 'Field', 'X0']
+COLUMN_NAMES1 = ['Device', 'Field', 'Setting']
 COLUMN_SFIELD_MAP = OrderedDict((
     ('Type', 'family'),
     ('Pos [m]', 'sb'),
@@ -85,7 +86,8 @@ class SettingsModel(QStandardItemModel):
         tv.setSortingEnabled(True)
         tv.resizeColumnToContents(self.i_name)
         self.sort(self.i_index, Qt.AscendingOrder)
-        tv.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        tv.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        tv.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
+        #tv.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        #tv.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
 

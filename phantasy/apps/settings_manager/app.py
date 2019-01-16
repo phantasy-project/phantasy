@@ -45,9 +45,6 @@ class SettingsManagerWindow(BaseAppForm, Ui_MainWindow):
         # post init ui
         self.__post_init_ui()
 
-        #
-        self.adjustSize()
-
     @pyqtSlot(QVariant)
     def on_lattice_changed(self, o):
         """Lattice is changed, mp.
