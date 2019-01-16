@@ -579,7 +579,9 @@ class CaField(object):
         larger than 1, statistical result with averaged value and standard
         deviation will be returned; the sample rate depends on the device
         scan rate. If *timeout* is defined, DAQ will be inactivated after
-        *timeout* second.
+        *timeout* second. If PV is attached with a list pvs, the returned
+        values are arrays, e.g. EQUAD usually has two power supply PVs to
+        control one field.
 
         Warning
         -------
@@ -678,7 +680,8 @@ class CaField(object):
             return None
 
     def set(self, value, handle='setpoint', **kws):
-        """Set value(s) of PV(s) with specified *handle*.
+        """Set value(s) of PV(s) with specified *handle*, accept all *caput*
+        keyword arguments.
 
         Parameters
         ----------
@@ -755,6 +758,7 @@ class CaField(object):
         elif type == 'setpoint':
             pv = self.setpoint[0]
         return pv
+
 
 class CaElement(BaseElement):
     """Element with Channel Access support.
