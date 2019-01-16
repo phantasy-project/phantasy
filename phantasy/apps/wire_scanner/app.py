@@ -518,16 +518,18 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
                     "Successfully synced data for {}.".format(ename),
                     QMessageBox.Ok)
 
-        self.on_plot_raw_data()
-        self.on_reset_xyscale()
+            # plot data, new PMData instance
+            self._ws_data = PMData(self._ws_device)
+            self.on_plot_raw_data()
+            self.on_reset_xyscale()
 
-        # reset results for ioc dict
-        self._results_for_ioc = {}
-        # detail measured data
-        self._detailed_mdata = self._ws_device.data_sheet
-        self._ws_device.detail_data_sheet(self._detailed_mdata)
-        # reset data save dlg
-        self._data_saving_dlg = None
+            # reset results for ioc dict
+            self._results_for_ioc = {}
+            # detail measured data
+            self._detailed_mdata = self._ws_device.data_sheet
+            self._ws_device.detail_data_sheet(self._detailed_mdata)
+            # reset data save dlg
+            self._data_saving_dlg = None
 
     @pyqtSlot()
     def on_dat2json(self):
@@ -564,13 +566,18 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
     def on_plot_raw_data(self):
         """Plot raw data.
         """
-        try:
-            self._ws_data = PMData(self._ws_device)
-        except RuntimeError:
+        if self._ws_data is None:
             QMessageBox.critical(self, "Plot Data",
                     "Data is not ready, sync or load first.",
                     QMessageBox.Ok)
             return
+        #try:
+        #    self._ws_data = PMData(self._ws_device)
+        #except RuntimeError:
+        #    QMessageBox.critical(self, "Plot Data",
+        #            "Data is not ready, sync or load first.",
+        #            QMessageBox.Ok)
+        #    return
         ws_data = self._ws_data
         # u
         self.lineChanged.emit(0)
