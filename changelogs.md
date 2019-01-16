@@ -1,3 +1,16 @@
+Version 1.8.2
+-------------
+2019-01-16
+
+- Wire Scanner App:
+  - Bug fixes: plot data after noise substraction not work
+  - Update UI
+
+- PHANTASY core:
+  - Create new function 'ensure_put' to do ensure set operation
+  - Add 'tolerance' attribute to CaField class
+  - CaElement field setting apply ensure put policy
+
 Version 1.8.1
 -------------
 2019-01-15
