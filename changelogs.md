@@ -1,3 +1,27 @@
+Version 1.8.1
+-------------
+2019-01-15
+
+- Correlation Visualizer App:
+  - Bug fixes: add sync data after device running is completed
+
+- Wire Scanner App:
+  - Bug fixes:
+    - [Critical] Device move does not wait after triggered
+    - Sync data key-field list wrong type
+
+  - Changes:
+    - Device operation timeout to 10s
+    - Sync data after running device is completed
+    - Update data to figure after syncing data in 'live' mode
+
+- Settings Manager App:
+  - Updated UI
+  - Refactored module to load snapshot file
+
+- PHANTASY core:
+  - Default read policy return the first readback pv value if data type is not number
+
 Version 1.8.0
 -------------
 2019-01-14
