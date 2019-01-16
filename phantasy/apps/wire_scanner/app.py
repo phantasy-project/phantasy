@@ -475,6 +475,8 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
             # detail measured data
             self._detailed_mdata = self._ws_device.data_sheet
             self._ws_device.detail_data_sheet(self._detailed_mdata)
+            # reset save dlg
+            self._data_saving_dlg = None
 
     @pyqtSlot()
     def on_locate_data_file(self):
@@ -524,6 +526,8 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         # detail measured data
         self._detailed_mdata = self._ws_device.data_sheet
         self._ws_device.detail_data_sheet(self._detailed_mdata)
+        # reset data save dlg
+        self._data_saving_dlg = None
 
     @pyqtSlot()
     def on_dat2json(self):
