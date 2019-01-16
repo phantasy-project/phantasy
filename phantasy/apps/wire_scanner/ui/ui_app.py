@@ -1620,7 +1620,8 @@ class Ui_MainWindow(object):
                        "Convert .dat file to .json formatted data file."))
         self.actionDAT2JSON.setShortcut(
             _translate("MainWindow", "Ctrl+Shift+C"))
-        self.actionTo_MicroAmp.setText(_translate("MainWindow", "To MicroAmp"))
+        self.actionTo_MicroAmp.setText(
+            _translate("MainWindow", "Signal Unit [A]"))
         self.actionTo_MicroAmp.setToolTip(
             _translate(
                 "MainWindow",
