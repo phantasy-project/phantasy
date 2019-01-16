@@ -20,6 +20,7 @@ from phantasy.library.misc import QCallback
 from phantasy.library.pv import PV_POLICIES
 from phantasy.library.pv import unicorn_read
 from phantasy.library.pv import unicorn_write
+from phantasy.library.pv import ensure_put
 
 import numpy as np
 
@@ -266,8 +267,11 @@ class CaField(object):
         Name of CA field, usually represents the physics attribute linked with CA.
     wait : bool
         If True, wait until put operation completed, default is True.
-    timeout: float
+    timeout : float
         Time out in second for put operation, default is 10 seconds.
+    tolerance : float
+        Tolerance for the difference between current field value and the
+        goal, default is 1e-3.
     ename : str
         Name of element which the field attaches to.
 
@@ -290,6 +294,7 @@ class CaField(object):
         self.ename = kws.get('ename', None)
         self.timeout = kws.get('timeout', None)
         self.wait = kws.get('wait', None)
+        self.tolerance = kws.get('tolerance', None)
         self._rdbk_pv_name = []
         self._rset_pv_name = []
         self._cset_pv_name = []
@@ -359,6 +364,19 @@ class CaField(object):
             self._timeout = 10
         else:
             self._timeout = float(x)
+
+    @property
+    def tolerance(self):
+        """float: Tolerance for the difference between current field value and
+        the goal, default is 1e-3."""
+        return self._tolerance
+
+    @tolerance.setter
+    def tolerance(self, x):
+        if x is None:
+            self._tolerance = 1e-3
+        else:
+            self._tolerance = float(x)
 
     @property
     def readback(self):
@@ -1114,13 +1132,11 @@ class CaElement(BaseElement):
 
     def __setattr__(self, key, value):
         if key in self._fields:
-            self._fields[key].value = value
-            if self._fields[key].wait:
-                _LOGGER.warning(
-                    "Field '{f_name}' of '{e_name}' reached: {rd_val}.".format(
-                        f_name=key, e_name=self.name, rd_val=getattr(self, key)
-                    )
-                )
+            fld = self._fields[key]
+            if fld.wait:
+                ensure_put(self, key, value, fld.tolerance, fld.timeout)
+            else:
+                self._fields[key].value = value
             self._last_settings.update([(key, value)])
         else:
             super(CaElement, self).__setattr__(key, value)
