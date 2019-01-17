@@ -12,11 +12,6 @@ from phantasy.apps.correlation_visualizer.data import JSONDataSheet
 
 from phantasy import epoch2human
 
-# test only
-from phantasy import MachinePortal
-from phantasy.apps.wire_scanner.device import Device
-from phantasy.apps.wire_scanner.device import PMData
-#
 
 TS_FMT = "%Y-%m-%d %H:%M:%S"
 
@@ -431,6 +426,12 @@ class ScanWorker(QObject):
         if ename in self._processed_ws:
             return
         print("Processing", ename)
+
+        # test only
+        from phantasy import MachinePortal
+        from phantasy.apps.wire_scanner.device import Device
+        from phantasy.apps.wire_scanner.device import PMData
+        #
 
         if "MEBT" in ename: segment = "MEBT"
 
