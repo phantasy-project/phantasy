@@ -291,7 +291,15 @@ class Device(object):
             if outlimit_fld.value != outlimit_bit:
                 # wait until outlimit reached
                 wait(outlimit_fld.readback_pv[0], outlimit_bit, 10)
-            assert outlimit_fld.value == outlimit_bit
+            try:
+                assert outlimit_fld.value == outlimit_bit
+            except:
+                setattr(self.elem, '{0}{1}'.format(mpos_fld_prefix, fid),
+                        outlimit_val)
+                if outlimit_fld.value != outlimit_bit:
+                    # wait until outlimit reached
+                    wait(outlimit_fld.readback_pv[0], outlimit_bit, 10)
+
 
     def reset_interlock(self, lock_off_bit=0, **kws):
         """Reset interlock signals, when all the forks are at outward limit.
