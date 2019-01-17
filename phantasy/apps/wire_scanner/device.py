@@ -607,14 +607,14 @@ class PMData(object):
                 self.offset_u = np.asarray(data['fork1'].get('offset1', {'value': 0})['value'])
                 self.offset_v = np.asarray(data['fork2'].get('offset1', {'value': 0})['value'])
             elif dtype == 'small':
-                self.raw_pos1 = np.asarray(data['fork']['ppot_raw']['value'])
+                self.raw_pos1 = np.asarray(data['fork1']['ppot_raw']['value'])
                 self.raw_pos2 = self.raw_pos1
-                self.signal_u = np.asarray(data['fork']['signal1']['value'])
-                self.signal_v = np.asarray(data['fork']['signal2']['value'])
-                self.signal_w = np.asarray(data['fork']['signal3']['value'])
-                self.offset_u = np.asarray(data['fork']['offset1']['value'])
-                self.offset_v = np.asarray(data['fork']['offset2']['value'])
-                self.offset_w = np.asarray(data['fork']['offset3']['value'])
+                self.signal_u = np.asarray(data['fork1']['signal1']['value'])
+                self.signal_v = np.asarray(data['fork1']['signal2']['value'])
+                self.signal_w = np.asarray(data['fork1']['signal3']['value'])
+                self.offset_u = np.asarray(data['fork1']['offset1']['value'])
+                self.offset_v = np.asarray(data['fork1']['offset2']['value'])
+                self.offset_w = np.asarray(data['fork1']['offset3']['value'])
 
     def get_middle_pos(self, fac, pos, signal1, signal2, offset1, offset2, th_factor=0.2, ran=None):
         """Get middle position on fork2 for large type.
