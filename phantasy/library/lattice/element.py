@@ -265,18 +265,21 @@ class CaField(object):
     ----------
     name : str
         Name of CA field, usually represents the physics attribute linked with CA.
+
+    Keyword Arguments
+    -----------------
     wait : bool
-        If True, wait until put operation completed, default is True.
+        Wait or not (True/False) when issuing set command, which is attached
+        to one of 'caput' keyword arguments, default: True.
     timeout : float
-        Time out in second for put operation, default is 10 seconds.
+        Time out in second for put operation (see wait), default is 10 seconds.
+    ensure_put : bool
+        Apply ensure set operation or not, default is False, see the notes.
     tolerance : float
         Tolerance for the difference between current field value and
         the one the field would like to finally reach, default is 0.2.
     ename : str
         Name of element which the field attaches to.
-
-    Keyword Arguments
-    -----------------
     readback : str, list(str)
         Readback PV name(s), if a single string is defined, append operation
         will be issued, if list or tuple of strings is defined, *readback*
@@ -287,6 +290,15 @@ class CaField(object):
         Readset PV name(s).
     setpoint : str, list(str)
         Setpoint PV name(s).
+
+    Note
+    ----
+    About `ensure_put` option: If this argument is set True, the set or put
+    action to the field value will be ensured to reach the goal, since
+    CA put wait action sometimes is not that working as the user expected. To
+    make use of this feature, simply set `field.ensure_put = True`, then
+    do `field.value = x`, the program will be blocking until `field.value`
+    reaches `x`, here assumed `field` is the instance of `CaField` class.
     """
 
     def __init__(self, name='', **kws):
@@ -295,6 +307,7 @@ class CaField(object):
         self.timeout = kws.get('timeout', None)
         self.wait = kws.get('wait', None)
         self.tolerance = kws.get('tolerance', None)
+        self.ensure_put = kws.get('ensure_put', None)
         self._rdbk_pv_name = []
         self._rset_pv_name = []
         self._cset_pv_name = []
@@ -342,8 +355,8 @@ class CaField(object):
 
     @property
     def wait(self):
-        """boolean: Wait (True) for not (False) when issuing set command,
-        default: True."""
+        """boolean: Wait or not (True/False) when issuing set command, which
+        is attached to one of 'caput' keyword arguments, default: True."""
         return self._wait
 
     @wait.setter
@@ -352,6 +365,18 @@ class CaField(object):
             self._wait = True
         else:
             self._wait = bool(b)
+
+    @property
+    def ensure_put(self):
+        """boolean: Apply ensure set operation or not, default is False."""
+        return self._ensure_put
+
+    @ensure_put.setter
+    def ensure_put(self, b):
+        if b is None:
+            self._ensure_put = False
+        else:
+            self._ensure_put = bool(b)
 
     @property
     def timeout(self):
@@ -1133,7 +1158,7 @@ class CaElement(BaseElement):
     def __setattr__(self, key, value):
         if key in self._fields:
             fld = self._fields[key]
-            if fld.wait:
+            if fld.ensure_put:
                 ensure_put(self, key, value, fld.tolerance, fld.timeout)
             else:
                 self._fields[key].value = value
