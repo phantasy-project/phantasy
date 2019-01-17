@@ -208,6 +208,8 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         self._current_pm_elem = self._all_pms_dict[n]
         #
         self.on_update_device()
+        # info
+        self.statusInfoChanged.emit("Selected device: {}".format(n))
 
     def on_update_device(self):
         # update ws device object.
@@ -514,9 +516,11 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
                     QMessageBox.Ok)
             return
         else:
-            QMessageBox.information(self, "Sync Data",
-                    "Successfully synced data for {}.".format(ename),
-                    QMessageBox.Ok)
+            #QMessageBox.information(self, "Sync Data",
+            #        "Successfully synced data for {}.".format(ename),
+            #        QMessageBox.Ok)
+            self.statusInfoChanged.emit(
+                "Successfully synced data for {}.".format(ename))
 
             # plot data, new PMData instance
             self._ws_data = PMData(self._ws_device)
