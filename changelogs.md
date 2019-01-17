@@ -1,3 +1,10 @@
+Version 1.8.4
+-------------
+2019-01-17
+
+- PHANTASY core:
+  - CaField.tolerance: apply relative discrepancy, default 0.01
+
 Version 1.8.3
 -------------
 2019-01-17
