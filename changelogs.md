@@ -1,3 +1,12 @@
+Version 1.8.5
+-------------
+2019-01-17
+
+- Wire Scanner App:
+  - Bug fixes: one of the UI labels is typo
+  - Display message on statusbar after changed device and synced data
+  - Improved device working logic
+
 Version 1.8.4
 -------------
 2019-01-17
