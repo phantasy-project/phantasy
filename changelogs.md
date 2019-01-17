@@ -1,3 +1,19 @@
+Version 1.8.3
+-------------
+2019-01-17
+
+- Wire Scanner App:
+  - Bug fix: the key name of small type data, should be 'fork1'
+  - Add one more motor trigger routine when pulling out
+
+- Correlation Visualizer App:
+  - Bug fix: update scan routine with wire-scanner device
+
+- PHANTASY core:
+  - Add 'ensure_put' attr to CaField
+  - Change the default field value ensure put tolerance to 0.2
+  - Update docstrings
+
 Version 1.8.2
 -------------
 2019-01-16
@@ -92,7 +108,7 @@ Version 1.6.4
 
 - Correlation Visualizer App:
   - Array Set: Support sorting
-  - Fix app crashes by None array 
+  - Fix app crashes by None array
 
 Version 1.6.3
 -------------
@@ -276,7 +292,7 @@ Version 1.0.7
 
 - Python 3 compatibilities:
   - Convert dict.keys() and dict.items() to list
-  - Write file with 'w' option  
+  - Write file with 'w' option
 - Virtual accelerator (FLAME):
   - FIX: add back BPM energy field
   - ENH: add new option '-l' to `flame-vastart` to run IOC localhost only
@@ -545,7 +561,7 @@ Version 0.8.0
 
 Test:
     - New test for generating layout from xlsx file
-    - New test for CaElement/CaField  
+    - New test for CaElement/CaField
     - New test data
 
 Clean:
