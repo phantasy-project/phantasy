@@ -12,6 +12,12 @@ from phantasy.apps.correlation_visualizer.data import JSONDataSheet
 
 from phantasy import epoch2human
 
+# test only
+from phantasy import MachinePortal
+from phantasy.apps.wire_scanner.device import Device
+from phantasy.apps.wire_scanner.device import PMData
+#
+
 TS_FMT = "%Y-%m-%d %H:%M:%S"
 
 
@@ -341,7 +347,6 @@ class ScanWorker(QObject):
 
     def run(self):
         # enames of wire-scanners that have been processed
-        self._processed_ws = []
 
         nshot = self.task.shotnum
         alter_array = self.task.get_alter_array()
@@ -363,6 +368,9 @@ class ScanWorker(QObject):
             index_array = self.index_array
 
         for idx, x in enumerate(alter_array):
+
+            self._processed_ws = []
+
             if idx not in index_array:
                 continue
 
@@ -398,8 +406,9 @@ class ScanWorker(QObject):
         # all_elements: list of PVElement/Readonly, or CaField
         readings = []
         for elem in all_elements:
-            if 'PM' in elem.ename:
-                self.process_ws(elem.ename)
+            ename = elem.ename
+            if 'PM' in ename and 'BPM' not in ename:
+                self.process_ws(ename)
             readings.append(elem.value)
         return readings
 
@@ -423,9 +432,7 @@ class ScanWorker(QObject):
             return
         print("Processing", ename)
 
-        from phantasy import MachinePortal
-        from phantasy.apps.wire_scanner.device import Device
-        from phantasy.apps.wire_scanner.device import PMData
+        if "MEBT" in ename: segment = "MEBT"
 
         mp = MachinePortal(machine, segment)
 
@@ -436,15 +443,12 @@ class ScanWorker(QObject):
         # online
         print("Run device...")
         ws.run_all()
-        
+
         print("Sync data...")
         ws.sync_data(mode='live')
 
-        # offline test
-        #fn1 = '/home/tong/Dropbox/FRIB/work/phantasy-project/phantasy/phantasy/apps/wire_scanner/tests/ws_data/ws_FE_LEBT_PM_D0808_20180209_143830.json'
-        #fn2 = '/home/tong/Dropbox/FRIB/work/phantasy-project/phantasy/phantasy/apps/wire_scanner/tests/ws_data/ws_FE_LEBT_PM_D0808_20180329_121955.json'
-        #import random
-        #ws.sync_data(mode='file', filename=random.choice([fn1, fn2]))
+        # offline
+        # ws.sync_data(mode='file', filename=fn)
 
         print("Analyzing data...")
         ws_data = PMData(ws)
