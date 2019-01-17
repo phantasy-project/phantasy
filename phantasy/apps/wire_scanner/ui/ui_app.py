@@ -22,6 +22,18 @@ class Ui_MainWindow(object):
                                  "    border: 0.5px solid gray;\n"
                                  "    padding: 1 5px;\n"
                                  "    border-radius: 3px;\n"
+                                 "}\n"
+                                 "\n"
+                                 "QProgressBar {\n"
+                                 "    border: 1px solid gray;\n"
+                                 "    border-radius: 10px;\n"
+                                 "    text-align: center;\n"
+                                 "}\n"
+                                 "\n"
+                                 "QProgressBar::chunk {\n"
+                                 "    background-color: #05B8CC;\n"
+                                 "    width: 20px;\n"
+                                 "    margin: 0.5px;\n"
                                  "}")
         MainWindow.setIconSize(QtCore.QSize(64, 64))
         self.centralwidget = QtWidgets.QWidget(MainWindow)
@@ -1365,6 +1377,108 @@ class Ui_MainWindow(object):
         self.plot_data_subnoise_btn.clicked.connect(
             MainWindow.on_plot_after_subnoise)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        MainWindow.setTabOrder(self.pm_names_cbb, self.pm_detail_btn)
+        MainWindow.setTabOrder(self.pm_detail_btn, self.dtype_lineEdit)
+        MainWindow.setTabOrder(self.dtype_lineEdit, self.coord_lineEdit)
+        MainWindow.setTabOrder(self.coord_lineEdit, self.start_pos1_lineEdit)
+        MainWindow.setTabOrder(self.start_pos1_lineEdit,
+                               self.start_pos2_lineEdit)
+        MainWindow.setTabOrder(self.start_pos2_lineEdit,
+                               self.stop_pos1_lineEdit)
+        MainWindow.setTabOrder(self.stop_pos1_lineEdit,
+                               self.stop_pos2_lineEdit)
+        MainWindow.setTabOrder(self.stop_pos2_lineEdit, self.offset1_lineEdit)
+        MainWindow.setTabOrder(self.offset1_lineEdit, self.offset2_lineEdit)
+        MainWindow.setTabOrder(self.offset2_lineEdit, self.offset3_lineEdit)
+        MainWindow.setTabOrder(self.offset3_lineEdit, self.run_btn)
+        MainWindow.setTabOrder(self.run_btn, self.advctrl_chkbox)
+        MainWindow.setTabOrder(self.advctrl_chkbox, self.emstop_btn)
+        MainWindow.setTabOrder(self.emstop_btn, self.init_potentiometer_btn)
+        MainWindow.setTabOrder(self.init_potentiometer_btn,
+                               self.enable_scan_btn)
+        MainWindow.setTabOrder(self.enable_scan_btn, self.init_motor_pos_btn)
+        MainWindow.setTabOrder(self.init_motor_pos_btn, self.outlimit_lineEdit)
+        MainWindow.setTabOrder(self.outlimit_lineEdit,
+                               self.reset_interlock_btn)
+        MainWindow.setTabOrder(self.reset_interlock_btn,
+                               self.set_scan_range_btn)
+        MainWindow.setTabOrder(self.set_scan_range_btn,
+                               self.startpos1_lineEdit)
+        MainWindow.setTabOrder(self.startpos1_lineEdit,
+                               self.startpos2_lineEdit)
+        MainWindow.setTabOrder(self.startpos2_lineEdit, self.stoppos1_lineEdit)
+        MainWindow.setTabOrder(self.stoppos1_lineEdit, self.stoppos2_lineEdit)
+        MainWindow.setTabOrder(self.stoppos2_lineEdit, self.set_bias_volt_btn)
+        MainWindow.setTabOrder(self.set_bias_volt_btn, self.mode_btn)
+        MainWindow.setTabOrder(self.mode_btn, self.analyze_btn)
+        MainWindow.setTabOrder(self.analyze_btn, self.reset_xyscale_btn)
+        MainWindow.setTabOrder(self.reset_xyscale_btn, self.legend_btn)
+        MainWindow.setTabOrder(self.legend_btn, self.grid_btn)
+        MainWindow.setTabOrder(self.grid_btn, self.hide_curve2_btn)
+        MainWindow.setTabOrder(self.hide_curve2_btn, self.hide_curve1_btn)
+        MainWindow.setTabOrder(self.hide_curve1_btn, self.hide_curve3_btn)
+        MainWindow.setTabOrder(self.hide_curve3_btn,
+                               self.plot_data_smoving_btn)
+        MainWindow.setTabOrder(self.plot_data_smoving_btn,
+                               self.plot_data_sbeam_btn)
+        MainWindow.setTabOrder(self.plot_data_sbeam_btn,
+                               self.plot_data_subnoise_btn)
+        MainWindow.setTabOrder(self.plot_data_subnoise_btn,
+                               self.adv_analysis_chkbox)
+        MainWindow.setTabOrder(self.adv_analysis_chkbox, self.sync_results_btn)
+        MainWindow.setTabOrder(self.sync_results_btn, self.plot_wpos1_btn)
+        MainWindow.setTabOrder(self.plot_wpos1_btn, self.plot_wpos2_btn)
+        MainWindow.setTabOrder(self.plot_wpos2_btn, self.plot_wpos3_btn)
+        MainWindow.setTabOrder(self.plot_wpos3_btn, self.wpos1_left_lineEdit)
+        MainWindow.setTabOrder(self.wpos1_left_lineEdit,
+                               self.wpos1_right_lineEdit)
+        MainWindow.setTabOrder(self.wpos1_right_lineEdit,
+                               self.wpos2_left_lineEdit)
+        MainWindow.setTabOrder(self.wpos2_left_lineEdit,
+                               self.wpos2_right_lineEdit)
+        MainWindow.setTabOrder(self.wpos2_right_lineEdit,
+                               self.wpos3_left_lineEdit)
+        MainWindow.setTabOrder(self.wpos3_left_lineEdit,
+                               self.wpos3_right_lineEdit)
+        MainWindow.setTabOrder(self.wpos3_right_lineEdit, self.lineEdit)
+        MainWindow.setTabOrder(self.lineEdit, self.lineEdit_2)
+        MainWindow.setTabOrder(self.lineEdit_2, self.lineEdit_3)
+        MainWindow.setTabOrder(self.lineEdit_3, self.data_path_locate_btn)
+        MainWindow.setTabOrder(self.data_path_locate_btn,
+                               self.data_filepath_lineEdit)
+        MainWindow.setTabOrder(self.data_filepath_lineEdit,
+                               self.fontsize_inc_btn)
+        MainWindow.setTabOrder(self.fontsize_inc_btn, self.fontsize_dec_btn)
+        MainWindow.setTabOrder(self.fontsize_dec_btn, self.w11_sum_lineEdit)
+        MainWindow.setTabOrder(self.w11_sum_lineEdit, self.w21_sum_lineEdit)
+        MainWindow.setTabOrder(self.w21_sum_lineEdit, self.w22_sum_lineEdit)
+        MainWindow.setTabOrder(self.w22_sum_lineEdit, self.w11_center_lineEdit)
+        MainWindow.setTabOrder(self.w11_center_lineEdit,
+                               self.w21_center_lineEdit)
+        MainWindow.setTabOrder(self.w21_center_lineEdit,
+                               self.w22_center_lineEdit)
+        MainWindow.setTabOrder(self.w22_center_lineEdit, self.w11_rms_lineEdit)
+        MainWindow.setTabOrder(self.w11_rms_lineEdit, self.w21_rms_lineEdit)
+        MainWindow.setTabOrder(self.w21_rms_lineEdit, self.w22_rms_lineEdit)
+        MainWindow.setTabOrder(self.w22_rms_lineEdit, self.xc_lineEdit)
+        MainWindow.setTabOrder(self.xc_lineEdit, self.yc_lineEdit)
+        MainWindow.setTabOrder(self.yc_lineEdit, self.uc_lineEdit)
+        MainWindow.setTabOrder(self.uc_lineEdit, self.vc_lineEdit)
+        MainWindow.setTabOrder(self.vc_lineEdit, self.xrms_lineEdit)
+        MainWindow.setTabOrder(self.xrms_lineEdit, self.yrms_lineEdit)
+        MainWindow.setTabOrder(self.yrms_lineEdit, self.urms_lineEdit)
+        MainWindow.setTabOrder(self.urms_lineEdit, self.vrms_lineEdit)
+        MainWindow.setTabOrder(self.vrms_lineEdit, self.xrms90_lineEdit)
+        MainWindow.setTabOrder(self.xrms90_lineEdit, self.yrms90_lineEdit)
+        MainWindow.setTabOrder(self.yrms90_lineEdit, self.urms90_lineEdit)
+        MainWindow.setTabOrder(self.urms90_lineEdit, self.vrms90_lineEdit)
+        MainWindow.setTabOrder(self.vrms90_lineEdit, self.xrms99_lineEdit)
+        MainWindow.setTabOrder(self.xrms99_lineEdit, self.yrms99_lineEdit)
+        MainWindow.setTabOrder(self.yrms99_lineEdit, self.urms99_lineEdit)
+        MainWindow.setTabOrder(self.urms99_lineEdit, self.vrms99_lineEdit)
+        MainWindow.setTabOrder(self.vrms99_lineEdit, self.cxy_lineEdit)
+        MainWindow.setTabOrder(self.cxy_lineEdit, self.cxy90_lineEdit)
+        MainWindow.setTabOrder(self.cxy90_lineEdit, self.cxy99_lineEdit)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -1381,7 +1495,7 @@ class Ui_MainWindow(object):
         self.label_9.setText(_translate("MainWindow", "Wire Offsets"))
         self.label.setText(_translate("MainWindow", "Select Device"))
         self.label_6.setText(_translate("MainWindow", "Start Pos (Fork2)"))
-        self.label_8.setText(_translate("MainWindow", "Stop Pos (Fork2)"))
+        self.label_8.setText(_translate("MainWindow", "Stop Pos (Fork1)"))
         self.label_3.setText(_translate("MainWindow", "Type"))
         self.label_2.setText(_translate("MainWindow", "Configuration"))
         self.label_4.setText(_translate("MainWindow", "Coordinate"))
