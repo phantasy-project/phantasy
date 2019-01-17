@@ -276,8 +276,8 @@ class CaField(object):
     ensure_put : bool
         Apply ensure set operation or not, default is False, see the notes.
     tolerance : float
-        Tolerance for the difference between current field value and
-        the one the field would like to finally reach, default is 0.2.
+        Tolerance for the relative discrepancy between current readback value
+        and the set goal, default is 0.01, which is 1% discrepancy.
     ename : str
         Name of element which the field attaches to.
     readback : str, list(str)
@@ -392,14 +392,14 @@ class CaField(object):
 
     @property
     def tolerance(self):
-        """float: Tolerance for the difference between current field value and
-        the one the field would like to finally reach, default is 0.2."""
+        """float: Tolerance for the relative discrepancy between current
+        readback value and the set goal, default is 0.01."""
         return self._tolerance
 
     @tolerance.setter
     def tolerance(self, x):
         if x is None:
-            self._tolerance = 0.2
+            self._tolerance = 0.01
         else:
             self._tolerance = float(x)
 
@@ -1002,7 +1002,7 @@ class CaElement(BaseElement):
                            pv_policy=pv_policy_phy)
 
     def set_field(self, field, pv, handle=None, **kws):
-        """Set element field with CA support.
+        """Set element field with CA support, i.e. dynamic field.
 
         Parameters
         ----------
