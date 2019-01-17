@@ -374,7 +374,7 @@ class CaField(object):
     @tolerance.setter
     def tolerance(self, x):
         if x is None:
-            self._tolerance = 1e-3
+            self._tolerance = 0.2
         else:
             self._tolerance = float(x)
 
