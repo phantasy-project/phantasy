@@ -49,7 +49,9 @@ class DeviceRunner(QObject):
                 print(f.__name__)
                 time.sleep(2)
             else:
-                print("{} is running".format(f.__name__))
+                print("-" * 40)
+                print("'{}' is running...".format(f.__name__))
+                print("-" * 40 + "\n")
                 f()
             self.count += 1
         self.send_results()
