@@ -270,8 +270,8 @@ class CaField(object):
     timeout : float
         Time out in second for put operation, default is 10 seconds.
     tolerance : float
-        Tolerance for the difference between current field value and the
-        goal, default is 1e-3.
+        Tolerance for the difference between current field value and
+        the one the field would like to finally reach, default is 0.2.
     ename : str
         Name of element which the field attaches to.
 
@@ -368,7 +368,7 @@ class CaField(object):
     @property
     def tolerance(self):
         """float: Tolerance for the difference between current field value and
-        the goal, default is 1e-3."""
+        the one the field would like to finally reach, default is 0.2."""
         return self._tolerance
 
     @tolerance.setter
@@ -546,7 +546,7 @@ class CaField(object):
 
     @property
     def value(self):
-        """Get value of PV, returned from CA request."""
+        """Get current field readback value, returned from CA request."""
         return self.read_policy(self.readback_pv)
 
     @value.setter
