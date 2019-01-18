@@ -863,6 +863,10 @@ class CaElement(BaseElement):
 
         self.last_settings = {}
         self.design_settings = {}
+        # unicorn laws, {'fname1': <fn>, 'fname2':...}
+        # if 'fname' is physics unit, <fn> converts from physics to engineering
+        # if 'fname' is engineering unit, <fn> converts from engineering to physics
+        self.__unicorn = {}
 
         pv_data = kws.get('pv_data', None)
         if pv_data is not None:
@@ -992,12 +996,15 @@ class CaElement(BaseElement):
             pv_policy_phy = PV_POLICIES.get(pv_policy_str)
             self._unicorn_e2p = lambda x:x
             self._unicorn_p2e = lambda x:x
+
         pv = kws.get('pv', None)
         #
         if field_name is not None:
+            self.__unicorn[field_name] = u_policy['p']
             self.set_field(field_name, pv, handle_name, ftype='ENG',
                            pv_policy=pv_policy)
         if field_name_phy is not None:
+            self.__unicorn[field_name_phy] = u_policy['n']
             self.set_field(field_name_phy, pv, handle_name, ftype='PHY',
                            pv_policy=pv_policy_phy)
 
@@ -1224,6 +1231,39 @@ class CaElement(BaseElement):
                           "'readback', 'readset', 'setpoint'.")
                     break
         return flatten(pvs)
+
+    def convert(self, value, field):
+        """Interpret the *value* of *field* of element, if *field* is physics
+        field, returned one is in engineering unit; if *field* is engineering
+        field, returned one is in physics unit.
+
+        Parameters
+        ----------
+        value : float
+            Value of field, no necessary be the current online reading.
+        field : str
+            Field name of element.
+
+        Returns
+        -------
+        r : float
+            Value Interpreted in another unit, from physics engineering or
+            from engineering to physics, depends on the field type.
+
+        Examples
+        --------
+        >>> mp = MachinePortal("FRIB", "MEBT")
+        >>> quad = mp.get_elements(type='QUAD', name='*D1078*')[0]
+        >>> # convert I = 100 A, to gradient 15.177 T/m
+        >>> quad.convert(value=100, field='I')
+        15.17734389601
+        >>> quad.convert(value=15, field='GRAD')
+        98.7534891752199
+        """
+        if field not in self.__unicorn:
+            _LOGGER.warning("Invalid field name.")
+            return
+        return self.__unicorn[field](value)
 
 
 def main():
