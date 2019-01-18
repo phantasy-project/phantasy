@@ -996,6 +996,7 @@ class CaElement(BaseElement):
             pv_policy_phy = PV_POLICIES.get(pv_policy_str)
             self._unicorn_e2p = lambda x:x
             self._unicorn_p2e = lambda x:x
+            u_policy = {'n': lambda x:x, 'p': lambda x:x}
 
         pv = kws.get('pv', None)
         #
