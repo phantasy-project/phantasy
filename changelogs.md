@@ -1,3 +1,10 @@
+Version 1.8.7
+-------------
+2019-01-18
+
+- PHANTASY core:
+  - CaElement: convert() to interpret value of field between PHY and ENG units.
+
 Version 1.8.6
 -------------
 2019-01-17
