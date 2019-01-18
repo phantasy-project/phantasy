@@ -12,11 +12,17 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1600, 1200)
+        MainWindow.resize(1920, 1440)
+        icon = QtGui.QIcon()
+        icon.addPixmap(
+            QtGui.QPixmap(":/icons/qs.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        MainWindow.setWindowIcon(icon)
         MainWindow.setStyleSheet(
             "QGroupBox {\n"
-            "    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
-            "                                      stop: 0 #E0E0E0, stop: 1 #FFFFFF);\n"
+            "    /*background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
+            "                                      stop: 0 #E0E0E0, stop: 1 #E0E0E0);\n"
+            "   */\n"
             "    border: 2px solid gray;\n"
             "    border-radius: 5px;\n"
             "    margin-top: 1.5ex; /* leave space at the top for the title */\n"
@@ -27,13 +33,22 @@ class Ui_MainWindow(object):
             "    subcontrol-origin: margin;\n"
             "    subcontrol-position: top center; /* position at the top center */\n"
             "    padding: 0 3px;\n"
-            "    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
+            "    /*background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
             "                                      stop: 0 #EDECEB, stop: 1 #FFFFFF);\n"
+            "    */\n"
+            "}\n"
+            "\n"
+            "QLineEdit {\n"
+            "    border: 0.5px solid gray;\n"
+            "    padding: 1 5px;\n"
+            "    border-radius: 3px;\n"
             "}")
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
-        self.gridLayout_9 = QtWidgets.QGridLayout(self.centralwidget)
-        self.gridLayout_9.setObjectName("gridLayout_9")
+        self.gridLayout_6 = QtWidgets.QGridLayout(self.centralwidget)
+        self.gridLayout_6.setObjectName("gridLayout_6")
+        self.verticalLayout_4 = QtWidgets.QVBoxLayout()
+        self.verticalLayout_4.setObjectName("verticalLayout_4")
         self.data_info_groupBox = QtWidgets.QGroupBox(self.centralwidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
                                            QtWidgets.QSizePolicy.Preferred)
@@ -42,19 +57,10 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(
             self.data_info_groupBox.sizePolicy().hasHeightForWidth())
         self.data_info_groupBox.setSizePolicy(sizePolicy)
-        self.data_info_groupBox.setStyleSheet("QLineEdit {\n"
-                                              "    font-family: monospace;\n"
-                                              "    color: blue;\n"
-                                              "    border: 0.5px solid gray;\n"
-                                              "    border-radius: 5px;\n"
-                                              "    padding: 0 2px;\n"
-                                              "}")
+        self.data_info_groupBox.setStyleSheet("")
         self.data_info_groupBox.setObjectName("data_info_groupBox")
         self.gridLayout_2 = QtWidgets.QGridLayout(self.data_info_groupBox)
         self.gridLayout_2.setObjectName("gridLayout_2")
-        self.label_2 = QtWidgets.QLabel(self.data_info_groupBox)
-        self.label_2.setObjectName("label_2")
-        self.gridLayout_2.addWidget(self.label_2, 0, 0, 1, 1)
         self.data_ts_created_lineEdit = QtWidgets.QLineEdit(
             self.data_info_groupBox)
         self.data_ts_created_lineEdit.setStyleSheet("")
@@ -73,37 +79,37 @@ class Ui_MainWindow(object):
         self.label_4 = QtWidgets.QLabel(self.data_info_groupBox)
         self.label_4.setObjectName("label_4")
         self.gridLayout_2.addWidget(self.label_4, 0, 5, 1, 1)
-        self.data_size_lineEdit = QtWidgets.QLineEdit(self.data_info_groupBox)
-        self.data_size_lineEdit.setStyleSheet("")
-        self.data_size_lineEdit.setReadOnly(True)
-        self.data_size_lineEdit.setObjectName("data_size_lineEdit")
-        self.gridLayout_2.addWidget(self.data_size_lineEdit, 0, 6, 1, 1)
-        self.label_34 = QtWidgets.QLabel(self.data_info_groupBox)
-        self.label_34.setObjectName("label_34")
-        self.gridLayout_2.addWidget(self.label_34, 0, 7, 1, 1)
         self.scan_range_lineEdit = QtWidgets.QLineEdit(self.data_info_groupBox)
         self.scan_range_lineEdit.setStyleSheet("")
         self.scan_range_lineEdit.setReadOnly(True)
         self.scan_range_lineEdit.setObjectName("scan_range_lineEdit")
         self.gridLayout_2.addWidget(self.scan_range_lineEdit, 0, 8, 1, 1)
+        self.data_size_lineEdit = QtWidgets.QLineEdit(self.data_info_groupBox)
+        self.data_size_lineEdit.setStyleSheet("")
+        self.data_size_lineEdit.setReadOnly(True)
+        self.data_size_lineEdit.setObjectName("data_size_lineEdit")
+        self.gridLayout_2.addWidget(self.data_size_lineEdit, 0, 6, 1, 1)
+        self.label_2 = QtWidgets.QLabel(self.data_info_groupBox)
+        self.label_2.setObjectName("label_2")
+        self.gridLayout_2.addWidget(self.label_2, 0, 0, 1, 1)
+        self.label_34 = QtWidgets.QLabel(self.data_info_groupBox)
+        self.label_34.setObjectName("label_34")
+        self.gridLayout_2.addWidget(self.label_34, 0, 7, 1, 1)
         self.label_5 = QtWidgets.QLabel(self.data_info_groupBox)
         self.label_5.setObjectName("label_5")
-        self.gridLayout_2.addWidget(self.label_5, 1, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.label_5, 3, 0, 1, 1)
         self.quad_name_lineEdit = QtWidgets.QLineEdit(self.data_info_groupBox)
         self.quad_name_lineEdit.setStyleSheet("")
         self.quad_name_lineEdit.setReadOnly(True)
         self.quad_name_lineEdit.setObjectName("quad_name_lineEdit")
-        self.gridLayout_2.addWidget(self.quad_name_lineEdit, 1, 1, 1, 1)
+        self.gridLayout_2.addWidget(self.quad_name_lineEdit, 3, 1, 1, 1)
         self.label_6 = QtWidgets.QLabel(self.data_info_groupBox)
         self.label_6.setObjectName("label_6")
-        self.gridLayout_2.addWidget(self.label_6, 1, 2, 1, 1)
-        self.monitor_names_lineEdit = QtWidgets.QLineEdit(
-            self.data_info_groupBox)
-        self.monitor_names_lineEdit.setStyleSheet("")
-        self.monitor_names_lineEdit.setReadOnly(True)
-        self.monitor_names_lineEdit.setObjectName("monitor_names_lineEdit")
-        self.gridLayout_2.addWidget(self.monitor_names_lineEdit, 1, 3, 1, 6)
-        self.gridLayout_9.addWidget(self.data_info_groupBox, 0, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.label_6, 3, 2, 1, 1)
+        self.monitors_cbb = QtWidgets.QComboBox(self.data_info_groupBox)
+        self.monitors_cbb.setObjectName("monitors_cbb")
+        self.gridLayout_2.addWidget(self.monitors_cbb, 3, 3, 1, 6)
+        self.verticalLayout_4.addWidget(self.data_info_groupBox)
         self.hsplitter = QtWidgets.QSplitter(self.centralwidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
                                            QtWidgets.QSizePolicy.Preferred)
@@ -138,6 +144,8 @@ class Ui_MainWindow(object):
         self.matplotliberrorbarWidget = MatplotlibErrorbarWidget(
             self.scan_data_plot_groupBox)
         self.matplotliberrorbarWidget.setFigureAutoScale(True)
+        self.matplotliberrorbarWidget.setFigureXlabel("")
+        self.matplotliberrorbarWidget.setFigureYlabel("")
         self.matplotliberrorbarWidget.setObjectName("matplotliberrorbarWidget")
         self.gridLayout.addWidget(self.matplotliberrorbarWidget, 0, 0, 1, 1)
         self.beam_info_groupBox = QtWidgets.QGroupBox(self.vsplitter)
@@ -157,31 +165,25 @@ class Ui_MainWindow(object):
         self.ref_IonZ_lineEdit = QtWidgets.QLineEdit(self.beam_info_groupBox)
         self.ref_IonZ_lineEdit.setObjectName("ref_IonZ_lineEdit")
         self.gridLayout_3.addWidget(self.ref_IonZ_lineEdit, 0, 1, 1, 1)
-        self.label = QtWidgets.QLabel(self.beam_info_groupBox)
-        self.label.setObjectName("label")
-        self.gridLayout_3.addWidget(self.label, 1, 0, 1, 1)
-        self.ref_beta_lineEdit = QtWidgets.QLineEdit(self.beam_info_groupBox)
-        self.ref_beta_lineEdit.setObjectName("ref_beta_lineEdit")
-        self.gridLayout_3.addWidget(self.ref_beta_lineEdit, 1, 1, 1, 1)
         self.label_9 = QtWidgets.QLabel(self.beam_info_groupBox)
         self.label_9.setObjectName("label_9")
-        self.gridLayout_3.addWidget(self.label_9, 2, 0, 1, 1)
-        self.ref_IonW_lineEdit = QtWidgets.QLineEdit(self.beam_info_groupBox)
-        self.ref_IonW_lineEdit.setObjectName("ref_IonW_lineEdit")
-        self.gridLayout_3.addWidget(self.ref_IonW_lineEdit, 2, 1, 1, 1)
+        self.gridLayout_3.addWidget(self.label_9, 1, 0, 1, 1)
+        self.ref_IonEk_lineEdit = QtWidgets.QLineEdit(self.beam_info_groupBox)
+        self.ref_IonEk_lineEdit.setObjectName("ref_IonEk_lineEdit")
+        self.gridLayout_3.addWidget(self.ref_IonEk_lineEdit, 1, 1, 1, 1)
         self.label_17 = QtWidgets.QLabel(self.beam_info_groupBox)
         self.label_17.setObjectName("label_17")
-        self.gridLayout_3.addWidget(self.label_17, 3, 0, 1, 1)
+        self.gridLayout_3.addWidget(self.label_17, 2, 0, 1, 1)
         self.quad_length_lineEdit = QtWidgets.QLineEdit(
             self.beam_info_groupBox)
         self.quad_length_lineEdit.setObjectName("quad_length_lineEdit")
-        self.gridLayout_3.addWidget(self.quad_length_lineEdit, 3, 1, 1, 1)
+        self.gridLayout_3.addWidget(self.quad_length_lineEdit, 2, 1, 1, 1)
         self.label_18 = QtWidgets.QLabel(self.beam_info_groupBox)
         self.label_18.setObjectName("label_18")
-        self.gridLayout_3.addWidget(self.label_18, 4, 0, 1, 1)
+        self.gridLayout_3.addWidget(self.label_18, 3, 0, 1, 1)
         self.distance_lineEdit = QtWidgets.QLineEdit(self.beam_info_groupBox)
         self.distance_lineEdit.setObjectName("distance_lineEdit")
-        self.gridLayout_3.addWidget(self.distance_lineEdit, 4, 1, 1, 1)
+        self.gridLayout_3.addWidget(self.distance_lineEdit, 3, 1, 1, 1)
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.autofill_beam_info_pushButton = QtWidgets.QPushButton(
@@ -205,7 +207,7 @@ class Ui_MainWindow(object):
                                     "}")
         self.label_35.setObjectName("label_35")
         self.horizontalLayout.addWidget(self.label_35)
-        self.gridLayout_3.addLayout(self.horizontalLayout, 5, 1, 1, 1)
+        self.gridLayout_3.addLayout(self.horizontalLayout, 4, 1, 1, 1)
         self.data_analysis_groupBox = QtWidgets.QGroupBox(self.hsplitter)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
                                            QtWidgets.QSizePolicy.Preferred)
@@ -218,9 +220,20 @@ class Ui_MainWindow(object):
         self.gridLayout_4 = QtWidgets.QGridLayout(self.data_analysis_groupBox)
         self.gridLayout_4.setObjectName("gridLayout_4")
         self.toolbox = QtWidgets.QToolBox(self.data_analysis_groupBox)
+        self.toolbox.setStyleSheet(
+            "QToolBox::tab {\n"
+            "    background: lightgray;\n"
+            "    border-radius: 5px;\n"
+            "    color: darkgray;\n"
+            "}\n"
+            "\n"
+            "QToolBox::tab:selected { /* italicize selected tabs */\n"
+            "    font: italic;\n"
+            "    color: green;\n"
+            "}")
         self.toolbox.setObjectName("toolbox")
         self.page_params = QtWidgets.QWidget()
-        self.page_params.setGeometry(QtCore.QRect(0, 0, 680, 892))
+        self.page_params.setGeometry(QtCore.QRect(0, 0, 697, 1120))
         self.page_params.setObjectName("page_params")
         self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.page_params)
         self.verticalLayout_2.setObjectName("verticalLayout_2")
@@ -406,7 +419,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_2.addWidget(self.twiss_output_groupBox)
         self.toolbox.addItem(self.page_params, "")
         self.page_formulae = QtWidgets.QWidget()
-        self.page_formulae.setGeometry(QtCore.QRect(0, 0, 854, 877))
+        self.page_formulae.setGeometry(QtCore.QRect(0, 0, 854, 1107))
         self.page_formulae.setStyleSheet("QLabel {\n"
                                          "    padding: 5px 10px;\n"
                                          "}")
@@ -446,10 +459,11 @@ class Ui_MainWindow(object):
         self.verticalLayout.addItem(spacerItem)
         self.toolbox.addItem(self.page_formulae, "")
         self.gridLayout_4.addWidget(self.toolbox, 0, 0, 1, 1)
-        self.gridLayout_9.addWidget(self.hsplitter, 1, 0, 1, 1)
+        self.verticalLayout_4.addWidget(self.hsplitter)
+        self.gridLayout_6.addLayout(self.verticalLayout_4, 0, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1600, 32))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1920, 30))
         self.menubar.setObjectName("menubar")
         self.menu_File = QtWidgets.QMenu(self.menubar)
         self.menu_File.setObjectName("menu_File")
@@ -479,6 +493,8 @@ class Ui_MainWindow(object):
         self.actionOpen.triggered.connect(MainWindow.onOpen)
         self.fit_pushButton.clicked.connect(MainWindow.on_fit_parabola)
         self.sync_coefs_pushButton.clicked.connect(MainWindow.on_sync_coefs)
+        self.autofill_beam_info_pushButton.clicked.connect(
+            MainWindow.on_autofill_beam_params)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -486,18 +502,14 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.data_info_groupBox.setTitle(
             _translate("MainWindow", "Quad Scan Emittance Measurement"))
-        self.label_2.setText(_translate("MainWindow", "Data Created"))
         self.label_3.setText(_translate("MainWindow", "Task Duration [sec]"))
         self.label_4.setText(_translate("MainWindow", "Data Size"))
+        self.label_2.setText(_translate("MainWindow", "Data Created"))
         self.label_34.setText(_translate("MainWindow", "Scan Range"))
         self.label_5.setText(_translate("MainWindow", "Quadrupole"))
         self.label_6.setText(_translate("MainWindow", "Beam Size Monitor"))
         self.scan_data_plot_groupBox.setTitle(
             _translate("MainWindow", "Data Visualization"))
-        self.matplotliberrorbarWidget.setFigureXlabel(
-            _translate("MainWindow", "Quad Gradient [T/m]"))
-        self.matplotliberrorbarWidget.setFigureYlabel(
-            _translate("MainWindow", "$\\sigma$ [m]"))
         self.beam_info_groupBox.setTitle(
             _translate("MainWindow", "Accelerator Beam Infomation"))
         self.label_8.setText(_translate("MainWindow", "Q/A"))
@@ -505,30 +517,18 @@ class Ui_MainWindow(object):
             _translate(
                 "MainWindow",
                 "<html><head/><body><p>Charg mass ratio</p></body></html>"))
-        self.ref_IonZ_lineEdit.setText(_translate("MainWindow", "0.138655"))
-        self.label.setText(
-            _translate(
-                "MainWindow",
-                "<html><head/><body><p>Ion Speed (<span style=\" font-weight:600; font-style:italic;\">β</span>)</p></body></html>"
-            ))
-        self.ref_beta_lineEdit.setToolTip(
-            _translate(
-                "MainWindow",
-                "<html><head/><body><p>Ion speed in the unit of light velocity of reference charge state</p></body></html>"
-            ))
-        self.ref_beta_lineEdit.setText(_translate("MainWindow", "0.18898"))
+        self.ref_IonZ_lineEdit.setText(_translate("MainWindow", "0.225"))
         self.label_9.setText(
             _translate(
                 "MainWindow",
-                "<html><head/><body><p>Ion Energy (<span style=\" font-weight:600; font-style:italic;\">W</span>)</p></body></html>"
+                "<html><head/><body><p>Ion Kinetic Energy (<span style=\" font-weight:600; font-style:italic;\">E</span><span style=\" font-weight:600; font-style:italic; vertical-align:sub;\">k</span>)</p></body></html>"
             ))
-        self.ref_IonW_lineEdit.setToolTip(
+        self.ref_IonEk_lineEdit.setToolTip(
             _translate(
                 "MainWindow",
                 "<html><head/><body><p>Total energy of reference charge state [eV/u]</p></body></html>"
             ))
-        self.ref_IonW_lineEdit.setText(
-            _translate("MainWindow", "948587559.7936388"))
+        self.ref_IonEk_lineEdit.setText(_translate("MainWindow", "500000"))
         self.label_17.setText(
             _translate(
                 "MainWindow",
@@ -539,7 +539,7 @@ class Ui_MainWindow(object):
                 "MainWindow",
                 "<html><head/><body><p>The length of selected quadrupole [m]</p></body></html>"
             ))
-        self.quad_length_lineEdit.setText(_translate("MainWindow", "0.25"))
+        self.quad_length_lineEdit.setText(_translate("MainWindow", "0.1"))
         self.label_18.setToolTip(
             _translate(
                 "MainWindow",
@@ -555,7 +555,7 @@ class Ui_MainWindow(object):
                 "MainWindow",
                 "<html><head/><body><p>Distance between the quad and the profile monitor [m]</p></body></html>"
             ))
-        self.distance_lineEdit.setText(_translate("MainWindow", "11.24454"))
+        self.distance_lineEdit.setText(_translate("MainWindow", "1.31"))
         self.autofill_beam_info_pushButton.setText(
             _translate("MainWindow", "Auto"))
         self.label_35.setText(
@@ -720,6 +720,7 @@ class Ui_MainWindow(object):
 
 from mpl4qt.widgets.mplbasewidget import MatplotlibBaseWidget
 from mpl4qt.widgets.mplerrorbarwidget import MatplotlibErrorbarWidget
+from . import resources_rc
 
 if __name__ == "__main__":
     import sys
