@@ -41,22 +41,28 @@ class ScanDataModel(object):
         return self._data.shape
 
     def get_xerr(self, **kws):
-        if kws == {}:
-            return self._std[:, 0]
+        ind = kws.get('ind', 0) # x index
+        skws = {k: v for k in kws if k != 'ind'}
+        if skws == {}:
+            return self._std[:, ind]
         else:
-            return self._data.std(axis=1, **kws)[:, 0]
+            return self._data.std(axis=1, **skws)[:, ind]
 
     def get_yerr(self, **kws):
-        if kws == {}:
-            return self._std[:, 1]
+        ind = kws.get('ind', 1) # y index
+        skws = {k: v for k in kws if k != 'ind'}
+        if skws == {}:
+            return self._std[:, ind]
         else:
-            return self._data.std(axis=1, **kws)[:, 1]
+            return self._data.std(axis=1, **skws)[:, ind]
 
-    def get_xavg(self):
-        return self._avg[:, 0]
+    def get_xavg(self, **kws):
+        ind = kws.get('ind', 0) # x index
+        return self._avg[:, ind]
 
-    def get_yavg(self):
-        return self._avg[:, 1]
+    def get_yavg(self, **kws):
+        ind = kws.get('ind', 1) # y index
+        return self._avg[:, ind]
 
     def get_avg(self):
         """Return array of averages, shape of (t, w).
