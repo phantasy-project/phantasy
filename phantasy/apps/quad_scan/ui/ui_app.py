@@ -419,7 +419,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_2.addWidget(self.twiss_output_groupBox)
         self.toolbox.addItem(self.page_params, "")
         self.page_formulae = QtWidgets.QWidget()
-        self.page_formulae.setGeometry(QtCore.QRect(0, 0, 854, 1107))
+        self.page_formulae.setGeometry(QtCore.QRect(0, 0, 854, 421))
         self.page_formulae.setStyleSheet("QLabel {\n"
                                          "    padding: 5px 10px;\n"
                                          "}")
@@ -587,10 +587,10 @@ class Ui_MainWindow(object):
         self.label_23.setText(_translate("MainWindow", "Fitting method"))
         self.opt_method_comboBox.setItemText(0,
                                              _translate(
-                                                 "MainWindow", "leastsq"))
+                                                 "MainWindow", "powell"))
         self.opt_method_comboBox.setItemText(1,
                                              _translate(
-                                                 "MainWindow", "powell"))
+                                                 "MainWindow", "leastsq"))
         self.opt_method_comboBox.setItemText(2,
                                              _translate(
                                                  "MainWindow", "nelder"))
