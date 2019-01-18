@@ -497,29 +497,29 @@ class Ui_MainWindow(object):
                                            QtWidgets.QSizePolicy.Expanding,
                                            QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_3.addItem(spacerItem)
-        self.hide_curve2_btn = QtWidgets.QToolButton(self.groupBox)
-        self.hide_curve2_btn.setStyleSheet("")
+        self.hide_curve1_btn = QtWidgets.QToolButton(self.groupBox)
+        self.hide_curve1_btn.setStyleSheet("")
         icon14 = QtGui.QIcon()
         icon14.addPixmap(
             QtGui.QPixmap(":/icons/u.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.hide_curve2_btn.setIcon(icon14)
-        self.hide_curve2_btn.setIconSize(QtCore.QSize(24, 24))
-        self.hide_curve2_btn.setCheckable(True)
-        self.hide_curve2_btn.setAutoRaise(True)
-        self.hide_curve2_btn.setObjectName("hide_curve2_btn")
-        self.horizontalLayout_3.addWidget(self.hide_curve2_btn)
-        self.hide_curve1_btn = QtWidgets.QToolButton(self.groupBox)
-        icon15 = QtGui.QIcon()
-        icon15.addPixmap(
-            QtGui.QPixmap(":/icons/v.png"), QtGui.QIcon.Normal,
-            QtGui.QIcon.Off)
-        self.hide_curve1_btn.setIcon(icon15)
+        self.hide_curve1_btn.setIcon(icon14)
         self.hide_curve1_btn.setIconSize(QtCore.QSize(24, 24))
         self.hide_curve1_btn.setCheckable(True)
         self.hide_curve1_btn.setAutoRaise(True)
         self.hide_curve1_btn.setObjectName("hide_curve1_btn")
         self.horizontalLayout_3.addWidget(self.hide_curve1_btn)
+        self.hide_curve2_btn = QtWidgets.QToolButton(self.groupBox)
+        icon15 = QtGui.QIcon()
+        icon15.addPixmap(
+            QtGui.QPixmap(":/icons/v.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.hide_curve2_btn.setIcon(icon15)
+        self.hide_curve2_btn.setIconSize(QtCore.QSize(24, 24))
+        self.hide_curve2_btn.setCheckable(True)
+        self.hide_curve2_btn.setAutoRaise(True)
+        self.hide_curve2_btn.setObjectName("hide_curve2_btn")
+        self.horizontalLayout_3.addWidget(self.hide_curve2_btn)
         self.hide_curve3_btn = QtWidgets.QToolButton(self.groupBox)
         icon16 = QtGui.QIcon()
         icon16.addPixmap(
@@ -643,9 +643,15 @@ class Ui_MainWindow(object):
         self.wpos1_right_lineEdit.setObjectName("wpos1_right_lineEdit")
         self.gridLayout_5.addWidget(self.wpos1_right_lineEdit, 1, 4, 1, 1)
         self.label_39 = QtWidgets.QLabel(self.adv_analysis_groupBox)
+        self.label_39.setStyleSheet("QLabel {\n"
+                                    "    color: rgb(255, 0, 0);\n"
+                                    "}")
         self.label_39.setObjectName("label_39")
         self.gridLayout_5.addWidget(self.label_39, 1, 1, 1, 1)
         self.label_40 = QtWidgets.QLabel(self.adv_analysis_groupBox)
+        self.label_40.setStyleSheet("QLabel {\n"
+                                    "    color: rgb(255, 142, 43);\n"
+                                    "}")
         self.label_40.setObjectName("label_40")
         self.gridLayout_5.addWidget(self.label_40, 3, 1, 1, 1)
         self.wpos2_left_lineEdit = QtWidgets.QLineEdit(
@@ -657,6 +663,9 @@ class Ui_MainWindow(object):
         self.wpos3_left_lineEdit.setObjectName("wpos3_left_lineEdit")
         self.gridLayout_5.addWidget(self.wpos3_left_lineEdit, 3, 3, 1, 1)
         self.label_13 = QtWidgets.QLabel(self.adv_analysis_groupBox)
+        self.label_13.setStyleSheet("QLabel {\n"
+                                    "    color: rgb(31, 119, 180);\n"
+                                    "}")
         self.label_13.setObjectName("label_13")
         self.gridLayout_5.addWidget(self.label_13, 2, 1, 1, 1)
         self.wpos3_right_lineEdit = QtWidgets.QLineEdit(
@@ -1414,9 +1423,9 @@ class Ui_MainWindow(object):
         MainWindow.setTabOrder(self.analyze_btn, self.reset_xyscale_btn)
         MainWindow.setTabOrder(self.reset_xyscale_btn, self.legend_btn)
         MainWindow.setTabOrder(self.legend_btn, self.grid_btn)
-        MainWindow.setTabOrder(self.grid_btn, self.hide_curve2_btn)
-        MainWindow.setTabOrder(self.hide_curve2_btn, self.hide_curve1_btn)
-        MainWindow.setTabOrder(self.hide_curve1_btn, self.hide_curve3_btn)
+        MainWindow.setTabOrder(self.grid_btn, self.hide_curve1_btn)
+        MainWindow.setTabOrder(self.hide_curve1_btn, self.hide_curve2_btn)
+        MainWindow.setTabOrder(self.hide_curve2_btn, self.hide_curve3_btn)
         MainWindow.setTabOrder(self.hide_curve3_btn,
                                self.plot_data_smoving_btn)
         MainWindow.setTabOrder(self.plot_data_smoving_btn,
@@ -1560,18 +1569,18 @@ class Ui_MainWindow(object):
                 "MainWindow",
                 "<html><head/><body><p>Show/hide grid</p></body></html>"))
         self.grid_btn.setText(_translate("MainWindow", "Grid"))
-        self.hide_curve2_btn.setToolTip(
+        self.hide_curve1_btn.setToolTip(
             _translate(
                 "MainWindow",
                 "<html><head/><body><p>Press down to hide curve U</p></body></html>"
             ))
-        self.hide_curve2_btn.setText(_translate("MainWindow", "U"))
-        self.hide_curve1_btn.setToolTip(
+        self.hide_curve1_btn.setText(_translate("MainWindow", "U"))
+        self.hide_curve2_btn.setToolTip(
             _translate(
                 "MainWindow",
                 "<html><head/><body><p>Press down to hide curve V</p></body></html>"
             ))
-        self.hide_curve1_btn.setText(_translate("MainWindow", "V"))
+        self.hide_curve2_btn.setText(_translate("MainWindow", "V"))
         self.hide_curve3_btn.setToolTip(
             _translate(
                 "MainWindow",
