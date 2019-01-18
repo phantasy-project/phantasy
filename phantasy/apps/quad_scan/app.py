@@ -20,8 +20,10 @@ from phantasy.apps.utils import get_open_filename
 from phantasy.apps.correlation_visualizer.data import JSONDataSheet
 from phantasy.apps.correlation_visualizer.data import ScanDataModel
 
+from phantasy import MachinePortal
+
 LIGHT_SPEED = 299792458 # [m/s]
-ION_ES = 9.31494e+08  # rest energy [eV/u]
+ION_ES = 931.49432e+06  # rest energy [eV/u]
 
 # sample point for fitting curve
 N_SAMPLE = 100
@@ -81,6 +83,9 @@ class QuadScanWindow(BaseAppForm, Ui_MainWindow):
         for obj in all_objs:
             obj.setValidator(QDoubleValidator())
 
+        for o in self.findChildren(QLineEdit):
+            o.textChanged.connect(self.highlight_text)
+
         # reset beam_ellipse_plot
         self.beam_ellipse_plot.axes.clear()
         self.beam_ellipse_plot.axes.axis('off')
@@ -97,6 +102,7 @@ class QuadScanWindow(BaseAppForm, Ui_MainWindow):
         self.matplotliberrorbarWidget.setFigureYlabel("$\sigma^2\,\mathrm{[m^2]}$")
         # events
         self.fitCurveChanged[QVariant, QVariant].connect(self.update_fitting_curve)
+        self.matplotliberrorbarWidget.setYTickFormat("Custom", "%.3g")
 
     @pyqtSlot(QVariant, QVariant)
     def update_fitting_curve(self, x, y):
@@ -135,9 +141,10 @@ class QuadScanWindow(BaseAppForm, Ui_MainWindow):
         task_duration_in_sec = data['task']['duration']
         data_shape = data['data']['shape']
         quad_name = data['devices']['alter_element']['name']
-        monitor_names = [m['name'] for m in data['devices']['monitors']]
+        monitors = [(m['name'], m['field']) for m in data['devices']['monitors']]
         scan_range = data['task']['scan_range']
         scan_data_model = ScanDataModel(np.asarray(data['data']['array']))
+        self._scan_data_model = scan_data_model
 
         # fillout lineEdits
         self.data_ts_created_lineEdit.setText(data_ts_created)
@@ -145,28 +152,44 @@ class QuadScanWindow(BaseAppForm, Ui_MainWindow):
         self.data_size_lineEdit.setText(
                 "(niter:{s[0]} nshot:{s[1]} ndim:{s[2]})".format(s=data_shape))
         self.quad_name_lineEdit.setText(quad_name)
-        self.monitor_names_lineEdit.setText(','.join(monitor_names))
+
+        self.monitors_cbb.addItems(['{} [{}]'.format(name, field) for name, field in monitors])
+
         self.scan_range_lineEdit.setText('from {smin:.2f} to {smax:.2f} ({snum}) points'.format(
                 smin=min(scan_range), smax=max(scan_range),
                 snum=len(scan_range)))
 
+        # y data event
+        self.monitors_cbb.currentIndexChanged.connect(self.on_update_ydata)
+
+        self.on_update_ydata(0)
+
+    @pyqtSlot(int)
+    def on_update_ydata(self, idx):
+        """Update y data.
+        """
+        ind = idx + 1
         # show data on figure widget
-        x, y = scan_data_model.get_xavg(), scan_data_model.get_yavg()
-        xerr, yerr = scan_data_model.get_xerr(), scan_data_model.get_yerr()
-        self.x, self.y = x, y**2
+        sm = self._scan_data_model
+        x, y = sm.get_xavg(), sm.get_yavg(ind=ind)
+        xerr, yerr = sm.get_xerr(), sm.get_yerr(ind=ind)
+
+        self.x, self.y = x, (y*1e-3)**2
         self.matplotliberrorbarWidget.setEbLineID(0)
         self.matplotliberrorbarWidget.setLineID(0)
-        self.curveUpdated.emit(x, y**2, xerr, yerr)
+        self.curveUpdated.emit(self.x, self.y, xerr, yerr)
 
     @pyqtSlot()
     def on_fit_parabola(self):
         """Fit parabola curve with defined parameters.
         """
         ion_z = float(self.ref_IonZ_lineEdit.text())
-        ion_beta = float(self.ref_beta_lineEdit.text())
-        ion_w = float(self.ref_IonW_lineEdit.text())
+        ion_ek = float(self.ref_IonEk_lineEdit.text())
         l_quad = float(self.quad_length_lineEdit.text())
         l_drift = float(self.distance_lineEdit.text())
+        ion_w = ion_ek + ION_ES
+        ion_gamma = 1 + ion_ek/ION_ES
+        ion_beta = (1 - 1.0/ion_gamma**2)**0.5
         brho = ion_beta * ion_w / ion_z / LIGHT_SPEED
         bg = ion_beta * ion_w / ION_ES
 
@@ -214,6 +237,25 @@ class QuadScanWindow(BaseAppForm, Ui_MainWindow):
         self.coef_a_init_lineEdit.setText(self.coef_a_final_lineEdit.text())
         self.coef_b_init_lineEdit.setText(self.coef_b_final_lineEdit.text())
         self.coef_c_init_lineEdit.setText(self.coef_c_final_lineEdit.text())
+
+    @pyqtSlot()
+    def on_autofill_beam_params(self):
+        """Autofill beam parameters based on current physics model settings
+        """
+        quad_name = self.quad_name_lineEdit.text()
+        pm_name = self.monitors_cbb.currentText().split()[0]
+
+        segment = 'LEBT'
+        if 'MEBT' in quad_name:
+            segment = 'MEBT'
+
+        mp = MachinePortal("FRIB", segment)
+        q = mp.get_elements(name=quad_name)[0]
+        p = mp.get_elements(name=pm_name)[0]
+
+        self.quad_length_lineEdit.setText('{0:.3g}'.format(q.length))
+        self.distance_lineEdit.setText('{0:.3g}'.format(
+            (p.sb + p.se)/2 - (q.se + q.sb)/2))
 
 
 def single_quad_scan_analysis(params, quad_length, drift_length,
