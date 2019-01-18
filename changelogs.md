@@ -1,3 +1,17 @@
+Version 1.8.8
+-------------
+2019-01-18
+
+- PHANTASY core:
+  - Bug fixes: default unicorn policy u_policy should be set
+
+- Wire Scanner App:
+  - Bug fixes: U and V wire legend order
+  - Add color to wire pos window shading buttons
+
+- Quad Scan App:
+  - Make 'powell' as the first fitting method option
+
 Version 1.8.7
 -------------
 2019-01-18
