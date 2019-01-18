@@ -1,3 +1,15 @@
+Version 1.8.6
+-------------
+2019-01-17
+
+- Quad Scan App:
+  - Support both X and Y emittance calculation [see the below update of CV]
+  - Update UI
+  - Implement Autofill beam info button
+
+- Correlation Visualizer App:
+  - Add keyword argument 'ind' to ScanDataModel method to support select columns by index
+
 Version 1.8.5
 -------------
 2019-01-17
