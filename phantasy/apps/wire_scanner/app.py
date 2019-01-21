@@ -121,6 +121,16 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         self.offset2_lineEdit.returnPressed.connect(partial(self.on_update_offsets, 2))
         self.offset3_lineEdit.returnPressed.connect(partial(self.on_update_offsets, 3))
 
+        # scan range
+        self.start_pos1_lineEdit.returnPressed.connect(partial(
+            self.on_update_scan_range, 1, 'start'))
+        self.start_pos2_lineEdit.returnPressed.connect(partial(
+            self.on_update_scan_range, 2, 'start'))
+        self.stop_pos1_lineEdit.returnPressed.connect(partial(
+            self.on_update_scan_range, 1, 'stop'))
+        self.stop_pos2_lineEdit.returnPressed.connect(partial(
+            self.on_update_scan_range, 2, 'stop'))
+
         # fontsize
         self.fontsize_inc_btn.clicked.connect(partial(self.update_fontsize, '+'))
         self.fontsize_dec_btn.clicked.connect(partial(self.update_fontsize, '-'))
@@ -254,6 +264,11 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
     def on_run_device(self):
         """Run device in the all-in-one style.
         """
+        #
+        print("Scan range: START {}".format(self._ws_device.scan_start_pos))
+        print("Scan range: STOP {}".format(self._ws_device.scan_stop_pos))
+        #
+
         oplist = [
             'init_potentiometer',
             'enable_scan',
@@ -908,8 +923,38 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         self._dconf.set(pm, 'wire_pos_offset',
                 ' '.join(str(i) for i in woffsets))
         print("After changing...")
+        print("Config read:")
         print(self._dconf.getarray(pm, 'wire_pos_offset'))
 
+    @pyqtSlot()
+    def on_update_scan_range(self, fid, sid):
+        # fid: fork id, 1 or 2
+        # sid: start: 1, stop: 2
+        v = float(self.sender().text())
+        start_pos = self._ws_device.scan_start_pos
+        stop_pos = self._ws_device.scan_stop_pos
+
+        print("Before changing...")
+        print("SCAN START: {}".format(self._ws_device.scan_start_pos))
+        print("SCAN STOP : {}".format(self._ws_device.scan_stop_pos))
+
+        pm = self._current_pm_name
+        if sid == 'start':
+            start_pos[fid - 1] = v
+            # updata config
+            self._dconf.set(pm, 'start_pos_val',
+                    ' '.join(str(i) for i in start_pos))
+        else:
+            stop_pos[fid - 1] = v
+            self._dconf.set(pm, 'stop_pos_val',
+                    ' '.join(str(i) for i in stop_pos))
+
+        print("After changing...")
+        print("SCAN START: {}".format(self._ws_device.scan_start_pos))
+        print("SCAN STOP : {}".format(self._ws_device.scan_stop_pos))
+        print("Config read:")
+        print(self._dconf.getarray(pm, 'start_pos_val'))
+        print(self._dconf.getarray(pm, 'stop_pos_val'))
 
 def _get_element_name(data):
     # get element from loaded data dict.
