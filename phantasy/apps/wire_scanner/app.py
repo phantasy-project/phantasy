@@ -103,6 +103,8 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         self._wpos1_art = None
         self._wpos2_art = None
         self._wpos3_art = None
+        # default outlimit val
+        self.__outlimit_val = 110  # mm
         # default lineEdit fontsize
         self.__default_lineEdit_fontsize = self.w11_sum_lineEdit.font().pointSize()
 
@@ -130,6 +132,9 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
             self.on_update_scan_range, 1, 'stop'))
         self.stop_pos2_lineEdit.returnPressed.connect(partial(
             self.on_update_scan_range, 2, 'stop'))
+
+        # outlimit set
+        self.outlimit_lineEdit.returnPressed.connect(self.on_update_outlimit)
 
         # fontsize
         self.fontsize_inc_btn.clicked.connect(partial(self.update_fontsize, '+'))
@@ -253,12 +258,12 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         self.offset2_lineEdit.setText(str(ws.wire_offset[1]))
         self.offset3_lineEdit.setText(str(ws.wire_offset[2]))
 
-    def run_device(self, what_to_do, evt_sender):
+    def run_device(self, what_to_do, evt_sender, **kws):
         if self._ws_device is None:
             return
         device = self._ws_device
         oplist = [getattr(device, i) for i in what_to_do]
-        self.__run_device(oplist, evt_sender, device)
+        self.__run_device(oplist, evt_sender, device, **kws)
 
     @pyqtSlot()
     def on_run_device(self):
@@ -309,12 +314,25 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
     @pyqtSlot()
     def on_init_motor_pos(self):
         oplist = ['init_motor_pos']
-        self.run_device(oplist, self.sender(), )
+        self.run_device(oplist, self.sender(), outlimit_val=self.__outlimit_val)
 
     @pyqtSlot()
     def on_set_scan_range(self):
+        start1 = self.startpos1_lineEdit.text()
+        start2 = self.startpos2_lineEdit.text()
+        stop1 = self.stoppos1_lineEdit.text()
+        stop2 = self.stoppos2_lineEdit.text()
+        if start1 and start2:
+            start = [float(start1), float(start2)]
+        else:
+            start = self._ws_device.scan_start_pos
+        if stop1 and stop2:
+            stop = [float(stop1), float(stop2)]
+        else:
+            stop = self._ws_device.scan_stop_pos
+
         oplist = ['set_scan_range']
-        self.run_device(oplist, self.sender())
+        self.run_device(oplist, self.sender(), start=start, stop=stop)
 
     @pyqtSlot(float, 'QString')
     def update_progress_bar(self, x, s):
@@ -790,13 +808,13 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
             getattr(self, 'wpos{}_left_lineEdit'.format(i+1)).setText('{0:.5g}'.format(sl))
             getattr(self, 'wpos{}_right_lineEdit'.format(i+1)).setText('{0:.5g}'.format(sr))
 
-    def __run_device(self, oplist, sender_obj, device):
+    def __run_device(self, oplist, sender_obj, device, **kws):
         self.run_progressbar.setVisible(True)
         self.emstop_btn.setVisible(True)
         self.run_progressbar.setValue(0)
         self.thread = QThread()
 
-        self.device_runner = DeviceRunner(oplist, device, self._device_mode)
+        self.device_runner = DeviceRunner(oplist, device, self._device_mode, **kws)
         self.device_runner.moveToThread(self.thread)
         self.device_runner.update_progress.connect(self.update_progress_bar)
         self.device_runner.sync_data.connect(self.on_sync_data)
@@ -955,6 +973,19 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         print("Config read:")
         print(self._dconf.getarray(pm, 'start_pos_val'))
         print(self._dconf.getarray(pm, 'stop_pos_val'))
+
+    @pyqtSlot()
+    def on_reset_outlimit_setpoint(self):
+        """Reset outlimit setpoint to 110.
+        """
+        self.outlimit_lineEdit.setText('110')
+
+    @pyqtSlot()
+    def on_update_outlimit(self):
+        """Update outlimit setpoint.
+        """
+        self.__outlimit_val = float(self.sender().text())
+
 
 def _get_element_name(data):
     # get element from loaded data dict.
