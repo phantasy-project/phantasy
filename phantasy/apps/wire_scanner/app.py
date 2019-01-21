@@ -462,6 +462,8 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
             # locate device combobox
             self.pm_names_cbb.setCurrentText(ename)
             self._ws_device.sync_data(mode='file', filename=filepath)
+            # new PMData instance
+            self._ws_data = PMData(self._ws_device)
         except:
             QMessageBox.critical(self, "Load Data",
                     "Failed to load data from {}.".format(filepath),
@@ -470,8 +472,7 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
             QMessageBox.information(self, "Load Data",
                     "Successfully loaded data from {}.".format(filepath),
                     QMessageBox.Ok)
-            # plot data, new PMData instance
-            self._ws_data = PMData(self._ws_device)
+            # plot data
             self.on_plot_raw_data()
             self.on_reset_xyscale()
 
