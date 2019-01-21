@@ -385,7 +385,7 @@ class Device(object):
         for fid, vstart, vstop in zip(self.fork_ids, start, stop):
             setattr(self.elem, '{0}{1}'.format(start_fld_prefix, fid), vstart)
             setattr(self.elem, '{0}{1}'.format(stop_fld_prefix, fid), vstop)
-            print("  Config scan range fork {}: ".format(fid, vstart, vstop))
+            print("  Config scan range fork {}: {}, {}".format(fid, vstart, vstop))
 
     def set_bias_volt(self):
         """Apply bias voltage.
