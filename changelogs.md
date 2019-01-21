@@ -1,3 +1,13 @@
+Version 1.8.9
+-------------
+2019-01-21
+
+- Wire Scanner App:
+  - Support parameter config: scan range, offsets, outlimit value
+  - Update UI
+  - dat2json always updates json filepath when dat filepath changed
+  - update default device config file ws.ini.
+
 Version 1.8.8
 -------------
 2019-01-18
