@@ -34,13 +34,14 @@ class Dat2JsonDialog(QDialog, Ui_Dialog):
         if filepath is None:
             return
         self.datfilepath_lineEdit.setText(filepath)
-        if self.jsonfilepath_lineEdit.text() == '':
-            filename = os.path.basename(filepath)
-            jsonfilename = re.sub(r'(.*).dat', r'\1_mdata.json', filename)
-            jsonfilepath = os.path.join(
-                    os.path.dirname(filepath),
-                    jsonfilename)
-            self.jsonfilepath_lineEdit.setText(jsonfilepath)
+
+        # update jsonfilepath
+        filename = os.path.basename(filepath)
+        jsonfilename = re.sub(r'(.*).dat', r'\1_mdata.json', filename)
+        jsonfilepath = os.path.join(
+                os.path.dirname(filepath),
+                jsonfilename)
+        self.jsonfilepath_lineEdit.setText(jsonfilepath)
 
     @pyqtSlot()
     def on_save_jsonfile(self):
