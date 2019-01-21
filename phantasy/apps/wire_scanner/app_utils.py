@@ -23,9 +23,13 @@ class DeviceRunner(QObject):
         Device object.
     mode : str
         Run simulated mode if "simulation", or work with real device.
+
+    Keyword Arguments
+    -----------------
+    arguments for each operation.
     """
 
-    def __init__(self, func_list, device, mode="simulation"):
+    def __init__(self, func_list, device, mode="simulation", **kws):
         super(DeviceRunner, self).__init__()
         self.count = 0
         self.simu = mode == 'simulation'
@@ -39,6 +43,9 @@ class DeviceRunner(QObject):
         # if emit sync_data after finished
         self._post_sync = np.any([f.__name__ == 'move' for f in func_list])
 
+        # kws
+        self.kws = kws
+
     def run(self):
         while self.run_flag and self.count < self.func_length:
             f = self.func[self.count]
@@ -47,12 +54,13 @@ class DeviceRunner(QObject):
                     f.__name__)
             if self.simu:
                 print(f.__name__)
+                print(self.kws)
                 time.sleep(2)
             else:
                 print("-" * 40)
                 print("'{}' is running...".format(f.__name__))
                 print("-" * 40 + "\n")
-                f()
+                f(**self.kws)
             self.count += 1
         self.send_results()
         self.finished.emit()
