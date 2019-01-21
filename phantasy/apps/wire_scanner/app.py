@@ -116,6 +116,11 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         self.stop_pos1_lineEdit.textChanged.connect(self.stoppos1_lineEdit.setText)
         self.stop_pos2_lineEdit.textChanged.connect(self.stoppos2_lineEdit.setText)
 
+        # offsets
+        self.offset1_lineEdit.returnPressed.connect(partial(self.on_update_offsets, 1))
+        self.offset2_lineEdit.returnPressed.connect(partial(self.on_update_offsets, 2))
+        self.offset3_lineEdit.returnPressed.connect(partial(self.on_update_offsets, 3))
+
         # fontsize
         self.fontsize_inc_btn.clicked.connect(partial(self.update_fontsize, '+'))
         self.fontsize_dec_btn.clicked.connect(partial(self.update_fontsize, '-'))
@@ -682,6 +687,10 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
                     QMessageBox.Ok)
             return
 
+        #
+        print(self._ws_device.wire_offset)
+        #
+
         self.analysis_progressbar.setVisible(True)
         self.thread1 = QThread()
         self.data_analyzer = DataAnalyzer(self._ws_data)
@@ -879,6 +888,26 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         """
         filename = os.path.basename(filepath) + "\n"
         self.matplotlibcurveWidget.setFigureTitle(filename)
+
+    @pyqtSlot()
+    def on_update_offsets(self, wid):
+        """Update extra wire offsets.
+        """
+        woffsets = self._ws_device.wire_offset
+        woffsets[wid - 1] = float(self.sender().text())
+
+        #
+        print("Now device wire offsets: ", self._ws_device.wire_offset)
+
+        # update dconf
+        pm = self._current_pm_name
+        print(pm)
+        print("Before changing...")
+        print(self._dconf.getarray(pm, 'wire_pos_offset'))
+        self._dconf.set(pm, 'wire_pos_offset',
+                ' '.join(str(i) for i in woffsets))
+        print("After changing...")
+        print(self._dconf.getarray(pm, 'wire_pos_offset'))
 
 
 def _get_element_name(data):
