@@ -476,7 +476,8 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
         """Emergency stop running device.
         """
         self.device_runner.stop()
-        self.thread.terminate()
+        # temp solution
+        self.device_runner.finished.emit()
 
     @pyqtSlot()
     def on_load_data(self):
