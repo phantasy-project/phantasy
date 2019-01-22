@@ -2,12 +2,32 @@
 # -*- coding: utf-8 -*-
 
 from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtCore import QEvent
+from PyQt5.QtWidgets import QMainWindow
 
 from subprocess import Popen
 
 from phantasy_ui.templates import BaseAppForm
 
 from .ui.ui_app import Ui_MainWindow
+
+
+MSG = {
+  'cv': ('Correlation Visualizer',
+         'Visualize the correlation between parameters.'),
+  'qs': ('Quad Scan App',
+         'Calculate transverse emittance based on quadrupole scan approach.'),
+  'ws': ('Wire Scanner App',
+         'Operating wire-scanner device and processing the acquired data.'),
+  'va': ('Virtual Accelerator Launcher',
+         'Launch FRIB virtual accelerators.'),
+  'tv': ('Trajectory Viewer',
+         'Visualize beam trajectory and apply correction.'),
+  'un': ('Unicorn App',
+         'Manage and visualize the scaling laws between engineering and phyiscs units.'),
+}
+
+MSG_TEMPLATE = "<b><span style='text-decoration: underline;'>{msg[0]}:</span></b><p>{msg[1]}</p>"
 
 
 class AppLauncherWindow(BaseAppForm, Ui_MainWindow):
@@ -39,6 +59,23 @@ class AppLauncherWindow(BaseAppForm, Ui_MainWindow):
 
         # UI
         self.setupUi(self)
+
+        # post init ui
+        self.post_init_ui()
+
+    def post_init_ui(self):
+        for btn,tt in zip(
+                (self.cv_btn, self.qs_btn, self.ws_btn, self.va_btn, self.tv_btn, self.un_btn),
+                ('cv', 'qs', 'ws', 'va', 'tv', 'un')):
+            btn.setText(tt)
+            btn.installEventFilter(self)
+
+    def eventFilter(self, src, e):
+        if e.type() == QEvent.HoverEnter:
+            t = src.text()
+            self.textEdit.setHtml(MSG_TEMPLATE.format(msg=MSG[t]))
+            return True
+        return QMainWindow.eventFilter(self, src, e)
 
     @pyqtSlot()
     def on_launch_cv(self):
