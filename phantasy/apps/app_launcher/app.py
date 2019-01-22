@@ -4,12 +4,15 @@
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtCore import QEvent
 from PyQt5.QtWidgets import QMainWindow
+from PyQt5.QtWidgets import QDialog
 
 from subprocess import Popen
+from functools import partial
 
 from phantasy_ui.templates import BaseAppForm
 
 from .ui.ui_app import Ui_MainWindow
+from .app_add import AddLauncherDialog
 
 
 MSG = {
@@ -29,6 +32,15 @@ MSG = {
 
 MSG_TEMPLATE = "<b><span style='text-decoration: underline;'>{msg[0]}:</span></b><p>{msg[1]}</p>"
 DEFAULT_MSG = '<p align="center"><span style="font-size:12pt;font-weight:600;">FRIB High-level Physics Controls Applications</span></p><p align="center">Click Button to Launch App</p>'
+
+APP_CMD = {
+    'cv': 'correlation_visualizer',
+    'qs': 'quad_scan',
+    'ws': 'wire_scanner',
+    'va': 'va_launcher',
+    'tv': 'trajectory_viewer',
+    'un': 'unicorn_app',
+}
 
 
 class AppLauncherWindow(BaseAppForm, Ui_MainWindow):
@@ -72,6 +84,13 @@ class AppLauncherWindow(BaseAppForm, Ui_MainWindow):
             btn.setText(tt)
             btn.installEventFilter(self)
 
+        self.cv_btn.clicked.connect(partial(self.on_launch_app, APP_CMD['cv']))
+        self.qs_btn.clicked.connect(partial(self.on_launch_app, APP_CMD['qs']))
+        self.ws_btn.clicked.connect(partial(self.on_launch_app, APP_CMD['ws']))
+        self.va_btn.clicked.connect(partial(self.on_launch_app, APP_CMD['va']))
+        self.tv_btn.clicked.connect(partial(self.on_launch_app, APP_CMD['tv']))
+        self.un_btn.clicked.connect(partial(self.on_launch_app, APP_CMD['un']))
+
     def eventFilter(self, src, e):
         if e.type() == QEvent.HoverEnter:
             t = src.text()
@@ -83,38 +102,24 @@ class AppLauncherWindow(BaseAppForm, Ui_MainWindow):
         return QMainWindow.eventFilter(self, src, e)
 
     @pyqtSlot()
-    def on_launch_cv(self):
-        """Launch Correlation Visualizer App.
-        """
-        proc = Popen("correlation_visualizer", shell=True)
+    def on_launch_app(self, cmd):
+        proc = Popen(cmd, shell=True)
 
     @pyqtSlot()
-    def on_launch_qs(self):
-        """Launch Quad Scan App.
+    def on_add_launcher(self):
+        """Add new button as app launcher.
         """
-        proc = Popen("quad_scan", shell=True)
+        idx = self.horizontalLayout.count()
+        self._dlg = AddLauncherDialog()
+        r = self._dlg.exec_()
+        if r == QDialog.Accepted and self._dlg.launcher is not None:
+            launcher = self._dlg.launcher
+            btn = launcher.button
+            self.horizontalLayout.insertWidget(idx - 1, btn)
 
-    @pyqtSlot()
-    def on_launch_ws(self):
-        """Launch Wire Scanner App.
-        """
-        proc = Popen("wire_scanner", shell=True)
+            btn.clicked.connect(partial(self.on_launch_app, launcher.cmd))
+            btn.installEventFilter(self)
+            MSG.update({launcher.name: (launcher.name, launcher.desc)})
 
-    @pyqtSlot()
-    def on_launch_un(self):
-        """Launch Unicorn App.
-        """
-        proc = Popen("unicorn_app", shell=True)
-
-    @pyqtSlot()
-    def on_launch_va(self):
-        """Launch Virtual Accelerator App.
-        """
-        proc = Popen("va_launcher", shell=True)
-
-    @pyqtSlot()
-    def on_launch_tv(self):
-        """Launch Trajectory Viewer App.
-        """
-        proc = Popen("trajectory_viewer", shell=True)
-
+        else:
+            return
