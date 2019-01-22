@@ -12,7 +12,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(889, 353)
+        MainWindow.resize(933, 316)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
@@ -89,10 +89,28 @@ class Ui_MainWindow(object):
         self.un_btn.setAutoRaise(True)
         self.un_btn.setObjectName("un_btn")
         self.horizontalLayout.addWidget(self.un_btn)
+        self.verticalLayout = QtWidgets.QVBoxLayout()
+        self.verticalLayout.setContentsMargins(0, -1, -1, -1)
+        self.verticalLayout.setObjectName("verticalLayout")
+        spacerItem = QtWidgets.QSpacerItem(20, 40,
+                                           QtWidgets.QSizePolicy.Minimum,
+                                           QtWidgets.QSizePolicy.Expanding)
+        self.verticalLayout.addItem(spacerItem)
+        self.add_btn = QtWidgets.QToolButton(self.centralwidget)
+        icon6 = QtGui.QIcon()
+        icon6.addPixmap(
+            QtGui.QPixmap(":/icons/add.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.add_btn.setIcon(icon6)
+        self.add_btn.setIconSize(QtCore.QSize(24, 24))
+        self.add_btn.setAutoRaise(True)
+        self.add_btn.setObjectName("add_btn")
+        self.verticalLayout.addWidget(self.add_btn)
+        self.horizontalLayout.addLayout(self.verticalLayout)
         self.gridLayout.addLayout(self.horizontalLayout, 0, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 889, 30))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 933, 30))
         self.menubar.setObjectName("menubar")
         MainWindow.setMenuBar(self.menubar)
 
@@ -114,6 +132,12 @@ class Ui_MainWindow(object):
         self.va_btn.setText(_translate("MainWindow", "..."))
         self.tv_btn.setText(_translate("MainWindow", "..."))
         self.un_btn.setText(_translate("MainWindow", "..."))
+        self.add_btn.setToolTip(
+            _translate(
+                "MainWindow",
+                "<html><head/><body><p>Add a new button as app launcher.</p></body></html>"
+            ))
+        self.add_btn.setText(_translate("MainWindow", "..."))
 
 
 from . import resources_rc
