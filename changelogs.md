@@ -1,3 +1,14 @@
+Version 1.9.0
+-------------
+2019-01-22
+
+- Trajectory Viewer App:
+  - Update app icon
+
+- App Launcher App:
+  - Release the first version
+  - Support add new launcher entry by clicking '+' button
+
 Version 1.8.9
 -------------
 2019-01-21
