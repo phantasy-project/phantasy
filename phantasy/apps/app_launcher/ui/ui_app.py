@@ -12,14 +12,11 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(889, 296)
+        MainWindow.resize(889, 389)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
-        self.lineEdit = QtWidgets.QLineEdit(self.centralwidget)
-        self.lineEdit.setObjectName("lineEdit")
-        self.gridLayout.addWidget(self.lineEdit, 1, 0, 1, 1)
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.cv_btn = QtWidgets.QToolButton(self.centralwidget)
@@ -89,12 +86,15 @@ class Ui_MainWindow(object):
         self.un_btn.setAutoRaise(True)
         self.un_btn.setObjectName("un_btn")
         self.horizontalLayout.addWidget(self.un_btn)
-        self.gridLayout.addLayout(self.horizontalLayout, 2, 0, 1, 1)
+        self.gridLayout.addLayout(self.horizontalLayout, 1, 0, 1, 1)
         self.label = QtWidgets.QLabel(self.centralwidget)
         self.label.setStyleSheet("QLabel {\n" "    font-size: 20pt;\n" "}")
         self.label.setAlignment(QtCore.Qt.AlignCenter)
         self.label.setObjectName("label")
         self.gridLayout.addWidget(self.label, 0, 0, 1, 1)
+        self.textEdit = QtWidgets.QTextEdit(self.centralwidget)
+        self.textEdit.setObjectName("textEdit")
+        self.gridLayout.addWidget(self.textEdit, 2, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 889, 30))
@@ -113,41 +113,11 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.cv_btn.setToolTip(
-            _translate(
-                "MainWindow",
-                "<html><head/><body><p>Correlation Visualizer: Visualize the correlation between parameters.</p></body></html>"
-            ))
         self.cv_btn.setText(_translate("MainWindow", "..."))
-        self.qs_btn.setToolTip(
-            _translate(
-                "MainWindow",
-                "<html><head/><body><p>Quad Scan App: Calculate transverse emittance based on quadrupole scan approach.</p></body></html>"
-            ))
         self.qs_btn.setText(_translate("MainWindow", "..."))
-        self.ws_btn.setToolTip(
-            _translate(
-                "MainWindow",
-                "<html><head/><body><p>Wire Scanner App: Operating wire-scanner device and processing the acquired data.</p></body></html>"
-            ))
         self.ws_btn.setText(_translate("MainWindow", "..."))
-        self.va_btn.setToolTip(
-            _translate(
-                "MainWindow",
-                "<html><head/><body><p>Virtual Accelerator Launcher: Launch FRIB virtual accelerators.</p></body></html>"
-            ))
         self.va_btn.setText(_translate("MainWindow", "..."))
-        self.tv_btn.setToolTip(
-            _translate(
-                "MainWindow",
-                "<html><head/><body><p>Trajectory Viewer: Visualize beam trajectory and apply correction.</p></body></html>"
-            ))
         self.tv_btn.setText(_translate("MainWindow", "..."))
-        self.un_btn.setToolTip(
-            _translate(
-                "MainWindow",
-                "<html><head/><body><p>Unicorn App: Manage and visualize the scaling laws between engineering and phyiscs units.</p></body></html>"
-            ))
         self.un_btn.setText(_translate("MainWindow", "..."))
         self.label.setText(
             _translate("MainWindow", "FRIB Physics Applications"))
