@@ -28,6 +28,7 @@ MSG = {
 }
 
 MSG_TEMPLATE = "<b><span style='text-decoration: underline;'>{msg[0]}:</span></b><p>{msg[1]}</p>"
+DEFAULT_MSG = '<p align="center"><span style="font-size:12pt;font-weight:600;">FRIB High-level Physics Controls Applications</span></p><p align="center">Click Button to Launch App</p>'
 
 
 class AppLauncherWindow(BaseAppForm, Ui_MainWindow):
@@ -64,6 +65,7 @@ class AppLauncherWindow(BaseAppForm, Ui_MainWindow):
         self.post_init_ui()
 
     def post_init_ui(self):
+        self.textEdit.setHtml(DEFAULT_MSG)
         for btn,tt in zip(
                 (self.cv_btn, self.qs_btn, self.ws_btn, self.va_btn, self.tv_btn, self.un_btn),
                 ('cv', 'qs', 'ws', 'va', 'tv', 'un')):
@@ -74,6 +76,9 @@ class AppLauncherWindow(BaseAppForm, Ui_MainWindow):
         if e.type() == QEvent.HoverEnter:
             t = src.text()
             self.textEdit.setHtml(MSG_TEMPLATE.format(msg=MSG[t]))
+            return True
+        if e.type() == QEvent.HoverLeave:
+            self.textEdit.setHtml(DEFAULT_MSG)
             return True
         return QMainWindow.eventFilter(self, src, e)
 
