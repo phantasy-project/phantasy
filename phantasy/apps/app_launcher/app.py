@@ -31,7 +31,7 @@ MSG = {
 }
 
 MSG_TEMPLATE = "<b><span style='text-decoration: underline;'>{msg[0]}:</span></b><p>{msg[1]}</p>"
-DEFAULT_MSG = '<p align="center"><span style="font-size:12pt;font-weight:600;">FRIB High-level Physics Controls Applications</span></p><p align="center">Click Button to Launch App</p>'
+DEFAULT_MSG = '<p align="center"><span style="font-weight:600;">FRIB High-level Physics Controls Applications</span></p><p align="center">Click Button to Launch App</p>'
 
 APP_CMD = {
     'cv': 'correlation_visualizer',
