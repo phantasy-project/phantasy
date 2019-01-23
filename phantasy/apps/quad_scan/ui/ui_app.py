@@ -575,7 +575,7 @@ class Ui_MainWindow(object):
                 "MainWindow",
                 "<html><head/><body><p>Distance between the quad and the profile monitor [m]</p></body></html>"
             ))
-        self.distance_lineEdit.setText(_translate("MainWindow", "1.31"))
+        self.distance_lineEdit.setText(_translate("MainWindow", "1.26"))
         self.autofill_beam_info_pushButton.setText(
             _translate("MainWindow", "Auto"))
         self.label_35.setText(
