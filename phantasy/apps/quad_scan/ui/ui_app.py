@@ -233,7 +233,7 @@ class Ui_MainWindow(object):
             "}")
         self.toolbox.setObjectName("toolbox")
         self.page_params = QtWidgets.QWidget()
-        self.page_params.setGeometry(QtCore.QRect(0, 0, 629, 1143))
+        self.page_params.setGeometry(QtCore.QRect(0, 0, 697, 1120))
         self.page_params.setObjectName("page_params")
         self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.page_params)
         self.verticalLayout_2.setObjectName("verticalLayout_2")
@@ -419,7 +419,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_2.addWidget(self.twiss_output_groupBox)
         self.toolbox.addItem(self.page_params, "")
         self.page_formulae = QtWidgets.QWidget()
-        self.page_formulae.setGeometry(QtCore.QRect(0, 0, 805, 1126))
+        self.page_formulae.setGeometry(QtCore.QRect(0, 0, 854, 1107))
         self.page_formulae.setStyleSheet("QLabel {\n"
                                          "    padding: 5px 10px;\n"
                                          "}")
@@ -463,7 +463,7 @@ class Ui_MainWindow(object):
         self.gridLayout_6.addLayout(self.verticalLayout_4, 0, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1920, 29))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1920, 30))
         self.menubar.setObjectName("menubar")
         self.menu_File = QtWidgets.QMenu(self.menubar)
         self.menu_File.setObjectName("menu_File")
@@ -541,7 +541,7 @@ class Ui_MainWindow(object):
         self.label_9.setText(
             _translate(
                 "MainWindow",
-                "<html><head/><body><p>Ion Kinetic Energy (<span style=\" font-weight:600; font-style:italic;\">E</span><span style=\" font-weight:600; font-style:italic; vertical-align:sub;\">k</span>)</p></body></html>"
+                "<html><head/><body><p>Ion Kinetic Energy (<span style=\" font-weight:600; font-style:italic;\">E</span><span style=\" font-weight:600; font-style:italic; vertical-align:sub;\">k</span>) [eV/u]</p></body></html>"
             ))
         self.ref_IonEk_lineEdit.setToolTip(
             _translate(
@@ -552,7 +552,7 @@ class Ui_MainWindow(object):
         self.label_17.setText(
             _translate(
                 "MainWindow",
-                "<html><head/><body><p>Quad Length (<span style=\" font-weight:600; font-style:italic;\">l</span><span style=\" font-weight:600; font-style:italic; vertical-align:sub;\">q</span>)</p></body></html>"
+                "<html><head/><body><p>Quad Length (<span style=\" font-weight:600; font-style:italic;\">l</span><span style=\" font-weight:600; font-style:italic; vertical-align:sub;\">q</span>) [m]</p></body></html>"
             ))
         self.quad_length_lineEdit.setToolTip(
             _translate(
@@ -568,7 +568,7 @@ class Ui_MainWindow(object):
         self.label_18.setText(
             _translate(
                 "MainWindow",
-                "<html><head/><body><p>Distance (<span style=\" font-weight:600; font-style:italic;\">d</span>)</p></body></html>"
+                "<html><head/><body><p>Distance (<span style=\" font-weight:600; font-style:italic;\">d</span>) [m]</p></body></html>"
             ))
         self.distance_lineEdit.setToolTip(
             _translate(
@@ -654,12 +654,12 @@ class Ui_MainWindow(object):
         self.label_31.setText(
             _translate(
                 "MainWindow",
-                "<html><head/><body><p><span style=\" font-weight:600; font-style:italic;\">ε </span><span style=\" font-weight:600;\">[mm&middot;mrad]</span></p></body></html>"
+                "<html><head/><body><p><span style=\" font-weight:600; font-style:italic;\">ε </span>[mm·mrad]</p></body></html>"
             ))
         self.label_32.setText(
             _translate(
                 "MainWindow",
-                "<html><head/><body><p><span style=\" font-weight:600; font-style:italic;\">ε</span><span style=\" font-weight:600; font-style:italic; vertical-align:sub;\">n </span><span style=\" font-weight:600;\">[mm·mrad]</span></p></body></html>"
+                "<html><head/><body><p><span style=\" font-weight:600; font-style:italic;\">ε</span><span style=\" font-weight:600; font-style:italic; vertical-align:sub;\">n </span>[mm·mrad]</p></body></html>"
             ))
         self.label_28.setText(
             _translate(
@@ -669,12 +669,12 @@ class Ui_MainWindow(object):
         self.label_29.setText(
             _translate(
                 "MainWindow",
-                "<html><head/><body><p><span style=\" font-weight:600; font-style:italic;\">&beta;</span></p></body></html>"
+                "<html><head/><body><p><span style=\" font-weight:600; font-style:italic;\">β </span>[m]</p></body></html>"
             ))
         self.label_30.setText(
             _translate(
                 "MainWindow",
-                "<html><head/><body><p><span style=\" font-weight:600; font-style:italic;\">&gamma;</span></p></body></html>"
+                "<html><head/><body><p><span style=\" font-weight:600; font-style:italic;\">γ </span>[m<span style=\" vertical-align:super;\">-1</span>]</p></body></html>"
             ))
         self.toolbox.setItemText(
             self.toolbox.indexOf(self.page_params),
