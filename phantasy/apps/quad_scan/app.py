@@ -260,8 +260,7 @@ class QuadScanWindow(BaseAppForm, Ui_MainWindow):
         p = mp.get_elements(name=pm_name)[0]
 
         self.quad_length_lineEdit.setText('{0:.3g}'.format(q.length))
-        self.distance_lineEdit.setText('{0:.3g}'.format(
-            (p.sb + p.se)/2 - (q.se + q.sb)/2))
+        self.distance_lineEdit.setText('{0:.3g}'.format(p.sb - q.se))
 
 
 def single_quad_scan_analysis(params, quad_length, drift_length,
