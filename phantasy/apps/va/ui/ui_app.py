@@ -305,7 +305,7 @@ class Ui_MainWindow(object):
         self.gridLayout_2.addWidget(self.groupBox, 2, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 729, 30))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 729, 29))
         self.menubar.setObjectName("menubar")
         self.menu_Help = QtWidgets.QMenu(self.menubar)
         self.menu_Help.setObjectName("menu_Help")
@@ -316,12 +316,32 @@ class Ui_MainWindow(object):
         self.toolBar.setObjectName("toolBar")
         MainWindow.addToolBar(QtCore.Qt.TopToolBarArea, self.toolBar)
         self.actionAbout = QtWidgets.QAction(MainWindow)
+        icon = QtGui.QIcon()
+        icon.addPixmap(
+            QtGui.QPixmap(":/icons/info.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.actionAbout.setIcon(icon)
         self.actionAbout.setObjectName("actionAbout")
         self.actionAbout_Qt = QtWidgets.QAction(MainWindow)
+        icon1 = QtGui.QIcon()
+        icon1.addPixmap(
+            QtGui.QPixmap(":/icons/qt.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.actionAbout_Qt.setIcon(icon1)
         self.actionAbout_Qt.setObjectName("actionAbout_Qt")
         self.actionContents = QtWidgets.QAction(MainWindow)
+        icon2 = QtGui.QIcon()
+        icon2.addPixmap(
+            QtGui.QPixmap(":/icons/help.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.actionContents.setIcon(icon2)
         self.actionContents.setObjectName("actionContents")
         self.actionE_xit = QtWidgets.QAction(MainWindow)
+        icon3 = QtGui.QIcon()
+        icon3.addPixmap(
+            QtGui.QPixmap(":/icons/exit.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.actionE_xit.setIcon(icon3)
         self.actionE_xit.setObjectName("actionE_xit")
         self.nb_tool = QtWidgets.QAction(MainWindow)
         self.nb_tool.setObjectName("nb_tool")
@@ -410,6 +430,8 @@ class Ui_MainWindow(object):
         self.va_run_tool.setText(_translate("MainWindow", "RUN VA"))
         self.va_stop_tool.setText(_translate("MainWindow", "STOP VA"))
 
+
+from . import resources_rc
 
 if __name__ == "__main__":
     import sys

@@ -1280,7 +1280,7 @@ class Ui_MainWindow(object):
         self.gridLayout.addWidget(self.v_splitter, 0, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1693, 30))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1693, 29))
         self.menubar.setObjectName("menubar")
         self.menu_File = QtWidgets.QMenu(self.menubar)
         self.menu_File.setObjectName("menu_File")
@@ -1295,12 +1295,32 @@ class Ui_MainWindow(object):
         self.menuDe_vice.setObjectName("menuDe_vice")
         MainWindow.setMenuBar(self.menubar)
         self.actionE_xit = QtWidgets.QAction(MainWindow)
+        icon23 = QtGui.QIcon()
+        icon23.addPixmap(
+            QtGui.QPixmap(":/icons/exit.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.actionE_xit.setIcon(icon23)
         self.actionE_xit.setObjectName("actionE_xit")
         self.actionContents = QtWidgets.QAction(MainWindow)
+        icon24 = QtGui.QIcon()
+        icon24.addPixmap(
+            QtGui.QPixmap(":/icons/help.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.actionContents.setIcon(icon24)
         self.actionContents.setObjectName("actionContents")
         self.actionAbout = QtWidgets.QAction(MainWindow)
+        icon25 = QtGui.QIcon()
+        icon25.addPixmap(
+            QtGui.QPixmap(":/icons/info.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.actionAbout.setIcon(icon25)
         self.actionAbout.setObjectName("actionAbout")
         self.actionAbout_Qt = QtWidgets.QAction(MainWindow)
+        icon26 = QtGui.QIcon()
+        icon26.addPixmap(
+            QtGui.QPixmap(":/icons/qt.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.actionAbout_Qt.setIcon(icon26)
         self.actionAbout_Qt.setObjectName("actionAbout_Qt")
         self.actionLoad_Configuration = QtWidgets.QAction(MainWindow)
         self.actionLoad_Configuration.setObjectName("actionLoad_Configuration")
@@ -1319,28 +1339,28 @@ class Ui_MainWindow(object):
         self.actionSync.setIcon(icon22)
         self.actionSync.setObjectName("actionSync")
         self.actionLoad = QtWidgets.QAction(MainWindow)
-        icon23 = QtGui.QIcon()
-        icon23.addPixmap(
+        icon27 = QtGui.QIcon()
+        icon27.addPixmap(
             QtGui.QPixmap(":/icons/load.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.actionLoad.setIcon(icon23)
+        self.actionLoad.setIcon(icon27)
         self.actionLoad.setObjectName("actionLoad")
         self.actionSave = QtWidgets.QAction(MainWindow)
-        icon24 = QtGui.QIcon()
-        icon24.addPixmap(
+        icon28 = QtGui.QIcon()
+        icon28.addPixmap(
             QtGui.QPixmap(":/icons/save.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.actionSave.setIcon(icon24)
+        self.actionSave.setIcon(icon28)
         self.actionSave.setObjectName("actionSave")
         self.actionLocate_Configuration = QtWidgets.QAction(MainWindow)
         self.actionLocate_Configuration.setObjectName(
             "actionLocate_Configuration")
         self.actionDAT2JSON = QtWidgets.QAction(MainWindow)
-        icon25 = QtGui.QIcon()
-        icon25.addPixmap(
-            QtGui.QPixmap(":/icons/json.png"), QtGui.QIcon.Normal,
+        icon29 = QtGui.QIcon()
+        icon29.addPixmap(
+            QtGui.QPixmap(":/icons/converter.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.actionDAT2JSON.setIcon(icon25)
+        self.actionDAT2JSON.setIcon(icon29)
         self.actionDAT2JSON.setObjectName("actionDAT2JSON")
         self.actionTo_MicroAmp = QtWidgets.QAction(MainWindow)
         self.actionTo_MicroAmp.setCheckable(True)

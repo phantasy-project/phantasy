@@ -233,7 +233,7 @@ class Ui_MainWindow(object):
             "}")
         self.toolbox.setObjectName("toolbox")
         self.page_params = QtWidgets.QWidget()
-        self.page_params.setGeometry(QtCore.QRect(0, 0, 697, 1120))
+        self.page_params.setGeometry(QtCore.QRect(0, 0, 629, 1143))
         self.page_params.setObjectName("page_params")
         self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.page_params)
         self.verticalLayout_2.setObjectName("verticalLayout_2")
@@ -419,7 +419,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_2.addWidget(self.twiss_output_groupBox)
         self.toolbox.addItem(self.page_params, "")
         self.page_formulae = QtWidgets.QWidget()
-        self.page_formulae.setGeometry(QtCore.QRect(0, 0, 854, 421))
+        self.page_formulae.setGeometry(QtCore.QRect(0, 0, 805, 1126))
         self.page_formulae.setStyleSheet("QLabel {\n"
                                          "    padding: 5px 10px;\n"
                                          "}")
@@ -463,7 +463,7 @@ class Ui_MainWindow(object):
         self.gridLayout_6.addLayout(self.verticalLayout_4, 0, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1920, 30))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1920, 29))
         self.menubar.setObjectName("menubar")
         self.menu_File = QtWidgets.QMenu(self.menubar)
         self.menu_File.setObjectName("menu_File")
@@ -471,12 +471,32 @@ class Ui_MainWindow(object):
         self.menu_Help.setObjectName("menu_Help")
         MainWindow.setMenuBar(self.menubar)
         self.actionOpen = QtWidgets.QAction(MainWindow)
+        icon1 = QtGui.QIcon()
+        icon1.addPixmap(
+            QtGui.QPixmap(":/icons/open.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.actionOpen.setIcon(icon1)
         self.actionOpen.setObjectName("actionOpen")
         self.actionAbout = QtWidgets.QAction(MainWindow)
+        icon2 = QtGui.QIcon()
+        icon2.addPixmap(
+            QtGui.QPixmap(":/icons/info.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.actionAbout.setIcon(icon2)
         self.actionAbout.setObjectName("actionAbout")
         self.actionAbout_Qt = QtWidgets.QAction(MainWindow)
+        icon3 = QtGui.QIcon()
+        icon3.addPixmap(
+            QtGui.QPixmap(":/icons/qt.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.actionAbout_Qt.setIcon(icon3)
         self.actionAbout_Qt.setObjectName("actionAbout_Qt")
         self.actionE_xit = QtWidgets.QAction(MainWindow)
+        icon4 = QtGui.QIcon()
+        icon4.addPixmap(
+            QtGui.QPixmap(":/icons/exit.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.actionE_xit.setIcon(icon4)
         self.actionE_xit.setObjectName("actionE_xit")
         self.menu_File.addAction(self.actionOpen)
         self.menu_File.addSeparator()

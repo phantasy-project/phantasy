@@ -568,7 +568,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_4.addWidget(self.splitter_2)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1920, 30))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1920, 29))
         self.menubar.setObjectName("menubar")
         self.menu_File = QtWidgets.QMenu(self.menubar)
         self.menu_File.setObjectName("menu_File")
@@ -578,16 +578,41 @@ class Ui_MainWindow(object):
         self.menuTools.setObjectName("menuTools")
         MainWindow.setMenuBar(self.menubar)
         self.actionE_xit = QtWidgets.QAction(MainWindow)
+        icon1 = QtGui.QIcon()
+        icon1.addPixmap(
+            QtGui.QPixmap(":/icons/exit.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.actionE_xit.setIcon(icon1)
         self.actionE_xit.setObjectName("actionE_xit")
         self.actionContents = QtWidgets.QAction(MainWindow)
+        icon2 = QtGui.QIcon()
+        icon2.addPixmap(
+            QtGui.QPixmap(":/icons/help.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.actionContents.setIcon(icon2)
         self.actionContents.setObjectName("actionContents")
         self.actionAbout = QtWidgets.QAction(MainWindow)
+        icon3 = QtGui.QIcon()
+        icon3.addPixmap(
+            QtGui.QPixmap(":/icons/info.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.actionAbout.setIcon(icon3)
         self.actionAbout.setObjectName("actionAbout")
         self.actionAbout_Qt = QtWidgets.QAction(MainWindow)
+        icon4 = QtGui.QIcon()
+        icon4.addPixmap(
+            QtGui.QPixmap(":/icons/qt.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.actionAbout_Qt.setIcon(icon4)
         self.actionAbout_Qt.setObjectName("actionAbout_Qt")
         self.actionQuad_Scan = QtWidgets.QAction(MainWindow)
         self.actionQuad_Scan.setObjectName("actionQuad_Scan")
         self.actionLoad_Lattice = QtWidgets.QAction(MainWindow)
+        icon5 = QtGui.QIcon()
+        icon5.addPixmap(
+            QtGui.QPixmap(":/icons/load_lattice.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.actionLoad_Lattice.setIcon(icon5)
         self.actionLoad_Lattice.setObjectName("actionLoad_Lattice")
         self.actionMPS_guardian = QtWidgets.QAction(MainWindow)
         self.actionMPS_guardian.setCheckable(True)
