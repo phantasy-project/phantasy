@@ -100,6 +100,12 @@ class QuadScanWindow(BaseAppForm, Ui_MainWindow):
         self.matplotliberrorbarWidget.setLineID(0)
         self.matplotliberrorbarWidget.setFigureXlabel("Quad Gradient [T/m]")
         self.matplotliberrorbarWidget.setFigureYlabel("$\sigma^2\,\mathrm{[m^2]}$")
+
+        # set empty canvas
+        self.matplotliberrorbarWidget.setEbLineID(0)
+        self.matplotliberrorbarWidget.setLineID(0)
+        self.curveUpdated.emit([], [], [], [])
+
         # events
         self.fitCurveChanged[QVariant, QVariant].connect(self.update_fitting_curve)
         self.matplotliberrorbarWidget.setYTickFormat("Custom", "%.3g")
