@@ -13,6 +13,11 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(1920, 1440)
+        icon = QtGui.QIcon()
+        icon.addPixmap(
+            QtGui.QPixmap(":/icons/app.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        MainWindow.setWindowIcon(icon)
         MainWindow.setToolTip("")
         MainWindow.setStyleSheet("")
         self.centralwidget = QtWidgets.QWidget(MainWindow)
@@ -244,14 +249,29 @@ class Ui_MainWindow(object):
                                             QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_2.addItem(spacerItem1)
         self.inc_fontsize_tbtn = QtWidgets.QToolButton(self.scan_groupBox)
+        icon1 = QtGui.QIcon()
+        icon1.addPixmap(
+            QtGui.QPixmap(":/icons/increase-font.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.inc_fontsize_tbtn.setIcon(icon1)
         self.inc_fontsize_tbtn.setAutoRaise(True)
         self.inc_fontsize_tbtn.setObjectName("inc_fontsize_tbtn")
         self.horizontalLayout_2.addWidget(self.inc_fontsize_tbtn)
         self.dec_fontsize_tbtn = QtWidgets.QToolButton(self.scan_groupBox)
+        icon2 = QtGui.QIcon()
+        icon2.addPixmap(
+            QtGui.QPixmap(":/icons/decrease-font.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.dec_fontsize_tbtn.setIcon(icon2)
         self.dec_fontsize_tbtn.setAutoRaise(True)
         self.dec_fontsize_tbtn.setObjectName("dec_fontsize_tbtn")
         self.horizontalLayout_2.addWidget(self.dec_fontsize_tbtn)
         self.clear_log_tbtn = QtWidgets.QToolButton(self.scan_groupBox)
+        icon3 = QtGui.QIcon()
+        icon3.addPixmap(
+            QtGui.QPixmap(":/icons/clean.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.clear_log_tbtn.setIcon(icon3)
         self.clear_log_tbtn.setAutoRaise(True)
         self.clear_log_tbtn.setObjectName("clear_log_tbtn")
         self.horizontalLayout_2.addWidget(self.clear_log_tbtn)
@@ -430,11 +450,11 @@ class Ui_MainWindow(object):
         self.mps_status_btn.setMinimumSize(QtCore.QSize(36, 36))
         self.mps_status_btn.setMaximumSize(QtCore.QSize(36, 36))
         self.mps_status_btn.setText("")
-        icon = QtGui.QIcon()
-        icon.addPixmap(
+        icon4 = QtGui.QIcon()
+        icon4.addPixmap(
             QtGui.QPixmap(":/icons/mps_skipped.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.mps_status_btn.setIcon(icon)
+        self.mps_status_btn.setIcon(icon4)
         self.mps_status_btn.setIconSize(QtCore.QSize(36, 36))
         self.mps_status_btn.setAutoRaise(True)
         self.mps_status_btn.setObjectName("mps_status_btn")
@@ -533,28 +553,58 @@ class Ui_MainWindow(object):
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.save_data_tbtn = QtWidgets.QToolButton(self.plot_groupBox)
+        icon5 = QtGui.QIcon()
+        icon5.addPixmap(
+            QtGui.QPixmap(":/icons/save_figure.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.save_data_tbtn.setIcon(icon5)
         self.save_data_tbtn.setAutoRaise(True)
         self.save_data_tbtn.setObjectName("save_data_tbtn")
         self.horizontalLayout.addWidget(self.save_data_tbtn)
         self.auto_title_tbtn = QtWidgets.QToolButton(self.plot_groupBox)
+        icon6 = QtGui.QIcon()
+        icon6.addPixmap(
+            QtGui.QPixmap(":/icons/title.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.auto_title_tbtn.setIcon(icon6)
         self.auto_title_tbtn.setAutoRaise(True)
         self.auto_title_tbtn.setObjectName("auto_title_tbtn")
         self.horizontalLayout.addWidget(self.auto_title_tbtn)
         self.auto_labels_tbtn = QtWidgets.QToolButton(self.plot_groupBox)
+        icon7 = QtGui.QIcon()
+        icon7.addPixmap(
+            QtGui.QPixmap(":/icons/xylabel.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.auto_labels_tbtn.setIcon(icon7)
         self.auto_labels_tbtn.setAutoRaise(True)
         self.auto_labels_tbtn.setObjectName("auto_labels_tbtn")
         self.horizontalLayout.addWidget(self.auto_labels_tbtn)
         self.moveto_tbtn = QtWidgets.QToolButton(self.plot_groupBox)
+        icon8 = QtGui.QIcon()
+        icon8.addPixmap(
+            QtGui.QPixmap(":/icons/moveto.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.moveto_tbtn.setIcon(icon8)
         self.moveto_tbtn.setPopupMode(QtWidgets.QToolButton.MenuButtonPopup)
         self.moveto_tbtn.setAutoRaise(True)
         self.moveto_tbtn.setArrowType(QtCore.Qt.NoArrow)
         self.moveto_tbtn.setObjectName("moveto_tbtn")
         self.horizontalLayout.addWidget(self.moveto_tbtn)
         self.set_tbtn = QtWidgets.QToolButton(self.plot_groupBox)
+        icon9 = QtGui.QIcon()
+        icon9.addPixmap(
+            QtGui.QPixmap(":/icons/set.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.set_tbtn.setIcon(icon9)
         self.set_tbtn.setAutoRaise(True)
         self.set_tbtn.setObjectName("set_tbtn")
         self.horizontalLayout.addWidget(self.set_tbtn)
         self.view_selected_pts_tbtn = QtWidgets.QToolButton(self.plot_groupBox)
+        icon10 = QtGui.QIcon()
+        icon10.addPixmap(
+            QtGui.QPixmap(":/icons/points.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.view_selected_pts_tbtn.setIcon(icon10)
         self.view_selected_pts_tbtn.setPopupMode(
             QtWidgets.QToolButton.MenuButtonPopup)
         self.view_selected_pts_tbtn.setAutoRaise(True)
@@ -568,7 +618,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_4.addWidget(self.splitter_2)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1920, 29))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1920, 30))
         self.menubar.setObjectName("menubar")
         self.menu_File = QtWidgets.QMenu(self.menubar)
         self.menu_File.setObjectName("menu_File")
@@ -578,41 +628,41 @@ class Ui_MainWindow(object):
         self.menuTools.setObjectName("menuTools")
         MainWindow.setMenuBar(self.menubar)
         self.actionE_xit = QtWidgets.QAction(MainWindow)
-        icon1 = QtGui.QIcon()
-        icon1.addPixmap(
+        icon11 = QtGui.QIcon()
+        icon11.addPixmap(
             QtGui.QPixmap(":/icons/exit.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.actionE_xit.setIcon(icon1)
+        self.actionE_xit.setIcon(icon11)
         self.actionE_xit.setObjectName("actionE_xit")
         self.actionContents = QtWidgets.QAction(MainWindow)
-        icon2 = QtGui.QIcon()
-        icon2.addPixmap(
+        icon12 = QtGui.QIcon()
+        icon12.addPixmap(
             QtGui.QPixmap(":/icons/help.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.actionContents.setIcon(icon2)
+        self.actionContents.setIcon(icon12)
         self.actionContents.setObjectName("actionContents")
         self.actionAbout = QtWidgets.QAction(MainWindow)
-        icon3 = QtGui.QIcon()
-        icon3.addPixmap(
+        icon13 = QtGui.QIcon()
+        icon13.addPixmap(
             QtGui.QPixmap(":/icons/info.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.actionAbout.setIcon(icon3)
+        self.actionAbout.setIcon(icon13)
         self.actionAbout.setObjectName("actionAbout")
         self.actionAbout_Qt = QtWidgets.QAction(MainWindow)
-        icon4 = QtGui.QIcon()
-        icon4.addPixmap(
+        icon14 = QtGui.QIcon()
+        icon14.addPixmap(
             QtGui.QPixmap(":/icons/qt.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.actionAbout_Qt.setIcon(icon4)
+        self.actionAbout_Qt.setIcon(icon14)
         self.actionAbout_Qt.setObjectName("actionAbout_Qt")
         self.actionQuad_Scan = QtWidgets.QAction(MainWindow)
         self.actionQuad_Scan.setObjectName("actionQuad_Scan")
         self.actionLoad_Lattice = QtWidgets.QAction(MainWindow)
-        icon5 = QtGui.QIcon()
-        icon5.addPixmap(
+        icon15 = QtGui.QIcon()
+        icon15.addPixmap(
             QtGui.QPixmap(":/icons/load_lattice.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.actionLoad_Lattice.setIcon(icon5)
+        self.actionLoad_Lattice.setIcon(icon15)
         self.actionLoad_Lattice.setObjectName("actionLoad_Lattice")
         self.actionMPS_guardian = QtWidgets.QAction(MainWindow)
         self.actionMPS_guardian.setCheckable(True)

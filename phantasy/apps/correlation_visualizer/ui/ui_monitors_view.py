@@ -78,6 +78,8 @@ class Ui_Form(object):
         self.update_btn.setText(_translate("Form", "Update"))
 
 
+from . import resources_rc
+
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)

@@ -44,16 +44,6 @@ from .app_points_view import PointsViewWidget
 from .app_monitors_view import MonitorsViewWidget
 from .app_mps_config import MpsConfigWidget
 from .data import ScanDataModel
-from .icons import cv_icon
-from .icons import save_icon
-from .icons import xylabel_icon
-from .icons import title_icon
-from .icons import moveto_icon
-from .icons import set_icon
-from .icons import clean_icon
-from .icons import points_icon
-from .icons import inc_fs_icon
-from .icons import dec_fs_icon
 from .scan import ScanTask
 from .scan import ScanWorker
 from .ui.ui_app import Ui_MainWindow
@@ -104,7 +94,6 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 
         # window title/icon
         self.setWindowTitle("Correlation Visualizer")
-        self.setWindowIcon(QIcon(QPixmap(cv_icon)))
 
         # set app properties
         self.setAppTitle("Correlation Visualizer")
@@ -515,19 +504,15 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         """
         # toolbtns
         # save data
-        self.save_data_tbtn.setIcon(QIcon(QPixmap(save_icon)))
         self.save_data_tbtn.setIconSize(BOTTOM_TBTN_ICON_QSIZE)
         self.save_data_tbtn.setToolTip("Save data to file")
         # auto labels
-        self.auto_labels_tbtn.setIcon(QIcon(QPixmap(xylabel_icon)))
         self.auto_labels_tbtn.setIconSize(BOTTOM_TBTN_ICON_QSIZE)
         self.auto_labels_tbtn.setToolTip("Auto set xy labels")
         # auto title
-        self.auto_title_tbtn.setIcon(QIcon(QPixmap(title_icon)))
         self.auto_title_tbtn.setIconSize(BOTTOM_TBTN_ICON_QSIZE)
         self.auto_title_tbtn.setToolTip("Auto set figure title")
         # move to
-        self.moveto_tbtn.setIcon(QIcon(QPixmap(moveto_icon)))
         self.moveto_tbtn.setIconSize(BOTTOM_TBTN_ICON_QSIZE)
         self.moveto_tbtn.setToolTip("Move cross-ruler to...")
 
@@ -553,26 +538,21 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 
         # scan event log textedit
         # clear log btn
-        self.clear_log_tbtn.setIcon(QIcon(QPixmap(clean_icon)))
         self.clear_log_tbtn.setIconSize(SMALL_TBTN_ICON_QSIZE)
         self.clear_log_tbtn.setToolTip("Clear scan event log")
 
         # fontsize + btn
-        self.inc_fontsize_tbtn.setIcon(QIcon(QPixmap(inc_fs_icon)))
         self.inc_fontsize_tbtn.setIconSize(SMALL_TBTN_ICON_QSIZE)
         self.inc_fontsize_tbtn.setToolTip("Increase Fontsize")
         # fontsize - btn
-        self.dec_fontsize_tbtn.setIcon(QIcon(QPixmap(dec_fs_icon)))
         self.dec_fontsize_tbtn.setIconSize(SMALL_TBTN_ICON_QSIZE)
         self.dec_fontsize_tbtn.setToolTip("Decrease Fontsize")
 
         # set btn
-        self.set_tbtn.setIcon(QIcon(QPixmap(set_icon)))
         self.set_tbtn.setIconSize(BOTTOM_TBTN_ICON_QSIZE)
         self.set_tbtn.setToolTip("Set with value cross-ruler pointed")
 
         # view retake points btn
-        self.view_selected_pts_tbtn.setIcon(QIcon(QPixmap(points_icon)))
         self.view_selected_pts_tbtn.setIconSize(BOTTOM_TBTN_ICON_QSIZE)
         self.view_selected_pts_tbtn.setToolTip("Show selected points to retake")
 
