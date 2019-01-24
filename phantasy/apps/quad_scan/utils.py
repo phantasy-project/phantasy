@@ -23,8 +23,8 @@ def draw_beam_ellipse(ax, alpha, beta, gamma, epsilon):
 
     xc, yc = 0, 0
 
-    w = (2 * epsilon / (beta + gamma - ((beta + gamma)**2 - 4)**0.5))**0.5
-    h = (0.5 * epsilon * (beta + gamma - ((beta + gamma)**2 - 4)**0.5))**0.5
+    w = (2 * epsilon / (beta + gamma + ((beta + gamma)**2 - 4)**0.5))**0.5
+    h = (0.5 * epsilon * (beta + gamma + ((beta + gamma)**2 - 4)**0.5))**0.5
 
     angle = np.arctan(2 * alpha / (gamma - beta))  # radian
     if angle >= 0:
