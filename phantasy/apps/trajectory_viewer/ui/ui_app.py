@@ -182,7 +182,7 @@ class Ui_MainWindow(object):
         self.gridLayout_5.addWidget(self.h_splitter, 0, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1507, 29))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1507, 30))
         self.menubar.setObjectName("menubar")
         self.menu_File = QtWidgets.QMenu(self.menubar)
         self.menu_File.setObjectName("menu_File")
@@ -283,7 +283,7 @@ class Ui_MainWindow(object):
         self.actionContents.setShortcut(_translate("MainWindow", "F1"))
         self.actionORM.setText(
             _translate("MainWindow", "Orbit Response Matrix"))
-        self.actionORM.setShortcut(_translate("MainWindow", "Ctrl+Shift+M"))
+        self.actionORM.setShortcut(_translate("MainWindow", "Ctrl+Alt+M"))
         self.actionLoad_Lattice.setText(
             _translate("MainWindow", "Load Lattice"))
         self.actionLoad_Lattice.setShortcut(
