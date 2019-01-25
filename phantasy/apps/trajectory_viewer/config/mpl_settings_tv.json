@@ -35,7 +35,7 @@
   ],
   "figure": {
     "labels": {
-      "font": "Noto Sans,16,-1,5,50,0,0,0,0,0",
+      "font": "Sans,12,-1,5,50,0,0,0,0,0",
       "xlabel": "$s$ [m]",
       "ylabel": "BPM Readings [mm]"
     },
@@ -44,7 +44,7 @@
       "show": true
     },
     "title": {
-      "font": "DejaVu Sans,12,-1,5,50,0,0,0,0,0",
+      "font": "Sans,12,-1,5,50,0,0,0,0,0",
       "value": ""
     },
     "xy_range": {
@@ -71,7 +71,7 @@
     },
     "ticks": {
       "color": "#000000",
-      "font": "Noto Sans,12,-1,5,50,0,0,0,0,0",
+      "font": "Sans,10,-1,5,50,0,0,0,0,0",
       "mticks_on": true
     }
   }
