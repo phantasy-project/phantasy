@@ -15,6 +15,7 @@ __version__ = '1.0'
 def run(cli=False):
     app = QApplication(sys.argv)
     w = LatticeViewerWindow(version=__version__)
+    w.setWindowTitle("FRIB Lattice Viewer")
     w.show()
     if cli:
         app.exec_()
