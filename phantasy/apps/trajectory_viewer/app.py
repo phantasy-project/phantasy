@@ -1,15 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from .ui.ui_app import Ui_MainWindow
-from .app_help import HelpDialog
-from .utils import apply_mplcurve_settings
-from phantasy_ui.templates import BaseAppForm
-
 from PyQt5.QtCore import QVariant
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import QTimer
+
+from phantasy_ui.templates import BaseAppForm
+from phantasy_ui.widgets.latticewidget import LatticeWidget
+
+from .app_help import HelpDialog
+from .utils import apply_mplcurve_settings
+from .ui.ui_app import Ui_MainWindow
 
 
 class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
@@ -17,6 +19,7 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
     lineChanged = pyqtSignal(int)
     xdataChanged = pyqtSignal(QVariant)
     ydataChanged = pyqtSignal(QVariant)
+
     def __init__(self, version):
         super(TrajectoryViewerWindow, self).__init__()
 
@@ -54,10 +57,13 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
         self.stop_btn.clicked.connect(self.stop_daq)
         self.stop_btn.clicked.connect(self.stop_btn.setEnabled)
         self.stop_btn.clicked.connect(lambda x:self.start_btn.setEnabled(not x))
+
         # select element btn
         self.select_elem_btn.clicked.connect(self.on_select_elements)
+
         # DAQ freq
         self.freq_dSpinbox.valueChanged[float].connect(self.update_daqfreq)
+
         # curve
         self.lineChanged.connect(self.matplotlibcurveWidget.setLineID)
         self.xdataChanged.connect(self.matplotlibcurveWidget.setXData)
@@ -93,6 +99,9 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
         self._daqfreq = f
 
     def post_init(self):
+        # lattice load window
+        self.lattice_load_window = None
+
         self.start_btn.setEnabled(True)
         self.stop_btn.setEnabled(False)
         # add another curve to matplotlibcurveWidget
@@ -105,7 +114,7 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
         apply_mplcurve_settings(self.matplotlibcurveWidget)
 
     @pyqtSlot(QVariant)
-    def onLatticeChanged(self, o):
+    def update_lattice(self, o):
         all_bpms = o.get_elements(type='BPM')
         if all_bpms:
             self._bpms = all_bpms
@@ -139,6 +148,27 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
         d = HelpDialog(self)
         d.resize(800, 600)
         d.exec_()
+
+    @pyqtSlot()
+    def on_launch_orm(self):
+        """Launch ORM app.
+        """
+        from phantasy.apps.orm import OrbitResponseMatrixWindow
+        from phantasy.apps.orm import __version__
+
+        self.orm_window = OrbitResponseMatrixWindow(__version__)
+        self.orm_window.show()
+
+    @pyqtSlot()
+    def onLoadLatticeAction(self):
+        """Load lattice.
+        """
+        if self.lattice_load_window is None:
+            self.lattice_load_window = LatticeWidget()
+        self.lattice_load_window.show()
+        self.lattice_load_window.latticeChanged.connect(self.update_lattice)
+
+
 
 if __name__ == '__main__':
     from PyQt5.QtWidgets import QApplication
