@@ -16,7 +16,8 @@ def run(cli=False):
     app = QApplication(sys.argv)
     w = CorrelationVisualizerWindow(version=__version__)
     w.show()
-    w.setWindowTitle("Parameters Correlation Analysis and Visualization")
+    #w.setWindowTitle("Parameters Correlation Analysis and Visualization")
+    w.setWindowTitle("Generic Parameters Scan Analysis Application")
     if cli:
         app.exec_()
     else:
