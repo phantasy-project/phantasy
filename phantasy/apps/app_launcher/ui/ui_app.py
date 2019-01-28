@@ -12,7 +12,12 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(933, 316)
+        MainWindow.resize(944, 316)
+        icon = QtGui.QIcon()
+        icon.addPixmap(
+            QtGui.QPixmap(":/icons/app.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        MainWindow.setWindowIcon(icon)
         MainWindow.setStyleSheet("")
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
@@ -25,21 +30,21 @@ class Ui_MainWindow(object):
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.cv_btn = QtWidgets.QToolButton(self.centralwidget)
-        icon = QtGui.QIcon()
-        icon.addPixmap(
-            QtGui.QPixmap(":/icons/cv_icon.png"), QtGui.QIcon.Normal,
+        icon1 = QtGui.QIcon()
+        icon1.addPixmap(
+            QtGui.QPixmap(":/icons/cv.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.cv_btn.setIcon(icon)
+        self.cv_btn.setIcon(icon1)
         self.cv_btn.setIconSize(QtCore.QSize(128, 128))
         self.cv_btn.setAutoRaise(True)
         self.cv_btn.setObjectName("cv_btn")
         self.horizontalLayout.addWidget(self.cv_btn)
         self.qs_btn = QtWidgets.QToolButton(self.centralwidget)
-        icon1 = QtGui.QIcon()
-        icon1.addPixmap(
+        icon2 = QtGui.QIcon()
+        icon2.addPixmap(
             QtGui.QPixmap(":/icons/qs.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.qs_btn.setIcon(icon1)
+        self.qs_btn.setIcon(icon2)
         self.qs_btn.setIconSize(QtCore.QSize(128, 128))
         self.qs_btn.setAutoRaise(True)
         self.qs_btn.setObjectName("qs_btn")
@@ -52,41 +57,41 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(
             self.ws_btn.sizePolicy().hasHeightForWidth())
         self.ws_btn.setSizePolicy(sizePolicy)
-        icon2 = QtGui.QIcon()
-        icon2.addPixmap(
+        icon3 = QtGui.QIcon()
+        icon3.addPixmap(
             QtGui.QPixmap(":/icons/ws.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.ws_btn.setIcon(icon2)
+        self.ws_btn.setIcon(icon3)
         self.ws_btn.setIconSize(QtCore.QSize(128, 128))
         self.ws_btn.setAutoRaise(True)
         self.ws_btn.setObjectName("ws_btn")
         self.horizontalLayout.addWidget(self.ws_btn)
         self.va_btn = QtWidgets.QToolButton(self.centralwidget)
-        icon3 = QtGui.QIcon()
-        icon3.addPixmap(
-            QtGui.QPixmap(":/icons/frib_va.png"), QtGui.QIcon.Normal,
+        icon4 = QtGui.QIcon()
+        icon4.addPixmap(
+            QtGui.QPixmap(":/icons/va.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.va_btn.setIcon(icon3)
+        self.va_btn.setIcon(icon4)
         self.va_btn.setIconSize(QtCore.QSize(128, 128))
         self.va_btn.setAutoRaise(True)
         self.va_btn.setObjectName("va_btn")
         self.horizontalLayout.addWidget(self.va_btn)
         self.tv_btn = QtWidgets.QToolButton(self.centralwidget)
-        icon4 = QtGui.QIcon()
-        icon4.addPixmap(
-            QtGui.QPixmap(":/icons/tv_icon.png"), QtGui.QIcon.Normal,
+        icon5 = QtGui.QIcon()
+        icon5.addPixmap(
+            QtGui.QPixmap(":/icons/tv.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.tv_btn.setIcon(icon4)
+        self.tv_btn.setIcon(icon5)
         self.tv_btn.setIconSize(QtCore.QSize(128, 128))
         self.tv_btn.setAutoRaise(True)
         self.tv_btn.setObjectName("tv_btn")
         self.horizontalLayout.addWidget(self.tv_btn)
         self.un_btn = QtWidgets.QToolButton(self.centralwidget)
-        icon5 = QtGui.QIcon()
-        icon5.addPixmap(
-            QtGui.QPixmap(":/icons/unicorn-icon.png"), QtGui.QIcon.Normal,
+        icon6 = QtGui.QIcon()
+        icon6.addPixmap(
+            QtGui.QPixmap(":/icons/un.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.un_btn.setIcon(icon5)
+        self.un_btn.setIcon(icon6)
         self.un_btn.setIconSize(QtCore.QSize(128, 128))
         self.un_btn.setAutoRaise(True)
         self.un_btn.setObjectName("un_btn")
@@ -104,11 +109,11 @@ class Ui_MainWindow(object):
                                            QtWidgets.QSizePolicy.Expanding)
         self.verticalLayout.addItem(spacerItem)
         self.add_btn = QtWidgets.QToolButton(self.centralwidget)
-        icon6 = QtGui.QIcon()
-        icon6.addPixmap(
+        icon7 = QtGui.QIcon()
+        icon7.addPixmap(
             QtGui.QPixmap(":/icons/add.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.add_btn.setIcon(icon6)
+        self.add_btn.setIcon(icon7)
         self.add_btn.setIconSize(QtCore.QSize(24, 24))
         self.add_btn.setAutoRaise(True)
         self.add_btn.setObjectName("add_btn")
@@ -117,7 +122,7 @@ class Ui_MainWindow(object):
         self.gridLayout.addLayout(self.horizontalLayout, 0, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 933, 30))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 944, 30))
         self.menubar.setObjectName("menubar")
         MainWindow.setMenuBar(self.menubar)
 
