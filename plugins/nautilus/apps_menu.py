@@ -5,6 +5,7 @@ from gi.repository import Nautilus as Explorer
 from gi.repository import GObject
 
 import os
+from datetime import datetime
 from subprocess import Popen, PIPE
 
 LOG_PATH = "/tmp/phantasy_logs/"
