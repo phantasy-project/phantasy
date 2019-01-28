@@ -1,3 +1,16 @@
+Version 1.9.1
+-------------
+2019-01-27
+
+- PHANTASY Apps:
+  - Update icons
+  - Install executables for Python 3 default
+    - Install executables for Python 2 with suffix `_py2`
+  - Update UIs
+
+- Plugins:
+  - Contex menu access point for physics apps
+
 Version 1.9.0
 -------------
 2019-01-22
