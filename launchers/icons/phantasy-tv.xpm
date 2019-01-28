@@ -1,5 +1,5 @@
 /* XPM */
-static char *app_512x512[] = {
+static char *app[] = {
 /* columns rows colors chars-per-pixel */
 "512 512 238 2 ",
 "   c #7D1F7D",
