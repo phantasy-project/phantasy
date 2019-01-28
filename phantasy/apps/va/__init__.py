@@ -15,6 +15,7 @@ __version__ = '1.2'
 def run(cli=False):
     app = QApplication(sys.argv)
     w = VALauncherWindow(version=__version__)
+    w.adjustSize()
     w.show()
     w.setWindowTitle("Virtual Accelerator Launcher")
     if cli:

@@ -22,12 +22,6 @@ from phantasy.apps.utils import uptime
 
 from .ui.ui_app import Ui_MainWindow
 from .app_vainfo import VAProcessInfoWidget
-from .icons import va_icon
-from .icons import run_icon
-from .icons import stop_icon
-from .icons import nb_run_icon
-from .icons import nb_stop_icon
-from .icons import info_icon
 
 CURDIR = os.path.dirname(__file__)
 
@@ -60,7 +54,6 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
 
         # window title/icon
         self.setWindowTitle("Virtual Accelerator Launcher")
-        self.setWindowIcon(QIcon(QPixmap(va_icon)))
 
         # set app properties
         self.setAppTitle("VA Launcher")
@@ -147,19 +140,15 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
 
     def _setup_toolbar(self):
         # va run tool
-        self.va_run_tool.setIcon(QIcon(QPixmap(run_icon)))
         self.va_run_tool.setToolTip("RUN VA")
 
         # va stop tool
-        self.va_stop_tool.setIcon(QIcon(QPixmap(stop_icon)))
         self.va_stop_tool.setToolTip("STOP VA")
 
         # notebook tool
-        self.nb_tool.setIcon(QIcon(QPixmap(nb_run_icon)))
         self.nb_tool.setToolTip("Launch Jupyter-notebook")
 
         # va info tool
-        self.va_info_tool.setIcon(QIcon(QPixmap(info_icon)))
         self.va_info_tool.setToolTip("Show VA running status")
 
         # initial visibility
@@ -323,7 +312,7 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
         obj = self.sender()
         def on_nb_started():
             obj.setText("STOP-NB")
-            obj.setIcon(QIcon(QPixmap(nb_stop_icon)))
+            obj.setIcon(QIcon(QPixmap(":/icons/notebook_stop.png")))
             obj.setToolTip("Stop Jupyter-notebook")
 
         if obj.text() == "RUN-NB":
@@ -339,7 +328,7 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
         elif obj.text() == "STOP-NB":
             self.nb_p.kill()
             obj.setText("RUN-NB")
-            obj.setIcon(QIcon(QPixmap(nb_run_icon)))
+            obj.setIcon(QIcon(QPixmap(":/icons/notebook_run.png")))
             obj.setToolTip("Launch Jupyter-notebook")
 
     def enable_all_tools(self, enable=True):
@@ -416,3 +405,6 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
                   self.mps_monitor_radiobtn, self.mps_enable_radiobtn,
                   self.mps_pvname_lbl):
             o.setEnabled(enable)
+
+    def sizeHint(self):
+        return QSize(700, 400)
