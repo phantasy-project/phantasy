@@ -26,6 +26,9 @@ class ElementSelectionWidget(QWidget, Ui_Form):
     # set of device types of elements (checked)
     dtypeChanged = pyqtSignal(set)
 
+    # selected elements, list of CaElement
+    elementsSelected = pyqtSignal(list)
+
     def __init__(self, parent, mp, **kws):
         super(ElementSelectionWidget, self).__init__()
         self.parent = parent
@@ -86,8 +89,13 @@ class ElementSelectionWidget(QWidget, Ui_Form):
         # kws: dtypes
         model = LatticeDataModel(tv, o, **kws)
         model.selectedItemsNumberChanged.connect(lambda i:self.selected_nelem_lineEdit.setText(str(i)))
+        model.itemsSelected.connect(self.on_items_selected)
         model.set_model()
         self.listed_nelem_lineEdit.setText("{}".format(tv.model().rowCount()))
+
+    @pyqtSlot(list)
+    def on_items_selected(self, elems):
+        self.elementsSelected.emit(elems)
 
 
 if __name__ == '__main__':
