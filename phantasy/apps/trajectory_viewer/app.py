@@ -6,19 +6,29 @@ from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import QTimer
 
+from PyQt5.QtWidgets import QMessageBox
+
+from functools import partial
+
 from phantasy_ui.templates import BaseAppForm
 from phantasy_ui.widgets.latticewidget import LatticeWidget
 
+from .app_elem_selection import ElementSelectionWidget
 from .app_help import HelpDialog
 from .utils import apply_mplcurve_settings
 from .ui.ui_app import Ui_MainWindow
+from .utils import ElementListModel
 
 
 class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
 
+    # curves
     lineChanged = pyqtSignal(int)
     xdataChanged = pyqtSignal(QVariant)
     ydataChanged = pyqtSignal(QVariant)
+
+    # lattice is loaded
+    latticeChanged = pyqtSignal(QVariant)
 
     def __init__(self, version):
         super(TrajectoryViewerWindow, self).__init__()
@@ -58,8 +68,13 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
         self.stop_btn.clicked.connect(self.stop_btn.setEnabled)
         self.stop_btn.clicked.connect(lambda x:self.start_btn.setEnabled(not x))
 
-        # select element btn
-        self.select_elem_btn.clicked.connect(self.on_select_elements)
+        # select element btn: BPMs
+        self.select_bpms_btn.clicked.connect(
+                partial(self.on_select_elements, 'bpm', ["BPM"]))
+
+        # select element btn:CORs
+        self.select_cors_btn.clicked.connect(
+                partial(self.on_select_elements, 'cor', ["HCOR", "VCOR"]))
 
         # DAQ freq
         self.freq_dSpinbox.valueChanged[float].connect(self.update_daqfreq)
@@ -72,35 +87,31 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
         self.daq_timer = QTimer()
         self.daq_timer.timeout.connect(self.on_daq_update)
 
-        # external window stack
-        self._win_stack = []
-        self._external_win = None
-
     @pyqtSlot()
-    def on_select_elements(self):
-        return
-        from PyQt5.QtWidgets import QWidget, QMainWindow
-        from PyQt5.QtCore import Qt
-        from PyQt5.QtCore import QRect
-        w = QMainWindow()
-        #self._win_stack.append(w)
-        self._external_win = w
-        cw = QWidget()
-        w.setCentralWidget(cw)
-        # add widgets to cw
-        w.resize(600, 400)
+    def on_select_elements(self, mode, dtype_list):
+        """Select devices.
+        """
+        if self.__mp is None:
+            QMessageBox.warning(self, "Select Element",
+                    "Cannot find loaded lattice, try to load first, either by clicking Tools --> Load Lattice or Ctrl + Shift + L.",
+                    QMessageBox.Ok)
+            return
+        w = self._elem_sel_widgets.setdefault(mode,
+                ElementSelectionWidget(self, self.__mp, dtypes=dtype_list))
         w.show()
-        w.raise_()
-        w.activateWindow()
-
 
     @pyqtSlot(float)
     def update_daqfreq(self, f):
         self._daqfreq = f
 
     def post_init(self):
+        #
+        self.__mp = None
+
         # lattice load window
-        self.lattice_load_window = None
+        self._lattice_load_window = None
+        # elem selection widget, key: 'bpm' and 'cor'
+        self._elem_sel_widgets = {}
 
         self.start_btn.setEnabled(True)
         self.stop_btn.setEnabled(False)
@@ -113,8 +124,24 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
         # load default figure config
         apply_mplcurve_settings(self.matplotlibcurveWidget)
 
+    @pyqtSlot(list)
+    def on_update_bpm_list(self, bpms):
+        """Selected BPMs list updated.
+        """
+        model = ElementListModel(self.bpms_treeView, bpms)
+        model.set_model()
+
+    @pyqtSlot(list)
+    def on_update_cor_list(self, cors):
+        """Selected cors list updated.
+        """
+        model = ElementListModel(self.cors_treeView, cors)
+        model.set_model()
+
     @pyqtSlot(QVariant)
     def update_lattice(self, o):
+        self.__mp = o
+        self.latticeChanged.emit(o)
         all_bpms = o.get_elements(type='BPM')
         if all_bpms:
             self._bpms = all_bpms
@@ -163,11 +190,12 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
     def onLoadLatticeAction(self):
         """Load lattice.
         """
-        if self.lattice_load_window is None:
-            self.lattice_load_window = LatticeWidget()
-        self.lattice_load_window.show()
-        self.lattice_load_window.latticeChanged.connect(self.update_lattice)
-
+        if self._lattice_load_window is None:
+            self._lattice_load_window = LatticeWidget()
+        self._lattice_load_window.show()
+        self._lattice_load_window.latticeChanged.connect(self.update_lattice)
+        # reset element selection widgets
+        self._elem_sel_widgets = {}
 
 
 if __name__ == '__main__':
