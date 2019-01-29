@@ -36,6 +36,12 @@ class Ui_MainWindow(object):
             "    /*background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
             "                                      stop: 0 #EDECEB, stop: 1 #FFFFFF);\n"
             "    */\n"
+            "}\n"
+            "\n"
+            "QLineEdit {\n"
+            "    border: 0.5px solid gray;\n"
+            "    padding: 1 5px;\n"
+            "    border-radius: 3px;\n"
             "}")
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
@@ -68,7 +74,36 @@ class Ui_MainWindow(object):
         self.matplotlibcurveWidget = MatplotlibCurveWidget(self.groupBox_2)
         self.matplotlibcurveWidget.setProperty("figureTightLayout", False)
         self.matplotlibcurveWidget.setObjectName("matplotlibcurveWidget")
-        self.gridLayout_2.addWidget(self.matplotlibcurveWidget, 0, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.matplotlibcurveWidget, 1, 0, 1, 1)
+        self.horizontalLayout = QtWidgets.QHBoxLayout()
+        self.horizontalLayout.setContentsMargins(-1, 0, -1, -1)
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        self.label = QtWidgets.QLabel(self.groupBox_2)
+        self.label.setObjectName("label")
+        self.horizontalLayout.addWidget(self.label)
+        self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
+        self.xmin_lineEdit = QtWidgets.QLineEdit(self.groupBox_2)
+        self.xmin_lineEdit.setObjectName("xmin_lineEdit")
+        self.horizontalLayout_2.addWidget(self.xmin_lineEdit)
+        self.xmax_lineEdit = QtWidgets.QLineEdit(self.groupBox_2)
+        self.xmax_lineEdit.setObjectName("xmax_lineEdit")
+        self.horizontalLayout_2.addWidget(self.xmax_lineEdit)
+        self.horizontalLayout.addLayout(self.horizontalLayout_2)
+        self.label_7 = QtWidgets.QLabel(self.groupBox_2)
+        self.label_7.setObjectName("label_7")
+        self.horizontalLayout.addWidget(self.label_7)
+        self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_3.setContentsMargins(-1, -1, 0, -1)
+        self.horizontalLayout_3.setObjectName("horizontalLayout_3")
+        self.ymin_lineEdit = QtWidgets.QLineEdit(self.groupBox_2)
+        self.ymin_lineEdit.setObjectName("ymin_lineEdit")
+        self.horizontalLayout_3.addWidget(self.ymin_lineEdit)
+        self.ymax_lineEdit = QtWidgets.QLineEdit(self.groupBox_2)
+        self.ymax_lineEdit.setObjectName("ymax_lineEdit")
+        self.horizontalLayout_3.addWidget(self.ymax_lineEdit)
+        self.horizontalLayout.addLayout(self.horizontalLayout_3)
+        self.gridLayout_2.addLayout(self.horizontalLayout, 0, 0, 1, 1)
         self.groupBox = QtWidgets.QGroupBox(self.v_splitter_1)
         self.groupBox.setAlignment(QtCore.Qt.AlignLeading | QtCore.Qt.AlignLeft
                                    | QtCore.Qt.AlignVCenter)
@@ -138,16 +173,16 @@ class Ui_MainWindow(object):
         self.label_4 = QtWidgets.QLabel(self.groupBox_3)
         self.label_4.setObjectName("label_4")
         self.gridLayout_4.addWidget(self.label_4, 0, 0, 1, 1)
-        self.select_elem_btn = QtWidgets.QPushButton(self.groupBox_3)
+        self.select_bpms_btn = QtWidgets.QPushButton(self.groupBox_3)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
                                            QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(
-            self.select_elem_btn.sizePolicy().hasHeightForWidth())
-        self.select_elem_btn.setSizePolicy(sizePolicy)
-        self.select_elem_btn.setObjectName("select_elem_btn")
-        self.gridLayout_4.addWidget(self.select_elem_btn, 0, 1, 1, 1)
+            self.select_bpms_btn.sizePolicy().hasHeightForWidth())
+        self.select_bpms_btn.setSizePolicy(sizePolicy)
+        self.select_bpms_btn.setObjectName("select_bpms_btn")
+        self.gridLayout_4.addWidget(self.select_bpms_btn, 0, 1, 1, 1)
         spacerItem2 = QtWidgets.QSpacerItem(599, 20,
                                             QtWidgets.QSizePolicy.Expanding,
                                             QtWidgets.QSizePolicy.Minimum)
@@ -162,16 +197,16 @@ class Ui_MainWindow(object):
         self.label_6 = QtWidgets.QLabel(self.groupBox_4)
         self.label_6.setObjectName("label_6")
         self.gridLayout_3.addWidget(self.label_6, 0, 0, 1, 1)
-        self.select_elem_btn_2 = QtWidgets.QPushButton(self.groupBox_4)
+        self.select_cors_btn = QtWidgets.QPushButton(self.groupBox_4)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
                                            QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(
-            self.select_elem_btn_2.sizePolicy().hasHeightForWidth())
-        self.select_elem_btn_2.setSizePolicy(sizePolicy)
-        self.select_elem_btn_2.setObjectName("select_elem_btn_2")
-        self.gridLayout_3.addWidget(self.select_elem_btn_2, 0, 1, 1, 1)
+            self.select_cors_btn.sizePolicy().hasHeightForWidth())
+        self.select_cors_btn.setSizePolicy(sizePolicy)
+        self.select_cors_btn.setObjectName("select_cors_btn")
+        self.gridLayout_3.addWidget(self.select_cors_btn, 0, 1, 1, 1)
         spacerItem3 = QtWidgets.QSpacerItem(560, 20,
                                             QtWidgets.QSizePolicy.Expanding,
                                             QtWidgets.QSizePolicy.Minimum)
@@ -259,6 +294,8 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.groupBox_2.setTitle(
             _translate("MainWindow", "Data Visualization"))
+        self.label.setText(_translate("MainWindow", "XLimit"))
+        self.label_7.setText(_translate("MainWindow", "YLimit"))
         self.groupBox.setTitle(_translate("MainWindow", "DAQ Configuration"))
         self.label_3.setText(_translate("MainWindow", "Hz"))
         self.stop_btn.setText(_translate("MainWindow", "Stop"))
@@ -267,10 +304,10 @@ class Ui_MainWindow(object):
         self.label_5.setText(_translate("MainWindow", "Action"))
         self.groupBox_3.setTitle(_translate("MainWindow", "Monitors"))
         self.label_4.setText(_translate("MainWindow", "Select BPMs"))
-        self.select_elem_btn.setText(_translate("MainWindow", "Choose"))
+        self.select_bpms_btn.setText(_translate("MainWindow", "Choose"))
         self.groupBox_4.setTitle(_translate("MainWindow", "Correctors"))
         self.label_6.setText(_translate("MainWindow", "Select Correctors"))
-        self.select_elem_btn_2.setText(_translate("MainWindow", "Choose"))
+        self.select_cors_btn.setText(_translate("MainWindow", "Choose"))
         self.menu_File.setTitle(_translate("MainWindow", "&File"))
         self.menu_Help.setTitle(_translate("MainWindow", "&Help"))
         self.menu_Tools.setTitle(_translate("MainWindow", "&Tools"))
