@@ -12,7 +12,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1693, 1499)
+        MainWindow.resize(1693, 1508)
         icon = QtGui.QIcon()
         icon.addPixmap(
             QtGui.QPixmap(":/icons/ws.png"), QtGui.QIcon.Normal,
@@ -203,7 +203,7 @@ class Ui_MainWindow(object):
         self.pm_detail_btn = QtWidgets.QToolButton(self.controls_groupBox)
         icon3 = QtGui.QIcon()
         icon3.addPixmap(
-            QtGui.QPixmap(":/icons/browse.png"), QtGui.QIcon.Normal,
+            QtGui.QPixmap(":/icons/view-details.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
         self.pm_detail_btn.setIcon(icon3)
         self.pm_detail_btn.setIconSize(QtCore.QSize(20, 20))
@@ -682,7 +682,7 @@ class Ui_MainWindow(object):
         self.fontsize_inc_btn = QtWidgets.QToolButton(self.groupBox_2)
         icon19 = QtGui.QIcon()
         icon19.addPixmap(
-            QtGui.QPixmap(":/icons/increase_fontsize.png"), QtGui.QIcon.Normal,
+            QtGui.QPixmap(":/icons/increase-font.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
         self.fontsize_inc_btn.setIcon(icon19)
         self.fontsize_inc_btn.setIconSize(QtCore.QSize(20, 20))
@@ -692,7 +692,7 @@ class Ui_MainWindow(object):
         self.fontsize_dec_btn = QtWidgets.QToolButton(self.groupBox_2)
         icon20 = QtGui.QIcon()
         icon20.addPixmap(
-            QtGui.QPixmap(":/icons/decrease_fontsize.png"), QtGui.QIcon.Normal,
+            QtGui.QPixmap(":/icons/decrease-font.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
         self.fontsize_dec_btn.setIcon(icon20)
         self.fontsize_dec_btn.setIconSize(QtCore.QSize(20, 20))
@@ -1280,7 +1280,7 @@ class Ui_MainWindow(object):
         self.gridLayout.addWidget(self.v_splitter, 0, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1693, 29))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1693, 30))
         self.menubar.setObjectName("menubar")
         self.menu_File = QtWidgets.QMenu(self.menubar)
         self.menu_File.setObjectName("menu_File")
