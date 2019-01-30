@@ -77,6 +77,7 @@ class ElementSelectionWidget(QWidget, Ui_Form):
         else:
             self.__dtypes.add(dtype)
 
+        # refresh model
         self.update_lattice_data(self.treeView,
                 self.__mp, dtypes=self.__dtypes)
 
@@ -88,14 +89,28 @@ class ElementSelectionWidget(QWidget, Ui_Form):
     def update_lattice_data(self, tv, o, **kws):
         # kws: dtypes
         model = LatticeDataModel(tv, o, **kws)
-        model.selectedItemsNumberChanged.connect(lambda i:self.selected_nelem_lineEdit.setText(str(i)))
         model.itemsSelected.connect(self.on_items_selected)
+        model.selectedItemsNumberChanged.connect(lambda i:self.selected_nelem_lineEdit.setText(str(i)))
         model.set_model()
         self.listed_nelem_lineEdit.setText("{}".format(tv.model().rowCount()))
 
     @pyqtSlot(list)
-    def on_items_selected(self, elems):
-        self.elementsSelected.emit(elems)
+    def on_items_selected(self, enames):
+        # update selected enames
+        #print("Selected: {} elements".format(len(enames)))
+        self._selected_enames = enames
+
+    @pyqtSlot()
+    def on_click_apply(self):
+        """Apply selected elements.
+        """
+        print(self._selected_enames, len(self._selected_enames))
+        self.elementsSelected.emit(self._selected_enames)
+
+    @pyqtSlot()
+    def on_click_ok(self):
+        self.on_click_apply()
+        self.close()
 
 
 if __name__ == '__main__':
