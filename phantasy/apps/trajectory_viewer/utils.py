@@ -274,7 +274,7 @@ class ElementListModel(QStandardItemModel):
             self._selected_elements.pop(ename)
 
         # print selected elements
-        print(self._selected_elements)
+        #print(self._selected_elements)
         self.elementSelected.emit(self._selected_elements)
 
     def get_all_elements(self, category="all"):
@@ -297,6 +297,24 @@ class ElementListModel(QStandardItemModel):
             tv.resizeColumnToContents(i)
         #tv.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         #tv.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+
+    def select_all_items(self):
+        """Mark all items as checked.
+        """
+        for irow in range(self.rowCount()):
+            item = self.item(irow, 0)
+            item.setCheckState(Qt.Checked)
+
+    def inverse_current_selection(self):
+        """Inverse current selection.
+        """
+        for irow in range(self.rowCount()):
+            item = self.item(irow, 0)
+            state = item.checkState()
+            if state == Qt.Unchecked:
+                item.setCheckState(Qt.Checked)
+            else:
+                item.setCheckState(Qt.Unchecked)
 
 
 def is_item_checked(item):
