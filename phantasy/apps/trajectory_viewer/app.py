@@ -120,9 +120,9 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
             self._bpms = []
             return
         if strategy == "all":
-            self._bpms = self.bpms_treeView.model().get_all_elements()
+            self._bpms = self.bpms_treeView.model().get_elements("all")
         else:
-            self._bpms = self.bpms_treeView.model().get_all_elements("selected")
+            self._bpms = self.bpms_treeView.model().get_elements("selected")
 
     @pyqtSlot(bool)
     def on_update_unit(self, unit, f):
@@ -182,13 +182,9 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
 
     @pyqtSlot(OrderedDict)
     def on_elem_selection_updated(self, mode, d):
-        """BPMs selection is updated.
-        """
-        # trigge the update of self._bpms and fields
-        #print(d)
-
-        ### merge into on_elem_selection_updated() slot
-        # try to update monitors
+        # BPMs selection (bpms_treeView) is updated.
+        # trigger the update of self._bpms and fields
+        # update monitors
         for o in (self.use_selected_bpms_rbtn, self.use_all_bpms_rbtn):
             o.toggled.emit(o.isChecked())
 

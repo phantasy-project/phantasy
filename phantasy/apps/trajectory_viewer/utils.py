@@ -253,7 +253,6 @@ class ElementListModel(QStandardItemModel):
     @pyqtSlot('QString')
     def on_field_changed(self, item, field):
         is_checked = is_item_checked(item)
-        #print("Element is checked? {}, {}".format(is_checked, field))
         if is_checked:
             self._selected_elements.update({item.text(): str2list(field)})
 
@@ -277,7 +276,7 @@ class ElementListModel(QStandardItemModel):
         #print(self._selected_elements)
         self.elementSelected.emit(self._selected_elements)
 
-    def get_all_elements(self, category="all"):
+    def get_elements(self, category="all"):
         """Return a list of CaElement, if *category* is 'all', return all
         elements in this model, or 'selected' just return selected ones.
         """
