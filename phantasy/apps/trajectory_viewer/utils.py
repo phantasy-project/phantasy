@@ -74,7 +74,7 @@ def apply_mplcurve_settings(mplcurveWidget, json_path=None):
 class LatticeDataModel(QStandardItemModel):
     """Lattice data model fot TV.
     """
-    # items are selected, list of CaElement
+    # items are selected, list of element names
     itemsSelected = pyqtSignal(list)
 
     # n selected items
@@ -113,11 +113,10 @@ class LatticeDataModel(QStandardItemModel):
 
     def _update_selection(self, ename, item):
         # update selected items
-        elem = self._mp.get_elements(name=ename)[0]
         if is_item_checked(item):
-            self._selected_items.append(elem)
+            self._selected_items.append(ename)
         else:
-            self._selected_items.remove(elem)
+            self._selected_items.remove(ename)
         self.itemsSelected.emit(self._selected_items)
         self.selectedItemsNumberChanged.emit(len(self._selected_items))
         #print(self._selected_items)
@@ -128,6 +127,7 @@ class LatticeDataModel(QStandardItemModel):
             dtypes = self._mp.get_all_types()
 
         for elem in self._mp.work_lattice_conf:
+
             if elem.family not in dtypes:
                 #print(elem.name, 'is skipped')
                 continue
@@ -165,10 +165,14 @@ class ElementListModel(QStandardItemModel):
     # item selected
     elementSelected = pyqtSignal(OrderedDict)
 
-    def __init__(self, parent, elems, **kws):
+    def __init__(self, parent, mp, enames, **kws):
         super(self.__class__, self).__init__(parent)
         self._v = parent
-        self._elems = elems
+        self._mp = mp
+        self._enames = enames
+
+        # mapping of ename and element
+        self.name_elem_map = {i.name: i for i in self._mp.work_lattice_conf}
 
         col_name_map = OrderedDict((
             ('Name', 'name'),
@@ -202,11 +206,11 @@ class ElementListModel(QStandardItemModel):
     def set_data(self):
         # name w/ chkbox, field (cbb), detail (btn)
         v = self._v
-        for elem in self._elems:
+        for ename in self._enames:
             row = []
             for f in self._col_name_map.values():
                 if f == 'name':
-                    item = QStandardItem(elem.name)
+                    item = QStandardItem(ename)
                     item.setCheckable(True)
                 else:
                     item = QStandardItem('TBF')
@@ -216,11 +220,14 @@ class ElementListModel(QStandardItemModel):
 
     def set_columns(self):
         v = self._v
-        for i, elem in enumerate(self._elems):
+        for i, ename in enumerate(self._enames):
             # fields
+            elem = self.name_elem_map[ename]
             cbb = QComboBox()
             if elem.family == 'BPM':
                 cbb.addItems(["X&Y", "X", "Y"])
+            else:
+                cbb.addItems(elem.fields)
             v.setIndexWidget(self.index(i, self.i_field), cbb)
             elem_item = self.item(i, self.i_name)
             cbb.currentTextChanged.connect(
@@ -229,7 +236,7 @@ class ElementListModel(QStandardItemModel):
             btn = QToolButton()
             btn.setIcon(QIcon(QPixmap(details_icon)))
             btn.setIconSize(QSize(24, 24))
-            btn.setToolTip("Show details of {}.".format(elem.name))
+            btn.setToolTip("Show details of {}.".format(ename))
             v.setIndexWidget(self.index(i, self.i_info), btn)
             btn.clicked.connect(partial(self.show_elem_info, elem))
 
@@ -278,8 +285,8 @@ class ElementListModel(QStandardItemModel):
         tv.setSortingEnabled(True)
         for i in self.ids:
             tv.resizeColumnToContents(i)
-        tv.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        tv.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        #tv.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        #tv.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
 
 def is_item_checked(item):
