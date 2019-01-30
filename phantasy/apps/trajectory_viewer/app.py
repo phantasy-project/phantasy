@@ -9,6 +9,7 @@ from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QMessageBox
 
 from functools import partial
+from collections import OrderedDict
 
 from phantasy_ui.templates import BaseAppForm
 from phantasy_ui.widgets.latticewidget import LatticeWidget
@@ -18,6 +19,8 @@ from .app_help import HelpDialog
 from .utils import apply_mplcurve_settings
 from .ui.ui_app import Ui_MainWindow
 from .utils import ElementListModel
+
+BPM_UNIT_FAC = {"mm": 1.0, "m": 1e3}
 
 
 class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
@@ -57,16 +60,9 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
         # UI
         self.setupUi(self)
 
-        # post init
-        self.post_init()
-
         # events
         self.start_btn.clicked.connect(self.start_daq)
-        self.start_btn.clicked.connect(self.start_btn.setEnabled)
-        self.start_btn.clicked.connect(lambda x:self.stop_btn.setEnabled(not x))
         self.stop_btn.clicked.connect(self.stop_daq)
-        self.stop_btn.clicked.connect(self.stop_btn.setEnabled)
-        self.stop_btn.clicked.connect(lambda x:self.start_btn.setEnabled(not x))
 
         # select element btn: BPMs
         self.select_bpms_btn.clicked.connect(
@@ -84,8 +80,57 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
         self.xdataChanged.connect(self.matplotlibcurveWidget.setXData)
         self.ydataChanged.connect(self.matplotlibcurveWidget.setYData)
 
+        # bpm unit
+        self.bpm_unit_millimeter_rbtn.toggled.connect(
+                partial(self.on_update_unit, "mm"))
+        self.bpm_unit_meter_rbtn.toggled.connect(
+                partial(self.on_update_unit, "m"))
+
+        # bpm selection for monitoring
+        self.use_all_bpms_rbtn.toggled.connect(
+                partial(self.on_update_monitors, "all"))
+        self.use_selected_bpms_rbtn.toggled.connect(
+                partial(self.on_update_monitors, "selected"))
+
+        # element selection for BPMs/CORs treeview
+        self.select_all_bpms_btn.clicked.connect(
+                partial(self.on_select_all_elems, "bpm"))
+        self.inverse_bpm_selection_btn.clicked.connect(
+                partial(self.on_inverse_current_elem_selection, "bpm"))
+        self.select_all_cors_btn.clicked.connect(
+                partial(self.on_select_all_elems, "cor"))
+        self.inverse_cor_selection_btn.clicked.connect(
+                partial(self.on_inverse_current_elem_selection, "cor"))
+
+        # DAQ
         self.daq_timer = QTimer()
         self.daq_timer.timeout.connect(self.on_daq_update)
+
+        # post init
+        self.post_init()
+
+    @pyqtSlot(bool)
+    def on_update_monitors(self, strategy, f):
+        """Use all or selected BPMs as monitors.
+        """
+        if not f:
+            return
+        model = self.bpms_treeView.model()
+        if model is None:
+            self._bpms = []
+            return
+        if strategy == "all":
+            self._bpms = self.bpms_treeView.model().get_all_elements()
+        else:
+            self._bpms = self.bpms_treeView.model().get_all_elements("selected")
+
+    @pyqtSlot(bool)
+    def on_update_unit(self, unit, f):
+        """Update BPM monitorings unit.
+        """
+        if f:
+            self._bpm_unit = unit
+            #print("BPM unit: {}".format(self._bpm_unit))
 
     @pyqtSlot()
     def on_select_elements(self, mode, dtype_list):
@@ -93,7 +138,7 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
         """
         if self.__mp is None:
             QMessageBox.warning(self, "Select Element",
-                    "Cannot find loaded lattice, try to load first, either by clicking Tools --> Load Lattice or Ctrl + Shift + L.",
+                    "Cannot find loaded lattice, try to load first, either by clicking Tools > Load Lattice or Ctrl+Shift+L.",
                     QMessageBox.Ok)
             return
         w = self._elem_sel_widgets.setdefault(mode,
@@ -108,6 +153,8 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
     def post_init(self):
         #
         self.__mp = None
+        self._bpm_unit = None
+        self._bpms = None
 
         # lattice load window
         self._lattice_load_window = None
@@ -118,12 +165,60 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
         self.stop_btn.setEnabled(False)
         # add another curve to matplotlibcurveWidget
         self.matplotlibcurveWidget.add_curve()
-        # initial values
-        self._bpms = []
+
+        # bpm monitorings unit
+        self.bpm_unit_millimeter_rbtn.setChecked(True)
+        assert self._bpm_unit == "mm"
+
+        # selection of bpms for monitoring
+        self.use_selected_bpms_rbtn.setChecked(True)
+        assert self._bpms == []
+
+        # DAQ
         self._daqfreq = 1.0
 
         # load default figure config
         apply_mplcurve_settings(self.matplotlibcurveWidget)
+
+    @pyqtSlot(OrderedDict)
+    def on_elem_selection_updated(self, mode, d):
+        """BPMs selection is updated.
+        """
+        # trigge the update of self._bpms and fields
+        #print(d)
+
+        ### merge into on_elem_selection_updated() slot
+        # try to update monitors
+        for o in (self.use_selected_bpms_rbtn, self.use_all_bpms_rbtn):
+            o.toggled.emit(o.isChecked())
+
+        print(self._bpms, len(self._bpms))
+
+    @pyqtSlot()
+    def on_select_all_elems(self, mode):
+        """Select all BPMs/CORs in *mode*s_treeView.
+        """
+        try:
+            print("Select All {}s".format(mode.upper()))
+            model = getattr(self, '{}s_treeView'.format(mode)).model()
+            model.select_all_items()
+        except AttributeError:
+            QMessageBox.warning(self, "Element Selection",
+                    "Selection error, Choose elements first.",
+                    QMessageBox.Ok)
+
+    @pyqtSlot()
+    def on_inverse_current_elem_selection(self, mode):
+        """Inverse current BPM/COR selection in *mode*s_treeView.
+        """
+        try:
+            print("Inverse {} selection".format(mode.upper()))
+            model = getattr(self, '{}s_treeView'.format(mode)).model()
+            model.inverse_current_selection()
+        except AttributeError:
+            QMessageBox.warning(self, "Element Selection",
+                    "Selection error, Choose elements first.",
+                    QMessageBox.Ok)
 
     @pyqtSlot(list)
     def on_update_elems(self, mode, enames):
@@ -135,6 +230,9 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
         model = ElementListModel(tv, self.__mp, enames)
         model.set_model()
 
+        # bpm/cor elementlistmodel
+        tv.model().elementSelected.connect(partial(self.on_elem_selection_updated, mode))
+
     @pyqtSlot(QVariant)
     def update_lattice(self, o):
         self.__mp = o
@@ -142,21 +240,33 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
 
     @pyqtSlot()
     def start_daq(self):
+        # check if BPMs are selected from lattice.
+        if self.not_selected_bpms():
+            QMessageBox.warning(self, "DAQ Warning",
+                    "BPMs are not found, Choose Monitors first.", QMessageBox.Ok)
+            return
+        # start DAQ
         self.daq_timer.start(1000.0/self._daqfreq)
+        self.start_btn.setEnabled(False)
+        self.stop_btn.setEnabled(True)
 
     @pyqtSlot()
     def stop_daq(self):
         self.daq_timer.stop()
+        self.start_btn.setEnabled(True)
+        self.stop_btn.setEnabled(False)
 
     @pyqtSlot()
     def on_daq_update(self):
         """Update DAQ and show data.
         """
+        ufac = BPM_UNIT_FAC[self._bpm_unit]
+
         if self._bpms == []:
             return
         xdata = [elem.sb for elem in self._bpms]
-        line0_ydata = [elem.X*1e3 for elem in self._bpms]
-        line1_ydata = [elem.Y*1e3 for elem in self._bpms]
+        line0_ydata = [elem.X * ufac for elem in self._bpms]
+        line1_ydata = [elem.Y * ufac for elem in self._bpms]
         self.xdataChanged.emit(xdata)
         self.ydataChanged.emit(line0_ydata)
         self.lineChanged.emit(1)
@@ -190,6 +300,11 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
         self._lattice_load_window.latticeChanged.connect(self.update_lattice)
         # reset element selection widgets
         self._elem_sel_widgets = {}
+
+    def not_selected_bpms(self):
+        """Test if BPMs are selected or not.
+        """
+        return self.bpms_treeView.model() is None
 
 
 if __name__ == '__main__':
