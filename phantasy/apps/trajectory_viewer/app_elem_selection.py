@@ -104,13 +104,8 @@ class ElementSelectionWidget(QWidget, Ui_Form):
     def on_click_apply(self):
         """Apply selected elements.
         """
-        print(self._selected_enames, len(self._selected_enames))
+        #print(self._selected_enames, len(self._selected_enames))
         self.elementsSelected.emit(self._selected_enames)
-
-    @pyqtSlot()
-    def on_click_ok(self):
-        self.on_click_apply()
-        self.close()
 
 
 if __name__ == '__main__':

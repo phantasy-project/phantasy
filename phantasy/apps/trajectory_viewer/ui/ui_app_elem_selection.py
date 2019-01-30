@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui_app_elem_selection.ui'
 #
-# Created by: PyQt5 UI code generator 5.5.1
+# Created by: PyQt5 UI code generator 5.10.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -40,6 +40,9 @@ class Ui_Form(object):
             "}")
         self.gridLayout_3 = QtWidgets.QGridLayout(Form)
         self.gridLayout_3.setObjectName("gridLayout_3")
+        self.treeView = QtWidgets.QTreeView(Form)
+        self.treeView.setObjectName("treeView")
+        self.gridLayout_3.addWidget(self.treeView, 1, 0, 1, 1)
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setContentsMargins(-1, 0, -1, -1)
         self.horizontalLayout.setObjectName("horizontalLayout")
@@ -69,18 +72,32 @@ class Ui_Form(object):
         self.dtypes_gridLayout.setObjectName("dtypes_gridLayout")
         self.toggle_all_dtypes_chkbox = QtWidgets.QCheckBox(
             self.dtypes_groupBox)
+        self.toggle_all_dtypes_chkbox.setEnabled(True)
         self.toggle_all_dtypes_chkbox.setObjectName("toggle_all_dtypes_chkbox")
         self.dtypes_gridLayout.addWidget(self.toggle_all_dtypes_chkbox, 0, 0,
                                          1, 1)
         self.gridLayout.addLayout(self.dtypes_gridLayout, 0, 0, 1, 1)
         self.gridLayout_3.addWidget(self.dtypes_groupBox, 0, 0, 1, 1)
-        self.treeView = QtWidgets.QTreeView(Form)
-        self.treeView.setObjectName("treeView")
-        self.gridLayout_3.addWidget(self.treeView, 1, 0, 1, 1)
+        self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_2.setContentsMargins(-1, 0, -1, -1)
+        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
+        spacerItem = QtWidgets.QSpacerItem(40, 20,
+                                           QtWidgets.QSizePolicy.Expanding,
+                                           QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_2.addItem(spacerItem)
+        self.exit_btn = QtWidgets.QPushButton(Form)
+        self.exit_btn.setObjectName("exit_btn")
+        self.horizontalLayout_2.addWidget(self.exit_btn)
+        self.apply_btn = QtWidgets.QPushButton(Form)
+        self.apply_btn.setObjectName("apply_btn")
+        self.horizontalLayout_2.addWidget(self.apply_btn)
+        self.gridLayout_3.addLayout(self.horizontalLayout_2, 4, 0, 1, 1)
 
         self.retranslateUi(Form)
         self.toggle_all_dtypes_chkbox.toggled['bool'].connect(
             Form.on_toggle_all_dtypes)
+        self.exit_btn.clicked.connect(Form.close)
+        self.apply_btn.clicked.connect(Form.on_click_apply)
         QtCore.QMetaObject.connectSlotsByName(Form)
 
     def retranslateUi(self, Form):
@@ -91,6 +108,8 @@ class Ui_Form(object):
         self.dtypes_groupBox.setTitle(
             _translate("Form", "Filter by Device Types"))
         self.toggle_all_dtypes_chkbox.setText(_translate("Form", "All"))
+        self.exit_btn.setText(_translate("Form", "Exit"))
+        self.apply_btn.setText(_translate("Form", "Apply"))
 
 
 if __name__ == "__main__":
