@@ -98,6 +98,7 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
             return
         w = self._elem_sel_widgets.setdefault(mode,
                 ElementSelectionWidget(self, self.__mp, dtypes=dtype_list))
+        w.elementsSelected.connect(partial(self.on_update_elems, mode))
         w.show()
 
     @pyqtSlot(float)
@@ -125,26 +126,19 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
         apply_mplcurve_settings(self.matplotlibcurveWidget)
 
     @pyqtSlot(list)
-    def on_update_bpm_list(self, bpms):
-        """Selected BPMs list updated.
+    def on_update_elems(self, mode, enames):
+        """Selected element names list updated, mode: 'bpm'/'cor'
         """
-        model = ElementListModel(self.bpms_treeView, bpms)
-        model.set_model()
-
-    @pyqtSlot(list)
-    def on_update_cor_list(self, cors):
-        """Selected cors list updated.
-        """
-        model = ElementListModel(self.cors_treeView, cors)
+        #print(mode, len(enames))
+        tv = getattr(self, "{}s_treeView".format(mode))
+        #print(mode, tv.objectName(), len(enames))
+        model = ElementListModel(tv, self.__mp, enames)
         model.set_model()
 
     @pyqtSlot(QVariant)
     def update_lattice(self, o):
         self.__mp = o
         self.latticeChanged.emit(o)
-        all_bpms = o.get_elements(type='BPM')
-        if all_bpms:
-            self._bpms = all_bpms
 
     @pyqtSlot()
     def start_daq(self):
