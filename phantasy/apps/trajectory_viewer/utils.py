@@ -277,12 +277,22 @@ class ElementListModel(QStandardItemModel):
         print(self._selected_elements)
         self.elementSelected.emit(self._selected_elements)
 
+    def get_all_elements(self, category="all"):
+        """Return a list of CaElement, if *category* is 'all', return all
+        elements in this model, or 'selected' just return selected ones.
+        """
+        if category == 'all':
+            names = self._enames
+        else:
+            names = self._selected_elements
+        return [self.name_elem_map[i] for i in sorted(names, key=lambda i:i[-4:])]
+
     def __post_init_ui(self, tv):
         # view properties
         tv.setStyleSheet("font-family: monospace;")
         tv.setAlternatingRowColors(True)
         tv.header().setStretchLastSection(False)
-        tv.setSortingEnabled(True)
+        #tv.setSortingEnabled(True)
         for i in self.ids:
             tv.resizeColumnToContents(i)
         #tv.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
