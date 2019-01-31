@@ -473,6 +473,12 @@ class Ui_MainWindow(object):
             MainWindow.on_field1_updated)
         self.field2_cbb.currentTextChanged['QString'].connect(
             MainWindow.on_field2_updated)
+        self.matplotlibcurveWidget.gridOnUpdated['bool'].connect(
+            self.grid_btn.setChecked)
+        self.matplotlibcurveWidget.legendOnUpdated['bool'].connect(
+            self.legend_btn.setChecked)
+        self.matplotlibcurveWidget.autoScaleOnUpdated['bool'].connect(
+            self.autoscale_btn.setChecked)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
