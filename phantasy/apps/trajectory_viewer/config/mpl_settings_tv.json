@@ -37,7 +37,7 @@
     "labels": {
       "font": "Sans,12,-1,5,50,0,0,0,0,0",
       "xlabel": "$s$ [m]",
-      "ylabel": "BPM Readings [mm]"
+      "ylabel": "Monitors Readings [mm]"
     },
     "legend": {
       "location": 0,
