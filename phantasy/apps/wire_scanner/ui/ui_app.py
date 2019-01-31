@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui_app.ui'
 #
-# Created by: PyQt5 UI code generator 5.5.1
+# Created by: PyQt5 UI code generator 5.10.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -1280,7 +1280,7 @@ class Ui_MainWindow(object):
         self.gridLayout.addWidget(self.v_splitter, 0, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1693, 30))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1693, 29))
         self.menubar.setObjectName("menubar")
         self.menu_File = QtWidgets.QMenu(self.menubar)
         self.menu_File.setObjectName("menu_File")
@@ -1445,6 +1445,10 @@ class Ui_MainWindow(object):
         self.plot_data_subnoise_btn.clicked.connect(
             MainWindow.on_plot_after_subnoise)
         self.toolButton.clicked.connect(MainWindow.on_reset_outlimit_setpoint)
+        self.matplotlibcurveWidget.gridOnUpdated['bool'].connect(
+            self.grid_btn.setChecked)
+        self.matplotlibcurveWidget.legendOnUpdated['bool'].connect(
+            self.legend_btn.setChecked)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         MainWindow.setTabOrder(self.pm_names_cbb, self.pm_detail_btn)
         MainWindow.setTabOrder(self.pm_detail_btn, self.run_btn)
@@ -1620,7 +1624,7 @@ class Ui_MainWindow(object):
         self.reset_xyscale_btn.setToolTip(
             _translate(
                 "MainWindow",
-                "<html><head/><body><p>Rest x and y scale</p></body></html>"))
+                "<html><head/><body><p>Reset x and y scale</p></body></html>"))
         self.reset_xyscale_btn.setText(_translate("MainWindow", "Scale"))
         self.legend_btn.setToolTip(
             _translate(
