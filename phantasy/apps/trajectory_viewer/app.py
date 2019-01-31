@@ -257,7 +257,7 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
         tv = getattr(self, "{}s_treeView".format(mode))
         model = ElementListModel(tv, self.__mp, enames)
         # list of fields of selected element type
-        model.fieldsSelected.connect(self.on_selected_fields_updated)
+        model.fieldsSelected.connect(partial(self.on_selected_fields_updated, mode))
         model.set_model()
 
         # bpm/cor selection is changed (elementlistmodel)
@@ -361,9 +361,12 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
                 o.setEnabled(True)
 
     @pyqtSlot(list)
-    def on_selected_fields_updated(self, fields):
-        """List of fields for selected element type.
+    def on_selected_fields_updated(self, mode, fields):
+        """List of fields for selected element type, only applied when mode
+        is 'bpm'.
         """
+        if mode != 'bpm':
+            return
         # 1 set up field 1 and 2 cbb for data viz (two curves)
         # 2 try to set field-1 X/XCEN, and field-2 Y/YCEN
         fields_cbb = [self.field1_cbb, self.field2_cbb]
