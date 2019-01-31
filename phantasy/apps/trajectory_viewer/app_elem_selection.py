@@ -12,6 +12,7 @@ from functools import partial
 
 from phantasy.apps.trajectory_viewer.ui.ui_app_elem_selection import Ui_Form
 from phantasy.apps.trajectory_viewer.utils import LatticeDataModel
+from phantasy.apps.trajectory_viewer.utils import DTYPE_HINT_MAP
 
 
 class ElementSelectionWidget(QWidget, Ui_Form):
@@ -63,6 +64,7 @@ class ElementSelectionWidget(QWidget, Ui_Form):
         all_dtypes = self.__mp.get_all_types()
         for i, n in enumerate(all_dtypes, 1):
             w = QCheckBox(n, self)
+            w.setToolTip(DTYPE_HINT_MAP.get(n, n))
             row, col = int(i / self.__ncolumn), i % self.__ncolumn
             layout.addWidget(w, row, col)
             w.stateChanged.connect(partial(self.on_check_dtype, n))

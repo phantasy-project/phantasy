@@ -36,6 +36,22 @@ COLUMN_SFIELD_MAP_LITE = OrderedDict((
 COLUMN_NAMES_LITE = list(COLUMN_SFIELD_MAP_LITE.keys())
 SFIELD_NAMES_LITE = list(COLUMN_SFIELD_MAP_LITE.values())
 
+DTYPE_HINT_MAP = {
+    'BCM': 'Beam Current Monitor',
+    'BEND': 'Magnetic Dipole',
+    'BPM': 'Beam Position Monitor',
+    'CAV': 'RF Cavity',
+    'EBEND': 'Electric Dipole',
+    'EQUAD': 'Electric Quadrupole',
+    'FC': 'Faraday Cup',
+    'HCOR': 'Horizontal Corrector',
+    'PM': 'Profile Monitor (Wire Scanner)',
+    'QUAD': 'Magnetic Quadrupole',
+    'SEXT': 'Sextupole',
+    'SOL': 'Solenoid',
+    'VCOR': 'Vertical Corrector',
+}
+
 
 def find_conf():
     """Find configuration file (JSON) for matplotlibcurvewidget,
@@ -191,7 +207,7 @@ class ElementListModel(QStandardItemModel):
         for i, s in zip(self.ids, self.header):
             self.setHeaderData(i, Qt.Horizontal, s)
 
-        # vars
+        # selected elements: k: ename, v: list of field names.
         self._selected_elements = OrderedDict()
 
     def set_model(self):
@@ -257,7 +273,7 @@ class ElementListModel(QStandardItemModel):
             self._selected_elements.update({item.text(): str2list(field)})
 
         # print selected elements
-        print(self._selected_elements)
+        print("Field is updated: ", self._selected_elements)
         self.elementSelected.emit(self._selected_elements)
 
     def on_item_changed(self, item):
