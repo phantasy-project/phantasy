@@ -195,7 +195,19 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
         self._daqfreq = 1.0
 
         # load default figure config
-        apply_mplcurve_settings(self.matplotlibcurveWidget)
+        p = self.matplotlibcurveWidget
+        apply_mplcurve_settings(p)
+
+        # sync fig controls
+        self.grid_btn.setChecked(p.getFigureGridToggle())
+        self.legend_btn.setChecked(p.getLegendToggle())
+        self.autoscale_btn.setChecked(p.getFigureAutoScale())
+        xmin, xmax = p.get_xlim()
+        ymin, ymax = p.get_ylim()
+        self.xmin_lineEdit.setText("{0:.3g}".format(xmin))
+        self.xmax_lineEdit.setText("{0:.3g}".format(xmax))
+        self.ymin_lineEdit.setText("{0:.3g}".format(ymin))
+        self.ymax_lineEdit.setText("{0:.3g}".format(ymax))
 
     @pyqtSlot(OrderedDict)
     def on_elem_selection_updated(self, mode, d):
