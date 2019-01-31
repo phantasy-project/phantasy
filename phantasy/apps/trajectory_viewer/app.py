@@ -5,6 +5,7 @@ from PyQt5.QtCore import QVariant
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import QTimer
+from PyQt5.QtGui import QDoubleValidator
 
 from PyQt5.QtWidgets import QMessageBox
 
@@ -79,6 +80,22 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
         self.lineChanged.connect(self.matplotlibcurveWidget.setLineID)
         self.xdataChanged.connect(self.matplotlibcurveWidget.setXData)
         self.ydataChanged.connect(self.matplotlibcurveWidget.setYData)
+
+        # xy limits
+        self.__xylimits_lineEdits = (self.xmin_lineEdit,
+                                     self.xmax_lineEdit,
+                                     self.ymin_lineEdit,
+                                     self.ymax_lineEdit)
+        for o in self.__xylimits_lineEdits:
+            o.setValidator(QDoubleValidator())
+        self.xmin_lineEdit.textChanged.connect(
+                lambda s: self.matplotlibcurveWidget.setXLimitMin(float(s)))
+        self.xmax_lineEdit.textChanged.connect(
+                lambda s: self.matplotlibcurveWidget.setXLimitMax(float(s)))
+        self.ymin_lineEdit.textChanged.connect(
+                lambda s: self.matplotlibcurveWidget.setYLimitMin(float(s)))
+        self.ymax_lineEdit.textChanged.connect(
+                lambda s: self.matplotlibcurveWidget.setYLimitMax(float(s)))
 
         # bpm unit
         self.bpm_unit_millimeter_rbtn.toggled.connect(
@@ -183,12 +200,14 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
     @pyqtSlot(OrderedDict)
     def on_elem_selection_updated(self, mode, d):
         # BPMs selection (bpms_treeView) is updated.
-        # trigger the update of self._bpms and fields
-        # update monitors
+        # 1. trigger the update of self._bpms
+        # 2. update monitors viz
         for o in (self.use_selected_bpms_rbtn, self.use_all_bpms_rbtn):
             o.toggled.emit(o.isChecked())
 
-        print(self._bpms, len(self._bpms))
+        #print(self._bpms, len(self._bpms))
+        model = getattr(self, '{}s_treeView'.format(mode)).model()
+        print("Selection is updated: ", model._selected_elements)
 
     @pyqtSlot()
     def on_select_all_elems(self, mode):
@@ -301,6 +320,24 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
         """Test if BPMs are selected or not.
         """
         return self.bpms_treeView.model() is None
+
+    @pyqtSlot(bool)
+    def on_auto_xyscale(self, f):
+        """Set auto xyscale or not
+        """
+        if f: # auto scale
+            p = self.matplotlibcurveWidget
+            xmin, xmax = p.get_xlim()
+            ymin, ymax = p.get_ylim()
+            self.xmin_lineEdit.setText("{0:.3g}".format(xmin))
+            self.xmax_lineEdit.setText("{0:.3g}".format(xmax))
+            self.ymin_lineEdit.setText("{0:.3g}".format(ymin))
+            self.ymax_lineEdit.setText("{0:.3g}".format(ymax))
+            for o in self.__xylimits_lineEdits:
+                o.setEnabled(False)
+        else:
+            for o in self.__xylimits_lineEdits:
+                o.setEnabled(True)
 
 
 if __name__ == '__main__':
