@@ -12,7 +12,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1624, 1208)
+        MainWindow.resize(1700, 1300)
         icon = QtGui.QIcon()
         icon.addPixmap(
             QtGui.QPixmap(":/icons/app.png"), QtGui.QIcon.Normal,
@@ -93,16 +93,16 @@ class Ui_MainWindow(object):
         self.legend_btn.setCheckable(True)
         self.legend_btn.setObjectName("legend_btn")
         self.horizontalLayout_2.addWidget(self.legend_btn)
-        self.reset_xyscale_btn = QtWidgets.QPushButton(self.figctrl_groupBox)
+        self.autoscale_btn = QtWidgets.QPushButton(self.figctrl_groupBox)
         icon3 = QtGui.QIcon()
         icon3.addPixmap(
-            QtGui.QPixmap(":/icons/reset_scale.png"), QtGui.QIcon.Normal,
+            QtGui.QPixmap(":/icons/autoscale.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.reset_xyscale_btn.setIcon(icon3)
-        self.reset_xyscale_btn.setIconSize(QtCore.QSize(24, 24))
-        self.reset_xyscale_btn.setCheckable(True)
-        self.reset_xyscale_btn.setObjectName("reset_xyscale_btn")
-        self.horizontalLayout_2.addWidget(self.reset_xyscale_btn)
+        self.autoscale_btn.setIcon(icon3)
+        self.autoscale_btn.setIconSize(QtCore.QSize(24, 24))
+        self.autoscale_btn.setCheckable(True)
+        self.autoscale_btn.setObjectName("autoscale_btn")
+        self.horizontalLayout_2.addWidget(self.autoscale_btn)
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.label = QtWidgets.QLabel(self.figctrl_groupBox)
@@ -161,6 +161,24 @@ class Ui_MainWindow(object):
         self.horizontalLayout_4.addWidget(self.line)
         self.gridLayout_5 = QtWidgets.QGridLayout()
         self.gridLayout_5.setObjectName("gridLayout_5")
+        self.use_all_bpms_rbtn = QtWidgets.QRadioButton(self.daqctrl_groupBox)
+        self.use_all_bpms_rbtn.setObjectName("use_all_bpms_rbtn")
+        self.buttonGroup = QtWidgets.QButtonGroup(MainWindow)
+        self.buttonGroup.setObjectName("buttonGroup")
+        self.buttonGroup.addButton(self.use_all_bpms_rbtn)
+        self.gridLayout_5.addWidget(self.use_all_bpms_rbtn, 0, 1, 1, 1)
+        self.bpm_unit_millimeter_rbtn = QtWidgets.QRadioButton(
+            self.daqctrl_groupBox)
+        self.bpm_unit_millimeter_rbtn.setObjectName("bpm_unit_millimeter_rbtn")
+        self.buttonGroup_2 = QtWidgets.QButtonGroup(MainWindow)
+        self.buttonGroup_2.setObjectName("buttonGroup_2")
+        self.buttonGroup_2.addButton(self.bpm_unit_millimeter_rbtn)
+        self.gridLayout_5.addWidget(self.bpm_unit_millimeter_rbtn, 1, 2, 1, 1)
+        self.use_selected_bpms_rbtn = QtWidgets.QRadioButton(
+            self.daqctrl_groupBox)
+        self.use_selected_bpms_rbtn.setObjectName("use_selected_bpms_rbtn")
+        self.buttonGroup.addButton(self.use_selected_bpms_rbtn)
+        self.gridLayout_5.addWidget(self.use_selected_bpms_rbtn, 0, 2, 1, 1)
         self.label_9 = QtWidgets.QLabel(self.daqctrl_groupBox)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
                                            QtWidgets.QSizePolicy.Fixed)
@@ -171,17 +189,6 @@ class Ui_MainWindow(object):
         self.label_9.setSizePolicy(sizePolicy)
         self.label_9.setObjectName("label_9")
         self.gridLayout_5.addWidget(self.label_9, 0, 0, 1, 1)
-        self.use_all_bpms_rbtn = QtWidgets.QRadioButton(self.daqctrl_groupBox)
-        self.use_all_bpms_rbtn.setObjectName("use_all_bpms_rbtn")
-        self.buttonGroup = QtWidgets.QButtonGroup(MainWindow)
-        self.buttonGroup.setObjectName("buttonGroup")
-        self.buttonGroup.addButton(self.use_all_bpms_rbtn)
-        self.gridLayout_5.addWidget(self.use_all_bpms_rbtn, 0, 1, 1, 1)
-        self.use_selected_bpms_rbtn = QtWidgets.QRadioButton(
-            self.daqctrl_groupBox)
-        self.use_selected_bpms_rbtn.setObjectName("use_selected_bpms_rbtn")
-        self.buttonGroup.addButton(self.use_selected_bpms_rbtn)
-        self.gridLayout_5.addWidget(self.use_selected_bpms_rbtn, 0, 2, 1, 1)
         self.label_10 = QtWidgets.QLabel(self.daqctrl_groupBox)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
                                            QtWidgets.QSizePolicy.Fixed)
@@ -195,15 +202,20 @@ class Ui_MainWindow(object):
         self.bpm_unit_meter_rbtn = QtWidgets.QRadioButton(
             self.daqctrl_groupBox)
         self.bpm_unit_meter_rbtn.setObjectName("bpm_unit_meter_rbtn")
-        self.buttonGroup_2 = QtWidgets.QButtonGroup(MainWindow)
-        self.buttonGroup_2.setObjectName("buttonGroup_2")
         self.buttonGroup_2.addButton(self.bpm_unit_meter_rbtn)
         self.gridLayout_5.addWidget(self.bpm_unit_meter_rbtn, 1, 1, 1, 1)
-        self.bpm_unit_millimeter_rbtn = QtWidgets.QRadioButton(
-            self.daqctrl_groupBox)
-        self.bpm_unit_millimeter_rbtn.setObjectName("bpm_unit_millimeter_rbtn")
-        self.buttonGroup_2.addButton(self.bpm_unit_millimeter_rbtn)
-        self.gridLayout_5.addWidget(self.bpm_unit_millimeter_rbtn, 1, 2, 1, 1)
+        self.field1_cbb = QtWidgets.QComboBox(self.daqctrl_groupBox)
+        self.field1_cbb.setObjectName("field1_cbb")
+        self.gridLayout_5.addWidget(self.field1_cbb, 0, 4, 1, 1)
+        self.label_12 = QtWidgets.QLabel(self.daqctrl_groupBox)
+        self.label_12.setObjectName("label_12")
+        self.gridLayout_5.addWidget(self.label_12, 0, 3, 1, 1)
+        self.label_13 = QtWidgets.QLabel(self.daqctrl_groupBox)
+        self.label_13.setObjectName("label_13")
+        self.gridLayout_5.addWidget(self.label_13, 1, 3, 1, 1)
+        self.field2_cbb = QtWidgets.QComboBox(self.daqctrl_groupBox)
+        self.field2_cbb.setObjectName("field2_cbb")
+        self.gridLayout_5.addWidget(self.field2_cbb, 1, 4, 1, 1)
         self.horizontalLayout_4.addLayout(self.gridLayout_5)
         self.gridLayout_6.addLayout(self.horizontalLayout_4, 0, 0, 1, 1)
         self.horizontalLayout_6 = QtWidgets.QHBoxLayout()
@@ -380,7 +392,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_5.addWidget(self.h_splitter)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1624, 29))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1700, 29))
         self.menubar.setObjectName("menubar")
         self.menu_File = QtWidgets.QMenu(self.menubar)
         self.menu_File.setObjectName("menu_File")
@@ -454,10 +466,13 @@ class Ui_MainWindow(object):
             self.matplotlibcurveWidget.setFigureGridToggle)
         self.legend_btn.toggled['bool'].connect(
             self.matplotlibcurveWidget.setLegendToggle)
-        self.reset_xyscale_btn.toggled['bool'].connect(
+        self.autoscale_btn.toggled['bool'].connect(
             self.matplotlibcurveWidget.setFigureAutoScale)
-        self.reset_xyscale_btn.toggled['bool'].connect(
-            MainWindow.on_auto_xyscale)
+        self.autoscale_btn.toggled['bool'].connect(MainWindow.on_auto_xyscale)
+        self.field1_cbb.currentTextChanged['QString'].connect(
+            MainWindow.on_field1_updated)
+        self.field2_cbb.currentTextChanged['QString'].connect(
+            MainWindow.on_field2_updated)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -475,24 +490,36 @@ class Ui_MainWindow(object):
                 "MainWindow",
                 "<html><head/><body><p>Show/hide legend</p></body></html>"))
         self.legend_btn.setText(_translate("MainWindow", "Legend"))
-        self.reset_xyscale_btn.setToolTip(
+        self.autoscale_btn.setToolTip(
             _translate(
                 "MainWindow",
                 "<html><head/><body><p>Autoset XY scale</p></body></html>"))
-        self.reset_xyscale_btn.setText(_translate("MainWindow", "Scale"))
+        self.autoscale_btn.setText(_translate("MainWindow", "Scale"))
         self.label.setText(_translate("MainWindow", "X-Limit"))
         self.label_7.setText(_translate("MainWindow", "Y-Limit"))
         self.daqctrl_groupBox.setTitle(
             _translate("MainWindow", "Controls Panel"))
-        self.label_8.setText(_translate("MainWindow", "BPMs"))
-        self.label_9.setText(_translate("MainWindow", "Monitoring"))
+        self.label_8.setText(_translate("MainWindow", "Monitors"))
         self.use_all_bpms_rbtn.setText(_translate("MainWindow", "Use All"))
-        self.use_selected_bpms_rbtn.setText(
-            _translate("MainWindow", "Use Selected"))
-        self.label_10.setText(_translate("MainWindow", "Measurement Unit"))
-        self.bpm_unit_meter_rbtn.setText(_translate("MainWindow", "Meter"))
         self.bpm_unit_millimeter_rbtn.setText(
             _translate("MainWindow", "Millimeter"))
+        self.use_selected_bpms_rbtn.setText(
+            _translate("MainWindow", "Use Selected"))
+        self.label_9.setText(_translate("MainWindow", "Monitoring"))
+        self.label_10.setText(_translate("MainWindow", "Measurement Unit"))
+        self.bpm_unit_meter_rbtn.setText(_translate("MainWindow", "Meter"))
+        self.field1_cbb.setToolTip(
+            _translate(
+                "MainWindow",
+                "<html><head/><body><p>Field to monitor, show as 1<span style=\" vertical-align:super;\">st</span> Line</p></body></html>"
+            ))
+        self.label_12.setText(_translate("MainWindow", "Field-1"))
+        self.label_13.setText(_translate("MainWindow", "Field-2"))
+        self.field2_cbb.setToolTip(
+            _translate(
+                "MainWindow",
+                "<html><head/><body><p>Field to monitor, show as 2<span style=\" vertical-align:super;\">nd</span> Line</p></body></html>"
+            ))
         self.label_11.setText(_translate("MainWindow", "DAQ"))
         self.label_2.setText(_translate("MainWindow", "Frequency"))
         self.label_3.setText(_translate("MainWindow", "Hz"))
