@@ -71,35 +71,65 @@ class Ui_MainWindow(object):
         self.figctrl_groupBox.setObjectName("figctrl_groupBox")
         self.gridLayout_2 = QtWidgets.QGridLayout(self.figctrl_groupBox)
         self.gridLayout_2.setObjectName("gridLayout_2")
+        self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
+        self.grid_btn = QtWidgets.QPushButton(self.figctrl_groupBox)
+        icon1 = QtGui.QIcon()
+        icon1.addPixmap(
+            QtGui.QPixmap(":/icons/grid.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.grid_btn.setIcon(icon1)
+        self.grid_btn.setIconSize(QtCore.QSize(24, 24))
+        self.grid_btn.setCheckable(True)
+        self.grid_btn.setObjectName("grid_btn")
+        self.horizontalLayout_2.addWidget(self.grid_btn)
+        self.legend_btn = QtWidgets.QPushButton(self.figctrl_groupBox)
+        icon2 = QtGui.QIcon()
+        icon2.addPixmap(
+            QtGui.QPixmap(":/icons/label.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.legend_btn.setIcon(icon2)
+        self.legend_btn.setIconSize(QtCore.QSize(24, 24))
+        self.legend_btn.setCheckable(True)
+        self.legend_btn.setObjectName("legend_btn")
+        self.horizontalLayout_2.addWidget(self.legend_btn)
+        self.reset_xyscale_btn = QtWidgets.QPushButton(self.figctrl_groupBox)
+        icon3 = QtGui.QIcon()
+        icon3.addPixmap(
+            QtGui.QPixmap(":/icons/reset_scale.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.reset_xyscale_btn.setIcon(icon3)
+        self.reset_xyscale_btn.setIconSize(QtCore.QSize(24, 24))
+        self.reset_xyscale_btn.setCheckable(True)
+        self.reset_xyscale_btn.setObjectName("reset_xyscale_btn")
+        self.horizontalLayout_2.addWidget(self.reset_xyscale_btn)
         self.horizontalLayout = QtWidgets.QHBoxLayout()
-        self.horizontalLayout.setContentsMargins(-1, 0, -1, -1)
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.label = QtWidgets.QLabel(self.figctrl_groupBox)
         self.label.setObjectName("label")
         self.horizontalLayout.addWidget(self.label)
-        self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
-        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.xmin_lineEdit = QtWidgets.QLineEdit(self.figctrl_groupBox)
         self.xmin_lineEdit.setObjectName("xmin_lineEdit")
-        self.horizontalLayout_2.addWidget(self.xmin_lineEdit)
+        self.horizontalLayout.addWidget(self.xmin_lineEdit)
         self.xmax_lineEdit = QtWidgets.QLineEdit(self.figctrl_groupBox)
         self.xmax_lineEdit.setObjectName("xmax_lineEdit")
-        self.horizontalLayout_2.addWidget(self.xmax_lineEdit)
-        self.horizontalLayout.addLayout(self.horizontalLayout_2)
+        self.horizontalLayout.addWidget(self.xmax_lineEdit)
+        self.line_3 = QtWidgets.QFrame(self.figctrl_groupBox)
+        self.line_3.setFrameShape(QtWidgets.QFrame.VLine)
+        self.line_3.setFrameShadow(QtWidgets.QFrame.Sunken)
+        self.line_3.setObjectName("line_3")
+        self.horizontalLayout.addWidget(self.line_3)
         self.label_7 = QtWidgets.QLabel(self.figctrl_groupBox)
         self.label_7.setObjectName("label_7")
         self.horizontalLayout.addWidget(self.label_7)
-        self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
-        self.horizontalLayout_3.setContentsMargins(-1, -1, 0, -1)
-        self.horizontalLayout_3.setObjectName("horizontalLayout_3")
         self.ymin_lineEdit = QtWidgets.QLineEdit(self.figctrl_groupBox)
         self.ymin_lineEdit.setObjectName("ymin_lineEdit")
-        self.horizontalLayout_3.addWidget(self.ymin_lineEdit)
+        self.horizontalLayout.addWidget(self.ymin_lineEdit)
         self.ymax_lineEdit = QtWidgets.QLineEdit(self.figctrl_groupBox)
         self.ymax_lineEdit.setObjectName("ymax_lineEdit")
-        self.horizontalLayout_3.addWidget(self.ymax_lineEdit)
-        self.horizontalLayout.addLayout(self.horizontalLayout_3)
-        self.gridLayout_2.addLayout(self.horizontalLayout, 0, 0, 1, 1)
+        self.horizontalLayout.addWidget(self.ymax_lineEdit)
+        self.horizontalLayout_2.addLayout(self.horizontalLayout)
+        self.gridLayout_2.addLayout(self.horizontalLayout_2, 0, 0, 1, 1)
         self.matplotlibcurveWidget = MatplotlibCurveWidget(
             self.figctrl_groupBox)
         self.matplotlibcurveWidget.setProperty("figureTightLayout", False)
@@ -261,11 +291,11 @@ class Ui_MainWindow(object):
             self.select_all_bpms_btn.sizePolicy().hasHeightForWidth())
         self.select_all_bpms_btn.setSizePolicy(sizePolicy)
         self.select_all_bpms_btn.setText("")
-        icon1 = QtGui.QIcon()
-        icon1.addPixmap(
+        icon4 = QtGui.QIcon()
+        icon4.addPixmap(
             QtGui.QPixmap(":/icons/select-all.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.select_all_bpms_btn.setIcon(icon1)
+        self.select_all_bpms_btn.setIcon(icon4)
         self.select_all_bpms_btn.setObjectName("select_all_bpms_btn")
         self.horizontalLayout_7.addWidget(self.select_all_bpms_btn)
         self.inverse_bpm_selection_btn = QtWidgets.QToolButton(self.groupBox_3)
@@ -277,11 +307,11 @@ class Ui_MainWindow(object):
             self.inverse_bpm_selection_btn.sizePolicy().hasHeightForWidth())
         self.inverse_bpm_selection_btn.setSizePolicy(sizePolicy)
         self.inverse_bpm_selection_btn.setText("")
-        icon2 = QtGui.QIcon()
-        icon2.addPixmap(
+        icon5 = QtGui.QIcon()
+        icon5.addPixmap(
             QtGui.QPixmap(":/icons/invert-selection.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.inverse_bpm_selection_btn.setIcon(icon2)
+        self.inverse_bpm_selection_btn.setIcon(icon5)
         self.inverse_bpm_selection_btn.setObjectName(
             "inverse_bpm_selection_btn")
         self.horizontalLayout_7.addWidget(self.inverse_bpm_selection_btn)
@@ -317,7 +347,7 @@ class Ui_MainWindow(object):
             self.select_all_cors_btn.sizePolicy().hasHeightForWidth())
         self.select_all_cors_btn.setSizePolicy(sizePolicy)
         self.select_all_cors_btn.setText("")
-        self.select_all_cors_btn.setIcon(icon1)
+        self.select_all_cors_btn.setIcon(icon4)
         self.select_all_cors_btn.setObjectName("select_all_cors_btn")
         self.horizontalLayout_8.addWidget(self.select_all_cors_btn)
         self.inverse_cor_selection_btn = QtWidgets.QToolButton(self.groupBox_4)
@@ -329,7 +359,7 @@ class Ui_MainWindow(object):
             self.inverse_cor_selection_btn.sizePolicy().hasHeightForWidth())
         self.inverse_cor_selection_btn.setSizePolicy(sizePolicy)
         self.inverse_cor_selection_btn.setText("")
-        self.inverse_cor_selection_btn.setIcon(icon2)
+        self.inverse_cor_selection_btn.setIcon(icon5)
         self.inverse_cor_selection_btn.setObjectName(
             "inverse_cor_selection_btn")
         self.horizontalLayout_8.addWidget(self.inverse_cor_selection_btn)
@@ -360,46 +390,46 @@ class Ui_MainWindow(object):
         self.menu_Tools.setObjectName("menu_Tools")
         MainWindow.setMenuBar(self.menubar)
         self.actionE_xit = QtWidgets.QAction(MainWindow)
-        icon3 = QtGui.QIcon()
-        icon3.addPixmap(
-            QtGui.QPixmap(":/icons/exit.png"), QtGui.QIcon.Normal,
-            QtGui.QIcon.Off)
-        self.actionE_xit.setIcon(icon3)
-        self.actionE_xit.setObjectName("actionE_xit")
-        self.actionAbout = QtWidgets.QAction(MainWindow)
-        icon4 = QtGui.QIcon()
-        icon4.addPixmap(
-            QtGui.QPixmap(":/icons/info.png"), QtGui.QIcon.Normal,
-            QtGui.QIcon.Off)
-        self.actionAbout.setIcon(icon4)
-        self.actionAbout.setObjectName("actionAbout")
-        self.actionAbout_Qt = QtWidgets.QAction(MainWindow)
-        icon5 = QtGui.QIcon()
-        icon5.addPixmap(
-            QtGui.QPixmap(":/icons/qt.png"), QtGui.QIcon.Normal,
-            QtGui.QIcon.Off)
-        self.actionAbout_Qt.setIcon(icon5)
-        self.actionAbout_Qt.setObjectName("actionAbout_Qt")
-        self.actionContents = QtWidgets.QAction(MainWindow)
         icon6 = QtGui.QIcon()
         icon6.addPixmap(
-            QtGui.QPixmap(":/icons/help.png"), QtGui.QIcon.Normal,
+            QtGui.QPixmap(":/icons/exit.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.actionContents.setIcon(icon6)
-        self.actionContents.setObjectName("actionContents")
-        self.actionORM = QtWidgets.QAction(MainWindow)
+        self.actionE_xit.setIcon(icon6)
+        self.actionE_xit.setObjectName("actionE_xit")
+        self.actionAbout = QtWidgets.QAction(MainWindow)
         icon7 = QtGui.QIcon()
         icon7.addPixmap(
-            QtGui.QPixmap(":/icons/matrix.png"), QtGui.QIcon.Normal,
+            QtGui.QPixmap(":/icons/info.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.actionORM.setIcon(icon7)
-        self.actionORM.setObjectName("actionORM")
-        self.actionLoad_Lattice = QtWidgets.QAction(MainWindow)
+        self.actionAbout.setIcon(icon7)
+        self.actionAbout.setObjectName("actionAbout")
+        self.actionAbout_Qt = QtWidgets.QAction(MainWindow)
         icon8 = QtGui.QIcon()
         icon8.addPixmap(
+            QtGui.QPixmap(":/icons/qt.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.actionAbout_Qt.setIcon(icon8)
+        self.actionAbout_Qt.setObjectName("actionAbout_Qt")
+        self.actionContents = QtWidgets.QAction(MainWindow)
+        icon9 = QtGui.QIcon()
+        icon9.addPixmap(
+            QtGui.QPixmap(":/icons/help.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.actionContents.setIcon(icon9)
+        self.actionContents.setObjectName("actionContents")
+        self.actionORM = QtWidgets.QAction(MainWindow)
+        icon10 = QtGui.QIcon()
+        icon10.addPixmap(
+            QtGui.QPixmap(":/icons/matrix.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.actionORM.setIcon(icon10)
+        self.actionORM.setObjectName("actionORM")
+        self.actionLoad_Lattice = QtWidgets.QAction(MainWindow)
+        icon11 = QtGui.QIcon()
+        icon11.addPixmap(
             QtGui.QPixmap(":/icons/load_lattice.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.actionLoad_Lattice.setIcon(icon8)
+        self.actionLoad_Lattice.setIcon(icon11)
         self.actionLoad_Lattice.setObjectName("actionLoad_Lattice")
         self.menu_File.addAction(self.actionE_xit)
         self.menu_Help.addAction(self.actionContents)
@@ -420,6 +450,14 @@ class Ui_MainWindow(object):
         self.actionORM.triggered.connect(MainWindow.on_launch_orm)
         self.actionLoad_Lattice.triggered.connect(
             MainWindow.onLoadLatticeAction)
+        self.grid_btn.toggled['bool'].connect(
+            self.matplotlibcurveWidget.setFigureGridToggle)
+        self.legend_btn.toggled['bool'].connect(
+            self.matplotlibcurveWidget.setLegendToggle)
+        self.reset_xyscale_btn.toggled['bool'].connect(
+            self.matplotlibcurveWidget.setFigureAutoScale)
+        self.reset_xyscale_btn.toggled['bool'].connect(
+            MainWindow.on_auto_xyscale)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -427,8 +465,23 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.figctrl_groupBox.setTitle(
             _translate("MainWindow", "Data Visualization"))
-        self.label.setText(_translate("MainWindow", "XLimit"))
-        self.label_7.setText(_translate("MainWindow", "YLimit"))
+        self.grid_btn.setToolTip(
+            _translate(
+                "MainWindow",
+                "<html><head/><body><p>Show/hide grid</p></body></html>"))
+        self.grid_btn.setText(_translate("MainWindow", "Grid"))
+        self.legend_btn.setToolTip(
+            _translate(
+                "MainWindow",
+                "<html><head/><body><p>Show/hide legend</p></body></html>"))
+        self.legend_btn.setText(_translate("MainWindow", "Legend"))
+        self.reset_xyscale_btn.setToolTip(
+            _translate(
+                "MainWindow",
+                "<html><head/><body><p>Autoset XY scale</p></body></html>"))
+        self.reset_xyscale_btn.setText(_translate("MainWindow", "Scale"))
+        self.label.setText(_translate("MainWindow", "X-Limit"))
+        self.label_7.setText(_translate("MainWindow", "Y-Limit"))
         self.daqctrl_groupBox.setTitle(
             _translate("MainWindow", "Controls Panel"))
         self.label_8.setText(_translate("MainWindow", "BPMs"))
