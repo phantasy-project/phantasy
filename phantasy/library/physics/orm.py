@@ -14,23 +14,21 @@ import numpy as np
 import numpy.linalg as linalg
 
 
-def get_orm(lattice, correctors, monitors, **kws):
-    """Calculate orbit response matrix (ORM) with defined input.
+def get_orm(correctors, monitors, **kws):
+    """Calculate orbit response matrix (ORM) with defined input parameters.
 
-    Size of *monitors* is ``m``, size of correctors is ``n``, if both x and y
-    directions are monitored, size of *monitors* should be doubled. The final
-    calculated ORM should be of the shape of ``(m, n)``.
-    
-    Every iteration of correctors update, which could be defined by ``scan``
-    keyword parameter, series of measured orbit data would be returned from
-    :func:`get_orbit`, doing linear polynomial fitting against feeded ``scan``
-    values should return one column of ORM data. The column-wise returned
-    matrix is the final ORM.
+    The length of *monitors* is ``m``, the length of correctors is ``n``,
+    if both x and y directions are monitored, the length of *monitors* should
+    be doubled. The final calculated ORM should be of the shape of ``(m, n)``.
+
+    For each iteration of correctors updates, which could be defined by ``scan``
+    keyword parameter, a serie of measured orbit data would be returned from
+    :func:`get_orbit`, doing linear polynomial fitting against the feeded
+    ``scan`` list of values should return one column of ORM data.
+    The column-wise returned matrix is the final ORM.
 
     Parameters
     ----------
-    lattice : Lattice
-        High-level lattice object.
     correctors : List[CaElement]
         List of correctors from *lattice*.
     monitors : List[CaElement]
@@ -54,6 +52,8 @@ def get_orm(lattice, correctors, monitors, **kws):
         Wait time after set value, in *sec*, 1.0 by default.
     xoy : str
         'x'('y') for monitoring 'x'('y') direction,'xy' for both (default).
+    lattice : Lattice
+        High-level lattice object.
 
     Returns
     -------
@@ -62,8 +62,9 @@ def get_orm(lattice, correctors, monitors, **kws):
 
     Todo
     ----
-    case of ``source == 'model'``.
+    case of ``source == 'model'``, require kws 'lattice'.
     """
+    lattice = kws.get('lattice', None)
     source = kws.get('source', 'control')
     scan = kws.get('scan', np.linspace(-0.003, 0.003, 5))
     cor_field = kws.get('cor_field', 'ANG')
@@ -79,7 +80,7 @@ def get_orm(lattice, correctors, monitors, **kws):
     # ---> iff C[j] != 0 ==> B[i] = R[i,j] C[j]
     # ==> R[i,j] = B[i]/C[j]
     # ==> or: R[i,j] = polyfit(C[i], B[i], 1)[0]
-    # 
+    #
     for i, cor in enumerate(correctors):
         orbit_arr = np.zeros([len(scan), m])
         cor_val0 = getattr(cor, cor_field)
@@ -88,7 +89,7 @@ def get_orm(lattice, correctors, monitors, **kws):
             setattr(cor, cor_field, val)
             time.sleep(wait)
             orbit_arr[iscan] = get_orbit(monitors, **kws)
-        
+
         # get mat_mn(k,i)
         for k in range(m):
             mat_mn[k, i] = np.polyfit(scan, orbit_arr[:, k], 1)[0]
@@ -106,7 +107,7 @@ def inverse_matrix(m):
     ----------
     m : array
         Matrix.
-    
+
     Returns
     -------
     ret : array
@@ -186,7 +187,7 @@ def get_correctors_settings(orm, orbit_diff, inverse=False):
 def get_index_grid(lattice, correctors, monitors, xoy='xy'):
     """Return the index grid of sub ORM from global ORM for selected
     *correctors* and *monitors* w/ *xoy*.
-    
+
     The global ORM is measured with all correctors (H + V) and BPMs for
     both x and y direction.
 
@@ -200,7 +201,7 @@ def get_index_grid(lattice, correctors, monitors, xoy='xy'):
         List of monitors, usually BPMs, to measure the beam orbit.
     xoy : str
         'x'('y') for monitoring 'x'('y') direction,'xy' for both (default).
-    
+
     See Also
     --------
     get_orm : Measure orbit response matrix.
@@ -214,10 +215,10 @@ def get_index_grid(lattice, correctors, monitors, xoy='xy'):
     bpm_idx = [all_bpms.index(i) for i in monitors]
     if xoy == 'xy':
         bpm_cnt = len(all_bpms)
-        row_idx = bpm_idx + [i+bpm_cnt for i in bpm_idx]   
+        row_idx = bpm_idx + [i+bpm_cnt for i in bpm_idx]
     elif xoy == 'x':
         row_idx = bpm_idx
     elif xoy == 'y':
         bpm_cnt = len(all_bpms)
         row_idx = [i+bpm_cnt for i in bpm_idx]
-    return np.ix_(row_idx, col_idx)   
+    return np.ix_(row_idx, col_idx)
