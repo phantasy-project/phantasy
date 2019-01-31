@@ -1,24 +1,24 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from PyQt5.QtCore import QVariant
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import QTimer
+from PyQt5.QtCore import QVariant
 from PyQt5.QtGui import QDoubleValidator
-
 from PyQt5.QtWidgets import QMessageBox
 
-from functools import partial
 from collections import OrderedDict
+from functools import partial
+import numpy as np
 
 from phantasy_ui.templates import BaseAppForm
 from phantasy_ui.widgets.latticewidget import LatticeWidget
 
 from .app_elem_selection import ElementSelectionWidget
 from .app_help import HelpDialog
-from .utils import apply_mplcurve_settings
 from .ui.ui_app import Ui_MainWindow
+from .utils import apply_mplcurve_settings
 from .utils import ElementListModel
 
 BPM_UNIT_FAC = {"mm": 1.0, "m": 1e3}
@@ -198,6 +198,9 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
         p = self.matplotlibcurveWidget
         apply_mplcurve_settings(p)
 
+        # init data viz
+        self.__init_data_viz()
+
         # sync fig controls
         self.grid_btn.setChecked(p.getFigureGridToggle())
         self.legend_btn.setChecked(p.getLegendToggle())
@@ -213,7 +216,7 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
     def on_elem_selection_updated(self, mode, d):
         # BPMs selection (bpms_treeView) is updated.
         # 1. trigger the update of self._bpms
-        # 2. update monitors viz
+        # 2. update monitors
         for o in (self.use_selected_bpms_rbtn, self.use_all_bpms_rbtn):
             o.toggled.emit(o.isChecked())
 
@@ -251,14 +254,15 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
     def on_update_elems(self, mode, enames):
         """Selected element names list updated, mode: 'bpm'/'cor'
         """
-        #print(mode, len(enames))
         tv = getattr(self, "{}s_treeView".format(mode))
-        #print(mode, tv.objectName(), len(enames))
         model = ElementListModel(tv, self.__mp, enames)
+        # list of fields of selected element type
+        model.fieldsSelected.connect(self.on_selected_fields_updated)
         model.set_model()
 
-        # bpm/cor elementlistmodel
-        tv.model().elementSelected.connect(partial(self.on_elem_selection_updated, mode))
+        # bpm/cor selection is changed (elementlistmodel)
+        m = tv.model()
+        m.elementSelected.connect(partial(self.on_elem_selection_updated, mode))
 
     @pyqtSlot(QVariant)
     def update_lattice(self, o):
@@ -287,18 +291,23 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
     def on_daq_update(self):
         """Update DAQ and show data.
         """
-        ufac = BPM_UNIT_FAC[self._bpm_unit]
+        #ufac = BPM_UNIT_FAC[self._bpm_unit]
 
         if self._bpms == []:
             return
-        xdata = [elem.sb for elem in self._bpms]
-        line0_ydata = [elem.X * ufac for elem in self._bpms]
-        line1_ydata = [elem.Y * ufac for elem in self._bpms]
-        self.xdataChanged.emit(xdata)
-        self.ydataChanged.emit(line0_ydata)
-        self.lineChanged.emit(1)
-        self.xdataChanged.emit(xdata)
-        self.ydataChanged.emit(line1_ydata)
+        # xdata = [elem.sb for elem in self._bpms]
+        #line0_ydata = [elem.X * ufac for elem in self._bpms]
+        #line1_ydata = [elem.Y * ufac for elem in self._bpms]
+        #self.xdataChanged.emit(xdata)
+        #self.ydataChanged.emit(line0_ydata)
+        #self.lineChanged.emit(1)
+        #self.xdataChanged.emit(xdata)
+        #self.ydataChanged.emit(line1_ydata)
+        #self.lineChanged.emit(0)
+        self.__update_line(0)
+        #self.xdataChanged.emit(xdata)
+        self.__update_line(1)
+        #self.xdataChanged.emit(xdata)
         self.lineChanged.emit(0)
 
     @pyqtSlot()
@@ -350,6 +359,69 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
         else:
             for o in self.__xylimits_lineEdits:
                 o.setEnabled(True)
+
+    @pyqtSlot(list)
+    def on_selected_fields_updated(self, fields):
+        """List of fields for selected element type.
+        """
+        # 1 set up field 1 and 2 cbb for data viz (two curves)
+        # 2 try to set field-1 X/XCEN, and field-2 Y/YCEN
+        fields_cbb = [self.field1_cbb, self.field2_cbb]
+        cbs_cbb = [self.on_field1_updated, self.on_field2_updated]
+        for o, cb in zip(fields_cbb, cbs_cbb):
+            o.currentTextChanged.disconnect(cb)
+            o.clear()
+            o.addItems(fields)
+            o.currentTextChanged.connect(cb)
+
+        if 'X' in fields: # BPM
+            self.field1_cbb.setCurrentText("X")
+            self.field2_cbb.setCurrentText("Y")
+        else: # PM, or others
+            self.field1_cbb.setCurrentText("XCEN")
+            self.field2_cbb.setCurrentText("YCEN")
+
+        for o in fields_cbb:
+            o.currentTextChanged.emit(o.currentText())
+
+    @pyqtSlot('QString')
+    def on_field1_updated(self, s):
+        """Field-1 is changed, shown as 1st line.
+        """
+        # update 1st line
+        print("Field-1 now is: ", s)
+        self._field1 = s
+        self.__update_line(0)
+
+    @pyqtSlot('QString')
+    def on_field2_updated(self, s):
+        """Field-2 is changed, shown as 2nd line.
+        """
+        print("Field-2 now is: ", s)
+        self._field2 = s
+        self.__update_line(1)
+
+    def __update_line(self, line_id):
+        # refresh line *line_id*.
+        # field: str, name of field
+        ufac = BPM_UNIT_FAC[self._bpm_unit]
+        self.lineChanged.emit(line_id)
+        field = getattr(self, '_field{}'.format(line_id + 1))
+        xdata = [elem.sb for elem in self._bpms]
+        ydata = [getattr(elem, field) * ufac for elem in self._bpms]
+        self.xdataChanged.emit(xdata)
+        self.ydataChanged.emit(ydata)
+        self.matplotlibcurveWidget.setLineLabel(field)
+
+    def __init_data_viz(self):
+        # init data viz
+        self.lineChanged.emit(0)
+        self.xdataChanged.emit([])
+        self.ydataChanged.emit([])
+        self.lineChanged.emit(1)
+        self.xdataChanged.emit([])
+        self.ydataChanged.emit([])
+        self.lineChanged.emit(0)
 
 
 if __name__ == '__main__':
