@@ -181,6 +181,9 @@ class ElementListModel(QStandardItemModel):
     # item selected
     elementSelected = pyqtSignal(OrderedDict)
 
+    # fields wrt the selected element dtype
+    fieldsSelected = pyqtSignal(list)
+
     def __init__(self, parent, mp, enames, **kws):
         super(self.__class__, self).__init__(parent)
         self._v = parent
@@ -255,6 +258,8 @@ class ElementListModel(QStandardItemModel):
             btn.setToolTip("Show details of {}.".format(ename))
             v.setIndexWidget(self.index(i, self.i_info), btn)
             btn.clicked.connect(partial(self.show_elem_info, elem))
+        # emit list of element fields
+        self.fieldsSelected.emit(elem.fields)
 
     @pyqtSlot()
     def show_elem_info(self, elem):
