@@ -202,9 +202,6 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
         self.__init_data_viz()
 
         # sync fig controls
-        self.grid_btn.setChecked(p.getFigureGridToggle())
-        self.legend_btn.setChecked(p.getLegendToggle())
-        self.autoscale_btn.setChecked(p.getFigureAutoScale())
         xmin, xmax = p.get_xlim()
         ymin, ymax = p.get_ylim()
         self.xmin_lineEdit.setText("{0:.3g}".format(xmin))
