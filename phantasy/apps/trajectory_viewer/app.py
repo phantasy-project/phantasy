@@ -34,6 +34,11 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
     # lattice is loaded
     latticeChanged = pyqtSignal(QVariant)
 
+    # selected monitors and fields, k: ename, v: list of fields
+    monitorsChanged = pyqtSignal(dict)
+    # selected correctors and fields
+    correctorsChanged = pyqtSignal(dict)
+
     def __init__(self, version):
         super(TrajectoryViewerWindow, self).__init__()
 
@@ -128,7 +133,7 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
 
     @pyqtSlot(bool)
     def on_update_monitors(self, strategy, f):
-        """Use all or selected BPMs as monitors.
+        """Use 'all' or 'selected' BPMs as monitors.
         """
         if not f:
             return
@@ -140,6 +145,12 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
             self._bpms = self.bpms_treeView.model().get_elements("all")
         else:
             self._bpms = self.bpms_treeView.model().get_elements("selected")
+
+    def update_correctors(self):
+        """Update correctors selection (of cors_treeView).
+        """
+        model = self.cors_treeView.model()
+        self._cors = model.get_elements("selected")
 
     @pyqtSlot(bool)
     def on_update_unit(self, unit, f):
@@ -171,7 +182,8 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
         #
         self.__mp = None
         self._bpm_unit = None
-        self._bpms = None
+        self._bpms = []  # list of CaElements (e.g. BPM)
+        self._cors = []  # list of CaElements (HCOR/VCOR)
 
         # lattice load window
         self._lattice_load_window = None
@@ -209,17 +221,34 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
         self.ymin_lineEdit.setText("{0:.3g}".format(ymin))
         self.ymax_lineEdit.setText("{0:.3g}".format(ymax))
 
+        # orm window
+        self._orm_window = None
+
     @pyqtSlot(OrderedDict)
     def on_elem_selection_updated(self, mode, d):
-        # BPMs selection (bpms_treeView) is updated.
-        # 1. trigger the update of self._bpms
-        # 2. update monitors
-        for o in (self.use_selected_bpms_rbtn, self.use_all_bpms_rbtn):
-            o.toggled.emit(o.isChecked())
-
-        #print(self._bpms, len(self._bpms))
+        # mode 'bpm':
+        #   BPMs selection (bpms_treeView) is updated
+        #   * trigger the update of self._bpms (trigger data viz update (timeout))
+        # mode 'cor':
+        #   CORs selection (cors_treeView) is updated
+        #   * trigger the update of self._cors
         model = getattr(self, '{}s_treeView'.format(mode)).model()
-        print("Selection is updated: ", model._selected_elements)
+        if mode == 'bpm':
+            #
+            print("[TV] Monitors (BPMs) selction is changed...")
+            #
+            for o in (self.use_selected_bpms_rbtn, self.use_all_bpms_rbtn):
+                o.toggled.emit(o.isChecked())
+            # emit selected monitors
+            self.monitorsChanged.emit(model._selected_elements)
+        else:
+            # 'cor' mode
+            print("[TV] Correctors selection is changed...")
+            self.update_correctors()
+            # emit selected correctors
+            self.correctorsChanged.emit(model._selected_elements)
+
+        #print("[TV] Selection is updated: ", model._selected_elements)
 
     @pyqtSlot()
     def on_select_all_elems(self, mode):
@@ -288,23 +317,10 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
     def on_daq_update(self):
         """Update DAQ and show data.
         """
-        #ufac = BPM_UNIT_FAC[self._bpm_unit]
-
         if self._bpms == []:
             return
-        # xdata = [elem.sb for elem in self._bpms]
-        #line0_ydata = [elem.X * ufac for elem in self._bpms]
-        #line1_ydata = [elem.Y * ufac for elem in self._bpms]
-        #self.xdataChanged.emit(xdata)
-        #self.ydataChanged.emit(line0_ydata)
-        #self.lineChanged.emit(1)
-        #self.xdataChanged.emit(xdata)
-        #self.ydataChanged.emit(line1_ydata)
-        #self.lineChanged.emit(0)
         self.__update_line(0)
-        #self.xdataChanged.emit(xdata)
         self.__update_line(1)
-        #self.xdataChanged.emit(xdata)
         self.lineChanged.emit(0)
 
     @pyqtSlot()
@@ -317,11 +333,30 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
     def on_launch_orm(self):
         """Launch ORM app.
         """
-        from phantasy.apps.orm import OrbitResponseMatrixWindow
-        from phantasy.apps.orm import __version__
+        # bpms
+        #print(self._bpms, len(self._bpms))
+        # cors
+        #print(self._cors, len(self._bpms))
+        m1 = self.bpms_treeView.model()
+        m2 = self.cors_treeView.model()
+        name_elem_map = m1.name_elem_map
+        name_elem_map.update(m2.name_elem_map)
+        bpms_dict = m1._selected_elements
+        cors_dict = m2._selected_elements
 
-        self.orm_window = OrbitResponseMatrixWindow(__version__)
-        self.orm_window.show()
+        if self._orm_window is None:
+            from phantasy.apps.orm import OrbitResponseMatrixWindow
+            from phantasy.apps.orm import __version__
+            self._orm_window = OrbitResponseMatrixWindow(self, __version__,
+                    name_map=name_elem_map, mp=self.__mp,
+                    bpms=bpms_dict, cors=cors_dict)
+            self._orm_window.setWindowTitle("Orbit Response Matrix (Trajectory Viewer)")
+            self.monitorsChanged.connect(
+                    partial(self._orm_window.on_update_elements, 'bpm'))
+            self.correctorsChanged.connect(
+                    partial(self._orm_window.on_update_elements, 'cor'))
+        #
+        self._orm_window.show()
 
     @pyqtSlot()
     def onLoadLatticeAction(self):
