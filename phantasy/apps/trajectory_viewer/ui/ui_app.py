@@ -566,7 +566,7 @@ class Ui_MainWindow(object):
         self.actionContents.setShortcut(_translate("MainWindow", "F1"))
         self.actionORM.setText(
             _translate("MainWindow", "Orbit Response Matrix"))
-        self.actionORM.setShortcut(_translate("MainWindow", "Ctrl+Alt+M"))
+        self.actionORM.setShortcut(_translate("MainWindow", "Ctrl+Shift+M"))
         self.actionLoad_Lattice.setText(
             _translate("MainWindow", "Load Lattice"))
         self.actionLoad_Lattice.setShortcut(
