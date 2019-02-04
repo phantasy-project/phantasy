@@ -1,3 +1,38 @@
+Version 1.9.2
+-------------
+2019-02-04
+
+- PHANTASY core:
+  - Add keyword argument: 'msg_queue' to Lattice.correct_orbit() method and
+    phantasy.get_orm() function, which supports the GUI widget to keep track
+    of the logging messages generated from these two functions/methods.
+  - API changes: change 'lattice' to be keyword argument for get_orm() function.
+
+- Trajectory Viewer:
+  - Update UIs
+  - Implement monitors monitoring widget
+  - Implement the generic element selections
+  - Connection with ORM app
+
+- Orbit Response Matrix App:
+  - Update UIs
+  - Implement ORM measurement
+  - Implement orbit correction with ORM
+
+- Virtual Accelerator Launcher:
+  - Fix missing module
+  - Update UIs
+
+- App Launcher:
+  - Update UIs
+
+- Wire Scanner App:
+  - Update UIs
+  - Enhanced the figure controls buttons
+
+- Correlation Visualizer:
+  - Update UIs
+
 Version 1.9.1
 -------------
 2019-01-27
