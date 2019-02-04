@@ -66,3 +66,58 @@ class OrmRunner(QObject):
         receiver = Thread(target=_receiver, args=(q,))
         receiver.setDaemon(True)
         receiver.start()
+
+
+class OrmConsumer(QObject):
+    #
+    started = pyqtSignal()
+    #
+    finished = pyqtSignal()
+    #
+    resultsReady = pyqtSignal()
+    #
+    update_progress = pyqtSignal(float, 'QString')
+    """Worker for orbit correction with ORM.
+
+    Parameters
+    ----------
+    """
+    def __init__(self, params):
+        super(self.__class__, self).__init__()
+        (lat,), (bpms, cors), (xoy, dfac, niter, wait) = params
+
+        self._lat = lat
+        self._bpms = bpms
+        self._cors = cors
+        self._xoy = xoy
+        self._wait= wait
+        self._dfac = dfac
+        self._niter = niter
+
+    def run(self):
+        self.started.emit()
+        q = Queue(0)
+        self.message_receiver(q)
+        self._lat.correct_orbit(self._cors, self._bpms,
+                                xoy=self._xoy,
+                                damping_factor=self._dfac,
+                                iteration=self._niter, wait=self._wait,
+                                msg_queue=q)
+        q.join()
+        self.resultsReady.emit()
+        self.finished.emit()
+
+    def message_receiver(self, q):
+        """Message receiver and processor from the message queue *q*.
+        """
+        def _receiver(q):
+            while True:
+                per, msg = q.get()
+                self.update_progress.emit(per, msg)
+                q.task_done()
+
+        receiver = Thread(target=_receiver, args=(q,))
+        receiver.setDaemon(True)
+        receiver.start()
+
+
