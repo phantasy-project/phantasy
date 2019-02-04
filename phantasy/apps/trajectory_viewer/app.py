@@ -350,7 +350,8 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
             self._orm_window = OrbitResponseMatrixWindow(self, __version__,
                     name_map=name_elem_map, mp=self.__mp,
                     bpms=bpms_dict, cors=cors_dict)
-            self._orm_window.setWindowTitle("Orbit Response Matrix (Trajectory Viewer)")
+            self._orm_window.setWindowTitle(
+                    "Orbit Response Matrix (Trajectory Viewer)")
             self.monitorsChanged.connect(
                     partial(self._orm_window.on_update_elements, 'bpm'))
             self.correctorsChanged.connect(

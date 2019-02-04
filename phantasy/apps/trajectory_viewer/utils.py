@@ -191,7 +191,10 @@ class ElementListModel(QStandardItemModel):
         self._enames = enames
 
         # mapping of ename and element
-        self.name_elem_map = {i.name: i for i in self._mp.work_lattice_conf}
+        if self._mp is not None:
+            self.name_elem_map = {i.name: i for i in self._mp.work_lattice_conf}
+        else:
+            self.name_elem_map = {}
 
         col_name_map = OrderedDict((
             ('Name', 'name'),
@@ -214,6 +217,8 @@ class ElementListModel(QStandardItemModel):
         self._selected_elements = OrderedDict()
 
     def set_model(self):
+        if self._mp is None:
+            return
         # set model
         self._v.setModel(self)
         self.set_columns()
@@ -258,8 +263,11 @@ class ElementListModel(QStandardItemModel):
             btn.setToolTip("Show details of {}.".format(ename))
             v.setIndexWidget(self.index(i, self.i_info), btn)
             btn.clicked.connect(partial(self.show_elem_info, elem))
-        # emit list of element fields
-        self.fieldsSelected.emit(elem.fields)
+        try:
+            # emit list of element fields
+            self.fieldsSelected.emit(elem.fields)
+        except:
+            print("No selected fields.")
 
     @pyqtSlot()
     def show_elem_info(self, elem):
