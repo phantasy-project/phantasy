@@ -31,6 +31,7 @@ from phantasy.library.misc import flatten
 from phantasy.library.misc import get_intersection
 from phantasy.library.misc import parse_dt
 from phantasy.library.misc import pattern_filter
+from phantasy.library.misc import epoch2human
 from phantasy.library.model import BeamState
 from phantasy.library.model import ModelFlame
 from phantasy.library.parser import Configuration
@@ -45,6 +46,7 @@ from .impact import LatticeFactory as ImpactLatticeFactory
 from .impact import run_lattice as run_impact_lattice
 
 _LOGGER = logging.getLogger(__name__)
+TS_FMT = "%Y-%m-%d %H:%M:%S"
 
 try:
     basestring
@@ -1749,6 +1751,8 @@ class Lattice(object):
             Wait time after set value, in *sec*, 1.0 by default.
         echo : bool
             Print out message or not, default is True.
+        msg_queue : Queue
+            A queue that keeps log messages.
 
         Returns
         -------
@@ -1758,6 +1762,7 @@ class Lattice(object):
         damp_fac = kws.get('damping_factor', 0.05)
         wait = kws.get('wait', 1.0)
         echo = kws.get('echo', True)
+        q_msg = kws.get('msg_queue', None)
 
         if self._orm is None:
             _LOGGER.error("correct_orbit: ORM is not available, set ORM first.")
@@ -1770,10 +1775,12 @@ class Lattice(object):
             bpm_readings = get_orbit(bpms, **kws)
             delt_cor = np.dot(m_inv, -bpm_readings * damp_fac)
             for ic, (e, v) in enumerate(zip(correctors, delt_cor)):
+                msg = "[{0}] Correct cor [{1:>2d}/{2:>2d}]: {3:<20s} with {4:>10.4e}.".format(
+                       epoch2human(time.time(), fmt=TS_FMT), ic + 1, n_cor, e.name, v)
+                if q_msg is not None:
+                    q_msg.put((ic * 100.0 / n_cor, msg))
                 if echo:
-                    print(
-                        "Correct cor[{0:>2d}/{1:>2d}]: {2:<20s} with {3:>10.4e} mrad.".format(
-                        ic + 1, n_cor, e.name, v * 1e3))
+                    print(msg)
                 v0 = getattr(e, cor_field)
                 setattr(e, cor_field, v0 + v)
                 time.sleep(wait)
