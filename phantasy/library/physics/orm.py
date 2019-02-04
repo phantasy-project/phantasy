@@ -54,6 +54,8 @@ def get_orm(correctors, monitors, **kws):
         'x'('y') for monitoring 'x'('y') direction,'xy' for both (default).
     lattice : Lattice
         High-level lattice object.
+    msg_queue : Queue
+        A queue that keeps log messages.
 
     Returns
     -------
@@ -70,6 +72,7 @@ def get_orm(correctors, monitors, **kws):
     cor_field = kws.get('cor_field', 'ANG')
     xoy = kws.get('xoy', 'xy')
     wait = kws.get('wait', 1.0)
+    q_msg = kws.get('msg_queue', None)
 
     m = len(monitors) * len(xoy)
     n = len(correctors)
@@ -85,7 +88,10 @@ def get_orm(correctors, monitors, **kws):
         orbit_arr = np.zeros([len(scan), m])
         cor_val0 = getattr(cor, cor_field)
         for iscan, val in enumerate(scan):
-            print("Set [{0}] {1}:{2}".format(i+1, cor.name, val))
+            msg = "Set [{0}] {1}:{2}".format(i+1, cor.name, val)
+            if q_msg is not None:
+                q_msg.put((i*100.0/n, msg))
+            print(msg)
             setattr(cor, cor_field, val)
             time.sleep(wait)
             orbit_arr[iscan] = get_orbit(monitors, **kws)
