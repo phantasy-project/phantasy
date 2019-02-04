@@ -13,6 +13,10 @@ from functools import reduce
 import numpy as np
 import numpy.linalg as linalg
 
+from phantasy.library.misc import epoch2human
+
+TS_FMT = "%Y-%m-%d %H:%M:%S"
+
 
 def get_orm(correctors, monitors, **kws):
     """Calculate orbit response matrix (ORM) with defined input parameters.
@@ -88,7 +92,8 @@ def get_orm(correctors, monitors, **kws):
         orbit_arr = np.zeros([len(scan), m])
         cor_val0 = getattr(cor, cor_field)
         for iscan, val in enumerate(scan):
-            msg = "Set [{0}] {1}:{2}".format(i+1, cor.name, val)
+            msg = "[{0}] Set [{1:02d}] {2}: {3:>10.6f}".format(
+                    epoch2human(time.time(), fmt=TS_FMT), i+1, cor.name, val)
             if q_msg is not None:
                 q_msg.put((i*100.0/n, msg))
             print(msg)
