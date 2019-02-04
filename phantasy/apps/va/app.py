@@ -407,4 +407,4 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
             o.setEnabled(enable)
 
     def sizeHint(self):
-        return QSize(700, 400)
+        return QSize(600, 300)
