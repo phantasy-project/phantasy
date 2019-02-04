@@ -5,13 +5,25 @@ from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import QVariant
 
 import numpy as np
+from threading import Thread
+
+try:
+    from queue import Queue
+except:
+    from Queue import Queue
 
 from phantasy import get_orm
 
 
 class OrmRunner(QObject):
+    #
+    started = pyqtSignal()
+    #
     finished = pyqtSignal()
-    resultsReady = pyqtSignal(QVariant)  # np.ndarray
+    # ORM matrix, np.ndarray
+    resultsReady = pyqtSignal(QVariant)
+    # percentage, name of corrector
+    update_progress = pyqtSignal(float, 'QString')
     """Worker for ORM measurement.
 
     Parameters
@@ -30,10 +42,27 @@ class OrmRunner(QObject):
         self._wait= wait
 
     def run(self):
+        self.started.emit()
+        q = Queue(0)
+        self.message_receiver(q)
         m = get_orm(self._cors, self._bpms,
                     source=self._source, scan=self._srange,
                     cor_field=self._cor_field, xoy=self._xoy,
-                    wait=self._wait)
+                    wait=self._wait,
+                    msg_queue=q)
+        q.join()
         self.resultsReady.emit(m)
         self.finished.emit()
 
+    def message_receiver(self, q):
+        """Message receiver and processor from the message queue *q*.
+        """
+        def _receiver(q):
+            while True:
+                per, msg = q.get()
+                self.update_progress.emit(per, msg)
+                q.task_done()
+
+        receiver = Thread(target=_receiver, args=(q,))
+        receiver.setDaemon(True)
+        receiver.start()
