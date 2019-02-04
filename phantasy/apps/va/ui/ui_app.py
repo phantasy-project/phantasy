@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui_app.ui'
 #
-# Created by: PyQt5 UI code generator 5.5.1
+# Created by: PyQt5 UI code generator 5.10.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -12,7 +12,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(729, 436)
+        MainWindow.resize(660, 348)
         icon = QtGui.QIcon()
         icon.addPixmap(
             QtGui.QPixmap(":/icons/frib_va.png"), QtGui.QIcon.Normal,
@@ -42,163 +42,6 @@ class Ui_MainWindow(object):
         self.gridLayout_2 = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout_2.setContentsMargins(6, 6, 6, 6)
         self.gridLayout_2.setObjectName("gridLayout_2")
-        self.control_groupBox = QtWidgets.QGroupBox(self.centralwidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
-                                           QtWidgets.QSizePolicy.Preferred)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(
-            self.control_groupBox.sizePolicy().hasHeightForWidth())
-        self.control_groupBox.setSizePolicy(sizePolicy)
-        self.control_groupBox.setObjectName("control_groupBox")
-        self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.control_groupBox)
-        self.verticalLayout_2.setContentsMargins(5, 5, 5, 5)
-        self.verticalLayout_2.setSpacing(9)
-        self.verticalLayout_2.setObjectName("verticalLayout_2")
-        self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
-        self.horizontalLayout_3.setObjectName("horizontalLayout_3")
-        self.label_4 = QtWidgets.QLabel(self.control_groupBox)
-        self.label_4.setObjectName("label_4")
-        self.horizontalLayout_3.addWidget(self.label_4)
-        self.noise_slider = QtWidgets.QSlider(self.control_groupBox)
-        self.noise_slider.setEnabled(False)
-        self.noise_slider.setStyleSheet(
-            "QSlider::groove:horizontal {\n"
-            "border: 1px solid #bbb;\n"
-            "background: white;\n"
-            "height: 12px;\n"
-            "border-radius: 4px;\n"
-            "}\n"
-            "\n"
-            "QSlider::sub-page:horizontal {\n"
-            "background: qlineargradient(x1: 0, y1: 0,    x2: 0, y2: 1,\n"
-            "    stop: 0 #10BAF0, stop: 1 #10BAF0);\n"
-            "background: qlineargradient(x1: 0, y1: 0.2, x2: 1, y2: 1,\n"
-            "    stop: 0 #10BAF0, stop: 1 #10BAF0);\n"
-            "border: 1px solid #777;\n"
-            "height: 10px;\n"
-            "border-radius: 4px;\n"
-            "}\n"
-            "\n"
-            "QSlider::add-page:horizontal {\n"
-            "background: #fff;\n"
-            "border: 1px solid #777;\n"
-            "height: 10px;\n"
-            "border-radius: 4px;\n"
-            "}\n"
-            "\n"
-            "QSlider::handle:horizontal {\n"
-            "background: qlineargradient(x1:0, y1:0, x2:1, y2:1,\n"
-            "    stop:0 #eee, stop:1 #ccc);\n"
-            "border: 1px solid #777;\n"
-            "width: 15px;\n"
-            "margin-top: -2px;\n"
-            "margin-bottom: -2px;\n"
-            "border-radius: 4px;\n"
-            "}\n"
-            "\n"
-            "QSlider::handle:horizontal:hover {\n"
-            "background: qlineargradient(x1:0, y1:0, x2:1, y2:1,\n"
-            "    stop:0 #fff, stop:1 #ddd);\n"
-            "border: 1px solid #444;\n"
-            "border-radius: 4px;\n"
-            "}\n"
-            "\n"
-            "QSlider::sub-page:horizontal:disabled {\n"
-            "background: #bbb;\n"
-            "border-color: #999;\n"
-            "}\n"
-            "\n"
-            "QSlider::add-page:horizontal:disabled {\n"
-            "background: #eee;\n"
-            "border-color: #999;\n"
-            "}\n"
-            "\n"
-            "QSlider::handle:horizontal:disabled {\n"
-            "background: #eee;\n"
-            "border: 1px solid #aaa;\n"
-            "border-radius: 4px;\n"
-            "}")
-        self.noise_slider.setMinimum(0)
-        self.noise_slider.setMaximum(50)
-        self.noise_slider.setProperty("value", 0)
-        self.noise_slider.setOrientation(QtCore.Qt.Horizontal)
-        self.noise_slider.setObjectName("noise_slider")
-        self.horizontalLayout_3.addWidget(self.noise_slider)
-        self.noise_label = QtWidgets.QLabel(self.control_groupBox)
-        self.noise_label.setEnabled(False)
-        self.noise_label.setObjectName("noise_label")
-        self.horizontalLayout_3.addWidget(self.noise_label)
-        spacerItem = QtWidgets.QSpacerItem(40, 20,
-                                           QtWidgets.QSizePolicy.Expanding,
-                                           QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayout_3.addItem(spacerItem)
-        self.verticalLayout_2.addLayout(self.horizontalLayout_3)
-        self.horizontalLayout = QtWidgets.QHBoxLayout()
-        self.horizontalLayout.setContentsMargins(-1, 0, -1, -1)
-        self.horizontalLayout.setObjectName("horizontalLayout")
-        self.label_7 = QtWidgets.QLabel(self.control_groupBox)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
-                                           QtWidgets.QSizePolicy.Preferred)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(
-            self.label_7.sizePolicy().hasHeightForWidth())
-        self.label_7.setSizePolicy(sizePolicy)
-        self.label_7.setObjectName("label_7")
-        self.horizontalLayout.addWidget(self.label_7)
-        self.mps_fault_radiobtn = QtWidgets.QRadioButton(self.control_groupBox)
-        self.mps_fault_radiobtn.setEnabled(False)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
-                                           QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(
-            self.mps_fault_radiobtn.sizePolicy().hasHeightForWidth())
-        self.mps_fault_radiobtn.setSizePolicy(sizePolicy)
-        self.mps_fault_radiobtn.setObjectName("mps_fault_radiobtn")
-        self.horizontalLayout.addWidget(self.mps_fault_radiobtn)
-        self.mps_disable_radiobtn = QtWidgets.QRadioButton(
-            self.control_groupBox)
-        self.mps_disable_radiobtn.setEnabled(False)
-        self.mps_disable_radiobtn.setObjectName("mps_disable_radiobtn")
-        self.horizontalLayout.addWidget(self.mps_disable_radiobtn)
-        self.mps_monitor_radiobtn = QtWidgets.QRadioButton(
-            self.control_groupBox)
-        self.mps_monitor_radiobtn.setEnabled(False)
-        self.mps_monitor_radiobtn.setObjectName("mps_monitor_radiobtn")
-        self.horizontalLayout.addWidget(self.mps_monitor_radiobtn)
-        self.mps_enable_radiobtn = QtWidgets.QRadioButton(
-            self.control_groupBox)
-        self.mps_enable_radiobtn.setEnabled(False)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
-                                           QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(
-            self.mps_enable_radiobtn.sizePolicy().hasHeightForWidth())
-        self.mps_enable_radiobtn.setSizePolicy(sizePolicy)
-        self.mps_enable_radiobtn.setObjectName("mps_enable_radiobtn")
-        self.horizontalLayout.addWidget(self.mps_enable_radiobtn)
-        self.mps_pvname_lbl = QtWidgets.QLabel(self.control_groupBox)
-        self.mps_pvname_lbl.setEnabled(False)
-        font = QtGui.QFont()
-        font.setFamily("monospace")
-        self.mps_pvname_lbl.setFont(font)
-        self.mps_pvname_lbl.setStyleSheet("QLabel {\n"
-                                          "    font-family: monospace;\n"
-                                          "}")
-        self.mps_pvname_lbl.setText("")
-        self.mps_pvname_lbl.setTextInteractionFlags(
-            QtCore.Qt.LinksAccessibleByMouse)
-        self.mps_pvname_lbl.setObjectName("mps_pvname_lbl")
-        self.horizontalLayout.addWidget(self.mps_pvname_lbl)
-        spacerItem1 = QtWidgets.QSpacerItem(40, 20,
-                                            QtWidgets.QSizePolicy.Expanding,
-                                            QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayout.addItem(spacerItem1)
-        self.verticalLayout_2.addLayout(self.horizontalLayout)
-        self.gridLayout_2.addWidget(self.control_groupBox, 1, 0, 1, 1)
         self.config_groupBox = QtWidgets.QGroupBox(self.centralwidget)
         self.config_groupBox.setObjectName("config_groupBox")
         self.gridLayout = QtWidgets.QGridLayout(self.config_groupBox)
@@ -290,10 +133,10 @@ class Ui_MainWindow(object):
         self.va_name_label.setText("")
         self.va_name_label.setObjectName("va_name_label")
         self.horizontalLayout_2.addWidget(self.va_name_label)
-        spacerItem2 = QtWidgets.QSpacerItem(40, 20,
-                                            QtWidgets.QSizePolicy.Expanding,
-                                            QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayout_2.addItem(spacerItem2)
+        spacerItem = QtWidgets.QSpacerItem(40, 20,
+                                           QtWidgets.QSizePolicy.Expanding,
+                                           QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_2.addItem(spacerItem)
         self.label_3 = QtWidgets.QLabel(self.groupBox)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
                                            QtWidgets.QSizePolicy.Fixed)
@@ -322,13 +165,166 @@ class Ui_MainWindow(object):
         self.horizontalLayout_2.addWidget(self.uptime_label)
         self.horizontalLayout_4.addLayout(self.horizontalLayout_2)
         self.gridLayout_2.addWidget(self.groupBox, 2, 0, 1, 1)
-        spacerItem3 = QtWidgets.QSpacerItem(20, 40,
-                                            QtWidgets.QSizePolicy.Minimum,
-                                            QtWidgets.QSizePolicy.Expanding)
-        self.gridLayout_2.addItem(spacerItem3, 3, 0, 1, 1)
+        self.control_groupBox = QtWidgets.QGroupBox(self.centralwidget)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
+                                           QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.control_groupBox.sizePolicy().hasHeightForWidth())
+        self.control_groupBox.setSizePolicy(sizePolicy)
+        self.control_groupBox.setObjectName("control_groupBox")
+        self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.control_groupBox)
+        self.verticalLayout_2.setContentsMargins(5, 5, 5, 5)
+        self.verticalLayout_2.setSpacing(9)
+        self.verticalLayout_2.setObjectName("verticalLayout_2")
+        self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_3.setObjectName("horizontalLayout_3")
+        self.label_4 = QtWidgets.QLabel(self.control_groupBox)
+        self.label_4.setObjectName("label_4")
+        self.horizontalLayout_3.addWidget(self.label_4)
+        self.noise_slider = QtWidgets.QSlider(self.control_groupBox)
+        self.noise_slider.setEnabled(False)
+        self.noise_slider.setStyleSheet(
+            "QSlider::groove:horizontal {\n"
+            "border: 1px solid #bbb;\n"
+            "background: white;\n"
+            "height: 12px;\n"
+            "border-radius: 4px;\n"
+            "}\n"
+            "\n"
+            "QSlider::sub-page:horizontal {\n"
+            "background: qlineargradient(x1: 0, y1: 0,    x2: 0, y2: 1,\n"
+            "    stop: 0 #10BAF0, stop: 1 #10BAF0);\n"
+            "background: qlineargradient(x1: 0, y1: 0.2, x2: 1, y2: 1,\n"
+            "    stop: 0 #10BAF0, stop: 1 #10BAF0);\n"
+            "border: 1px solid #777;\n"
+            "height: 10px;\n"
+            "border-radius: 4px;\n"
+            "}\n"
+            "\n"
+            "QSlider::add-page:horizontal {\n"
+            "background: #fff;\n"
+            "border: 1px solid #777;\n"
+            "height: 10px;\n"
+            "border-radius: 4px;\n"
+            "}\n"
+            "\n"
+            "QSlider::handle:horizontal {\n"
+            "background: qlineargradient(x1:0, y1:0, x2:1, y2:1,\n"
+            "    stop:0 #eee, stop:1 #ccc);\n"
+            "border: 1px solid #777;\n"
+            "width: 15px;\n"
+            "margin-top: -2px;\n"
+            "margin-bottom: -2px;\n"
+            "border-radius: 4px;\n"
+            "}\n"
+            "\n"
+            "QSlider::handle:horizontal:hover {\n"
+            "background: qlineargradient(x1:0, y1:0, x2:1, y2:1,\n"
+            "    stop:0 #fff, stop:1 #ddd);\n"
+            "border: 1px solid #444;\n"
+            "border-radius: 4px;\n"
+            "}\n"
+            "\n"
+            "QSlider::sub-page:horizontal:disabled {\n"
+            "background: #bbb;\n"
+            "border-color: #999;\n"
+            "}\n"
+            "\n"
+            "QSlider::add-page:horizontal:disabled {\n"
+            "background: #eee;\n"
+            "border-color: #999;\n"
+            "}\n"
+            "\n"
+            "QSlider::handle:horizontal:disabled {\n"
+            "background: #eee;\n"
+            "border: 1px solid #aaa;\n"
+            "border-radius: 4px;\n"
+            "}")
+        self.noise_slider.setMinimum(0)
+        self.noise_slider.setMaximum(50)
+        self.noise_slider.setProperty("value", 0)
+        self.noise_slider.setOrientation(QtCore.Qt.Horizontal)
+        self.noise_slider.setObjectName("noise_slider")
+        self.horizontalLayout_3.addWidget(self.noise_slider)
+        self.noise_label = QtWidgets.QLabel(self.control_groupBox)
+        self.noise_label.setEnabled(False)
+        self.noise_label.setObjectName("noise_label")
+        self.horizontalLayout_3.addWidget(self.noise_label)
+        spacerItem1 = QtWidgets.QSpacerItem(40, 20,
+                                            QtWidgets.QSizePolicy.Expanding,
+                                            QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_3.addItem(spacerItem1)
+        self.verticalLayout_2.addLayout(self.horizontalLayout_3)
+        self.horizontalLayout = QtWidgets.QHBoxLayout()
+        self.horizontalLayout.setContentsMargins(-1, 0, -1, -1)
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        self.label_7 = QtWidgets.QLabel(self.control_groupBox)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
+                                           QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.label_7.sizePolicy().hasHeightForWidth())
+        self.label_7.setSizePolicy(sizePolicy)
+        self.label_7.setObjectName("label_7")
+        self.horizontalLayout.addWidget(self.label_7)
+        self.mps_fault_radiobtn = QtWidgets.QRadioButton(self.control_groupBox)
+        self.mps_fault_radiobtn.setEnabled(False)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
+                                           QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.mps_fault_radiobtn.sizePolicy().hasHeightForWidth())
+        self.mps_fault_radiobtn.setSizePolicy(sizePolicy)
+        self.mps_fault_radiobtn.setObjectName("mps_fault_radiobtn")
+        self.horizontalLayout.addWidget(self.mps_fault_radiobtn)
+        self.mps_disable_radiobtn = QtWidgets.QRadioButton(
+            self.control_groupBox)
+        self.mps_disable_radiobtn.setEnabled(False)
+        self.mps_disable_radiobtn.setObjectName("mps_disable_radiobtn")
+        self.horizontalLayout.addWidget(self.mps_disable_radiobtn)
+        self.mps_monitor_radiobtn = QtWidgets.QRadioButton(
+            self.control_groupBox)
+        self.mps_monitor_radiobtn.setEnabled(False)
+        self.mps_monitor_radiobtn.setObjectName("mps_monitor_radiobtn")
+        self.horizontalLayout.addWidget(self.mps_monitor_radiobtn)
+        self.mps_enable_radiobtn = QtWidgets.QRadioButton(
+            self.control_groupBox)
+        self.mps_enable_radiobtn.setEnabled(False)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
+                                           QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.mps_enable_radiobtn.sizePolicy().hasHeightForWidth())
+        self.mps_enable_radiobtn.setSizePolicy(sizePolicy)
+        self.mps_enable_radiobtn.setObjectName("mps_enable_radiobtn")
+        self.horizontalLayout.addWidget(self.mps_enable_radiobtn)
+        self.mps_pvname_lbl = QtWidgets.QLabel(self.control_groupBox)
+        self.mps_pvname_lbl.setEnabled(False)
+        font = QtGui.QFont()
+        font.setFamily("monospace")
+        self.mps_pvname_lbl.setFont(font)
+        self.mps_pvname_lbl.setStyleSheet("QLabel {\n"
+                                          "    font-family: monospace;\n"
+                                          "}")
+        self.mps_pvname_lbl.setText("")
+        self.mps_pvname_lbl.setTextInteractionFlags(
+            QtCore.Qt.LinksAccessibleByMouse)
+        self.mps_pvname_lbl.setObjectName("mps_pvname_lbl")
+        self.horizontalLayout.addWidget(self.mps_pvname_lbl)
+        spacerItem2 = QtWidgets.QSpacerItem(40, 20,
+                                            QtWidgets.QSizePolicy.Expanding,
+                                            QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout.addItem(spacerItem2)
+        self.verticalLayout_2.addLayout(self.horizontalLayout)
+        self.gridLayout_2.addWidget(self.control_groupBox, 1, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 729, 30))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 660, 24))
         self.menubar.setObjectName("menubar")
         self.menu_Help = QtWidgets.QMenu(self.menubar)
         self.menu_Help.setObjectName("menu_Help")
@@ -434,14 +430,6 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.control_groupBox.setTitle(_translate("MainWindow", "Control"))
-        self.label_4.setText(_translate("MainWindow", "Noise Level"))
-        self.noise_label.setText(_translate("MainWindow", "0.0%"))
-        self.label_7.setText(_translate("MainWindow", "MPS Status"))
-        self.mps_fault_radiobtn.setText(_translate("MainWindow", "Fault"))
-        self.mps_disable_radiobtn.setText(_translate("MainWindow", "Disable"))
-        self.mps_monitor_radiobtn.setText(_translate("MainWindow", "Monitor"))
-        self.mps_enable_radiobtn.setText(_translate("MainWindow", "Enable"))
         self.config_groupBox.setTitle(
             _translate("MainWindow", "Configuration"))
         self.label.setText(_translate("MainWindow", "Machine"))
@@ -458,6 +446,14 @@ class Ui_MainWindow(object):
         self.va_status_label.setText(_translate("MainWindow", "Stopped"))
         self.label_3.setText(_translate("MainWindow", "Uptime"))
         self.uptime_label.setText(_translate("MainWindow", "00:00:00"))
+        self.control_groupBox.setTitle(_translate("MainWindow", "Control"))
+        self.label_4.setText(_translate("MainWindow", "Noise Level"))
+        self.noise_label.setText(_translate("MainWindow", "0.0%"))
+        self.label_7.setText(_translate("MainWindow", "MPS Status"))
+        self.mps_fault_radiobtn.setText(_translate("MainWindow", "Fault"))
+        self.mps_disable_radiobtn.setText(_translate("MainWindow", "Disable"))
+        self.mps_monitor_radiobtn.setText(_translate("MainWindow", "Monitor"))
+        self.mps_enable_radiobtn.setText(_translate("MainWindow", "Enable"))
         self.menu_Help.setTitle(_translate("MainWindow", "&Help"))
         self.menu_File.setTitle(_translate("MainWindow", "&File"))
         self.toolBar.setWindowTitle(_translate("MainWindow", "toolBar"))
