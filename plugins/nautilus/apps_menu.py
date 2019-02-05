@@ -8,7 +8,7 @@ import os
 from datetime import datetime
 from subprocess import Popen, PIPE
 
-LOG_PATH = "/tmp/phantasy_logs/"
+LOG_PATH = os.path.expanduser("~/phantasy_logs/")
 
 if not os.path.exists(LOG_PATH):
     os.makedirs(LOG_PATH)
