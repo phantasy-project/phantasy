@@ -12,7 +12,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1280, 1080)
+        MainWindow.resize(1440, 1200)
         icon = QtGui.QIcon()
         icon.addPixmap(
             QtGui.QPixmap(":/icons/icons/tv_icon.png"), QtGui.QIcon.Normal,
@@ -78,7 +78,7 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(
             self.elem_models.sizePolicy().hasHeightForWidth())
         self.elem_models.setSizePolicy(sizePolicy)
-        self.elem_models.setMinimumSize(QtCore.QSize(300, 0))
+        self.elem_models.setMinimumSize(QtCore.QSize(450, 0))
         self.elem_models.setObjectName("elem_models")
         self.elements_vbox = QtWidgets.QVBoxLayout(self.elem_models)
         self.elements_vbox.setContentsMargins(0, 0, 0, 0)
@@ -86,11 +86,15 @@ class Ui_MainWindow(object):
         self.elements_vbox.setObjectName("elements_vbox")
         self.elems_ctrl_hbox = QtWidgets.QHBoxLayout()
         self.elems_ctrl_hbox.setObjectName("elems_ctrl_hbox")
+        self.label_10 = QtWidgets.QLabel(self.elem_models)
+        self.label_10.setObjectName("label_10")
+        self.elems_ctrl_hbox.addWidget(self.label_10)
         spacerItem = QtWidgets.QSpacerItem(40, 20,
                                            QtWidgets.QSizePolicy.Expanding,
                                            QtWidgets.QSizePolicy.Minimum)
         self.elems_ctrl_hbox.addItem(spacerItem)
         self.refresh_models_btn = QtWidgets.QPushButton(self.elem_models)
+        self.refresh_models_btn.setText("")
         icon1 = QtGui.QIcon()
         icon1.addPixmap(
             QtGui.QPixmap(":/icons/refresh.png"), QtGui.QIcon.Normal,
@@ -168,7 +172,7 @@ class Ui_MainWindow(object):
         self.operations_toolBox.setFrameShadow(QtWidgets.QFrame.Plain)
         self.operations_toolBox.setObjectName("operations_toolBox")
         self.orm_measurement = QtWidgets.QWidget()
-        self.orm_measurement.setGeometry(QtCore.QRect(0, 0, 956, 620))
+        self.orm_measurement.setGeometry(QtCore.QRect(0, 0, 958, 777))
         self.orm_measurement.setObjectName("orm_measurement")
         self.gridLayout = QtWidgets.QGridLayout(self.orm_measurement)
         self.gridLayout.setObjectName("gridLayout")
@@ -287,17 +291,17 @@ class Ui_MainWindow(object):
         self.gridLayout.addLayout(self.horizontalLayout_5, 3, 0, 1, 1)
         self.horizontalLayout_7 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_7.setObjectName("horizontalLayout_7")
-        self.run_progressbar = QtWidgets.QProgressBar(self.orm_measurement)
+        self.measure_pb = QtWidgets.QProgressBar(self.orm_measurement)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
                                            QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(1)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(
-            self.run_progressbar.sizePolicy().hasHeightForWidth())
-        self.run_progressbar.setSizePolicy(sizePolicy)
-        self.run_progressbar.setProperty("value", 24)
-        self.run_progressbar.setObjectName("run_progressbar")
-        self.horizontalLayout_7.addWidget(self.run_progressbar)
+            self.measure_pb.sizePolicy().hasHeightForWidth())
+        self.measure_pb.setSizePolicy(sizePolicy)
+        self.measure_pb.setProperty("value", 24)
+        self.measure_pb.setObjectName("measure_pb")
+        self.horizontalLayout_7.addWidget(self.measure_pb)
         spacerItem5 = QtWidgets.QSpacerItem(10, 20,
                                             QtWidgets.QSizePolicy.Expanding,
                                             QtWidgets.QSizePolicy.Minimum)
@@ -325,7 +329,7 @@ class Ui_MainWindow(object):
             QtGui.QIcon.Off)
         self.operations_toolBox.addItem(self.orm_measurement, icon3, "")
         self.page = QtWidgets.QWidget()
-        self.page.setGeometry(QtCore.QRect(0, 0, 956, 700))
+        self.page.setGeometry(QtCore.QRect(0, 0, 1008, 777))
         self.page.setObjectName("page")
         self.gridLayout_2 = QtWidgets.QGridLayout(self.page)
         self.gridLayout_2.setObjectName("gridLayout_2")
@@ -363,10 +367,23 @@ class Ui_MainWindow(object):
         self.cor_wait_time_dspinbox.setProperty("value", 1.0)
         self.cor_wait_time_dspinbox.setObjectName("cor_wait_time_dspinbox")
         self.gridLayout_2.addWidget(self.cor_wait_time_dspinbox, 2, 1, 1, 1)
-        spacerItem6 = QtWidgets.QSpacerItem(20, 547,
-                                            QtWidgets.QSizePolicy.Minimum,
-                                            QtWidgets.QSizePolicy.Expanding)
-        self.gridLayout_2.addItem(spacerItem6, 3, 2, 1, 1)
+        self.horizontalLayout_8 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_8.setObjectName("horizontalLayout_8")
+        self.cor_apply_pb = QtWidgets.QProgressBar(self.page)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
+                                           QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(1)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.cor_apply_pb.sizePolicy().hasHeightForWidth())
+        self.cor_apply_pb.setSizePolicy(sizePolicy)
+        self.cor_apply_pb.setProperty("value", 24)
+        self.cor_apply_pb.setObjectName("cor_apply_pb")
+        self.horizontalLayout_8.addWidget(self.cor_apply_pb)
+        spacerItem6 = QtWidgets.QSpacerItem(10, 20,
+                                            QtWidgets.QSizePolicy.Expanding,
+                                            QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_8.addItem(spacerItem6)
         self.cor_apply_btn = QtWidgets.QPushButton(self.page)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
                                            QtWidgets.QSizePolicy.Fixed)
@@ -375,8 +392,15 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(
             self.cor_apply_btn.sizePolicy().hasHeightForWidth())
         self.cor_apply_btn.setSizePolicy(sizePolicy)
+        self.cor_apply_btn.setIcon(icon2)
+        self.cor_apply_btn.setIconSize(QtCore.QSize(24, 24))
         self.cor_apply_btn.setObjectName("cor_apply_btn")
-        self.gridLayout_2.addWidget(self.cor_apply_btn, 4, 3, 1, 1)
+        self.horizontalLayout_8.addWidget(self.cor_apply_btn)
+        self.gridLayout_2.addLayout(self.horizontalLayout_8, 4, 0, 1, 2)
+        spacerItem7 = QtWidgets.QSpacerItem(20, 547,
+                                            QtWidgets.QSizePolicy.Minimum,
+                                            QtWidgets.QSizePolicy.Expanding)
+        self.gridLayout_2.addItem(spacerItem7, 3, 1, 1, 1)
         icon4 = QtGui.QIcon()
         icon4.addPixmap(
             QtGui.QPixmap(":/icons/work.png"), QtGui.QIcon.Normal,
@@ -398,7 +422,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_2.addWidget(self.log_gbox)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1280, 24))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1440, 34))
         self.menubar.setObjectName("menubar")
         self.menuFile = QtWidgets.QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
@@ -471,12 +495,12 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        self.label_10.setText(_translate("MainWindow", "Refresh"))
         self.refresh_models_btn.setToolTip(
             _translate(
                 "MainWindow",
                 "<html><head/><body><p>Refresh the elements</p></body></html>")
         )
-        self.refresh_models_btn.setText(_translate("MainWindow", "Refresh"))
         self.cors_gbox.setTitle(_translate("MainWindow", "Correctors"))
         self.monitors_gbox.setTitle(_translate("MainWindow", "Monitors"))
         self.label_2.setText(_translate("MainWindow", "Additional Wait Time"))
