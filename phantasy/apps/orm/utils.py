@@ -56,11 +56,12 @@ class OrmWorker(QObject):
                         wait=self._wait,
                         msg_queue=q)
         else:
-            m = self._lat.correct_orbit(self._cors, self._bpms,
-                                       xoy=self._xoy,
-                                       damping_factor=self._dfac,
-                                       iteration=self._niter, wait=self._wait,
-                                       msg_queue=q)
+            m = self._lat.correct_orbit(
+                    self._cors, self._bpms,
+                    xoy=self._xoy,
+                    damping_factor=self._dfac,
+                    iteration=self._niter, wait=self._wait,
+                    msg_queue=q, mode="non-interactive")
         q.join()
         self.resultsReady.emit(m)
         self.finished.emit()
