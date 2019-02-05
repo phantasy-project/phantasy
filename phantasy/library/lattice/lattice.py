@@ -1794,6 +1794,7 @@ class Lattice(object):
                 continue
             else:
                 break
+        return "Orbit Correction Done"
 
     def measure_orm(self):
         pass
