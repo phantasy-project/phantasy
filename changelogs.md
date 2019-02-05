@@ -1,3 +1,25 @@
+Version 1.9.3
+-------------
+2019-02-05
+
+- PHANTASY core:
+  - Add keyword argument: 'mode' to Lattice.correct_orbit() to support
+    non-interactive correction iteration, and improved the format for logging
+    messages.
+
+- Orbit Response Matrix App:
+  - Update UI
+  - Enhanced ORM measurement and orbit correction with ORM
+
+- Lattice Viewer:
+  - Update UI
+
+- Trajectory Viewer:
+  - Update UI
+
+- plugins:
+  - Change log directory to $HOME/phantasy_logs
+
 Version 1.9.2
 -------------
 2019-02-04
