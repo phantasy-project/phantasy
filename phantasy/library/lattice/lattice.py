@@ -1753,9 +1753,13 @@ class Lattice(object):
             Print out message or not, default is True.
         msg_queue : Queue
             A queue that keeps log messages.
+        mode : str
+            If running under 'interactive' mode or not.
 
         Returns
         -------
+        r : bool
+            True if no errors happen.
         """
         itern = kws.get('iteration', 1)
         cor_field = kws.get('cor_field', 'ANG')
@@ -1763,6 +1767,7 @@ class Lattice(object):
         wait = kws.get('wait', 1.0)
         echo = kws.get('echo', True)
         q_msg = kws.get('msg_queue', None)
+        mode = kws.get('mode', 'interactive')
 
         if self._orm is None:
             _LOGGER.error("correct_orbit: ORM is not available, set ORM first.")
@@ -1775,10 +1780,11 @@ class Lattice(object):
             bpm_readings = get_orbit(bpms, **kws)
             delt_cor = np.dot(m_inv, -bpm_readings * damp_fac)
             for ic, (e, v) in enumerate(zip(correctors, delt_cor)):
-                msg = "[{0}] Correct cor [{1:>2d}/{2:>2d}]: {3:<20s} with {4:>10.4e}.".format(
-                       epoch2human(time.time(), fmt=TS_FMT), ic + 1, n_cor, e.name, v)
+                msg = "[{0}] #[{1}]/[{2}] Set [{3:02d}] {4}: {5:>10.6g}.".format(
+                       epoch2human(time.time(), fmt=TS_FMT),
+                       i, itern, ic + 1, e.name, v)
                 if q_msg is not None:
-                    q_msg.put((ic * 100.0 / n_cor, msg))
+                    q_msg.put((((ic + (i - 1) * n_cor))* 100.0 / n_cor / itern, msg))
                 if echo:
                     print(msg)
                 v0 = getattr(e, cor_field)
@@ -1786,15 +1792,18 @@ class Lattice(object):
                 time.sleep(wait)
             if i+1 > itern:
                 break
-            next_iter = r_input(
-                "Continue correction iteration: {0}/{1}? ([Y]/N)".format(i + 1,
-                                                                         itern)
-            )
+            if mode != 'interactive':
+                next_iter = 'Y'
+            else:
+                next_iter = r_input(
+                    "Continue correction iteration: {0}/{1}? ([Y]/N)".format(i + 1,
+                                                                             itern)
+                )
             if next_iter.upper() in ['Y', '']:
                 continue
             else:
                 break
-        return "Orbit Correction Done"
+        return True
 
     def measure_orm(self):
         pass
