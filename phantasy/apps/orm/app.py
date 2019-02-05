@@ -13,8 +13,7 @@ from phantasy_ui.templates import BaseAppForm
 from phantasy.apps.trajectory_viewer.utils import ElementListModel
 
 from .ui.ui_app import Ui_MainWindow
-from .utils import OrmRunner
-from .utils import OrmConsumer
+from .utils import OrmWorker
 
 
 OP_MODE_MAP = {
@@ -100,7 +99,8 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         self.refresh_models_btn.clicked.emit()
 
         #
-        self.run_progressbar.setVisible(False)
+        self.measure_pb.setVisible(False)
+        self.cor_apply_pb.setVisible(False)
 
     @pyqtSlot()
     def on_refresh_models(self):
@@ -123,15 +123,15 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
     def on_measure_orm(self):
         """Measure ORM.
         """
-        params = self.__prepare_inputs_for_orm_runner()
+        params = self.__prepare_inputs_for_orm_measurement()
 
         self.thread = QThread()
-        self.orm_runner = OrmRunner(params)
+        self.orm_runner = OrmWorker(params)
         self.orm_runner.moveToThread(self.thread)
-        self.orm_runner.started.connect(partial(self.orm_runner_started, self.run_btn))
-        self.orm_runner.resultsReady.connect(self.on_results_ready)
-        self.orm_runner.update_progress.connect(self.update_progress_bar)
-        self.orm_runner.finished.connect(partial(self.orm_runner_completed, self.run_btn))
+        self.orm_runner.started.connect(partial(self.orm_worker_started, self.measure_pb, self.run_btn))
+        self.orm_runner.resultsReady.connect(partial(self.on_results_ready, 'measure'))
+        self.orm_runner.update_progress.connect(partial(self.update_pb, self.measure_pb))
+        self.orm_runner.finished.connect(partial(self.orm_worker_completed, self.measure_pb, self.run_btn))
         self.orm_runner.finished.connect(self.thread.quit)
         self.orm_runner.finished.connect(self.orm_runner.deleteLater)
         self.thread.finished.connect(self.thread.deleteLater)
@@ -139,44 +139,32 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         self.thread.start()
 
     @pyqtSlot(float, 'QString')
-    def update_progress_bar(self, x, s):
-        self.run_progressbar.setValue(x)
-        self.run_progressbar.setFormat("%p%")
-        # log
+    def update_pb(self, pb, x, s):
+        pb.setValue(x)
+        pb.setFormat("%p%")
         self.log_textEdit.append(s)
-
-    @pyqtSlot(float, 'QString')
-    def update_progress_bar1(self, x, s):
-        #self.run_progressbar.setValue(x)
-        #self.run_progressbar.setFormat("%p%")
-        # log
-        self.log_textEdit.append(s)
-
 
     @pyqtSlot()
-    def orm_runner_started(self, sender_obj):
-        # ORM runner is about to start
-        print("ORM runner is about to start.")
+    def orm_worker_started(self, pb, sender_obj):
+        print("ORM worker is about to start.")
         sender_obj.setEnabled(False)
-        # initialize progressbar
-        self.run_progressbar.setVisible(True)
+        pb.setVisible(True)
 
     @pyqtSlot()
-    def orm_runner_completed(self, sender_obj):
-        #
-        print("ORM runner is done.")
+    def orm_worker_completed(self, pb, sender_obj):
+        print("ORM worker is done.")
         sender_obj.setEnabled(True)
-        self.run_progressbar.setVisible(False)
+        pb.setVisible(False)
 
     @pyqtSlot(QVariant)
-    def on_results_ready(self, m):
-        # orm is ready
-        self._orm = m
-        #np.savetxt("/tmp/orm_test.dat", m)
-        print("ORM is ready")
-        #print("ORM is saved")
+    def on_results_ready(self, mode, m):
+        if mode == 'measure':
+            self._orm = m
+            print("ORM is ready")
+        else:
+            pass
 
-    def __prepare_inputs_for_orm_runner(self):
+    def __prepare_inputs_for_orm_measurement(self):
         source = OP_MODE_MAP[self.operation_mode_cbb.currentText()]
         x1 = float(self.alter_start_lineEdit.text())
         x2 = float(self.alter_stop_lineEdit.text())
@@ -206,7 +194,6 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
 
         return (bpms, cors), (source, srange, cor_field, xoy, wait)
 
-
     @pyqtSlot()
     def on_apply_orm(self):
         """Apply ORM to correct orbit.
@@ -222,12 +209,12 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         params = (lat,), (self._bpms, self._cors), (self._xoy, dfac, niter, t_wait)
 
         self.thread1 = QThread()
-        self.orm_consumer = OrmConsumer(params)
+        self.orm_consumer = OrmWorker(params, mode='apply')
         self.orm_consumer.moveToThread(self.thread1)
-        #self.orm_consumer.started.connect(partial(self.orm_runner_started, self.run_btn))
-        #self.orm_consumer.resultsReady.connect(self.on_results_ready)
-        self.orm_consumer.update_progress.connect(self.update_progress_bar1)
-        #self.orm_consumer.finished.connect(partial(self.orm_runner_completed, self.run_btn))
+        self.orm_consumer.started.connect(partial(self.orm_worker_started, self.cor_apply_pb, self.cor_apply_btn))
+        self.orm_consumer.resultsReady.connect(partial(self.on_results_ready, 'apply'))
+        self.orm_consumer.update_progress.connect(partial(self.update_pb, self.cor_apply_pb))
+        self.orm_consumer.finished.connect(partial(self.orm_worker_completed, self.cor_apply_pb, self.cor_apply_btn))
         self.orm_consumer.finished.connect(self.thread1.quit)
         self.orm_consumer.finished.connect(self.orm_consumer.deleteLater)
         self.thread1.finished.connect(self.thread1.deleteLater)
