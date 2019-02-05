@@ -19,7 +19,7 @@ class OrmWorker(QObject):
     started = pyqtSignal()
     finished = pyqtSignal()
 
-    # orm or str
+    # orm or True/None
     resultsReady = pyqtSignal(QVariant)
 
     # percentage, name of corrector
