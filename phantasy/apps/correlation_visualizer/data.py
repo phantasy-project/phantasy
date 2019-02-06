@@ -132,5 +132,5 @@ class JSONDataSheet(DataSheetBase):
 
     def write(self, path):
         with open(path, 'w') as fp:
-            json.dump(self, fp, indent=2, sort_keys=True)
+            json.dump(self, fp, indent=2, sort_keys=False)
 
