@@ -7,13 +7,18 @@ from PyQt5.QtCore import QVariant
 from PyQt5.QtWidgets import QMainWindow
 
 from functools import partial
+from collections import OrderedDict
 import numpy as np
 
 from phantasy_ui.templates import BaseAppForm
 from phantasy.apps.trajectory_viewer.utils import ElementListModel
+from phantasy.apps.utils import get_save_filename
+from phantasy.apps.utils import get_open_filename
 
 from .ui.ui_app import Ui_MainWindow
 from .utils import OrmWorker
+from .utils import ORMDataSheet
+from .utils import load_orm_sheet
 
 
 OP_MODE_MAP = {
@@ -58,10 +63,10 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         self._orm = None
 
         # bpms dict
-        self._bpms_dict = kws.get('bpms', {})
+        self._bpms_dict = sort_dict(kws.get('bpms', OrderedDict()))
 
         # cors dict
-        self._cors_dict = kws.get('cors', {})
+        self._cors_dict = sort_dict(kws.get('cors', OrderedDict()))
 
         # app version
         self._version = version
@@ -102,6 +107,16 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         self.measure_pb.setVisible(False)
         self.cor_apply_pb.setVisible(False)
 
+        # element selection for BPMs/CORs treeview
+        self.select_all_bpms_btn.clicked.connect(
+                partial(self.on_select_all_elems, "bpm"))
+        self.inverse_bpm_selection_btn.clicked.connect(
+                partial(self.on_inverse_current_elem_selection, "bpm"))
+        self.select_all_cors_btn.clicked.connect(
+                partial(self.on_select_all_elems, "cor"))
+        self.inverse_cor_selection_btn.clicked.connect(
+                partial(self.on_inverse_current_elem_selection, "cor"))
+
     @pyqtSlot()
     def on_refresh_models(self):
         # refresh 'bpm' and 'cor' model.
@@ -112,12 +127,21 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
             model = ElementListModel(tv, self.__mp, enames)
             model.set_model()
 
+        try:
+            self.bpms_treeView.model().nElementSelected.connect(
+                    lambda i:self.nelem_selected_bpms_lineEdit.setText(str(i)))
+            self.cors_treeView.model().nElementSelected.connect(
+                    lambda i:self.nelem_selected_cors_lineEdit.setText(str(i)))
+        except:
+            pass
+
     @pyqtSlot(dict)
     def on_update_elements(self, mode, elems_dict):
         """Update monitor view with *elems_dict* for *mode*, 'bpm' or 'cor'.
         """
         print("[ORM]-{}: {}".format(mode, elems_dict))
-        setattr(self, '_{}s_dict'.format(mode), elems_dict)
+        e_dict = sort_dict(elems_dict)
+        setattr(self, '_{}s_dict'.format(mode), e_dict)
 
     @pyqtSlot()
     def on_measure_orm(self):
@@ -203,6 +227,20 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         t_wait = self.cor_wait_time_dspinbox.value()
         print(dfac, niter, t_wait)
 
+        #
+        bpm_fields = self.monitor_fields_cbb.currentText()
+        if bpm_fields== 'X&Y':
+            xoy = 'xy'
+        else:
+            xoy = bpm_fields.lower()
+
+        bpms = [self._name_map[e] for e in self._bpms_dict]
+        cors = [self._name_map[e] for e in self._cors_dict]
+        self._bpms = bpms
+        self._cors = cors
+        self._xoy = xoy
+        #
+
         lat = self.__mp.work_lattice_conf
         lat.orm = self._orm
         #
@@ -220,3 +258,70 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         self.thread1.finished.connect(self.thread1.deleteLater)
         self.thread1.started.connect(self.orm_consumer.run)
         self.thread1.start()
+
+    @pyqtSlot()
+    def on_open_orm(self):
+        filepath, ext = get_open_filename(self,
+                filter="JSON Files (*.json)")
+        if filepath is None:
+            return
+
+        mp, name_map, bpms_dict, cors_dict, orm = load_orm_sheet(filepath)
+        self.__mp = mp
+        self._name_map = name_map
+        self._bpms_dict = bpms_dict
+        self._cors_dict = cors_dict
+        self._orm = orm
+        self.refresh_models_btn.clicked.emit()
+
+    @pyqtSlot()
+    def on_save_orm(self):
+        filepath, ext = get_save_filename(self,
+                cdir='.',
+                filter="JSON Files (*.json)")
+        if filepath is None:
+            return
+
+        machine, segment = self.__mp.last_machine_name, self.__mp.last_lattice_name
+        bpms_dict = sort_dict(self.bpms_treeView.model()._selected_elements)
+        cors_dict = sort_dict(self.cors_treeView.model()._selected_elements)
+
+        orm = self._orm.tolist()
+        data_sheet = ORMDataSheet()
+        data_sheet['monitors'] = bpms_dict
+        data_sheet['correctors'] = cors_dict
+        data_sheet['machine'] = machine
+        data_sheet['segment'] = segment
+        data_sheet['orm'] = orm
+
+        data_sheet.write(filepath)
+
+    @pyqtSlot()
+    def on_select_all_elems(self, mode):
+        """Select all BPMs/CORs in *mode*s_treeView.
+        """
+        try:
+            print("Select All {}s".format(mode.upper()))
+            model = getattr(self, '{}s_treeView'.format(mode)).model()
+            model.select_all_items()
+        except AttributeError:
+            QMessageBox.warning(self, "Element Selection",
+                    "Selection error, Choose elements first.",
+                    QMessageBox.Ok)
+
+    @pyqtSlot()
+    def on_inverse_current_elem_selection(self, mode):
+        """Inverse current BPM/COR selection in *mode*s_treeView.
+        """
+        try:
+            print("Inverse {} selection".format(mode.upper()))
+            model = getattr(self, '{}s_treeView'.format(mode)).model()
+            model.inverse_current_selection()
+        except AttributeError:
+            QMessageBox.warning(self, "Element Selection",
+                    "Selection error, Choose elements first.",
+                    QMessageBox.Ok)
+
+
+def sort_dict(d):
+    return OrderedDict([(k, d[k]) for k in sorted(d, key=lambda i:(i[-4:], i))])
