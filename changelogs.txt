@@ -1,3 +1,20 @@
+Version 1.9.4
+-------------
+2019-02-05
+
+- Orbit Response Matrix App:
+  - New features: Open and Save ORM data sheet into JSON file
+  - Support select all and inverse selection to the element list
+
+- Trajectory Viewer:
+  - Utilities: Add a signal: nElementSelected to ElementListModel
+
+- Correlation Visualizer:
+  - JSONDataSheet: do not sort the key when saving to JSON file
+
+- plugins:
+  - Update default log directory to $HOME/.phantasy_logs
+
 Version 1.9.3
 -------------
 2019-02-05
