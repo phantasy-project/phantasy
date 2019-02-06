@@ -8,7 +8,7 @@ import os
 from datetime import datetime
 from subprocess import Popen, PIPE
 
-LOG_PATH = os.path.expanduser("~/phantasy_logs/")
+LOG_PATH = os.path.expanduser("~/.phantasy_logs/")
 
 if not os.path.exists(LOG_PATH):
     os.makedirs(LOG_PATH)
@@ -31,7 +31,7 @@ class ColumnExtension(GObject.GObject, Explorer.MenuProvider):
 
     def start_app_launcher(self, menu, file):
         cmd = "app_launcher"
-        fn = datetime.now().strftime('%Y%m%d_%H%M%S')
+        fn = datetime.now().strftime('%Y%m%d_%H%M%S') + '.log'
         logfile = os.path.join(LOG_PATH, fn)
         with open(logfile, 'w') as fid:
             p = Popen(cmd, shell=True,
