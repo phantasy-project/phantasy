@@ -94,13 +94,13 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
         for o in self.__xylimits_lineEdits:
             o.setValidator(QDoubleValidator())
         self.xmin_lineEdit.textChanged.connect(
-                lambda s: self.matplotlibcurveWidget.setXLimitMin(float(s)))
+                partial(self.update_xylimit, 'setXLimitMin'))
         self.xmax_lineEdit.textChanged.connect(
-                lambda s: self.matplotlibcurveWidget.setXLimitMax(float(s)))
+                partial(self.update_xylimit, 'setXLimitMax'))
         self.ymin_lineEdit.textChanged.connect(
-                lambda s: self.matplotlibcurveWidget.setYLimitMin(float(s)))
+                partial(self.update_xylimit, 'setYLimitMin'))
         self.ymax_lineEdit.textChanged.connect(
-                lambda s: self.matplotlibcurveWidget.setYLimitMax(float(s)))
+                partial(self.update_xylimit, 'setYLimitMax'))
 
         # bpm unit
         self.bpm_unit_millimeter_rbtn.toggled.connect(
@@ -454,6 +454,14 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
         self.xdataChanged.emit([])
         self.ydataChanged.emit([])
         self.lineChanged.emit(0)
+
+    def update_xylimit(self, fs, s):
+        p = self.matplotlibcurveWidget
+        try:
+            x = float(s)
+            getattr(p, fs)(x)
+        except:
+            pass
 
 
 if __name__ == '__main__':
