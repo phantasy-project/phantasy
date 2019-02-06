@@ -333,10 +333,6 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
     def on_launch_orm(self):
         """Launch ORM app.
         """
-        # bpms
-        #print(self._bpms, len(self._bpms))
-        # cors
-        #print(self._cors, len(self._bpms))
         m1 = self.bpms_treeView.model()
         m2 = self.cors_treeView.model()
         name_elem_map = m1.name_elem_map
