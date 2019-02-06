@@ -4,7 +4,10 @@ from PyQt5.QtCore import QObject
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import QVariant
 
+import getpass
 import numpy as np
+import time
+from collections import OrderedDict
 from threading import Thread
 
 try:
@@ -12,7 +15,12 @@ try:
 except:
     from Queue import Queue
 
+from phantasy import epoch2human
 from phantasy import get_orm
+from phantasy import MachinePortal
+from phantasy.apps.correlation_visualizer.data import JSONDataSheet
+
+TS_FMT = "%Y-%m-%d %H:%M:%S"
 
 
 class OrmWorker(QObject):
@@ -78,3 +86,33 @@ class OrmWorker(QObject):
         receiver = Thread(target=_receiver, args=(q,))
         receiver.setDaemon(True)
         receiver.start()
+
+
+def load_orm_sheet(filepath):
+    """Load saved ORM configuration from *filepath*.
+    """
+    data_sheet = ORMDataSheet(filepath)
+    machine, segment = data_sheet['machine'], data_sheet['segment']
+    bpms_dict = data_sheet['monitors']
+    cors_dict = data_sheet['correctors']
+    print(machine, segment)
+    mp = MachinePortal(machine, segment)
+    name_elem_map = {i.name: i for i in mp.work_lattice_conf}
+    orm = np.asarray(data_sheet['orm'], dtype=np.float)
+    return mp, name_elem_map, bpms_dict, cors_dict, orm
+
+
+class ORMDataSheet(JSONDataSheet):
+    def __init__(self, path=None):
+        super(self.__class__, self).__init__(path)
+
+        if path is None:
+            d = OrderedDict()
+            d['user'] = getpass.getuser()
+            d['created'] = epoch2human(time.time(), fmt=TS_FMT)
+            d['monitors'] = {}
+            d['correctors'] = {}
+            d['machine'] = ''
+            d['segment'] = ''
+            d['orm'] = []
+            self.update(d)
