@@ -181,6 +181,9 @@ class ElementListModel(QStandardItemModel):
     # item selected
     elementSelected = pyqtSignal(OrderedDict)
 
+    # n item selected
+    nElementSelected = pyqtSignal(int)
+
     # fields wrt the selected element dtype
     fieldsSelected = pyqtSignal(list)
 
@@ -215,6 +218,7 @@ class ElementListModel(QStandardItemModel):
 
         # selected elements: k: ename, v: list of field names.
         self._selected_elements = OrderedDict()
+        self._selected_nelem = 0
 
     def set_model(self):
         if self._mp is None:
@@ -297,13 +301,16 @@ class ElementListModel(QStandardItemModel):
             fld_widget = self._v.indexWidget(self.index(idx.row(), self.i_field))
             fname = fld_widget.currentText()
             self._selected_elements.update({ename: str2list(fname)})
+            self._selected_nelem += 1
         else:
             print("Remove {}".format(ename))
             self._selected_elements.pop(ename)
+            self._selected_nelem -= 1
 
         # print selected elements
-        #print(self._selected_elements)
+        print(self._selected_elements)
         self.elementSelected.emit(self._selected_elements)
+        self.nElementSelected.emit(self._selected_nelem)
 
     def get_elements(self, category="all"):
         """Return a list of CaElement, if *category* is 'all', return all
