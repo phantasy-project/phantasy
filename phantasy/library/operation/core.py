@@ -42,9 +42,9 @@ except NameError:
 
 
 class MachinePortal(object):
-    """Very first step to control the machine on physics high-level layer,
-    create lattice object from segment of machine, upon which various
-    operations could be preceded.
+    """The very first step to control the machine on physics high-level layer:
+    create high-level lattice object from segment of machine, upon which
+    various operations could be preceded.
 
     Parameters
     ----------
@@ -122,7 +122,15 @@ class MachinePortal(object):
         self._work_lattice_name = ''
         self._work_lattice_conf = None
 
-        self.load_lattice(segment=segment, machine=self._machine, **kws)
+        # loaded bit, fail: None
+        self.__is_loaded = None
+        self.__is_loaded = self.load_lattice(segment=segment,
+                                             machine=self._machine, **kws)
+
+    def is_last_load_ok(self):
+        """Return True if lattice loaded without error, or False.
+        """
+        return self.__is_loaded is not None
 
     @property
     def last_machine_name(self):
@@ -931,6 +939,8 @@ class MachinePortal(object):
                           INI_DICT['KEYNAME_SEGMENTS']).split()
 
     def __repr__(self):
+        if self.__is_loaded is None:
+            return "[{}] MachinePortal cannot be initialized.".format(self._machine)
         all_segments = self.get_all_segment_names()
         wl_name = self.work_lattice_name
         idx = all_segments.index(wl_name)
