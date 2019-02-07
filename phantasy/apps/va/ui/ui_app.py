@@ -12,7 +12,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(660, 348)
+        MainWindow.resize(700, 464)
         icon = QtGui.QIcon()
         icon.addPixmap(
             QtGui.QPixmap(":/icons/frib_va.png"), QtGui.QIcon.Normal,
@@ -58,6 +58,7 @@ class Ui_MainWindow(object):
         self.label.setObjectName("label")
         self.gridLayout.addWidget(self.label, 0, 0, 1, 1)
         self.mach_comboBox = QtWidgets.QComboBox(self.config_groupBox)
+        self.mach_comboBox.setEditable(True)
         self.mach_comboBox.setObjectName("mach_comboBox")
         self.gridLayout.addWidget(self.mach_comboBox, 0, 1, 1, 1)
         self.label_2 = QtWidgets.QLabel(self.config_groupBox)
@@ -79,6 +80,7 @@ class Ui_MainWindow(object):
         self.label_6.setObjectName("label_6")
         self.gridLayout.addWidget(self.label_6, 1, 0, 1, 1)
         self.segm_comboBox = QtWidgets.QComboBox(self.config_groupBox)
+        self.segm_comboBox.setEditable(True)
         self.segm_comboBox.setObjectName("segm_comboBox")
         self.gridLayout.addWidget(self.segm_comboBox, 1, 1, 1, 1)
         self.label_5 = QtWidgets.QLabel(self.config_groupBox)
@@ -324,7 +326,7 @@ class Ui_MainWindow(object):
         self.gridLayout_2.addWidget(self.control_groupBox, 1, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 660, 24))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 700, 34))
         self.menubar.setObjectName("menubar")
         self.menu_Help = QtWidgets.QMenu(self.menubar)
         self.menu_Help.setObjectName("menu_Help")
