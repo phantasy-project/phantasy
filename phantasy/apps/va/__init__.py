@@ -1,8 +1,7 @@
 # -*- coding: utf8 -*-
 
 import sys
-from PyQt5.QtWidgets import QApplication
-from phantasy_ui import QApp
+from phantasy_ui import QApp as QApplication
 
 from .app import VALauncherWindow
 
@@ -14,7 +13,7 @@ __version__ = '1.2'
 
 
 def run(cli=False):
-    app = MyApp(sys.argv)
+    app = QApplication(sys.argv)
     w = VALauncherWindow(version=__version__)
     w.adjustSize()
     w.show()

@@ -1,7 +1,7 @@
 # -*- coding: utf8 -*-
 
 import sys
-from PyQt5.QtWidgets import QApplication
+from phantasy_ui import QApp as QApplication
 
 from .app import QuadScanWindow
 

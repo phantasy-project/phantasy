@@ -1,9 +1,9 @@
 # -*- coding: utf8 -*-
 
 import sys
-from PyQt5.QtWidgets import QApplication
+from phantasy_ui import QApp as QApplication
 
-from .app import AppLauncherWindow 
+from .app import AppLauncherWindow
 
 __authors__ = "Tong Zhang"
 __copyright__ = "(c) 2019, Facility for Rare Isotope beams," \
