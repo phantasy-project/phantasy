@@ -267,13 +267,16 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
     def on_machine_changed(self, s):
         """Machine is changed, update segm_combob items.
         """
-        self._mach = s
-        self.segm_comboBox.currentTextChanged.disconnect()
-        self.segm_comboBox.clear()
-        self.segm_comboBox.currentTextChanged.connect(self.on_segment_changed)
-        seg_names = MACHINE_DICT[s]
-        self.segm_comboBox.addItems(seg_names)
-        self.segm_comboBox.setCurrentText(seg_names[0])
+        try:
+            self._mach = s
+            self.segm_comboBox.currentTextChanged.disconnect()
+            self.segm_comboBox.clear()
+            self.segm_comboBox.currentTextChanged.connect(self.on_segment_changed)
+            seg_names = MACHINE_DICT[s]
+            self.segm_comboBox.addItems(seg_names)
+            self.segm_comboBox.setCurrentText(seg_names[0])
+        except:
+            pass
 
     @pyqtSlot('QString')
     def on_segment_changed(self, s):
@@ -340,6 +343,7 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
         try:
             self.on_stop_va()
             self.va_process.waitForFinished()
+            self.uptimer.timeout.disconnect()
         except:
             pass
         BaseAppForm.closeEvent(self, e)
