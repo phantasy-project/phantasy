@@ -17,11 +17,11 @@ parser = argparse.ArgumentParser(
         formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument('latfile', nargs='?',
         help='path of FLAME lattice file')
-parser.add_argument('--x', dest='x', nargs='?', const='x', default=None, 
+parser.add_argument('--x', dest='x', nargs='?', const='x', default=None,
         help='plot x orbit only')
 parser.add_argument('--y', dest='y', nargs='?', const='y', default=None,
         help='plot y orbit only')
-parser.add_argument('--output', dest='output', nargs='?', 
+parser.add_argument('--output', dest='output', nargs='?',
         const='figure.png',
         default=None, help='save figure to output file (default: figure.png)')
 
@@ -55,8 +55,8 @@ def main():
     logging.getLogger('flame.machine').disabled = True
 
     try:
-        f = open(args.latfile, 'r')
-        m = Machine(f)
+        with open(args.latfile, 'rb') as f:
+            m = Machine(f)
         s = m.allocState({})
         m_len = len(m)
         r = m.propagate(s, 0, m_len, range(m_len))
@@ -66,9 +66,9 @@ def main():
     except:
         traceback.print_exc()
         sys.exit(1)
-        
+
     import matplotlib.pyplot as plt
-        
+
     plt.rcParams['font.size'] = 18
     plt.rcParams['font.family'] = 'serif'
     plt.rcParams['axes.linewidth'] = 1.0
@@ -95,5 +95,5 @@ def main():
         print("Generate figure to file: {}.".format(args.output))
     else:
         plt.show()
-    
+
     return 0
