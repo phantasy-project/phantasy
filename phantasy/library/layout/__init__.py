@@ -31,7 +31,9 @@ from .accel import AttenuatorElement
 from .accel import DumpElement
 from .accel import ApertureElement
 from .accel import ValveElement
+from .accel import HMRElement
 from .accel import Element
+from .accel import CollimatorElement
 from .accel import Fields
 
 __all__ = [

@@ -461,6 +461,17 @@ class FCElement(Element):
         self.fields.biasvolt_phy = "V"
 
 
+class HMRElement(Element):
+    """HMRElement represents a halo ring device, large aperture diagnostic box.
+    """
+
+    ETYPE = "HMR"
+
+    def __init__(self, z, length, aperture, name, desc="halo ring", **meta):
+        super(HMRElement, self).__init__(z, length, aperture, name, desc=desc,
+                                         **meta)
+
+
 class VDElement(Element):
     """VDElement represents a Viewer Detector device.
     """
@@ -665,7 +676,7 @@ class StripElement(Element):
 # Slit Elements
 
 class SlitElement(Element):
-    """SlitElement represents a slit/collimator.
+    """SlitElement represents a slit.
     """
 
     ETYPE = "SLT"
@@ -673,6 +684,20 @@ class SlitElement(Element):
     def __init__(self, z, length, aperture, name, desc="slit",
                  **meta):
         super(SlitElement, self).__init__(z, length, aperture, name, desc=desc,
+                                          **meta)
+
+
+# Collimator Elements
+
+class CollimatorElement(Element):
+    """CollimatorElement represents a collimator.
+    """
+
+    ETYPE = "CLLM"
+
+    def __init__(self, z, length, aperture, name, desc="collimator",
+                 **meta):
+        super(CollimatorElement, self).__init__(z, length, aperture, name, desc=desc,
                                           **meta)
 
 
