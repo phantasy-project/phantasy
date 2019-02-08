@@ -45,6 +45,8 @@ from phantasy.library.layout import AttenuatorElement
 from phantasy.library.layout import SlitElement
 from phantasy.library.layout import DumpElement
 from phantasy.library.layout import ChopperElement
+from phantasy.library.layout import HMRElement
+from phantasy.library.layout import CollimatorElement
 from phantasy.library.settings import Settings
 
 try:
@@ -739,6 +741,12 @@ class FlameLatticeFactory(BaseLatticeFactory):
                 lattice.append(elem.name, "drift", ('L', elem.length), ('aper', elem.aperture / 2.0),
                                name=elem.name, etype=elem.ETYPE)
             elif isinstance(elem, ChopperElement):
+                lattice.append(elem.name, "drift", ('L', elem.length), ('aper', elem.aperture / 2.0),
+                               name=elem.name, etype=elem.ETYPE)
+            elif isinstance(elem, HMRElement):
+                lattice.append(elem.name, "drift", ('L', elem.length), ('aper', elem.aperture / 2.0),
+                               name=elem.name, etype=elem.ETYPE)
+            elif isinstance(elem, CollimatorElement):
                 lattice.append(elem.name, "drift", ('L', elem.length), ('aper', elem.aperture / 2.0),
                                name=elem.name, etype=elem.ETYPE)
 

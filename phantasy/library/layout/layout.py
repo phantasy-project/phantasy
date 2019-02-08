@@ -61,6 +61,8 @@ from .accel import ChopperElement
 from .accel import ApertureElement
 from .accel import DumpElement
 from .accel import AttenuatorElement
+from .accel import HMRElement
+from .accel import CollimatorElement
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -218,6 +220,12 @@ def build_layout(layoutPath=None, **kwargs):
 
             elif etype == AttenuatorElement.ETYPE:
                 elements.append(buildElement(row, AttenuatorElement))
+
+            elif etype == HMRElement.ETYPE:
+                elements.append(buildElement(row, HMRElement))
+
+            elif etype == CollimatorElement.ETYPE:
+                elements.append(buildElement(row, CollimatorElement))
 
             else:
                 raise RuntimeError(
