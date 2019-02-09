@@ -1,7 +1,7 @@
 # encoding: UTF-8
 
 """
-Implement phytool command 'frib-channels'. 
+Implement phytool command 'frib-channels'.
 
 Prepare FRIB channel names from accelerator layout.
 
