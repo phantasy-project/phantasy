@@ -54,7 +54,10 @@ class VAProcessInfoWidget(QWidget, Ui_Form):
             self.close()
 
     def closeEvent(self, e):
-        self.refresh_timer.stop()
+        try:
+            self.refresh_timer.stop()
+        except:
+            pass
         self.close()
 
     def keyPressEvent(self, e):

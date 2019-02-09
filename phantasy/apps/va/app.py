@@ -343,7 +343,6 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
         try:
             self.on_stop_va()
             self.va_process.waitForFinished()
-            self.uptimer.timeout.disconnect()
         except:
             pass
         BaseAppForm.closeEvent(self, e)
