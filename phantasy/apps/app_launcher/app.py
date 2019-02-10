@@ -3,6 +3,7 @@
 
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtCore import QEvent
+from PyQt5.QtCore import QSize
 from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtWidgets import QDialog
 
@@ -13,34 +14,13 @@ from phantasy_ui.templates import BaseAppForm
 
 from .ui.ui_app import Ui_MainWindow
 from .app_add import AddLauncherDialog
+from .utils import data as app_data
+from .utils import AppDataModel
 
-
-MSG = {
-  'cv': ('Correlation Visualizer',
-         'Visualize the correlation between parameters.'),
-  'qs': ('Quad Scan App',
-         'Calculate transverse emittance based on quadrupole scan approach.'),
-  'ws': ('Wire Scanner App',
-         'Operating wire-scanner device and processing the acquired data.'),
-  'va': ('Virtual Accelerator Launcher',
-         'Launch FRIB virtual accelerators.'),
-  'tv': ('Trajectory Viewer',
-         'Visualize beam trajectory and apply correction.'),
-  'un': ('Unicorn App',
-         'Manage and visualize the scaling laws between engineering and phyiscs units.'),
-}
 
 MSG_TEMPLATE = "<b><span style='text-decoration: underline;'>{msg[0]}:</span></b><p>{msg[1]}</p>"
-DEFAULT_MSG = '<p align="center"><span style="font-weight:600;">FRIB High-level Physics Controls Applications</span></p><p align="center">Click Button to Launch App</p>'
-
-APP_CMD = {
-    'cv': 'correlation_visualizer',
-    'qs': 'quad_scan',
-    'ws': 'wire_scanner',
-    'va': 'va_launcher',
-    'tv': 'trajectory_viewer',
-    'un': 'unicorn_app',
-}
+#DEFAULT_MSG = '<p align="center"><span style="font-weight:600;">FRIB High-level Physics Controls Applications</span></p><p align="center">Click Button to Launch App</p>'
+DEFAULT_MSG = 'FRIB High-level Physics Controls Applications'
 
 
 class AppLauncherWindow(BaseAppForm, Ui_MainWindow):
@@ -73,23 +53,35 @@ class AppLauncherWindow(BaseAppForm, Ui_MainWindow):
         # UI
         self.setupUi(self)
 
+        # view
+        self.v = self.tableView
+
+        # set apps
+        self.set_apps()
+
         # post init ui
         self.post_init_ui()
 
-    def post_init_ui(self):
-        self.textEdit.setHtml(DEFAULT_MSG)
-        for btn,tt in zip(
-                (self.cv_btn, self.qs_btn, self.ws_btn, self.va_btn, self.tv_btn, self.un_btn),
-                ('cv', 'qs', 'ws', 'va', 'tv', 'un')):
-            btn.setText(tt)
-            btn.installEventFilter(self)
+        #
+        self.adjustSize()
 
-        self.cv_btn.clicked.connect(partial(self.on_launch_app, APP_CMD['cv']))
-        self.qs_btn.clicked.connect(partial(self.on_launch_app, APP_CMD['qs']))
-        self.ws_btn.clicked.connect(partial(self.on_launch_app, APP_CMD['ws']))
-        self.va_btn.clicked.connect(partial(self.on_launch_app, APP_CMD['va']))
-        self.tv_btn.clicked.connect(partial(self.on_launch_app, APP_CMD['tv']))
-        self.un_btn.clicked.connect(partial(self.on_launch_app, APP_CMD['un']))
+    def set_apps(self):
+        """Set apps defined in app_launcher.ini
+        """
+        model = AppDataModel(self.v, app_data)
+        model.set_model()
+
+    def on_launch_app(self, index):
+        # slot
+        item = self.v.model().item(index.row(), 0)
+        Popen(item.cmd, shell=True)
+
+    def sizeHint(self):
+        return QSize(1150, 500)
+
+    def post_init_ui(self):
+        #self.textEdit.setHtml(DEFAULT_MSG)
+        self.lineEdit.setText(DEFAULT_MSG)
 
     def eventFilter(self, src, e):
         if e.type() == QEvent.HoverEnter:
@@ -102,12 +94,8 @@ class AppLauncherWindow(BaseAppForm, Ui_MainWindow):
         return QMainWindow.eventFilter(self, src, e)
 
     @pyqtSlot()
-    def on_launch_app(self, cmd):
-        proc = Popen(cmd, shell=True)
-
-    @pyqtSlot()
     def on_add_launcher(self):
-        """Add new button as app launcher.
+        """[VOID] Add new button as app launcher.
         """
         idx = self.horizontalLayout.count()
         self._dlg = AddLauncherDialog()
