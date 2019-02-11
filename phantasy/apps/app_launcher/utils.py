@@ -14,8 +14,7 @@ try:
 except ImportError:
     from ConfigParser import SafeConfigParser as ConfigParser
 
-DEFAULT_ICON = "/usr/share/pixmaps/gnome-about-logo.png"
-#DEFAULT_ICON = ":/icons/icons/app3.png"
+DEFAULT_ICON = "/usr/share/phantasy/assets/icons/default.png"
 
 
 def find_dconf():
