@@ -14,7 +14,7 @@ try:
 except ImportError:
     from ConfigParser import SafeConfigParser as ConfigParser
 
-DEFAULT_ICON = "/usr/share/phantasy/assets/icons/default.png"
+DEFAULT_ICON_PATH = "/usr/share/phantasy/assets/icons/default.png"
 
 
 def find_dconf():
@@ -108,7 +108,10 @@ data = []
 for k,v in conf.items():
     if k == 'DEFAULT':
         continue
-    app_item = AppItem(k, v.get('desc'), v.get('exec'), v.get('icon', DEFAULT_ICON))
+    icon_path = v.get('icon', DEFAULT_ICON_PATH)
+    if not os.path.isfile(icon_path):
+        icon_path = DEFAULT_ICON_PATH
+    app_item = AppItem(k, v.get('desc'), v.get('exec'), icon_path)
     data.append(app_item)
 
 
