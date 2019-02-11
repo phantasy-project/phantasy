@@ -1,3 +1,16 @@
+Version 1.9.5
+-------------
+2019-02-10
+
+- App Launcher:
+  - Re-designed UI
+  - Support loading apps from config file
+
+- Virtual Accelerator Launcher:
+  - Known bug: sometimes app crashes due to segment fault
+
+- Fix Python 2 and 3 compatibilities
+
 Version 1.9.4
 -------------
 2019-02-05
