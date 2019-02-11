@@ -1,3 +1,11 @@
+Version 1.9.6
+-------------
+2019-02-11
+
+- App Launcher:
+  - Add "Lattice Viewer" to the default config file
+  - Add app icons and default icon
+
 Version 1.9.5
 -------------
 2019-02-10
