@@ -99,8 +99,8 @@ def load_orm_sheet(filepath):
     machine, segment = data_sheet['machine'], data_sheet['segment']
     bpms_dict = data_sheet['monitors']
     cors_dict = data_sheet['correctors']
-    cor_field = data_sheet['corrector_field']
-    bpm_field = data_sheet['monitor_field']
+    cor_field = data_sheet.get('corrector_field', 'I')
+    bpm_field = data_sheet.get('monitor_field', 'X&Y')
     mp = MachinePortal(machine, segment)
     name_elem_map = {i.name: i for i in mp.work_lattice_conf}
     orm = np.asarray(data_sheet['orm'], dtype=np.float)
