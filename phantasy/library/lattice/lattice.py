@@ -1755,6 +1755,10 @@ class Lattice(object):
             A queue that keeps log messages.
         mode : str
             If running under 'interactive' mode or not.
+        cor_min : float
+            Lower limit for corrector settings.
+        cor_max : float
+            Upper limit for corrector settings.
 
         Returns
         -------
@@ -1768,6 +1772,8 @@ class Lattice(object):
         echo = kws.get('echo', True)
         q_msg = kws.get('msg_queue', None)
         mode = kws.get('mode', 'interactive')
+        upper_limit_cor = kws.get('cor_max', 5.0)   # A
+        lower_limit_cor = kws.get('cor_min', -5.0)  # A
 
         if self._orm is None:
             _LOGGER.error("correct_orbit: ORM is not available, set ORM first.")
@@ -1780,16 +1786,18 @@ class Lattice(object):
             bpm_readings = get_orbit(bpms, **kws)
             delt_cor = np.dot(m_inv, -bpm_readings * damp_fac)
             for ic, (e, v) in enumerate(zip(correctors, delt_cor)):
-                msg = "[{0}] #[{1}]/[{2}] Set [{3:02d}] {4}: {5:>10.6g}.".format(
+                v0 = getattr(e, cor_field)
+                v_to_set = limit_input(v0 + v,
+                        lower_limit_cor, upper_limit_cor)
+                setattr(e, cor_field, v_to_set)
+                time.sleep(wait)
+                msg = "[{0}] #[{1}]/[{2}] Set [{3:02d}] {4} [{5}]: {6:>10.6g}.".format(
                        epoch2human(time.time(), fmt=TS_FMT),
-                       i, itern, ic + 1, e.name, v)
+                       i, itern, ic + 1, e.name, cor_field, v_to_set)
                 if q_msg is not None:
                     q_msg.put((((ic + (i - 1) * n_cor))* 100.0 / n_cor / itern, msg))
                 if echo:
                     print(msg)
-                v0 = getattr(e, cor_field)
-                setattr(e, cor_field, v0 + v)
-                time.sleep(wait)
             if i+1 > itern:
                 break
             if mode != 'interactive':
@@ -1945,3 +1953,12 @@ def _get_control_field(elem, field):
     if not isinstance(field, (list, tuple)):
         field = field,
     return {f: getattr(elem, f) for f in field}
+
+
+def limit_input(x, lower, upper):
+    # limit the input *x* within [lower, upper].
+    if x <= lower:
+        return lower
+    if x >= upper:
+        return upper
+    return x
