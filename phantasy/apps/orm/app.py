@@ -188,63 +188,80 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         else:
             pass
 
+    def __prepare_inputs_for_orm_apply(self):
+        dfac = self.cor_damping_fac_dspinbox.value()
+        niter = self.cor_niter_spinbox.value()
+        t_wait = self.cor_wait_time_dspinbox.value()
+        #
+        cor_field = self.corrector_fields_cbb.currentText()
+        bpm_fields = self.monitor_fields_cbb.currentText()
+        if bpm_fields== 'X&Y':
+            xoy = 'xy'
+        else:
+            xoy = bpm_fields.lower()
+        #
+        bpms = [self._name_map[e] for e in self._bpms_dict]
+        cors = [self._name_map[e] for e in self._cors_dict]
+        self._bpms = bpms
+        self._cors = cors
+        self._xoy = xoy
+        #
+        # limit for correctors
+        llimit = self.lower_limit_dspinbox.value()
+        ulimit = self.upper_limit_dspinbox.value()
+        #
+        lat = self.__mp.work_lattice_conf
+        lat.orm = self._orm
+        #
+        # print info debug only
+        print("-" * 30)
+        print("Name of lattice to correct: {}".format(lat.name))
+        print("# of BPMs loaded: {}".format(len(bpms)))
+        print("# of CORs loaded: {}".format(len(cors)))
+        print("Field of CORs to write: {}".format(cor_field))
+        print("Field of BPMs to read : {}".format(xoy))
+        print("Damping factor: {}".format(dfac))
+        print("# of iteration: {}".format(niter))
+        print("Wait second after put: {}".format(t_wait))
+        print("Corrector limit: [{}, {}]".format(llimit, ulimit))
+        print("-" * 30)
+
+        return (lat,), (bpms, cors), (xoy, cor_field, dfac, niter, t_wait, llimit, ulimit)
+
     def __prepare_inputs_for_orm_measurement(self):
         source = OP_MODE_MAP[self.operation_mode_cbb.currentText()]
         x1 = float(self.alter_start_lineEdit.text())
         x2 = float(self.alter_stop_lineEdit.text())
         n = int(self.alter_steps_lineEdit.text())
         srange = np.linspace(x1, x2, n)
-
-        cor_field = list(self._cors_dict.values())[0][0]
-
+        #
+        cor_field = self.corrector_fields_cbb.currentText()
         bpm_fields = self.monitor_fields_cbb.currentText()
         if bpm_fields== 'X&Y':
             xoy = 'xy'
         else:
             xoy = bpm_fields.lower()
         wait = self.wait_time_dspinbox.value()
-
+        #
         bpms = [self._name_map[e] for e in self._bpms_dict]
         cors = [self._name_map[e] for e in self._cors_dict]
         self._bpms = bpms
         self._cors = cors
         self._xoy = xoy
-
+        #
         print("source:", source)
         print("srange:", srange)
         print("cor_field:", cor_field)
         print("xoy:", xoy)
         print("wait:", wait)
-
+        #
         return (bpms, cors), (source, srange, cor_field, xoy, wait)
 
     @pyqtSlot()
     def on_apply_orm(self):
         """Apply ORM to correct orbit.
         """
-        dfac = self.cor_damping_fac_dspinbox.value()
-        niter = self.cor_niter_spinbox.value()
-        t_wait = self.cor_wait_time_dspinbox.value()
-        print(dfac, niter, t_wait)
-
-        #
-        bpm_fields = self.monitor_fields_cbb.currentText()
-        if bpm_fields== 'X&Y':
-            xoy = 'xy'
-        else:
-            xoy = bpm_fields.lower()
-
-        bpms = [self._name_map[e] for e in self._bpms_dict]
-        cors = [self._name_map[e] for e in self._cors_dict]
-        self._bpms = bpms
-        self._cors = cors
-        self._xoy = xoy
-        #
-
-        lat = self.__mp.work_lattice_conf
-        lat.orm = self._orm
-        #
-        params = (lat,), (self._bpms, self._cors), (self._xoy, dfac, niter, t_wait)
+        params = self.__prepare_inputs_for_orm_apply()
 
         self.thread1 = QThread()
         self.orm_consumer = OrmWorker(params, mode='apply')
@@ -321,6 +338,18 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
             QMessageBox.warning(self, "Element Selection",
                     "Selection error, Choose elements first.",
                     QMessageBox.Ok)
+
+    @pyqtSlot()
+    def on_stop_measure_orm(self):
+        """Stop ORM measurement.
+        """
+        print("Stop ORM measurement...")
+
+    @pyqtSlot()
+    def on_stop_apply_orm(self):
+        """Stop ORM applying.
+        """
+        print("Stop ORM applying...")
 
 
 def sort_dict(d):
