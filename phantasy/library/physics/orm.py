@@ -92,8 +92,9 @@ def get_orm(correctors, monitors, **kws):
         orbit_arr = np.zeros([len(scan), m])
         cor_val0 = getattr(cor, cor_field)
         for iscan, val in enumerate(scan):
-            msg = "[{0}] Set [{1:02d}] {2}: {3:>10.6f}".format(
-                    epoch2human(time.time(), fmt=TS_FMT), i+1, cor.name, val)
+            msg = "[{0}] Set [{1:02d}] {2} [{3}]: {4:>10.6f}".format(
+                    epoch2human(time.time(), fmt=TS_FMT), i+1, cor.name,
+                    cor_field, val)
             if q_msg is not None:
                 q_msg.put((i*100.0/n, msg))
             print(msg)
