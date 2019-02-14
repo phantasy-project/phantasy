@@ -126,6 +126,9 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
             enames = list(v.keys())
             model = ElementListModel(tv, self.__mp, enames)
             model.set_model()
+            o = getattr(self, 'nelem_selected_{}s_lineEdit'.format(mode))
+            model.nElementSelected.connect(lambda i:o.setText(str(i)))
+            model.select_all_items() # select all by default
 
         try:
             self.bpms_treeView.model().nElementSelected.connect(
