@@ -5,6 +5,9 @@ from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtCore import QThread
 from PyQt5.QtCore import QVariant
 from PyQt5.QtWidgets import QMainWindow
+from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtGui import QDoubleValidator
+from PyQt5.QtGui import QIntValidator
 
 from functools import partial
 from collections import OrderedDict
@@ -107,6 +110,13 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         self.measure_pb.setVisible(False)
         self.cor_apply_pb.setVisible(False)
 
+        #
+        for o in (self.alter_start_lineEdit, self.alter_stop_lineEdit,
+                  self.lower_limit_lineEdit, self.upper_limit_lineEdit):
+                o.setValidator(QDoubleValidator())
+        for o in (self.alter_steps_lineEdit,):
+            o.setValidator(QIntValidator())
+
         # element selection for BPMs/CORs treeview
         self.select_all_bpms_btn.clicked.connect(
                 partial(self.on_select_all_elems, "bpm"))
@@ -116,6 +126,11 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
                 partial(self.on_select_all_elems, "cor"))
         self.inverse_cor_selection_btn.clicked.connect(
                 partial(self.on_inverse_current_elem_selection, "cor"))
+        # batch change element field
+        self.monitor_fields_cbb.currentTextChanged.connect(
+                partial(self.on_elem_field_changed, "bpm"))
+        self.corrector_fields_cbb.currentTextChanged.connect(
+                partial(self.on_elem_field_changed, "cor"))
 
     @pyqtSlot()
     def on_refresh_models(self):
@@ -151,6 +166,8 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         """Measure ORM.
         """
         params = self.__prepare_inputs_for_orm_measurement()
+        if params is None:
+            return
 
         self.thread = QThread()
         self.orm_runner = OrmWorker(params)
@@ -192,6 +209,15 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
             pass
 
     def __prepare_inputs_for_orm_apply(self):
+        # limit for correctors
+        try:
+            llimit = float(self.lower_limit_lineEdit.text())
+            ulimit = float(self.upper_limit_lineEdit.text())
+        except ValueError:
+            QMessageBox.warning(self, "Warning",
+                    "Invalid Input", QMessageBox.Ok)
+            return None
+        #
         dfac = self.cor_damping_fac_dspinbox.value()
         niter = self.cor_niter_spinbox.value()
         t_wait = self.cor_wait_time_dspinbox.value()
@@ -208,10 +234,6 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         self._bpms = bpms
         self._cors = cors
         self._xoy = xoy
-        #
-        # limit for correctors
-        llimit = self.lower_limit_dspinbox.value()
-        ulimit = self.upper_limit_dspinbox.value()
         #
         lat = self.__mp.work_lattice_conf
         lat.orm = self._orm
@@ -233,9 +255,14 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
 
     def __prepare_inputs_for_orm_measurement(self):
         source = OP_MODE_MAP[self.operation_mode_cbb.currentText()]
-        x1 = float(self.alter_start_lineEdit.text())
-        x2 = float(self.alter_stop_lineEdit.text())
-        n = int(self.alter_steps_lineEdit.text())
+        try:
+            x1 = float(self.alter_start_lineEdit.text())
+            x2 = float(self.alter_stop_lineEdit.text())
+            n = int(self.alter_steps_lineEdit.text())
+        except ValueError:
+            QMessageBox.warning(self, "Warning",
+                    "Invalid Input", QMessageBox.Ok)
+            return None
         srange = np.linspace(x1, x2, n)
         #
         cor_field = self.corrector_fields_cbb.currentText()
@@ -265,6 +292,8 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         """Apply ORM to correct orbit.
         """
         params = self.__prepare_inputs_for_orm_apply()
+        if params is None:
+            return
 
         self.thread1 = QThread()
         self.orm_consumer = OrmWorker(params, mode='apply')
@@ -286,13 +315,18 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         if filepath is None:
             return
 
-        mp, name_map, bpms_dict, cors_dict, orm = load_orm_sheet(filepath)
+        mp, name_map, bpms_dict, cors_dict, orm, cor_field, bpm_field = \
+                load_orm_sheet(filepath)
         self.__mp = mp
         self._name_map = name_map
         self._bpms_dict = bpms_dict
         self._cors_dict = cors_dict
         self._orm = orm
         self.refresh_models_btn.clicked.emit()
+        self.corrector_fields_cbb.setCurrentText(cor_field)
+        self.monitor_fields_cbb.setCurrentText(bpm_field)
+        self.corrector_fields_cbb.currentTextChanged.emit(cor_field)
+        self.monitor_fields_cbb.currentTextChanged.emit(bpm_field)
 
     @pyqtSlot()
     def on_save_orm(self):
@@ -313,6 +347,8 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         data_sheet['machine'] = machine
         data_sheet['segment'] = segment
         data_sheet['orm'] = orm
+        data_sheet['corrector_field'] = self.corrector_fields_cbb.currentText()
+        data_sheet['monitor_field'] = self.monitor_fields_cbb.currentText()
 
         data_sheet.write(filepath)
 
@@ -353,6 +389,18 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         """Stop ORM applying.
         """
         print("Stop ORM applying...")
+
+    @pyqtSlot('QString')
+    def on_elem_field_changed(self, mode, s):
+        """Element field is changed.
+        """
+        try:
+            print("Change selected {} field to {}...".format(mode.upper(), s))
+            model = getattr(self, '{}s_treeView'.format(mode)).model()
+            model.change_field(s)
+        except AttributeError:
+            QMessageBox.warning(self, "Change Field",
+                    "Failed to change field.", QMessageBox.Ok)
 
 
 def sort_dict(d):
