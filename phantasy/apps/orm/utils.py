@@ -40,14 +40,16 @@ class OrmWorker(QObject):
         if mode == 'measure':
             (bpms, cors), (source, srange, cor_field, xoy, wait) = params
             self._source = source
-            self._cor_field = cor_field
             self._srange = srange
-        else:
-            (lat,), (bpms, cors), (xoy, dfac, niter, wait) = params
+        else:  # apply
+            (lat,), (bpms, cors), (xoy, cor_field, dfac, niter, wait, l_limit, u_limit) = params
             self._lat = lat
             self._dfac = dfac
             self._niter = niter
+            self._lower_limit = l_limit
+            self._upper_limit = u_limit
 
+        self._cor_field = cor_field
         self._bpms = bpms
         self._cors = cors
         self._xoy = xoy
@@ -66,9 +68,11 @@ class OrmWorker(QObject):
         else:
             m = self._lat.correct_orbit(
                     self._cors, self._bpms,
+                    cor_field=self._cor_field,
                     xoy=self._xoy,
                     damping_factor=self._dfac,
                     iteration=self._niter, wait=self._wait,
+                    cor_min=self._lower_limit, cor_max=self._upper_limit,
                     msg_queue=q, mode="non-interactive")
         q.join()
         self.resultsReady.emit(m)
