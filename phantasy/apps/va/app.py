@@ -150,6 +150,10 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
         # disable all other tools
         self.enable_all_tools(False)
 
+        #
+        self.mach_comboBox.setEditable(False)
+        self.segm_comboBox.setEditable(False)
+
     def _setup_toolbar(self):
         # va run tool
         self.va_run_tool.setToolTip("Run Virtual Accelerator")
@@ -223,7 +227,7 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
             self._timer.stop()
         else:
             self.msg_box.setText(
-                "Virtual Accelerator is starting...({}s)".format(int(dt)))
+                "Virtual Accelerator is starting... ({}s)".format(int(dt)))
 
     def on_startup_timeout(self):
         self.msg_box.close()
