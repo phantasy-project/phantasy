@@ -333,12 +333,23 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
     def on_launch_orm(self):
         """Launch ORM app.
         """
-        m1 = self.bpms_treeView.model()
-        m2 = self.cors_treeView.model()
-        name_elem_map = m1.name_elem_map
-        name_elem_map.update(m2.name_elem_map)
-        bpms_dict = m1._selected_elements
-        cors_dict = m2._selected_elements
+        if self.__mp is None:
+            QMessageBox.warning(self, "ORM (Trajectory Viewer)",
+                "Cannot find loaded lattice, try to load first, either by clicking Tools > Load Lattice or Ctrl+Shift+L.", QMessageBox.Ok)
+            return
+
+        try:
+            m1 = self.bpms_treeView.model()
+            m2 = self.cors_treeView.model()
+            name_elem_map = m1.name_elem_map
+            name_elem_map.update(m2.name_elem_map)
+        except:
+            name_elem_map = {}
+            bpms_dict = {}
+            cors_dict = {}
+        else:
+            bpms_dict = m1._selected_elements
+            cors_dict = m2._selected_elements
 
         if self._orm_window is None:
             from phantasy.apps.orm import OrbitResponseMatrixWindow
