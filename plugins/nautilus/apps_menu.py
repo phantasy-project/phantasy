@@ -30,10 +30,11 @@ class ColumnExtension(GObject.GObject, Explorer.MenuProvider):
         return top_mitem,
 
     def start_app_launcher(self, menu, file):
-        cmd = "app_launcher"
         fn = datetime.now().strftime('%Y%m%d_%H%M%S') + '.log'
         logfile = os.path.join(LOG_PATH, fn)
+        cmd = ['app_launcher', '--log', logfile]
+        cmdline = " ".join(cmd)
         with open(logfile, 'w') as fid:
-            p = Popen(cmd, shell=True,
+            p = Popen(cmdline, shell=True, bufsize=-1,
                       stdin=PIPE, stdout=fid, stderr=fid,
                       close_fds=True)
