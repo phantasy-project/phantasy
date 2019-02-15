@@ -12,6 +12,7 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QToolButton
 from PyQt5.QtWidgets import QAction
+from PyQt5.QtWidgets import QMessageBox
 import epics
 import time
 import os
@@ -41,10 +42,19 @@ MPS_FAULT = MPS_STATUS.index("Fault")
 MPS_DISABLE = MPS_STATUS.index("Disable")
 MPS_MONITOR = MPS_STATUS.index("Monitor")
 
+#
+TIME_OUT = 20
+
 
 class VALauncherWindow(BaseAppForm, Ui_MainWindow):
     # va status changed, message to set, color of the string
     vaStatusChanged = pyqtSignal('QString', QColor)
+
+    # pv is connected or not
+    pv_connected = pyqtSignal(bool)
+
+    #
+    start_timeout = pyqtSignal()
 
     def __init__(self, version):
         super(VALauncherWindow, self).__init__()
@@ -94,6 +104,8 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
         self._ca_local_only = False
 
         # events
+        # pv conn
+        self.pv_connected.connect(self.on_pv_connected)
         # va status
         self.vaStatusChanged.connect(self.on_va_status_changed)
         # 0.001 * i -> 0.1% * i
@@ -125,7 +137,7 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
         self.mach_comboBox.setCurrentText(MACHINE_LIST[0])
         self.mach_comboBox.currentTextChanged.emit(MACHINE_LIST[0])
 
-        # run&stop tbtn: run
+        # toolbar for featured buttons
         self._setup_toolbar()
 
         # uptime label
@@ -140,16 +152,16 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
 
     def _setup_toolbar(self):
         # va run tool
-        self.va_run_tool.setToolTip("RUN VA")
+        self.va_run_tool.setToolTip("Run Virtual Accelerator")
 
         # va stop tool
-        self.va_stop_tool.setToolTip("STOP VA")
+        self.va_stop_tool.setToolTip("Stop Virtual Accelerator")
 
         # notebook tool
-        self.nb_tool.setToolTip("Launch Jupyter-notebook")
+        self.nb_tool.setToolTip("Launch Jupyter-Notebook")
 
         # va info tool
-        self.va_info_tool.setToolTip("Show VA running status")
+        self.va_info_tool.setToolTip("Show VA Running Status")
 
         # initial visibility
         self.va_run_tool.setEnabled(True)
@@ -174,6 +186,7 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
         segm = self._segm
         run_cmd = self._run_cmd
         prefix = self._prefix
+        #
         va = QProcess()
         va.setProcessEnvironment(env)
         self.va_process = va
@@ -189,9 +202,34 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
         # start va
         va.started.connect(self.on_va_started)
         #va.errorOccurred.connect(self.on_error_occurred)
+        #
+        self._timer = QTimer(self)
+        self._timer.timeout.connect(self.on_tick_startup)
+        self._timer_start = time.time()
+        self._timer.start(1000)
+        self.start_timeout.connect(self.on_startup_timeout)
+        self.msg_box = QMessageBox(self)
+        self.msg_box.setWindowTitle("VA Launcher")
+        self.msg_box.setText("Virtual Accelerator is starting...")
+        self.msg_box.exec_()
 
     def on_error_occurred(self, err):
         print("Error (code: {}) occurred...".format(err))
+
+    def on_tick_startup(self):
+        dt = time.time() - self._timer_start
+        if dt >= TIME_OUT:
+            self.start_timeout.emit()
+            self._timer.stop()
+        else:
+            self.msg_box.setText(
+                "Virtual Accelerator is starting...({}s)".format(int(dt)))
+
+    def on_startup_timeout(self):
+        self.msg_box.close()
+        QMessageBox.warning(self, "VA Launcher",
+                "Virtual Accelerator Starting Up Timeout (20s). Please try again.",
+                QMessageBox.Ok)
 
     @pyqtSlot('QString', QColor)
     def on_va_status_changed(self, s, color):
@@ -209,20 +247,6 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
     def on_va_started(self):
         """VA is started.
         """
-        self.start_time = time.time()
-        self.uptimer.start(1000)
-        self.vaStatusChanged.emit("Running", QColor("#4E9A06"))
-        self.update_widgets_visibility(status="STARTED")
-        self.va_name_label.setText(
-            "{}/{}, PV prefixed with {}".format(
-                self._mach, self._segm, self._prefix))
-        if self._prefix == 'NONE' or self._prefix is None:
-            self.va_name_label.setToolTip(
-                "PV prefixed with default one, e.g. 'VA'")
-        else:
-            self.va_name_label.setToolTip('')
-        # reset VAProcessInfoWidget
-        self._va_info_widget = None
         # noise pv
         self.noise_pv = epics.PV(self._noise_pv_name,
             connection_callback=partial(self.__on_connection_changed, name="noise"),
@@ -259,9 +283,6 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
         pid = self.va_process.processId()
         self.va_process.kill()
         print("VA ({}) is stopped...".format(pid))
-        self.vaStatusChanged.emit("Stopped", QColor("#EF2929"))
-        self.uptimer.stop()
-        self.update_widgets_visibility(status="STOPPED")
 
     @pyqtSlot('QString')
     def on_machine_changed(self, s):
@@ -367,18 +388,9 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
         self._ca_local_only = f
 
     def __on_connection_changed(self, name="noise", pvname=None, conn=None, **kws):
-        if name == "noise":
-            if conn:
-                self.enable_noise_controls()
-            else:
-                self.enable_noise_controls(False)
-        else:
-            # mps
-            if conn:
-                self.enable_mps_controls()
-                self.mps_pvname_lbl.setText(self._mps_pv_name)
-            else:
-                self.enable_mps_controls(False)
+        self.pv_connected.emit(conn)
+        if name == "mps" and conn:
+            self.mps_pvname_lbl.setText(self._mps_pv_name)
 
     def __on_value_changed(self, name="noise", pvname=None, value=None, host=None, **kws):
         if name == "noise":
@@ -394,6 +406,37 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
                 self.mps_monitor_radiobtn.setChecked(True)
             elif value == MPS_ENABLE:
                 self.mps_enable_radiobtn.setChecked(True)
+
+    @pyqtSlot(bool)
+    def on_pv_connected(self, conn):
+        """PV is connected or not.
+        """
+        self._timer.stop()
+        self.enable_noise_controls(conn)
+        self.enable_mps_controls(conn)
+        if conn:
+            # reset VAProcessInfoWidget
+            self._va_info_widget = None
+            #
+            self.va_name_label.setText(
+                "{}/{}, PV prefixed with {}".format(
+                    self._mach, self._segm, self._prefix))
+            if self._prefix == 'NONE' or self._prefix is None:
+                self.va_name_label.setToolTip(
+                    "PV prefixed with default one, e.g. 'VA'")
+            else:
+                self.va_name_label.setToolTip('')
+            #
+            self.vaStatusChanged.emit("Running", QColor("#4E9A06"))
+            self.update_widgets_visibility(status="STARTED")
+            self.start_time = time.time()
+            self.uptimer.start(1000)
+            #
+            self.msg_box.close()
+        else:
+            self.vaStatusChanged.emit("Stopped", QColor("#EF2929"))
+            self.update_widgets_visibility(status="STOPPED")
+            self.uptimer.stop()
 
     def enable_noise_controls(self, enable=True):
         """Enable controls for noise or not.
