@@ -351,6 +351,15 @@ class ElementListModel(QStandardItemModel):
             else:
                 item.setCheckState(Qt.Unchecked)
 
+    def change_field(self, s):
+        """Change the field to *s* for all items.
+        """
+        for irow in range(self.rowCount()):
+            item00 = self.item(irow, self.i_name)
+            if is_item_checked(item00):
+                cbb = self._v.indexWidget(self.index(irow, self.i_field))
+                cbb.setCurrentText(s)
+
 
 def is_item_checked(item):
     return item.checkState() == Qt.Checked
