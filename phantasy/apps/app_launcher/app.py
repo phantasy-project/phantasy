@@ -16,6 +16,7 @@ from .ui.ui_app import Ui_MainWindow
 from .app_add import AddLauncherDialog
 from .utils import data as app_data
 from .utils import AppDataModel
+from .app_log import LogWidget
 
 
 MSG_TEMPLATE = "<b><span style='text-decoration: underline;'>{msg[0]}:</span></b><p>{msg[1]}</p>"
@@ -25,8 +26,13 @@ DEFAULT_MSG = 'FRIB High-level Physics Controls Applications'
 
 class AppLauncherWindow(BaseAppForm, Ui_MainWindow):
 
-    def __init__(self, version):
+    def __init__(self, version, **kws):
         super(AppLauncherWindow, self).__init__()
+
+        # logfile
+        self._logfile = kws.get('logfile', None)
+        #print("logfile: ", self._logfile)
+        self._logwidget = None
 
         # app version
         self._version = version
@@ -53,6 +59,9 @@ class AppLauncherWindow(BaseAppForm, Ui_MainWindow):
         # UI
         self.setupUi(self)
 
+        # debug
+        self._debug = False
+
         # view
         self.v = self.tableView
 
@@ -77,11 +86,11 @@ class AppLauncherWindow(BaseAppForm, Ui_MainWindow):
         Popen(item.cmd, shell=True)
 
     def sizeHint(self):
-        return QSize(1150, 500)
+        return QSize(1150, 700)
 
     def post_init_ui(self):
         #self.textEdit.setHtml(DEFAULT_MSG)
-        self.lineEdit.setText(DEFAULT_MSG)
+        self.title_lbl.setText(DEFAULT_MSG)
 
     def eventFilter(self, src, e):
         if e.type() == QEvent.HoverEnter:
@@ -111,3 +120,19 @@ class AppLauncherWindow(BaseAppForm, Ui_MainWindow):
 
         else:
             return
+
+    @pyqtSlot(bool)
+    def on_enable_debug(self, f):
+        """Enable debug mode or not.
+        """
+        self._debug = f
+        print("Debug is enabled?", self._debug)
+
+    @pyqtSlot()
+    def on_show_log(self):
+        """Show log message under debug mode.
+        """
+        print("Show log message.")
+        if self._logwidget is None:
+            self._logwidget = LogWidget(self._logfile)
+        self._logwidget.show()
