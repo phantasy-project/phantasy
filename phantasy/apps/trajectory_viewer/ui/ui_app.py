@@ -70,7 +70,13 @@ class Ui_MainWindow(object):
         self.figctrl_groupBox.setSizePolicy(sizePolicy)
         self.figctrl_groupBox.setObjectName("figctrl_groupBox")
         self.gridLayout_2 = QtWidgets.QGridLayout(self.figctrl_groupBox)
+        self.gridLayout_2.setContentsMargins(10, 10, 10, 10)
         self.gridLayout_2.setObjectName("gridLayout_2")
+        self.matplotlibcurveWidget = MatplotlibCurveWidget(
+            self.figctrl_groupBox)
+        self.matplotlibcurveWidget.setProperty("figureTightLayout", False)
+        self.matplotlibcurveWidget.setObjectName("matplotlibcurveWidget")
+        self.gridLayout_2.addWidget(self.matplotlibcurveWidget, 3, 0, 1, 1)
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.grid_btn = QtWidgets.QPushButton(self.figctrl_groupBox)
@@ -130,11 +136,44 @@ class Ui_MainWindow(object):
         self.horizontalLayout.addWidget(self.ymax_lineEdit)
         self.horizontalLayout_2.addLayout(self.horizontalLayout)
         self.gridLayout_2.addLayout(self.horizontalLayout_2, 0, 0, 1, 1)
-        self.matplotlibcurveWidget = MatplotlibCurveWidget(
-            self.figctrl_groupBox)
-        self.matplotlibcurveWidget.setProperty("figureTightLayout", False)
-        self.matplotlibcurveWidget.setObjectName("matplotlibcurveWidget")
-        self.gridLayout_2.addWidget(self.matplotlibcurveWidget, 1, 0, 1, 1)
+        self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_3.setContentsMargins(-1, 0, -1, -1)
+        self.horizontalLayout_3.setObjectName("horizontalLayout_3")
+        self.label_14 = QtWidgets.QLabel(self.figctrl_groupBox)
+        self.label_14.setObjectName("label_14")
+        self.horizontalLayout_3.addWidget(self.label_14)
+        self.refxoy_cbb = QtWidgets.QComboBox(self.figctrl_groupBox)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
+                                           QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.refxoy_cbb.sizePolicy().hasHeightForWidth())
+        self.refxoy_cbb.setSizePolicy(sizePolicy)
+        self.refxoy_cbb.setMinimumSize(QtCore.QSize(90, 0))
+        self.refxoy_cbb.setObjectName("refxoy_cbb")
+        self.refxoy_cbb.addItem("")
+        self.refxoy_cbb.addItem("")
+        self.horizontalLayout_3.addWidget(self.refxoy_cbb)
+        self.last_one_rbtn = QtWidgets.QRadioButton(self.figctrl_groupBox)
+        self.last_one_rbtn.setObjectName("last_one_rbtn")
+        self.horizontalLayout_3.addWidget(self.last_one_rbtn)
+        self.last_five_rbtn = QtWidgets.QRadioButton(self.figctrl_groupBox)
+        self.last_five_rbtn.setObjectName("last_five_rbtn")
+        self.horizontalLayout_3.addWidget(self.last_five_rbtn)
+        self.line_4 = QtWidgets.QFrame(self.figctrl_groupBox)
+        self.line_4.setFrameShape(QtWidgets.QFrame.VLine)
+        self.line_4.setFrameShadow(QtWidgets.QFrame.Sunken)
+        self.line_4.setObjectName("line_4")
+        self.horizontalLayout_3.addWidget(self.line_4)
+        self.update_refline_chkbox = QtWidgets.QCheckBox(self.figctrl_groupBox)
+        self.update_refline_chkbox.setObjectName("update_refline_chkbox")
+        self.horizontalLayout_3.addWidget(self.update_refline_chkbox)
+        spacerItem = QtWidgets.QSpacerItem(40, 20,
+                                           QtWidgets.QSizePolicy.Expanding,
+                                           QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_3.addItem(spacerItem)
+        self.gridLayout_2.addLayout(self.horizontalLayout_3, 4, 0, 1, 1)
         self.daqctrl_groupBox = QtWidgets.QGroupBox(self.v_splitter_1)
         self.daqctrl_groupBox.setAlignment(QtCore.Qt.AlignLeading
                                            | QtCore.Qt.AlignLeft
@@ -269,10 +308,10 @@ class Ui_MainWindow(object):
         self.gridLayout.addWidget(self.stop_btn, 1, 2, 1, 1)
         self.daq_hbox.addLayout(self.gridLayout)
         self.gridLayout_6.addLayout(self.daq_hbox, 0, 1, 1, 1)
-        spacerItem = QtWidgets.QSpacerItem(75, 20,
-                                           QtWidgets.QSizePolicy.Expanding,
-                                           QtWidgets.QSizePolicy.Minimum)
-        self.gridLayout_6.addItem(spacerItem, 0, 2, 1, 1)
+        spacerItem1 = QtWidgets.QSpacerItem(75, 20,
+                                            QtWidgets.QSizePolicy.Expanding,
+                                            QtWidgets.QSizePolicy.Minimum)
+        self.gridLayout_6.addItem(spacerItem1, 0, 2, 1, 1)
         self.v_splitter_2 = QtWidgets.QSplitter(self.h_splitter)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
                                            QtWidgets.QSizePolicy.Expanding)
@@ -503,6 +542,18 @@ class Ui_MainWindow(object):
         self.autoscale_btn.setText(_translate("MainWindow", "Scale"))
         self.label.setText(_translate("MainWindow", "X-Limit"))
         self.label_7.setText(_translate("MainWindow", "Y-Limit"))
+        self.label_14.setText(_translate("MainWindow", "Referece"))
+        self.refxoy_cbb.setItemText(0, _translate("MainWindow", "X"))
+        self.refxoy_cbb.setItemText(1, _translate("MainWindow", "Y"))
+        self.last_one_rbtn.setToolTip(
+            _translate("MainWindow", "Average last one shot"))
+        self.last_one_rbtn.setText(_translate("MainWindow", "1"))
+        self.last_five_rbtn.setToolTip(
+            _translate("MainWindow", "Average last five shots"))
+        self.last_five_rbtn.setText(_translate("MainWindow", "5"))
+        self.update_refline_chkbox.setToolTip(
+            _translate("MainWindow", "Check to enable curve updating"))
+        self.update_refline_chkbox.setText(_translate("MainWindow", "Update"))
         self.daqctrl_groupBox.setTitle(
             _translate("MainWindow", "Controls Panel"))
         self.label_8.setText(_translate("MainWindow", "Monitors"))
