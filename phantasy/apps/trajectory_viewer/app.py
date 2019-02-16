@@ -9,6 +9,7 @@ from PyQt5.QtGui import QDoubleValidator
 from PyQt5.QtWidgets import QMessageBox
 
 from collections import OrderedDict
+from collections import deque
 from functools import partial
 import numpy as np
 
@@ -184,6 +185,11 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
         self._bpm_unit = None
         self._bpms = []  # list of CaElements (e.g. BPM)
         self._cors = []  # list of CaElements (HCOR/VCOR)
+        # cache
+        self._x_dq = deque([], 5)
+        self._y_dq = deque([], 5)
+        # check last one cache
+        self.last_one_rbtn.setChecked(True)
 
         # lattice load window
         self._lattice_load_window = None
@@ -223,6 +229,11 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
 
         # orm window
         self._orm_window = None
+        # Add another curve as reference, data could be selected from
+        # cached data
+        self.matplotlibcurveWidget.add_curve(
+                label="Reference",
+                color='g', marker='D', mfc='w')
 
     @pyqtSlot(OrderedDict)
     def on_elem_selection_updated(self, mode, d):
@@ -321,7 +332,6 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
             return
         self.__update_line(0)
         self.__update_line(1)
-        self.lineChanged.emit(0)
 
     @pyqtSlot()
     def onHelp(self):
@@ -455,6 +465,32 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
         self.xdataChanged.emit(xdata)
         self.ydataChanged.emit(ydata)
         self.matplotlibcurveWidget.setLineLabel(field)
+        # add to cache
+        if line_id == 0:
+            self._x_dq.append((xdata, ydata))
+        elif line_id == 1:
+            self._y_dq.append((xdata, ydata))
+        if self.update_refline_chkbox.isChecked():
+            try:
+                self.update_reflines()
+            except:
+                pass
+
+    def update_reflines(self):
+        # update cbb for reflines data
+        xoy = self.refxoy_cbb.currentText()
+        if xoy == 'X':
+            dq = self._x_dq
+        else:
+            dq = self._y_dq
+        if self.last_one_rbtn.isChecked():
+            x, y = dq.pop()
+        else:
+            x, y = np.asarray(dq).mean(axis=0)
+
+        self.lineChanged.emit(2)
+        self.xdataChanged.emit(x)
+        self.ydataChanged.emit(y)
 
     def __init_data_viz(self):
         # init data viz
@@ -464,7 +500,6 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
         self.lineChanged.emit(1)
         self.xdataChanged.emit([])
         self.ydataChanged.emit([])
-        self.lineChanged.emit(0)
 
     def update_xylimit(self, fs, s):
         p = self.matplotlibcurveWidget
