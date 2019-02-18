@@ -69,6 +69,8 @@ class OrmWorker(QObject):
             s = self._lat.get_settings_from_orm(
                     self._cors, self._bpms,
                     cor_field=self._cor_field,
+                    cor_min=self._lower_limit,
+                    cor_max=self._upper_limit,
                     damping_factor=self._dfac)
             print_settings(s)
             con = input("Continue? [Y/N]")
@@ -140,6 +142,6 @@ class ORMDataSheet(JSONDataSheet):
 
 def print_settings(settings):
     # print settings
-    for i, (c, f, v) in enumerate(settings):
-        print("[{cid}]: {name} [{f}] from {current:.6g} to {goal:.6g}".format(
-            cid=i, name=c.name, f=f, current=getattr(c, f), goal=v))
+    for i, (c, f, v, v_limited) in enumerate(settings):
+        print("[{cid}]: {name} [{f}] from {current:.6g} to {goal:.6g} (limited to {lg:.6g})".format(
+            cid=i, name=c.name, f=f, current=getattr(c, f), goal=v, lg=v_limited))
