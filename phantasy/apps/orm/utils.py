@@ -66,14 +66,26 @@ class OrmWorker(QObject):
                         wait=self._wait,
                         msg_queue=q)
         else:
-            m = self._lat.correct_orbit(
+            s = self._lat.get_settings_from_orm(
                     self._cors, self._bpms,
                     cor_field=self._cor_field,
-                    xoy=self._xoy,
-                    damping_factor=self._dfac,
-                    iteration=self._niter, wait=self._wait,
-                    cor_min=self._lower_limit, cor_max=self._upper_limit,
-                    msg_queue=q, mode="non-interactive")
+                    damping_factor=self._dfac)
+            print_settings(s)
+            con = input("Continue? [Y/N]")
+            if con.upper() == 'Y':
+                m = self._lat.apply_settings_from_orm(s,
+                        iteration=self._niter, wait=self._wait,
+                        cor_min=self._lower_limit,
+                        cor_max=self._upper_limit,
+                        msg_queue=q, mode='non-interactive')
+#            m = self._lat.correct_orbit(
+#                    self._cors, self._bpms,
+#                    cor_field=self._cor_field,
+#                    xoy=self._xoy,
+#                    damping_factor=self._dfac,
+#                    iteration=self._niter, wait=self._wait,
+#                    cor_min=self._lower_limit, cor_max=self._upper_limit,
+#                    msg_queue=q, mode="non-interactive")
         q.join()
         self.resultsReady.emit(m)
         self.finished.emit()
@@ -124,3 +136,10 @@ class ORMDataSheet(JSONDataSheet):
             d['segment'] = ''
             d['orm'] = []
             self.update(d)
+
+
+def print_settings(settings):
+    # print settings
+    for i, (c, f, v) in enumerate(settings):
+        print("[{cid}]: {name} [{f}] from {current:.6g} to {goal:.6g}".format(
+            cid=i, name=c.name, f=f, current=getattr(c, f), goal=v))
