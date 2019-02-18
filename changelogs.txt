@@ -1,3 +1,21 @@
+Version 1.9.7
+-------------
+2019-02-18
+
+- PHANTASY core:
+  - Lattice.correct_orbit: build two methods for get/set corrector settings
+  from ORM, get_settings_from_orm and apply_settings_from_orm.
+
+- Orbit Response Matrix App:
+  - Add setting limits for correctors
+  - Add 'corrector_field' and 'monitor_field' keys to ORMDataSheet
+
+- App Launcher:
+  - Add support to show logs
+
+- Virtual Accelerator Launcher:
+  - Fix timer segfault error
+
 Version 1.9.6
 -------------
 2019-02-11
