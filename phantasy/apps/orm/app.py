@@ -178,6 +178,7 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         self.orm_runner.finished.connect(partial(self.orm_worker_completed, self.measure_pb, self.run_btn))
         self.orm_runner.finished.connect(self.thread.quit)
         self.orm_runner.finished.connect(self.orm_runner.deleteLater)
+        self.orm_runner.stopped.connect(partial(self.on_stop_orm_worker, "Stopped ORM Measurement..."))
         self.thread.finished.connect(self.thread.deleteLater)
         self.thread.started.connect(self.orm_runner.run)
         self.thread.start()
@@ -383,6 +384,11 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         """Stop ORM measurement.
         """
         print("Stop ORM measurement...")
+        self.orm_runner.stop()
+
+    def on_stop_orm_worker(self, msg):
+        QMessageBox.warning(self, "Orbit Response Matrix App",
+                msg, QMessageBox.Ok)
 
     @pyqtSlot()
     def on_stop_apply_orm(self):

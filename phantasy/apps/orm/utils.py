@@ -16,6 +16,7 @@ except:
     from Queue import Queue
 
 from phantasy import epoch2human
+from phantasy import get_orm_for_one_corrector
 from phantasy import get_orm
 from phantasy import MachinePortal
 from phantasy.apps.correlation_visualizer.data import JSONDataSheet
@@ -26,6 +27,7 @@ TS_FMT = "%Y-%m-%d %H:%M:%S"
 class OrmWorker(QObject):
     started = pyqtSignal()
     finished = pyqtSignal()
+    stopped = pyqtSignal()
 
     # orm or True/None
     resultsReady = pyqtSignal(QVariant)
@@ -55,16 +57,24 @@ class OrmWorker(QObject):
         self._xoy = xoy
         self._wait= wait
 
+        self._n_cor = len(self._cors)
+        self._m_bpm = len(self._bpms)
+
     def run(self):
+        self._run_flag = True
         self.started.emit()
         q = Queue(0)
         self.message_receiver(q)
         if self._mode == 'measure':
-            m = get_orm(self._cors, self._bpms,
-                        source=self._source, scan=self._srange,
-                        cor_field=self._cor_field, xoy=self._xoy,
-                        wait=self._wait,
-                        msg_queue=q)
+            m = np.zeros([self._m_bpm * len(self._xoy), self._n_cor])
+            for i, cor in enumerate(self._cors):
+                if not self._run_flag:
+                    self.stopped.emit()
+                    break
+                m[:, i] = get_orm_for_one_corrector(cor, self._bpms,
+                        scan=self._srange, cor_field=self._cor_field,
+                        xoy=self._xoy, wait=self._wait, msg_queue=q,
+                        idx=i, ncor=self._n_cor)
         else:
             s = self._lat.get_settings_from_orm(
                     self._cors, self._bpms,
@@ -80,6 +90,8 @@ class OrmWorker(QObject):
                         cor_min=self._lower_limit,
                         cor_max=self._upper_limit,
                         msg_queue=q, mode='non-interactive')
+            else:
+                m = True
 #            m = self._lat.correct_orbit(
 #                    self._cors, self._bpms,
 #                    cor_field=self._cor_field,
@@ -104,6 +116,9 @@ class OrmWorker(QObject):
         receiver = Thread(target=_receiver, args=(q,))
         receiver.setDaemon(True)
         receiver.start()
+
+    def stop(self):
+        self._run_flag = False
 
 
 def load_orm_sheet(filepath):
