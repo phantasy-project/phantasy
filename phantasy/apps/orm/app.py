@@ -109,6 +109,9 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         #
         self.measure_pb.setVisible(False)
         self.cor_apply_pb.setVisible(False)
+        #
+        self.stop_measure_btn.setEnabled(False)
+        self.stop_apply_btn.setEnabled(False)
 
         #
         for o in (self.alter_start_lineEdit, self.alter_stop_lineEdit,
@@ -172,10 +175,10 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         self.thread = QThread()
         self.orm_runner = OrmWorker(params)
         self.orm_runner.moveToThread(self.thread)
-        self.orm_runner.started.connect(partial(self.orm_worker_started, self.measure_pb, self.run_btn))
+        self.orm_runner.started.connect(partial(self.orm_worker_started, self.measure_pb, self.stop_measure_btn, self.run_btn))
         self.orm_runner.resultsReady.connect(partial(self.on_results_ready, 'measure'))
         self.orm_runner.update_progress.connect(partial(self.update_pb, self.measure_pb))
-        self.orm_runner.finished.connect(partial(self.orm_worker_completed, self.measure_pb, self.run_btn))
+        self.orm_runner.finished.connect(partial(self.orm_worker_completed, self.measure_pb, self.stop_measure_btn, self.run_btn))
         self.orm_runner.finished.connect(self.thread.quit)
         self.orm_runner.finished.connect(self.orm_runner.deleteLater)
         self.orm_runner.stopped.connect(partial(self.on_stop_orm_worker, "Stopped ORM Measurement..."))
@@ -190,16 +193,18 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         self.log_textEdit.append(s)
 
     @pyqtSlot()
-    def orm_worker_started(self, pb, sender_obj):
+    def orm_worker_started(self, pb, sbtn, sender_obj):
         print("ORM worker is about to start.")
         sender_obj.setEnabled(False)
         pb.setVisible(True)
+        sbtn.setEnabled(True)
 
     @pyqtSlot()
-    def orm_worker_completed(self, pb, sender_obj):
+    def orm_worker_completed(self, pb, sbtn, sender_obj):
         print("ORM worker is done.")
         sender_obj.setEnabled(True)
         pb.setVisible(False)
+        sbtn.setEnabled(False)
 
     @pyqtSlot(QVariant)
     def on_results_ready(self, mode, m):
@@ -299,10 +304,10 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         self.thread1 = QThread()
         self.orm_consumer = OrmWorker(params, mode='apply')
         self.orm_consumer.moveToThread(self.thread1)
-        self.orm_consumer.started.connect(partial(self.orm_worker_started, self.cor_apply_pb, self.cor_apply_btn))
+        self.orm_consumer.started.connect(partial(self.orm_worker_started, self.cor_apply_pb, self.stop_apply_btn, self.cor_apply_btn))
         self.orm_consumer.resultsReady.connect(partial(self.on_results_ready, 'apply'))
         self.orm_consumer.update_progress.connect(partial(self.update_pb, self.cor_apply_pb))
-        self.orm_consumer.finished.connect(partial(self.orm_worker_completed, self.cor_apply_pb, self.cor_apply_btn))
+        self.orm_consumer.finished.connect(partial(self.orm_worker_completed, self.cor_apply_pb, self.stop_apply_btn, self.cor_apply_btn))
         self.orm_consumer.finished.connect(self.thread1.quit)
         self.orm_consumer.finished.connect(self.orm_consumer.deleteLater)
         self.thread1.finished.connect(self.thread1.deleteLater)
