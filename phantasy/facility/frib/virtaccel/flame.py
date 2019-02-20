@@ -548,6 +548,9 @@ class VirtualAccelerator(object):
     def __prefix_pv(self, pv):
         """Prefix *pv* with _chanprefix (if not '') and ':'.
         """
+        if pv.startswith('_#_'):
+            return pv[3:]
+
         if self._chanprefix != '':
             return '{}:{}'.format(self._chanprefix, pv)
         else:

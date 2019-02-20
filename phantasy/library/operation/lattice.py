@@ -460,6 +460,9 @@ def create_lattice(latname, pv_data, tag, **kws):
 def prefix_pv(pv, prefix):
     """Prefix *pv* with *prefix:* if *prefix* is not empty and None.
     """
+    if pv.startswith('_#_'):
+        return pv[3:]
+
     m = re.match("(.*:)?(.*):(.*):(.*)", pv)
     if m.group(1) is None:
         chanprefix = prefix
