@@ -88,6 +88,7 @@ def get_orm(correctors, monitors, **kws):
     # ==> R[i,j] = B[i]/C[j]
     # ==> or: R[i,j] = polyfit(C[i], B[i], 1)[0]
     #
+    ns = len(scan)
     for i, cor in enumerate(correctors):
         orbit_arr = np.zeros([len(scan), m])
         cor_val0 = getattr(cor, cor_field)
@@ -96,19 +97,99 @@ def get_orm(correctors, monitors, **kws):
                     epoch2human(time.time(), fmt=TS_FMT), i+1, cor.name,
                     cor_field, val)
             if q_msg is not None:
-                q_msg.put((i*100.0/n, msg))
+                q_msg.put(((i * ns + iscan) * 100.0 / n / ns, msg))
             print(msg)
             setattr(cor, cor_field, val)
             time.sleep(wait)
             orbit_arr[iscan] = get_orbit(monitors, **kws)
 
-        # get mat_mn(k,i)
-        for k in range(m):
-            mat_mn[k, i] = np.polyfit(scan, orbit_arr[:, k], 1)[0]
+        ## get mat_mn(k,i)
+        #for k in range(m):
+        #    mat_mn[k, i] = np.polyfit(scan, orbit_arr[:, k], 1)[0]
+        mat_mn[:, i] = [np.polyfit(scan, orbit_arr[:, k], 1)[0] for k in range(m)]
 
         # reset cor and process next col
         setattr(cor, cor_field, cor_val0)
     return mat_mn
+
+
+def get_orm_for_one_corrector(corrector, monitors, **kws):
+    """Get column-wise ORM data for one corrector.
+
+    Parameters
+    ----------
+    correctors : CaElement
+        Selected corrector element.
+    monitors : List[CaElement]
+        List of monitors, usually BPMs, to measure the beam orbit.
+
+    Keyword Arguments
+    -----------------
+    scan : array
+        Scan array for correctors, unit: *rad*, default array is
+        ``[-0.003, -0.0015, 0, 0.0015, 0.003]``.
+    cor_field : str
+        Field name for correctors, ``'ANG'`` by default.
+    orb_field : tuple[str]
+        Field names for monitors to retrieve orbit data, ``('X', 'Y')`` for
+        *x* and *y* directions by default.
+    wait : float
+        Wait time after set value, in *sec*, 1.0 by default.
+    xoy : str
+        'x'('y') for monitoring 'x'('y') direction,'xy' for both (default).
+    msg_queue : Queue
+        A queue that keeps log messages.
+    idx : int
+        Index of selected corrector of all selected ones.
+    ncor : int
+        Total number of selected correctors.
+
+    Returns
+    -------
+    ret : list
+        Column-wised ORM data with the size of ``m``.
+
+    See Also
+    --------
+    get_orm: Measurem ORM.
+    """
+
+    scan = kws.get('scan', np.linspace(-0.003, 0.003, 5))
+    cor_field = kws.get('cor_field', 'ANG')
+    xoy = kws.get('xoy', 'xy')
+    wait = kws.get('wait', 1.0)
+    idx = kws.get('idx', 0.0)  # index of correctors
+    n = kws.get('ncor', 1)     # total number of correctors
+    q_msg = kws.get('msg_queue', None)
+
+    ns = len(scan)
+    nn = n * ns
+
+    m = len(monitors) * len(xoy)
+    orbit_arr = np.zeros([len(scan), m])
+    cor_val0 = getattr(corrector, cor_field)
+    for iscan, val in enumerate(scan):
+        msg = "[{0}] Set [{1:02d}] {2} [{3}]: {4:>10.6f}".format(
+                epoch2human(time.time(), fmt=TS_FMT), idx + 1, corrector.name,
+                cor_field, val)
+        if q_msg is not None:
+            q_msg.put(((ns * idx + iscan)* 100.0 / nn, msg))
+        print(msg)
+        setattr(corrector, cor_field, val)
+        time.sleep(wait)
+        orbit_arr[iscan] = get_orbit(monitors, **kws)
+
+    setattr(corrector, cor_field, cor_val0)
+    msg = "[{0}] Set [{1:02d}] {2} [{3}]: {4:>10.6f}".format(
+            epoch2human(time.time(), fmt=TS_FMT), idx + 1, corrector.name,
+            cor_field, cor_val0)
+    if q_msg is not None:
+        q_msg.put((idx * 100.0 / n, msg))
+    print(msg)
+
+    r = np.asarray([np.polyfit(scan, orbit_arr[:, k], 1)[0] for k in range(m)])
+
+    return r
 
 
 def inverse_matrix(m):
