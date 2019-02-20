@@ -4,6 +4,7 @@
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtCore import QThread
 from PyQt5.QtCore import QVariant
+from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtGui import QDoubleValidator
@@ -12,11 +13,13 @@ from PyQt5.QtGui import QIntValidator
 from functools import partial
 from collections import OrderedDict
 import numpy as np
+import time
 
 from phantasy_ui.templates import BaseAppForm
 from phantasy.apps.trajectory_viewer.utils import ElementListModel
 from phantasy.apps.utils import get_save_filename
 from phantasy.apps.utils import get_open_filename
+from phantasy.apps.utils import uptime
 
 from .ui.ui_app import Ui_MainWindow
 from .utils import OrmWorker
@@ -120,6 +123,11 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         for o in (self.alter_steps_lineEdit,):
             o.setValidator(QIntValidator())
 
+        #
+        self.alter_steps_lineEdit.returnPressed.connect(self.on_update_eta)
+        self.wait_time_dspinbox.valueChanged.connect(self.on_update_eta)
+        self.update_eta_btn.clicked.connect(self.on_update_eta)
+
         # element selection for BPMs/CORs treeview
         self.select_all_bpms_btn.clicked.connect(
                 partial(self.on_select_all_elems, "bpm"))
@@ -134,6 +142,9 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
                 partial(self.on_elem_field_changed, "bpm"))
         self.corrector_fields_cbb.currentTextChanged.connect(
                 partial(self.on_elem_field_changed, "cor"))
+
+        #
+        self.on_update_eta()
 
     @pyqtSlot()
     def on_refresh_models(self):
@@ -156,6 +167,9 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         except:
             pass
 
+        #
+        self.on_update_eta()
+
     @pyqtSlot(dict)
     def on_update_elements(self, mode, elems_dict):
         """Update monitor view with *elems_dict* for *mode*, 'bpm' or 'cor'.
@@ -176,8 +190,10 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         self.orm_runner = OrmWorker(params)
         self.orm_runner.moveToThread(self.thread)
         self.orm_runner.started.connect(partial(self.orm_worker_started, self.measure_pb, self.stop_measure_btn, self.run_btn))
+        self.orm_runner.started.connect(self.start_eta_timer)
         self.orm_runner.resultsReady.connect(partial(self.on_results_ready, 'measure'))
         self.orm_runner.update_progress.connect(partial(self.update_pb, self.measure_pb))
+        self.orm_runner.finished.connect(self.stop_eta_timer)
         self.orm_runner.finished.connect(partial(self.orm_worker_completed, self.measure_pb, self.stop_measure_btn, self.run_btn))
         self.orm_runner.finished.connect(self.thread.quit)
         self.orm_runner.finished.connect(self.orm_runner.deleteLater)
@@ -291,7 +307,20 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         print("xoy:", xoy)
         print("wait:", wait)
         #
+        eta = n * len(cors) * wait
+        print("ETA: {} [H:M:S]".format(eta))
+        self.eta_lbl.setText(uptime(int(eta)))
         return (bpms, cors), (source, srange, cor_field, xoy, wait)
+
+    @pyqtSlot()
+    def on_update_eta(self):
+        ns = int(self.alter_steps_lineEdit.text())
+        nc = len(self._cors_dict)
+        dt = self.wait_time_dspinbox.value()
+        eta = ns * nc * dt
+        print("NS, NC, DT: ", ns, nc, dt)
+        print("ETA: {} [t]".format(eta))
+        self.eta_lbl.setText(uptime(int(eta)))
 
     @pyqtSlot()
     def on_apply_orm(self):
@@ -412,6 +441,23 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         except AttributeError:
             QMessageBox.warning(self, "Change Field",
                     "Failed to change field.", QMessageBox.Ok)
+
+    @pyqtSlot()
+    def start_eta_timer(self):
+        self._start_time = time.time()
+        self.eta_timer = QTimer(self)
+        self.eta_timer.timeout.connect(self.update_eta_timer)
+        self.eta_timer_lbl.setText('00:00:00')
+        self.eta_timer.start(1000)
+
+    @pyqtSlot()
+    def update_eta_timer(self):
+        self.eta_timer_lbl.setText(uptime(time.time() - self._start_time))
+
+    @pyqtSlot()
+    def stop_eta_timer(self):
+        self.eta_timer.stop()
+
 
 
 def sort_dict(d):
