@@ -184,7 +184,7 @@ def get_orm_for_one_corrector(corrector, monitors, **kws):
             epoch2human(time.time(), fmt=TS_FMT), idx + 1, corrector.name,
             cor_field, cor_val0)
     if q_msg is not None:
-        q_msg.put((idx * 100.0 / n, msg))
+        q_msg.put((-1, msg))
     print(msg)
 
     r = np.asarray([np.polyfit(scan, orbit_arr[:, k], 1)[0] for k in range(m)])
