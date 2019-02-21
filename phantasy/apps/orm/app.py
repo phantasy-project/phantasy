@@ -115,7 +115,9 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
 
         #
         self.measure_pb.setVisible(False)
+        self.measure_pb.setValue(0)
         self.cor_apply_pb.setVisible(False)
+        self.cor_apply_pb.setValue(0)
         #
         self.stop_measure_btn.setEnabled(False)
         self.stop_apply_btn.setEnabled(False)
@@ -224,6 +226,7 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         print("ORM worker is done.")
         sender_obj.setEnabled(True)
         pb.setVisible(False)
+        pb.setValue(0)
         sbtn.setEnabled(False)
 
     @pyqtSlot(QVariant)
