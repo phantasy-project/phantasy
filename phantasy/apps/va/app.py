@@ -151,8 +151,10 @@ class VALauncherWindow(BaseAppForm, Ui_MainWindow):
         self.enable_all_tools(False)
 
         #
-        self.mach_comboBox.setEditable(False)
-        self.segm_comboBox.setEditable(False)
+        #self.mach_comboBox.setEditable(False)
+        #self.segm_comboBox.setEditable(False)
+        self.mach_comboBox.setEditable(True)
+        self.segm_comboBox.setEditable(True)
 
     def _setup_toolbar(self):
         # va run tool
