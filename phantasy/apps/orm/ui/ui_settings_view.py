@@ -23,12 +23,20 @@ class Ui_Dialog(object):
         sizePolicy.setHeightForWidth(
             self.treeView.sizePolicy().hasHeightForWidth())
         self.treeView.setSizePolicy(sizePolicy)
+        self.treeView.setStyleSheet("QHeaderView::section {\n"
+                                    "    color: rgb(170, 0, 255);\n"
+                                    "    padding: 5px 5px 5px 5px;\n"
+                                    "}")
         self.treeView.setItemsExpandable(True)
         self.treeView.setObjectName("treeView")
         self.gridLayout.addWidget(self.treeView, 0, 0, 1, 1)
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setContentsMargins(-1, 0, -1, -1)
         self.horizontalLayout.setObjectName("horizontalLayout")
+        self.label = QtWidgets.QLabel(Dialog)
+        self.label.setStyleSheet("QLabel {\n" "    color: gray;\n" "}")
+        self.label.setObjectName("label")
+        self.horizontalLayout.addWidget(self.label)
         spacerItem = QtWidgets.QSpacerItem(40, 20,
                                            QtWidgets.QSizePolicy.Expanding,
                                            QtWidgets.QSizePolicy.Minimum)
@@ -49,6 +57,9 @@ class Ui_Dialog(object):
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
         Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
+        self.label.setText(
+            _translate("Dialog",
+                       "Press \'OK\' to concur the settings or \'Cancel\'"))
         self.pushButton_2.setText(_translate("Dialog", "Cancel"))
         self.pushButton.setText(_translate("Dialog", "OK"))
 
