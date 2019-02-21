@@ -1826,8 +1826,7 @@ class Lattice(object):
         Parameters
         ----------
         settings : list
-            List of tuple of (CaElement, setting), here settings are not
-            limited by setting range.
+            List of tuple of (CaElement, field, setting, setting_limited).
 
         Keyword Arguments
         -----------------
@@ -1858,7 +1857,7 @@ class Lattice(object):
         echo = kws.get('echo', True)
         q_msg = kws.get('msg_queue', None)
         mode = kws.get('mode', 'interactive')
-        upper_limit_cor = kws.get('cor_max', 5.0)   # A
+        upper_limit_cor = kws.get('cor_max', 5.0)   # A, void in this method
         lower_limit_cor = kws.get('cor_min', -5.0)  # A
 
         n_cor = len(settings)
@@ -1890,6 +1889,42 @@ class Lattice(object):
                 break
         return True
 
+    def apply_setting(self, setting, **kws):
+        """Apply setting for one corrector.
+
+        Parameters
+        ----------
+        setting : tuple
+            Tuple of corrector setting:
+            (CaElement, field, setpoint, setpoint_limited).
+
+        Keyword Arguments
+        -----------------
+        wait : float
+            Wait time after set value, in *sec*, 1.0 by default.
+        msg_queue : Queue
+            A queue that keeps log messages.
+        idx : int
+            Index of selected corrector of all selected ones.
+        ncor : int
+            Total number of selected correctors.
+        """
+        wait = kws.get('wait', 1.0)
+        idx = kws.get('idx', 0.0)  # index of correctors
+        n = kws.get('ncor', 1)     # total number of correctors
+        q_msg = kws.get('msg_queue', None)
+
+        cor, cor_field, v, v_limited = setting
+        setattr(cor, cor_field, v_limited)
+        time.sleep(wait)
+
+        msg = "[{0}] Set [{1:02d}] {2} [{3}]: {4:>10.6f}".format(
+                epoch2human(time.time(), fmt=TS_FMT), idx + 1, cor.name,
+                cor_field, v_limited)
+        if q_msg is not None:
+            q_msg.put((idx * 100.0 / n, msg))
+        print(msg)
+
     def get_settings_from_orm(self, correctors, bpms, **kws):
         """Return correctors settings from ORM.
 
@@ -1918,8 +1953,7 @@ class Lattice(object):
         Returns
         -------
         r : list
-            List of tuple of (CaElement, field, setting), here settings are not
-            limited by setting range.
+            List of tuple of (CaElement, field, setting, setting_limited).
 
         See Also
         --------
