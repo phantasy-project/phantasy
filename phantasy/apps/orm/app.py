@@ -7,6 +7,7 @@ from PyQt5.QtCore import QVariant
 from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtWidgets import QDialog
 from PyQt5.QtGui import QDoubleValidator
 from PyQt5.QtGui import QIntValidator
 
@@ -25,7 +26,7 @@ from .ui.ui_app import Ui_MainWindow
 from .utils import OrmWorker
 from .utils import ORMDataSheet
 from .utils import load_orm_sheet
-
+from .app_settings_view import SettingsView
 
 OP_MODE_MAP = {
     'Simulation': 'model',
@@ -103,6 +104,9 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         self.post_init()
 
     def post_init(self):
+        # cor settings
+        self._cor_settings = None
+
         # refresh element list models
         self.refresh_models_btn.clicked.connect(self.on_refresh_models)
 
@@ -326,9 +330,15 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
     def on_apply_orm(self):
         """Apply ORM to correct orbit.
         """
-        params = self.__prepare_inputs_for_orm_apply()
-        if params is None:
+        if self._cor_settings is None:
+            QMessageBox.warning(self, "Apply ORM",
+                "Correctors settings are not ready, click 'Evaluate' and 'Apply' again.",
+                QMessageBox.Ok)
             return
+
+        lat = self.__mp.work_lattice_conf
+        t_wait = self.cor_wait_time_dspinbox.value()
+        params = lat, self._cor_settings, t_wait
 
         self.thread1 = QThread()
         self.orm_consumer = OrmWorker(params, mode='apply')
@@ -339,6 +349,7 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         self.orm_consumer.finished.connect(partial(self.orm_worker_completed, self.cor_apply_pb, self.stop_apply_btn, self.cor_apply_btn))
         self.orm_consumer.finished.connect(self.thread1.quit)
         self.orm_consumer.finished.connect(self.orm_consumer.deleteLater)
+        self.orm_consumer.stopped.connect(partial(self.on_stop_orm_worker, "Stopped Correction..."))
         self.thread1.finished.connect(self.thread1.deleteLater)
         self.thread1.started.connect(self.orm_consumer.run)
         self.thread1.start()
@@ -429,6 +440,7 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         """Stop ORM applying.
         """
         print("Stop ORM applying...")
+        self.orm_consumer.stop()
 
     @pyqtSlot('QString')
     def on_elem_field_changed(self, mode, s):
@@ -457,6 +469,38 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
     @pyqtSlot()
     def stop_eta_timer(self):
         self.eta_timer.stop()
+
+    @pyqtSlot()
+    def on_evaluate_settings_from_orm(self):
+        """
+        """
+        params = self.__prepare_inputs_for_orm_apply()
+        if params is None:
+            return
+
+        settings = self.get_settings_from_orm(params)
+        self._sv = SettingsView(settings)
+        self._sv.setWindowTitle("Overview of Correctors' Settings")
+        r = self._sv.exec_()
+        if r == QDialog.Accepted:
+            print('OK')
+            self._cor_settings = settings
+            QMessageBox.information(self, "Evaluate Settings",
+                "New settings for the correctors are ready to apply, "
+                "click 'Apply' to proceed.",
+                QMessageBox.Ok)
+        else:
+            print('Cancel')
+
+    @staticmethod
+    def get_settings_from_orm(params):
+        """Get corrector settings from ORM based on *params*.
+        """
+        (lat,), (bpms, cors), (xoy, cor_field, dfac, niter, wait, l_limit, u_limit) = params
+        s = lat.get_settings_from_orm(cors, bpms,
+                cor_field=cor_field, cor_min=l_limit, cor_max=u_limit,
+                damping_factor=dfac)
+        return s
 
 
 
