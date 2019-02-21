@@ -3,6 +3,10 @@
 from PyQt5.QtCore import QObject
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import QVariant
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QStandardItem
+from PyQt5.QtGui import QStandardItemModel
+from PyQt5.QtGui import QBrush, QColor
 
 import getpass
 import numpy as np
@@ -22,6 +26,9 @@ from phantasy import MachinePortal
 from phantasy.apps.correlation_visualizer.data import JSONDataSheet
 
 TS_FMT = "%Y-%m-%d %H:%M:%S"
+
+CP = ['#EF2929', '#CC0000', '#A40000']
+CN = ['#8AE234', '#73D216', '#4E9A06']
 
 
 class OrmWorker(QObject):
@@ -43,22 +50,19 @@ class OrmWorker(QObject):
             (bpms, cors), (source, srange, cor_field, xoy, wait) = params
             self._source = source
             self._srange = srange
+            self._cor_field = cor_field
+            self._bpms = bpms
+            self._cors = cors
+            self._xoy = xoy
+            self._wait= wait
+            self._n_cor = len(self._cors)
+            self._m_bpm = len(self._bpms)
         else:  # apply
-            (lat,), (bpms, cors), (xoy, cor_field, dfac, niter, wait, l_limit, u_limit) = params
+            lat, settings, wait = params
             self._lat = lat
-            self._dfac = dfac
-            self._niter = niter
-            self._lower_limit = l_limit
-            self._upper_limit = u_limit
-
-        self._cor_field = cor_field
-        self._bpms = bpms
-        self._cors = cors
-        self._xoy = xoy
-        self._wait= wait
-
-        self._n_cor = len(self._cors)
-        self._m_bpm = len(self._bpms)
+            self._settings = settings
+            self._wait = wait
+            self._n_cor = len(settings)
 
     def run(self):
         self._run_flag = True
@@ -76,30 +80,15 @@ class OrmWorker(QObject):
                         xoy=self._xoy, wait=self._wait, msg_queue=q,
                         idx=i, ncor=self._n_cor)
         else:
-            s = self._lat.get_settings_from_orm(
-                    self._cors, self._bpms,
-                    cor_field=self._cor_field,
-                    cor_min=self._lower_limit,
-                    cor_max=self._upper_limit,
-                    damping_factor=self._dfac)
-            print_settings(s)
-            con = input("Continue? [Y/N]")
-            if con.upper() == 'Y':
-                m = self._lat.apply_settings_from_orm(s,
-                        iteration=self._niter, wait=self._wait,
-                        cor_min=self._lower_limit,
-                        cor_max=self._upper_limit,
-                        msg_queue=q, mode='non-interactive')
-            else:
-                m = True
-#            m = self._lat.correct_orbit(
-#                    self._cors, self._bpms,
-#                    cor_field=self._cor_field,
-#                    xoy=self._xoy,
-#                    damping_factor=self._dfac,
-#                    iteration=self._niter, wait=self._wait,
-#                    cor_min=self._lower_limit, cor_max=self._upper_limit,
-#                    msg_queue=q, mode="non-interactive")
+            for ic, setting in enumerate(self._settings):
+                if not self._run_flag:
+                    self.stopped.emit()
+                    break
+                self._lat.apply_setting(setting,
+                        wait=self._wait, idx=ic,
+                        msg_queue=q, ncor=self._n_cor)
+            m = True
+
         q.join()
         self.resultsReady.emit(m)
         self.finished.emit()
@@ -155,8 +144,87 @@ class ORMDataSheet(JSONDataSheet):
             self.update(d)
 
 
-def print_settings(settings):
-    # print settings
-    for i, (c, f, v, v_limited) in enumerate(settings):
-        print("[{cid}]: {name} [{f}] from {current:.6g} to {goal:.6g} (limited to {lg:.6g})".format(
-            cid=i, name=c.name, f=f, current=getattr(c, f), goal=v, lg=v_limited))
+class SettingsModel(QStandardItemModel):
+
+    def __init__(self, parent, data, **kws):
+        super(self.__class__, self).__init__(parent)
+        self._v = parent
+        self._data = data
+
+        # header
+        self.header = self.h_idx, self.h_name, self.h_field, \
+                self.h_oldset, self.h_read, self.h_newset, self.h_dset, \
+                self.h_ilimit = \
+                "ID", "Name", "Field", "Setpoint", \
+                "Readback", "Setpoint(New)", "Diff", "Limit?"
+        self.ids = self.i_idx, self.i_name, self.i_field, \
+                self.i_oldset, self.i_read, self.i_newset, self.i_dset, \
+                self.i_ilimit = \
+                range(len(self.header))
+        #
+        self.set_data()
+        #
+        for i, s in zip(self.ids, self.header):
+            self.setHeaderData(i, Qt.Horizontal, s)
+
+    def set_model(self):
+        # set model
+        self._v.setModel(self)
+        #
+        self.__post_init_ui(self._v)
+        #
+
+    def set_data(self):
+        for i, (c, f, v, v_limited) in enumerate(self._data):
+            row = []
+            set0 = c.current_setting(f)
+            set1 = v_limited
+            dset = set1 - set0
+            pdset = dset * 100.0 / set0
+            is_hit_limit = 'YES' if v != v_limited else 'NO'
+            item_idx = QStandardItem('{0:03d}'.format(i + 1))
+            item_ename = QStandardItem(c.name)
+            item_fname = QStandardItem(f)
+            item_set0 = QStandardItem('{0:>+10.4e}'.format(set0))
+            item_read = QStandardItem('{0:>+10.4e}'.format(getattr(c, f)))
+            item_set1 = QStandardItem('{0:>+10.4e}'.format(set1))
+            item_dset = QStandardItem('{0:>+10.4e} [{1:.1f}%]'.format(
+                             dset, np.fabs(pdset)))
+            item_ilim = QStandardItem(str(is_hit_limit))
+            if is_hit_limit == 'YES':
+                item_ilim.setForeground(QBrush(QColor('#CE5C00')))
+            else:
+                item_ilim.setForeground(QBrush(QColor('#888A85')))
+            if pdset >= 100:
+                hexc = CP[2]
+            elif pdset >= 50:
+                hexc = CP[1]
+            elif pdset >= 0:
+                hexc = CP[0]
+            elif pdset >= -50:
+                hexc = CN[0]
+            elif pdset >= -100:
+                hexc = CN[1]
+            else:
+                hexc = CN[2]
+            item_dset.setBackground(QBrush(QColor(hexc)))
+            item_dset.setForeground(QBrush(QColor('#FFFFFF')))
+
+            for item in (item_idx, item_ename, item_fname, item_set0, \
+                         item_read, item_set1, item_dset, item_ilim):
+                item.setEditable(False)
+                row.append(item)
+            self.appendRow(row)
+
+    def __post_init_ui(self, tv):
+        # view properties
+        tv.setStyleSheet("font-family: monospace;")
+        tv.setAlternatingRowColors(True)
+        tv.setSortingEnabled(True)
+        tv.header().setStretchLastSection(False)
+        for i in self.ids:
+            tv.resizeColumnToContents(i)
+        self.sort(self.i_idx, Qt.AscendingOrder)
+        #tv.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        #tv.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+
