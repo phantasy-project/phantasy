@@ -12,7 +12,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
-        Dialog.resize(1200, 800)
+        Dialog.resize(800, 600)
         self.gridLayout = QtWidgets.QGridLayout(Dialog)
         self.gridLayout.setObjectName("gridLayout")
         self.treeView = QtWidgets.QTreeView(Dialog)
@@ -41,17 +41,17 @@ class Ui_Dialog(object):
                                            QtWidgets.QSizePolicy.Expanding,
                                            QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout.addItem(spacerItem)
-        self.pushButton_2 = QtWidgets.QPushButton(Dialog)
-        self.pushButton_2.setObjectName("pushButton_2")
-        self.horizontalLayout.addWidget(self.pushButton_2)
-        self.pushButton = QtWidgets.QPushButton(Dialog)
-        self.pushButton.setObjectName("pushButton")
-        self.horizontalLayout.addWidget(self.pushButton)
+        self.cancel_btn = QtWidgets.QPushButton(Dialog)
+        self.cancel_btn.setObjectName("cancel_btn")
+        self.horizontalLayout.addWidget(self.cancel_btn)
+        self.ok_btn = QtWidgets.QPushButton(Dialog)
+        self.ok_btn.setObjectName("ok_btn")
+        self.horizontalLayout.addWidget(self.ok_btn)
         self.gridLayout.addLayout(self.horizontalLayout, 1, 0, 1, 1)
 
         self.retranslateUi(Dialog)
-        self.pushButton_2.clicked.connect(Dialog.reject)
-        self.pushButton.clicked.connect(Dialog.accept)
+        self.cancel_btn.clicked.connect(Dialog.on_click_cancel)
+        self.ok_btn.clicked.connect(Dialog.on_click_ok)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
     def retranslateUi(self, Dialog):
@@ -60,8 +60,8 @@ class Ui_Dialog(object):
         self.label.setText(
             _translate("Dialog",
                        "Press \'OK\' to concur the settings or \'Cancel\'"))
-        self.pushButton_2.setText(_translate("Dialog", "Cancel"))
-        self.pushButton.setText(_translate("Dialog", "OK"))
+        self.cancel_btn.setText(_translate("Dialog", "Cancel"))
+        self.ok_btn.setText(_translate("Dialog", "OK"))
 
 
 if __name__ == "__main__":
