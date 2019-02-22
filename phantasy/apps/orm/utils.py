@@ -13,6 +13,7 @@ import numpy as np
 import time
 from collections import OrderedDict
 from threading import Thread
+from functools import partial
 
 try:
     from queue import Queue
@@ -146,10 +147,16 @@ class ORMDataSheet(JSONDataSheet):
 
 class SettingsModel(QStandardItemModel):
 
+    item_changed = pyqtSignal(QVariant)
+    view_size = pyqtSignal(int, int)
+
     def __init__(self, parent, data, **kws):
         super(self.__class__, self).__init__(parent)
         self._v = parent
         self._data = data
+
+        #
+        self._pvs = []
 
         # header
         self.header = self.h_idx, self.h_name, self.h_field, \
@@ -167,10 +174,14 @@ class SettingsModel(QStandardItemModel):
         for i, s in zip(self.ids, self.header):
             self.setHeaderData(i, Qt.Horizontal, s)
 
+        #
+        self.item_changed.connect(self.update_item)
+
     def set_model(self):
         # set model
         self._v.setModel(self)
         #
+        self.set_cbs()
         self.__post_init_ui(self._v)
         #
 
@@ -216,15 +227,36 @@ class SettingsModel(QStandardItemModel):
                 row.append(item)
             self.appendRow(row)
 
+    def update_item(self, p):
+        self.setItem(*p)
+
+    def set_cbs(self):
+        def _cb(row, col, fld, **kws):
+            item = QStandardItem('{0:>+10.4e}'.format(fld.value))
+            self.item_changed.emit((row, col, item))
+
+        for i, (c, f, _, _) in enumerate(self._data):
+            row, col = i, self.i_read
+            fld = c.get_field(f)
+            pv = fld.readback_pv[0]
+            pv.add_callback(partial(_cb, row, col, fld))
+            self._pvs.append(pv)
+
     def __post_init_ui(self, tv):
         # view properties
         tv.setStyleSheet("font-family: monospace;")
         tv.setAlternatingRowColors(True)
-        tv.setSortingEnabled(True)
+        #tv.setSortingEnabled(True)
         tv.header().setStretchLastSection(False)
+        w = 0
         for i in self.ids:
             tv.resizeColumnToContents(i)
-        self.sort(self.i_idx, Qt.AscendingOrder)
+            w += tv.columnWidth(i)
+        h = 0
+        for i in range(len(self._data)):
+            h += tv.rowHeight(self.item(i, 0).index())
+        #self.sort(self.i_idx, Qt.AscendingOrder)
         #tv.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         #tv.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.view_size.emit(w, h)
 
