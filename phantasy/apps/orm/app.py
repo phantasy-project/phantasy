@@ -13,6 +13,7 @@ from PyQt5.QtGui import QIntValidator
 
 from functools import partial
 from collections import OrderedDict
+from collections import deque
 import numpy as np
 import time
 
@@ -106,6 +107,8 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
     def post_init(self):
         # cor settings
         self._cor_settings = None
+        # hide cached setting view btn
+        self.view_cached_settings_btn.setVisible(False)
 
         # refresh element list models
         self.refresh_models_btn.clicked.connect(self.on_refresh_models)
@@ -152,6 +155,9 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         #
         self.on_update_eta()
 
+        #
+        self.init_settings_dq()
+
     @pyqtSlot()
     def on_refresh_models(self):
         # refresh 'bpm' and 'cor' model.
@@ -195,12 +201,12 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         self.thread = QThread()
         self.orm_runner = OrmWorker(params)
         self.orm_runner.moveToThread(self.thread)
-        self.orm_runner.started.connect(partial(self.orm_worker_started, self.measure_pb, self.stop_measure_btn, self.run_btn))
+        self.orm_runner.started.connect(partial(self.orm_worker_started, self.measure_pb, self.stop_measure_btn, [self.run_btn]))
         self.orm_runner.started.connect(self.start_eta_timer)
         self.orm_runner.resultsReady.connect(partial(self.on_results_ready, 'measure'))
         self.orm_runner.update_progress.connect(partial(self.update_pb, self.measure_pb))
         self.orm_runner.finished.connect(self.stop_eta_timer)
-        self.orm_runner.finished.connect(partial(self.orm_worker_completed, self.measure_pb, self.stop_measure_btn, self.run_btn))
+        self.orm_runner.finished.connect(partial(self.orm_worker_completed, self.measure_pb, self.stop_measure_btn, [self.run_btn]))
         self.orm_runner.finished.connect(self.thread.quit)
         self.orm_runner.finished.connect(self.orm_runner.deleteLater)
         self.orm_runner.stopped.connect(partial(self.on_stop_orm_worker, "Stopped ORM Measurement..."))
@@ -217,14 +223,14 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
     @pyqtSlot()
     def orm_worker_started(self, pb, sbtn, sender_obj):
         print("ORM worker is about to start.")
-        sender_obj.setEnabled(False)
+        [i.setEnabled(False) for i in sender_obj]
         pb.setVisible(True)
         sbtn.setEnabled(True)
 
     @pyqtSlot()
     def orm_worker_completed(self, pb, sbtn, sender_obj):
         print("ORM worker is done.")
-        sender_obj.setEnabled(True)
+        [i.setEnabled(True) for i in sender_obj]
         pb.setVisible(False)
         pb.setValue(0)
         sbtn.setEnabled(False)
@@ -329,11 +335,9 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         print("ETA: {} [t]".format(eta))
         self.eta_lbl.setText(uptime(int(eta)))
 
-    @pyqtSlot()
-    def on_apply_orm(self):
-        """Apply ORM to correct orbit.
-        """
-        if self._cor_settings is None:
+    def __apply_with_settings(self, settings=None, **kws):
+        # apply settings to correct central trajectory
+        if settings is None:
             QMessageBox.warning(self, "Apply ORM",
                 "Correctors settings are not ready, click 'Evaluate' and 'Apply' again.",
                 QMessageBox.Ok)
@@ -341,21 +345,36 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
 
         lat = self.__mp.work_lattice_conf
         t_wait = self.cor_wait_time_dspinbox.value()
-        params = lat, self._cor_settings, t_wait
+        params = lat, settings, t_wait
+        to_cache = kws.get('to_cache', True)
+        btns = kws.get('btns', [self.cor_apply_btn, self.undo_apply_btn, self.redo_apply_btn])
 
         self.thread1 = QThread()
         self.orm_consumer = OrmWorker(params, mode='apply')
         self.orm_consumer.moveToThread(self.thread1)
-        self.orm_consumer.started.connect(partial(self.orm_worker_started, self.cor_apply_pb, self.stop_apply_btn, self.cor_apply_btn))
+        if to_cache:
+            self.orm_consumer.started.connect(partial(self.on_update_settings_dq, 'start'))
+        self.orm_consumer.started.connect(partial(self.orm_worker_started, self.cor_apply_pb, self.stop_apply_btn, btns))
         self.orm_consumer.resultsReady.connect(partial(self.on_results_ready, 'apply'))
         self.orm_consumer.update_progress.connect(partial(self.update_pb, self.cor_apply_pb))
-        self.orm_consumer.finished.connect(partial(self.orm_worker_completed, self.cor_apply_pb, self.stop_apply_btn, self.cor_apply_btn))
+        self.orm_consumer.finished.connect(partial(self.orm_worker_completed, self.cor_apply_pb, self.stop_apply_btn, btns))
         self.orm_consumer.finished.connect(self.thread1.quit)
         self.orm_consumer.finished.connect(self.orm_consumer.deleteLater)
+        if to_cache:
+            self.orm_consumer.finished.connect(partial(self.on_update_settings_dq, 'finish'))
         self.orm_consumer.stopped.connect(partial(self.on_stop_orm_worker, "Stopped Correction..."))
+        if to_cache:
+            self.orm_consumer.stopped.connect(partial(self.on_update_settings_dq, 'stop'))
         self.thread1.finished.connect(self.thread1.deleteLater)
         self.thread1.started.connect(self.orm_consumer.run)
         self.thread1.start()
+        return self.orm_consumer
+
+    @pyqtSlot()
+    def on_apply_orm(self):
+        """Apply ORM to correct orbit.
+        """
+        self.__apply_with_settings(settings=self._cor_settings)
 
     @pyqtSlot()
     def on_open_orm(self):
@@ -376,6 +395,8 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         self.monitor_fields_cbb.setCurrentText(bpm_field)
         self.corrector_fields_cbb.currentTextChanged.emit(cor_field)
         self.monitor_fields_cbb.currentTextChanged.emit(bpm_field)
+        #
+        self.init_settings_dq()
 
     @pyqtSlot()
     def on_save_orm(self):
@@ -505,6 +526,75 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
                 damping_factor=dfac)
         return s
 
+    @pyqtSlot()
+    def on_update_settings_dq(self, sg):
+        if sg == 'finish' and self._append_settings_dq:
+            print("Finished emit")
+            self._settings_dq.append(self._cor_settings)
+            self._settings_pt = len(self._settings_dq) - 1
+            self.update_undo_redo_status()
+        elif sg == 'stop':
+            print("Stopped emit")
+            self._append_settings_dq = False
+        elif sg == 'start':
+            print("Started emit")
+            self._append_settings_dq = True
+
+    def update_undo_redo_status(self):
+        print("spt:", self._settings_pt)
+        print("sl :", len(self._settings_dq))
+        if self._settings_pt == 0:
+            self.undo_apply_btn.setEnabled(False)
+        else:
+            self.undo_apply_btn.setEnabled(True)
+        if self._settings_pt == len(self._settings_dq) - 1:
+            self.redo_apply_btn.setEnabled(False)
+        else:
+            self.redo_apply_btn.setEnabled(True)
+
+    @pyqtSlot()
+    def on_undo_apply_orm(self):
+        print("Undo Apply...")
+        self._settings_pt -= 1
+        s = self._settings_dq[self._settings_pt]
+        o = self.__apply_with_settings(s, to_cache=False)
+        o.finished.connect(self.update_undo_redo_status)
+
+    @pyqtSlot()
+    def on_redo_apply_orm(self):
+        print("Redo Apply...")
+        self._settings_pt += 1
+        s = self._settings_dq[self._settings_pt]
+        o = self.__apply_with_settings(s, to_cache=False)
+        o.finished.connect(self.update_undo_redo_status)
+
+    def init_settings_dq(self):
+        # initialize settings_dq
+        self._settings_dq = deque([], 3)
+        self._settings_pt = None
+
+        cors = [self._name_map[e] for e in self._cors_dict]
+        cor_field = self.corrector_fields_cbb.currentText()
+        settings = []
+        for i in cors:
+            v =  i.current_setting(cor_field)
+            settings.append((i, cor_field, v, v))
+
+        self._settings_dq.append(settings)
+        self._settings_pt = len(self._settings_dq) - 1
+        #
+        self.update_undo_redo_status()
+
+    @pyqtSlot()
+    def on_show_cached_settings(self):
+        # show cached settings
+        print("Show cached settings (TBI)...")
+        for s in self._settings_dq:
+            print(s)
+
+    @pyqtSlot()
+    def on_reset_cached_settings(self):
+        self.init_settings_dq()
 
 
 def sort_dict(d):
