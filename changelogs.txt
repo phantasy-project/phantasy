@@ -1,3 +1,27 @@
+Version 1.9.8
+-------------
+2019-02-25
+
+- PHANTASY core:
+  - Bypass PV prefix option if pv name starts with '_#_'
+  - Add a new method to CaElement: 'current_setting()', to return the current
+    setpoint of regarding field of element
+  - Add a new function 'get_orm_for_one_corrector()' to measure ORM just for
+    one corrector
+  - Add a new method 'apply_setting()' to Lattice for changing one corrector
+    setting.
+
+- Orbit Response Matrix App:
+  - Stop action is supported when measuring ORM, or applying corrector
+    settings to machine
+  - Show estimated time required information for ORM measurement
+  - Fix progressbar value issue
+  - Popup settings view window before 'Apply', show all the settings regarding
+    the correctors that will be changed
+  - Include set limit for all correctors
+  - Support Undo/Redo about the corrector settings, keeps 3 set of settings
+  - Update UI
+
 Version 1.9.7
 -------------
 2019-02-18
