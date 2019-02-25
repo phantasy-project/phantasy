@@ -270,6 +270,8 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         self._cors = cors
         self._xoy = xoy
         #
+        if self.__mp is None:
+            return None
         lat = self.__mp.work_lattice_conf
         lat.orm = self._orm
         #
@@ -533,6 +535,13 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
             self._settings_dq.append(self._cor_settings)
             self._settings_pt = len(self._settings_dq) - 1
             self.update_undo_redo_status()
+            # Update buttons
+            #self.__update_settings_btnlist()
+            #from PyQt5.QtWidgets import QToolButton
+            #btn = QToolButton(self)
+            #btn.setText("")
+            #self.cached_settings_hbox.insertWidget(0, btn)
+
         elif sg == 'stop':
             print("Stopped emit")
             self._append_settings_dq = False
