@@ -160,13 +160,13 @@ class SettingsModel(QStandardItemModel):
 
         # header
         self.header = self.h_idx, self.h_name, self.h_field, \
-                self.h_oldset, self.h_read, self.h_newset, self.h_dset, \
-                self.h_ilimit = \
+                self.h_oldset, self.h_read, self.h_newset1, self.h_newset2, \
+                self.h_dset, self.h_ilimit = \
                 "ID", "Name", "Field", "Setpoint", \
-                "Readback", "Setpoint(New)", "Diff", "Limit?"
+                "Readback", "Setpoint(Raw)", "Setpoint(New)", "Diff", "Limit?"
         self.ids = self.i_idx, self.i_name, self.i_field, \
-                self.i_oldset, self.i_read, self.i_newset, self.i_dset, \
-                self.i_ilimit = \
+                self.i_oldset, self.i_read, self.i_newset2, self.i_newset2, \
+                self.i_dset, self.i_ilimit = \
                 range(len(self.header))
         #
         self.set_data()
@@ -189,40 +189,30 @@ class SettingsModel(QStandardItemModel):
         for i, (c, f, v, v_limited) in enumerate(self._data):
             row = []
             set0 = c.current_setting(f)
-            set1 = v_limited
-            dset = set1 - set0
-            pdset = dset * 100.0 / set0
+            set1 = v
+            set2 = v_limited
             is_hit_limit = 'YES' if v != v_limited else 'NO'
             item_idx = QStandardItem('{0:03d}'.format(i + 1))
             item_ename = QStandardItem(c.name)
             item_fname = QStandardItem(f)
-            item_set0 = QStandardItem('{0:>+10.4e}'.format(set0))
-            item_read = QStandardItem('{0:>+10.4e}'.format(getattr(c, f)))
-            item_set1 = QStandardItem('{0:>+10.4e}'.format(set1))
-            item_dset = QStandardItem('{0:>+10.4e} [{1:.1f}%]'.format(
-                             dset, np.fabs(pdset)))
+            item_set0 = QStandardItem('{0:>.2g}'.format(set0))
+            item_read = QStandardItem('{0:>.2g}'.format(getattr(c, f)))
+            item_set1 = QStandardItem('{0:>.2g}'.format(set1))
+            item_set2 = QStandardItem('{0:>.2g}'.format(set2))
             item_ilim = QStandardItem(str(is_hit_limit))
+            item_dset = QStandardItem('{0:>.2g}'.format(set2 - set0))
             if is_hit_limit == 'YES':
                 item_ilim.setForeground(QBrush(QColor('#CE5C00')))
             else:
                 item_ilim.setForeground(QBrush(QColor('#888A85')))
-            if pdset >= 100:
-                hexc = CP[2]
-            elif pdset >= 50:
-                hexc = CP[1]
-            elif pdset >= 0:
+            if set2 - set0 >= 0:
                 hexc = CP[0]
-            elif pdset >= -50:
-                hexc = CN[0]
-            elif pdset >= -100:
-                hexc = CN[1]
             else:
-                hexc = CN[2]
-            item_dset.setBackground(QBrush(QColor(hexc)))
-            item_dset.setForeground(QBrush(QColor('#FFFFFF')))
+                hexc = CN[0]
+            item_dset.setForeground(QBrush(QColor(hexc)))
 
             for item in (item_idx, item_ename, item_fname, item_set0, \
-                         item_read, item_set1, item_dset, item_ilim):
+                         item_read, item_set1, item_set2, item_dset, item_ilim):
                 item.setEditable(False)
                 row.append(item)
             self.appendRow(row)
@@ -232,7 +222,7 @@ class SettingsModel(QStandardItemModel):
 
     def set_cbs(self):
         def _cb(row, col, fld, **kws):
-            item = QStandardItem('{0:>+10.4e}'.format(fld.value))
+            item = QStandardItem('{0:>.3g}'.format(fld.value))
             self.item_changed.emit((row, col, item))
 
         for i, (c, f, _, _) in enumerate(self._data):
