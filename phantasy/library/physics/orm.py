@@ -14,6 +14,7 @@ import numpy as np
 import numpy.linalg as linalg
 
 from phantasy.library.misc import epoch2human
+from phantasy.library.misc import truncate_number
 
 TS_FMT = "%Y-%m-%d %H:%M:%S"
 
@@ -91,7 +92,7 @@ def get_orm(correctors, monitors, **kws):
     ns = len(scan)
     for i, cor in enumerate(correctors):
         orbit_arr = np.zeros([len(scan), m])
-        cor_val0 = getattr(cor, cor_field)
+        cor_val0 = cor.current_setting(cor_field)
         for iscan, val in enumerate(scan):
             msg = "[{0}] Set [{1:02d}] {2} [{3}]: {4:>10.6f}".format(
                     epoch2human(time.time(), fmt=TS_FMT), i+1, cor.name,
@@ -143,6 +144,8 @@ def get_orm_for_one_corrector(corrector, monitors, **kws):
         Index of selected corrector of all selected ones.
     ncor : int
         Total number of selected correctors.
+    ndigits : int
+        Number of effective digits to keep for a float number.
 
     Returns
     -------
@@ -161,21 +164,23 @@ def get_orm_for_one_corrector(corrector, monitors, **kws):
     idx = kws.get('idx', 0.0)  # index of correctors
     n = kws.get('ncor', 1)     # total number of correctors
     q_msg = kws.get('msg_queue', None)
+    n_trun = kws.get('ndigits', 6)
 
     ns = len(scan)
     nn = n * ns
 
     m = len(monitors) * len(xoy)
     orbit_arr = np.zeros([len(scan), m])
-    cor_val0 = getattr(corrector, cor_field)
+    cor_val0 = corrector.current_setting(cor_field)
     for iscan, val in enumerate(scan):
+        v_to_set =  truncate_number(val, n_trun)
         msg = "[{0}] Set [{1:02d}] {2} [{3}]: {4:>10.6f}".format(
                 epoch2human(time.time(), fmt=TS_FMT), idx + 1, corrector.name,
-                cor_field, val)
+                cor_field, v_to_set)
         if q_msg is not None:
             q_msg.put(((ns * idx + iscan)* 100.0 / nn, msg))
         print(msg)
-        setattr(corrector, cor_field, val)
+        setattr(corrector, cor_field, v_to_set)
         time.sleep(wait)
         orbit_arr[iscan] = get_orbit(monitors, **kws)
 
