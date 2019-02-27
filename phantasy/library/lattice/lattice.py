@@ -32,6 +32,7 @@ from phantasy.library.misc import get_intersection
 from phantasy.library.misc import parse_dt
 from phantasy.library.misc import pattern_filter
 from phantasy.library.misc import epoch2human
+from phantasy.library.misc import truncate_number
 from phantasy.library.model import BeamState
 from phantasy.library.model import ModelFlame
 from phantasy.library.parser import Configuration
@@ -1908,19 +1909,23 @@ class Lattice(object):
             Index of selected corrector of all selected ones.
         ncor : int
             Total number of selected correctors.
+        ndigits : int
+            Number of effective digits to keep for a float number.
         """
         wait = kws.get('wait', 1.0)
         idx = kws.get('idx', 0.0)  # index of correctors
         n = kws.get('ncor', 1)     # total number of correctors
         q_msg = kws.get('msg_queue', None)
+        n_trun = kws.get('ndigits', 6)
 
         cor, cor_field, v, v_limited = setting
-        setattr(cor, cor_field, v_limited)
+        v_truncated =  truncate_number(v_limited, n_trun)
+        setattr(cor, cor_field, v_truncated)
         time.sleep(wait)
 
         msg = "[{0}] Set [{1:02d}] {2} [{3}]: {4:>10.6f}".format(
                 epoch2human(time.time(), fmt=TS_FMT), idx + 1, cor.name,
-                cor_field, v_limited)
+                cor_field, v_truncated)
         if q_msg is not None:
             q_msg.put((idx * 100.0 / n, msg))
         print(msg)
