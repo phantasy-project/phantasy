@@ -48,7 +48,7 @@ class OrmWorker(QObject):
         super(self.__class__, self).__init__()
         self._mode = mode
         if mode == 'measure':
-            (bpms, cors), (source, srange, cor_field, xoy, wait) = params
+            (bpms, cors), (source, srange, cor_field, xoy, wait, ndigits) = params
             self._source = source
             self._srange = srange
             self._cor_field = cor_field
@@ -56,14 +56,16 @@ class OrmWorker(QObject):
             self._cors = cors
             self._xoy = xoy
             self._wait= wait
+            self._n_digits = ndigits
             self._n_cor = len(self._cors)
             self._m_bpm = len(self._bpms)
         else:  # apply
-            lat, settings, wait = params
+            lat, settings, wait, n_digits = params
             self._lat = lat
             self._settings = settings
             self._wait = wait
             self._n_cor = len(settings)
+            self._n_digits = n_digits
 
     def run(self):
         self._run_flag = True
@@ -79,7 +81,7 @@ class OrmWorker(QObject):
                 m[:, i] = get_orm_for_one_corrector(cor, self._bpms,
                         scan=self._srange, cor_field=self._cor_field,
                         xoy=self._xoy, wait=self._wait, msg_queue=q,
-                        idx=i, ncor=self._n_cor)
+                        idx=i, ncor=self._n_cor, ndigits=self._n_digits)
         else:
             for ic, setting in enumerate(self._settings):
                 if not self._run_flag:
@@ -87,7 +89,8 @@ class OrmWorker(QObject):
                     break
                 self._lat.apply_setting(setting,
                         wait=self._wait, idx=ic,
-                        msg_queue=q, ncor=self._n_cor)
+                        msg_queue=q, ncor=self._n_cor,
+                        ndigits=self._n_digits)
             m = True
 
         q.join()

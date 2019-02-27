@@ -309,6 +309,7 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         else:
             xoy = bpm_fields.lower()
         wait = self.wait_time_dspinbox.value()
+        ndigits = self.n_digits_measure_spinBox.value()
         #
         bpms = [self._name_map[e] for e in self._bpms_dict]
         cors = [self._name_map[e] for e in self._cors_dict]
@@ -321,11 +322,12 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         print("cor_field:", cor_field)
         print("xoy:", xoy)
         print("wait:", wait)
+        print("ndigits:", ndigits)
         #
         eta = n * len(cors) * wait
         print("ETA: {} [H:M:S]".format(eta))
         self.eta_lbl.setText(uptime(int(eta)))
-        return (bpms, cors), (source, srange, cor_field, xoy, wait)
+        return (bpms, cors), (source, srange, cor_field, xoy, wait, ndigits)
 
     @pyqtSlot()
     def on_update_eta(self):
@@ -347,7 +349,8 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
 
         lat = self.__mp.work_lattice_conf
         t_wait = self.cor_wait_time_dspinbox.value()
-        params = lat, settings, t_wait
+        ndigits = self.n_digits_apply_spinBox.value()
+        params = lat, settings, t_wait, ndigits
         to_cache = kws.get('to_cache', True)
         btns = kws.get('btns', [self.cor_apply_btn, self.undo_apply_btn, self.redo_apply_btn])
 
