@@ -434,7 +434,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_20.setObjectName("horizontalLayout_20")
         self.n_digits_measure_spinBox = QtWidgets.QSpinBox(
             self.orm_measurement)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum,
                                            QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -735,7 +735,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_15 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_15.setObjectName("horizontalLayout_15")
         self.n_digits_apply_spinBox = QtWidgets.QSpinBox(self.orm_apply)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum,
                                            QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -780,75 +780,71 @@ class Ui_MainWindow(object):
         self.menubar.setObjectName("menubar")
         self.menuFile = QtWidgets.QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
-        self.menu_Edit = QtWidgets.QMenu(self.menubar)
-        self.menu_Edit.setObjectName("menu_Edit")
+        self.menu_Settings = QtWidgets.QMenu(self.menubar)
+        self.menu_Settings.setObjectName("menu_Settings")
         self.menu_Help = QtWidgets.QMenu(self.menubar)
         self.menu_Help.setObjectName("menu_Help")
         MainWindow.setMenuBar(self.menubar)
-        self.load_lattice_tool = QtWidgets.QAction(MainWindow)
+        self.load_settings = QtWidgets.QAction(MainWindow)
         icon11 = QtGui.QIcon()
         icon11.addPixmap(
-            QtGui.QPixmap(":/icons/load_lattice.png"), QtGui.QIcon.Normal,
-            QtGui.QIcon.Off)
-        self.load_lattice_tool.setIcon(icon11)
-        self.load_lattice_tool.setObjectName("load_lattice_tool")
-        self.measure_tool = QtWidgets.QAction(MainWindow)
-        self.measure_tool.setIcon(icon7)
-        self.measure_tool.setObjectName("measure_tool")
-        self.actionAbout = QtWidgets.QAction(MainWindow)
-        icon12 = QtGui.QIcon()
-        icon12.addPixmap(
-            QtGui.QPixmap(":/icons/info.png"), QtGui.QIcon.Normal,
-            QtGui.QIcon.Off)
-        self.actionAbout.setIcon(icon12)
-        self.actionAbout.setObjectName("actionAbout")
-        self.actionE_xit = QtWidgets.QAction(MainWindow)
-        icon13 = QtGui.QIcon()
-        icon13.addPixmap(
-            QtGui.QPixmap(":/icons/exit.png"), QtGui.QIcon.Normal,
-            QtGui.QIcon.Off)
-        self.actionE_xit.setIcon(icon13)
-        self.actionE_xit.setObjectName("actionE_xit")
-        self.actionContents = QtWidgets.QAction(MainWindow)
-        icon14 = QtGui.QIcon()
-        icon14.addPixmap(
-            QtGui.QPixmap(":/icons/help.png"), QtGui.QIcon.Normal,
-            QtGui.QIcon.Off)
-        self.actionContents.setIcon(icon14)
-        self.actionContents.setObjectName("actionContents")
-        self.actionAbout_Qt = QtWidgets.QAction(MainWindow)
-        icon15 = QtGui.QIcon()
-        icon15.addPixmap(
-            QtGui.QPixmap(":/icons/qt.png"), QtGui.QIcon.Normal,
-            QtGui.QIcon.Off)
-        self.actionAbout_Qt.setIcon(icon15)
-        self.actionAbout_Qt.setObjectName("actionAbout_Qt")
-        self.actionSave = QtWidgets.QAction(MainWindow)
-        icon16 = QtGui.QIcon()
-        icon16.addPixmap(
-            QtGui.QPixmap(":/icons/save.png"), QtGui.QIcon.Normal,
-            QtGui.QIcon.Off)
-        self.actionSave.setIcon(icon16)
-        self.actionSave.setObjectName("actionSave")
-        self.actionOpen = QtWidgets.QAction(MainWindow)
-        icon17 = QtGui.QIcon()
-        icon17.addPixmap(
             QtGui.QPixmap(":/icons/open.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.actionOpen.setIcon(icon17)
+        self.load_settings.setIcon(icon11)
+        self.load_settings.setObjectName("load_settings")
+        self.save_settings = QtWidgets.QAction(MainWindow)
+        icon12 = QtGui.QIcon()
+        icon12.addPixmap(
+            QtGui.QPixmap(":/icons/save.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.save_settings.setIcon(icon12)
+        self.save_settings.setObjectName("save_settings")
+        self.actionAbout = QtWidgets.QAction(MainWindow)
+        icon13 = QtGui.QIcon()
+        icon13.addPixmap(
+            QtGui.QPixmap(":/icons/info.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.actionAbout.setIcon(icon13)
+        self.actionAbout.setObjectName("actionAbout")
+        self.actionE_xit = QtWidgets.QAction(MainWindow)
+        icon14 = QtGui.QIcon()
+        icon14.addPixmap(
+            QtGui.QPixmap(":/icons/exit.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.actionE_xit.setIcon(icon14)
+        self.actionE_xit.setObjectName("actionE_xit")
+        self.actionContents = QtWidgets.QAction(MainWindow)
+        icon15 = QtGui.QIcon()
+        icon15.addPixmap(
+            QtGui.QPixmap(":/icons/help.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.actionContents.setIcon(icon15)
+        self.actionContents.setObjectName("actionContents")
+        self.actionAbout_Qt = QtWidgets.QAction(MainWindow)
+        icon16 = QtGui.QIcon()
+        icon16.addPixmap(
+            QtGui.QPixmap(":/icons/qt.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.actionAbout_Qt.setIcon(icon16)
+        self.actionAbout_Qt.setObjectName("actionAbout_Qt")
+        self.actionSave = QtWidgets.QAction(MainWindow)
+        self.actionSave.setIcon(icon12)
+        self.actionSave.setObjectName("actionSave")
+        self.actionOpen = QtWidgets.QAction(MainWindow)
+        self.actionOpen.setIcon(icon11)
         self.actionOpen.setObjectName("actionOpen")
         self.menuFile.addAction(self.actionOpen)
         self.menuFile.addAction(self.actionSave)
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionE_xit)
-        self.menu_Edit.addAction(self.measure_tool)
-        self.menu_Edit.addAction(self.load_lattice_tool)
+        self.menu_Settings.addAction(self.save_settings)
+        self.menu_Settings.addAction(self.load_settings)
         self.menu_Help.addAction(self.actionContents)
         self.menu_Help.addSeparator()
         self.menu_Help.addAction(self.actionAbout)
         self.menu_Help.addAction(self.actionAbout_Qt)
         self.menubar.addAction(self.menuFile.menuAction())
-        self.menubar.addAction(self.menu_Edit.menuAction())
+        self.menubar.addAction(self.menu_Settings.menuAction())
         self.menubar.addAction(self.menu_Help.menuAction())
 
         self.retranslateUi(MainWindow)
@@ -877,6 +873,8 @@ class Ui_MainWindow(object):
             MainWindow.on_show_cached_settings)
         self.reset_cached_settings_btn.clicked.connect(
             MainWindow.on_reset_cached_settings)
+        self.save_settings.triggered.connect(MainWindow.on_save_settings)
+        self.load_settings.triggered.connect(MainWindow.on_load_settings)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -1004,12 +1002,15 @@ class Ui_MainWindow(object):
             _translate("MainWindow", "Central Trajectory Correction"))
         self.log_gbox.setTitle(_translate("MainWindow", "Log"))
         self.menuFile.setTitle(_translate("MainWindow", "&File"))
-        self.menu_Edit.setTitle(_translate("MainWindow", "&Edit"))
+        self.menu_Settings.setTitle(_translate("MainWindow", "Settings"))
         self.menu_Help.setTitle(_translate("MainWindow", "&Help"))
-        self.load_lattice_tool.setText(
-            _translate("MainWindow", "Load Lattice"))
-        self.measure_tool.setText(_translate("MainWindow", "measure"))
-        self.measure_tool.setIconText(_translate("MainWindow", "Measure ORM"))
+        self.load_settings.setText(_translate("MainWindow", "Load"))
+        self.load_settings.setShortcut(
+            _translate("MainWindow", "Ctrl+Shift+L"))
+        self.save_settings.setText(_translate("MainWindow", "Save"))
+        self.save_settings.setIconText(_translate("MainWindow", "Measure ORM"))
+        self.save_settings.setShortcut(
+            _translate("MainWindow", "Ctrl+Shift+S"))
         self.actionAbout.setText(_translate("MainWindow", "About"))
         self.actionAbout.setShortcut(_translate("MainWindow", "Ctrl+A"))
         self.actionE_xit.setText(_translate("MainWindow", "E&xit"))
