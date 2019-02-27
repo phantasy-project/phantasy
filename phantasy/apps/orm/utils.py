@@ -148,6 +148,39 @@ class ORMDataSheet(JSONDataSheet):
             self.update(d)
 
 
+class SettingsDataSheet(JSONDataSheet):
+    def __init__(self, path=None):
+        super(self.__class__, self).__init__(path)
+
+        if path is None:
+            d = OrderedDict()
+            d['user'] = getpass.getuser()
+            d['created'] = epoch2human(time.time(), fmt=TS_FMT)
+            d['settings'] = {}
+            d['machine'] = ''
+            d['segment'] = ''
+            self.update(d)
+
+
+def load_settings_sheet(filepath):
+    """Load settings from *filepath*, which defines SettingsDataSheet.
+    """
+    ds = SettingsDataSheet(filepath)
+    machine, segment = ds['machine'], ds['segment']
+    settings_dict = ds['settings']
+    mp = MachinePortal(machine, segment)
+    name_elem_map = {i.name: i for i in mp.work_lattice_conf}
+    settings = []
+    for ename, econf in settings_dict.items():
+        settings.append(
+            (name_elem_map[ename],
+             econf['field'],
+             econf['setpoint'],
+             econf['setpoint_limited']))
+
+    return settings
+
+
 class SettingsModel(QStandardItemModel):
 
     item_changed = pyqtSignal(QVariant)
