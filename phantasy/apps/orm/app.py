@@ -22,11 +22,14 @@ from phantasy.apps.trajectory_viewer.utils import ElementListModel
 from phantasy.apps.utils import get_save_filename
 from phantasy.apps.utils import get_open_filename
 from phantasy.apps.utils import uptime
+from phantasy import limit_input
 
 from .ui.ui_app import Ui_MainWindow
 from .utils import OrmWorker
 from .utils import ORMDataSheet
+from .utils import SettingsDataSheet
 from .utils import load_orm_sheet
+from .utils import load_settings_sheet
 from .app_settings_view import SettingsView
 
 OP_MODE_MAP = {
@@ -607,6 +610,61 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
     @pyqtSlot()
     def on_reset_cached_settings(self):
         self.init_settings_dq()
+
+    @pyqtSlot()
+    def on_save_settings(self):
+        print("Save current settings to file.")
+        cor_field = self.corrector_fields_cbb.currentText()
+        cors = [self._name_map[e] for e in self._cors_dict]
+        llimit = float(self.lower_limit_lineEdit.text())
+        ulimit = float(self.upper_limit_lineEdit.text())
+        settings = []
+        for cor in cors:
+            setting = cor.current_setting(cor_field)
+            setting_limited = limit_input(setting, llimit, ulimit)
+            settings.append((cor, cor_field, setting, setting_limited))
+        #
+        for i, (e, f, s, sl) in enumerate(settings):
+            print("{0} {1} {2} {3:.3g} {4:.3g}".format(i, e.name, f, s, sl))
+        #
+
+        filepath, ext = get_save_filename(self,
+                cdir='.',
+                filter="JSON Files (*.json)")
+        if filepath is None:
+            return
+
+        machine, segment = self.__mp.last_machine_name, self.__mp.last_lattice_name
+        ds = SettingsDataSheet()
+        ds['settings'] = {e.name: {'field': f, 'setpoint': s, 'setpoint_limited': sl}
+                          for (e, f, s, sl) in settings}
+        ds['machine'] = machine
+        ds['segment'] = segment
+
+        ds.write(filepath)
+
+
+    @pyqtSlot()
+    def on_load_settings(self):
+        print("Load settings from file.")
+        filepath, ext = get_open_filename(self,
+                filter="JSON Files (*.json)")
+        if filepath is None:
+            return
+
+        settings = load_settings_sheet(filepath)
+
+        self._sv_loaded = SettingsView(settings)
+        self._sv_loaded.setWindowTitle("Overview of Loaded Correctors' Settings")
+        r = self._sv_loaded.exec_()
+        if r == QDialog.Accepted:
+            self._cor_settings = settings
+            QMessageBox.information(self, "Evaluate Settings",
+                "New settings for the correctors are ready to apply, "
+                "click 'Apply' to proceed.",
+                QMessageBox.Ok)
+        else:
+            print('Cancel')
 
 
 def sort_dict(d):
