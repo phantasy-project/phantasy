@@ -391,7 +391,8 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         if filepath is None:
             return
 
-        mp, name_map, bpms_dict, cors_dict, orm, cor_field, bpm_field = \
+        mp, name_map, bpms_dict, cors_dict, orm, cor_field, bpm_field, \
+            t_wait, n_digits, srange = \
                 load_orm_sheet(filepath)
         self.__mp = mp
         self._name_map = name_map
@@ -401,6 +402,13 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         self.refresh_models_btn.clicked.emit()
         self.corrector_fields_cbb.setCurrentText(cor_field)
         self.monitor_fields_cbb.setCurrentText(bpm_field)
+        self.wait_time_dspinbox.setValue(t_wait)
+        self.n_digits_measure_spinBox.setValue(n_digits)
+        srange_start, srange_stop, srange_steps = srange['from'], \
+                srange['to'], srange['total_steps']
+        self.alter_start_lineEdit.setText(srange_start)
+        self.alter_stop_lineEdit.setText(srange_stop)
+        self.alter_steps_lineEdit.setText(srange_steps)
         self.corrector_fields_cbb.currentTextChanged.emit(cor_field)
         self.monitor_fields_cbb.currentTextChanged.emit(bpm_field)
         #
@@ -427,6 +435,12 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         data_sheet['orm'] = orm
         data_sheet['corrector_field'] = self.corrector_fields_cbb.currentText()
         data_sheet['monitor_field'] = self.monitor_fields_cbb.currentText()
+        data_sheet['wait_seconds'] = self.wait_time_dspinbox.value()
+        data_sheet['set_precision'] = self.n_digits_measure_spinBox.value()
+        data_sheet['alter_range'] = {
+                'from': self.alter_start_lineEdit.text(),
+                'to': self.alter_stop_lineEdit.text(),
+                'total_steps': self.alter_steps_lineEdit.text()}
 
         data_sheet.write(filepath)
 
