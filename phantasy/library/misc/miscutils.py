@@ -468,3 +468,8 @@ class QCallback(object):
             idx, obj = kws.get('cb_info')
             obj.remove_callback(idx)
             self.status_queue.put(1)
+
+
+def truncate_number(x, n):
+    v = '{0:.{1}f}'.format(x, n)
+    return float(v)
