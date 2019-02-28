@@ -36,6 +36,7 @@ from .utils import PVElement
 from .utils import PVElementReadonly
 from .utils import random_string
 from .utils import COLOR_DANGER, COLOR_INFO, COLOR_WARNING, COLOR_PRIMARY
+from .utils import delayed_exec
 
 from .app_help import HelpDialog
 from .app_elem_select import ElementSelectDialog
@@ -57,10 +58,11 @@ SMALL_TBTN_ICON_QSIZE = QSize(SMALL_TBTN_ICON_SIZE, SMALL_TBTN_ICON_SIZE)
 
 # MPS status
 MPS_STATUS = ["Fault", "Disable", "Monitor", "Enable"]
-MPS_ENABLE = MPS_STATUS.index("Enable")
+MPS_ENABLE_STATUS = "Enable"
 
 # default MPS pv name
 MPS_PV_DEFAULT = 'MPS_FPS:MSTR_N0001:MpsStatus' # FRIB MPS
+#MPS_PV_DEFAULT = 'VA:SVR:MpsStatus' # VA MPS
 
 class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 
@@ -81,7 +83,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
     mpsConnectionChanged = pyqtSignal(bool)
 
     # MPS status is changed
-    mpsStatusChanged = pyqtSignal(int)
+    mpsStatusChanged = pyqtSignal('QString')
 
     # signal to trig PAUSE action
     pauseScan = pyqtSignal(bool)
@@ -219,6 +221,9 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         self.mps_config_widget = None
         self._mps_pvname = MPS_PV_DEFAULT
         self.mps_pv = epics.PV(self._mps_pvname)
+        # enable MPS guardian by default
+        delayed_exec(lambda:self.actionMPS_guardian.setChecked(True), 1.0)
+        #self.actionMPS_guardian.setChecked(True)
         #
         self.pauseScan[bool].connect(self.on_pause_scan)
 
@@ -869,9 +874,10 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
             # MPS connection is changed
             self.mpsConnectionChanged.emit(conn)
 
-        def on_mps_changed(value, **kws):
+        def on_mps_changed(**kws):
             # MPS status is changed
-            self.mpsStatusChanged.emit(value)
+            v = kws.get('char_value')
+            self.mpsStatusChanged.emit(v)
 
         if f:  # enable MPS guardian
             self.mps_pv.connection_callbacks = [on_mps_connected]
@@ -883,7 +889,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
             # if connected, set
             if self.mps_pv.connected:
                 self.mpsConnectionChanged.emit(True)
-                self.mpsStatusChanged.emit(self.mps_pv.get())
+                self.mpsStatusChanged.emit(self.mps_pv.get(as_string=True))
             else:
                 self.mpsConnectionChanged.emit(False)
         else:  # not enable MPS guardian, MPS may be still running
@@ -895,7 +901,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
     @pyqtSlot()
     def on_update_mps_status(self, change, reason='conn'):
         """Update MPS status button icon when MPS guardian is enabled.
-        *change* is bool when *readon* is 'conn', while integer when
+        *change* is bool when *reason* is 'conn', while str when
         *reason* is 'val'.
         """
         btn = self.mps_status_btn
@@ -915,16 +921,15 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         """Check MPS status readings, and set indicators.
         """
         btn = self.mps_status_btn
-        if v != MPS_ENABLE:
+        if v != MPS_ENABLE_STATUS:
             #print("set btn to fault icon")
             btn.setIcon(self._mps_status_icons['fault'])
-            btn.setToolTip("MPS guardian is enabled, status is Fault")
             # pause scan
             self.pauseScan.emit(True)
         else:
             #print("set btn to normal icon")
             btn.setIcon(self._mps_status_icons['normal'])
-            btn.setToolTip("MPS guardian is enabled, status is Normal")
+        btn.setToolTip("MPS guardian is enabled, status is {}".format(v))
 
     @pyqtSlot()
     def on_config_mps(self):
@@ -938,7 +943,10 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
             self.mps_pv = epics.PV(self._mps_pvname)
             # re-check MPS guardian
             if self.actionMPS_guardian.isChecked():
-                self.actionMPS_guardian.toggled.emit(True)
+                self.actionMPS_guardian.setChecked(False)
+                delayed_exec(
+                    lambda:self.actionMPS_guardian.setChecked(True), 5.0)
+#                self.actionMPS_guardian.toggled.emit(True)
         else:
             pass
 
