@@ -525,7 +525,7 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
             return
 
         settings = self.get_settings_from_orm(params)
-        self._sv = SettingsView(settings)
+        self._sv = SettingsView(settings, fmt=self.get_fmt())
         self._sv.setWindowTitle("Overview of Correctors' Settings")
         r = self._sv.exec_()
         if r == QDialog.Accepted:
@@ -668,7 +668,7 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
 
         settings = load_settings_sheet(filepath)
 
-        self._sv_loaded = SettingsView(settings)
+        self._sv_loaded = SettingsView(settings, fmt=self.get_fmt())
         self._sv_loaded.setWindowTitle("Overview of Loaded Correctors' Settings")
         r = self._sv_loaded.exec_()
         if r == QDialog.Accepted:
@@ -679,6 +679,10 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
                 QMessageBox.Ok)
         else:
             print('Cancel')
+
+    def get_fmt(self):
+        n = self.n_digits_apply_spinBox.value()
+        return '{{{0}:.{1}g}}'.format(0, n)
 
 
 def sort_dict(d):

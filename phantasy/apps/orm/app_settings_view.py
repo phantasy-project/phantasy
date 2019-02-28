@@ -12,7 +12,7 @@ from .utils import SettingsModel
 
 class SettingsView(QDialog, Ui_Dialog):
 
-    def __init__(self, data, parent=None,):
+    def __init__(self, data, parent=None, **kws):
         super(self.__class__, self).__init__()
         self.parent = parent
         self.data = data
@@ -21,7 +21,7 @@ class SettingsView(QDialog, Ui_Dialog):
         self.setWindowTitle("Settings Overview")
         self.v = self.treeView
 
-        model = SettingsModel(self.v, self.data)
+        model = SettingsModel(self.v, self.data, **kws)
         model.view_size.connect(self.on_resize)
         model.set_model()
         self._pvs = model._pvs
