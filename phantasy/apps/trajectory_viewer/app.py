@@ -15,12 +15,16 @@ import numpy as np
 
 from phantasy_ui.templates import BaseAppForm
 from phantasy_ui.widgets.latticewidget import LatticeWidget
+from phantasy.apps.utils import get_save_filename
+from phantasy.apps.utils import get_open_filename
 
 from .app_elem_selection import ElementSelectionWidget
 from .app_help import HelpDialog
 from .ui.ui_app import Ui_MainWindow
 from .utils import apply_mplcurve_settings
 from .utils import ElementListModel
+from .utils import MonitorReadingsDataSheet
+from .utils import load_readings_sheet
 
 BPM_UNIT_FAC = {"mm": 1.0, "m": 1e3}
 
@@ -186,8 +190,8 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
         self._bpms = []  # list of CaElements (e.g. BPM)
         self._cors = []  # list of CaElements (HCOR/VCOR)
         # cache
-        self._x_dq = deque([], 5)
-        self._y_dq = deque([], 5)
+        self.last_one_rbtn.toggled.connect(partial(self.on_init_cached_traj, 1))
+        self.last_five_rbtn.toggled.connect(partial(self.on_init_cached_traj, 5))
         # check last one cache
         self.last_one_rbtn.setChecked(True)
 
@@ -234,6 +238,15 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
         self.matplotlibcurveWidget.add_curve(
                 label="Reference",
                 color='g', marker='D', mfc='w')
+        # tuple of array of (s, b) for x and y
+        self.__cached_traj = ()
+        #
+        #self.update_refline_chkbox.toggled.connect(self.on_check_update_refline)
+
+    #@pyqtSlot(bool)
+    #def on_check_update_refline(self, f):
+    #    if not f:
+    #        print()
 
     @pyqtSlot(OrderedDict)
     def on_elem_selection_updated(self, mode, d):
@@ -485,13 +498,11 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
         else:
             dq = self._y_dq
         self.__update_reflines(dq)
+        self.__cached_traj = (np.asarray(self._x_dq),
+                            np.asarray(self._y_dq))
 
     def __update_reflines(self, dq):
-        if self.last_one_rbtn.isChecked():
-            x, y = dq.pop()
-        else:
-            x, y = np.asarray(dq).mean(axis=0)
-
+        x, y = np.asarray(dq).mean(axis=0)
         self.lineChanged.emit(2)
         self.xdataChanged.emit(x)
         self.ydataChanged.emit(y)
@@ -520,6 +531,63 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
             getattr(p, fs)(x)
         except:
             pass
+
+    @pyqtSlot()
+    def on_save_trajectory(self):
+        print("Save reference trajectory (both X and Y) to file")
+        filepath, ext = get_save_filename(self,
+                cdir='.',
+                filter="JSON Files (*.json)")
+        if filepath is None:
+            return
+
+        machine, segment = self.__mp.last_machine_name, self.__mp.last_lattice_name
+        print("machine:", machine)
+        print("segment:", segment)
+        ds = MonitorReadingsDataSheet()
+        ds['machine'] = machine
+        ds['segment'] = segment
+        readings = []
+        try:
+            traj_x, traj_y = self.__cached_traj
+            _, traj_x = traj_x.mean(axis=0)
+            _, traj_y = traj_y.mean(axis=0)
+        except:
+            pass
+        else:
+            field1 = self.field1_cbb.currentText()
+            field2 = self.field2_cbb.currentText()
+            for (e, x, y) in zip(self._bpms, traj_x, traj_y):
+                readings.append(
+                        (e.name, {'field1': {'name': field1, 'value': x},
+                                  'field2': {'name': field2, 'value': y}}))
+            ds['readings'] = readings
+            ds.write(filepath)
+
+    @pyqtSlot()
+    def on_load_trajectory(self):
+        print("Load reference trajectory (both X and Y) from file")
+        filepath, ext = get_open_filename(self,
+                filter="JSON Files (*.json)")
+        if filepath is None:
+            return
+
+        readings = load_readings_sheet(filepath)
+        s, x, y = [], [], []
+        for i, c in readings:
+            s.append(i.sb)
+            x.append(c['field1']['value'])
+            y.append(c['field2']['value'])
+        self._x_dq.append((s, x))
+        self._y_dq.append((s, y))
+        self.update_reflines()
+
+
+    @pyqtSlot(bool)
+    def on_init_cached_traj(self, n, f):
+        if f:
+            self._x_dq = deque([], n)
+            self._y_dq = deque([], n)
 
 
 if __name__ == '__main__':

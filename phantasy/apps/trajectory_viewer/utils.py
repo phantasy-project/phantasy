@@ -12,6 +12,8 @@ from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QComboBox
 from PyQt5.QtWidgets import QToolButton
 
+import getpass
+import time
 import os
 from functools import partial
 from collections import OrderedDict
@@ -19,6 +21,12 @@ from collections import OrderedDict
 from mpl4qt.widgets.utils import MatplotlibCurveWidgetSettings
 
 from .ui import details_icon
+
+from phantasy import epoch2human
+from phantasy import MachinePortal
+from phantasy.apps.correlation_visualizer.data import JSONDataSheet
+
+TS_FMT = "%Y-%m-%d %H:%M:%S"
 
 try:
     basestring
@@ -372,3 +380,34 @@ def str2list(fname):
         return fname.split('&')
     else:
         return [fname]
+
+
+class MonitorReadingsDataSheet(JSONDataSheet):
+    def __init__(self, path=None):
+        super(self.__class__, self).__init__(path)
+
+        if path is None:
+            d = OrderedDict()
+            d['user'] = getpass.getuser()
+            d['created'] = epoch2human(time.time(), fmt=TS_FMT)
+            d['readings'] = {}
+            d['machine'] = ''
+            d['segment'] = ''
+            self.update(d)
+
+
+def load_readings_sheet(filepath):
+    """Load BPM readings from *filepath*, which defines
+    MonitorReadingsDataSheet.
+    """
+    ds = MonitorReadingsDataSheet(filepath)
+    machine, segment = ds['machine'], ds['segment']
+    readings_conf = ds['readings']
+    mp = MachinePortal(machine, segment)
+    name_elem_map = {i.name: i for i in mp.work_lattice_conf}
+    readings = []
+    for ename, econf in readings_conf:
+        readings.append(
+            (name_elem_map[ename], econf))
+
+    return readings
