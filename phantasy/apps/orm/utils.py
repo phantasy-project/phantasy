@@ -193,6 +193,7 @@ class SettingsModel(QStandardItemModel):
         super(self.__class__, self).__init__(parent)
         self._v = parent
         self._data = data
+        self.fmt = kws.get('fmt', '{0:>.2g}')
 
         #
         self._pvs = []
@@ -234,12 +235,12 @@ class SettingsModel(QStandardItemModel):
             item_idx = QStandardItem('{0:03d}'.format(i + 1))
             item_ename = QStandardItem(c.name)
             item_fname = QStandardItem(f)
-            item_set0 = QStandardItem('{0:>.2g}'.format(set0))
-            item_read = QStandardItem('{0:>.2g}'.format(getattr(c, f)))
-            item_set1 = QStandardItem('{0:>.2g}'.format(set1))
-            item_set2 = QStandardItem('{0:>.2g}'.format(set2))
+            item_set0 = QStandardItem(self.fmt.format(set0))
+            item_read = QStandardItem(self.fmt.format(getattr(c, f)))
+            item_set1 = QStandardItem(self.fmt.format(set1))
+            item_set2 = QStandardItem(self.fmt.format(set2))
             item_ilim = QStandardItem(str(is_hit_limit))
-            item_dset = QStandardItem('{0:>.2g}'.format(set2 - set0))
+            item_dset = QStandardItem(self.fmt.format(set2 - set0))
             if is_hit_limit == 'YES':
                 item_ilim.setForeground(QBrush(QColor('#CE5C00')))
             else:
@@ -261,7 +262,7 @@ class SettingsModel(QStandardItemModel):
 
     def set_cbs(self):
         def _cb(row, col, fld, **kws):
-            item = QStandardItem('{0:>.3g}'.format(fld.value))
+            item = QStandardItem(self.fmt.format(fld.value))
             self.item_changed.emit((row, col, item))
 
         for i, (c, f, _, _) in enumerate(self._data):
