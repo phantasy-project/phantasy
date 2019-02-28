@@ -465,12 +465,13 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
         self.xdataChanged.emit(xdata)
         self.ydataChanged.emit(ydata)
         self.matplotlibcurveWidget.setLineLabel(field)
-        # add to cache
-        if line_id == 0:
-            self._x_dq.append((xdata, ydata))
-        elif line_id == 1:
-            self._y_dq.append((xdata, ydata))
         if self.update_refline_chkbox.isChecked():
+            # add to cache
+            if line_id == 0:
+                self._x_dq.append((xdata, ydata))
+            elif line_id == 1:
+                self._y_dq.append((xdata, ydata))
+            #
             try:
                 self.update_reflines()
             except:
@@ -483,6 +484,9 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
             dq = self._x_dq
         else:
             dq = self._y_dq
+        self.__update_reflines(dq)
+
+    def __update_reflines(self, dq):
         if self.last_one_rbtn.isChecked():
             x, y = dq.pop()
         else:
@@ -491,6 +495,14 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
         self.lineChanged.emit(2)
         self.xdataChanged.emit(x)
         self.ydataChanged.emit(y)
+
+    @pyqtSlot('QString')
+    def on_show_refcurve(self, s):
+        if s == 'X':
+            dq = self._x_dq
+        else:
+            dq = self._y_dq
+        self.__update_reflines(dq)
 
     def __init_data_viz(self):
         # init data viz
