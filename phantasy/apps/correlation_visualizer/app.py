@@ -695,6 +695,8 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         # scan is paused by PAUSE btn
         self.scan_worker.scanPaused.connect(lambda:self.set_btn_status(mode='pause'))
         self.scan_worker.scanPausedAtIndex.connect(self.on_keep_scan_index)
+        #
+        self.scan_worker.scanPaused.connect(self.thread.quit)
 
         # test
         self.scan_worker.scanFinished.connect(self.test_scan_finished)
