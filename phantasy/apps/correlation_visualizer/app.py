@@ -1047,6 +1047,8 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         self.scan_task.alter_element.value = x0
         self.scanlogUpdated.emit(
                 "Alter element reaches {0:.3f}".format(x0))
+        # in case it is 'resume' while scan is done
+        self.pause_btn.setText('Pause')
 
     @pyqtSlot()
     def set_timestamp(self, type='start'):
