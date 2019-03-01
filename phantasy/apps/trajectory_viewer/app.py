@@ -213,12 +213,17 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
         self.use_selected_bpms_rbtn.setChecked(True)
         assert self._bpms == []
 
+        # magplot
+        self.show_bpm_mag_btn.toggled.emit(self.show_bpm_mag_btn.isChecked())
+
         # DAQ
         self._daqfreq = 1.0
 
         # load default figure config
         p = self.matplotlibcurveWidget
+        o = self.bpms_magplot
         apply_mplcurve_settings(p)
+        apply_mplcurve_settings(o, filename='mpl_settings_mag.json')
 
         # init data viz
         self.__init_data_viz()
@@ -330,6 +335,11 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
         self.daq_timer.start(1000.0/self._daqfreq)
         self.start_btn.setEnabled(False)
         self.stop_btn.setEnabled(True)
+        # not neat but good for testing
+        if 'VA' in self.__mp.last_machine_name:
+            self.__mag_field = 'PHA'
+        else:
+            self.__mag_field = 'MAG'
 
     @pyqtSlot()
     def stop_daq(self):
@@ -345,6 +355,8 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
             return
         self.__update_line(0)
         self.__update_line(1)
+        if self.show_bpm_mag_btn.isChecked():
+            self.__update_intensity()
 
     @pyqtSlot()
     def onHelp(self):
@@ -523,12 +535,20 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
         self.lineChanged.emit(1)
         self.xdataChanged.emit([])
         self.ydataChanged.emit([])
+        #
+        p = self.bpms_magplot
+        o = self.matplotlibcurveWidget
+        p.setXData([])
+        p.setYData([])
 
     def update_xylimit(self, fs, s):
-        p = self.matplotlibcurveWidget
+        if 'YLimit' in fs:
+            p = (self.matplotlibcurveWidget,)
+        else:
+            p = (self.matplotlibcurveWidget, self.bpms_magplot,)
         try:
             x = float(s)
-            getattr(p, fs)(x)
+            [getattr(o, fs)(x) for o in p]
         except:
             pass
 
@@ -594,6 +614,14 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
         # show/hide ref trajectory
         self._ref_line.set_visible(f)
         self.matplotlibcurveWidget.update_figure()
+
+    def __update_intensity(self):
+        # update BPM intensities.
+        o = self.bpms_magplot
+        x = [elem.sb for elem in self._bpms]
+        y = [getattr(elem, self.__mag_field) for elem in self._bpms]
+        o.setXData(x)
+        o.setYData(y)
 
 
 if __name__ == '__main__':
