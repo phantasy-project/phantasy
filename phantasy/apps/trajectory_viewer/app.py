@@ -245,13 +245,11 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
                             color='g', marker='D', mfc='w')
         # tuple of array of (s, b) for x and y
         self.__cached_traj = ()
-        #
-        #self.update_refline_chkbox.toggled.connect(self.on_check_update_refline)
 
-    #@pyqtSlot(bool)
-    #def on_check_update_refline(self, f):
-    #    if not f:
-    #        print()
+        # ref_line for intensity
+        self._ref_line_mag = self.bpms_magplot.add_curve(
+                            label="Reference", ls='--', lw=1,
+                            color='m', marker='D', mfc='w')
 
     @pyqtSlot(OrderedDict)
     def on_elem_selection_updated(self, mode, d):
@@ -580,7 +578,11 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
             for (e, x, y) in zip(self._bpms, traj_x, traj_y):
                 readings.append(
                         (e.name, {'field1': {'name': field1, 'value': x},
-                                  'field2': {'name': field2, 'value': y}}))
+                                  'field2': {'name': field2, 'value': y},
+                                  'phase': {'name': 'PHA', 'value': e.PHA},
+                                  'intensity': {
+                                      'name': self.__mag_field,
+                                      'value': getattr(e, self.__mag_field)}}))
             ds['readings'] = readings
             ds.write(filepath)
 
@@ -593,15 +595,16 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
             return
 
         readings = load_readings_sheet(filepath)
-        s, x, y = [], [], []
+        s, x, y, mag = [], [], [], []
         for i, c in readings:
             s.append(i.sb)
             x.append(c['field1']['value'])
             y.append(c['field2']['value'])
+            mag.append(c['intensity']['value'])
         self._x_dq.append((s, x))
         self._y_dq.append((s, y))
         self.update_reflines()
-
+        self.__plot_loaded_intensity(s, mag)
 
     @pyqtSlot(bool)
     def on_init_cached_traj(self, n, f):
@@ -611,8 +614,9 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
 
     @pyqtSlot(bool)
     def on_show_hide_refline(self, f):
-        # show/hide ref trajectory
+        # show/hide ref trajectory/intensity
         self._ref_line.set_visible(f)
+        self._ref_line_mag.set_visible(f)
         self.matplotlibcurveWidget.update_figure()
 
     def __update_intensity(self):
@@ -620,8 +624,15 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
         o = self.bpms_magplot
         x = [elem.sb for elem in self._bpms]
         y = [getattr(elem, self.__mag_field) for elem in self._bpms]
+        o.setLineID(0)
         o.setXData(x)
         o.setYData(y)
+
+    def __plot_loaded_intensity(self, s, mag):
+        # show loaded intensity as reference.
+        self._ref_line_mag.set_xdata(s)
+        self._ref_line_mag.set_ydata(mag)
+        self.bpms_magplot.update_figure()
 
 
 if __name__ == '__main__':
