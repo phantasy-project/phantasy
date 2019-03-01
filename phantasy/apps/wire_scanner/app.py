@@ -22,6 +22,7 @@ from functools import partial
 import json
 import numpy as np
 import os
+from collections import OrderedDict
 
 from phantasy_ui.templates import BaseAppForm
 from phantasy_ui.widgets.elementwidget import ElementWidget
@@ -185,7 +186,7 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
     def post_init_ui(self):
         # all PMs
         all_pms_dict = self.get_all_pms()
-        all_pm_names = sorted(all_pms_dict)
+        all_pm_names = list(all_pms_dict.keys())
         self._all_pms_dict = all_pms_dict
 
         # set pm names cbb
@@ -593,11 +594,14 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
     def get_all_pms(self):
         """Return all PM elements.
         """
-        mp1 = MachinePortal("FRIB", "LEBT")
-        mp2 = MachinePortal("FRIB", "MEBT")
-        elems = mp1.get_elements(type="PM") + mp2.get_elements(type="PM")
-        names = [i.name for i in elems]
-        return dict(zip(names, elems))
+        mp = MachinePortal("FRIB")
+        [mp.load_lattice(n) for n in ("LEBT", "MEBT2FS1A", "MEBT2FS1B")]
+        lat1 = mp.lattices["LEBT"]
+        lat2 = mp.lattices["MEBT2FS1A"]
+        lat3 = mp.lattices["MEBT2FS1B"]
+        elems = set([i for i in lat1[:] + lat2[:] + lat3[:] if i.family == 'PM'])
+        r = [(i.name, i) for i in sorted(elems, key=lambda x:x.name[-4:])]
+        return OrderedDict(r)
 
     def get_device_config(self, path=None):
         """Get device config from *path*.
