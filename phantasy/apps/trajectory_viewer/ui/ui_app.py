@@ -139,6 +139,18 @@ class Ui_MainWindow(object):
         self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_3.setContentsMargins(-1, 0, -1, -1)
         self.horizontalLayout_3.setObjectName("horizontalLayout_3")
+        self.toolButton = QtWidgets.QToolButton(self.figctrl_groupBox)
+        icon4 = QtGui.QIcon()
+        icon4.addPixmap(
+            QtGui.QPixmap(":/icons/show.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.toolButton.setIcon(icon4)
+        self.toolButton.setIconSize(QtCore.QSize(24, 24))
+        self.toolButton.setCheckable(True)
+        self.toolButton.setChecked(True)
+        self.toolButton.setAutoRaise(True)
+        self.toolButton.setObjectName("toolButton")
+        self.horizontalLayout_3.addWidget(self.toolButton)
         self.label_14 = QtWidgets.QLabel(self.figctrl_groupBox)
         self.label_14.setObjectName("label_14")
         self.horizontalLayout_3.addWidget(self.label_14)
@@ -168,31 +180,31 @@ class Ui_MainWindow(object):
         self.horizontalLayout_3.addWidget(self.line_4)
         self.update_refline_chkbox = QtWidgets.QCheckBox(self.figctrl_groupBox)
         self.update_refline_chkbox.setText("")
-        icon4 = QtGui.QIcon()
-        icon4.addPixmap(
+        icon5 = QtGui.QIcon()
+        icon5.addPixmap(
             QtGui.QPixmap(":/icons/update.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.update_refline_chkbox.setIcon(icon4)
+        self.update_refline_chkbox.setIcon(icon5)
         self.update_refline_chkbox.setIconSize(QtCore.QSize(24, 24))
         self.update_refline_chkbox.setObjectName("update_refline_chkbox")
         self.horizontalLayout_3.addWidget(self.update_refline_chkbox)
         self.save_traj_btn = QtWidgets.QToolButton(self.figctrl_groupBox)
         self.save_traj_btn.setEnabled(False)
-        icon5 = QtGui.QIcon()
-        icon5.addPixmap(
+        icon6 = QtGui.QIcon()
+        icon6.addPixmap(
             QtGui.QPixmap(":/icons/save.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.save_traj_btn.setIcon(icon5)
+        self.save_traj_btn.setIcon(icon6)
         self.save_traj_btn.setIconSize(QtCore.QSize(24, 24))
         self.save_traj_btn.setAutoRaise(True)
         self.save_traj_btn.setObjectName("save_traj_btn")
         self.horizontalLayout_3.addWidget(self.save_traj_btn)
         self.load_traj_btn = QtWidgets.QToolButton(self.figctrl_groupBox)
-        icon6 = QtGui.QIcon()
-        icon6.addPixmap(
+        icon7 = QtGui.QIcon()
+        icon7.addPixmap(
             QtGui.QPixmap(":/icons/open.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.load_traj_btn.setIcon(icon6)
+        self.load_traj_btn.setIcon(icon7)
         self.load_traj_btn.setIconSize(QtCore.QSize(24, 24))
         self.load_traj_btn.setAutoRaise(True)
         self.load_traj_btn.setObjectName("load_traj_btn")
@@ -370,11 +382,11 @@ class Ui_MainWindow(object):
             self.select_all_bpms_btn.sizePolicy().hasHeightForWidth())
         self.select_all_bpms_btn.setSizePolicy(sizePolicy)
         self.select_all_bpms_btn.setText("")
-        icon7 = QtGui.QIcon()
-        icon7.addPixmap(
+        icon8 = QtGui.QIcon()
+        icon8.addPixmap(
             QtGui.QPixmap(":/icons/select-all.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.select_all_bpms_btn.setIcon(icon7)
+        self.select_all_bpms_btn.setIcon(icon8)
         self.select_all_bpms_btn.setObjectName("select_all_bpms_btn")
         self.horizontalLayout_7.addWidget(self.select_all_bpms_btn)
         self.inverse_bpm_selection_btn = QtWidgets.QToolButton(self.groupBox_3)
@@ -386,11 +398,11 @@ class Ui_MainWindow(object):
             self.inverse_bpm_selection_btn.sizePolicy().hasHeightForWidth())
         self.inverse_bpm_selection_btn.setSizePolicy(sizePolicy)
         self.inverse_bpm_selection_btn.setText("")
-        icon8 = QtGui.QIcon()
-        icon8.addPixmap(
+        icon9 = QtGui.QIcon()
+        icon9.addPixmap(
             QtGui.QPixmap(":/icons/invert-selection.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.inverse_bpm_selection_btn.setIcon(icon8)
+        self.inverse_bpm_selection_btn.setIcon(icon9)
         self.inverse_bpm_selection_btn.setObjectName(
             "inverse_bpm_selection_btn")
         self.horizontalLayout_7.addWidget(self.inverse_bpm_selection_btn)
@@ -426,7 +438,7 @@ class Ui_MainWindow(object):
             self.select_all_cors_btn.sizePolicy().hasHeightForWidth())
         self.select_all_cors_btn.setSizePolicy(sizePolicy)
         self.select_all_cors_btn.setText("")
-        self.select_all_cors_btn.setIcon(icon7)
+        self.select_all_cors_btn.setIcon(icon8)
         self.select_all_cors_btn.setObjectName("select_all_cors_btn")
         self.horizontalLayout_8.addWidget(self.select_all_cors_btn)
         self.inverse_cor_selection_btn = QtWidgets.QToolButton(self.groupBox_4)
@@ -438,7 +450,7 @@ class Ui_MainWindow(object):
             self.inverse_cor_selection_btn.sizePolicy().hasHeightForWidth())
         self.inverse_cor_selection_btn.setSizePolicy(sizePolicy)
         self.inverse_cor_selection_btn.setText("")
-        self.inverse_cor_selection_btn.setIcon(icon8)
+        self.inverse_cor_selection_btn.setIcon(icon9)
         self.inverse_cor_selection_btn.setObjectName(
             "inverse_cor_selection_btn")
         self.horizontalLayout_8.addWidget(self.inverse_cor_selection_btn)
@@ -459,7 +471,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_5.addWidget(self.h_splitter)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1700, 34))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1700, 32))
         self.menubar.setObjectName("menubar")
         self.menu_File = QtWidgets.QMenu(self.menubar)
         self.menu_File.setObjectName("menu_File")
@@ -469,46 +481,46 @@ class Ui_MainWindow(object):
         self.menu_Tools.setObjectName("menu_Tools")
         MainWindow.setMenuBar(self.menubar)
         self.actionE_xit = QtWidgets.QAction(MainWindow)
-        icon9 = QtGui.QIcon()
-        icon9.addPixmap(
-            QtGui.QPixmap(":/icons/exit.png"), QtGui.QIcon.Normal,
-            QtGui.QIcon.Off)
-        self.actionE_xit.setIcon(icon9)
-        self.actionE_xit.setObjectName("actionE_xit")
-        self.actionAbout = QtWidgets.QAction(MainWindow)
         icon10 = QtGui.QIcon()
         icon10.addPixmap(
-            QtGui.QPixmap(":/icons/info.png"), QtGui.QIcon.Normal,
+            QtGui.QPixmap(":/icons/exit.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.actionAbout.setIcon(icon10)
-        self.actionAbout.setObjectName("actionAbout")
-        self.actionAbout_Qt = QtWidgets.QAction(MainWindow)
+        self.actionE_xit.setIcon(icon10)
+        self.actionE_xit.setObjectName("actionE_xit")
+        self.actionAbout = QtWidgets.QAction(MainWindow)
         icon11 = QtGui.QIcon()
         icon11.addPixmap(
-            QtGui.QPixmap(":/icons/qt.png"), QtGui.QIcon.Normal,
+            QtGui.QPixmap(":/icons/info.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.actionAbout_Qt.setIcon(icon11)
-        self.actionAbout_Qt.setObjectName("actionAbout_Qt")
-        self.actionContents = QtWidgets.QAction(MainWindow)
+        self.actionAbout.setIcon(icon11)
+        self.actionAbout.setObjectName("actionAbout")
+        self.actionAbout_Qt = QtWidgets.QAction(MainWindow)
         icon12 = QtGui.QIcon()
         icon12.addPixmap(
-            QtGui.QPixmap(":/icons/help.png"), QtGui.QIcon.Normal,
+            QtGui.QPixmap(":/icons/qt.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.actionContents.setIcon(icon12)
-        self.actionContents.setObjectName("actionContents")
-        self.actionORM = QtWidgets.QAction(MainWindow)
+        self.actionAbout_Qt.setIcon(icon12)
+        self.actionAbout_Qt.setObjectName("actionAbout_Qt")
+        self.actionContents = QtWidgets.QAction(MainWindow)
         icon13 = QtGui.QIcon()
         icon13.addPixmap(
-            QtGui.QPixmap(":/icons/matrix.png"), QtGui.QIcon.Normal,
+            QtGui.QPixmap(":/icons/help.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.actionORM.setIcon(icon13)
-        self.actionORM.setObjectName("actionORM")
-        self.actionLoad_Lattice = QtWidgets.QAction(MainWindow)
+        self.actionContents.setIcon(icon13)
+        self.actionContents.setObjectName("actionContents")
+        self.actionORM = QtWidgets.QAction(MainWindow)
         icon14 = QtGui.QIcon()
         icon14.addPixmap(
+            QtGui.QPixmap(":/icons/matrix.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.actionORM.setIcon(icon14)
+        self.actionORM.setObjectName("actionORM")
+        self.actionLoad_Lattice = QtWidgets.QAction(MainWindow)
+        icon15 = QtGui.QIcon()
+        icon15.addPixmap(
             QtGui.QPixmap(":/icons/load_lattice.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.actionLoad_Lattice.setIcon(icon14)
+        self.actionLoad_Lattice.setIcon(icon15)
         self.actionLoad_Lattice.setObjectName("actionLoad_Lattice")
         self.menu_File.addAction(self.actionE_xit)
         self.menu_Help.addAction(self.actionContents)
@@ -552,6 +564,8 @@ class Ui_MainWindow(object):
         self.load_traj_btn.clicked.connect(MainWindow.on_load_trajectory)
         self.update_refline_chkbox.toggled['bool'].connect(
             self.save_traj_btn.setDisabled)
+        self.toolButton.toggled['bool'].connect(
+            MainWindow.on_show_hide_refline)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -576,6 +590,7 @@ class Ui_MainWindow(object):
         self.autoscale_btn.setText(_translate("MainWindow", "Scale"))
         self.label.setText(_translate("MainWindow", "X-Limit"))
         self.label_7.setText(_translate("MainWindow", "Y-Limit"))
+        self.toolButton.setText(_translate("MainWindow", "..."))
         self.label_14.setText(_translate("MainWindow", "Reference Trajectory"))
         self.refxoy_cbb.setItemText(0, _translate("MainWindow", "X"))
         self.refxoy_cbb.setItemText(1, _translate("MainWindow", "Y"))
