@@ -61,25 +61,27 @@ DTYPE_HINT_MAP = {
 }
 
 
-def find_conf():
+def find_conf(filename=None):
     """Find configuration file (JSON) for matplotlibcurvewidget,
     searching the following locations:
     * ~/.phantasy/apps/mpl_settings_tv.json
     * /etc/phanasy/apps/mpl_settings_tv.json
     * package root location for this app/config/mpl_settings_tv.json
     """
-    home_conf = os.path.expanduser('~/.phantasy/apps/mpl_settings_tv.json')
-    sys_conf = '/etc/phantasy/apps/mpl_settings_tv.json'
+    if filename is None:
+        filename = 'mpl_settings_tv.json'
+    home_conf = os.path.expanduser('~/.phantasy/apps/{}'.format(filename))
+    sys_conf = '/etc/phantasy/apps/{}'.format(filename)
     if os.path.isfile(home_conf):
         return home_conf
     elif os.path.isfile(sys_conf):
         return sys_conf
     else:
         basedir = os.path.abspath(os.path.dirname(__file__))
-        return os.path.join(basedir, 'config/mpl_settings_tv.json')
+        return os.path.join(basedir, 'config/{}'.format(filename))
 
 
-def apply_mplcurve_settings(mplcurveWidget, json_path=None):
+def apply_mplcurve_settings(mplcurveWidget, json_path=None, filename=None):
     """Apply JSON settings read from *json_path* to *mplcurveWidget*.
 
     Parameters
@@ -90,7 +92,7 @@ def apply_mplcurve_settings(mplcurveWidget, json_path=None):
         Path of JSON settings file.
     """
     if json_path is None:
-        json_path = find_conf()
+        json_path = find_conf(filename)
     s = MatplotlibCurveWidgetSettings(json_path)
     mplcurveWidget.apply_mpl_settings(s)
 
