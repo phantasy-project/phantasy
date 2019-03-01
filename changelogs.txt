@@ -1,3 +1,41 @@
+Version 1.9.9
+-------------
+2019-03-01
+
+- PHANTASY core:
+  - Add 'ndigits' kw to Lattice.apply_setting(), get_orm_for_one_corrector()
+  - Add CaElement.current_setting() to get current setpoint of defined field
+  - Add limit_input function to phantasy namespace
+
+- Trajectory Viewer:
+  - Support load/save trajectory with intensity and phase.
+  - Update UI with BPM intensity viz plot.
+  - Add default mpl config for BPM intensity plot.
+  - Add parameter 'filename' to apply_mpl_settings.
+  - Add widget for BPM intensity viz.
+  - Add a new toolbutton for show/hide ref trajectory.
+  - Add a toolbutton to show/hide reference trajectory.
+  - Support Save/Load monitors readings to/from file.
+  - Show cached reference trajectories for X and Y.
+
+- Wire Scanner App:
+  - Update routine to fetch all PM devices.
+  - Add configs for all PMs in LS1-FS1.
+
+- Orbit Response Marix:
+  - Update UI
+  - Save/Load more information for ORM measurement.
+  - Implement menu actions to save/load settings to/from file.
+  - Add SettingsDataSheet for saving and loading settings.
+  - Add spinbox to control ndigits for the settings to apply
+  - Display settings with number format from apply precision.
+  - Add kw 'fmt' to SettingsModel to format numbers.
+
+- Correlation Visualizer:
+  - Set 'Resume' back to 'Pause' when triggering Pause while scan is done.
+  - Fix MPS status integration
+  - Fix bug of clean up running thread while qthread is destroyed.
+
 Version 1.9.8
 -------------
 2019-02-25
