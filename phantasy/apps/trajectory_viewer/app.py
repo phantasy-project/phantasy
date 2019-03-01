@@ -235,9 +235,9 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
         self._orm_window = None
         # Add another curve as reference, data could be selected from
         # cached data
-        self.matplotlibcurveWidget.add_curve(
-                label="Reference",
-                color='g', marker='D', mfc='w')
+        self._ref_line = self.matplotlibcurveWidget.add_curve(
+                            label="Reference",
+                            color='g', marker='D', mfc='w')
         # tuple of array of (s, b) for x and y
         self.__cached_traj = ()
         #
@@ -588,6 +588,12 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
         if f:
             self._x_dq = deque([], n)
             self._y_dq = deque([], n)
+
+    @pyqtSlot(bool)
+    def on_show_hide_refline(self, f):
+        # show/hide ref trajectory
+        self._ref_line.set_visible(f)
+        self.matplotlibcurveWidget.update_figure()
 
 
 if __name__ == '__main__':
