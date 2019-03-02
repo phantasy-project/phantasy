@@ -666,7 +666,10 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         if filepath is None:
             return
 
-        settings = load_settings_sheet(filepath)
+        settings, mp = load_settings_sheet(filepath)
+
+        if self.__mp is None:
+            self.__mp = mp
 
         self._sv_loaded = SettingsView(settings, fmt=self.get_fmt())
         self._sv_loaded.setWindowTitle("Overview of Loaded Correctors' Settings")

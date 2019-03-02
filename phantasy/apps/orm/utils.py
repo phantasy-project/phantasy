@@ -181,7 +181,7 @@ def load_settings_sheet(filepath):
              econf['setpoint'],
              econf['setpoint_limited']))
 
-    return settings
+    return settings, mp
 
 
 class SettingsModel(QStandardItemModel):
