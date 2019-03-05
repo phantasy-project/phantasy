@@ -370,8 +370,11 @@ class FlameLatticeFactory(BaseLatticeFactory):
                                                                     _DEFAULT_INITIAL_ENVELOPE)
 
         for elem in self._accel.iter(self.start, self.end):
+
             # check drift mask first
-            if self._get_config(elem.dtype, CONFIG_DRIFT_MASK, 'False').lower() == 'true':
+            drift_mask_dtype = self._get_config(elem.dtype, CONFIG_DRIFT_MASK, 'False')
+            drift_mask_name = self._get_config(elem.name, CONFIG_DRIFT_MASK, 'False')
+            if drift_mask_dtype.lower() == 'true' or drift_mask_name.lower() == 'true':
                 elem = DriftElement(elem.z, elem.length, elem.aperture, elem.name)
             #
 
