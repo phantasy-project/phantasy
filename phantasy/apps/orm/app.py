@@ -339,7 +339,8 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         print("ndigits:", ndigits)
         print("DAQ rate, nshot:", daq_rate, daq_nshot)
         #
-        eta = n * len(cors) * wait * daq_nshot * 1.0 / daq_rate
+        nc = len(cors)
+        eta = n * nc * (wait + daq_nshot * 1.0 / daq_rate) + wait * nc
         print("ETA: {} [H:M:S]".format(eta))
         self.eta_lbl.setText(uptime(int(eta)))
         return (bpms, cors), (source, srange, cor_field, xoy, wait, ndigits), \
@@ -352,7 +353,7 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         dt = self.wait_time_dspinbox.value()
         nshot = self.daq_nshot_sbox.value()
         daq_rate = self.daq_rate_sbox.value()
-        eta = ns * nc * dt * nshot * 1.0/daq_rate
+        eta = ns * nc * (dt + nshot * 1.0 / daq_rate) + nc * dt
         print("NS, NC, DT, NS, DS: ", ns, nc, dt, nshot, 1.0/daq_rate)
         print("ETA: {} [t]".format(eta))
         self.eta_lbl.setText(uptime(int(eta)))
