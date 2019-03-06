@@ -153,11 +153,14 @@ def get_orm_for_one_corrector(corrector, monitors, **kws):
         Total number of selected correctors.
     ndigits : int
         Number of effective digits to keep for a float number.
+    keep_all : bool
+        Return all measured data or not, default is False.
 
     Returns
     -------
-    ret : list
-        Column-wised ORM data with the size of ``m``.
+    ret : tuple
+        Column-wised ORM data with the size of ``m``, if keep_all is True,
+        return all data as the second element of tuple.
 
     See Also
     --------
@@ -203,7 +206,10 @@ def get_orm_for_one_corrector(corrector, monitors, **kws):
 
     r = np.asarray([np.polyfit(scan, orbit_arr[:, k], 1)[0] for k in range(m)])
 
-    return r
+    if kws.get('keep_all', False):
+        return r, np.asarray(orbit_arr)
+    else:
+        return r, None
 
 
 def inverse_matrix(m):
