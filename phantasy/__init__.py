@@ -33,7 +33,7 @@ __authors__ = "Tong Zhang"
 __copyright__ = "(c) 2016-2018, Facility for Rare Isotope beams," \
                 " Michigan State University"
 __contact__ = "Tong Zhang <zhangt@frib.msu.edu>"
-__version__ = "1.9.9"
+__version__ = "1.9.10"
 
 __doc__ = \
 """PHANTASY: [P]hysics [H]igh-level [A]pplications a[N]d [T]oolkit for
