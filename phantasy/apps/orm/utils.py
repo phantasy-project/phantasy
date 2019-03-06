@@ -49,7 +49,7 @@ class OrmWorker(QObject):
         self._mode = mode
         if mode == 'measure':
             (bpms, cors), (source, srange, cor_field, xoy, wait, ndigits), \
-            (daq_rate, daq_nshot, reset_wait) = params
+            (daq_rate, daq_nshot, reset_wait, keep_all_data) = params
             self._source = source
             self._srange = srange
             self._cor_field = cor_field
@@ -63,6 +63,7 @@ class OrmWorker(QObject):
             self._m_bpm = len(self._bpms)
             self._daq_rate = daq_rate
             self._daq_nshot = daq_nshot
+            self._keep_all_data = keep_all_data
         else:  # apply
             lat, settings, wait, n_digits = params
             self._lat = lat
@@ -78,16 +79,28 @@ class OrmWorker(QObject):
         self.message_receiver(q)
         if self._mode == 'measure':
             m = np.zeros([self._m_bpm * len(self._xoy), self._n_cor])
+            if self._keep_all_data:
+                mat_data = np.zeros(
+                        [self._n_cor, len(self._srange),
+                         self._m_bpm * len(self._xoy)])
+            else:
+                mat_data = None
             for i, cor in enumerate(self._cors):
                 if not self._run_flag:
                     self.stopped.emit()
                     break
-                m[:, i] = get_orm_for_one_corrector(cor, self._bpms,
+                r, d = get_orm_for_one_corrector(cor, self._bpms,
                         scan=self._srange, cor_field=self._cor_field,
                         xoy=self._xoy, wait=self._wait, msg_queue=q,
                         idx=i, ncor=self._n_cor, ndigits=self._n_digits,
                         nshot=self._daq_nshot, rate=self._daq_rate,
-                        reset_wait=self._reset_wait)
+                        reset_wait=self._reset_wait,
+                        keep_all=self._keep_all_data)
+                m[:, i] = r
+                if self._keep_all_data:
+                    mat_data[i] = d
+
+            result = m, mat_data
         else:
             for ic, setting in enumerate(self._settings):
                 if not self._run_flag:
@@ -97,10 +110,10 @@ class OrmWorker(QObject):
                         wait=self._wait, idx=ic,
                         msg_queue=q, ncor=self._n_cor,
                         ndigits=self._n_digits)
-            m = True
+            result = True
 
         q.join()
-        self.resultsReady.emit(m)
+        self.resultsReady.emit(result)
         self.finished.emit()
 
     def message_receiver(self, q):
@@ -300,3 +313,29 @@ class SettingsModel(QStandardItemModel):
         #tv.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.view_size.emit(w, h)
 
+
+def get_orm_with_residuals(filepath):
+    """Return ORM matrix with residuals from ORMDataSheet file.
+    The shape of returned matrix (m): (n, m, 2), n: size of correctors,
+    m: size of BPM * 2 (if 'X&Y' is checked), for i-th corrector:
+    m[i] represents the responses for all BPMs plus residuals as the
+    second column.
+    """
+    data = ORMDataSheet(filepath)
+    srange = data.get('alter_range')
+    x1 = float(srange['from'])
+    x2 = float(srange['to'])
+    n = int(srange['total_steps'])
+    scan_arr = np.linspace(x1, x2, n)
+    n = len(data['correctors'])
+    if data['monitor_field'] == 'X&Y':
+        m1 = 2
+    else:
+        m1 = 1
+    m = len(data['monitors']) * m1
+    mat_w_residual = np.zeros([n, m, 2])
+    mat_data = np.asarray(data['orm_all'])
+    for i in range(len(mat_data)):
+        mat_w_residual[i] = [np.polyfit(scan_arr, mat_data[i][:, k], 1) for k in range(m)]
+
+    return np.asarray(mat_w_residual)
