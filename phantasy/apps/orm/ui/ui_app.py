@@ -398,7 +398,7 @@ class Ui_MainWindow(object):
         self.run_btn.setIconSize(QtCore.QSize(24, 24))
         self.run_btn.setObjectName("run_btn")
         self.horizontalLayout_7.addWidget(self.run_btn)
-        self.gridLayout_2.addLayout(self.horizontalLayout_7, 7, 0, 1, 3)
+        self.gridLayout_2.addLayout(self.horizontalLayout_7, 8, 0, 1, 3)
         self.horizontalLayout_19 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_19.setObjectName("horizontalLayout_19")
         self.label_30 = QtWidgets.QLabel(self.orm_measurement)
@@ -571,14 +571,14 @@ class Ui_MainWindow(object):
                                         | QtCore.Qt.AlignVCenter)
         self.eta_timer_lbl.setObjectName("eta_timer_lbl")
         self.horizontalLayout_2.addWidget(self.eta_timer_lbl)
-        self.gridLayout_2.addLayout(self.horizontalLayout_2, 6, 0, 1, 3)
+        self.gridLayout_2.addLayout(self.horizontalLayout_2, 7, 0, 1, 3)
         self.label_20 = QtWidgets.QLabel(self.orm_measurement)
         self.label_20.setObjectName("label_20")
         self.gridLayout_2.addWidget(self.label_20, 3, 0, 1, 1)
         spacerItem7 = QtWidgets.QSpacerItem(20, 40,
                                             QtWidgets.QSizePolicy.Minimum,
                                             QtWidgets.QSizePolicy.Expanding)
-        self.gridLayout_2.addItem(spacerItem7, 5, 0, 1, 1)
+        self.gridLayout_2.addItem(spacerItem7, 6, 0, 1, 1)
         self.label_24 = QtWidgets.QLabel(self.orm_measurement)
         self.label_24.setObjectName("label_24")
         self.gridLayout_2.addWidget(self.label_24, 4, 0, 1, 1)
@@ -623,6 +623,15 @@ class Ui_MainWindow(object):
         self.daq_nshot_sbox.setObjectName("daq_nshot_sbox")
         self.horizontalLayout_3.addWidget(self.daq_nshot_sbox)
         self.gridLayout_2.addLayout(self.horizontalLayout_3, 4, 1, 1, 2)
+        self.label_33 = QtWidgets.QLabel(self.orm_measurement)
+        self.label_33.setObjectName("label_33")
+        self.gridLayout_2.addWidget(self.label_33, 5, 0, 1, 1)
+        self.horizontalLayout_12 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_12.setObjectName("horizontalLayout_12")
+        self.keep_all_data_chkbox = QtWidgets.QCheckBox(self.orm_measurement)
+        self.keep_all_data_chkbox.setObjectName("keep_all_data_chkbox")
+        self.horizontalLayout_12.addWidget(self.keep_all_data_chkbox)
+        self.gridLayout_2.addLayout(self.horizontalLayout_12, 5, 1, 1, 2)
         icon7 = QtGui.QIcon()
         icon7.addPixmap(
             QtGui.QPixmap(":/icons/measure.png"), QtGui.QIcon.Normal,
@@ -1005,6 +1014,8 @@ class Ui_MainWindow(object):
             MainWindow.on_reset_cached_settings)
         self.save_settings.triggered.connect(MainWindow.on_save_settings)
         self.load_settings.triggered.connect(MainWindow.on_load_settings)
+        self.keep_all_data_chkbox.toggled['bool'].connect(
+            MainWindow.on_keep_all_orm_data)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -1083,6 +1094,9 @@ class Ui_MainWindow(object):
         self.label_24.setText(_translate("MainWindow", "Trajectory DAQ"))
         self.label_25.setText(_translate("MainWindow", "Frequency"))
         self.label_26.setText(_translate("MainWindow", "Short Number"))
+        self.label_33.setText(_translate("MainWindow", "Data"))
+        self.keep_all_data_chkbox.setText(
+            _translate("MainWindow", "Keep All Measurement Data"))
         self.operations_toolBox.setItemText(
             self.operations_toolBox.indexOf(self.orm_measurement),
             _translate("MainWindow",
