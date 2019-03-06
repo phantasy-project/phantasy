@@ -242,9 +242,10 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         sbtn.setEnabled(False)
 
     @pyqtSlot(QVariant)
-    def on_results_ready(self, mode, m):
+    def on_results_ready(self, mode, result):
         if mode == 'measure':
-            self._orm = m
+            self._orm = result[0]
+            self._orm_all_data = result[1]
             print("ORM is ready")
         else:
             pass
@@ -326,12 +327,15 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         # daq rate and nshot
         daq_rate = self.daq_rate_sbox.value()
         daq_nshot = self.daq_nshot_sbox.value()
+        # keep all orm data
+        keep_all = self.keep_all_data_chkbox.isChecked()
         #
         bpms = [self._name_map[e] for e in self._bpms_dict]
         cors = [self._name_map[e] for e in self._cors_dict]
         self._bpms = bpms
         self._cors = cors
         self._xoy = xoy
+        self._keep_all = keep_all
         #
         print("source:", source)
         print("srange:", srange)
@@ -341,6 +345,7 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         print("reset wait:", reset_wait)
         print("ndigits:", ndigits)
         print("DAQ rate, nshot:", daq_rate, daq_nshot)
+        print("Keep ORM data?:", keep_all)
         #
         nc = len(cors)
         eta = n * nc * (wait + daq_nshot * 1.0 / daq_rate) + reset_wait * nc
@@ -348,7 +353,7 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         self.eta_lbl.setText(uptime(int(eta)))
         return (bpms, cors), \
                (source, srange, cor_field, xoy, wait, ndigits), \
-               (daq_rate, daq_nshot, reset_wait)
+               (daq_rate, daq_nshot, reset_wait, keep_all)
 
     @pyqtSlot()
     def on_update_eta(self):
@@ -466,6 +471,8 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
                 'total_steps': self.alter_steps_lineEdit.text()}
         data_sheet['daq_nshot'] = self.daq_nshot_sbox.value()
         data_sheet['data_rate'] = self.daq_rate_sbox.value()
+        if self._keep_all:
+            data_sheet['orm_all'] = self._orm_all_data.tolist()
 
         data_sheet.write(filepath)
 
@@ -713,6 +720,10 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
     def get_fmt(self):
         n = self.n_digits_apply_spinBox.value()
         return '{{{0}:.{1}g}}'.format(0, n)
+
+    @pyqtSlot(bool)
+    def on_keep_all_orm_data(self, f):
+        self._keep_all = f
 
 
 def sort_dict(d):
