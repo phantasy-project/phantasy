@@ -1,3 +1,23 @@
+Version 1.9.10
+-------------
+2019-03-06
+
+- PHANTASY core:
+  - API: Return orm and orm all data from get_orm_for_one_corrector().
+  - ENH: Add 'reset_wait' kw to get orm functions.
+  - ENH: Add 'rate' and 'nshot' to get_orbit(), put wait after reset cor.
+  - ENH: Support mask drfit by element name.
+
+- Orbit Response Matrix:
+  - BUG: Fix loaded settings cannot apply if mp is None.
+  - ENH: Implement nshot and rate for trajectory DAQ.
+  - ENH: Add daq_rate and daq_nshot keys in the saved ORM file.
+  - FIX: Estimated time required for ORM measurement.
+  - UI: Add daq_rate and daq_nshot spinbox.
+  - UI: Add spinbox to set wait time for restoring set value.
+  - ENH: Kepp all data and new function to calculate ORM with residuals from all data.
+  - ENH: Add private var _orm_all_data to keep all data if keep_all is on.
+
 Version 1.9.9
 -------------
 2019-03-01
