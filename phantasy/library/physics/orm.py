@@ -55,6 +55,8 @@ def get_orm(correctors, monitors, **kws):
         *x* and *y* directions by default.
     wait : float
         Wait time after set value, in *sec*, 1.0 by default.
+    reset_wait : float
+        Wait time after set value to original value, in *sec*, 1.0 by default.
     xoy : str
         'x'('y') for monitoring 'x'('y') direction,'xy' for both (default).
     lattice : Lattice
@@ -77,6 +79,7 @@ def get_orm(correctors, monitors, **kws):
     cor_field = kws.get('cor_field', 'ANG')
     xoy = kws.get('xoy', 'xy')
     wait = kws.get('wait', 1.0)
+    reset_wait = kws.get('reset_wait', 1.0)
     q_msg = kws.get('msg_queue', None)
 
     m = len(monitors) * len(xoy)
@@ -112,7 +115,7 @@ def get_orm(correctors, monitors, **kws):
 
         # reset cor and process next col
         setattr(cor, cor_field, cor_val0)
-        time.sleep(wait)
+        time.sleep(reset_wait)
     return mat_mn
 
 
@@ -138,6 +141,8 @@ def get_orm_for_one_corrector(corrector, monitors, **kws):
         *x* and *y* directions by default.
     wait : float
         Wait time after set value, in *sec*, 1.0 by default.
+    reset_wait : float
+        Wait time after set value to original value, in *sec*, 1.0 by default.
     xoy : str
         'x'('y') for monitoring 'x'('y') direction,'xy' for both (default).
     msg_queue : Queue
@@ -163,6 +168,7 @@ def get_orm_for_one_corrector(corrector, monitors, **kws):
     cor_field = kws.get('cor_field', 'ANG')
     xoy = kws.get('xoy', 'xy')
     wait = kws.get('wait', 1.0)
+    reset_wait = kws.get('reset_wait', 1.0)
     idx = kws.get('idx', 0.0)  # index of correctors
     n = kws.get('ncor', 1)     # total number of correctors
     q_msg = kws.get('msg_queue', None)
@@ -187,7 +193,7 @@ def get_orm_for_one_corrector(corrector, monitors, **kws):
         orbit_arr[iscan] = get_orbit(monitors, **kws)
 
     setattr(corrector, cor_field, cor_val0)
-    time.sleep(wait)
+    time.sleep(reset_wait)
     msg = "[{0}] Set [{1:02d}] {2} [{3}]: {4:>10.6f} (RD: {5:>10.6f}) [RESET]".format(
             epoch2human(time.time(), fmt=TS_FMT), idx + 1, corrector.name,
             cor_field, cor_val0, getattr(corrector, cor_field))
