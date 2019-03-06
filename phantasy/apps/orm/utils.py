@@ -130,13 +130,17 @@ def load_orm_sheet(filepath):
     t_wait = data_sheet.get('wait_seconds', 1.0)
     ndigits = data_sheet.get('set_precision', 2)
     srange = data_sheet.get('alter_range', {'from': '-5', 'to': '5', 'total_steps': '5'})
+    daq_nshot = data_sheet.get('daq_nshot', 1)
+    daq_rate = data_sheet.get('daq_rate', 1)
     mp = MachinePortal(machine, segment)
     name_elem_map = {i.name: i for i in mp.work_lattice_conf}
     orm = np.asarray(data_sheet['orm'], dtype=np.float)
     #
     print("Loading {} of {}".format(segment, machine))
     #
-    return mp, name_elem_map, bpms_dict, cors_dict, orm, cor_field, bpm_field, t_wait, ndigits, srange
+    return mp, name_elem_map, bpms_dict, cors_dict, orm, \
+           cor_field, bpm_field, t_wait, ndigits, srange, \
+           daq_nshot, daq_rate
 
 
 class ORMDataSheet(JSONDataSheet):

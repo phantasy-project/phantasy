@@ -407,7 +407,7 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
             return
 
         mp, name_map, bpms_dict, cors_dict, orm, cor_field, bpm_field, \
-            t_wait, n_digits, srange = \
+            t_wait, n_digits, srange, daq_nshot, daq_rate = \
                 load_orm_sheet(filepath)
         self.__mp = mp
         self._name_map = name_map
@@ -419,6 +419,8 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         self.monitor_fields_cbb.setCurrentText(bpm_field)
         self.wait_time_dspinbox.setValue(t_wait)
         self.n_digits_measure_spinBox.setValue(n_digits)
+        self.daq_rate_sbox.setValue(daq_rate)
+        self.daq_nshot_sbox.setValue(daq_nshot)
         srange_start, srange_stop, srange_steps = srange['from'], \
                 srange['to'], srange['total_steps']
         self.alter_start_lineEdit.setText(srange_start)
@@ -456,6 +458,8 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
                 'from': self.alter_start_lineEdit.text(),
                 'to': self.alter_stop_lineEdit.text(),
                 'total_steps': self.alter_steps_lineEdit.text()}
+        data_sheet['daq_nshot'] = self.daq_nshot_sbox.value()
+        data_sheet['data_rate'] = self.daq_rate_sbox.value()
 
         data_sheet.write(filepath)
 
