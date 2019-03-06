@@ -138,6 +138,7 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         #
         self.alter_steps_lineEdit.returnPressed.connect(self.on_update_eta)
         self.wait_time_dspinbox.valueChanged.connect(self.on_update_eta)
+        self.reset_wait_time_dspinbox.valueChanged.connect(self.on_update_eta)
         self.daq_rate_sbox.valueChanged.connect(self.on_update_eta)
         self.daq_nshot_sbox.valueChanged.connect(self.on_update_eta)
         self.update_eta_btn.clicked.connect(self.on_update_eta)
@@ -320,6 +321,7 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         else:
             xoy = bpm_fields.lower()
         wait = self.wait_time_dspinbox.value()
+        reset_wait = self.reset_wait_time_dspinbox.value()
         ndigits = self.n_digits_measure_spinBox.value()
         # daq rate and nshot
         daq_rate = self.daq_rate_sbox.value()
@@ -336,24 +338,27 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         print("cor_field:", cor_field)
         print("xoy:", xoy)
         print("wait:", wait)
+        print("reset wait:", reset_wait)
         print("ndigits:", ndigits)
         print("DAQ rate, nshot:", daq_rate, daq_nshot)
         #
         nc = len(cors)
-        eta = n * nc * (wait + daq_nshot * 1.0 / daq_rate) + wait * nc
+        eta = n * nc * (wait + daq_nshot * 1.0 / daq_rate) + reset_wait * nc
         print("ETA: {} [H:M:S]".format(eta))
         self.eta_lbl.setText(uptime(int(eta)))
-        return (bpms, cors), (source, srange, cor_field, xoy, wait, ndigits), \
-               (daq_rate, daq_nshot)
+        return (bpms, cors), \
+               (source, srange, cor_field, xoy, wait, ndigits), \
+               (daq_rate, daq_nshot, reset_wait)
 
     @pyqtSlot()
     def on_update_eta(self):
         ns = int(self.alter_steps_lineEdit.text())
         nc = len(self._cors_dict)
         dt = self.wait_time_dspinbox.value()
+        r_dt = self.reset_wait_time_dspinbox.value()
         nshot = self.daq_nshot_sbox.value()
         daq_rate = self.daq_rate_sbox.value()
-        eta = ns * nc * (dt + nshot * 1.0 / daq_rate) + nc * dt
+        eta = ns * nc * (dt + nshot * 1.0 / daq_rate) + nc * r_dt
         print("NS, NC, DT, NS, DS: ", ns, nc, dt, nshot, 1.0/daq_rate)
         print("ETA: {} [t]".format(eta))
         self.eta_lbl.setText(uptime(int(eta)))
