@@ -94,14 +94,15 @@ def get_orm(correctors, monitors, **kws):
         orbit_arr = np.zeros([len(scan), m])
         cor_val0 = cor.current_setting(cor_field)
         for iscan, val in enumerate(scan):
-            msg = "[{0}] Set [{1:02d}] {2} [{3}]: {4:>10.6f}".format(
-                    epoch2human(time.time(), fmt=TS_FMT), i+1, cor.name,
-                    cor_field, val)
+            setattr(cor, cor_field, val)
+            time.sleep(wait)
+            v_rd = getattr(cor, cor_field)
+            msg = "[{0}] Set [{1:02d}] {2} [{3}]: {4:>10.6f} (RD: {5:>10.6f})".format(
+                    epoch2human(time.time(), fmt=TS_FMT), i + 1, cor.name,
+                    cor_field, val, v_rd)
             if q_msg is not None:
                 q_msg.put(((i * ns + iscan) * 100.0 / n / ns, msg))
             print(msg)
-            setattr(cor, cor_field, val)
-            time.sleep(wait)
             orbit_arr[iscan] = get_orbit(monitors, **kws)
 
         ## get mat_mn(k,i)
@@ -111,6 +112,7 @@ def get_orm(correctors, monitors, **kws):
 
         # reset cor and process next col
         setattr(cor, cor_field, cor_val0)
+        time.sleep(wait)
     return mat_mn
 
 
@@ -174,20 +176,21 @@ def get_orm_for_one_corrector(corrector, monitors, **kws):
     cor_val0 = corrector.current_setting(cor_field)
     for iscan, val in enumerate(scan):
         v_to_set =  truncate_number(val, n_trun)
-        msg = "[{0}] Set [{1:02d}] {2} [{3}]: {4:>10.6f}".format(
+        setattr(corrector, cor_field, v_to_set)
+        time.sleep(wait)
+        msg = "[{0}] Set [{1:02d}] {2} [{3}]: {4:>10.6f} (RD: {5:>10.6f})".format(
                 epoch2human(time.time(), fmt=TS_FMT), idx + 1, corrector.name,
-                cor_field, v_to_set)
+                cor_field, v_to_set, getattr(corrector, cor_field))
         if q_msg is not None:
             q_msg.put(((ns * idx + iscan)* 100.0 / nn, msg))
         print(msg)
-        setattr(corrector, cor_field, v_to_set)
-        time.sleep(wait)
         orbit_arr[iscan] = get_orbit(monitors, **kws)
 
     setattr(corrector, cor_field, cor_val0)
-    msg = "[{0}] Set [{1:02d}] {2} [{3}]: {4:>10.6f}".format(
+    time.sleep(wait)
+    msg = "[{0}] Set [{1:02d}] {2} [{3}]: {4:>10.6f} (RD: {5:>10.6f}) [RESET]".format(
             epoch2human(time.time(), fmt=TS_FMT), idx + 1, corrector.name,
-            cor_field, cor_val0)
+            cor_field, cor_val0, getattr(corrector, cor_field))
     if q_msg is not None:
         q_msg.put((-1, msg))
     print(msg)
@@ -238,17 +241,28 @@ def get_orbit(monitors, **kws):
         *x* and *y* directions by default.
     xoy : str
         'x'('y') for monitoring 'x'('y') direction,'xy' for both (default).
+    rate : int
+        DAQ frequency, default is 1.
+    nshot : int
+        Total shot number for DAQ process, default is 1.
 
     Returns
     -------
     ret : array
         Monitors readings as beam orbit.
     """
+    nshot = kws.get('nshot', 1)
+    rate = kws.get('rate', 1)
+    delt = 1.0 / rate
     orb_field = kws.get('orb_field', ('X', 'Y'))
     xoy = kws.get('xoy', 'xy')
-    xyfld = zip(range(len(xoy)), orb_field)
-    xys = [[getattr(elem, fld) for elem in monitors] for _, fld in xyfld]
-    return np.asarray(xys).flatten()
+    xyfld = list(zip(range(len(xoy)), orb_field))
+    arr = np.zeros((nshot, len(xoy) * len(monitors)))
+    for i in range(nshot):
+        a = [[getattr(elem, fld) for elem in monitors] for _, fld in xyfld]
+        arr[i, :] = np.asarray(a).flatten()
+        time.sleep(delt)
+    return arr.mean(axis=0)
 
 
 def get_correctors_settings(orm, orbit_diff, inverse=False):
