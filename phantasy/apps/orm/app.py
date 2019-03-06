@@ -138,6 +138,8 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         #
         self.alter_steps_lineEdit.returnPressed.connect(self.on_update_eta)
         self.wait_time_dspinbox.valueChanged.connect(self.on_update_eta)
+        self.daq_rate_sbox.valueChanged.connect(self.on_update_eta)
+        self.daq_nshot_sbox.valueChanged.connect(self.on_update_eta)
         self.update_eta_btn.clicked.connect(self.on_update_eta)
 
         # element selection for BPMs/CORs treeview
@@ -259,6 +261,9 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         dfac = self.cor_damping_fac_dspinbox.value()
         niter = self.cor_niter_spinbox.value()
         t_wait = self.cor_wait_time_dspinbox.value()
+        # daq rate and nshot
+        daq_rate = self.eva_daq_rate_sbox.value()
+        daq_nshot = self.eva_daq_nshot_sbox.value()
         #
         cor_field = self.corrector_fields_cbb.currentText()
         bpm_fields = self.monitor_fields_cbb.currentText()
@@ -289,9 +294,12 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         print("# of iteration: {}".format(niter))
         print("Wait second after put: {}".format(t_wait))
         print("Corrector limit: [{}, {}]".format(llimit, ulimit))
+        print("DAQ rate, nshot: {}, {}".format(daq_rate, daq_nshot))
         print("-" * 30)
 
-        return (lat,), (bpms, cors), (xoy, cor_field, dfac, niter, t_wait, llimit, ulimit)
+        return (lat,), (bpms, cors), \
+               (xoy, cor_field, dfac, niter, t_wait, llimit, ulimit), \
+               (daq_rate, daq_nshot)
 
     def __prepare_inputs_for_orm_measurement(self):
         source = OP_MODE_MAP[self.operation_mode_cbb.currentText()]
@@ -313,6 +321,9 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
             xoy = bpm_fields.lower()
         wait = self.wait_time_dspinbox.value()
         ndigits = self.n_digits_measure_spinBox.value()
+        # daq rate and nshot
+        daq_rate = self.daq_rate_sbox.value()
+        daq_nshot = self.daq_nshot_sbox.value()
         #
         bpms = [self._name_map[e] for e in self._bpms_dict]
         cors = [self._name_map[e] for e in self._cors_dict]
@@ -326,19 +337,23 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         print("xoy:", xoy)
         print("wait:", wait)
         print("ndigits:", ndigits)
+        print("DAQ rate, nshot:", daq_rate, daq_nshot)
         #
-        eta = n * len(cors) * wait
+        eta = n * len(cors) * wait * daq_nshot * 1.0 / daq_rate
         print("ETA: {} [H:M:S]".format(eta))
         self.eta_lbl.setText(uptime(int(eta)))
-        return (bpms, cors), (source, srange, cor_field, xoy, wait, ndigits)
+        return (bpms, cors), (source, srange, cor_field, xoy, wait, ndigits), \
+               (daq_rate, daq_nshot)
 
     @pyqtSlot()
     def on_update_eta(self):
         ns = int(self.alter_steps_lineEdit.text())
         nc = len(self._cors_dict)
         dt = self.wait_time_dspinbox.value()
-        eta = ns * nc * dt
-        print("NS, NC, DT: ", ns, nc, dt)
+        nshot = self.daq_nshot_sbox.value()
+        daq_rate = self.daq_rate_sbox.value()
+        eta = ns * nc * dt * nshot * 1.0/daq_rate
+        print("NS, NC, DT, NS, DS: ", ns, nc, dt, nshot, 1.0/daq_rate)
         print("ETA: {} [t]".format(eta))
         self.eta_lbl.setText(uptime(int(eta)))
 
@@ -542,10 +557,12 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
     def get_settings_from_orm(params):
         """Get corrector settings from ORM based on *params*.
         """
-        (lat,), (bpms, cors), (xoy, cor_field, dfac, niter, wait, l_limit, u_limit) = params
+        (lat,), (bpms, cors), \
+        (xoy, cor_field, dfac, niter, wait, l_limit, u_limit), \
+        (daq_rate, daq_nshot) = params
         s = lat.get_settings_from_orm(cors, bpms,
                 cor_field=cor_field, cor_min=l_limit, cor_max=u_limit,
-                damping_factor=dfac)
+                damping_factor=dfac, nshot=daq_nshot, rate=daq_rate)
         return s
 
     @pyqtSlot()

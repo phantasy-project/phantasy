@@ -48,7 +48,8 @@ class OrmWorker(QObject):
         super(self.__class__, self).__init__()
         self._mode = mode
         if mode == 'measure':
-            (bpms, cors), (source, srange, cor_field, xoy, wait, ndigits) = params
+            (bpms, cors), (source, srange, cor_field, xoy, wait, ndigits), \
+            (daq_rate, daq_nshot) = params
             self._source = source
             self._srange = srange
             self._cor_field = cor_field
@@ -59,6 +60,8 @@ class OrmWorker(QObject):
             self._n_digits = ndigits
             self._n_cor = len(self._cors)
             self._m_bpm = len(self._bpms)
+            self._daq_rate = daq_rate
+            self._daq_nshot = daq_nshot
         else:  # apply
             lat, settings, wait, n_digits = params
             self._lat = lat
@@ -81,7 +84,8 @@ class OrmWorker(QObject):
                 m[:, i] = get_orm_for_one_corrector(cor, self._bpms,
                         scan=self._srange, cor_field=self._cor_field,
                         xoy=self._xoy, wait=self._wait, msg_queue=q,
-                        idx=i, ncor=self._n_cor, ndigits=self._n_digits)
+                        idx=i, ncor=self._n_cor, ndigits=self._n_digits,
+                        nshot=self._daq_nshot, rate=self._daq_rate)
         else:
             for ic, setting in enumerate(self._settings):
                 if not self._run_flag:
