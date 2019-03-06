@@ -1923,9 +1923,9 @@ class Lattice(object):
         setattr(cor, cor_field, v_truncated)
         time.sleep(wait)
 
-        msg = "[{0}] Set [{1:02d}] {2} [{3}]: {4:>10.6f}".format(
+        msg = "[{0}] Set [{1:02d}] {2} [{3}]: {4:>10.6f} (RD: {5:>10.6f})".format(
                 epoch2human(time.time(), fmt=TS_FMT), idx + 1, cor.name,
-                cor_field, v_truncated)
+                cor_field, v_truncated, getattr(cor, cor_field))
         if q_msg is not None:
             q_msg.put((idx * 100.0 / n, msg))
         print(msg)
