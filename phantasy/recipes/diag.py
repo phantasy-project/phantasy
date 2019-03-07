@@ -13,7 +13,8 @@ ALL_SEGS = ("LEBT", "MEBT2FS1A", "MEBT2FS1B")
 def get_devices_by_type(device_type,
                         segments=ALL_SEGS, machine="FRIB"):
     mp = MachinePortal(machine, segment=segments[0])
-    [mp.load_lattice(n) for n in segments[1:]]
+    if len(segments) > 1:
+        [mp.load_lattice(n) for n in segments[1:]]
     device_names = []
     device_elems = []
     for seg in segments:
