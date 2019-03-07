@@ -26,7 +26,7 @@ class DeviceLoader(QObject):
                                            segments=self._segs)
         except:
             self.results_ready.emit(None, None)
+            self.finished.emit(False)
         else:
             self.results_ready.emit(names, elems)
-        finally:
             self.finished.emit(True)
