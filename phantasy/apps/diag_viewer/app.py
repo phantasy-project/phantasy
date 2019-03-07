@@ -65,7 +65,7 @@ class DiagViewerWindow(BaseAppForm, Ui_MainWindow):
         if self._mach == "FRIB":
             self._segs = [o.text() for o in self._segs_chkbox if o.isChecked()]
         else: # VA
-            self._segs = None
+            self._segs = ["LINAC"]
         if self._segs == []:
             QMessageBox.warning(self, "Device Loading Warning",
                     "Please select segments.", QMessageBox.Ok)
@@ -92,7 +92,8 @@ class DiagViewerWindow(BaseAppForm, Ui_MainWindow):
         """
         self.load_pb.setVisible(False)
         if is_load_success:
-            info = 'Loaded {} from {}'.format(self._dtype, self._mach)
+            info = 'Loaded ({}) {}s from {}'.format(len(self._names),
+                                                    self._dtype, self._mach)
         else:
             info = 'Failed to load {} from {}'.format(self._dtype, self._mach)
         self.load_status_lbl.setText(info)
@@ -108,7 +109,6 @@ class DiagViewerWindow(BaseAppForm, Ui_MainWindow):
             return
         self._names = names
         self._elems = elems
-        print(len(names), len(elems))
 
     @pyqtSlot('QString')
     def on_machine_changed(self, s):
