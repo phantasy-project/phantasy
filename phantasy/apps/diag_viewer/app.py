@@ -81,6 +81,9 @@ class DiagViewerWindow(BaseAppForm, Ui_MainWindow):
         self.pos_as_x_rbtn.setChecked(True)
         self._xdata_gauge = 'pos'
 
+        # annote
+        self._show_annote = False
+
     @pyqtSlot(float)
     def update_daqfreq(self, f):
         self._daqfreq = f
@@ -180,6 +183,9 @@ class DiagViewerWindow(BaseAppForm, Ui_MainWindow):
     def on_daq_update(self):
         s, h, herr = self.__refresh_data()
         self.data_updated.emit(s, h, herr)
+        #
+        self.matplotlibbarWidget.clear_annote()
+        self.annote_height_chkbox.toggled.emit(self._show_annote)
 
     def __refresh_data(self):
         field = self.field_cbb.currentText()
@@ -222,3 +228,17 @@ class DiagViewerWindow(BaseAppForm, Ui_MainWindow):
             self.id_as_x_rbtn.setEnabled(False)
             self.pos_as_x_rbtn.setEnabled(False)
             self.stop_btn.setEnabled(True)
+
+    @pyqtSlot(bool)
+    def on_annote_height(self, f):
+        o = self.matplotlibbarWidget
+        self._show_annote = f
+        if f:
+            # annote height on top/bottom of bar
+            o.annotate_bar()
+        else:
+            if o._all_annotes is None:
+                return
+            # hide annotes
+            [i.set_visible(False) for i in o._all_annotes]
+        o.update_figure()
