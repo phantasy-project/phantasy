@@ -140,8 +140,16 @@ class DiagViewerWindow(BaseAppForm, Ui_MainWindow):
             return
         self._names = names
         self._elems = elems
-        self.field_cbb.clear()
-        self.field_cbb.addItems(self._elems[0].fields)
+        self.__update_fields()
+
+    def __update_fields(self):
+        # update monitor fields cbb.
+        if self._elems:
+            self.field_cbb.clear()
+            self.field_cbb.addItems(self._elems[0].fields)
+        else:
+            QMessageBox.warning(self, "Device Loading Warning",
+                    "Cannot find {} devices.".format(self._dtype))
 
     @pyqtSlot('QString')
     def on_machine_changed(self, s):
