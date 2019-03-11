@@ -2,17 +2,20 @@
 # -*- coding: utf-8 -*-
 
 from PyQt5.QtWidgets import QWidget
-from PyQt5.QtWidgets import QPushButton
 from PyQt5.QtWidgets import QToolButton
 from PyQt5.QtWidgets import QTableWidgetItem
 from PyQt5.QtGui import QIcon
 from PyQt5.QtGui import QPixmap
+from PyQt5.QtCore import QSize
 from PyQt5.QtCore import Qt
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtCore import pyqtSignal
 
+from functools import partial
 
 from phantasy.apps.correlation_visualizer.ui.ui_monitors_view import Ui_Form
+
+TBTN_ICON_SIZE = QSize(20, 20)
 
 
 class MonitorsViewWidget(QWidget, Ui_Form):
@@ -59,10 +62,11 @@ class MonitorsViewWidget(QWidget, Ui_Form):
                 elif j == 1: # elementWidget
                     elem_widget = v
 
-                    elem_btn = QPushButton(name.split()[0])
-                    elem_btn.setAutoDefault(True)
+                    elem_btn = QToolButton(self)
+                    elem_btn.setIcon(QIcon(QPixmap(":/icons/view-details.png")))
+                    elem_btn.setIconSize(TBTN_ICON_SIZE)
                     elem_btn.clicked.connect(
-                        lambda: self.on_show_elem_info(name, elem_widget))
+                        partial(self.on_show_elem_info, name, elem_widget))
                     elem_btn.setToolTip(
                         "Element to monitor, click to see element detail")
                     elem_btn.setCursor(Qt.PointingHandCursor)
@@ -71,6 +75,7 @@ class MonitorsViewWidget(QWidget, Ui_Form):
             # Add another col for delete btn
             del_btn= QToolButton(self)
             del_btn.setIcon(QIcon(QPixmap(":/icons/delete.png")))
+            del_btn.setIconSize(TBTN_ICON_SIZE)
             del_btn.setToolTip("Delete current selection")
             del_btn.setProperty("name", name)
             del_btn.clicked.connect(self.on_delete)
@@ -92,7 +97,7 @@ class MonitorsViewWidget(QWidget, Ui_Form):
     def _preset_table(self):
         """Set horizontal header labels, row/column size.
         """
-        header = ['Name', 'Element', '']
+        header = ['Name', '', '']
         self.tableWidget.setColumnCount(len(header))
         self.tableWidget.setRowCount(len(self.data))
         self.tableWidget.setHorizontalHeaderLabels(header)
