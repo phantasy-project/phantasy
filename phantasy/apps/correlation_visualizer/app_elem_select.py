@@ -139,9 +139,10 @@ class ElementSelectDialog(QDialog, Ui_Dialog):
         """Build Element from selected high-level element.
         """
         for k, v in self.__element.items():
+            # k: (ename, fname), v: elem
             self.sel_elem = v.get_field(k[1])
-            self.sel_field = self.sel_elem.name
-            self.sel_elem_display = v
+            self.sel_field = self.sel_elem.name  # field name
+            self.sel_elem_display = v            # elem
 
     @pyqtSlot()
     def set_elem(self):
