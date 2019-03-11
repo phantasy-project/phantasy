@@ -163,17 +163,18 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 
         # (new) unified button for setting alter element
         self.select_alter_elem_btn.clicked.connect(
-                lambda: self.on_select_elem(mode='alter'))
+                partial(self.on_select_elem, 'alter'))
         self._sel_elem_dialogs = {} # keys: 'alter', 'monitor'
 
         # (new) main monitor
         self.select_monitor_elem_btn.clicked.connect(
-                lambda: self.on_select_elem(mode='monitor'))
+                partial(self.on_select_elem, 'monitor'))
 
         # additional monitors
         self.select_more_monitor_elems_btn.clicked.connect(
                 self.on_select_extra_elem)
-        # list of element name, ElementWidget keeps in self.elem_widgets_dict
+        # list of tuple of 'ename fname, mode',
+        # ElementWidget keeps in self.elem_widgets_dict by indexing
         self._extra_monitors = []
         self.show_extra_monitors_btn.clicked.connect(
                 self.on_show_extra_monitors)
@@ -187,7 +188,8 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         # extra monitors counter
         self.extraMonitorsNumberChanged[int].connect(self.on_extra_monitors_number_changed)
 
-        # (new) inventory for selected elements, key: element name.
+        # inventory for selected elements
+        # key: (ename, fname, mode), value: ElementWidget
         self.elem_widgets_dict = {}
 
         # UI post_init
@@ -319,18 +321,19 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
             # update element obj (CaField)
             sel_elem = dlg.sel_elem # CaField
             sel_elem_display = dlg.sel_elem_display # CaElement
-            # ename + [fname]
             if dlg.sel_field is None:
-                name = sel_elem_display.ename
+                elem_btn_lbl = sel_elem_display.ename
             else:
-                name = '{0} [{1}]'.format(sel_elem_display.name, dlg.sel_field)
+                elem_btn_lbl = '{0} [{1}]'.format(sel_elem_display.name, dlg.sel_field)
+
+            new_sel_key = ' '.join((sel_elem_display.ename, sel_elem.name, mode))
             # create elem_info widget, add into *elem_widgets_dict*
             self.elem_widgets_dict.setdefault(
-                    name, ElementWidget(sel_elem_display, fields=dlg.sel_field))
+                new_sel_key, ElementWidget(sel_elem_display, fields=dlg.sel_field))
 
-            elem_btn = QPushButton(name)
+            elem_btn = QPushButton(elem_btn_lbl)
             elem_btn.setAutoDefault(True)
-            elem_btn.clicked.connect(lambda: self.on_show_elem_info(name))
+            elem_btn.clicked.connect(partial(self.on_show_elem_info, new_sel_key))
             elem_btn.setCursor(Qt.PointingHandCursor)
 
             if mode == 'alter':
@@ -369,12 +372,10 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 
         elif r == QDialog.Rejected:
             # do not update alter element obj
-            #print("cancel")
             return
 
     @pyqtSlot()
     def on_select_extra_elem(self):
-        # to be changed
         """Select element as extra monitor(s).
         """
         dlg = ElementSelectDialog(self, 'monitor', mp=self._mp)
@@ -383,19 +384,17 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
             sel_elem = dlg.sel_elem
             sel_elem_display = dlg.sel_elem_display
 
-            if dlg.sel_field is None:
-                name = sel_elem_display.ename
-            else:
-                #key name: (ename, fname)
-                name = '{0} [{1}]'.format(sel_elem_display.name, sel_elem.name)
+            new_sel_key = ' '.join((sel_elem_display.ename, sel_elem.name, 'monitor'))
 
             # add new monitor
             self.elem_widgets_dict.setdefault(
-                    name, ElementWidget(sel_elem_display, fields=dlg.sel_field))
+                new_sel_key, ElementWidget(sel_elem_display, fields=dlg.sel_field))
 
-            if name in self._extra_monitors:
+            if new_sel_key in self._extra_monitors:
+                # skip if already selected as an extra monitor
                 return
-            self._extra_monitors.append(name)
+            self._extra_monitors.append(new_sel_key)
+
             # add to scan task
             self.scan_task.add_extra_monitor(sel_elem)
             # update the counter for the total number of extra monitors
@@ -405,7 +404,6 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
                 self.on_show_extra_monitors()
 
         elif r == QDialog.Rejected:
-            #print("cancel")
             return
 
     @pyqtSlot(int)
@@ -416,7 +414,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 
     @pyqtSlot()
     def on_show_extra_monitors(self):
-        """Showo extra monitors.
+        """Show extra monitors.
         """
         # show all extra monitors of scan task
         data = [(name, self.elem_widgets_dict[name]) for name in self._extra_monitors]
