@@ -331,10 +331,10 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
             elem_btn = QPushButton(name)
             elem_btn.setAutoDefault(True)
             elem_btn.clicked.connect(lambda: self.on_show_elem_info(name))
-            elem_btn.setToolTip("Element to alter, click to see element detail")
             elem_btn.setCursor(Qt.PointingHandCursor)
 
             if mode == 'alter':
+                tp = "Element to alter, click to see element detail"
                 current_hbox = self.alter_elem_lineEdit.findChild(QHBoxLayout)
                 if current_hbox is None:
                     hbox = QHBoxLayout()
@@ -352,6 +352,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
                 self.lower_limit_lineEdit.setText('{}'.format(x0))
                 self.upper_limit_lineEdit.setText('{}'.format(x0))
             elif mode == 'monitor':
+                tp = "Element to monitor, click to see element detail"
                 current_hbox = self.monitor_elem_lineEdit.findChild(QHBoxLayout)
                 if current_hbox is None:
                     hbox = QHBoxLayout()
@@ -363,6 +364,8 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
                     current_hbox.addWidget(elem_btn)
                     current_hbox.update()
                 self.scan_task.monitor_element = sel_elem
+
+            elem_btn.setToolTip(tp)
 
         elif r == QDialog.Rejected:
             # do not update alter element obj
@@ -398,7 +401,8 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
             # update the counter for the total number of extra monitors
             self.extraMonitorsNumberChanged.emit(len(self._extra_monitors))
             # show afterward by default
-            self.on_show_extra_monitors()
+            if self.auto_show_extra_chkbox.isChecked():
+                self.on_show_extra_monitors()
 
         elif r == QDialog.Rejected:
             #print("cancel")
