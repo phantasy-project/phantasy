@@ -26,7 +26,7 @@ class Ui_Form(object):
         self.label = QtWidgets.QLabel(Form)
         self.label.setObjectName("label")
         self.horizontalLayout.addWidget(self.label)
-        self.update_btn = QtWidgets.QPushButton(Form)
+        self.update_btn = QtWidgets.QToolButton(Form)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
                                            QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
@@ -34,6 +34,12 @@ class Ui_Form(object):
         sizePolicy.setHeightForWidth(
             self.update_btn.sizePolicy().hasHeightForWidth())
         self.update_btn.setSizePolicy(sizePolicy)
+        icon = QtGui.QIcon()
+        icon.addPixmap(
+            QtGui.QPixmap(":/icons/update.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.update_btn.setIcon(icon)
+        self.update_btn.setIconSize(QtCore.QSize(24, 24))
         self.update_btn.setObjectName("update_btn")
         self.horizontalLayout.addWidget(self.update_btn)
         self.verticalLayout.addLayout(self.horizontalLayout)
