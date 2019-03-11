@@ -74,7 +74,7 @@ class Ui_Form(object):
         self.label.setText(
             _translate(
                 "Form",
-                "<html><head/><body><p>Click each ElementWidget to see details</p></body></html>"
+                "<html><head/><body><p>List of Elements Selected as Extra Monitors</p></body></html>"
             ))
         self.update_btn.setToolTip(
             _translate(
