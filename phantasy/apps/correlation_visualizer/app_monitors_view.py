@@ -99,7 +99,6 @@ class MonitorsViewWidget(QWidget, Ui_Form):
     def on_delete(self):
         """Delete point.
         """
-        print(self.sender().property("name"))
         self.removeElement.emit(self.sender().property("name"))
 
     def _postset_table(self):
@@ -126,7 +125,6 @@ class MonitorsViewWidget(QWidget, Ui_Form):
     def on_update(self):
         """Update tableWidget.
         """
-        print("update view")
         self.parent.on_show_extra_monitors()
 
     def keyPressEvent(self, e):
