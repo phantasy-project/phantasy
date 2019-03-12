@@ -15,45 +15,6 @@ class Ui_Dialog(object):
         Dialog.resize(800, 600)
         self.gridLayout_2 = QtWidgets.QGridLayout(Dialog)
         self.gridLayout_2.setObjectName("gridLayout_2")
-        self.horizontalLayout = QtWidgets.QHBoxLayout()
-        self.horizontalLayout.setObjectName("horizontalLayout")
-        spacerItem = QtWidgets.QSpacerItem(40, 20,
-                                           QtWidgets.QSizePolicy.Expanding,
-                                           QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayout.addItem(spacerItem)
-        self.cancel_btn = QtWidgets.QPushButton(Dialog)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
-                                           QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(
-            self.cancel_btn.sizePolicy().hasHeightForWidth())
-        self.cancel_btn.setSizePolicy(sizePolicy)
-        self.cancel_btn.setAutoDefault(True)
-        self.cancel_btn.setObjectName("cancel_btn")
-        self.horizontalLayout.addWidget(self.cancel_btn)
-        self.validate_btn = QtWidgets.QPushButton(Dialog)
-        self.validate_btn.setObjectName("validate_btn")
-        self.horizontalLayout.addWidget(self.validate_btn)
-        self.ok_btn = QtWidgets.QPushButton(Dialog)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
-                                           QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(
-            self.ok_btn.sizePolicy().hasHeightForWidth())
-        self.ok_btn.setSizePolicy(sizePolicy)
-        self.ok_btn.setAutoDefault(True)
-        self.ok_btn.setObjectName("ok_btn")
-        self.horizontalLayout.addWidget(self.ok_btn)
-        self.gridLayout_2.addLayout(self.horizontalLayout, 4, 0, 1, 1)
-        self.elem_mode_radiobtn = QtWidgets.QRadioButton(Dialog)
-        self.elem_mode_radiobtn.setObjectName("elem_mode_radiobtn")
-        self.gridLayout_2.addWidget(self.elem_mode_radiobtn, 2, 0, 1, 1)
-        self.pv_mode_radiobtn = QtWidgets.QRadioButton(Dialog)
-        self.pv_mode_radiobtn.setChecked(True)
-        self.pv_mode_radiobtn.setObjectName("pv_mode_radiobtn")
-        self.gridLayout_2.addWidget(self.pv_mode_radiobtn, 0, 0, 1, 1)
         self.pv_groupBox = QtWidgets.QGroupBox(Dialog)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
                                            QtWidgets.QSizePolicy.Preferred)
@@ -122,12 +83,68 @@ class Ui_Dialog(object):
         self.pv_set_lineEdit.setObjectName("pv_set_lineEdit")
         self.gridLayout.addWidget(self.pv_set_lineEdit, 0, 1, 1, 1)
         self.gridLayout_2.addWidget(self.pv_groupBox, 1, 0, 1, 1)
+        self.pv_mode_radiobtn = QtWidgets.QRadioButton(Dialog)
+        self.pv_mode_radiobtn.setChecked(True)
+        self.pv_mode_radiobtn.setObjectName("pv_mode_radiobtn")
+        self.gridLayout_2.addWidget(self.pv_mode_radiobtn, 0, 0, 1, 1)
+        self.horizontalLayout = QtWidgets.QHBoxLayout()
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        spacerItem = QtWidgets.QSpacerItem(40, 20,
+                                           QtWidgets.QSizePolicy.Expanding,
+                                           QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout.addItem(spacerItem)
+        self.cancel_btn = QtWidgets.QPushButton(Dialog)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
+                                           QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.cancel_btn.sizePolicy().hasHeightForWidth())
+        self.cancel_btn.setSizePolicy(sizePolicy)
+        self.cancel_btn.setAutoDefault(True)
+        self.cancel_btn.setObjectName("cancel_btn")
+        self.horizontalLayout.addWidget(self.cancel_btn)
+        self.validate_btn = QtWidgets.QPushButton(Dialog)
+        self.validate_btn.setObjectName("validate_btn")
+        self.horizontalLayout.addWidget(self.validate_btn)
+        self.ok_btn = QtWidgets.QPushButton(Dialog)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
+                                           QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.ok_btn.sizePolicy().hasHeightForWidth())
+        self.ok_btn.setSizePolicy(sizePolicy)
+        self.ok_btn.setAutoDefault(True)
+        self.ok_btn.setObjectName("ok_btn")
+        self.horizontalLayout.addWidget(self.ok_btn)
+        self.gridLayout_2.addLayout(self.horizontalLayout, 5, 0, 1, 1)
         self.elem_treeView = QtWidgets.QTreeView(Dialog)
         self.elem_treeView.setStyleSheet("QTreeView {\n"
                                          "    font-family: monospace;\n"
                                          "}")
         self.elem_treeView.setObjectName("elem_treeView")
-        self.gridLayout_2.addWidget(self.elem_treeView, 3, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.elem_treeView, 4, 0, 1, 1)
+        self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_2.setContentsMargins(-1, 0, -1, -1)
+        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
+        self.elem_mode_radiobtn = QtWidgets.QRadioButton(Dialog)
+        self.elem_mode_radiobtn.setObjectName("elem_mode_radiobtn")
+        self.horizontalLayout_2.addWidget(self.elem_mode_radiobtn)
+        self.info_lbl = QtWidgets.QLabel(Dialog)
+        font = QtGui.QFont()
+        font.setItalic(True)
+        self.info_lbl.setFont(font)
+        self.info_lbl.setStyleSheet("QLabel {\n"
+                                    "    font-style: italic;\n"
+                                    "    color: gray;\n"
+                                    "}")
+        self.info_lbl.setAlignment(QtCore.Qt.AlignRight
+                                   | QtCore.Qt.AlignTrailing
+                                   | QtCore.Qt.AlignVCenter)
+        self.info_lbl.setObjectName("info_lbl")
+        self.horizontalLayout_2.addWidget(self.info_lbl)
+        self.gridLayout_2.addLayout(self.horizontalLayout_2, 2, 0, 1, 1)
 
         self.retranslateUi(Dialog)
         self.elem_treeView.doubleClicked['QModelIndex'].connect(
@@ -136,8 +153,7 @@ class Ui_Dialog(object):
         Dialog.setTabOrder(self.pv_mode_radiobtn, self.pv_set_lineEdit)
         Dialog.setTabOrder(self.pv_set_lineEdit, self.pv_read_lineEdit)
         Dialog.setTabOrder(self.pv_read_lineEdit, self.copy_set_to_read_btn)
-        Dialog.setTabOrder(self.copy_set_to_read_btn, self.elem_mode_radiobtn)
-        Dialog.setTabOrder(self.elem_mode_radiobtn, self.elem_treeView)
+        Dialog.setTabOrder(self.copy_set_to_read_btn, self.elem_treeView)
         Dialog.setTabOrder(self.elem_treeView, self.cancel_btn)
         Dialog.setTabOrder(self.cancel_btn, self.validate_btn)
         Dialog.setTabOrder(self.validate_btn, self.ok_btn)
@@ -145,11 +161,6 @@ class Ui_Dialog(object):
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
         Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
-        self.cancel_btn.setText(_translate("Dialog", "Cancel"))
-        self.validate_btn.setText(_translate("Dialog", "Validate"))
-        self.ok_btn.setText(_translate("Dialog", "OK"))
-        self.elem_mode_radiobtn.setText(_translate("Dialog", "Element"))
-        self.pv_mode_radiobtn.setText(_translate("Dialog", "PV"))
         self.pv_groupBox.setTitle(_translate("Dialog", "Input PVs"))
         self.copy_set_to_read_btn.setToolTip(
             _translate(
@@ -169,6 +180,14 @@ class Ui_Dialog(object):
                 "Dialog",
                 "<html><head/><body><p>Press Enter after input</p></body></html>"
             ))
+        self.pv_mode_radiobtn.setText(_translate("Dialog", "PV"))
+        self.cancel_btn.setText(_translate("Dialog", "Cancel"))
+        self.validate_btn.setText(_translate("Dialog", "Validate"))
+        self.ok_btn.setText(_translate("Dialog", "OK"))
+        self.elem_mode_radiobtn.setText(_translate("Dialog", "Element"))
+        self.info_lbl.setText(
+            _translate("Dialog",
+                       "Scroll on Field column to select multiple fields"))
 
 
 if __name__ == "__main__":

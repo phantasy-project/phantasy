@@ -74,6 +74,13 @@ class ElementSelectDialog(QDialog, Ui_Dialog):
         # element selection
         self.__init_element_selection(self.mode)
 
+        # info label
+        self.__init_info_label(self.mode)
+
+    def __init_info_label(self, mode):
+        if mode != 'extra':  # only show for 'extra' mode
+            self.info_lbl.hide()
+
     def __init_element_selection(self, mode):
         # initialize element selection
         if mode != 'extra':
