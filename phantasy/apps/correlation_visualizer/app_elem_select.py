@@ -42,7 +42,7 @@ class ElementSelectDialog(QDialog, Ui_Dialog):
         [o.setEnabled(mode=='alter') for o in
             (self.pv_set_lbl, self.pv_set_lineEdit, self.copy_set_to_read_btn)]
 
-        #self.adjustSize()
+        self.adjustSize()
 
         # events
         self.pv_mode_radiobtn.toggled.connect(self.pv_groupBox.setEnabled)
@@ -197,7 +197,7 @@ class ElementSelectDialog(QDialog, Ui_Dialog):
         #
 
     def sizeHint(self):
-        return QSize(600, 400)
+        return QSize(1000, 800)
 
     def on_select_element(self, index):
         # slot: dbclick to select
