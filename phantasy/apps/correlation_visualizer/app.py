@@ -319,17 +319,18 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 
         if r == QDialog.Accepted:
             # update element obj (CaField)
-            sel_elem = dlg.sel_elem # CaField
-            sel_elem_display = dlg.sel_elem_display # CaElement
-            if dlg.sel_field is None:
+            sel_elem = dlg.sel_elem[0]                 # CaField
+            sel_elem_display = dlg.sel_elem_display[0] # CaElement
+            fname = dlg.sel_field[0]
+            if fname is None:
                 elem_btn_lbl = sel_elem_display.ename
             else:
-                elem_btn_lbl = '{0} [{1}]'.format(sel_elem_display.name, dlg.sel_field)
+                elem_btn_lbl = '{0} [{1}]'.format(sel_elem_display.name, fname)
 
             new_sel_key = ' '.join((sel_elem_display.ename, sel_elem.name, mode))
             # create elem_info widget, add into *elem_widgets_dict*
             self.elem_widgets_dict.setdefault(
-                new_sel_key, ElementWidget(sel_elem_display, fields=dlg.sel_field))
+                new_sel_key, ElementWidget(sel_elem_display, fields=fname))
 
             elem_btn = QPushButton(elem_btn_lbl)
             elem_btn.setAutoDefault(True)
@@ -370,6 +371,13 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 
             elem_btn.setToolTip(tp)
 
+            # debug
+            print("-" * 20)
+            print(sel_elem, sel_elem_display)
+            print(elem_btn_lbl)
+            print("-" * 20)
+            #
+
         elif r == QDialog.Rejected:
             # do not update alter element obj
             return
@@ -378,25 +386,26 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
     def on_select_extra_elem(self):
         """Select element as extra monitor(s).
         """
-        dlg = ElementSelectDialog(self, 'monitor', mp=self._mp)
+        dlg = ElementSelectDialog(self, 'extra', mp=self._mp)
         r = dlg.exec_()
         if r == QDialog.Accepted:
-            sel_elem = dlg.sel_elem
-            sel_elem_display = dlg.sel_elem_display
+            sel_elems = dlg.sel_elem
+            sel_elems_display = dlg.sel_elem_display
+            sel_fields = dlg.sel_field
 
-            new_sel_key = ' '.join((sel_elem_display.ename, sel_elem.name, 'monitor'))
+            sel_keys = []
+            for elem, fld in zip(sel_elems_display, sel_elems):
+                sel_keys.append(' '.join((elem.ename, fld.name, 'extra')))
 
-            # add new monitor
-            self.elem_widgets_dict.setdefault(
-                new_sel_key, ElementWidget(sel_elem_display, fields=dlg.sel_field))
+            # add new monitors
+            for k, elem, fld, f in zip(sel_keys, sel_elems_display, sel_elems, sel_fields):
+                if k not in self.elem_widgets_dict:
+                    self.elem_widgets_dict[k] = ElementWidget(elem, fields=f)
+                if k not in self._extra_monitors:
+                    self._extra_monitors.append(k)
+                    # add to scan task
+                    self.scan_task.add_extra_monitor(fld)
 
-            if new_sel_key in self._extra_monitors:
-                # skip if already selected as an extra monitor
-                return
-            self._extra_monitors.append(new_sel_key)
-
-            # add to scan task
-            self.scan_task.add_extra_monitor(sel_elem)
             # update the counter for the total number of extra monitors
             self.extraMonitorsNumberChanged.emit(len(self._extra_monitors))
             # show afterward by default
