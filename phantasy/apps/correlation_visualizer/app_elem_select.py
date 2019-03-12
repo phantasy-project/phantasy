@@ -93,7 +93,10 @@ class ElementSelectDialog(QDialog, Ui_Dialog):
                 return
         self._already_validated = False
         self.close()
-        self.setResult(QDialog.Accepted)
+        if not self.sel_field:
+            self.setResult(QDialog.Rejected)
+        else:
+            self.setResult(QDialog.Accepted)
 
     @pyqtSlot()
     def on_click_cancel(self):
@@ -102,6 +105,8 @@ class ElementSelectDialog(QDialog, Ui_Dialog):
 
     def _is_elements_all_connected(self, elem_list):
         # return True if all elements in *elem_list* are connected.
+        if len(elem_list) == 0:
+            return False
         for elem in elem_list:
             if not elem.connected:
                 QMessageBox.warning(self, "",
@@ -189,9 +194,15 @@ class ElementSelectDialog(QDialog, Ui_Dialog):
         model.set_model()
         tv.model().itemSelected.connect(self.on_element_selected)
 
-    @pyqtSlot('QString', 'QString', QVariant)
-    def on_element_selected(self, ename, fname, elem):
-        self.__elements.append((ename, fname, elem))
+    @pyqtSlot('QString', 'QString', QVariant, 'QString')
+    def on_element_selected(self, ename, fname, elem, op):
+        new_sel = (ename, fname, elem)
+        if op == 'add':
+            if new_sel not in self.__elements:
+                self.__elements.append(new_sel)
+        else:  # del
+            if new_sel in self.__elements:
+                self.__elements.remove(new_sel)
         # debug
         print(self.__elements)
         #
@@ -209,12 +220,6 @@ class ElementSelectDialog(QDialog, Ui_Dialog):
             item.setCheckState(Qt.Unchecked)
         else:
             item.setCheckState(Qt.Checked)
-        fld_widget = v.indexWidget(m.index(row, m.i_field))
-        fname = fld_widget.currentText()
-
-        msg = "{}/{} now is checked? {}".format(
-                item.text(), fname, item.checkState()==Qt.Checked)
-        print(msg)
 
 
 if __name__ == '__main__':
