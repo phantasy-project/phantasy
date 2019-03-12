@@ -130,6 +130,8 @@ class Ui_Dialog(object):
         self.gridLayout_2.addWidget(self.elem_treeView, 3, 0, 1, 1)
 
         self.retranslateUi(Dialog)
+        self.elem_treeView.doubleClicked['QModelIndex'].connect(
+            Dialog.on_select_element)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
         Dialog.setTabOrder(self.pv_mode_radiobtn, self.pv_set_lineEdit)
         Dialog.setTabOrder(self.pv_set_lineEdit, self.pv_read_lineEdit)
