@@ -24,8 +24,8 @@ import numpy as np
 import os
 from collections import OrderedDict
 
-from phantasy_ui.templates import BaseAppForm
-from phantasy_ui.widgets.elementwidget import ElementWidget
+from phantasy_ui import BaseAppForm
+from phantasy_ui.widgets import ElementWidget
 from phantasy import MachinePortal
 from phantasy import Configuration
 from phantasy.apps.wire_scanner.utils import find_dconf

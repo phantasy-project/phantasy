@@ -18,7 +18,7 @@ import time
 import os
 from functools import partial
 
-from phantasy_ui.templates import BaseAppForm
+from phantasy_ui import BaseAppForm
 from phantasy.apps.utils import uptime
 
 from .ui.ui_app import Ui_MainWindow

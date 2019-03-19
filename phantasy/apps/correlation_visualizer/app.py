@@ -28,9 +28,9 @@ from PyQt5.QtWidgets import QAction
 from phantasy.library.misc import epoch2human
 from phantasy.apps.utils import get_save_filename
 
-from phantasy_ui.templates import BaseAppForm
-from phantasy_ui.widgets.elementwidget import ElementWidget
-from phantasy_ui.widgets.latticewidget import LatticeWidget
+from phantasy_ui import BaseAppForm
+from phantasy_ui.widgets import ElementWidget
+from phantasy_ui.widgets import LatticeWidget
 
 from .utils import PVElement
 from .utils import PVElementReadonly

@@ -31,7 +31,7 @@ from .resources import quit_icon
 from .resources import home_icon
 
 from .utils import PORT_RANGE
-from phantasy_ui.templates import BaseAppForm
+from phantasy_ui import BaseAppForm
 
 
 class UnicornApp(BaseAppForm, Ui_mainWindow):

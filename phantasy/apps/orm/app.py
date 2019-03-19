@@ -17,7 +17,7 @@ from collections import deque
 import numpy as np
 import time
 
-from phantasy_ui.templates import BaseAppForm
+from phantasy_ui import BaseAppForm
 from phantasy.apps.trajectory_viewer.utils import ElementListModel
 from phantasy.apps.utils import get_save_filename
 from phantasy.apps.utils import get_open_filename

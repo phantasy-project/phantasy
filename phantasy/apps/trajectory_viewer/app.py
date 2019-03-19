@@ -13,8 +13,8 @@ from collections import deque
 from functools import partial
 import numpy as np
 
-from phantasy_ui.templates import BaseAppForm
-from phantasy_ui.widgets.latticewidget import LatticeWidget
+from phantasy_ui import BaseAppForm
+from phantasy_ui.widgets import LatticeWidget
 from phantasy.apps.utils import get_save_filename
 from phantasy.apps.utils import get_open_filename
 

@@ -5,7 +5,7 @@ from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtCore import QVariant
 from PyQt5.QtWidgets import QMessageBox
 
-from phantasy_ui.templates import BaseAppForm
+from phantasy_ui import BaseAppForm
 
 from .utils import SettingsModel
 from .app_loadfrom import LoadSettingsDialog

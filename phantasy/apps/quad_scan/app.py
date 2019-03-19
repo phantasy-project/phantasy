@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtGui import QDoubleValidator
 
 from .ui.ui_app import Ui_MainWindow
-from phantasy_ui.templates import BaseAppForm
+from phantasy_ui import BaseAppForm
 
 from .utils import draw_beam_ellipse
 

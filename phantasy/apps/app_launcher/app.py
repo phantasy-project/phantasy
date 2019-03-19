@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import QDialog
 from subprocess import Popen
 from functools import partial
 
-from phantasy_ui.templates import BaseAppForm
+from phantasy_ui import BaseAppForm
 
 from .ui.ui_app import Ui_MainWindow
 from .app_add import AddLauncherDialog
