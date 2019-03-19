@@ -198,7 +198,7 @@ class ElementListModel(QStandardItemModel):
     fieldsSelected = pyqtSignal(list)
 
     def __init__(self, parent, mp, enames, **kws):
-        super(self.__class__, self).__init__(parent)
+        QStandardItemModel.__init__(self, parent)
         self._v = parent
         self._mp = mp
         self._enames = enames
