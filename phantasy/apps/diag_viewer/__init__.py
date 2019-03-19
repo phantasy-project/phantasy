@@ -3,7 +3,7 @@
 import sys
 from phantasy_ui import QApp as QApplication
 
-from .app import DiagViewerWindow
+from .app import DeviceViewerWindow
 
 __authors__ = "Tong Zhang"
 __copyright__ = "(c) 2019, Facility for Rare Isotope beams," \
@@ -14,9 +14,9 @@ __version__ = '0.1'
 
 def run(cli=False):
     app = QApplication(sys.argv)
-    w = DiagViewerWindow(version=__version__)
+    w = DeviceViewerWindow(version=__version__)
     w.show()
-    w.setWindowTitle("Diagnostics Viewer")
+    w.setWindowTitle("Devices Viewer")
     if cli:
         app.exec_()
     else:

@@ -20,7 +20,7 @@ from .utils import ElementListModelDV as ElementListModel
 DTYPE_LIST = ("BCM", )
 
 
-class DiagViewerWindow(BaseAppForm, Ui_MainWindow):
+class DeviceViewerWindow(BaseAppForm, Ui_MainWindow):
 
     # update
     data_updated = pyqtSignal(QVariant, QVariant, QVariant)
@@ -30,24 +30,25 @@ class DiagViewerWindow(BaseAppForm, Ui_MainWindow):
     #devicesChanged = pyqtSignal(dict)
 
     def __init__(self, version):
-        super(DiagViewerWindow, self).__init__()
+        super(DeviceViewerWindow, self).__init__()
 
         # app version
         self._version = version
 
         # window title
-        self.setWindowTitle("Diagnostics Viewer")
+        self.setWindowTitle("Devices Viewer")
 
         # set app properties
-        self.setAppTitle("Diagnostics Viewer")
+        self.setAppTitle("Devices Viewer")
         self.setAppVersion(self._version)
 
         # about info
         self.app_about_info = """
             <html>
-            <h4>About Diagnostics Viewer</h4>
-            <p>This app is created to visualize the beam diagnostics
-            readings of FRIB accelerator, current version is {}.
+            <h4>About Devices Viewer</h4>
+            <p>This app is created to visualize the device readings of FRIB
+            accelerator, including the diagnostic devices and optics settings,
+            current version is {}.
             </p>
             <p>Copyright (C) 2019 Facility for Rare Isotope Beams and other contributors.</p>
             </html>
