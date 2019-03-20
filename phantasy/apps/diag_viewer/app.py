@@ -8,6 +8,7 @@ from functools import partial
 
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtCore import QTimer
 from PyQt5.QtCore import QVariant
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QMessageBox
@@ -20,7 +21,7 @@ from phantasy.apps.trajectory_viewer.app_elem_selection import ElementSelectionW
 from .ui.ui_app import Ui_MainWindow
 from .utils import ElementListModelDV as ElementListModel
 
-DTYPE_LIST = ("BCM", )
+DTYPE_LIST = ("BCM", "BPM", "ND", "HMR", "FC", )
 
 
 class DeviceViewerWindow(BaseAppForm, Ui_MainWindow):
@@ -78,7 +79,7 @@ class DeviceViewerWindow(BaseAppForm, Ui_MainWindow):
         #
         self.data_updated.connect(self.matplotlibbarWidget.update_curve)
         self.data_initialized.connect(self.matplotlibbarWidget.reset_data)
-        self.__enable_widgets("WAIT")
+        self.set_widgets_status("WAIT")
 
         # DAQ freq
         self._daq_stop = False
@@ -105,6 +106,9 @@ class DeviceViewerWindow(BaseAppForm, Ui_MainWindow):
 
         # field cbb
         self.field_cbb.currentTextChanged.connect(self.on_elem_field_changed)
+
+        # reset figure
+        self.on_init_dataviz()
 
     @pyqtSlot()
     def on_select_all_elems(self):
@@ -144,13 +148,12 @@ class DeviceViewerWindow(BaseAppForm, Ui_MainWindow):
             return
 
         if self._daq_stop:
-            self.__enable_widgets("STOP")
+            self.set_widgets_status("STOP")
             return
 
-        # testing
         self._delt = 1.0 / self._daqfreq
         self.daq_th = DAQT(daq_func=self.daq_single, daq_seq=range(self._daq_nshot))
-        self.daq_th.started.connect(partial(self.__enable_widgets, "START"))
+        self.daq_th.started.connect(partial(self.set_widgets_status, "START"))
         self.daq_th.progressUpdated.connect(self.on_update_daq_status)
         self.daq_th.resultsReady.connect(self.on_daq_results_ready)
         self.daq_th.finished.connect(self.on_daq_start)
@@ -201,21 +204,17 @@ class DeviceViewerWindow(BaseAppForm, Ui_MainWindow):
             print("Apply Pos as xdata")
             self._xdata_gauge = 'pos'
 
-    def __enable_widgets(self, status):
+    def set_widgets_status(self, status):
+        olist1 = (self.reset_figure_btn, self.start_btn,
+                  self.id_as_x_rbtn, self.pos_as_x_rbtn,
+                  self.devices_treeView, self.capture_btn, )
+        olist2 = (self.stop_btn, )
         if status != "START":
-            self.reset_figure_btn.setEnabled(True)
-            self.start_btn.setEnabled(True)
-            self.id_as_x_rbtn.setEnabled(True)
-            self.pos_as_x_rbtn.setEnabled(True)
-            self.stop_btn.setEnabled(False)
-            self.devices_treeView.setEnabled(True)
+            [o.setEnabled(True) for o in olist1]
+            [o.setEnabled(False) for o in olist2]
         else:
-            self.reset_figure_btn.setEnabled(False)
-            self.start_btn.setEnabled(False)
-            self.id_as_x_rbtn.setEnabled(False)
-            self.pos_as_x_rbtn.setEnabled(False)
-            self.stop_btn.setEnabled(True)
-            self.devices_treeView.setEnabled(False)
+            [o.setEnabled(False) for o in olist1]
+            [o.setEnabled(True) for o in olist2]
 
     @pyqtSlot(bool)
     def on_annote_height(self, f):
@@ -335,5 +334,23 @@ class DeviceViewerWindow(BaseAppForm, Ui_MainWindow):
         else:
             px = self._viz_inactive_px
         self.daq_status_lbl.setPixmap(px)
+        QTimer.singleShot(200,
+                lambda:self.daq_status_lbl.setPixmap(self._viz_inactive_px))
         if self._daq_nshot > 1:
-            self.daq_pb.setValue(f*100)
+            self.daq_pb.setValue(f * 100)
+
+    @pyqtSlot()
+    def on_single_viz_update(self):
+        # single viz update.
+        if self._elems_list == [] :
+            QMessageBox.warning(self, "DAQ Warning",
+                    "Cannot find loaded devices.", QMessageBox.Ok)
+            return
+
+        self._delt = 1.0 / self._daqfreq
+        self.daq_th = DAQT(daq_func=self.daq_single, daq_seq=range(self._daq_nshot))
+        self.daq_th.started.connect(partial(self.set_widgets_status, "START"))
+        self.daq_th.progressUpdated.connect(self.on_update_daq_status)
+        self.daq_th.resultsReady.connect(self.on_daq_results_ready)
+        self.daq_th.finished.connect(partial(self.set_widgets_status, "STOP"))
+        self.daq_th.start()

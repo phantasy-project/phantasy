@@ -20,12 +20,13 @@ class Ui_MainWindow(object):
         MainWindow.setWindowIcon(icon)
         MainWindow.setStyleSheet("QProgressBar {\n"
                                  "    border: 1px solid gray;\n"
-                                 "    border-radius: 10px;\n"
+                                 "    border-radius: 5px;\n"
+                                 "    height: 5px;\n"
                                  "}\n"
                                  "\n"
                                  "QProgressBar::chunk {\n"
                                  "    background-color: #05B8CC;\n"
-                                 "    width: 20px;\n"
+                                 "    width: 15px;\n"
                                  "    margin: 0.5px;\n"
                                  "}")
         self.centralwidget = QtWidgets.QWidget(MainWindow)
@@ -167,10 +168,31 @@ class Ui_MainWindow(object):
         self.viz_cnt_lbl = QtWidgets.QLabel(self.groupBox_3)
         self.viz_cnt_lbl.setObjectName("viz_cnt_lbl")
         self.horizontalLayout.addWidget(self.viz_cnt_lbl)
+        self.daq_pb = QtWidgets.QProgressBar(self.groupBox_3)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
+                                           QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.daq_pb.sizePolicy().hasHeightForWidth())
+        self.daq_pb.setSizePolicy(sizePolicy)
+        self.daq_pb.setProperty("value", 0)
+        self.daq_pb.setAlignment(QtCore.Qt.AlignCenter)
+        self.daq_pb.setObjectName("daq_pb")
+        self.horizontalLayout.addWidget(self.daq_pb)
         spacerItem1 = QtWidgets.QSpacerItem(40, 20,
                                             QtWidgets.QSizePolicy.Expanding,
                                             QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout.addItem(spacerItem1)
+        self.capture_btn = QtWidgets.QPushButton(self.groupBox_3)
+        icon3 = QtGui.QIcon()
+        icon3.addPixmap(
+            QtGui.QPixmap(":/icons/single.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.capture_btn.setIcon(icon3)
+        self.capture_btn.setIconSize(QtCore.QSize(24, 24))
+        self.capture_btn.setObjectName("capture_btn")
+        self.horizontalLayout.addWidget(self.capture_btn)
         self.start_btn = QtWidgets.QPushButton(self.groupBox_3)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
                                            QtWidgets.QSizePolicy.Fixed)
@@ -179,11 +201,11 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(
             self.start_btn.sizePolicy().hasHeightForWidth())
         self.start_btn.setSizePolicy(sizePolicy)
-        icon3 = QtGui.QIcon()
-        icon3.addPixmap(
+        icon4 = QtGui.QIcon()
+        icon4.addPixmap(
             QtGui.QPixmap(":/icons/start.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.start_btn.setIcon(icon3)
+        self.start_btn.setIcon(icon4)
         self.start_btn.setIconSize(QtCore.QSize(24, 24))
         self.start_btn.setObjectName("start_btn")
         self.horizontalLayout.addWidget(self.start_btn)
@@ -195,11 +217,11 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(
             self.stop_btn.sizePolicy().hasHeightForWidth())
         self.stop_btn.setSizePolicy(sizePolicy)
-        icon4 = QtGui.QIcon()
-        icon4.addPixmap(
+        icon5 = QtGui.QIcon()
+        icon5.addPixmap(
             QtGui.QPixmap(":/icons/stop.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.stop_btn.setIcon(icon4)
+        self.stop_btn.setIcon(icon5)
         self.stop_btn.setIconSize(QtCore.QSize(24, 24))
         self.stop_btn.setObjectName("stop_btn")
         self.horizontalLayout.addWidget(self.stop_btn)
@@ -281,11 +303,11 @@ class Ui_MainWindow(object):
         self.label_6.setObjectName("label_6")
         self.gridLayout.addWidget(self.label_6, 1, 0, 1, 1)
         self.reset_figure_btn = QtWidgets.QPushButton(self.groupBox_3)
-        icon5 = QtGui.QIcon()
-        icon5.addPixmap(
+        icon6 = QtGui.QIcon()
+        icon6.addPixmap(
             QtGui.QPixmap(":/icons/load.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.reset_figure_btn.setIcon(icon5)
+        self.reset_figure_btn.setIcon(icon6)
         self.reset_figure_btn.setIconSize(QtCore.QSize(16, 16))
         self.reset_figure_btn.setObjectName("reset_figure_btn")
         self.gridLayout.addWidget(self.reset_figure_btn, 0, 2, 1, 1)
@@ -302,32 +324,32 @@ class Ui_MainWindow(object):
         self.menuTools.setObjectName("menuTools")
         MainWindow.setMenuBar(self.menubar)
         self.actionE_xit = QtWidgets.QAction(MainWindow)
-        icon6 = QtGui.QIcon()
-        icon6.addPixmap(
-            QtGui.QPixmap(":/icons/exit.png"), QtGui.QIcon.Normal,
-            QtGui.QIcon.Off)
-        self.actionE_xit.setIcon(icon6)
-        self.actionE_xit.setObjectName("actionE_xit")
-        self.actionAbout = QtWidgets.QAction(MainWindow)
         icon7 = QtGui.QIcon()
         icon7.addPixmap(
-            QtGui.QPixmap(":/icons/info.png"), QtGui.QIcon.Normal,
+            QtGui.QPixmap(":/icons/exit.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.actionAbout.setIcon(icon7)
-        self.actionAbout.setObjectName("actionAbout")
-        self.actionAbout_Qt = QtWidgets.QAction(MainWindow)
+        self.actionE_xit.setIcon(icon7)
+        self.actionE_xit.setObjectName("actionE_xit")
+        self.actionAbout = QtWidgets.QAction(MainWindow)
         icon8 = QtGui.QIcon()
         icon8.addPixmap(
-            QtGui.QPixmap(":/icons/qt.png"), QtGui.QIcon.Normal,
+            QtGui.QPixmap(":/icons/info.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.actionAbout_Qt.setIcon(icon8)
-        self.actionAbout_Qt.setObjectName("actionAbout_Qt")
-        self.actionLoad_Lattice = QtWidgets.QAction(MainWindow)
+        self.actionAbout.setIcon(icon8)
+        self.actionAbout.setObjectName("actionAbout")
+        self.actionAbout_Qt = QtWidgets.QAction(MainWindow)
         icon9 = QtGui.QIcon()
         icon9.addPixmap(
+            QtGui.QPixmap(":/icons/qt.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.actionAbout_Qt.setIcon(icon9)
+        self.actionAbout_Qt.setObjectName("actionAbout_Qt")
+        self.actionLoad_Lattice = QtWidgets.QAction(MainWindow)
+        icon10 = QtGui.QIcon()
+        icon10.addPixmap(
             QtGui.QPixmap(":/icons/load_lattice.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.actionLoad_Lattice.setIcon(icon9)
+        self.actionLoad_Lattice.setIcon(icon10)
         self.actionLoad_Lattice.setObjectName("actionLoad_Lattice")
         self.menu_File.addAction(self.actionE_xit)
         self.menu_Help.addAction(self.actionAbout)
@@ -352,6 +374,7 @@ class Ui_MainWindow(object):
             MainWindow.on_annote_height)
         self.actionLoad_Lattice.triggered.connect(
             MainWindow.onLoadLatticeAction)
+        self.capture_btn.clicked.connect(MainWindow.on_single_viz_update)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -377,6 +400,7 @@ class Ui_MainWindow(object):
         self.daqfreq_dSpinbox.setSuffix(_translate("MainWindow", " Hz"))
         self.label.setText(_translate("MainWindow", "Shot Number"))
         self.viz_cnt_lbl.setText(_translate("MainWindow", "0"))
+        self.capture_btn.setText(_translate("MainWindow", "Capture"))
         self.start_btn.setText(_translate("MainWindow", "Start"))
         self.stop_btn.setText(_translate("MainWindow", "Stop"))
         self.label_11.setText(_translate("MainWindow", "X-Axis"))
