@@ -12,7 +12,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1700, 1031)
+        MainWindow.resize(1700, 1200)
         icon = QtGui.QIcon()
         icon.addPixmap(
             QtGui.QPixmap(":/icons/app.png"), QtGui.QIcon.Normal,
@@ -73,7 +73,7 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(
             self.groupBox_4.sizePolicy().hasHeightForWidth())
         self.groupBox_4.setSizePolicy(sizePolicy)
-        self.groupBox_4.setMinimumSize(QtCore.QSize(400, 0))
+        self.groupBox_4.setMinimumSize(QtCore.QSize(450, 0))
         self.groupBox_4.setObjectName("groupBox_4")
         self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.groupBox_4)
         self.verticalLayout_2.setObjectName("verticalLayout_2")
