@@ -19,6 +19,7 @@ from phantasy_ui.widgets import LatticeWidget
 from phantasy.apps.trajectory_viewer.app_elem_selection import ElementSelectionWidget
 
 from .ui.ui_app import Ui_MainWindow
+from .app_save import SaveDataDialog
 from .utils import ElementListModelDV as ElementListModel
 
 DTYPE_LIST = ("BCM", "BPM", "ND", "HMR", "FC", )
@@ -75,7 +76,8 @@ class DeviceViewerWindow(BaseAppForm, Ui_MainWindow):
         self._field_list = []
         # list of selected elems
         self._elems_list = []
-
+        # data save
+        self._data_save_dlg = None
         #
         self.data_updated.connect(self.matplotlibbarWidget.update_curve)
         self.data_initialized.connect(self.matplotlibbarWidget.reset_data)
@@ -354,3 +356,10 @@ class DeviceViewerWindow(BaseAppForm, Ui_MainWindow):
         self.daq_th.resultsReady.connect(self.on_daq_results_ready)
         self.daq_th.finished.connect(partial(self.set_widgets_status, "STOP"))
         self.daq_th.start()
+
+    @pyqtSlot()
+    def on_save_data(self):
+        # save current vized data into file.
+        if self._data_save_dlg is None:
+            self._data_save_dlg = SaveDataDialog(self)
+        self._data_save_dlg.exec_()
