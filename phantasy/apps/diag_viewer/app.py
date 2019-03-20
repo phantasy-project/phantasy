@@ -81,9 +81,10 @@ class DeviceViewerWindow(BaseAppForm, Ui_MainWindow):
 
         # DAQ freq
         self._daq_stop = False
-        self._daq_nshot = 3
+        self._daq_nshot = 1
         self._daqfreq = 1.0
         self.daqfreq_dSpinbox.valueChanged[float].connect(self.update_daqfreq)
+        self.daq_nshot_sbox.valueChanged[int].connect(self.update_daq_nshot)
 
         # xdata opt
         self.id_as_x_rbtn.setChecked(False)
@@ -124,6 +125,10 @@ class DeviceViewerWindow(BaseAppForm, Ui_MainWindow):
     @pyqtSlot(float)
     def update_daqfreq(self, f):
         self._daqfreq = f
+
+    @pyqtSlot(int)
+    def update_daq_nshot(self, i):
+        self._daq_nshot = i
 
     @pyqtSlot()
     def on_daq_start(self):
