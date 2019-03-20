@@ -305,7 +305,7 @@ class DeviceViewerWindow(BaseAppForm, Ui_MainWindow):
     @pyqtSlot(QVariant)
     def on_daq_results_ready(self, res):
         #print("DAQ Results: ", res)
-        data = np.array(res)
+        self.data = data = np.array(res)
         h, herr = data.mean(axis=0), data.std(axis=0)
 
         if self._xdata_gauge == 'pos':
@@ -362,4 +362,4 @@ class DeviceViewerWindow(BaseAppForm, Ui_MainWindow):
         # save current vized data into file.
         if self._data_save_dlg is None:
             self._data_save_dlg = SaveDataDialog(self)
-        self._data_save_dlg.exec_()
+        self._data_save_dlg.show()
