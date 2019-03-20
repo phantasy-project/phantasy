@@ -9,6 +9,7 @@ from functools import partial
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtCore import QVariant
+from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QMessageBox
 
 from phantasy_ui import BaseAppForm
@@ -85,6 +86,8 @@ class DeviceViewerWindow(BaseAppForm, Ui_MainWindow):
         self._daqfreq = 1.0
         self.daqfreq_dSpinbox.valueChanged[float].connect(self.update_daqfreq)
         self.daq_nshot_sbox.valueChanged[int].connect(self.update_daq_nshot)
+        self._viz_active_px = QPixmap(":/icons/active.png")
+        self._viz_inactive_px = QPixmap(":/icons/inactive.png")
 
         # xdata opt
         self.id_as_x_rbtn.setChecked(False)
@@ -147,6 +150,7 @@ class DeviceViewerWindow(BaseAppForm, Ui_MainWindow):
         self._delt = 1.0 / self._daqfreq
         self.daq_th = DAQT(daq_func=self.daq_single, daq_seq=range(self._daq_nshot))
         self.daq_th.started.connect(partial(self.__enable_widgets, "START"))
+        self.daq_th.progressUpdated.connect(self.on_update_daq_status)
         self.daq_th.resultsReady.connect(self.on_daq_results_ready)
         self.daq_th.finished.connect(self.on_daq_start)
 
@@ -157,7 +161,6 @@ class DeviceViewerWindow(BaseAppForm, Ui_MainWindow):
         """Stop DAQ.
         """
         self._daq_stop = True
-#        self.__enable_widgets("STOP")
 
     def __refresh_data(self):
         h = [getattr(e, f) for e, f in zip(self._elems_list, self._field_list)]
@@ -175,6 +178,9 @@ class DeviceViewerWindow(BaseAppForm, Ui_MainWindow):
         self.data_initialized.emit(s, h, herr)
         # reset daq bit
         self._daq_stop = False
+        # viz cnt
+        self._viz_cnt = 0
+        self.viz_cnt_lbl.setText('0')
 
     @pyqtSlot(bool)
     def on_apply_id_as_xdata(self, f):
@@ -312,3 +318,13 @@ class DeviceViewerWindow(BaseAppForm, Ui_MainWindow):
             x[i] = getattr(e, f)
         time.sleep(self._delt)
         return x
+
+    def on_update_daq_status(self, f, s):
+        # beat DAQ viz status
+        if int(f) + 1 == self._daq_nshot:
+            px = self._viz_active_px
+            self._viz_cnt += 1
+        else:
+            px = self._viz_inactive_px
+        self.daq_status_lbl.setPixmap(px)
+        self.viz_cnt_lbl.setText(str(self._viz_cnt))
