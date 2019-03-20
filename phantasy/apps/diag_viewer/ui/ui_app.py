@@ -351,6 +351,15 @@ class Ui_MainWindow(object):
             QtGui.QIcon.Off)
         self.actionLoad_Lattice.setIcon(icon10)
         self.actionLoad_Lattice.setObjectName("actionLoad_Lattice")
+        self.actionSave = QtWidgets.QAction(MainWindow)
+        icon11 = QtGui.QIcon()
+        icon11.addPixmap(
+            QtGui.QPixmap(":/icons/save.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.actionSave.setIcon(icon11)
+        self.actionSave.setObjectName("actionSave")
+        self.menu_File.addAction(self.actionSave)
+        self.menu_File.addSeparator()
         self.menu_File.addAction(self.actionE_xit)
         self.menu_Help.addAction(self.actionAbout)
         self.menu_Help.addAction(self.actionAbout_Qt)
@@ -375,6 +384,7 @@ class Ui_MainWindow(object):
         self.actionLoad_Lattice.triggered.connect(
             MainWindow.onLoadLatticeAction)
         self.capture_btn.clicked.connect(MainWindow.on_single_viz_update)
+        self.actionSave.triggered.connect(MainWindow.on_save_data)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -428,6 +438,8 @@ class Ui_MainWindow(object):
             _translate("MainWindow", "Load Lattice"))
         self.actionLoad_Lattice.setShortcut(
             _translate("MainWindow", "Ctrl+Shift+L"))
+        self.actionSave.setText(_translate("MainWindow", "Save"))
+        self.actionSave.setShortcut(_translate("MainWindow", "Ctrl+S"))
 
 
 from mpl4qt.widgets.mplbarwidget import MatplotlibBarWidget
