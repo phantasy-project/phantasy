@@ -1,20 +1,22 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import numpy as np
+import time
+from collections import OrderedDict
+from functools import partial
+
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtCore import QVariant
-from PyQt5.QtCore import QThread
-from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QMessageBox
 
-from phantasy_ui.templates import BaseAppForm
-from phantasy_ui.widgets.latticewidget import LatticeWidget
+from phantasy_ui import BaseAppForm
+from phantasy_ui.widgets import DataAcquisitionThread as DAQT
+from phantasy_ui.widgets import LatticeWidget
+from phantasy.apps.trajectory_viewer.app_elem_selection import ElementSelectionWidget
 
 from .ui.ui_app import Ui_MainWindow
-
-from collections import OrderedDict
-from phantasy.apps.trajectory_viewer.app_elem_selection import ElementSelectionWidget
 from .utils import ElementListModelDV as ElementListModel
 
 DTYPE_LIST = ("BCM", )
@@ -72,17 +74,16 @@ class DeviceViewerWindow(BaseAppForm, Ui_MainWindow):
         # list of selected elems
         self._elems_list = []
 
-        # DAQ
-        self.daq_timer = QTimer()
-        self.daq_timer.timeout.connect(self.on_daq_update)
         #
         self.data_updated.connect(self.matplotlibbarWidget.update_curve)
         self.data_initialized.connect(self.matplotlibbarWidget.reset_data)
         self.__enable_widgets("WAIT")
 
         # DAQ freq
+        self._daq_stop = False
+        self._daq_nshot = 3
         self._daqfreq = 1.0
-        self.freq_dSpinbox.valueChanged[float].connect(self.update_daqfreq)
+        self.daqfreq_dSpinbox.valueChanged[float].connect(self.update_daqfreq)
 
         # xdata opt
         self.id_as_x_rbtn.setChecked(False)
@@ -133,27 +134,28 @@ class DeviceViewerWindow(BaseAppForm, Ui_MainWindow):
                     "Cannot find loaded devices.", QMessageBox.Ok)
             return
 
-        self.daq_timer.start(1000.0 / self._daqfreq)
-        self.__enable_widgets("START")
+        if self._daq_stop:
+            self.__enable_widgets("STOP")
+            return
+
+        # testing
+        self._delt = 1.0 / self._daqfreq
+        self.daq_th = DAQT(daq_func=self.daq_single, daq_seq=range(self._daq_nshot))
+        self.daq_th.started.connect(partial(self.__enable_widgets, "START"))
+        self.daq_th.resultsReady.connect(self.on_daq_results_ready)
+        self.daq_th.finished.connect(self.on_daq_start)
+
+        self.daq_th.start()
 
     @pyqtSlot()
     def on_daq_stop(self):
         """Stop DAQ.
         """
-        self.daq_timer.stop()
-        self.__enable_widgets("STOP")
-
-    @pyqtSlot()
-    def on_daq_update(self):
-        s, h, herr = self.__refresh_data()
-        self.data_updated.emit(s, h, herr)
-        #
-        self.matplotlibbarWidget.clear_annote()
-        self.annote_height_chkbox.toggled.emit(self._show_annote)
+        self._daq_stop = True
+#        self.__enable_widgets("STOP")
 
     def __refresh_data(self):
         h = [getattr(e, f) for e, f in zip(self._elems_list, self._field_list)]
-
         if self._xdata_gauge == 'pos':
             s = [e.sb for e in self._elems_list]
         else: # ID as x
@@ -166,6 +168,8 @@ class DeviceViewerWindow(BaseAppForm, Ui_MainWindow):
         # initial plot (reset figure btn)
         s, h, herr = self.__refresh_data()
         self.data_initialized.emit(s, h, herr)
+        # reset daq bit
+        self._daq_stop = False
 
     @pyqtSlot(bool)
     def on_apply_id_as_xdata(self, f):
@@ -279,3 +283,27 @@ class DeviceViewerWindow(BaseAppForm, Ui_MainWindow):
             QMessageBox.warning(self, "Change Field",
                     "Failed to change field.", QMessageBox.Ok)
 
+    @pyqtSlot(QVariant)
+    def on_daq_results_ready(self, res):
+        #print("DAQ Results: ", res)
+        data = np.array(res)
+        h, herr = data.mean(axis=0), data.std(axis=0)
+
+        if self._xdata_gauge == 'pos':
+            s = [e.sb for e in self._elems_list]
+        else: # ID as x
+            s = list(range(len(h)))
+
+        self.data_updated.emit(s, h, herr)
+
+        self.matplotlibbarWidget.clear_annote()
+        self.annote_height_chkbox.toggled.emit(self._show_annote)
+
+    def daq_single(self, iiter):
+        # fetch data from all devices
+        # daq_seq is range(shot number)
+        x = np.zeros(len(self._elems_list))
+        for i, (e, f) in enumerate(zip(self._elems_list, self._field_list)):
+            x[i] = getattr(e, f)
+        time.sleep(self._delt)
+        return x
