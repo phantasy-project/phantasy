@@ -88,6 +88,7 @@ class DeviceViewerWindow(BaseAppForm, Ui_MainWindow):
         self.daq_nshot_sbox.valueChanged[int].connect(self.update_daq_nshot)
         self._viz_active_px = QPixmap(":/icons/active.png")
         self._viz_inactive_px = QPixmap(":/icons/inactive.png")
+        self.daq_pb.setVisible(False)
 
         # xdata opt
         self.id_as_x_rbtn.setChecked(False)
@@ -181,6 +182,12 @@ class DeviceViewerWindow(BaseAppForm, Ui_MainWindow):
         # viz cnt
         self._viz_cnt = 0
         self.viz_cnt_lbl.setText('0')
+        if self._daq_nshot > 1:
+            # daq pb
+            self.daq_pb.setValue(0)
+            self.daq_pb.setVisible(True)
+        else:
+            self.daq_pb.setVisible(False)
 
     @pyqtSlot(bool)
     def on_apply_id_as_xdata(self, f):
@@ -321,10 +328,12 @@ class DeviceViewerWindow(BaseAppForm, Ui_MainWindow):
 
     def on_update_daq_status(self, f, s):
         # beat DAQ viz status
-        if int(f) + 1 == self._daq_nshot:
+        if f == 1.0:
             px = self._viz_active_px
             self._viz_cnt += 1
+            self.viz_cnt_lbl.setText(str(self._viz_cnt))
         else:
             px = self._viz_inactive_px
         self.daq_status_lbl.setPixmap(px)
-        self.viz_cnt_lbl.setText(str(self._viz_cnt))
+        if self._daq_nshot > 1:
+            self.daq_pb.setValue(f*100)
