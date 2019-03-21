@@ -2,17 +2,48 @@
 # -*- coding: utf-8 -*-
 
 from collections import OrderedDict
-import copy
 import json
+import time
 
 from phantasy.library.operation import MachinePortal
+
+
+def load_lattices(machine, segments=None):
+    """Load *segments* of *machine*, if *segments* is None, all the defined
+    segments will be loaded.
+
+    Parameters
+    ----------
+    machine : str
+        Machine name.
+    segments : list[str]
+        List of lattice names to load.
+
+    Keyword Arguments
+    -----------------
+    wait : float
+        Additional wait time in second after mp initialization, default is
+        5.0 seconds.
+
+    Returns
+    -------
+    o :
+        MachinePortal instance.
+    """
+    mp = MachinePortal(machine)
+    segs = mp.get_all_segment_names() if segments is None else segments
+    for seg in enumerate(segs):
+        mp.load_lattice(seg)
+    time.sleep(kws.get('wait', 5.0))
+    return mp
 
 
 def save_all_settings(filepath, segments=["LEBT", "MEBT"], machine="FRIB",
                       **kws):
     """Save all physics and engineering settings for all the elements defined
     in each one of *segments* of *machine* to JSON file *filepath*,
-    additional information could be embedded by key-value pairs.
+    additional information could be embedded by key-value pairs excluding
+    the kws defined in the folloing Keyword Arguments section.
 
     Parameters
     ----------
@@ -22,6 +53,11 @@ def save_all_settings(filepath, segments=["LEBT", "MEBT"], machine="FRIB",
         List of segments.
     machine : str
         Machine name.
+
+    Keyword Arguments
+    -----------------
+    mp : obj
+        MachinePortal instance, created from `load_lattices` function.
 
     Examples
     --------
@@ -39,10 +75,14 @@ def save_all_settings(filepath, segments=["LEBT", "MEBT"], machine="FRIB",
     r : OrderedDict
         All settings.
     """
+    if 'mp' in kws:
+        mp = kws.pop('mp')
+    else:
+        mp = load_lattices(machine, segments, **kws)
+
     settings = OrderedDict()
     for seg in segments:
-        mp = MachinePortal(machine=machine, segment=seg)
-        lat = mp.work_lattice_conf
+        lat = mp.lattices.get(seg)
         lat.sync_settings(data_source='control')
         settings.update(lat.settings)
 
