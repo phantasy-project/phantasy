@@ -37,7 +37,7 @@ class PVElement(object):
     def fname(self):
         """Default CA field name.
         """
-        return "<generic field>"
+        return "<generic>"
 
     name = fname
 
@@ -114,7 +114,7 @@ class PVElementReadonly(object):
     def fname(self):
         """Default CA field name.
         """
-        return "<generic field>"
+        return "<generic>[{}]".format(self.pvname[0])
 
     name = fname
 
@@ -145,6 +145,10 @@ class PVElementReadonly(object):
     @property
     def readback(self):
         return [self.get_pv_name('readback')]
+
+    @property
+    def setpoint(self):
+        return []
 
     @property
     def readback_pv(self):
