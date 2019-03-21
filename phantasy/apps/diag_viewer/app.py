@@ -110,7 +110,8 @@ class DeviceViewerWindow(BaseAppForm, Ui_MainWindow):
         self.field_cbb.currentTextChanged.connect(self.on_elem_field_changed)
 
         # reset figure
-        self.on_init_dataviz()
+        # does not work with matlotlib 2.0.0
+        # self.on_init_dataviz()
 
     @pyqtSlot()
     def on_select_all_elems(self):
