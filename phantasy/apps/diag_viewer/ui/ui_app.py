@@ -15,7 +15,7 @@ class Ui_MainWindow(object):
         MainWindow.resize(1700, 1200)
         icon = QtGui.QIcon()
         icon.addPixmap(
-            QtGui.QPixmap(":/icons/app.png"), QtGui.QIcon.Normal,
+            QtGui.QPixmap(":/icons/dv.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
         MainWindow.setWindowIcon(icon)
         MainWindow.setStyleSheet("QProgressBar {\n"
@@ -314,7 +314,7 @@ class Ui_MainWindow(object):
         self.verticalLayout.addWidget(self.groupBox_3)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1700, 34))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1700, 32))
         self.menubar.setObjectName("menubar")
         self.menu_File = QtWidgets.QMenu(self.menubar)
         self.menu_File.setObjectName("menu_File")
