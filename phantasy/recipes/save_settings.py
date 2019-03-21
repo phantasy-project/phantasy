@@ -8,9 +8,9 @@ import time
 from phantasy.library.operation import MachinePortal
 
 
-def load_lattices(machine, segments=None):
+def init_mp(machine, segments=None, **kws):
     """Load *segments* of *machine*, if *segments* is None, all the defined
-    segments will be loaded.
+    segments will be loaded, to generate a MachinePortal instance.
 
     Parameters
     ----------
@@ -22,8 +22,7 @@ def load_lattices(machine, segments=None):
     Keyword Arguments
     -----------------
     wait : float
-        Additional wait time in second after mp initialization, default is
-        5.0 seconds.
+        If set, wait *wait* seconds after mp initialization.
 
     Returns
     -------
@@ -32,9 +31,12 @@ def load_lattices(machine, segments=None):
     """
     mp = MachinePortal(machine)
     segs = mp.get_all_segment_names() if segments is None else segments
-    for seg in enumerate(segs):
+    for seg in segs:
         mp.load_lattice(seg)
-    time.sleep(kws.get('wait', 5.0))
+    t = kws.get('wait', None)
+    if t is not None:
+        print("Sleep {} secs...".format(t))
+        time.sleep(t)
     return mp
 
 
@@ -57,7 +59,8 @@ def save_all_settings(filepath, segments=["LEBT", "MEBT"], machine="FRIB",
     Keyword Arguments
     -----------------
     mp : obj
-        MachinePortal instance, created from `load_lattices` function.
+        MachinePortal instance, created from `init_mp` function, if not given,
+        additional kws will be passed to `init_mp` function.
 
     Examples
     --------
@@ -78,7 +81,7 @@ def save_all_settings(filepath, segments=["LEBT", "MEBT"], machine="FRIB",
     if 'mp' in kws:
         mp = kws.pop('mp')
     else:
-        mp = load_lattices(machine, segments, **kws)
+        mp = init_mp(machine, segments, **kws)
 
     settings = OrderedDict()
     for seg in segments:
@@ -95,7 +98,7 @@ def save_all_settings(filepath, segments=["LEBT", "MEBT"], machine="FRIB",
                     v = elem.convert(field=phy_fld_name, value=elem_phy_conf[phy_fld_name])
                     settings[elem_name].update({eng_fields[0]: v})
 
-    settings.update(**kws)
+    settings.update(**{k:v for k,v in kws.items() if k not in ["wait",]})
     with open(filepath, 'w') as f:
         json.dump(settings, f, indent=2)
 
