@@ -354,7 +354,7 @@ class PortElement(Element):
 # Diagnostic Elements
 
 class BLMElement(Element):
-    """BLMElement represents Beam Loss Monitor diagnostic device.
+    """BLMElement represents Beam Loss Monitor.
     """
     ETYPE = "BLM"
 
@@ -362,6 +362,32 @@ class BLMElement(Element):
                  **meta):
         super(BLMElement, self).__init__(z, length, aperture, name, desc=desc,
                                          **meta)
+
+
+class NDElement(Element):
+    """NDElement represents Neutron Detector, one kind of Beam Loss Monitor.
+    """
+    ETYPE = "ND"
+
+    def __init__(self, z, length, aperture, name, desc="neutron detector",
+                 **meta):
+        super(NDElement, self).__init__(z, length, aperture, name, desc=desc,
+                                        **meta)
+        self.fields.current = "AVG"
+        self.fields.current_phy = "I_AVG"
+
+
+class ICElement(Element):
+    """ICElement represents Ion Chamber, one kind of Beam Loss Monitor.
+    """
+    ETYPE = "IC"
+
+    def __init__(self, z, length, aperture, name, desc="Ion Chamber",
+                 **meta):
+        super(ICElement, self).__init__(z, length, aperture, name, desc=desc,
+                                        **meta)
+        self.fields.current = "AVG"
+        self.fields.current_phy = "I_AVG"
 
 
 class BPMElement(Element):
@@ -395,10 +421,10 @@ class BCMElement(Element):
                  **meta):
         super(BCMElement, self).__init__(z, length, aperture, name, desc=desc,
                                          **meta)
-        self.fields.current1 = "I1"  # 1 Hz avg
-        self.fields.current1_phy = "I1"
-        self.fields.currentp = "Ip"  # peak avg
-        self.fields.currentp_phy = "Ip"
+        self.fields.current_avg = "AVG"  # 1 Hz avg
+        self.fields.current_avg_phy = "I_AVG"
+        self.fields.current_peak = "TYP"  # peak avg
+        self.fields.current_peak_phy = "I_TYP"
 
 
 class BLElement(Element):
@@ -470,6 +496,8 @@ class HMRElement(Element):
     def __init__(self, z, length, aperture, name, desc="halo ring", **meta):
         super(HMRElement, self).__init__(z, length, aperture, name, desc=desc,
                                          **meta)
+        self.fields.current = "AVG"
+        self.fields.current_phy = "I_AVG"
 
 
 class VDElement(Element):
