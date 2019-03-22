@@ -13,12 +13,15 @@ import re
 from phantasy.library.layout import BCMElement
 from phantasy.library.layout import BLElement
 from phantasy.library.layout import BLMElement
+from phantasy.library.layout import NDElement
+from phantasy.library.layout import ICElement
 from phantasy.library.layout import BPMElement
 from phantasy.library.layout import BendElement
 from phantasy.library.layout import CavityElement
 from phantasy.library.layout import CorElement
 from phantasy.library.layout import DriftElement
 from phantasy.library.layout import EBendElement
+from phantasy.library.layout import ElectrodeElement
 from phantasy.library.layout import EMSElement
 from phantasy.library.layout import EQuadElement
 from phantasy.library.layout import FCElement
@@ -446,20 +449,38 @@ def build_channels(layout, psfile, machine=None, **kws):
             # Charge Stripper has no channels
             pass
 
-        elif isinstance(elem, (BLMElement, BLElement)):
+        elif isinstance(elem, (BLElement, BLMElement, )):
             # Diagnostic elements do not have defined channels
             pass
+
+        elif isinstance(elem, NDElement):
+            # Beam loss monitor (ND)
+            props[_TYPE_PROPERTY] = "ND"
+
+            props[_FIELD_ENG_PROPERTY] = elem.fields.current
+            props[_FIELD_PHY_PROPERTY] = elem.fields.current_phy
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel + ":AVG_RD", OrderedDict(props), list(tags)))
+
+        elif isinstance(elem, ICElement):
+            # Beam loss monitor (IC)
+            props[_TYPE_PROPERTY] = "IC"
+
+            props[_FIELD_ENG_PROPERTY] = elem.fields.current
+            props[_FIELD_PHY_PROPERTY] = elem.fields.current_phy
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel + ":AVG_RD", OrderedDict(props), list(tags)))
 
         elif isinstance(elem, BCMElement):
             props[_TYPE_PROPERTY] = "BCM"
 
-            props[_FIELD_ENG_PROPERTY] = elem.fields.current1
-            props[_FIELD_PHY_PROPERTY] = elem.fields.current1_phy
+            props[_FIELD_ENG_PROPERTY] = elem.fields.current_avg
+            props[_FIELD_PHY_PROPERTY] = elem.fields.current_avg_phy
             props[_HANDLE_PROPERTY] = "readback"
             data.append((channel + ":AVG_RD", OrderedDict(props), list(tags)))
 
-            props[_FIELD_ENG_PROPERTY] = elem.fields.currentp
-            props[_FIELD_PHY_PROPERTY] = elem.fields.currentp_phy
+            props[_FIELD_ENG_PROPERTY] = elem.fields.current_peak
+            props[_FIELD_PHY_PROPERTY] = elem.fields.current_peak_phy
             props[_HANDLE_PROPERTY] = "readback"
             data.append((channel + ":TYP_RD", OrderedDict(props), list(tags)))
 
@@ -476,13 +497,21 @@ def build_channels(layout, psfile, machine=None, **kws):
             pass
 
         elif isinstance(elem, HMRElement):
-            # TBF
-            pass
+            # Halo ring
+            props[_TYPE_PROPERTY] = "HMR"
+
+            props[_FIELD_ENG_PROPERTY] = elem.fields.current
+            props[_FIELD_PHY_PROPERTY] = elem.fields.current_phy
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel + ":AVG_RD", OrderedDict(props), list(tags)))
 
         elif isinstance(elem, CollimatorElement):
             pass
 
         elif isinstance(elem, VDElement):
+            pass
+
+        elif isinstance(elem, ElectrodeElement):
             pass
 
         elif isinstance(elem, FCElement):

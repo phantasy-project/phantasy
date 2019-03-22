@@ -13,6 +13,8 @@ from collections import OrderedDict
 from phantasy.library.layout import BCMElement
 from phantasy.library.layout import BLElement
 from phantasy.library.layout import BLMElement
+from phantasy.library.layout import NDElement
+from phantasy.library.layout import ICElement
 from phantasy.library.layout import BPMElement
 from phantasy.library.layout import BendElement
 from phantasy.library.layout import CavityElement
@@ -53,7 +55,7 @@ NON_DRIFT_ELEMENTS = (
         PortElement, QuadElement, SextElement, SolElement, SolCorElement,
         StripElement, VCorElement, VDElement, ValveElement, SlitElement,
         ChopperElement, AttenuatorElement, DumpElement, ApertureElement,
-        HMRElement, CollimatorElement,
+        HMRElement, CollimatorElement, NDElement, ICElement,
 )
 
 # constants for parsing xlsx file
@@ -88,7 +90,11 @@ DEVICE_ALIAS_PM = ( "PM", "PM1", )
 # device alias for BL (measure beam length)
 DEVICE_ALIAS_BL = ( "BL", "LPM", )
 # device alias for BLM (measure beam loss)
-DEVICE_ALIAS_BLM = ( "BLM", "ND", "IC", )
+DEVICE_ALIAS_BLM = ( "BLM", )
+# device alias for ND
+DEVICE_ALIAS_ND = ( "ND", )
+# device alias for IC
+DEVICE_ALIAS_IC = ( "IC", )
 # device alias for BCM (measure beam current)
 DEVICE_ALIAS_BCM = ( "BCM", )
 # device alias for EMS (emittance scanner)
@@ -614,6 +620,22 @@ class AccelFactory(XlfConfig):
                                           desc=row.element_name,
                                           system=row.system, subsystem=row.subsystem, device=row.device,
                                           dtype=row.device_type, inst=inst)
+                        subsequence.append(elem)
+
+                    elif row.device in DEVICE_ALIAS_ND:
+                        inst = FMT_INST.format(int(row.position))
+                        elem = NDElement(row.center_position, row.eff_length, row.diameter, row.name,
+                                         desc=row.element_name,
+                                         system=row.system, subsystem=row.subsystem, device=row.device,
+                                         dtype=row.device_type, inst=inst)
+                        subsequence.append(elem)
+
+                    elif row.device in DEVICE_ALIAS_IC:
+                        inst = FMT_INST.format(int(row.position))
+                        elem = ICElement(row.center_position, row.eff_length, row.diameter, row.name,
+                                         desc=row.element_name,
+                                         system=row.system, subsystem=row.subsystem, device=row.device,
+                                         dtype=row.device_type, inst=inst)
                         subsequence.append(elem)
 
                     elif row.device in DEVICE_ALIAS_BCM:
