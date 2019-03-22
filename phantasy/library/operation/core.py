@@ -122,15 +122,14 @@ class MachinePortal(object):
         self._work_lattice_name = ''
         self._work_lattice_conf = None
 
-        # loaded bit, fail: None
-        self.__is_loaded = None
-        self.__is_loaded = self.load_lattice(segment=segment,
-                                             machine=self._machine, **kws)
+        # check last_load_success attr
+        self.load_lattice(segment=segment, machine=self._machine, **kws)
 
-    def is_last_load_ok(self):
+    @property
+    def last_load_success(self):
         """Return True if lattice loaded without error, or False.
         """
-        return self.__is_loaded is not None
+        return self._last_load_success
 
     @property
     def last_machine_name(self):
@@ -316,6 +315,8 @@ class MachinePortal(object):
             _LOGGER.error("Cannot load machine: {} segment: {}".format(
                  machine, segment))
             retval = None
+        finally:
+            self._last_load_success = retval is not None
         return retval
 
     def print_all_properties(self):
