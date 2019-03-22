@@ -31,6 +31,8 @@ import logging
 import os.path
 
 from .accel import BLMElement
+from .accel import NDElement
+from .accel import ICElement
 from .accel import BPMElement
 from .accel import BLElement
 from .accel import PMElement
@@ -139,6 +141,12 @@ def build_layout(layoutPath=None, **kwargs):
 
             elif etype == BLMElement.ETYPE:
                 elements.append(buildElement(row, BLMElement))
+
+            elif etype == NDElement.ETYPE:
+                elements.append(buildElement(row, NDElement))
+
+            elif etype == ICElement.ETYPE:
+                elements.append(buildElement(row, ICElement))
 
             elif etype == BPMElement.ETYPE:
                 elements.append(buildElement(row, BPMElement))
