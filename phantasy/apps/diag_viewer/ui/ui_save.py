@@ -100,60 +100,20 @@ class Ui_Dialog(object):
         self.save_settings_chkbox.setObjectName("save_settings_chkbox")
         self.formLayout.setWidget(3, QtWidgets.QFormLayout.LabelRole,
                                   self.save_settings_chkbox)
-        self.horizontalLayout = QtWidgets.QHBoxLayout()
-        self.horizontalLayout.setObjectName("horizontalLayout")
-        self.label_2 = QtWidgets.QLabel(self.groupBox)
+        self.segs_hbox = QtWidgets.QHBoxLayout()
+        self.segs_hbox.setObjectName("segs_hbox")
+        self.seg_lbl = QtWidgets.QLabel(self.groupBox)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
                                            QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(
-            self.label_2.sizePolicy().hasHeightForWidth())
-        self.label_2.setSizePolicy(sizePolicy)
-        self.label_2.setObjectName("label_2")
-        self.horizontalLayout.addWidget(self.label_2)
-        self.lebt_chkbox = QtWidgets.QCheckBox(self.groupBox)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
-                                           QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(
-            self.lebt_chkbox.sizePolicy().hasHeightForWidth())
-        self.lebt_chkbox.setSizePolicy(sizePolicy)
-        self.lebt_chkbox.setObjectName("lebt_chkbox")
-        self.horizontalLayout.addWidget(self.lebt_chkbox)
-        self.mebt_chkbox = QtWidgets.QCheckBox(self.groupBox)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
-                                           QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(
-            self.mebt_chkbox.sizePolicy().hasHeightForWidth())
-        self.mebt_chkbox.setSizePolicy(sizePolicy)
-        self.mebt_chkbox.setObjectName("mebt_chkbox")
-        self.horizontalLayout.addWidget(self.mebt_chkbox)
-        self.mebt2fs1a_chkbox = QtWidgets.QCheckBox(self.groupBox)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
-                                           QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(
-            self.mebt2fs1a_chkbox.sizePolicy().hasHeightForWidth())
-        self.mebt2fs1a_chkbox.setSizePolicy(sizePolicy)
-        self.mebt2fs1a_chkbox.setObjectName("mebt2fs1a_chkbox")
-        self.horizontalLayout.addWidget(self.mebt2fs1a_chkbox)
-        self.mebt2fs1b_chkbox = QtWidgets.QCheckBox(self.groupBox)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
-                                           QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(
-            self.mebt2fs1b_chkbox.sizePolicy().hasHeightForWidth())
-        self.mebt2fs1b_chkbox.setSizePolicy(sizePolicy)
-        self.mebt2fs1b_chkbox.setObjectName("mebt2fs1b_chkbox")
-        self.horizontalLayout.addWidget(self.mebt2fs1b_chkbox)
+            self.seg_lbl.sizePolicy().hasHeightForWidth())
+        self.seg_lbl.setSizePolicy(sizePolicy)
+        self.seg_lbl.setObjectName("seg_lbl")
+        self.segs_hbox.addWidget(self.seg_lbl)
         self.formLayout.setLayout(4, QtWidgets.QFormLayout.LabelRole,
-                                  self.horizontalLayout)
+                                  self.segs_hbox)
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.label_4 = QtWidgets.QLabel(self.groupBox)
@@ -216,15 +176,7 @@ class Ui_Dialog(object):
         self.save_figure_chkbox.toggled['bool'].connect(
             self.figure_filepath_lineEdit.setEnabled)
         self.save_settings_chkbox.toggled['bool'].connect(
-            self.label_2.setEnabled)
-        self.save_settings_chkbox.toggled['bool'].connect(
-            self.lebt_chkbox.setEnabled)
-        self.save_settings_chkbox.toggled['bool'].connect(
-            self.mebt_chkbox.setEnabled)
-        self.save_settings_chkbox.toggled['bool'].connect(
-            self.mebt2fs1a_chkbox.setEnabled)
-        self.save_settings_chkbox.toggled['bool'].connect(
-            self.mebt2fs1b_chkbox.setEnabled)
+            self.seg_lbl.setEnabled)
         self.save_settings_chkbox.toggled['bool'].connect(
             self.label_5.setEnabled)
         self.save_settings_chkbox.toggled['bool'].connect(
@@ -239,11 +191,7 @@ class Ui_Dialog(object):
                            self.figure_filepath_lineEdit)
         Dialog.setTabOrder(self.figure_filepath_lineEdit,
                            self.save_settings_chkbox)
-        Dialog.setTabOrder(self.save_settings_chkbox, self.lebt_chkbox)
-        Dialog.setTabOrder(self.lebt_chkbox, self.mebt_chkbox)
-        Dialog.setTabOrder(self.mebt_chkbox, self.mebt2fs1a_chkbox)
-        Dialog.setTabOrder(self.mebt2fs1a_chkbox, self.mebt2fs1b_chkbox)
-        Dialog.setTabOrder(self.mebt2fs1b_chkbox,
+        Dialog.setTabOrder(self.save_settings_chkbox,
                            self.settings_filepath_lineEdit)
         Dialog.setTabOrder(self.settings_filepath_lineEdit, self.pushButton_3)
         Dialog.setTabOrder(self.pushButton_3, self.pushButton_2)
@@ -261,11 +209,7 @@ class Ui_Dialog(object):
         self.figure_format_cbb.setItemText(2, _translate("Dialog", "eps"))
         self.save_settings_chkbox.setText(
             _translate("Dialog", "Save Settings"))
-        self.label_2.setText(_translate("Dialog", "Segments"))
-        self.lebt_chkbox.setText(_translate("Dialog", "LEBT"))
-        self.mebt_chkbox.setText(_translate("Dialog", "MEBT"))
-        self.mebt2fs1a_chkbox.setText(_translate("Dialog", "MEBT2FS1A"))
-        self.mebt2fs1b_chkbox.setText(_translate("Dialog", "MEBT2FS1B"))
+        self.seg_lbl.setText(_translate("Dialog", "Segments"))
         self.label_4.setText(_translate("Dialog", "File Path"))
         self.label_5.setText(_translate("Dialog", "File Path"))
         self.pushButton_3.setText(_translate("Dialog", "Cancel"))
