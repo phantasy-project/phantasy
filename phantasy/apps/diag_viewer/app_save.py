@@ -7,6 +7,7 @@ import numpy as np
 
 from PyQt5.QtWidgets import QDialog
 from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtWidgets import QCheckBox
 from PyQt5.QtCore import pyqtSlot
 
 from phantasy.apps.utils import get_save_filename
@@ -36,20 +37,37 @@ class SaveDataDialog(QDialog, Ui_Dialog):
         self.save_figure_chkbox.setChecked(True)
         self.save_settings_chkbox.setChecked(True)
 
-        # all segs
-        self._mach = "FRIB"
-        all_segs = ("LEBT", "MEBT", "MEBT2FS1A", "MEBT2FS1B", )
-        self._all_segs_chkbox = [
-            getattr(self, "{}_chkbox".format(s.lower())) for s in all_segs]
-        self._selected_segs = []
-
-        for o in self._all_segs_chkbox:
-            o.toggled.connect(self.on_update_segs)
-            o.setChecked(True)
+        # list and check all loaded all segs
+        mp = self.parent.get_mp()
+        if mp is not None:
+            self.on_segments_updated(mp.lattice_names)
 
         # figure format
         self.figure_format_cbb.currentTextChanged.connect(
                 self.on_update_figure_filepath)
+
+    @pyqtSlot(list)
+    def on_segments_updated(self, segs):
+        # list of segs updated
+        cnt = self.segs_hbox.count()
+        if cnt > 1:
+            self._clear_segs()
+        seg_chkbox_list = []
+        for seg in segs:
+            seg_chkbox = QCheckBox(seg, self)
+            self.segs_hbox.addWidget(seg_chkbox)
+            seg_chkbox_list.append(seg_chkbox)
+        self._selected_segs = []
+        for o in seg_chkbox_list:
+            o.toggled.connect(self.on_update_segs)
+            o.setChecked(True)
+
+    def _clear_segs(self):
+        item = self.segs_hbox.takeAt(1)
+        while item:
+            w = item.widget()
+            if w: w.deleteLater()
+            item = self.segs_hbox.takeAt(1)
 
     @pyqtSlot('QString')
     def on_update_figure_filepath(self, fmt):
@@ -115,7 +133,7 @@ class SaveDataDialog(QDialog, Ui_Dialog):
         try:
             filepath = self.settings_filepath_lineEdit.text()
             save_all_settings(filepath, segments=self._selected_segs,
-                              machine=self._mach, **kws)
+                              machine=self._mach, mp=self.parent.get_mp())
         except:
             QMessageBox.warning(self, "Save Settings Warning",
                     "Failed to save settings to {}.".format(filepath), QMessageBox.Ok)
