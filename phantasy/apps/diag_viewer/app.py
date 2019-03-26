@@ -34,6 +34,9 @@ class DeviceViewerWindow(BaseAppForm, Ui_MainWindow):
     ## selected devices and fields, k: ename, v: list of fields
     #devicesChanged = pyqtSignal(dict)
 
+    # segments updated, list of loaded segments
+    segments_updated = pyqtSignal(list)
+
     def __init__(self, version):
         super(DeviceViewerWindow, self).__init__()
 
@@ -247,6 +250,7 @@ class DeviceViewerWindow(BaseAppForm, Ui_MainWindow):
     @pyqtSlot(QVariant)
     def update_lattice(self, o):
         self.__mp = o
+        self.segments_updated.emit(self.__mp.lattice_names)
 
     @pyqtSlot()
     def on_list_devices(self):
@@ -363,4 +367,9 @@ class DeviceViewerWindow(BaseAppForm, Ui_MainWindow):
         # save current vized data into file.
         if self._data_save_dlg is None:
             self._data_save_dlg = SaveDataDialog(self)
+        self.segments_updated.connect(self._data_save_dlg.on_segments_updated)
         self._data_save_dlg.show()
+
+    def get_mp(self):
+        # get MachinePortal instance
+        return self.__mp
