@@ -133,7 +133,7 @@ class SaveDataDialog(QDialog, Ui_Dialog):
         try:
             filepath = self.settings_filepath_lineEdit.text()
             save_all_settings(filepath, segments=self._selected_segs,
-                              machine=self._mach, mp=self.parent.get_mp())
+                              mp=self.parent.get_mp())
         except:
             QMessageBox.warning(self, "Save Settings Warning",
                     "Failed to save settings to {}.".format(filepath), QMessageBox.Ok)
