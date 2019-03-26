@@ -940,7 +940,7 @@ class MachinePortal(object):
                           INI_DICT['KEYNAME_SEGMENTS']).split()
 
     def __repr__(self):
-        if self.__is_loaded is None:
+        if not self.last_load_success:
             return "[{}] MachinePortal cannot be initialized.".format(self._machine)
         all_segments = self.get_all_segment_names()
         wl_name = self.work_lattice_name
