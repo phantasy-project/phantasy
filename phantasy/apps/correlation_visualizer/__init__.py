@@ -17,7 +17,8 @@ def run(cli=False):
     w = CorrelationVisualizerWindow(version=__version__)
     w.show()
     #w.setWindowTitle("Parameters Correlation Analysis and Visualization")
-    w.setWindowTitle("Generic Parameters Scan Analysis Application")
+    w.setWindowTitle(
+        "Correlation Visualizer: Generic Parameters Scan and Correlation Analysis")
     if cli:
         app.exec_()
     else:
