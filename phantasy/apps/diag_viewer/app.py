@@ -22,7 +22,7 @@ from .ui.ui_app import Ui_MainWindow
 from .app_save import SaveDataDialog
 from .utils import ElementListModelDV as ElementListModel
 
-DTYPE_LIST = ("BCM", "BPM", "ND", "HMR", "FC", )
+DTYPE_LIST = ("BCM", "ND", "HMR", )
 
 
 class DeviceViewerWindow(BaseAppForm, Ui_MainWindow):
