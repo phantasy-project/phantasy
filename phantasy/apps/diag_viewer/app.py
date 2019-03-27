@@ -37,6 +37,9 @@ class DeviceViewerWindow(BaseAppForm, Ui_MainWindow):
     # segments updated, list of loaded segments
     segments_updated = pyqtSignal(list)
 
+    xtklbls_changed = pyqtSignal(list)
+    xtks_changed = pyqtSignal(list)
+
     def __init__(self, version):
         super(DeviceViewerWindow, self).__init__()
 
@@ -100,6 +103,13 @@ class DeviceViewerWindow(BaseAppForm, Ui_MainWindow):
         self.id_as_x_rbtn.setChecked(False)
         self.pos_as_x_rbtn.setChecked(True)
         self._xdata_gauge = 'pos'
+
+        # show with D#### or device name
+        self._xtklbls_dnum = []   # init by reset
+        self._xtklbls_dname = []  # init by reset
+
+        self.xtks_changed.connect(self.matplotlibbarWidget.set_xticks)
+        self.xtklbls_changed.connect(self.matplotlibbarWidget.set_xticklabels)
 
         # annote
         self._show_annote = False
@@ -179,6 +189,10 @@ class DeviceViewerWindow(BaseAppForm, Ui_MainWindow):
         else: # ID as x
             s = list(range(len(h)))
         herr = [0] * len(h)
+        self._xtks = s
+        # only work with D####
+        self._xtklbls_dnum = [e.name[-5:] for e in self._elems_list]
+        self._xtklbls_dname = [e.name for e in self._elems_list]
         return s, h, herr
 
     @pyqtSlot()
@@ -188,6 +202,8 @@ class DeviceViewerWindow(BaseAppForm, Ui_MainWindow):
         self.data_initialized.emit(s, h, herr)
         # reset daq bit
         self._daq_stop = False
+        # reset xtklbl
+        self.reset_xtklbls()
         # viz cnt
         self._viz_cnt = 0
         self.viz_cnt_lbl.setText('0')
@@ -313,7 +329,7 @@ class DeviceViewerWindow(BaseAppForm, Ui_MainWindow):
         self.data = data = np.array(res)
         h, herr = data.mean(axis=0), data.std(axis=0)
 
-        if self._xdata_gauge == 'pos':
+        if self._xdata_gauge == 'pos': # s-pos as x
             s = [e.sb for e in self._elems_list]
         else: # ID as x
             s = list(range(len(h)))
@@ -373,3 +389,34 @@ class DeviceViewerWindow(BaseAppForm, Ui_MainWindow):
     def get_mp(self):
         # get MachinePortal instance
         return self.__mp
+
+    @pyqtSlot(bool)
+    def toggle_dnum(self, f):
+        if f:
+            xtklbls = [i.name[-5:] for i in self._elems_list]
+            if self._xdata_gauge == 'pos':
+                xtks = [i.sb for i in self._elems_list]
+            else:
+                xtks = list(range(len(xtklbls)))
+        else:
+            pass
+
+    @pyqtSlot(bool)
+    def on_show_dnum(self, f):
+        if not f:
+            return
+        self.xtklbls_changed.emit(self._xtklbls_dnum)
+        if self._xdata_gauge == 'pos':
+            self.xtks_changed.emit(self._xtks)
+
+    @pyqtSlot(bool)
+    def on_show_dname(self, f):
+        if not f:
+            return
+        self.xtklbls_changed.emit(self._xtklbls_dname)
+        if self._xdata_gauge == 'pos':
+            self.xtks_changed.emit(self._xtks)
+
+    def reset_xtklbls(self):
+        [o.toggled.emit(o.isChecked()) for o in
+                (self.show_dnum_rbtn, self.show_dname_rbtn)]
