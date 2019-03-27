@@ -267,6 +267,16 @@ class Ui_MainWindow(object):
         self.line_4.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.line_4.setObjectName("line_4")
         self.horizontalLayout_5.addWidget(self.line_4)
+        self.show_dnum_rbtn = QtWidgets.QRadioButton(self.groupBox_3)
+        self.show_dnum_rbtn.setObjectName("show_dnum_rbtn")
+        self.xticklbls_group = QtWidgets.QButtonGroup(MainWindow)
+        self.xticklbls_group.setObjectName("xticklbls_group")
+        self.xticklbls_group.addButton(self.show_dnum_rbtn)
+        self.horizontalLayout_5.addWidget(self.show_dnum_rbtn)
+        self.show_dname_rbtn = QtWidgets.QRadioButton(self.groupBox_3)
+        self.show_dname_rbtn.setObjectName("show_dname_rbtn")
+        self.xticklbls_group.addButton(self.show_dname_rbtn)
+        self.horizontalLayout_5.addWidget(self.show_dname_rbtn)
         self.annote_height_chkbox = QtWidgets.QCheckBox(self.groupBox_3)
         self.annote_height_chkbox.setObjectName("annote_height_chkbox")
         self.horizontalLayout_5.addWidget(self.annote_height_chkbox)
@@ -314,14 +324,14 @@ class Ui_MainWindow(object):
         self.verticalLayout.addWidget(self.groupBox_3)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1700, 32))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1700, 34))
         self.menubar.setObjectName("menubar")
         self.menu_File = QtWidgets.QMenu(self.menubar)
         self.menu_File.setObjectName("menu_File")
         self.menu_Help = QtWidgets.QMenu(self.menubar)
         self.menu_Help.setObjectName("menu_Help")
-        self.menuTools = QtWidgets.QMenu(self.menubar)
-        self.menuTools.setObjectName("menuTools")
+        self.menu_Tools = QtWidgets.QMenu(self.menubar)
+        self.menu_Tools.setObjectName("menu_Tools")
         MainWindow.setMenuBar(self.menubar)
         self.actionE_xit = QtWidgets.QAction(MainWindow)
         icon7 = QtGui.QIcon()
@@ -363,9 +373,9 @@ class Ui_MainWindow(object):
         self.menu_File.addAction(self.actionE_xit)
         self.menu_Help.addAction(self.actionAbout)
         self.menu_Help.addAction(self.actionAbout_Qt)
-        self.menuTools.addAction(self.actionLoad_Lattice)
+        self.menu_Tools.addAction(self.actionLoad_Lattice)
         self.menubar.addAction(self.menu_File.menuAction())
-        self.menubar.addAction(self.menuTools.menuAction())
+        self.menubar.addAction(self.menu_Tools.menuAction())
         self.menubar.addAction(self.menu_Help.menuAction())
 
         self.retranslateUi(MainWindow)
@@ -385,6 +395,8 @@ class Ui_MainWindow(object):
             MainWindow.onLoadLatticeAction)
         self.capture_btn.clicked.connect(MainWindow.on_single_viz_update)
         self.actionSave.triggered.connect(MainWindow.on_save_data)
+        self.show_dnum_rbtn.toggled['bool'].connect(MainWindow.on_show_dnum)
+        self.show_dname_rbtn.toggled['bool'].connect(MainWindow.on_show_dname)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -414,8 +426,19 @@ class Ui_MainWindow(object):
         self.start_btn.setText(_translate("MainWindow", "Start"))
         self.stop_btn.setText(_translate("MainWindow", "Stop"))
         self.label_11.setText(_translate("MainWindow", "X-Axis"))
+        self.id_as_x_rbtn.setToolTip(
+            _translate("MainWindow", "Apply device sequece order as x data"))
         self.id_as_x_rbtn.setText(_translate("MainWindow", "ID"))
+        self.pos_as_x_rbtn.setToolTip(
+            _translate("MainWindow",
+                       "Apply device longitudinal position as x data"))
         self.pos_as_x_rbtn.setText(_translate("MainWindow", "Position"))
+        self.show_dnum_rbtn.setToolTip(
+            _translate("MainWindow", "Show device D-numbers as xticks"))
+        self.show_dnum_rbtn.setText(_translate("MainWindow", "D####"))
+        self.show_dname_rbtn.setToolTip(
+            _translate("MainWindow", "Show device names as xticks"))
+        self.show_dname_rbtn.setText(_translate("MainWindow", "Device Name"))
         self.annote_height_chkbox.setText(
             _translate("MainWindow", "Height Annotation"))
         self.label_5.setText(_translate("MainWindow", "DataViz"))
@@ -423,12 +446,12 @@ class Ui_MainWindow(object):
         self.reset_figure_btn.setToolTip(
             _translate(
                 "MainWindow",
-                "Reset figure is always required after changing any configuration."
+                "Reset figure is always required after changing any configuration, before Capture/Start"
             ))
         self.reset_figure_btn.setText(_translate("MainWindow", "Reset"))
         self.menu_File.setTitle(_translate("MainWindow", "&File"))
         self.menu_Help.setTitle(_translate("MainWindow", "&Help"))
-        self.menuTools.setTitle(_translate("MainWindow", "Tools"))
+        self.menu_Tools.setTitle(_translate("MainWindow", "&Tools"))
         self.actionE_xit.setText(_translate("MainWindow", "E&xit"))
         self.actionE_xit.setShortcut(_translate("MainWindow", "Ctrl+W"))
         self.actionAbout.setText(_translate("MainWindow", "About"))
