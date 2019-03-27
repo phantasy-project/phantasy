@@ -61,7 +61,7 @@ class ElementSelectionWidget(QWidget, Ui_Form):
     @pyqtSlot(set)
     def on_update_dtype(self, l):
         layout = self.gridLayout
-        all_dtypes = self.__mp.get_all_types()
+        all_dtypes = sorted(self.__mp.get_all_types())
         for i, n in enumerate(all_dtypes, 1):
             w = QCheckBox(n, self)
             w.setToolTip(DTYPE_HINT_MAP.get(n, n))
