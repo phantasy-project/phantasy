@@ -214,6 +214,11 @@ class DeviceViewerWindow(BaseAppForm, Ui_MainWindow):
         else:
             self.daq_pb.setVisible(False)
 
+        # tmp solution
+        from mpl4qt.widgets.mplconfig import MatplotlibConfigBarPanel
+        MatplotlibConfigBarPanel(self.matplotlibbarWidget)
+        #
+
     @pyqtSlot(bool)
     def on_apply_id_as_xdata(self, f):
         if f:
