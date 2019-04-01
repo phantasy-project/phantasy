@@ -515,9 +515,16 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         np.savetxt(filename, np.vstack(ynerr).T, header=header,
                    delimiter='\t')
 
+    def init_mpl_settings(self):
+        o = self.scan_plot_widget
+        o.setFigureMTicksToggle(True)
+        o.setFigureGridToggle(True)
+
     def _post_init_ui(self):
         """post init ui
         """
+        # mpl settings
+        self.init_mpl_settings()
         # toolbtns
         # save data
         self.save_data_tbtn.setIconSize(BOTTOM_TBTN_ICON_QSIZE)
