@@ -163,9 +163,9 @@ class SaveDataDialog(QDialog, Ui_Dialog):
 
         # fig
         fig_fmt = self.figure_format_cbb.currentText()
-        figure_filepath = '{}.{}'.format(fname, fig_fmt)
+        figure_filepath = '{}-figure.{}'.format(fname, fig_fmt)
         self.figure_filepath_lineEdit.setText(figure_filepath)
 
         # settings
-        settings_filepath = fname + '.json'
+        settings_filepath = fname + '-settings' + '.json'
         self.settings_filepath_lineEdit.setText(settings_filepath)
