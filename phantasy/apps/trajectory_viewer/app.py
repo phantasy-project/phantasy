@@ -242,7 +242,7 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
         # cached data
         self._ref_line = self.matplotlibcurveWidget.add_curve(
                             label="Reference",
-                            color='g', marker='D', mfc='w')
+                            color='#005500', marker='v', mfc='w')
         # tuple of array of (s, b) for x and y
         self.__cached_traj = ()
 
