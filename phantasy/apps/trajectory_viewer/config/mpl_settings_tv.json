@@ -3,13 +3,13 @@
     {
       "label": "$X$",
       "line": {
-        "color": "#FF0000",
+        "color": "#0000FF",
         "style": "--",
         "width": 2.0
       },
       "line_id": 0,
       "marker": {
-        "edgecolor": "#FF0000",
+        "edgecolor": "#0000FF",
         "facecolor": "#FFFFFF",
         "size": 8.0,
         "style": "s",
@@ -19,13 +19,13 @@
     {
       "label": "$Y$",
       "line": {
-        "color": "#5500FF",
+        "color": "#FF0000",
         "style": "--",
         "width": 2.0
       },
       "line_id": 1,
       "marker": {
-        "edgecolor": "#5500FF",
+        "edgecolor": "#FF0000",
         "facecolor": "#FFFFFF",
         "size": 8.0,
         "style": "o",
