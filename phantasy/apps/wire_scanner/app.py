@@ -172,12 +172,13 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
     def init_data_plot(self):
         """Initial data plot.
         """
-        self.matplotlibcurveWidget.setFigureAutoScale(False)
-        self.matplotlibcurveWidget.setYTickFormat("Custom", "%g")
+        o = self.matplotlibcurveWidget
+        o.setFigureAutoScale(False)
+        o.setYTickFormat("Custom", "%g")
         self.xdataChanged.emit([])
         self.ydataChanged.emit([])
-        self.matplotlibcurveWidget.add_curve()
-        self.matplotlibcurveWidget.add_curve()
+        o.add_curve()
+        o.add_curve()
 
         # load default mpl curve config
         apply_mplcurve_settings(self.matplotlibcurveWidget)
@@ -594,12 +595,8 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
     def get_all_pms(self):
         """Return all PM elements.
         """
-        mp = MachinePortal("FRIB")
-        [mp.load_lattice(n) for n in ("LEBT", "MEBT2FS1A", "MEBT2FS1B")]
-        lat1 = mp.lattices["LEBT"]
-        lat2 = mp.lattices["MEBT2FS1A"]
-        lat3 = mp.lattices["MEBT2FS1B"]
-        elems = set([i for i in lat1[:] + lat2[:] + lat3[:] if i.family == 'PM'])
+        mp = MachinePortal("FRIB", "LINAC")
+        elems = mp.get_elements(type='PM')
         r = [(i.name, i) for i in sorted(elems, key=lambda x:x.name[-4:])]
         return OrderedDict(r)
 
