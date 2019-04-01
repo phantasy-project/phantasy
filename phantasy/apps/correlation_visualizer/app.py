@@ -44,6 +44,7 @@ from .app_array_set import ArraySetDialog
 from .app_points_view import PointsViewWidget
 from .app_monitors_view import MonitorsViewWidget
 from .app_mps_config import MpsConfigWidget
+from .app_save import SaveDataDialog
 from .data import ScanDataModel
 from .scan import ScanTask
 from .scan import ScanWorker
@@ -87,6 +88,9 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 
     # signal to trig PAUSE action
     pauseScan = pyqtSignal(bool)
+
+    # segments updated, list of loaded segments
+    segments_updated = pyqtSignal(list)
 
     def __init__(self, version):
         super(CorrelationVisualizerWindow, self).__init__()
@@ -471,16 +475,20 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
             return
 
         filename, ext = get_save_filename(self, caption="Save data to file",
-            filter="JSON Files (*.json);;HDF5 Files (*.hdf5 *.h5);;TXT Files (*.txt *.csv)")
+            filter="JSON Files (*.json);;CSV Files (*.csv);;HDF5 Files (*.hdf5 *.h5)")
 
         if filename is None:
             return
+        self._save_data(filename, ext)
+
+    def _save_data(self, filename, ext):
         if ext.upper() == 'JSON':
             self.__save_data_as_json(filename)
         elif ext.upper() == 'CSV':
             self.__save_data_as_array(filename)
         elif ext.upper() == 'H5':
-            pass
+            QMessageBox.warning(self, "", "TBI", QMessageBox.Ok)
+            return
         QMessageBox.information(self, "", "Save data to {}".format(filename))
 
     def __save_data_as_json(self, filename):
@@ -538,6 +546,11 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         # move to
         self.moveto_tbtn.setIconSize(BOTTOM_TBTN_ICON_QSIZE)
         self.moveto_tbtn.setToolTip("Move cross-ruler to...")
+
+        # auto scale toggle button
+        self.autoscale_tbtn.setIconSize(BOTTOM_TBTN_ICON_QSIZE)
+        self.autoscale_tbtn.setToolTip("Auto X/Y Scale")
+        self.autoscale_tbtn.setChecked(self.scan_plot_widget.getFigureAutoScale())
 
         menu = QMenu(self)
         # to peak
@@ -615,6 +628,10 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
             'normal': mps_normal_icon,
             'fault': mps_fault_icon
         }
+
+        # data save dlg
+        self._data_save_dlg = None
+        #
 
     @pyqtSlot()
     def set_alter_range(self):
@@ -882,6 +899,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         """
         self._mp = o
         self.elementsTreeChanged.emit(o)
+        self.segments_updated.emit(o.lattice_names)
 
     @pyqtSlot(bool)
     def onEnableMPSGuardian(self, f):
@@ -1134,6 +1152,18 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         new_ps = ps + 1 if mode == '+' else ps - 1
         font.setPointSize(new_ps)
         self.scan_log_textEdit.setCurrentFont(font)
+
+    @pyqtSlot()
+    def on_save_data(self):
+        # save current vized data into file.
+        if self._data_save_dlg is None:
+            self._data_save_dlg = SaveDataDialog(self)
+        self.segments_updated.connect(self._data_save_dlg.on_segments_updated)
+        self._data_save_dlg.show()
+
+    def get_mp(self):
+        # get MachinePortal instance
+        return self._mp
 
     # test slots
     def test_scan_started(self):
