@@ -26,6 +26,7 @@ from PyQt5.QtWidgets import QMenu
 from PyQt5.QtWidgets import QAction
 
 from phantasy.library.misc import epoch2human
+from phantasy import CaField
 from phantasy.apps.utils import get_save_filename
 
 from phantasy_ui import BaseAppForm
@@ -633,6 +634,24 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         self._data_save_dlg = None
         #
 
+        # current acquired data
+        self._current_arr = None
+
+        # x-data & y-data cbbs
+        self._idx, self._idy = 0, 1
+        self.xdata_cbb.currentIndexChanged.connect(
+                partial(self.on_update_data_index, 'x'))
+        self.ydata_cbb.currentIndexChanged.connect(
+                partial(self.on_update_data_index, 'y'))
+
+    @pyqtSlot(int)
+    def on_update_data_index(self, xoy, idx):
+        setattr(self, '_id{}'.format(xoy), idx)
+        # update xy labels
+        self.on_auto_labels()
+        # update data
+        self.update_curve(self._current_arr)
+
     @pyqtSlot()
     def set_alter_range(self):
         """Set scan alter vars range.
@@ -677,6 +696,9 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
             QMessageBox.warning(self, "Scan Task Warning",
                     "Scan Task is not valid", QMessageBox.Ok)
             return
+
+        # init x[y]data cbbs
+        self.init_xydata_cbbs()
 
         #
         self.scanlogTextColor.emit(COLOR_PRIMARY)
@@ -757,6 +779,9 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
     def on_one_iter_finished(self, idx, x, arr):
         """Every one iteration finished, push event log
         """
+        # current acquired data
+        self._current_arr = arr
+
         niter = self.scan_task.alter_number
         self.scanlogTextColor.emit(COLOR_INFO)
         msg = 'Iter:{0:>3d}/[{1:d}] is done at value: {2:>9.2f}'.format(
@@ -862,8 +887,12 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
     def update_curve(self, arr):
         """Update scan plot with fresh data.
         """
+        if arr is None:
+            return
         sm = ScanDataModel(arr)
-        x, y, xerr, yerr = sm.get_xavg(), sm.get_yavg(), sm.get_xerr(), sm.get_yerr()
+        idx, idy = self._idx, self._idy
+        x, xerr = sm.get_xavg(ind=idx), sm.get_xerr(ind=idx)
+        y, yerr = sm.get_yavg(ind=idy), sm.get_yerr(ind=idy)
         self.curveUpdated.emit(x, y, xerr, yerr)
 
     @pyqtSlot()
@@ -996,8 +1025,8 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
     def on_auto_labels(self):
         """Auto fill out the xy labels of figure.
         """
-        xlabel = get_auto_label(self.scan_task.alter_element)
-        ylabel = get_auto_label(self.scan_task.monitor_element)
+        xlabel = self.get_auto_label('x')
+        ylabel = self.get_auto_label('y')
         self.scan_plot_widget.setFigureXlabel(xlabel)
         self.scan_plot_widget.setFigureYlabel(ylabel)
 
@@ -1165,6 +1194,37 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         # get MachinePortal instance
         return self._mp
 
+    def init_xydata_cbbs(self):
+        # initial x[y]data_cbb with selected elements.
+        monitors = [ self.scan_task.alter_element,
+                     self.scan_task.monitor_element, ] + \
+                   self.scan_task.get_extra_monitors()
+        flds = []
+        for o in monitors:
+            if isinstance(o, CaField):
+                fld = '{0} [{1}]'.format(o.ename, o.name)
+            else:
+                fld = o.ename
+            flds.append(fld)
+
+        for i, o in zip(('x', 'y'), (self.xdata_cbb, self.ydata_cbb)):
+            o.currentIndexChanged.disconnect()
+            o.clear()
+            o.addItems(flds)
+            o.currentIndexChanged.connect(
+                    partial(self.on_update_data_index, i))
+        # inital
+        self.xdata_cbb.setCurrentIndex(0)
+        self.ydata_cbb.setCurrentIndex(1)
+        self.xdata_cbb.currentIndexChanged.emit(0)
+        self.ydata_cbb.currentIndexChanged.emit(1)
+
+        print(self._idx, self._idy)
+
+    def get_auto_label(self, xoy):
+        # Return labels for xdata/ydata.
+        return getattr(self, '{}data_cbb'.format(xoy)).currentText()
+
     # test slots
     def test_scan_started(self):
         print(self.scan_task)
@@ -1200,20 +1260,4 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         print("-"*20)
         print("\n")
         print("thread is running?", self.thread.isRunning())
-
-
-def get_auto_label(elem):
-    """Return string of element name and field name.
-    """
-    if elem is None:
-        return ''
-    if isinstance(elem, (PVElement, PVElementReadonly)):
-        # return readback pv name
-        label = '{pv}'.format(pv=elem.readback[0])
-    else:
-        # !elem is CaField!
-        # CaField
-        # return element name and field name.
-        label = '{en} [{fn}]'.format(en=elem.ename, fn=elem.name)
-    return label
 
