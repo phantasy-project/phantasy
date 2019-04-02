@@ -926,6 +926,9 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
     def update_mp(self, o):
         """Update MachinePortal instance, after reload lattice.
         """
+        # reset sel_elem_dialogs
+        self._sel_elem_dialogs = {}
+        #
         self._mp = o
         self.elementsTreeChanged.emit(o)
         self.segments_updated.emit(o.lattice_names)
@@ -1224,6 +1227,16 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
     def get_auto_label(self, xoy):
         # Return labels for xdata/ydata.
         return getattr(self, '{}data_cbb'.format(xoy)).currentText()
+
+    @pyqtSlot()
+    def on_save_task(self):
+        # save scan task into file.
+        print("Save TASK")
+
+    @pyqtSlot()
+    def on_load_task(self):
+        # load scan task.
+        print("Load TASK")
 
     # test slots
     def test_scan_started(self):
