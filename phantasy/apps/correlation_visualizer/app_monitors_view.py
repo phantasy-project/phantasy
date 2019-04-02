@@ -104,7 +104,7 @@ class MonitorsViewWidget(QWidget, Ui_Form):
     def _postset_table(self):
         """
         """
-        self.tableWidget.setSortingEnabled(True)
+        #self.tableWidget.setSortingEnabled(True)
         self.tableWidget.resizeColumnsToContents()
 
     def _preset_table(self):
