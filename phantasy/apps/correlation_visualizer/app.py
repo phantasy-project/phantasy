@@ -5,6 +5,7 @@ import epics
 import numpy as np
 import time
 from functools import partial
+from getpass import getuser
 
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtCore import pyqtSignal
@@ -28,13 +29,12 @@ from PyQt5.QtWidgets import QAction
 from phantasy.library.misc import epoch2human
 from phantasy import CaField
 from phantasy.apps.utils import get_save_filename
+from phantasy.apps.utils import get_open_filename
 
 from phantasy_ui import BaseAppForm
 from phantasy_ui.widgets import ElementWidget
 from phantasy_ui.widgets import LatticeWidget
 
-from .utils import PVElement
-from .utils import PVElementReadonly
 from .utils import random_string
 from .utils import COLOR_DANGER, COLOR_INFO, COLOR_WARNING, COLOR_PRIMARY
 from .utils import delayed_exec
@@ -49,6 +49,7 @@ from .app_save import SaveDataDialog
 from .data import ScanDataModel
 from .scan import ScanTask
 from .scan import ScanWorker
+from .scan import load_task
 from .ui.ui_app import Ui_MainWindow
 
 TS_FMT = "%Y-%m-%d %H:%M:%S"
@@ -498,6 +499,17 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         data_sheet = self.scan_task.to_datasheet()
 
         data_sheet['data'].update({'filepath': filename})
+        # info
+        data_sheet.update({'info': {}})
+        data_sheet['info'].update({'user': getuser(),
+                                   'app': self.getAppTitle(),
+                                   'version': self.getAppVersion()})
+        data_sheet['task'].update(
+            {'array_mode': self.enable_arbitary_array_chkbox.isChecked()})
+        if self._mp is not None:
+            mp_conf = {'machine': self._mp.last_machine_name,
+                       'segment': self._mp.last_lattice_name}
+            data_sheet['task'].update(mp_conf)
         # save
         data_sheet.write(filename)
         # return flag to indicate success or fail.
@@ -1232,11 +1244,20 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
     def on_save_task(self):
         # save scan task into file.
         print("Save TASK")
+        # save data does saving task + data
+        # maybe can be combine here
 
     @pyqtSlot()
     def on_load_task(self):
         # load scan task.
-        print("Load TASK")
+        filepath, ext = get_open_filename(self,
+                filter="JSON Files (*.json)")
+        if filepath is None:
+            return
+        scan_task = load_task(filepath)
+        print(scan_task)
+
+
 
     # test slots
     def test_scan_started(self):
