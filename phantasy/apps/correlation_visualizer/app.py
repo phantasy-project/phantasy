@@ -129,10 +129,9 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 
         # events
         self.niter_spinBox.valueChanged.connect(self.on_update_niter)
-        self.nshot_spinBox.valueChanged.connect(self.set_scan_daq)
-
-        self.waitsec_dSpinBox.valueChanged.connect(self.set_scan_daq)
-        self.scanrate_dSpinBox.valueChanged.connect(self.set_scan_daq)
+        self.nshot_spinBox.valueChanged.connect(self.on_update_nshot)
+        self.waitsec_dSpinBox.valueChanged.connect(self.on_update_waitsec)
+        self.scanrate_dSpinBox.valueChanged.connect(self.on_update_daqrate)
         # output scan data
         self.save_data_tbtn.clicked.connect(self.save_data)
         # auto xylabels
@@ -849,18 +848,25 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         # total number of scan points
         self.scan_task.alter_number = i
 
-    @pyqtSlot()
-    def set_scan_daq(self):
-        """Set scan DAQ parameters, and timeout for DAQ and SCAN timers.
-        """
+    @pyqtSlot(float)
+    def on_update_waitsec(self, x):
         # time wait after every scan data setup, in sec
-        self.scan_task.t_wait = self.waitsec_dSpinBox.value()
+        self.scan_task.t_wait = x
 
+    @pyqtSlot(int)
+    def on_update_nshot(self, i):
         # total shot number for each scan iteration
         self.scan_task.shotnum = self.nshot_spinBox.value()
 
+    @pyqtSlot(float)
+    def on_update_daqrate(self, x):
         ## scan DAQ rate, in Hz
-        self.scan_task.daq_rate = self.scanrate_dSpinBox.value()
+        self.scan_task.daq_rate = x
+
+    def set_scan_daq(self):
+        for o in (self.niter_spinBox, self.nshot_spinBox,
+                  self.waitsec_dSpinBox, self.scanrate_dSpinBox):
+            o.valueChanged.emit(o.value())
 
     def update_curve(self, arr):
         """Update scan plot with fresh data.
@@ -1028,7 +1034,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         ts_stop = self.scan_task.ts_stop
         title = "Completed at {ts}\nSCAN Duration: {t:.2f} s".format(
                     ts=epoch2human(ts_stop, fmt=TS_FMT),
-                    t=ts_stop-ts_start)
+                    t=ts_stop - ts_start)
         self.scan_plot_widget.setFigureTitle(title)
 
     @pyqtSlot()
@@ -1206,10 +1212,13 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 
     @pyqtSlot()
     def on_save_task(self):
-        # save scan task into file.
-        print("Save TASK")
-        # save data does saving task + data
-        # maybe can be combine here
+        # save scan task into file, even scan is done.
+        filename, ext = get_save_filename(self, caption="Save Scan Task to file",
+            filter="JSON Files (*.json)")
+
+        if filename is None:
+            return
+        self._save_data(filename, 'JSON')
 
     @pyqtSlot()
     def on_load_task(self):
@@ -1262,6 +1271,10 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         self._set_alter_array_dialogs = {}
         # array mode
         self.enable_arbitary_array_chkbox.setChecked(scan_task.array_mode)
+
+        # init data plot
+        self._current_arr = scan_task.scan_out_data
+        self.init_xydata_cbbs()
 
     def _create_element_btn(self, btn_lbl, sel_key):
         # create push button from selected element.
