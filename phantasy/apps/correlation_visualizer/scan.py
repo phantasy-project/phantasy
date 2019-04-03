@@ -30,9 +30,9 @@ class ScanTask(object):
         self.name = name
 
         # start timestamp
-        self._ts_start = None
+        self._ts_start = time.time()
         # stop timestamp
-        self._ts_stop = None
+        self._ts_stop = time.time()
 
         # element to scan
         self._alter_elem = None
@@ -255,6 +255,10 @@ class ScanTask(object):
     def scan_out_data(self):
         return self._scan_out_all
 
+    @scan_out_data.setter
+    def scan_out_data(self, arr):
+        self._scan_out_all = arr
+
     def __repr__(self):
         return "Scan Task: {name}\n" \
                "Wait Sec: {twait}\n" \
@@ -385,6 +389,9 @@ def load_task(filepath):
     array = task['task']['scan_range']
     scan_task.set_alter_array(array)
     scan_task.array_mode = array_mode
+
+    # acquired data
+    scan_task.scan_out_data = np.asarray(task['data']['array'])
 
     # mp
     machine = task['task'].get('machine','')
