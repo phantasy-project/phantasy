@@ -128,7 +128,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         self.pause_btn.clicked.connect(self.on_click_pause_btn)
 
         # events
-        self.niter_spinBox.valueChanged.connect(self.set_scan_daq)
+        self.niter_spinBox.valueChanged.connect(self.on_update_niter)
         self.nshot_spinBox.valueChanged.connect(self.set_scan_daq)
 
         self.waitsec_dSpinBox.valueChanged.connect(self.set_scan_daq)
@@ -252,6 +252,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
     @pyqtSlot(bool)
     def on_toggle_array(self, ischecked):
         """If checked,
+
         1. disconnect textChanged of lower_limit_lineEdit, upper_limit_lineEdit
         2. disconnect valueChanged of niter_spinBox
         3. disable lower_limit_lineEdit, upper_limit_lineEdit, niter_spinBox
@@ -267,7 +268,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         else:
             self.lower_limit_lineEdit.textChanged.connect(self.set_alter_range)
             self.upper_limit_lineEdit.textChanged.connect(self.set_alter_range)
-            self.niter_spinBox.valueChanged.connect(self.set_scan_daq)
+            self.niter_spinBox.valueChanged.connect(self.on_update_niter)
             self.lower_limit_lineEdit.setEnabled(True)
             self.upper_limit_lineEdit.setEnabled(True)
             self.niter_spinBox.setEnabled(True)
@@ -338,44 +339,17 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
             self.elem_widgets_dict.setdefault(
                 new_sel_key, ElementWidget(sel_elem_display, fields=fname))
 
-            elem_btn = QPushButton(elem_btn_lbl)
-            elem_btn.setAutoDefault(True)
-            elem_btn.clicked.connect(partial(self.on_show_elem_info, new_sel_key))
-            elem_btn.setCursor(Qt.PointingHandCursor)
+            elem_btn = self._create_element_btn(elem_btn_lbl, new_sel_key)
+            self._place_element_btn(elem_btn, mode)
 
             if mode == 'alter':
-                tp = "Element to alter, click to see element detail"
-                current_hbox = self.alter_elem_lineEdit.findChild(QHBoxLayout)
-                if current_hbox is None:
-                    hbox = QHBoxLayout()
-                    hbox.addWidget(elem_btn)
-                    hbox.setContentsMargins(0, 0, 0, 0)
-                    self.alter_elem_lineEdit.setLayout(hbox)
-                else:
-                    current_hbox.itemAt(0).widget().setParent(None)
-                    current_hbox.addWidget(elem_btn)
-                    current_hbox.update()
                 self.scan_task.alter_element = sel_elem
-
                 # initialize scan range
                 x0 = self.scan_task.get_initial_setting()
                 self.lower_limit_lineEdit.setText('{}'.format(x0))
                 self.upper_limit_lineEdit.setText('{}'.format(x0))
             elif mode == 'monitor':
-                tp = "Element to monitor, click to see element detail"
-                current_hbox = self.monitor_elem_lineEdit.findChild(QHBoxLayout)
-                if current_hbox is None:
-                    hbox = QHBoxLayout()
-                    hbox.addWidget(elem_btn)
-                    hbox.setContentsMargins(0, 0, 0, 0)
-                    self.monitor_elem_lineEdit.setLayout(hbox)
-                else:
-                    current_hbox.itemAt(0).widget().setParent(None)
-                    current_hbox.addWidget(elem_btn)
-                    current_hbox.update()
                 self.scan_task.monitor_element = sel_elem
-
-            elem_btn.setToolTip(tp)
 
             # debug
             print("-" * 20)
@@ -397,23 +371,11 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         if r == QDialog.Accepted:
             sel_elems = dlg.sel_elem
             sel_elems_display = dlg.sel_elem_display
-            sel_fields = dlg.sel_field
 
-            sel_keys = []
-            for elem, fld in zip(sel_elems_display, sel_elems):
-                sel_keys.append(' '.join((elem.ename, fld.name, 'extra')))
+            new_monis = self._setup_extra_monitors(sel_elems_display, sel_elems)
+            for moni in new_monis:
+                self.scan_task.add_extra_monitor(moni)
 
-            # add new monitors
-            for k, elem, fld, f in zip(sel_keys, sel_elems_display, sel_elems, sel_fields):
-                if k not in self.elem_widgets_dict:
-                    self.elem_widgets_dict[k] = ElementWidget(elem, fields=f)
-                if k not in self._extra_monitors:
-                    self._extra_monitors.append(k)
-                    # add to scan task
-                    self.scan_task.add_extra_monitor(fld)
-
-            # update the counter for the total number of extra monitors
-            self.extraMonitorsNumberChanged.emit(len(self._extra_monitors))
             # show afterward by default
             if self.auto_show_extra_chkbox.isChecked():
                 self.on_show_extra_monitors()
@@ -443,14 +405,16 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
     @pyqtSlot('QString')
     def update_extra_monitors(self, name):
         """Update extra monitors, after deletion.
+
         1. remove name from _extra_monitors
-        2. remove key of name from elem_widgets_dict
-        3. remove from scan_task
+        2. remove item with the key of name from elem_widgets_dict
+        3. remove item from scan_task
         4. update view
         """
         idx = self._extra_monitors.index(name)
         self._extra_monitors.remove(name)
         self.scan_task.del_extra_monitor(idx)
+        self.elem_widgets_dict.pop(name)
         self.extraMonitorsNumberChanged.emit(len(self._extra_monitors))
         self.on_show_extra_monitors()
 
@@ -880,13 +844,15 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         self.scanlogUpdated.emit("[RETAKE] button is pushed")
         self.__retake_scan()
 
+    @pyqtSlot(int)
+    def on_update_niter(self, i):
+        # total number of scan points
+        self.scan_task.alter_number = i
+
     @pyqtSlot()
     def set_scan_daq(self):
         """Set scan DAQ parameters, and timeout for DAQ and SCAN timers.
         """
-        # total number of scan points
-        self.scan_task.alter_number = self.niter_spinBox.value()
-
         # time wait after every scan data setup, in sec
         self.scan_task.t_wait = self.waitsec_dSpinBox.value()
 
@@ -1234,8 +1200,6 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         self.xdata_cbb.currentIndexChanged.emit(0)
         self.ydata_cbb.currentIndexChanged.emit(1)
 
-        print(self._idx, self._idy)
-
     def get_auto_label(self, xoy):
         # Return labels for xdata/ydata.
         return getattr(self, '{}data_cbb'.format(xoy)).currentText()
@@ -1255,8 +1219,121 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         if filepath is None:
             return
         scan_task = load_task(filepath)
+        self.scan_task = scan_task
         print(scan_task)
+        # initial UI widgets with loaded scan_task
+        self.init_ui_with_scan_task(scan_task)
 
+    def init_ui_with_scan_task(self, scan_task):
+        # initial UI widgets with *scan_task*.
+
+        # set UI only
+        self.enable_arbitary_array_chkbox.setChecked(True)
+
+        # alter and monitor element
+        self._setup_element_btn_from_scan_task(scan_task, 'alter')
+        self._setup_element_btn_from_scan_task(scan_task, 'monitor')
+
+        # extra monitors
+        extra_monis = scan_task.get_extra_monitors()
+        extra_monis_dis = scan_task._extra_moni_display
+        self._setup_extra_monitors(extra_monis_dis, extra_monis)
+
+        # mp
+        mp = scan_task.lattice
+        if mp is not None:
+            self.update_mp(mp)
+        else:
+            self._sel_elem_dialogs = {}
+
+        # alter begin, end
+        self.lower_limit_lineEdit.setText(str(scan_task.alter_start))
+        self.upper_limit_lineEdit.setText(str(scan_task.alter_stop))
+        # niter
+        self.niter_spinBox.setValue(scan_task.alter_number)
+        # nshot
+        self.nshot_spinBox.setValue(scan_task.shotnum)
+        # t_wait
+        self.waitsec_dSpinBox.setValue(scan_task.t_wait)
+        # daq_rate
+        self.scanrate_dSpinBox.setValue(scan_task.daq_rate)
+
+        # reset set array mode
+        self._set_alter_array_dialogs = {}
+        # array mode
+        self.enable_arbitary_array_chkbox.setChecked(scan_task.array_mode)
+
+    def _create_element_btn(self, btn_lbl, sel_key):
+        # create push button from selected element.
+        # btn_lbl: label on the button
+        # sel_key: string for indexing ElementWidget
+        elem_btn = QPushButton(btn_lbl)
+        elem_btn.setAutoDefault(True)
+        elem_btn.clicked.connect(partial(self.on_show_elem_info, sel_key))
+        elem_btn.setCursor(Qt.PointingHandCursor)
+        return elem_btn
+
+    def _place_element_btn(self, elem_btn, mode):
+        # place pushbutton for element widget
+        # mode: alter, monitor
+        le = getattr(self, '{}_elem_lineEdit'.format(mode))
+        hbox0 = le.findChild(QHBoxLayout)
+        if hbox0 is None:
+            hbox = QHBoxLayout()
+            hbox.addWidget(elem_btn)
+            hbox.setContentsMargins(0, 0, 0, 0)
+            le.setLayout(hbox)
+        else:
+            hbox0.itemAt(0).widget().setParent(None)
+            hbox0.addWidget(elem_btn)
+            hbox0.update()
+        tp = "Element to {}, click to see details".format(mode)
+        elem_btn.setToolTip(tp)
+
+    def _setup_element_btn_from_scan_task(self, scan_task, mode):
+        # set up element buttons for alter/monitor element(s)
+        # with info from *scan_task*.
+        elem = getattr(scan_task, '{}_element'.format(mode))
+        elem_dis = getattr(scan_task, '_{}_element_display'.format(mode))
+        elem_lbl = scan_task.print_element(elem)
+        print("Setting up {} element...".format(mode.upper()))
+        print("-- {} Field:".format(mode.capitalize()), elem)
+        print("-- Element:", elem_dis)
+        print("-- Field Label:", elem_lbl)
+        print("-- Field Name:", elem.name)
+        sel_key = ' '.join((elem_dis.ename, elem.name, mode))
+        self.elem_widgets_dict.setdefault(
+            sel_key, ElementWidget(elem_dis, fields=elem.name))
+        elem_btn = self._create_element_btn(elem_lbl, sel_key)
+        print("-- Created Element Button")
+        self._place_element_btn(elem_btn, mode)
+        print("-- Placed Element Button")
+
+    def _setup_extra_monitors(self, elems, flds):
+        # elems: element for display
+        # flds: element for scan task
+        # return: list of fld objs to be added to scan task as extra monis.
+        # note: add extra monis does not apply to load_task case.
+        print("Setup Extra Monitors...")
+
+        sel_keys = []
+        for elem, fld in zip(elems, flds):
+            sel_keys.append(' '.join((elem.name, fld.name, 'extra')))
+
+        new_monis = []
+        for k, elem, fld in zip(sel_keys, elems, flds):
+            if k not in self.elem_widgets_dict:
+                print("--- Add '{}' to element widget dict with key of '{}'".format(elem.name, k))
+                self.elem_widgets_dict[k] = ElementWidget(elem, fields=fld.name)
+            if k not in self._extra_monitors:
+                print("--- Add '{}' to extra monitors".format(k))
+                self._extra_monitors.append(k)
+                new_monis.append(fld)
+
+        # update the counter for the total number of extra monitors
+        self.extraMonitorsNumberChanged.emit(len(self._extra_monitors))
+
+        return new_monis
 
 
     # test slots
