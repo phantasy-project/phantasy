@@ -40,6 +40,12 @@ class ScanTask(object):
         # element to monitor (main)
         self._monitor_elem = None
 
+        # high-level lattice
+        self._lattice = None
+
+        # array mode bit
+        self._array_mode = None
+
         # additional monitors
         self._extra_monitor_elem = []
 
@@ -204,6 +210,16 @@ class ScanTask(object):
     def daq_rate(self, x):
         self._daq_rate = x
 
+    @property
+    def array_mode(self):
+        return self._array_mode
+
+    @array_mode.setter
+    def array_mode(self, f):
+        """If arbitary array input as alter range is enabled.
+        """
+        self._array_mode = f
+
     def get_alter_array(self):
         return self._alter_array
 
@@ -244,6 +260,7 @@ class ScanTask(object):
                "Wait Sec: {twait}\n" \
                "Shot Num: {nshot}\n" \
                "DAQ Rate: {rate}\n" \
+               "Array mode: {array_mode}\n" \
                "Alter array: {array}\n" \
                "Alter Number: {niter}\n"\
                "Alter start: {sstart}\n" \
@@ -259,6 +276,7 @@ class ScanTask(object):
             rate=self.daq_rate,
             sstart=self.alter_start,
             sstop=self.alter_stop,
+            array_mode=self.array_mode,
             array=str(self.get_alter_array()),
             alter=self.print_element(self.alter_element),
             moni=self.print_element(self.monitor_element),
@@ -341,6 +359,16 @@ class ScanTask(object):
             print_name = elem.ename
         return print_name
 
+    @property
+    def lattice(self):
+        return self._lattice
+
+    @lattice.setter
+    def lattice(self, o):
+        """MachinePortal instance.
+        """
+        self._lattice = o
+
 
 def load_task(filepath):
     """Instantiate ScanTask from the saved JSON file from CV app.
@@ -356,18 +384,27 @@ def load_task(filepath):
     array_mode = task['task']['array_mode']
     array = task['task']['scan_range']
     scan_task.set_alter_array(array)
+    scan_task.array_mode = array_mode
 
     # mp
-    machine = task['task']['machine']
-    segment = task['task']['segment']
+    machine = task['task'].get('machine','')
+    segment = task['task'].get('segment','')
     mp = MachinePortal(machine, segment)
+    if mp.last_load_success:
+        scan_task.lattice = mp
 
     # alter device
-    scan_task.alter_element = read_element(task, 'alter_element', mp)[0]
+    alter_objs = read_element(task, 'alter_element', mp)
+    scan_task.alter_element = alter_objs[0][0]
+    scan_task._alter_element_display = alter_objs[1][0]
     # monitor
-    scan_task.monitor_element = read_element(task, 'monitor', mp)[0]
+    moni_objs = read_element(task, 'monitor', mp)
+    scan_task.monitor_element = moni_objs[0][0]
+    scan_task._monitor_element_display = moni_objs[1][0]
     # extra monitor
-    scan_task.add_extra_monitors(read_element(task, 'extra', mp))
+    extra_moni_objs = read_element(task, 'extra', mp)
+    scan_task.add_extra_monitors(extra_moni_objs[0])
+    scan_task._extra_moni_display = extra_moni_objs[1]
 
     return scan_task
 
@@ -542,8 +579,8 @@ def read_element(task, etype, mp):
 
     Returns
     -------
-    flds : list
-        List of field obj.
+    r : tuple
+        List of field obj, and list of elem obj.
     """
     if etype == 'alter_element':
         elem_confs = [task['devices']['alter_element']]
@@ -552,6 +589,7 @@ def read_element(task, etype, mp):
     elif etype == 'extra':
         elem_confs = task['devices']['monitors'][1:]
 
+    elems = []
     flds = []
     for conf in elem_confs:
         ename = conf.get('name')
@@ -566,8 +604,10 @@ def read_element(task, etype, mp):
                 fld = PVElement(cset_pv, rdbk_pv)
             else:
                 fld = PVElementReadonly(rdbk_pv)
+            elem = fld
         flds.append(fld)
-    return flds
+        elems.append(elem)
+    return flds, elems
 
 
 if __name__ == '__main__':
