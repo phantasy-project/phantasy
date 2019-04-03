@@ -37,6 +37,17 @@ class ArraySetDialog(QDialog, Ui_Dialog):
         # default array
         self.array = None
 
+        # initial array if scan task has ready alter array set up
+        # usually happens for loaded scan task case
+        self.init_array(self.parent.scan_task)
+
+    def init_array(self, scan_task):
+        if not scan_task.array_mode:
+            return
+        array = scan_task.get_alter_array()
+        self.array = array
+        self.data_textEdit.setPlainText(str(array.tolist()))
+
     @pyqtSlot()
     def on_generate_array(self):
         """Generate array and show.
