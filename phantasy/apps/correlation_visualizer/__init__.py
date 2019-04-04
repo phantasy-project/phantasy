@@ -11,7 +11,7 @@ __copyright__ = "(c) 2018, Facility for Rare Isotope beams," \
                 " Michigan State University"
 __contact__ = "Tong Zhang <zhangt@frib.msu.edu>"
 __title__ = "Correlation Visualizer: Generic Parameters Scan and Correlation Analysis"
-__version__ = '3.4'
+__version__ = '4.0'
 
 
 def run(cli=False):
