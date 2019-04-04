@@ -762,6 +762,8 @@ class Ui_MainWindow(object):
         self.scan_plot_widget.autoScaleOnUpdated['bool'].connect(
             self.autoscale_tbtn.setChecked)
         self.actionSave.triggered.connect(MainWindow.on_save_data)
+        self.actionSave_Task.triggered.connect(MainWindow.on_save_task)
+        self.actionLoad_Task.triggered.connect(MainWindow.on_load_task)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         MainWindow.setTabOrder(self.alter_elem_lineEdit,
                                self.select_alter_elem_btn)
