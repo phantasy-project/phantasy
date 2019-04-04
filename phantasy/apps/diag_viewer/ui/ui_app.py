@@ -62,6 +62,8 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(
             self.matplotlibbarWidget.sizePolicy().hasHeightForWidth())
         self.matplotlibbarWidget.setSizePolicy(sizePolicy)
+        self.matplotlibbarWidget.setFigureMTicksToggle(True)
+        self.matplotlibbarWidget.setFigureGridToggle(True)
         self.matplotlibbarWidget.setProperty("figureBarWidth", 0.8)
         self.matplotlibbarWidget.setObjectName("matplotlibbarWidget")
         self.horizontalLayout_3.addWidget(self.matplotlibbarWidget)
