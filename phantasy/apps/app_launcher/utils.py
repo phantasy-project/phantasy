@@ -54,6 +54,7 @@ class AppDataModel(QStandardItemModel):
         #
         self.px_catpub = QPixmap(":/icons/public.png")
         self.px_catlim = QPixmap(":/icons/limited.png")
+        self.px_console = QPixmap(":/icons/console.png")
 
     def set_header(self):
         for i, s in zip(self.ids, self.header):
@@ -63,7 +64,9 @@ class AppDataModel(QStandardItemModel):
         for app in self._app_items:
             item_name = QStandardItem(app.name)
             item_name.cmd = app.cmd
-            item_name.setIcon(QIcon(QPixmap(app.icon_path)))
+            item_name.icon = icon = QIcon(QPixmap(app.icon_path))
+            item_name.icon_console = QIcon(self.px_console)
+            item_name.setIcon(icon)
 
             item_cat = QStandardItem(app.category)
             text = item_cat.text()

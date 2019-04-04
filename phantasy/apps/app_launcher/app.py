@@ -4,8 +4,11 @@
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtCore import QEvent
 from PyQt5.QtCore import QSize
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtWidgets import QDialog
+from PyQt5.QtWidgets import QMenu
+from PyQt5.QtWidgets import QAction
 
 from subprocess import Popen
 from functools import partial
@@ -74,16 +77,39 @@ class AppLauncherWindow(BaseAppForm, Ui_MainWindow):
         #
         self.adjustSize()
 
+        #
+        self.v.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.v.customContextMenuRequested.connect(
+                self.on_custom_menu_request)
+
     def set_apps(self):
         """Set apps defined in app_launcher.ini
         """
         model = AppDataModel(self.v, app_data)
         model.set_model()
 
-    def on_launch_app(self, index):
+    def on_launch_app(self, index, **kws):
         # slot
         item = self.v.model().item(index.row(), 0)
-        Popen(item.cmd, shell=True)
+        if kws.get('detached', False):
+            cmdline = "x-terminal-emulator -e " + item.cmd
+        else:
+            cmdline = item.cmd
+        Popen(cmdline, shell=True)
+
+    def on_custom_menu_request(self, pos):
+        index = self.v.indexAt(pos)
+        menu = QMenu(self)
+        item00 = self.v.model().item(index.row(), 0)
+        icon1 = item00.icon
+        icon2 = item00.icon_console
+        act1 = QAction(icon1, "Start App", menu)
+        act2 = QAction(icon2, "Start App w/ Console", menu)
+        menu.addAction(act1)
+        menu.addAction(act2)
+        menu.popup(self.v.viewport().mapToGlobal(pos))
+        act1.triggered.connect(partial(self.on_launch_app, index))
+        act2.triggered.connect(partial(self.on_launch_app, index, detached=True))
 
     def sizeHint(self):
         return QSize(1150, 700)
