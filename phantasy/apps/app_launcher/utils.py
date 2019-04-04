@@ -39,7 +39,6 @@ class AppDataModel(QStandardItemModel):
     """App data model.
 
     """
-
     def __init__(self, parent, app_items, **kws):
         # app_items: list of AppItem instances.
         super(self.__class__, self).__init__(parent)
@@ -47,8 +46,14 @@ class AppDataModel(QStandardItemModel):
         self._app_items = app_items
 
         # header
-        self.header = self.h_name, self.h_desc = ('Name', 'Description')
-        self.ids = self.i_name, self.i_desc = range(len(self.header))
+        self.header = self.h_name, self.h_cat, self.h_desc = \
+                ('Name', '', 'Description')
+        self.ids = self.i_name, self.i_cat, self.i_desc = \
+                range(len(self.header))
+
+        #
+        self.px_catpub = QPixmap(":/icons/public.png")
+        self.px_catlim = QPixmap(":/icons/limited.png")
 
     def set_header(self):
         for i, s in zip(self.ids, self.header):
@@ -56,11 +61,25 @@ class AppDataModel(QStandardItemModel):
 
     def set_data(self):
         for app in self._app_items:
-            item00 = QStandardItem(app.name)
-            item00.cmd = app.cmd
-            item00.setIcon(QIcon(QPixmap(app.icon_path)))
-            item01 = QStandardItem(app.desc)
-            row = (item00, item01)
+            item_name = QStandardItem(app.name)
+            item_name.cmd = app.cmd
+            item_name.setIcon(QIcon(QPixmap(app.icon_path)))
+
+            item_cat = QStandardItem(app.category)
+            text = item_cat.text()
+            if text == 'Public':
+                px = self.px_catpub
+                tp = "App access is public"
+            elif text == 'Limited':
+                px = self.px_catlim
+                tp = "App access is limited"
+            item_cat.setText('')
+            item_cat.setToolTip(tp)
+            item_cat.setTextAlignment(Qt.AlignCenter)
+            item_cat.setData(px.scaled(32, 32), Qt.DecorationRole)
+
+            item_desc = QStandardItem(app.desc)
+            row = (item_name, item_cat, item_desc)
             [i.setEditable(False) for i in row]
             self.appendRow(row)
 
@@ -87,17 +106,23 @@ class AppDataModel(QStandardItemModel):
             v.resizeColumnToContents(i)
         for i in range(self.rowCount()):
             v.resizeRowToContents(i)
-        v.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        #v.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         #v.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
 
 class AppItem(object):
-    def __init__(self, name, desc, cmd, icon_path):
+    def __init__(self, name, desc, cmd, icon_path, category=None):
+        # name : app name
+        # desc : app descriptiono
+        # cmd : command to start up app
+        # icon_path : icon path for app icon
+        # category : category of app, default is 'Limited'
         super(self.__class__, self).__init__()
         self.name = name
         self.desc = desc
         self.cmd = cmd
         self.icon_path = icon_path
+        self.category = "Limited" if category is None else category
 
 # app conf
 path_conf = find_dconf()
@@ -111,7 +136,8 @@ for k,v in conf.items():
     icon_path = v.get('icon', DEFAULT_ICON_PATH)
     if not os.path.isfile(icon_path):
         icon_path = DEFAULT_ICON_PATH
-    app_item = AppItem(k, v.get('desc'), v.get('exec'), icon_path)
+    category = v.get('category', None)
+    app_item = AppItem(k, v.get('desc'), v.get('exec'), icon_path, category)
     data.append(app_item)
 
 
