@@ -9,7 +9,8 @@ __authors__ = "Tong Zhang"
 __copyright__ = "(c) 2019, Facility for Rare Isotope beams," \
                 " Michigan State University"
 __contact__ = "Tong Zhang <zhangt@frib.msu.edu>"
-__version__ = '2.0'
+__title__ = "Global Launcher for FRIB Physics Apps"
+__version__ = '3.0'
 
 
 def run(cli=False):
@@ -22,7 +23,7 @@ def run(cli=False):
 
     w = AppLauncherWindow(version=__version__, logfile=logfile)
     w.show()
-    w.setWindowTitle("FRIB Physics Applications Launcher")
+    w.setWindowTitle(__title__)
     if cli:
         app.exec_()
     else:
