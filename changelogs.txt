@@ -1,3 +1,46 @@
+Version 1.10.0
+-------------
+2019-04-04
+
+- PHANTASY core:
+  - Add save_all_settings() as a new recipe to capture device settings.
+  - Optimize the import clauses.
+  - Rename BCM fields I1 --> AVG, Ip --> TYP.
+  - Add new element types: ND and IC, and corresponding layout types.
+  - Update xlsx parser to support ND and IC devices.
+  - Add --mpl-style argument for all GUI apps to apply dataviz style.
+  - Add menu launcher for Device Viewer app.
+  - Other fixes and enhancements.
+
+- App Launcher:
+  - Right-click to choose the start up approaches for launching apps.
+  - Add a new column to indicate as the category, 'limited' or 'public'.
+  - Add 'Device Viewer' app into default app configuration.
+  - Update UI with FRIB logo.
+
+- Correlation Visualizer:
+  - Fix issue about sometimes showing extra monitor details not correctly.
+  - Add option to auto show extra monitor or not.
+  - Add field column in the extra monitor viewer.
+  - Support multiple elements selection.
+  - Extend data save feature, add more keys
+  - Support save scan task into JSON file and restore by loading the file.
+  - Support correlation visulization between any two selected elements.
+  - Update dataviz style and UI.
+  - Other fixes.
+
+- [NEW] Device Viewer:
+  - Support viz any PV values in bar plot.
+  - Support DAQ configuration by setting rate, and viz rate.
+  - Support show D-number/element name/id as x-axis data.
+  - Support save data, settings, and figure into files.
+
+- Trajectory Viewer:
+  - Add tooltips for new devices types: ND, HMR, IC.
+  - Show device types in sorted order.
+  - Update the default curve style for x and y readings.
+  - Update dataviz style.
+
 Version 1.9.10
 -------------
 2019-03-06
