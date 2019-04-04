@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Device Viewer
+Comment=Visualize/Capture device readings
+Terminal=false
+Exec=device_viewer
+Icon=phantasy-dv
+StartupNotify=false
+Keywords=Phantasy;monitor;diagnostics;
+Categories=Science;Physics;
