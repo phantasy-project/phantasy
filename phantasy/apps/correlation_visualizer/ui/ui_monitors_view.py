@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui_monitors_view.ui'
 #
-# Created by: PyQt5 UI code generator 5.5.1
+# Created by: PyQt5 UI code generator 5.10.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -26,7 +26,7 @@ class Ui_Form(object):
         self.label = QtWidgets.QLabel(Form)
         self.label.setObjectName("label")
         self.horizontalLayout.addWidget(self.label)
-        self.update_btn = QtWidgets.QPushButton(Form)
+        self.update_btn = QtWidgets.QToolButton(Form)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
                                            QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
@@ -34,6 +34,12 @@ class Ui_Form(object):
         sizePolicy.setHeightForWidth(
             self.update_btn.sizePolicy().hasHeightForWidth())
         self.update_btn.setSizePolicy(sizePolicy)
+        icon = QtGui.QIcon()
+        icon.addPixmap(
+            QtGui.QPixmap(":/icons/update.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.update_btn.setIcon(icon)
+        self.update_btn.setIconSize(QtCore.QSize(24, 24))
         self.update_btn.setObjectName("update_btn")
         self.horizontalLayout.addWidget(self.update_btn)
         self.verticalLayout.addLayout(self.horizontalLayout)
@@ -68,7 +74,7 @@ class Ui_Form(object):
         self.label.setText(
             _translate(
                 "Form",
-                "<html><head/><body><p>Click each ElementWidget to see details</p></body></html>"
+                "<html><head/><body><p>List of Elements Selected as Extra Monitors</p></body></html>"
             ))
         self.update_btn.setToolTip(
             _translate(
@@ -77,6 +83,8 @@ class Ui_Form(object):
             ))
         self.update_btn.setText(_translate("Form", "Update"))
 
+
+from . import resources_rc
 
 if __name__ == "__main__":
     import sys

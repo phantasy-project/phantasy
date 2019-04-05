@@ -31,6 +31,8 @@ from phantasy.library.misc import flatten
 from phantasy.library.misc import get_intersection
 from phantasy.library.misc import parse_dt
 from phantasy.library.misc import pattern_filter
+from phantasy.library.misc import epoch2human
+from phantasy.library.misc import truncate_number
 from phantasy.library.model import BeamState
 from phantasy.library.model import ModelFlame
 from phantasy.library.parser import Configuration
@@ -45,6 +47,7 @@ from .impact import LatticeFactory as ImpactLatticeFactory
 from .impact import run_lattice as run_impact_lattice
 
 _LOGGER = logging.getLogger(__name__)
+TS_FMT = "%Y-%m-%d %H:%M:%S"
 
 try:
     basestring
@@ -1749,15 +1752,36 @@ class Lattice(object):
             Wait time after set value, in *sec*, 1.0 by default.
         echo : bool
             Print out message or not, default is True.
+        msg_queue : Queue
+            A queue that keeps log messages.
+        mode : str
+            If running under 'interactive' mode or not.
+        cor_min : float
+            Lower limit for corrector settings.
+        cor_max : float
+            Upper limit for corrector settings.
 
         Returns
         -------
+        r : bool
+            True if no errors happen.
+
+        See Also
+        --------
+        get_settings_from_orm : calculate COR settings from ORM for orbit
+            correction.
+        apply_settings_from_orm : apply COR settings from ORM to do orbit
+            correction.
         """
         itern = kws.get('iteration', 1)
         cor_field = kws.get('cor_field', 'ANG')
         damp_fac = kws.get('damping_factor', 0.05)
         wait = kws.get('wait', 1.0)
         echo = kws.get('echo', True)
+        q_msg = kws.get('msg_queue', None)
+        mode = kws.get('mode', 'interactive')
+        upper_limit_cor = kws.get('cor_max', 5.0)   # A
+        lower_limit_cor = kws.get('cor_min', -5.0)  # A
 
         if self._orm is None:
             _LOGGER.error("correct_orbit: ORM is not available, set ORM first.")
@@ -1770,23 +1794,202 @@ class Lattice(object):
             bpm_readings = get_orbit(bpms, **kws)
             delt_cor = np.dot(m_inv, -bpm_readings * damp_fac)
             for ic, (e, v) in enumerate(zip(correctors, delt_cor)):
-                if echo:
-                    print(
-                        "Correct cor[{0:>2d}/{1:>2d}]: {2:<20s} with {3:>10.4e} mrad.".format(
-                        ic + 1, n_cor, e.name, v * 1e3))
                 v0 = getattr(e, cor_field)
-                setattr(e, cor_field, v0 + v)
+                v_to_set = limit_input(v0 + v,
+                        lower_limit_cor, upper_limit_cor)
+                setattr(e, cor_field, v_to_set)
                 time.sleep(wait)
+                msg = "[{0}] #[{1}]/[{2}] Set [{3:02d}] {4} [{5}]: {6:>10.6g}.".format(
+                       epoch2human(time.time(), fmt=TS_FMT),
+                       i, itern, ic + 1, e.name, cor_field, v_to_set)
+                if q_msg is not None:
+                    q_msg.put((((ic + (i - 1) * n_cor))* 100.0 / n_cor / itern, msg))
+                if echo:
+                    print(msg)
             if i+1 > itern:
                 break
-            next_iter = r_input(
-                "Continue correction iteration: {0}/{1}? ([Y]/N)".format(i + 1,
-                                                                         itern)
-            )
+            if mode != 'interactive':
+                next_iter = 'Y'
+            else:
+                next_iter = r_input(
+                    "Continue correction iteration: {0}/{1}? ([Y]/N)".format(i + 1,
+                                                                             itern)
+                )
             if next_iter.upper() in ['Y', '']:
                 continue
             else:
                 break
+        return True
+
+    def apply_settings_from_orm(self, settings, **kws):
+        """Apply correctors settings calculated from OMR to do orbit correction.
+
+        Parameters
+        ----------
+        settings : list
+            List of tuple of (CaElement, field, setting, setting_limited).
+
+        Keyword Arguments
+        -----------------
+        iteration : int
+            Iteration numbers of correction, default is 1.
+        wait : float
+            Wait time after set value, in *sec*, 1.0 by default.
+        echo : bool
+            Print out message or not, default is True.
+        msg_queue : Queue
+            A queue that keeps log messages.
+        mode : str
+            If running under 'interactive' mode or not.
+        cor_min : float
+            Lower limit for corrector settings.
+        cor_max : float
+            Upper limit for corrector settings.
+
+        See Also
+        --------
+        get_settings_from_orm : calculate COR settings from ORM for orbit
+            correction.
+        correct_orbit : calculate and apply COR settings from ORM to do orbit
+            correction.
+        """
+        itern = kws.get('iteration', 1)
+        wait = kws.get('wait', 1.0)
+        echo = kws.get('echo', True)
+        q_msg = kws.get('msg_queue', None)
+        mode = kws.get('mode', 'interactive')
+        upper_limit_cor = kws.get('cor_max', 5.0)   # A, void in this method
+        lower_limit_cor = kws.get('cor_min', -5.0)  # A
+
+        n_cor = len(settings)
+        for i in range(1, itern + 1):
+            for ic, (cor, cor_field, v, v_limited) in enumerate(settings):
+                #v_to_set = limit_input(v, lower_limit_cor, upper_limit_cor)
+                v_to_set = v_limited
+                setattr(cor, cor_field, v_to_set)
+                time.sleep(wait)
+                msg = "[{0}] #[{1}]/[{2}] Set [{3:02d}] {4} [{5}]: {6:>10.6g}.".format(
+                       epoch2human(time.time(), fmt=TS_FMT),
+                       i, itern, ic + 1, cor.name, cor_field, v_to_set)
+                if q_msg is not None:
+                    q_msg.put((((ic + (i - 1) * n_cor))* 100.0 / n_cor / itern, msg))
+                if echo:
+                    print(msg)
+            if i+1 > itern:
+                break
+            if mode != 'interactive':
+                next_iter = 'Y'
+            else:
+                next_iter = r_input(
+                    "Continue correction iteration: {0}/{1}? ([Y]/N)".format(i + 1,
+                                                                             itern)
+                )
+            if next_iter.upper() in ['Y', '']:
+                continue
+            else:
+                break
+        return True
+
+    def apply_setting(self, setting, **kws):
+        """Apply setting for one corrector.
+
+        Parameters
+        ----------
+        setting : tuple
+            Tuple of corrector setting:
+            (CaElement, field, setpoint, setpoint_limited).
+
+        Keyword Arguments
+        -----------------
+        wait : float
+            Wait time after set value, in *sec*, 1.0 by default.
+        msg_queue : Queue
+            A queue that keeps log messages.
+        idx : int
+            Index of selected corrector of all selected ones.
+        ncor : int
+            Total number of selected correctors.
+        ndigits : int
+            Number of effective digits to keep for a float number.
+        """
+        wait = kws.get('wait', 1.0)
+        idx = kws.get('idx', 0.0)  # index of correctors
+        n = kws.get('ncor', 1)     # total number of correctors
+        q_msg = kws.get('msg_queue', None)
+        n_trun = kws.get('ndigits', 6)
+
+        cor, cor_field, v, v_limited = setting
+        v_truncated =  truncate_number(v_limited, n_trun)
+        setattr(cor, cor_field, v_truncated)
+        time.sleep(wait)
+
+        msg = "[{0}] Set [{1:02d}] {2} [{3}]: {4:>10.6f} (RD: {5:>10.6f})".format(
+                epoch2human(time.time(), fmt=TS_FMT), idx + 1, cor.name,
+                cor_field, v_truncated, getattr(cor, cor_field))
+        if q_msg is not None:
+            q_msg.put((idx * 100.0 / n, msg))
+        print(msg)
+
+    def get_settings_from_orm(self, correctors, bpms, **kws):
+        """Return correctors settings from ORM.
+
+        Parameters
+        ----------
+        correctors : list
+            List of corrector elements.
+        bpms : list
+            List of BPM elements.
+
+        Keyword Arguments
+        -----------------
+        cor_field : str
+            Field name for correctors, ``'ANG'`` by default.
+        orb_field : tuple[str]
+            Field names for monitors to retrieve orbit data, ``('X', 'Y')`` for
+            *x* and *y* directions by default.
+        damping_factor : float
+            Factor to correct orbit, default is 0.05, which would decrease beam
+            orbit (BPM readings) by 5% for every correction.
+        cor_min : float
+            Lower limit for corrector settings.
+        cor_max : float
+            Upper limit for corrector settings.
+
+        Returns
+        -------
+        r : list
+            List of tuple of (CaElement, field, setting, setting_limited).
+
+        See Also
+        --------
+        apply_settings_from_orm : apply COR settings from ORM to do orbit
+            correction.
+        correct_orbit : calculate and apply COR settings from ORM to do orbit
+            correction.
+        """
+        damp_fac = kws.get('damping_factor', 0.05)
+        cor_field = kws.get('cor_field', 'ANG')
+        upper_limit_cor = kws.get('cor_max', 5.0)   # A
+        lower_limit_cor = kws.get('cor_min', -5.0)  # A
+
+        if self._orm is None:
+            _LOGGER.error("correct_orbit: ORM is not available, set ORM first.")
+            raise RuntimeError("INVALID ORM data.")
+        m = self._orm
+        m_inv = inverse_matrix(m)
+
+        settings = []
+        n_cor = len(correctors)
+        bpm_readings = get_orbit(bpms, **kws)
+        delt_cor = np.dot(m_inv, -bpm_readings * damp_fac)
+        for ic, (e, v) in enumerate(zip(correctors, delt_cor)):
+            v0 = getattr(e, cor_field)
+            v_to_set = v0 + v
+            v_to_set_limited = limit_input(v_to_set, lower_limit_cor, upper_limit_cor)
+            settings.append((e, cor_field, v_to_set, v_to_set_limited))
+
+        return settings
+
 
     def measure_orm(self):
         pass
@@ -1928,3 +2131,12 @@ def _get_control_field(elem, field):
     if not isinstance(field, (list, tuple)):
         field = field,
     return {f: getattr(elem, f) for f in field}
+
+
+def limit_input(x, lower, upper):
+    # limit the input *x* within [lower, upper].
+    if x <= lower:
+        return lower
+    if x >= upper:
+        return upper
+    return x

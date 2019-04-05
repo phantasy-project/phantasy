@@ -45,6 +45,8 @@ from phantasy.library.layout import AttenuatorElement
 from phantasy.library.layout import SlitElement
 from phantasy.library.layout import DumpElement
 from phantasy.library.layout import ChopperElement
+from phantasy.library.layout import HMRElement
+from phantasy.library.layout import CollimatorElement
 from phantasy.library.settings import Settings
 
 try:
@@ -368,8 +370,11 @@ class FlameLatticeFactory(BaseLatticeFactory):
                                                                     _DEFAULT_INITIAL_ENVELOPE)
 
         for elem in self._accel.iter(self.start, self.end):
+
             # check drift mask first
-            if self._get_config(elem.dtype, CONFIG_DRIFT_MASK, 'False').lower() == 'true':
+            drift_mask_dtype = self._get_config(elem.dtype, CONFIG_DRIFT_MASK, 'False')
+            drift_mask_name = self._get_config(elem.name, CONFIG_DRIFT_MASK, 'False')
+            if drift_mask_dtype.lower() == 'true' or drift_mask_name.lower() == 'true':
                 elem = DriftElement(elem.z, elem.length, elem.aperture, elem.name)
             #
 
@@ -739,6 +744,12 @@ class FlameLatticeFactory(BaseLatticeFactory):
                 lattice.append(elem.name, "drift", ('L', elem.length), ('aper', elem.aperture / 2.0),
                                name=elem.name, etype=elem.ETYPE)
             elif isinstance(elem, ChopperElement):
+                lattice.append(elem.name, "drift", ('L', elem.length), ('aper', elem.aperture / 2.0),
+                               name=elem.name, etype=elem.ETYPE)
+            elif isinstance(elem, HMRElement):
+                lattice.append(elem.name, "drift", ('L', elem.length), ('aper', elem.aperture / 2.0),
+                               name=elem.name, etype=elem.ETYPE)
+            elif isinstance(elem, CollimatorElement):
                 lattice.append(elem.name, "drift", ('L', elem.length), ('aper', elem.aperture / 2.0),
                                name=elem.name, etype=elem.ETYPE)
 

@@ -58,6 +58,8 @@ from phantasy.library.layout import ChopperElement
 from phantasy.library.layout import AttenuatorElement
 from phantasy.library.layout import DumpElement
 from phantasy.library.layout import ApertureElement
+from phantasy.library.layout import HMRElement
+from phantasy.library.layout import CollimatorElement
 from phantasy.library.lattice import FlameLatticeFactory
 
 
@@ -345,7 +347,9 @@ class VirtualAcceleratorFactory(object):
 
         for elem in self.layout.iter(start=self.start, end=self.end):
             # check drift mask first
-            if self._get_config(elem.dtype, CONFIG_DRIFT_MASK, 'False').lower() == 'true':
+            drift_mask_dtype = self._get_config(elem.dtype, CONFIG_DRIFT_MASK, 'False')
+            drift_mask_name = self._get_config(elem.name, CONFIG_DRIFT_MASK, 'False')
+            if drift_mask_dtype.lower() == 'true' or drift_mask_name.lower() == 'true':
                 elem = DriftElement(elem.z, elem.length, elem.aperture, elem.name)
             #
 
@@ -471,7 +475,8 @@ class VirtualAcceleratorFactory(object):
                 pass
 
             elif isinstance(elem, (AttenuatorElement, ApertureElement,
-                                   ChopperElement, DumpElement, SlitElement)):
+                                   ChopperElement, DumpElement, SlitElement,
+                                   HMRElement, CollimatorElement)):
                 # no channels for now
                 pass
 
@@ -545,6 +550,9 @@ class VirtualAccelerator(object):
     def __prefix_pv(self, pv):
         """Prefix *pv* with _chanprefix (if not '') and ':'.
         """
+        if pv.startswith('_#_'):
+            return pv[3:]
+
         if self._chanprefix != '':
             return '{}:{}'.format(self._chanprefix, pv)
         else:

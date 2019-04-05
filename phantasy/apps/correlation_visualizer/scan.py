@@ -9,8 +9,13 @@ from PyQt5.QtCore import QVariant
 
 from collections import OrderedDict
 from phantasy.apps.correlation_visualizer.data import JSONDataSheet
+from phantasy.apps.correlation_visualizer.utils import random_string
+from phantasy.apps.correlation_visualizer.utils import PVElement
+from phantasy.apps.correlation_visualizer.utils import PVElementReadonly
 
 from phantasy import epoch2human
+from phantasy import CaField
+from phantasy import MachinePortal
 
 
 TS_FMT = "%Y-%m-%d %H:%M:%S"
@@ -25,15 +30,21 @@ class ScanTask(object):
         self.name = name
 
         # start timestamp
-        self._ts_start = None
+        self._ts_start = time.time()
         # stop timestamp
-        self._ts_stop = None
+        self._ts_stop = time.time()
 
         # element to scan
         self._alter_elem = None
 
         # element to monitor (main)
         self._monitor_elem = None
+
+        # high-level lattice
+        self._lattice = None
+
+        # array mode bit
+        self._array_mode = None
 
         # additional monitors
         self._extra_monitor_elem = []
@@ -66,6 +77,8 @@ class ScanTask(object):
 
     @name.setter
     def name(self, s):
+        if s is None:
+            s = random_string(6)
         self._name = s
 
     @property
@@ -197,6 +210,16 @@ class ScanTask(object):
     def daq_rate(self, x):
         self._daq_rate = x
 
+    @property
+    def array_mode(self):
+        return self._array_mode
+
+    @array_mode.setter
+    def array_mode(self, f):
+        """If arbitary array input as alter range is enabled.
+        """
+        self._array_mode = f
+
     def get_alter_array(self):
         return self._alter_array
 
@@ -232,10 +255,36 @@ class ScanTask(object):
     def scan_out_data(self):
         return self._scan_out_all
 
+    @scan_out_data.setter
+    def scan_out_data(self, arr):
+        self._scan_out_all = arr
+
     def __repr__(self):
-        return "Scan Task: {name}\nAlter array: {array}".format(
+        return "Scan Task: {name}\n" \
+               "Wait Sec: {twait}\n" \
+               "Shot Num: {nshot}\n" \
+               "DAQ Rate: {rate}\n" \
+               "Array mode: {array_mode}\n" \
+               "Alter array: {array}\n" \
+               "Alter Number: {niter}\n"\
+               "Alter start: {sstart}\n" \
+               "Alter stop: {sstop}\n" \
+               "Alter element: {alter}\n" \
+               "Monitor element: {moni}\n" \
+               "Extra monitors: {extra_moni}\n" \
+               .format(
             name=self.name,
+            niter=self.alter_number,
+            twait=self.t_wait,
+            nshot=self.shotnum,
+            rate=self.daq_rate,
+            sstart=self.alter_start,
+            sstop=self.alter_stop,
+            array_mode=self.array_mode,
             array=str(self.get_alter_array()),
+            alter=self.print_element(self.alter_element),
+            moni=self.print_element(self.monitor_element),
+            extra_moni=[self.print_element(i) for i in self.get_extra_monitors()],
         )
 
     def is_valid(self):
@@ -268,6 +317,7 @@ class ScanTask(object):
         data_sheet = JSONDataSheet()
         # task
         task_dict = OrderedDict()
+        task_dict['name'] = self.name
         task_dict['start'] = epoch2human(self.ts_start, fmt=TS_FMT)
         task_dict['stop'] = epoch2human(self.ts_stop, fmt=TS_FMT)
         task_dict['duration'] = self.ts_stop - self.ts_start
@@ -304,6 +354,66 @@ class ScanTask(object):
         data_sheet.update({'data': data_dict})
 
         return data_sheet
+
+    @staticmethod
+    def print_element(elem):
+        if isinstance(elem, CaField):
+            print_name = '{0} [{1}]'.format(elem.ename, elem.name)
+        else:
+            print_name = elem.ename
+        return print_name
+
+    @property
+    def lattice(self):
+        return self._lattice
+
+    @lattice.setter
+    def lattice(self, o):
+        """MachinePortal instance.
+        """
+        self._lattice = o
+
+
+def load_task(filepath):
+    """Instantiate ScanTask from the saved JSON file from CV app.
+    """
+    task = JSONDataSheet(filepath)
+
+    name = task['task'].get('name', None)
+    scan_task = ScanTask(name)
+    scan_task.alter_number = task['task']['n_iteration']
+    scan_task.shotnum = task['task']['n_shot']
+    scan_task.daq_rate = task['task']['daq_rate']
+    scan_task.t_wait = task['task']['t_wait']
+    array_mode = task['task']['array_mode']
+    array = task['task']['scan_range']
+    scan_task.set_alter_array(array)
+    scan_task.array_mode = array_mode
+
+    # acquired data
+    scan_task.scan_out_data = np.asarray(task['data']['array'])
+
+    # mp
+    machine = task['task'].get('machine','')
+    segment = task['task'].get('segment','')
+    mp = MachinePortal(machine, segment)
+    if mp.last_load_success:
+        scan_task.lattice = mp
+
+    # alter device
+    alter_objs = read_element(task, 'alter_element', mp)
+    scan_task.alter_element = alter_objs[0][0]
+    scan_task._alter_element_display = alter_objs[1][0]
+    # monitor
+    moni_objs = read_element(task, 'monitor', mp)
+    scan_task.monitor_element = moni_objs[0][0]
+    scan_task._monitor_element_display = moni_objs[1][0]
+    # extra monitor
+    extra_moni_objs = read_element(task, 'extra', mp)
+    scan_task.add_extra_monitors(extra_moni_objs[0])
+    scan_task._extra_moni_display = extra_moni_objs[1]
+
+    return scan_task
 
 
 class ScanWorker(QObject):
@@ -460,6 +570,51 @@ class ScanWorker(QObject):
 
         # put processed flag
         self._processed_ws.append(ename)
+
+
+def read_element(task, etype, mp):
+    """Read elemnt(field object to scan) from task config.
+
+    Parameters
+    ----------
+    task : dict
+        JSON data sheet.
+    etype: str
+        One of 'alter_element', 'monitor', 'extra'.
+    mp :
+        MachinePortal instance.
+
+    Returns
+    -------
+    r : tuple
+        List of field obj, and list of elem obj.
+    """
+    if etype == 'alter_element':
+        elem_confs = [task['devices']['alter_element']]
+    elif etype == 'monitor':
+        elem_confs = [task['devices']['monitors'][0]]
+    elif etype == 'extra':
+        elem_confs = task['devices']['monitors'][1:]
+
+    elems = []
+    flds = []
+    for conf in elem_confs:
+        ename = conf.get('name')
+        fname = conf.get('field')
+        if not fname.startswith('<'):
+            elem = mp.get_elements(name=ename)[0]
+            fld = elem.get_field(fname)
+        else:
+            rdbk_pv = conf.get('readback_pv')
+            if etype == 'alter_element':
+                cset_pv = conf.get('setpoint_pv')
+                fld = PVElement(cset_pv, rdbk_pv)
+            else:
+                fld = PVElementReadonly(rdbk_pv)
+            elem = fld
+        flds.append(fld)
+        elems.append(elem)
+    return flds, elems
 
 
 if __name__ == '__main__':

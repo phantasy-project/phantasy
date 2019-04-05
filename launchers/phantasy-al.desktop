@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Physics App Launcher
+Comment=Launch FRIB Physics Applications
+Terminal=false
+Exec=app_launcher
+Icon=phantasy-al
+StartupNotify=false
+Keywords=Phantasy;phyapps;
+Categories=Science;Physics;

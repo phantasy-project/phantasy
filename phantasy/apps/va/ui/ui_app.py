@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui_app.ui'
 #
-# Created by: PyQt5 UI code generator 5.5.1
+# Created by: PyQt5 UI code generator 5.10.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -12,7 +12,12 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(729, 413)
+        MainWindow.resize(800, 464)
+        icon = QtGui.QIcon()
+        icon.addPixmap(
+            QtGui.QPixmap(":/icons/frib_va.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        MainWindow.setWindowIcon(icon)
         MainWindow.setStyleSheet(
             "QGroupBox {\n"
             "    /*background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
@@ -53,6 +58,7 @@ class Ui_MainWindow(object):
         self.label.setObjectName("label")
         self.gridLayout.addWidget(self.label, 0, 0, 1, 1)
         self.mach_comboBox = QtWidgets.QComboBox(self.config_groupBox)
+        self.mach_comboBox.setEditable(True)
         self.mach_comboBox.setObjectName("mach_comboBox")
         self.gridLayout.addWidget(self.mach_comboBox, 0, 1, 1, 1)
         self.label_2 = QtWidgets.QLabel(self.config_groupBox)
@@ -74,6 +80,7 @@ class Ui_MainWindow(object):
         self.label_6.setObjectName("label_6")
         self.gridLayout.addWidget(self.label_6, 1, 0, 1, 1)
         self.segm_comboBox = QtWidgets.QComboBox(self.config_groupBox)
+        self.segm_comboBox.setEditable(True)
         self.segm_comboBox.setObjectName("segm_comboBox")
         self.gridLayout.addWidget(self.segm_comboBox, 1, 1, 1, 1)
         self.label_5 = QtWidgets.QLabel(self.config_groupBox)
@@ -89,6 +96,77 @@ class Ui_MainWindow(object):
         self.localonly_chkbox.setObjectName("localonly_chkbox")
         self.gridLayout.addWidget(self.localonly_chkbox, 2, 2, 1, 2)
         self.gridLayout_2.addWidget(self.config_groupBox, 0, 0, 1, 1)
+        self.groupBox = QtWidgets.QGroupBox(self.centralwidget)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
+                                           QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.groupBox.sizePolicy().hasHeightForWidth())
+        self.groupBox.setSizePolicy(sizePolicy)
+        self.groupBox.setObjectName("groupBox")
+        self.horizontalLayout_4 = QtWidgets.QHBoxLayout(self.groupBox)
+        self.horizontalLayout_4.setContentsMargins(5, 5, 5, 5)
+        self.horizontalLayout_4.setObjectName("horizontalLayout_4")
+        self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
+        self.va_status_label = QtWidgets.QLabel(self.groupBox)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
+                                           QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.va_status_label.sizePolicy().hasHeightForWidth())
+        self.va_status_label.setSizePolicy(sizePolicy)
+        self.va_status_label.setStyleSheet("QLabel {\n"
+                                           "    background-color: red;\n"
+                                           "    color: white;\n"
+                                           "    border: 1px solid red;\n"
+                                           "    border-radius: 5px;\n"
+                                           "    padding: 2px;\n"
+                                           "} ")
+        self.va_status_label.setAlignment(QtCore.Qt.AlignCenter)
+        self.va_status_label.setObjectName("va_status_label")
+        self.horizontalLayout_2.addWidget(self.va_status_label)
+        self.va_name_label = QtWidgets.QLabel(self.groupBox)
+        font = QtGui.QFont()
+        font.setItalic(True)
+        self.va_name_label.setFont(font)
+        self.va_name_label.setText("")
+        self.va_name_label.setObjectName("va_name_label")
+        self.horizontalLayout_2.addWidget(self.va_name_label)
+        spacerItem = QtWidgets.QSpacerItem(40, 20,
+                                           QtWidgets.QSizePolicy.Expanding,
+                                           QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_2.addItem(spacerItem)
+        self.label_3 = QtWidgets.QLabel(self.groupBox)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
+                                           QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.label_3.sizePolicy().hasHeightForWidth())
+        self.label_3.setSizePolicy(sizePolicy)
+        self.label_3.setObjectName("label_3")
+        self.horizontalLayout_2.addWidget(self.label_3)
+        self.uptime_label = QtWidgets.QLabel(self.groupBox)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
+                                           QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.uptime_label.sizePolicy().hasHeightForWidth())
+        self.uptime_label.setSizePolicy(sizePolicy)
+        self.uptime_label.setStyleSheet("QLabel {\n"
+                                        "    font-family: monospace;\n"
+                                        "}")
+        self.uptime_label.setAlignment(QtCore.Qt.AlignRight
+                                       | QtCore.Qt.AlignTrailing
+                                       | QtCore.Qt.AlignVCenter)
+        self.uptime_label.setObjectName("uptime_label")
+        self.horizontalLayout_2.addWidget(self.uptime_label)
+        self.horizontalLayout_4.addLayout(self.horizontalLayout_2)
+        self.gridLayout_2.addWidget(self.groupBox, 2, 0, 1, 1)
         self.control_groupBox = QtWidgets.QGroupBox(self.centralwidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
                                            QtWidgets.QSizePolicy.Preferred)
@@ -176,10 +254,10 @@ class Ui_MainWindow(object):
         self.noise_label.setEnabled(False)
         self.noise_label.setObjectName("noise_label")
         self.horizontalLayout_3.addWidget(self.noise_label)
-        spacerItem = QtWidgets.QSpacerItem(40, 20,
-                                           QtWidgets.QSizePolicy.Expanding,
-                                           QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayout_3.addItem(spacerItem)
+        spacerItem1 = QtWidgets.QSpacerItem(40, 20,
+                                            QtWidgets.QSizePolicy.Expanding,
+                                            QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_3.addItem(spacerItem1)
         self.verticalLayout_2.addLayout(self.horizontalLayout_3)
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setContentsMargins(-1, 0, -1, -1)
@@ -240,72 +318,15 @@ class Ui_MainWindow(object):
             QtCore.Qt.LinksAccessibleByMouse)
         self.mps_pvname_lbl.setObjectName("mps_pvname_lbl")
         self.horizontalLayout.addWidget(self.mps_pvname_lbl)
-        spacerItem1 = QtWidgets.QSpacerItem(40, 20,
-                                            QtWidgets.QSizePolicy.Expanding,
-                                            QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayout.addItem(spacerItem1)
-        self.verticalLayout_2.addLayout(self.horizontalLayout)
-        self.gridLayout_2.addWidget(self.control_groupBox, 1, 0, 1, 1)
-        self.groupBox = QtWidgets.QGroupBox(self.centralwidget)
-        self.groupBox.setObjectName("groupBox")
-        self.horizontalLayout_4 = QtWidgets.QHBoxLayout(self.groupBox)
-        self.horizontalLayout_4.setContentsMargins(5, 5, 5, 5)
-        self.horizontalLayout_4.setObjectName("horizontalLayout_4")
-        self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
-        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
-        self.va_status_label = QtWidgets.QLabel(self.groupBox)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
-                                           QtWidgets.QSizePolicy.Preferred)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(
-            self.va_status_label.sizePolicy().hasHeightForWidth())
-        self.va_status_label.setSizePolicy(sizePolicy)
-        self.va_status_label.setStyleSheet("QLabel {\n"
-                                           "    background-color: red;\n"
-                                           "    color: white;\n"
-                                           "    border: 1px solid red;\n"
-                                           "    border-radius: 5px;\n"
-                                           "    padding: 2px;\n"
-                                           "} ")
-        self.va_status_label.setAlignment(QtCore.Qt.AlignCenter)
-        self.va_status_label.setObjectName("va_status_label")
-        self.horizontalLayout_2.addWidget(self.va_status_label)
-        self.va_name_label = QtWidgets.QLabel(self.groupBox)
-        font = QtGui.QFont()
-        font.setItalic(True)
-        self.va_name_label.setFont(font)
-        self.va_name_label.setText("")
-        self.va_name_label.setObjectName("va_name_label")
-        self.horizontalLayout_2.addWidget(self.va_name_label)
         spacerItem2 = QtWidgets.QSpacerItem(40, 20,
                                             QtWidgets.QSizePolicy.Expanding,
                                             QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayout_2.addItem(spacerItem2)
-        self.label_3 = QtWidgets.QLabel(self.groupBox)
-        self.label_3.setObjectName("label_3")
-        self.horizontalLayout_2.addWidget(self.label_3)
-        self.uptime_label = QtWidgets.QLabel(self.groupBox)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
-                                           QtWidgets.QSizePolicy.Preferred)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(
-            self.uptime_label.sizePolicy().hasHeightForWidth())
-        self.uptime_label.setSizePolicy(sizePolicy)
-        self.uptime_label.setStyleSheet("QLabel {\n"
-                                        "    font-family: monospace;\n"
-                                        "}")
-        self.uptime_label.setAlignment(QtCore.Qt.AlignRight
-                                       | QtCore.Qt.AlignTrailing
-                                       | QtCore.Qt.AlignVCenter)
-        self.uptime_label.setObjectName("uptime_label")
-        self.horizontalLayout_2.addWidget(self.uptime_label)
-        self.horizontalLayout_4.addLayout(self.horizontalLayout_2)
-        self.gridLayout_2.addWidget(self.groupBox, 2, 0, 1, 1)
+        self.horizontalLayout.addItem(spacerItem2)
+        self.verticalLayout_2.addLayout(self.horizontalLayout)
+        self.gridLayout_2.addWidget(self.control_groupBox, 1, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 729, 30))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 34))
         self.menubar.setObjectName("menubar")
         self.menu_Help = QtWidgets.QMenu(self.menubar)
         self.menu_Help.setObjectName("menu_Help")
@@ -316,20 +337,60 @@ class Ui_MainWindow(object):
         self.toolBar.setObjectName("toolBar")
         MainWindow.addToolBar(QtCore.Qt.TopToolBarArea, self.toolBar)
         self.actionAbout = QtWidgets.QAction(MainWindow)
+        icon1 = QtGui.QIcon()
+        icon1.addPixmap(
+            QtGui.QPixmap(":/icons/info.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.actionAbout.setIcon(icon1)
         self.actionAbout.setObjectName("actionAbout")
         self.actionAbout_Qt = QtWidgets.QAction(MainWindow)
+        icon2 = QtGui.QIcon()
+        icon2.addPixmap(
+            QtGui.QPixmap(":/icons/qt.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.actionAbout_Qt.setIcon(icon2)
         self.actionAbout_Qt.setObjectName("actionAbout_Qt")
         self.actionContents = QtWidgets.QAction(MainWindow)
+        icon3 = QtGui.QIcon()
+        icon3.addPixmap(
+            QtGui.QPixmap(":/icons/help.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.actionContents.setIcon(icon3)
         self.actionContents.setObjectName("actionContents")
         self.actionE_xit = QtWidgets.QAction(MainWindow)
+        icon4 = QtGui.QIcon()
+        icon4.addPixmap(
+            QtGui.QPixmap(":/icons/exit.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.actionE_xit.setIcon(icon4)
         self.actionE_xit.setObjectName("actionE_xit")
         self.nb_tool = QtWidgets.QAction(MainWindow)
+        icon5 = QtGui.QIcon()
+        icon5.addPixmap(
+            QtGui.QPixmap(":/icons/notebook_run.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.nb_tool.setIcon(icon5)
         self.nb_tool.setObjectName("nb_tool")
         self.va_info_tool = QtWidgets.QAction(MainWindow)
+        icon6 = QtGui.QIcon()
+        icon6.addPixmap(
+            QtGui.QPixmap(":/icons/system-task.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.va_info_tool.setIcon(icon6)
         self.va_info_tool.setObjectName("va_info_tool")
         self.va_run_tool = QtWidgets.QAction(MainWindow)
+        icon7 = QtGui.QIcon()
+        icon7.addPixmap(
+            QtGui.QPixmap(":/icons/play.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.va_run_tool.setIcon(icon7)
         self.va_run_tool.setObjectName("va_run_tool")
         self.va_stop_tool = QtWidgets.QAction(MainWindow)
+        icon8 = QtGui.QIcon()
+        icon8.addPixmap(
+            QtGui.QPixmap(":/icons/stop.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.va_stop_tool.setIcon(icon8)
         self.va_stop_tool.setObjectName("va_stop_tool")
         self.menu_Help.addAction(self.actionContents)
         self.menu_Help.addSeparator()
@@ -383,6 +444,10 @@ class Ui_MainWindow(object):
         self.prefix_comboBox.setItemText(1, _translate("MainWindow", "VA"))
         self.localonly_chkbox.setText(
             _translate("MainWindow", "Limit CA Local Only"))
+        self.groupBox.setTitle(_translate("MainWindow", "Status"))
+        self.va_status_label.setText(_translate("MainWindow", "Stopped"))
+        self.label_3.setText(_translate("MainWindow", "Uptime"))
+        self.uptime_label.setText(_translate("MainWindow", "00:00:00"))
         self.control_groupBox.setTitle(_translate("MainWindow", "Control"))
         self.label_4.setText(_translate("MainWindow", "Noise Level"))
         self.noise_label.setText(_translate("MainWindow", "0.0%"))
@@ -391,10 +456,6 @@ class Ui_MainWindow(object):
         self.mps_disable_radiobtn.setText(_translate("MainWindow", "Disable"))
         self.mps_monitor_radiobtn.setText(_translate("MainWindow", "Monitor"))
         self.mps_enable_radiobtn.setText(_translate("MainWindow", "Enable"))
-        self.groupBox.setTitle(_translate("MainWindow", "Status"))
-        self.va_status_label.setText(_translate("MainWindow", "Stopped"))
-        self.label_3.setText(_translate("MainWindow", "Uptime"))
-        self.uptime_label.setText(_translate("MainWindow", "00:00:00"))
         self.menu_Help.setTitle(_translate("MainWindow", "&Help"))
         self.menu_File.setTitle(_translate("MainWindow", "&File"))
         self.toolBar.setWindowTitle(_translate("MainWindow", "toolBar"))
@@ -410,6 +471,8 @@ class Ui_MainWindow(object):
         self.va_run_tool.setText(_translate("MainWindow", "RUN VA"))
         self.va_stop_tool.setText(_translate("MainWindow", "STOP VA"))
 
+
+from . import resources_rc
 
 if __name__ == "__main__":
     import sys

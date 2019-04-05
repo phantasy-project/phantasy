@@ -14,7 +14,7 @@ def read_license():
         return f.read()
 
 
-app_version="1.8.9"
+app_version="1.10.1"
 app_name = "phantasy"
 app_description = 'Physics high-level applications and toolkit for ' \
         'accelerator system'
@@ -67,6 +67,8 @@ def set_entry_points():
         'wire_scanner=phantasy.apps.wire_scanner:run',
         'settings_manager=phantasy.apps.settings_manager:run',
         'allison_scanner=phantasy.apps.allison_scanner:run',
+        'app_launcher=phantasy.apps.app_launcher:run',
+        'device_viewer=phantasy.apps.diag_viewer:run',
     ]
     return r
 

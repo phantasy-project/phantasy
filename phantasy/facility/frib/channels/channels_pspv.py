@@ -13,12 +13,15 @@ import re
 from phantasy.library.layout import BCMElement
 from phantasy.library.layout import BLElement
 from phantasy.library.layout import BLMElement
+from phantasy.library.layout import NDElement
+from phantasy.library.layout import ICElement
 from phantasy.library.layout import BPMElement
 from phantasy.library.layout import BendElement
 from phantasy.library.layout import CavityElement
 from phantasy.library.layout import CorElement
 from phantasy.library.layout import DriftElement
 from phantasy.library.layout import EBendElement
+from phantasy.library.layout import ElectrodeElement
 from phantasy.library.layout import EMSElement
 from phantasy.library.layout import EQuadElement
 from phantasy.library.layout import FCElement
@@ -36,6 +39,8 @@ from phantasy.library.layout import AttenuatorElement
 from phantasy.library.layout import SlitElement
 from phantasy.library.layout import DumpElement
 from phantasy.library.layout import ChopperElement
+from phantasy.library.layout import HMRElement
+from phantasy.library.layout import CollimatorElement
 
 
 _INDEX_PROPERTY = "elemIndex"
@@ -137,6 +142,32 @@ def build_channels(layout, psfile, machine=None, **kws):
         if offset is None:
             offset = elem.z - (elem.length / 2.0)
 
+        def buildChannel_cor(element):
+            if element.ETYPE == 'HCOR':
+                channel = "{}{elem.system}_{elem.subsystem}:PSC2_{elem.inst}".format(
+                        prefix, elem=element)
+            elif element.ETYPE == 'VCOR':
+                channel = "{}{elem.system}_{elem.subsystem}:PSC1_{elem.inst}".format(
+                        prefix, elem=element)
+
+            props = OrderedDict()
+            props[_INDEX_PROPERTY] = index
+            props[_POSITION_PROPERTY] = str(element.z + (element.length / 2.0) - offset)
+            props[_LENGTH_PROPERTY] = str(element.length)
+            props[_MACHINE_PROPERTY] = machine
+            props[_NAME_PROPERTY] = element.name
+            props[_HANDLE_PROPERTY] = ""
+            props[_FIELD_PHY_PROPERTY] = ""
+            props[_FIELD_ENG_PROPERTY] = ""
+            props[_TYPE_PROPERTY] = ""
+            props[_PHYTYPE_PROPERTY] = element.dtype
+            props[_PHYNAME_PROPERTY] = element.desc
+            props[_PVPOLICY_PROPERTY] = 'DEFAULT'
+            tags = []
+            tags.append("phantasy.sys." + element.system)
+            tags.append("phantasy.sub." + element.subsystem)
+            return channel, props, tags
+
         def buildChannel(element):
             channel = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}".format(prefix, elem=element)
             props = OrderedDict()
@@ -216,7 +247,7 @@ def build_channels(layout, psfile, machine=None, **kws):
             props[_HANDLE_PROPERTY] = "readback"
             data.append((channel + ":I_RD", OrderedDict(props), list(tags)))
 
-            channel, props, tags = buildChannel(elem.h)
+            channel, props, tags = buildChannel_cor(elem.h)
             props[_TYPE_PROPERTY] = "HCOR"
             props[_FIELD_ENG_PROPERTY] = elem.h.fields.angle
             props[_FIELD_PHY_PROPERTY] = elem.h.fields.angle_phy
@@ -227,7 +258,7 @@ def build_channels(layout, psfile, machine=None, **kws):
             props[_HANDLE_PROPERTY] = "readback"
             data.append((channel + ":I_RD", OrderedDict(props), list(tags)))
 
-            channel, props, tags = buildChannel(elem.v)
+            channel, props, tags = buildChannel_cor(elem.v)
             props[_TYPE_PROPERTY] = "VCOR"
             props[_FIELD_ENG_PROPERTY] = elem.v.fields.angle
             props[_FIELD_PHY_PROPERTY] = elem.v.fields.angle_phy
@@ -253,7 +284,12 @@ def build_channels(layout, psfile, machine=None, **kws):
                 data.append((channel + ":I_RD", OrderedDict(props), list(tags)))
 
         elif isinstance(elem, CorElement):
-            channels, props, tags = buildChannel_pspv(elem.h)
+            try:
+                channels, props, tags = buildChannel_pspv(elem.h)
+            except:
+                channel, props, tags = buildChannel_cor(elem.h)
+                channels = [channel]
+
             props[_TYPE_PROPERTY] = "HCOR"
             props[_FIELD_ENG_PROPERTY] = elem.h.fields.angle
             props[_FIELD_PHY_PROPERTY] = elem.h.fields.angle_phy
@@ -266,7 +302,12 @@ def build_channels(layout, psfile, machine=None, **kws):
                 props[_HANDLE_PROPERTY] = "readback"
                 data.append((channel + ":I_RD", OrderedDict(props), list(tags)))
 
-            channels, props, tags = buildChannel_pspv(elem.v)
+            try:
+                channels, props, tags = buildChannel_pspv(elem.v)
+            except:
+                channel, props, tags = buildChannel_cor(elem.v)
+                channels = [channel]
+
             props[_TYPE_PROPERTY] = "VCOR"
             props[_FIELD_ENG_PROPERTY] = elem.v.fields.angle
             props[_FIELD_PHY_PROPERTY] = elem.v.fields.angle_phy
@@ -408,20 +449,38 @@ def build_channels(layout, psfile, machine=None, **kws):
             # Charge Stripper has no channels
             pass
 
-        elif isinstance(elem, (BLMElement, BLElement)):
+        elif isinstance(elem, (BLElement, BLMElement, )):
             # Diagnostic elements do not have defined channels
             pass
+
+        elif isinstance(elem, NDElement):
+            # Beam loss monitor (ND)
+            props[_TYPE_PROPERTY] = "ND"
+
+            props[_FIELD_ENG_PROPERTY] = elem.fields.current
+            props[_FIELD_PHY_PROPERTY] = elem.fields.current_phy
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel + ":AVG_RD", OrderedDict(props), list(tags)))
+
+        elif isinstance(elem, ICElement):
+            # Beam loss monitor (IC)
+            props[_TYPE_PROPERTY] = "IC"
+
+            props[_FIELD_ENG_PROPERTY] = elem.fields.current
+            props[_FIELD_PHY_PROPERTY] = elem.fields.current_phy
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel + ":AVG_RD", OrderedDict(props), list(tags)))
 
         elif isinstance(elem, BCMElement):
             props[_TYPE_PROPERTY] = "BCM"
 
-            props[_FIELD_ENG_PROPERTY] = elem.fields.current1
-            props[_FIELD_PHY_PROPERTY] = elem.fields.current1_phy
+            props[_FIELD_ENG_PROPERTY] = elem.fields.current_avg
+            props[_FIELD_PHY_PROPERTY] = elem.fields.current_avg_phy
             props[_HANDLE_PROPERTY] = "readback"
             data.append((channel + ":AVG_RD", OrderedDict(props), list(tags)))
 
-            props[_FIELD_ENG_PROPERTY] = elem.fields.currentp
-            props[_FIELD_PHY_PROPERTY] = elem.fields.currentp_phy
+            props[_FIELD_ENG_PROPERTY] = elem.fields.current_peak
+            props[_FIELD_PHY_PROPERTY] = elem.fields.current_peak_phy
             props[_HANDLE_PROPERTY] = "readback"
             data.append((channel + ":TYP_RD", OrderedDict(props), list(tags)))
 
@@ -437,7 +496,22 @@ def build_channels(layout, psfile, machine=None, **kws):
         elif isinstance(elem, EMSElement):
             pass
 
+        elif isinstance(elem, HMRElement):
+            # Halo ring
+            props[_TYPE_PROPERTY] = "HMR"
+
+            props[_FIELD_ENG_PROPERTY] = elem.fields.current
+            props[_FIELD_PHY_PROPERTY] = elem.fields.current_phy
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel + ":AVG_RD", OrderedDict(props), list(tags)))
+
+        elif isinstance(elem, CollimatorElement):
+            pass
+
         elif isinstance(elem, VDElement):
+            pass
+
+        elif isinstance(elem, ElectrodeElement):
             pass
 
         elif isinstance(elem, FCElement):

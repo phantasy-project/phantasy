@@ -1266,6 +1266,13 @@ class CaElement(BaseElement):
             return
         return self.__unicorn[field](value)
 
+    def current_setting(self, field):
+        """Return the value of current setting for dynamic field defined by
+        *field*.
+        """
+        fld = self.get_field(field)
+        return fld.read_policy(fld.setpoint_pv)
+
 
 def main():
     pv_props = {

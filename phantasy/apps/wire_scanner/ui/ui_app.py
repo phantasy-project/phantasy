@@ -12,7 +12,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1693, 1499)
+        MainWindow.resize(1693, 1508)
         icon = QtGui.QIcon()
         icon.addPixmap(
             QtGui.QPixmap(":/icons/ws.png"), QtGui.QIcon.Normal,
@@ -203,7 +203,7 @@ class Ui_MainWindow(object):
         self.pm_detail_btn = QtWidgets.QToolButton(self.controls_groupBox)
         icon3 = QtGui.QIcon()
         icon3.addPixmap(
-            QtGui.QPixmap(":/icons/browse.png"), QtGui.QIcon.Normal,
+            QtGui.QPixmap(":/icons/view-details.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
         self.pm_detail_btn.setIcon(icon3)
         self.pm_detail_btn.setIconSize(QtCore.QSize(20, 20))
@@ -682,7 +682,7 @@ class Ui_MainWindow(object):
         self.fontsize_inc_btn = QtWidgets.QToolButton(self.groupBox_2)
         icon19 = QtGui.QIcon()
         icon19.addPixmap(
-            QtGui.QPixmap(":/icons/increase_fontsize.png"), QtGui.QIcon.Normal,
+            QtGui.QPixmap(":/icons/increase-font.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
         self.fontsize_inc_btn.setIcon(icon19)
         self.fontsize_inc_btn.setIconSize(QtCore.QSize(20, 20))
@@ -692,7 +692,7 @@ class Ui_MainWindow(object):
         self.fontsize_dec_btn = QtWidgets.QToolButton(self.groupBox_2)
         icon20 = QtGui.QIcon()
         icon20.addPixmap(
-            QtGui.QPixmap(":/icons/decrease_fontsize.png"), QtGui.QIcon.Normal,
+            QtGui.QPixmap(":/icons/decrease-font.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
         self.fontsize_dec_btn.setIcon(icon20)
         self.fontsize_dec_btn.setIconSize(QtCore.QSize(20, 20))
@@ -1280,7 +1280,7 @@ class Ui_MainWindow(object):
         self.gridLayout.addWidget(self.v_splitter, 0, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1693, 30))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1693, 29))
         self.menubar.setObjectName("menubar")
         self.menu_File = QtWidgets.QMenu(self.menubar)
         self.menu_File.setObjectName("menu_File")
@@ -1295,12 +1295,32 @@ class Ui_MainWindow(object):
         self.menuDe_vice.setObjectName("menuDe_vice")
         MainWindow.setMenuBar(self.menubar)
         self.actionE_xit = QtWidgets.QAction(MainWindow)
+        icon23 = QtGui.QIcon()
+        icon23.addPixmap(
+            QtGui.QPixmap(":/icons/exit.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.actionE_xit.setIcon(icon23)
         self.actionE_xit.setObjectName("actionE_xit")
         self.actionContents = QtWidgets.QAction(MainWindow)
+        icon24 = QtGui.QIcon()
+        icon24.addPixmap(
+            QtGui.QPixmap(":/icons/help.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.actionContents.setIcon(icon24)
         self.actionContents.setObjectName("actionContents")
         self.actionAbout = QtWidgets.QAction(MainWindow)
+        icon25 = QtGui.QIcon()
+        icon25.addPixmap(
+            QtGui.QPixmap(":/icons/info.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.actionAbout.setIcon(icon25)
         self.actionAbout.setObjectName("actionAbout")
         self.actionAbout_Qt = QtWidgets.QAction(MainWindow)
+        icon26 = QtGui.QIcon()
+        icon26.addPixmap(
+            QtGui.QPixmap(":/icons/qt.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.actionAbout_Qt.setIcon(icon26)
         self.actionAbout_Qt.setObjectName("actionAbout_Qt")
         self.actionLoad_Configuration = QtWidgets.QAction(MainWindow)
         self.actionLoad_Configuration.setObjectName("actionLoad_Configuration")
@@ -1319,28 +1339,28 @@ class Ui_MainWindow(object):
         self.actionSync.setIcon(icon22)
         self.actionSync.setObjectName("actionSync")
         self.actionLoad = QtWidgets.QAction(MainWindow)
-        icon23 = QtGui.QIcon()
-        icon23.addPixmap(
+        icon27 = QtGui.QIcon()
+        icon27.addPixmap(
             QtGui.QPixmap(":/icons/load.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.actionLoad.setIcon(icon23)
+        self.actionLoad.setIcon(icon27)
         self.actionLoad.setObjectName("actionLoad")
         self.actionSave = QtWidgets.QAction(MainWindow)
-        icon24 = QtGui.QIcon()
-        icon24.addPixmap(
+        icon28 = QtGui.QIcon()
+        icon28.addPixmap(
             QtGui.QPixmap(":/icons/save.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.actionSave.setIcon(icon24)
+        self.actionSave.setIcon(icon28)
         self.actionSave.setObjectName("actionSave")
         self.actionLocate_Configuration = QtWidgets.QAction(MainWindow)
         self.actionLocate_Configuration.setObjectName(
             "actionLocate_Configuration")
         self.actionDAT2JSON = QtWidgets.QAction(MainWindow)
-        icon25 = QtGui.QIcon()
-        icon25.addPixmap(
-            QtGui.QPixmap(":/icons/json.png"), QtGui.QIcon.Normal,
+        icon29 = QtGui.QIcon()
+        icon29.addPixmap(
+            QtGui.QPixmap(":/icons/converter.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.actionDAT2JSON.setIcon(icon25)
+        self.actionDAT2JSON.setIcon(icon29)
         self.actionDAT2JSON.setObjectName("actionDAT2JSON")
         self.actionTo_MicroAmp = QtWidgets.QAction(MainWindow)
         self.actionTo_MicroAmp.setCheckable(True)
@@ -1425,6 +1445,10 @@ class Ui_MainWindow(object):
         self.plot_data_subnoise_btn.clicked.connect(
             MainWindow.on_plot_after_subnoise)
         self.toolButton.clicked.connect(MainWindow.on_reset_outlimit_setpoint)
+        self.matplotlibcurveWidget.gridOnUpdated['bool'].connect(
+            self.grid_btn.setChecked)
+        self.matplotlibcurveWidget.legendOnUpdated['bool'].connect(
+            self.legend_btn.setChecked)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         MainWindow.setTabOrder(self.pm_names_cbb, self.pm_detail_btn)
         MainWindow.setTabOrder(self.pm_detail_btn, self.run_btn)
@@ -1600,7 +1624,7 @@ class Ui_MainWindow(object):
         self.reset_xyscale_btn.setToolTip(
             _translate(
                 "MainWindow",
-                "<html><head/><body><p>Rest x and y scale</p></body></html>"))
+                "<html><head/><body><p>Reset x and y scale</p></body></html>"))
         self.reset_xyscale_btn.setText(_translate("MainWindow", "Scale"))
         self.legend_btn.setToolTip(
             _translate(

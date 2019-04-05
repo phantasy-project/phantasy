@@ -82,13 +82,13 @@
     },
     "layout": {
       "grid_color": "#808080",
-      "grid_on": false,
+      "grid_on": true,
       "tight_on": false
     },
     "ticks": {
       "color": "#000000",
       "font": "Sans Serif,9,-1,5,50,0,0,0,0,0",
-      "mticks_on": false
+      "mticks_on": true
     }
   }
 }

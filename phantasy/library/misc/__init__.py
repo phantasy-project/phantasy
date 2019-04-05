@@ -13,6 +13,7 @@ from .miscutils import parse_dt
 from .miscutils import epoch2human
 from .miscutils import convert_epoch
 from .miscutils import QCallback
+from .miscutils import truncate_number
 from .message import disable_warnings
 from .message import set_loglevel
 from .httputils import cofetch
@@ -22,6 +23,6 @@ __all__ = [
     'pattern_filter', 'expand_list_to_dict', 'simplify_data',
     'complicate_data', 'SpecialDict', 'parse_dt', 'epoch2human',
     'cofetch', 'disable_warnings', 'set_loglevel', 'QCallback',
-    'convert_epoch',
+    'convert_epoch', 'truncate_number',
 ]
 

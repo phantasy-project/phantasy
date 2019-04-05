@@ -22,9 +22,10 @@ from functools import partial
 import json
 import numpy as np
 import os
+from collections import OrderedDict
 
-from phantasy_ui.templates import BaseAppForm
-from phantasy_ui.widgets.elementwidget import ElementWidget
+from phantasy_ui import BaseAppForm
+from phantasy_ui.widgets import ElementWidget
 from phantasy import MachinePortal
 from phantasy import Configuration
 from phantasy.apps.wire_scanner.utils import find_dconf
@@ -171,12 +172,13 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
     def init_data_plot(self):
         """Initial data plot.
         """
-        self.matplotlibcurveWidget.setFigureAutoScale(False)
-        self.matplotlibcurveWidget.setYTickFormat("Custom", "%g")
+        o = self.matplotlibcurveWidget
+        o.setFigureAutoScale(False)
+        o.setYTickFormat("Custom", "%g")
         self.xdataChanged.emit([])
         self.ydataChanged.emit([])
-        self.matplotlibcurveWidget.add_curve()
-        self.matplotlibcurveWidget.add_curve()
+        o.add_curve()
+        o.add_curve()
 
         # load default mpl curve config
         apply_mplcurve_settings(self.matplotlibcurveWidget)
@@ -185,7 +187,7 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
     def post_init_ui(self):
         # all PMs
         all_pms_dict = self.get_all_pms()
-        all_pm_names = sorted(all_pms_dict)
+        all_pm_names = list(all_pms_dict.keys())
         self._all_pms_dict = all_pms_dict
 
         # set pm names cbb
@@ -593,11 +595,10 @@ class WireScannerWindow(BaseAppForm, Ui_MainWindow):
     def get_all_pms(self):
         """Return all PM elements.
         """
-        mp1 = MachinePortal("FRIB", "LEBT")
-        mp2 = MachinePortal("FRIB", "MEBT")
-        elems = mp1.get_elements(type="PM") + mp2.get_elements(type="PM")
-        names = [i.name for i in elems]
-        return dict(zip(names, elems))
+        mp = MachinePortal("FRIB", "LINAC")
+        elems = mp.get_elements(type='PM')
+        r = [(i.name, i) for i in sorted(elems, key=lambda x:x.name[-4:])]
+        return OrderedDict(r)
 
     def get_device_config(self, path=None):
         """Get device config from *path*.

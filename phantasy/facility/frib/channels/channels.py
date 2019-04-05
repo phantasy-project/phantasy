@@ -32,6 +32,8 @@ from phantasy.library.layout import AttenuatorElement
 from phantasy.library.layout import SlitElement
 from phantasy.library.layout import DumpElement
 from phantasy.library.layout import ChopperElement
+from phantasy.library.layout import HMRElement
+from phantasy.library.layout import CollimatorElement
 
 
 _INDEX_PROPERTY = "elemIndex"
@@ -345,6 +347,12 @@ def build_channels(layout, machine=None, **kws):
             pass
 
         elif isinstance(elem, FCElement):
+            pass
+
+        elif isinstance(elem, HMRElement):
+            pass
+
+        elif isinstance(elem, CollimatorElement):
             pass
 
         else:

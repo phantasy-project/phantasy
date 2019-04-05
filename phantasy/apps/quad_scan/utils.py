@@ -27,6 +27,10 @@ def draw_beam_ellipse(ax, alpha, beta, gamma, epsilon):
     h = (0.5 * epsilon * (beta + gamma + ((beta + gamma)**2 - 4)**0.5))**0.5
 
     angle = np.arctan(2 * alpha / (gamma - beta))  # radian
+    if angle >= 0:
+        phi_coord = (0.54, 0.51)
+    else:
+        phi_coord = (0.54, 0.47)
 
     w, h = w * 1e3, h * 1e3  # mm mrad
 
@@ -100,13 +104,13 @@ def draw_beam_ellipse(ax, alpha, beta, gamma, epsilon):
         (0.5 * xm, np.abs(y_xm)),
         fontsize=20)
     ax.annotate(
-        r"$\phi$", (xc, yc), (-30, -10),
-        textcoords='offset points',
+        r"$\phi$", (xc, yc), phi_coord,
+        textcoords='axes fraction',
         fontsize=20)
 
     ax.annotate(
-        r"$Area\;=\;\pi\epsilon$", (xline[0], yline[0]), (-30, -20),
-        textcoords='offset points',
+        r"$Area\;=\;\pi\epsilon$", (xline[0], yline[0]), (0.3, 0),
+        textcoords='axes fraction',
         fontsize=20)
 
     ax.annotate(r"$u$", (xc + (xm - xc) * 1.3, yc), fontsize=20)

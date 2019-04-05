@@ -13,6 +13,8 @@ from collections import OrderedDict
 from phantasy.library.layout import BCMElement
 from phantasy.library.layout import BLElement
 from phantasy.library.layout import BLMElement
+from phantasy.library.layout import NDElement
+from phantasy.library.layout import ICElement
 from phantasy.library.layout import BPMElement
 from phantasy.library.layout import BendElement
 from phantasy.library.layout import CavityElement
@@ -26,6 +28,7 @@ from phantasy.library.layout import ElectrodeElement
 from phantasy.library.layout import FCElement
 from phantasy.library.layout import HCorElement
 from phantasy.library.layout import Layout
+from phantasy.library.layout import HMRElement
 from phantasy.library.layout import PMElement
 from phantasy.library.layout import PortElement
 from phantasy.library.layout import QuadElement
@@ -42,6 +45,7 @@ from phantasy.library.layout import ChopperElement
 from phantasy.library.layout import AttenuatorElement
 from phantasy.library.layout import DumpElement
 from phantasy.library.layout import ApertureElement
+from phantasy.library.layout import CollimatorElement
 from phantasy.library.parser import Configuration
 
 NON_DRIFT_ELEMENTS = (
@@ -51,13 +55,19 @@ NON_DRIFT_ELEMENTS = (
         PortElement, QuadElement, SextElement, SolElement, SolCorElement,
         StripElement, VCorElement, VDElement, ValveElement, SlitElement,
         ChopperElement, AttenuatorElement, DumpElement, ApertureElement,
+        HMRElement, CollimatorElement, NDElement, ICElement,
 )
 
 # constants for parsing xlsx file
 # skip line whose system field startswith any one of the words defined by SYSTEM_SKIP_WORDS
 SYSTEM_SKIP_WORDS = ( "dump", "SEGMENT", "LINAC", "Target",
                       "beta=0.085 QWR cryomodules START",
-                      "D-station start", "D-station end", )
+                      "D-station start", "D-station end",
+                      'First beam dump line starts in "V" column',
+                      'Second beam dump line starts in "V" column',
+                      'Third beam dump line starts in "V" column',
+                      'Fourth beam dump line starts in "V" column',
+                      )
 # skip line whose device field in one of the tuple defined by DEVICE_SKIP_WORDS
 DEVICE_SKIP_WORDS = ( "end", "start", "END", )
 
@@ -65,7 +75,7 @@ DEVICE_SKIP_WORDS = ( "end", "start", "END", )
 NAME_SKIP_WORDS = ("FE_MEBT:PM_D1053", )
 
 # device alias for valve: ValveElement
-DEVICE_ALIAS_VALVE = ( "GV", "FVS", "FAV", "FV", )
+DEVICE_ALIAS_VALVE = ( "GV", "FVS", "FAV", "FV", "FAVS", )
 # device alias for cavity: CavityElement
 DEVICE_ALIAS_CAV = ( "CAV1", "CAV2", "CAV3", "CAV4",
                      "CAV5", "CAV6", "CAV7", "CAV8", "CAV", )
@@ -81,6 +91,10 @@ DEVICE_ALIAS_PM = ( "PM", "PM1", )
 DEVICE_ALIAS_BL = ( "BL", "LPM", )
 # device alias for BLM (measure beam loss)
 DEVICE_ALIAS_BLM = ( "BLM", )
+# device alias for ND
+DEVICE_ALIAS_ND = ( "ND", )
+# device alias for IC
+DEVICE_ALIAS_IC = ( "IC", )
 # device alias for BCM (measure beam current)
 DEVICE_ALIAS_BCM = ( "BCM", )
 # device alias for EMS (emittance scanner)
@@ -88,8 +102,8 @@ DEVICE_ALIAS_EMS = ( "EMS", )
 # device alias for faraday cup
 DEVICE_ALIAS_FC = ( "FC", "FFC", )
 # device alias for viewer
-DEVICE_ALIAS_VD = ( "VD", 
-                    "SiD", ) # SiD if silicon detector, temporarily put it here
+DEVICE_ALIAS_VD = ( "VD",
+                    "SiD", ) # SiD is silicon detector, temporarily put it here
 # device alias for pump, port, etc.
 DEVICE_ALIAS_PORT = ( "PORT", "TMP", "NEGP", "IP", "CP",
                      "CCG", )  # CCG is cold cathod gauge, temporarily put it here
@@ -118,7 +132,11 @@ DEVICE_ALIAS_AP = ( "AP", )
 # device alias for attenuator
 DEVICE_ALIAS_ATT = ( "ATT", )
 # device alias for dump
-DEVICE_ALIAS_DUMP = ( "dump", "DUMP", )
+DEVICE_ALIAS_DUMP = ( "dump", "DUMP", "BD", )
+# device alias for halo ring
+DEVICE_ALIAS_HMR = ( "HMR", )
+# device alias for collimation flange
+DEVICE_ALIAS_CLLM = ( "CLLM", )
 
 # configuration options
 
@@ -604,6 +622,22 @@ class AccelFactory(XlfConfig):
                                           dtype=row.device_type, inst=inst)
                         subsequence.append(elem)
 
+                    elif row.device in DEVICE_ALIAS_ND:
+                        inst = FMT_INST.format(int(row.position))
+                        elem = NDElement(row.center_position, row.eff_length, row.diameter, row.name,
+                                         desc=row.element_name,
+                                         system=row.system, subsystem=row.subsystem, device=row.device,
+                                         dtype=row.device_type, inst=inst)
+                        subsequence.append(elem)
+
+                    elif row.device in DEVICE_ALIAS_IC:
+                        inst = FMT_INST.format(int(row.position))
+                        elem = ICElement(row.center_position, row.eff_length, row.diameter, row.name,
+                                         desc=row.element_name,
+                                         system=row.system, subsystem=row.subsystem, device=row.device,
+                                         dtype=row.device_type, inst=inst)
+                        subsequence.append(elem)
+
                     elif row.device in DEVICE_ALIAS_BCM:
                         inst = FMT_INST.format(int(row.position))
                         elem = BCMElement(row.center_position, row.eff_length, row.diameter, row.name,
@@ -626,6 +660,14 @@ class AccelFactory(XlfConfig):
                                          desc=row.element_name,
                                          system=row.system, subsystem=row.subsystem, device=row.device,
                                          dtype=row.device_type, inst=inst)
+                        subsequence.append(elem)
+
+                    elif row.device in DEVICE_ALIAS_HMR:
+                        inst = FMT_INST.format(int(row.position))
+                        elem = HMRElement(row.center_position, row.eff_length, row.diameter, row.name,
+                                          desc=row.element_name,
+                                          system=row.system, subsystem=row.subsystem, device=row.device,
+                                          dtype=row.device_type, inst=inst)
                         subsequence.append(elem)
 
                     elif row.device in DEVICE_ALIAS_VD:
@@ -741,6 +783,14 @@ class AccelFactory(XlfConfig):
                                            dtype=row.device_type, inst=inst)
                         subsequence.append(elem)
 
+                    elif row.device in DEVICE_ALIAS_CLLM:
+                        inst = FMT_INST.format(int(row.position))
+                        elem = CollimatorElement(row.center_position, row.eff_length, row.diameter, row.name,
+                                                 desc=row.element_name,
+                                                 system=row.system, subsystem=row.subsystem, device=row.device,
+                                                 dtype=row.device_type, inst=inst)
+                        subsequence.append(elem)
+
                     elif row.device in DEVICE_ALIAS_CHP:
                         inst = FMT_INST.format(int(row.position))
                         elem = ChopperElement(row.center_position, row.eff_length, row.diameter, row.name,
@@ -791,7 +841,12 @@ class AccelFactory(XlfConfig):
                                             "BPM bellow", "bellow?", "bellow+tube ??", "6 way cross ??",
                                             "mhb box & bellows",
                                             "solenoid-entry", "solenoid-exit",
-                                            "rf coupler"):
+                                            "rf coupler",
+                                            "2nd chicane not installed initially, replaced by a pipe",
+                                            "fast valve sensor will not install",
+                                            "no BMP here",
+                                            "vacuum box - bellow",
+                                            ):
                         if drift_delta != 0.0:
                             row.eff_length += drift_delta
                             row.center_position -= drift_delta / 2.0

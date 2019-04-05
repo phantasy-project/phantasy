@@ -3,6 +3,7 @@
 
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtCore import QSize
 from PyQt5.QtCore import QTimer
 from PyQt5.QtCore import Qt
 
@@ -31,6 +32,9 @@ class VAProcessInfoWidget(QWidget, Ui_Form):
         self.refresh_timer = QTimer(self)
         self.refresh_timer.timeout.connect(self.on_update_info)
 
+    def sizeHint(self):
+        return QSize(600, 200)
+
     def show_widget(self):
         self.refresh_timer.start(1000)
         self.adjustSize()
@@ -50,7 +54,10 @@ class VAProcessInfoWidget(QWidget, Ui_Form):
             self.close()
 
     def closeEvent(self, e):
-        self.refresh_timer.stop()
+        try:
+            self.refresh_timer.stop()
+        except:
+            pass
         self.close()
 
     def keyPressEvent(self, e):

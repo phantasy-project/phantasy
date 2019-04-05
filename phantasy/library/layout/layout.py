@@ -31,6 +31,8 @@ import logging
 import os.path
 
 from .accel import BLMElement
+from .accel import NDElement
+from .accel import ICElement
 from .accel import BPMElement
 from .accel import BLElement
 from .accel import PMElement
@@ -61,6 +63,8 @@ from .accel import ChopperElement
 from .accel import ApertureElement
 from .accel import DumpElement
 from .accel import AttenuatorElement
+from .accel import HMRElement
+from .accel import CollimatorElement
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -137,6 +141,12 @@ def build_layout(layoutPath=None, **kwargs):
 
             elif etype == BLMElement.ETYPE:
                 elements.append(buildElement(row, BLMElement))
+
+            elif etype == NDElement.ETYPE:
+                elements.append(buildElement(row, NDElement))
+
+            elif etype == ICElement.ETYPE:
+                elements.append(buildElement(row, ICElement))
 
             elif etype == BPMElement.ETYPE:
                 elements.append(buildElement(row, BPMElement))
@@ -218,6 +228,12 @@ def build_layout(layoutPath=None, **kwargs):
 
             elif etype == AttenuatorElement.ETYPE:
                 elements.append(buildElement(row, AttenuatorElement))
+
+            elif etype == HMRElement.ETYPE:
+                elements.append(buildElement(row, HMRElement))
+
+            elif etype == CollimatorElement.ETYPE:
+                elements.append(buildElement(row, CollimatorElement))
 
             else:
                 raise RuntimeError(

@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtGui import QDoubleValidator
 
 from .ui.ui_app import Ui_MainWindow
-from phantasy_ui.templates import BaseAppForm
+from phantasy_ui import BaseAppForm
 
 from .utils import draw_beam_ellipse
 
@@ -100,6 +100,12 @@ class QuadScanWindow(BaseAppForm, Ui_MainWindow):
         self.matplotliberrorbarWidget.setLineID(0)
         self.matplotliberrorbarWidget.setFigureXlabel("Quad Gradient [T/m]")
         self.matplotliberrorbarWidget.setFigureYlabel("$\sigma^2\,\mathrm{[m^2]}$")
+
+        # set empty canvas
+        self.matplotliberrorbarWidget.setEbLineID(0)
+        self.matplotliberrorbarWidget.setLineID(0)
+        self.curveUpdated.emit([], [], [], [])
+
         # events
         self.fitCurveChanged[QVariant, QVariant].connect(self.update_fitting_curve)
         self.matplotliberrorbarWidget.setYTickFormat("Custom", "%.3g")
@@ -254,8 +260,7 @@ class QuadScanWindow(BaseAppForm, Ui_MainWindow):
         p = mp.get_elements(name=pm_name)[0]
 
         self.quad_length_lineEdit.setText('{0:.3g}'.format(q.length))
-        self.distance_lineEdit.setText('{0:.3g}'.format(
-            (p.sb + p.se)/2 - (q.se + q.sb)/2))
+        self.distance_lineEdit.setText('{0:.3g}'.format(p.sb - q.se))
 
 
 def single_quad_scan_analysis(params, quad_length, drift_length,

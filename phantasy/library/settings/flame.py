@@ -117,7 +117,7 @@ class SettingsFactory(object):
             if not os.path.isfile(self._latpath):
                 raise RuntimeError("SettingsFactory: FLAME lattice file not found: {}".format(self._latpath))
 
-            with open(self._latpath, "r") as fp:
+            with open(self._latpath, "rb") as fp:
                 conf = OrderedDict(GLPSParser().parse(fp))
 
 

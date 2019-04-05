@@ -419,7 +419,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_2.addWidget(self.twiss_output_groupBox)
         self.toolbox.addItem(self.page_params, "")
         self.page_formulae = QtWidgets.QWidget()
-        self.page_formulae.setGeometry(QtCore.QRect(0, 0, 854, 421))
+        self.page_formulae.setGeometry(QtCore.QRect(0, 0, 854, 1107))
         self.page_formulae.setStyleSheet("QLabel {\n"
                                          "    padding: 5px 10px;\n"
                                          "}")
@@ -471,12 +471,32 @@ class Ui_MainWindow(object):
         self.menu_Help.setObjectName("menu_Help")
         MainWindow.setMenuBar(self.menubar)
         self.actionOpen = QtWidgets.QAction(MainWindow)
+        icon1 = QtGui.QIcon()
+        icon1.addPixmap(
+            QtGui.QPixmap(":/icons/open.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.actionOpen.setIcon(icon1)
         self.actionOpen.setObjectName("actionOpen")
         self.actionAbout = QtWidgets.QAction(MainWindow)
+        icon2 = QtGui.QIcon()
+        icon2.addPixmap(
+            QtGui.QPixmap(":/icons/info.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.actionAbout.setIcon(icon2)
         self.actionAbout.setObjectName("actionAbout")
         self.actionAbout_Qt = QtWidgets.QAction(MainWindow)
+        icon3 = QtGui.QIcon()
+        icon3.addPixmap(
+            QtGui.QPixmap(":/icons/qt.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.actionAbout_Qt.setIcon(icon3)
         self.actionAbout_Qt.setObjectName("actionAbout_Qt")
         self.actionE_xit = QtWidgets.QAction(MainWindow)
+        icon4 = QtGui.QIcon()
+        icon4.addPixmap(
+            QtGui.QPixmap(":/icons/exit.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.actionE_xit.setIcon(icon4)
         self.actionE_xit.setObjectName("actionE_xit")
         self.menu_File.addAction(self.actionOpen)
         self.menu_File.addSeparator()
@@ -521,7 +541,7 @@ class Ui_MainWindow(object):
         self.label_9.setText(
             _translate(
                 "MainWindow",
-                "<html><head/><body><p>Ion Kinetic Energy (<span style=\" font-weight:600; font-style:italic;\">E</span><span style=\" font-weight:600; font-style:italic; vertical-align:sub;\">k</span>)</p></body></html>"
+                "<html><head/><body><p>Ion Kinetic Energy (<span style=\" font-weight:600; font-style:italic;\">E</span><span style=\" font-weight:600; font-style:italic; vertical-align:sub;\">k</span>) [eV/u]</p></body></html>"
             ))
         self.ref_IonEk_lineEdit.setToolTip(
             _translate(
@@ -532,7 +552,7 @@ class Ui_MainWindow(object):
         self.label_17.setText(
             _translate(
                 "MainWindow",
-                "<html><head/><body><p>Quad Length (<span style=\" font-weight:600; font-style:italic;\">l</span><span style=\" font-weight:600; font-style:italic; vertical-align:sub;\">q</span>)</p></body></html>"
+                "<html><head/><body><p>Quad Length (<span style=\" font-weight:600; font-style:italic;\">l</span><span style=\" font-weight:600; font-style:italic; vertical-align:sub;\">q</span>) [m]</p></body></html>"
             ))
         self.quad_length_lineEdit.setToolTip(
             _translate(
@@ -548,14 +568,14 @@ class Ui_MainWindow(object):
         self.label_18.setText(
             _translate(
                 "MainWindow",
-                "<html><head/><body><p>Distance (<span style=\" font-weight:600; font-style:italic;\">d</span>)</p></body></html>"
+                "<html><head/><body><p>Distance (<span style=\" font-weight:600; font-style:italic;\">d</span>) [m]</p></body></html>"
             ))
         self.distance_lineEdit.setToolTip(
             _translate(
                 "MainWindow",
                 "<html><head/><body><p>Distance between the quad and the profile monitor [m]</p></body></html>"
             ))
-        self.distance_lineEdit.setText(_translate("MainWindow", "1.31"))
+        self.distance_lineEdit.setText(_translate("MainWindow", "1.26"))
         self.autofill_beam_info_pushButton.setText(
             _translate("MainWindow", "Auto"))
         self.label_35.setText(
@@ -634,12 +654,12 @@ class Ui_MainWindow(object):
         self.label_31.setText(
             _translate(
                 "MainWindow",
-                "<html><head/><body><p><span style=\" font-weight:600; font-style:italic;\">ε </span><span style=\" font-weight:600;\">[mm&middot;mrad]</span></p></body></html>"
+                "<html><head/><body><p><span style=\" font-weight:600; font-style:italic;\">ε </span>[mm·mrad]</p></body></html>"
             ))
         self.label_32.setText(
             _translate(
                 "MainWindow",
-                "<html><head/><body><p><span style=\" font-weight:600; font-style:italic;\">ε</span><span style=\" font-weight:600; font-style:italic; vertical-align:sub;\">n </span><span style=\" font-weight:600;\">[mm·mrad]</span></p></body></html>"
+                "<html><head/><body><p><span style=\" font-weight:600; font-style:italic;\">ε</span><span style=\" font-weight:600; font-style:italic; vertical-align:sub;\">n </span>[mm·mrad]</p></body></html>"
             ))
         self.label_28.setText(
             _translate(
@@ -649,12 +669,12 @@ class Ui_MainWindow(object):
         self.label_29.setText(
             _translate(
                 "MainWindow",
-                "<html><head/><body><p><span style=\" font-weight:600; font-style:italic;\">&beta;</span></p></body></html>"
+                "<html><head/><body><p><span style=\" font-weight:600; font-style:italic;\">β </span>[m]</p></body></html>"
             ))
         self.label_30.setText(
             _translate(
                 "MainWindow",
-                "<html><head/><body><p><span style=\" font-weight:600; font-style:italic;\">&gamma;</span></p></body></html>"
+                "<html><head/><body><p><span style=\" font-weight:600; font-style:italic;\">γ </span>[m<span style=\" vertical-align:super;\">-1</span>]</p></body></html>"
             ))
         self.toolbox.setItemText(
             self.toolbox.indexOf(self.page_params),
