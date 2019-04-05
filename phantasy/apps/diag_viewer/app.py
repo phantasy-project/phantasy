@@ -411,16 +411,14 @@ class DeviceViewerWindow(BaseAppForm, Ui_MainWindow):
         if not f:
             return
         self.xtklbls_changed.emit(self._xtklbls_dnum)
-        if self._xdata_gauge == 'pos':
-            self.xtks_changed.emit(self._xtks)
+        self.xtks_changed.emit(self._xtks)
 
     @pyqtSlot(bool)
     def on_show_dname(self, f):
         if not f:
             return
         self.xtklbls_changed.emit(self._xtklbls_dname)
-        if self._xdata_gauge == 'pos':
-            self.xtks_changed.emit(self._xtks)
+        self.xtks_changed.emit(self._xtks)
 
     def reset_xtklbls(self):
         [o.toggled.emit(o.isChecked()) for o in
