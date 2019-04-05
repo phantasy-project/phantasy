@@ -1,3 +1,16 @@
+Version 1.10.1
+-------------
+2019-04-05
+
+- Correlation Visualizer:
+  - Add progressbar for scan routine.
+
+- Allison Scanner App:
+  - Initial working directory.
+
+- PHANTASY core:
+  - Add missing icon of Device Viewer app for launcher.
+
 Version 1.10.0
 -------------
 2019-04-04
