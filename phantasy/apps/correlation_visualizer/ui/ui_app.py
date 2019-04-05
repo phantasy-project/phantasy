@@ -19,6 +19,17 @@ class Ui_MainWindow(object):
             QtGui.QIcon.Off)
         MainWindow.setWindowIcon(icon)
         MainWindow.setToolTip("")
+        MainWindow.setStyleSheet("QProgressBar {\n"
+                                 "    border: 1px solid gray;\n"
+                                 "    border-radius: 10px;\n"
+                                 "    text-align: center;\n"
+                                 "}\n"
+                                 "\n"
+                                 "QProgressBar::chunk {\n"
+                                 "    background-color: #05B8CC;\n"
+                                 "    width: 20px;\n"
+                                 "    margin: 0.5px;\n"
+                                 "}")
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.horizontalLayout_4 = QtWidgets.QHBoxLayout(self.centralwidget)
@@ -234,6 +245,10 @@ class Ui_MainWindow(object):
         self.line_4.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.line_4.setObjectName("line_4")
         self.verticalLayout_3.addWidget(self.line_4)
+        self.scan_pb = QtWidgets.QProgressBar(self.scan_groupBox)
+        self.scan_pb.setProperty("value", 24)
+        self.scan_pb.setObjectName("scan_pb")
+        self.verticalLayout_3.addWidget(self.scan_pb)
         self.verticalLayout_2 = QtWidgets.QVBoxLayout()
         self.verticalLayout_2.setObjectName("verticalLayout_2")
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout()

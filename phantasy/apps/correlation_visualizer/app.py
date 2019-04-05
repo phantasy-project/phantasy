@@ -13,6 +13,7 @@ from PyQt5.QtCore import QVariant
 from PyQt5.QtCore import Qt
 from PyQt5.QtCore import QSize
 from PyQt5.QtCore import QThread
+from PyQt5.QtCore import QTimer
 
 from PyQt5.QtGui import QColor
 from PyQt5.QtGui import QDoubleValidator
@@ -72,6 +73,9 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
     # scan log
     scanlogUpdated = pyqtSignal('QString')
     scanlogTextColor = pyqtSignal(QColor)
+
+    # scan pb
+    scanProgressUpdated = pyqtSignal(float)
 
     # scan plot curve w/ errorbar
     curveUpdated = pyqtSignal(QVariant, QVariant, QVariant, QVariant)
@@ -162,6 +166,8 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         # signals & slots
         self.scanlogUpdated.connect(self.on_update_log)
         self.scanlogTextColor.connect(self.scan_log_textEdit.setTextColor)
+        self.scanProgressUpdated.connect(self.on_update_pb)
+        self.scan_pb.valueChanged.connect(self.pb_changed)
         self.curveUpdated.connect(self.scan_plot_widget.update_curve)
         # point selector
         self.scan_plot_widget.selectedIndicesUpdated.connect(self.on_select_points)
@@ -619,6 +625,9 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         self.ydata_cbb.currentIndexChanged.connect(
                 partial(self.on_update_data_index, 'y'))
 
+        #
+        self.scan_pb.setVisible(False)
+
     @pyqtSlot(int)
     def on_update_data_index(self, xoy, idx):
         setattr(self, '_id{}'.format(xoy), idx)
@@ -662,6 +671,8 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
     def on_click_start_btn(self):
         """Start a new scan routine, initialize everything.
         """
+        self.scan_pb.setVisible(True)
+        self.scan_pb.setValue(0)
         # initialize configuration for scan routine
         # initialize scan out data
         self.scan_task.init_out_data()
@@ -762,6 +773,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         msg = 'Iter:{0:>3d}/[{1:d}] is done at value: {2:>9.2f}'.format(
                 idx + 1, niter, x)
         self.scanlogUpdated.emit(msg)
+        self.scanProgressUpdated.emit((idx + 1.0) / niter)
         # update scan plot figure
         self.update_curve(arr)
 
@@ -783,6 +795,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
             self.scan_worker.stop()
             self.scanlogTextColor.emit(COLOR_WARNING)
             self.scanlogUpdated.emit("Scan task is stopped.")
+            self.scan_pb.setValue(100)
 
     @pyqtSlot()
     def set_btn_status(self, mode='start'):
@@ -1118,6 +1131,14 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         """
         msg = '[{0}] {1}'.format(epoch2human(time.time(), fmt=TS_FMT), s)
         self.scan_log_textEdit.append(msg)
+
+    @pyqtSlot(float)
+    def on_update_pb(self, x):
+        self.scan_pb.setValue(x * 100)
+
+    def pb_changed(self, i):
+        if i == 100:
+            QTimer.singleShot(500, lambda:self.scan_pb.setVisible(False))
 
     @pyqtSlot()
     def on_set_alter_array(self):
