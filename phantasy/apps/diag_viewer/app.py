@@ -107,6 +107,7 @@ class DeviceViewerWindow(BaseAppForm, Ui_MainWindow):
         # show with D#### or device name
         self._xtklbls_dnum = []   # init by reset
         self._xtklbls_dname = []  # init by reset
+        self._xtks = []
 
         self.xtks_changed.connect(self.matplotlibbarWidget.set_xticks)
         self.xtklbls_changed.connect(self.matplotlibbarWidget.set_xticklabels)
@@ -396,29 +397,20 @@ class DeviceViewerWindow(BaseAppForm, Ui_MainWindow):
         return self.__mp
 
     @pyqtSlot(bool)
-    def toggle_dnum(self, f):
-        if f:
-            xtklbls = [i.name[-5:] for i in self._elems_list]
-            if self._xdata_gauge == 'pos':
-                xtks = [i.sb for i in self._elems_list]
-            else:
-                xtks = list(range(len(xtklbls)))
-        else:
-            pass
-
-    @pyqtSlot(bool)
     def on_show_dnum(self, f):
         if not f:
             return
         self.xtklbls_changed.emit(self._xtklbls_dnum)
-        self.xtks_changed.emit(self._xtks)
+        if self._xtks != []:
+            self.xtks_changed.emit(self._xtks)
 
     @pyqtSlot(bool)
     def on_show_dname(self, f):
         if not f:
             return
         self.xtklbls_changed.emit(self._xtklbls_dname)
-        self.xtks_changed.emit(self._xtks)
+        if self._xtks != []:
+            self.xtks_changed.emit(self._xtks)
 
     def reset_xtklbls(self):
         [o.toggled.emit(o.isChecked()) for o in

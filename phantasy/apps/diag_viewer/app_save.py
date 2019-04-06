@@ -87,13 +87,13 @@ class SaveDataDialog(QDialog, Ui_Dialog):
     def on_save_data(self):
         print("SaveDataDialog: Save Data")
         ctime = epoch2human(time.time(), fmt=TS_FMT)
-        self._save_data(timestamp=ctime)
+        self._save_data(captured=ctime)
 
         if self.save_figure_chkbox.isChecked():
                 self._save_figure()
 
         if self.save_settings_chkbox.isChecked():
-            self._save_settings(timestamp=ctime)
+            self._save_settings(captured=ctime)
 
     def _save_data(self, **kws):
         # save data.
@@ -103,7 +103,7 @@ class SaveDataDialog(QDialog, Ui_Dialog):
             header = ','.join(i.name for i in self.parent._elems_list)
             comments = "# "
             for k, v in kws.items():
-                comments += "{}: {}".format(k, v)
+                comments += "{}: {}".format(k.capitalize(), v)
             comments += "\n"
             np.savetxt(filepath, data, delimiter=",", header=header, comments=comments)
         except:
