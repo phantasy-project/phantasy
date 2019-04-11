@@ -358,15 +358,15 @@ class ScanRangeModel(QStandardItemModel):
 
         # header
         self.header = self.h_idx, self.h_name, self.h_field, \
-                self.h_cset, self.h_rd, \
-                self.h_sstart, self.h_sstop = \
+                self.h_cset, \
+                self.h_sstart, self.h_sstop, self.h_rd = \
                 "ID", "Name", "Field", \
-                "Setpoint", "Readback", \
-                "Scan Start", "Scan Stop"
+                "Setpoint", \
+                "Scan Start", "Scan Stop", "Readback",
 
         self.ids = self.i_idx, self.i_name, self.i_field, \
-                self.i_cset, self.i_rd, \
-                self.i_sstart, self.i_sstop = \
+                self.i_cset, \
+                self.i_sstart, self.i_sstop, self.i_rd = \
                 range(len(self.header))
         #
         self.set_data()
@@ -399,12 +399,12 @@ class ScanRangeModel(QStandardItemModel):
             item_sstart = QStandardItem(self.fmt.format(self._sstart))
             item_sstop = QStandardItem(self.fmt.format(self._sstop))
 
-            for item in (item_idx, item_ename, item_fname, \
-                         item_cset, item_rd):
-                item.setEditable(False)
+            for item, idx in zip((item_idx, item_ename, item_fname,
+                                  item_cset, item_sstart, item_sstop,
+                                  item_rd), self.ids):
+                if idx not in (self.i_sstart, self.i_sstop):
+                    item.setEditable(False)
                 row.append(item)
-            row.append(item_sstart)
-            row.append(item_sstop)
 
             self.appendRow(row)
 
@@ -427,8 +427,7 @@ class ScanRangeModel(QStandardItemModel):
         # view properties
         tv.setStyleSheet("font-family: monospace;")
         tv.setAlternatingRowColors(True)
-        #tv.setSortingEnabled(True)
-        #tv.header().setStretchLastSection(False)
+        tv.horizontalHeader().setStretchLastSection(True)
         #w = 0
         for i in self.ids:
             tv.resizeColumnToContents(i)
@@ -452,6 +451,19 @@ class ScanRangeModel(QStandardItemModel):
             item_sstop = self.item(i, self.i_sstop)
             x1, x2 = float(item_sstart.text()), float(item_sstop.text())
             s.append((item_ename.text(), np.linspace(x1, x2, n)))
+        return s
+
+    def get_scan_range_config(self):
+        #
+        # return list of (cor, sstart, sstop)
+        #
+        s = []
+        for i in range(self.rowCount()):
+            item_ename = self.item(i, self.i_name)
+            item_sstart = self.item(i, self.i_sstart)
+            item_sstop = self.item(i, self.i_sstop)
+            x1, x2 = float(item_sstart.text()), float(item_sstop.text())
+            s.append((item_ename.text(), x1, x2))
         return s
 
 
