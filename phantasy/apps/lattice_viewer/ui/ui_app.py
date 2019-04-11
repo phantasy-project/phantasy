@@ -12,7 +12,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1382, 992)
+        MainWindow.resize(1920, 1440)
         MainWindow.setStyleSheet("QLineEdit {\n"
                                  "    border: 0.5px solid gray;\n"
                                  "    padding: 1 5px;\n"
@@ -149,7 +149,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_2.addWidget(self.v_splitter)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1382, 34))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1920, 34))
         self.menubar.setObjectName("menubar")
         self.menu_File = QtWidgets.QMenu(self.menubar)
         self.menu_File.setObjectName("menu_File")
