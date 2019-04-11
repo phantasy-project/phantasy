@@ -83,18 +83,18 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         self._version = version
 
         # window title
-        self.setWindowTitle("Orbit Response Matrix")
+        self.setWindowTitle("Trajectory Response Matrix")
 
         # set app properties
-        self.setAppTitle("Orbit Response Matrix")
+        self.setAppTitle("Trajectory Response Matrix")
         self.setAppVersion(self._version)
 
         # about info
         self.app_about_info = """
             <html>
-            <h4>About Orbit Response Matrix</h4>
+            <h4>About Beam Central Trajectory Response Matrix</h4>
             <p>This app is created to measure, manage and visualize
-            the orbit response matrices for central trajectory correction,
+            the response matrices for central trajectory correction,
             current version is {}.
             </p>
             <p>Copyright (C) 2018 Facility for Rare Isotope Beams and other contributors.</p>
@@ -286,18 +286,17 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         lat.orm = self._orm
         #
         # print info debug only
-        print("-" * 30)
-        print("Name of lattice to correct: {}".format(lat.name))
-        print("# of BPMs loaded: {}".format(len(bpms)))
-        print("# of CORs loaded: {}".format(len(cors)))
-        print("Field of CORs to write: {}".format(cor_field))
-        print("Field of BPMs to read : {}".format(xoy))
-        print("Damping factor: {}".format(dfac))
-        print("# of iteration: {}".format(niter))
-        print("Wait second after put: {}".format(t_wait))
-        print("Corrector limit: [{}, {}]".format(llimit, ulimit))
-        print("DAQ rate, nshot: {}, {}".format(daq_rate, daq_nshot))
-        print("-" * 30)
+        print("\nTo Apply Correctors Settings...")
+        print("--- Name of lattice to correct: {}".format(lat.name))
+        print("--- # of BPMs loaded: {}".format(len(bpms)))
+        print("--- # of CORs loaded: {}".format(len(cors)))
+        print("--- Field of CORs to write: {}".format(cor_field))
+        print("--- Field of BPMs to read : {}".format(xoy))
+        print("--- Damping factor: {}".format(dfac))
+        print("--- # of iteration: {}".format(niter))
+        print("--- Wait second after put: {}".format(t_wait))
+        print("--- Corrector limit: [{}, {}]".format(llimit, ulimit))
+        print("--- DAQ rate, nshot: {}, {}".format(daq_rate, daq_nshot))
 
         return (lat,), (bpms, cors), \
                (xoy, cor_field, dfac, niter, t_wait, llimit, ulimit), \
@@ -337,19 +336,20 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         self._xoy = xoy
         self._keep_all = keep_all
         #
-        print("source:", source)
-        print("srange:", srange)
-        print("cor_field:", cor_field)
-        print("xoy:", xoy)
-        print("wait:", wait)
-        print("reset wait:", reset_wait)
-        print("ndigits:", ndigits)
-        print("DAQ rate, nshot:", daq_rate, daq_nshot)
-        print("Keep ORM data?:", keep_all)
+        print("\nTo Measure Response Matrix...")
+        print("... Mode:", source)
+        print("... Alter Range: ", srange)
+        print("... Field of CORs to write: ", cor_field)
+        print("... Field of BPMs to read: ", xoy)
+        print("... Wait second after alter: ", wait)
+        print("... Wait second after reset: ", reset_wait)
+        print("... # of Precison Digit: ", ndigits)
+        print("... DAQ rate, nshot: ", daq_rate, daq_nshot)
+        print("... Keep ORM data?: ", keep_all)
         #
         nc = len(cors)
         eta = n * nc * (wait + daq_nshot * 1.0 / daq_rate) + reset_wait * nc
-        print("ETA: {} [H:M:S]".format(eta))
+        print("... ETA: {} [H:M:S]".format(eta))
         self.eta_lbl.setText(uptime(int(eta)))
         return (bpms, cors), \
                (source, srange, cor_field, xoy, wait, ndigits), \
@@ -365,7 +365,7 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         daq_rate = self.daq_rate_sbox.value()
         eta = ns * nc * (dt + nshot * 1.0 / daq_rate) + nc * r_dt
         print("NS, NC, DT, NS, DS: ", ns, nc, dt, nshot, 1.0/daq_rate)
-        print("ETA: {} [t]".format(eta))
+        print("... ETA: {} [t]".format(eta))
         self.eta_lbl.setText(uptime(int(eta)))
 
     def __apply_with_settings(self, settings=None, **kws):
@@ -417,18 +417,27 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         if filepath is None:
             return
 
-        mp, name_map, bpms_dict, cors_dict, orm, cor_field, bpm_field, \
-            t_wait, n_digits, srange, daq_nshot, daq_rate = \
-                load_orm_sheet(filepath)
+        try:
+            mp, name_map, bpms_dict, cors_dict, (orm, cor_field, bpm_field, \
+                t_wait, reset_wait, n_digits, srange, daq_nshot, daq_rate),\
+                (cor_llmt, cor_ulmt, cor_dfac, cor_niter, cor_wait, cor_prec, \
+                 cor_daq_rate, cor_daq_nshot), ftype = load_orm_sheet(filepath)
+        except:
+            QMessageBox.warning(self, "Loading Response Matrix",
+                    "Cannot load selected file!", QMessageBox.Ok)
+            return
+
         self.__mp = mp
         self._name_map = name_map
         self._bpms_dict = bpms_dict
         self._cors_dict = cors_dict
+        #
         self._orm = orm
         self.refresh_models_btn.clicked.emit()
         self.corrector_fields_cbb.setCurrentText(cor_field)
         self.monitor_fields_cbb.setCurrentText(bpm_field)
         self.wait_time_dspinbox.setValue(t_wait)
+        self.reset_wait_time_dspinbox.setValue(reset_wait)
         self.n_digits_measure_spinBox.setValue(n_digits)
         self.daq_rate_sbox.setValue(daq_rate)
         self.daq_nshot_sbox.setValue(daq_nshot)
@@ -440,6 +449,15 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         self.corrector_fields_cbb.currentTextChanged.emit(cor_field)
         self.monitor_fields_cbb.currentTextChanged.emit(bpm_field)
         #
+        self.lower_limit_lineEdit.setText(str(cor_llmt))
+        self.upper_limit_lineEdit.setText(str(cor_ulmt))
+        self.cor_damping_fac_dspinbox.setValue(cor_dfac)
+        self.cor_niter_spinbox.setValue(int(cor_niter))
+        self.cor_wait_time_dspinbox.setValue(cor_wait)
+        self.n_digits_apply_spinBox.setValue(int(cor_prec))
+        self.eva_daq_nshot_sbox.setValue(int(cor_daq_nshot))
+        self.eva_daq_rate_sbox.setValue(int(cor_daq_rate))
+
         self.init_settings_dq()
 
     @pyqtSlot()
@@ -460,19 +478,39 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         data_sheet['correctors'] = cors_dict
         data_sheet['machine'] = machine
         data_sheet['segment'] = segment
-        data_sheet['orm'] = orm
-        data_sheet['corrector_field'] = self.corrector_fields_cbb.currentText()
-        data_sheet['monitor_field'] = self.monitor_fields_cbb.currentText()
-        data_sheet['wait_seconds'] = self.wait_time_dspinbox.value()
-        data_sheet['set_precision'] = self.n_digits_measure_spinBox.value()
-        data_sheet['alter_range'] = {
-                'from': self.alter_start_lineEdit.text(),
-                'to': self.alter_stop_lineEdit.text(),
-                'total_steps': self.alter_steps_lineEdit.text()}
-        data_sheet['daq_nshot'] = self.daq_nshot_sbox.value()
-        data_sheet['data_rate'] = self.daq_rate_sbox.value()
+        #
+        info_conf = data_sheet['info']
+        info_conf['app'] = self.getAppTitle()
+        info_conf['version'] = self.getAppVersion()
+        info_conf['file_type'] = 'matrix'
+
+        #
+        orm_conf = data_sheet['measurement_config']
+        orm_conf['orm'] = orm
+        orm_conf['corrector_field'] = self.corrector_fields_cbb.currentText()
+        orm_conf['monitor_field'] = self.monitor_fields_cbb.currentText()
+        orm_conf['wait_seconds'] = self.wait_time_dspinbox.value()
+        orm_conf['reset_wait_seconds'] = self.reset_wait_time_dspinbox.value()
+        orm_conf['set_precision'] = self.n_digits_measure_spinBox.value()
+        orm_conf['alter_range'] = {
+                 'from': self.alter_start_lineEdit.text(),
+                 'to': self.alter_stop_lineEdit.text(),
+                 'total_steps': self.alter_steps_lineEdit.text()}
+        orm_conf['daq_nshot'] = self.daq_nshot_sbox.value()
+        orm_conf['daq_rate'] = self.daq_rate_sbox.value()
         if self._keep_all:
-            data_sheet['orm_all'] = self._orm_all_data.tolist()
+            orm_conf['orm_all'] = self._orm_all_data.tolist()
+
+        # correction config
+        cor_conf = data_sheet['correction_config']
+        cor_conf['lower_limit'] = float(self.lower_limit_lineEdit.text())
+        cor_conf['upper_limit'] = float(self.upper_limit_lineEdit.text())
+        cor_conf['damping_factor'] = self.cor_damping_fac_dspinbox.value()
+        cor_conf['niter'] = self.cor_niter_spinbox.value()
+        cor_conf['wait_seconds'] = self.cor_wait_time_dspinbox.value()
+        cor_conf['set_precision'] = self.n_digits_apply_spinBox.value()
+        cor_conf['daq_nshot'] = self.eva_daq_nshot_sbox.value()
+        cor_conf['daq_rate'] = self.eva_daq_rate_sbox.value()
 
         data_sheet.write(filepath)
 

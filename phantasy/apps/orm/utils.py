@@ -140,22 +140,44 @@ def load_orm_sheet(filepath):
     machine, segment = data_sheet['machine'], data_sheet['segment']
     bpms_dict = data_sheet['monitors']
     cors_dict = data_sheet['correctors']
-    cor_field = data_sheet.get('corrector_field', 'I')
-    bpm_field = data_sheet.get('monitor_field', 'X&Y')
-    t_wait = data_sheet.get('wait_seconds', 1.0)
-    ndigits = data_sheet.get('set_precision', 2)
-    srange = data_sheet.get('alter_range', {'from': '-5', 'to': '5', 'total_steps': '5'})
-    daq_nshot = data_sheet.get('daq_nshot', 1)
-    daq_rate = data_sheet.get('daq_rate', 1)
+
+    orm_conf_sheet = data_sheet['measurement_config']
+    t_wait = orm_conf_sheet.get('wait_seconds', 1.0)
+    reset_wait = orm_conf_sheet.get('reset_wait_seconds', 1.0)
+    ndigits = orm_conf_sheet.get('set_precision', 2)
+    srange = orm_conf_sheet.get('alter_range', {'from': '-5', 'to': '5', 'total_steps': '5'})
+    daq_nshot = orm_conf_sheet.get('daq_nshot', 1)
+    daq_rate = orm_conf_sheet.get('daq_rate', 1)
+    orm = np.asarray(orm_conf_sheet['orm'], dtype=np.float)
+    cor_field = orm_conf_sheet.get('corrector_field', 'I')
+    bpm_field = orm_conf_sheet.get('monitor_field', 'X&Y')
+
     mp = MachinePortal(machine, segment)
     name_elem_map = {i.name: i for i in mp.work_lattice_conf}
-    orm = np.asarray(data_sheet['orm'], dtype=np.float)
     #
     print("Loading {} of {}".format(segment, machine))
     #
-    return mp, name_elem_map, bpms_dict, cors_dict, orm, \
-           cor_field, bpm_field, t_wait, ndigits, srange, \
-           daq_nshot, daq_rate
+    orm_conf = (orm, cor_field, bpm_field, \
+               t_wait, reset_wait, ndigits, srange, \
+               daq_nshot, daq_rate)
+    #
+    cor_conf_sheet = data_sheet['correction_config']
+    cor_llmt = cor_conf_sheet.get('lower_limit', -5)
+    cor_ulmt = cor_conf_sheet.get('upper_limit', 5)
+    cor_dfac = cor_conf_sheet.get('damping_factor', 0.5)
+    cor_niter = cor_conf_sheet.get('niter', 1)
+    cor_wait = cor_conf_sheet.get('wait_seconds', 1.0)
+    cor_prec = cor_conf_sheet.get('set_precision', 2)
+    cor_daq_rate = cor_conf_sheet.get('daq_rate', 1)
+    cor_daq_nshot = cor_conf_sheet.get('daq_nshot', 1)
+
+    cor_conf = (cor_llmt, cor_ulmt, cor_dfac, cor_niter, cor_wait, \
+                cor_prec, cor_daq_rate, cor_daq_nshot)
+
+    file_type = data_sheet['info'].get('file_type', None)
+
+    return mp, name_elem_map, bpms_dict, cors_dict, orm_conf, cor_conf, \
+           file_type
 
 
 class ORMDataSheet(JSONDataSheet):
@@ -164,13 +186,16 @@ class ORMDataSheet(JSONDataSheet):
 
         if path is None:
             d = OrderedDict()
-            d['user'] = getpass.getuser()
-            d['created'] = epoch2human(time.time(), fmt=TS_FMT)
+            d['info'] = {
+                    'user': getpass.getuser(),
+                    'created': epoch2human(time.time(), fmt=TS_FMT)
+            }
             d['monitors'] = {}
             d['correctors'] = {}
             d['machine'] = ''
             d['segment'] = ''
-            d['orm'] = []
+            d['measurement_config'] = OrderedDict()
+            d['correction_config'] = OrderedDict()
             self.update(d)
 
 
