@@ -168,6 +168,9 @@ def get_orm_for_one_corrector(corrector, monitors, **kws):
     """
 
     scan = kws.get('scan', np.linspace(-0.003, 0.003, 5))
+
+    print("--- Scan Range: ", scan, "---")
+
     cor_field = kws.get('cor_field', 'ANG')
     xoy = kws.get('xoy', 'xy')
     wait = kws.get('wait', 1.0)
