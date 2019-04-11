@@ -1919,7 +1919,7 @@ class Lattice(object):
         n_trun = kws.get('ndigits', 6)
 
         cor, cor_field, v, v_limited = setting
-        v_truncated =  truncate_number(v_limited, n_trun)
+        v_truncated = truncate_number(v_limited, n_trun)
         setattr(cor, cor_field, v_truncated)
         time.sleep(wait)
 
