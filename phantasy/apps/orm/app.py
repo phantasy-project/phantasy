@@ -164,6 +164,9 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         #
         self.init_settings_dq()
 
+        # mach/lat info
+        self.update_lattice_info()
+
     @pyqtSlot()
     def on_refresh_models(self):
         # refresh 'bpm' and 'cor' model.
@@ -287,7 +290,8 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         #
         # print info debug only
         print("\nTo Apply Correctors Settings...")
-        print("--- Name of lattice to correct: {}".format(lat.name))
+        print("--- Name of lattice to correct: {}/{}".format(
+            lat.name, self.__mp.last_machine_name))
         print("--- # of BPMs loaded: {}".format(len(bpms)))
         print("--- # of CORs loaded: {}".format(len(cors)))
         print("--- Field of CORs to write: {}".format(cor_field))
@@ -458,7 +462,14 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         self.eva_daq_nshot_sbox.setValue(int(cor_daq_nshot))
         self.eva_daq_rate_sbox.setValue(int(cor_daq_rate))
 
+        #
+        self.update_lattice_info()
+
+        #
         self.init_settings_dq()
+
+        #
+        self.on_update_eta()
 
     @pyqtSlot()
     def on_save_orm(self):
@@ -762,6 +773,14 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
     @pyqtSlot(bool)
     def on_keep_all_orm_data(self, f):
         self._keep_all = f
+
+    def update_lattice_info(self):
+        if self.__mp is None:
+            return
+        mach_name = self.__mp.last_machine_name
+        lat_name = self.__mp.last_lattice_name
+        self.loaded_mach_lbl.setText(mach_name)
+        self.loaded_lattice_lbl.setText(lat_name)
 
 
 def sort_dict(d):
