@@ -194,6 +194,9 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         #
         self.on_update_eta()
 
+        #
+        self.on_set_srange_model()
+
     @pyqtSlot(dict)
     def on_update_elements(self, mode, elems_dict):
         """Update monitor view with *elems_dict* for *mode*, 'bpm' or 'cor'.
@@ -320,6 +323,9 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
                     "Invalid Input", QMessageBox.Ok)
             return None
         srange = np.linspace(x1, x2, n)
+        # srange element-wised
+        srange_list = self.get_srange_list(n)
+
         #
         cor_field = self.corrector_fields_cbb.currentText()
         bpm_fields = self.monitor_fields_cbb.currentText()
@@ -344,15 +350,15 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         self._keep_all = keep_all
         #
         print("\nTo Measure Response Matrix...")
-        print("... Mode:", source)
-        print("... Alter Range: ", srange)
-        print("... Field of CORs to write: ", cor_field)
-        print("... Field of BPMs to read: ", xoy)
-        print("... Wait second after alter: ", wait)
-        print("... Wait second after reset: ", reset_wait)
-        print("... # of Precison Digit: ", ndigits)
-        print("... DAQ rate, nshot: ", daq_rate, daq_nshot)
-        print("... Keep ORM data?: ", keep_all)
+        print("--- Mode:", source)
+        print("--- Alter Range: ", srange)
+        print("--- Field of CORs to write: ", cor_field)
+        print("--- Field of BPMs to read: ", xoy)
+        print("--- Wait second after alter: ", wait)
+        print("--- Wait second after reset: ", reset_wait)
+        print("--- # of Precison Digit: ", ndigits)
+        print("--- DAQ rate, nshot: ", daq_rate, daq_nshot)
+        print("--- Keep ORM data?: ", keep_all)
         #
         nc = len(cors)
         eta = n * nc * (wait + daq_nshot * 1.0 / daq_rate) + reset_wait * nc
@@ -360,7 +366,7 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         self.eta_lbl.setText(uptime(int(eta)))
         return (bpms, cors), \
                (source, srange, cor_field, xoy, wait, ndigits), \
-               (daq_rate, daq_nshot, reset_wait, keep_all)
+               (daq_rate, daq_nshot, reset_wait, keep_all), srange_list
 
     @pyqtSlot()
     def on_update_eta(self):
@@ -490,6 +496,7 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         data_sheet = ORMDataSheet()
         data_sheet['monitors'] = bpms_dict
         data_sheet['correctors'] = cors_dict
+        data_sheet['scan_range'] = [(c, a.tolist()) for (c, a) in self._srange_list]
         data_sheet['machine'] = machine
         data_sheet['segment'] = segment
         #
@@ -805,6 +812,31 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         lw.load_btn.clicked.emit()
         lw.setEnabled(False)
         self._lv.show()
+
+    def on_set_srange_model(self):
+        # set up settings w/ scan range model view.
+        data = [(self._name_map[ename], fname[0])
+                for ename, fname in self._cors_dict.items()]
+
+        sstart = float(self.alter_start_lineEdit.text())
+        sstop = float(self.alter_stop_lineEdit.text())
+
+        from .utils import ScanRangeModel
+
+        model = ScanRangeModel(self.cor_srange_tableView, data,
+                               sstart, sstop)#, fmt=self.get_fmt())
+        model.set_model()
+
+    def get_srange_list(self, n=None):
+        #
+        # list of (cor, srange)
+        #
+        m = self.cor_srange_tableView.model()
+        if n is None:
+            n = int(self.alter_steps_lineEdit.text())
+        srange_list = m.get_scan_range(n)
+        self._srange_list = srange_list
+        return srange_list
 
 
 
