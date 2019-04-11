@@ -30,6 +30,7 @@ from .utils import ORMDataSheet
 from .utils import SettingsDataSheet
 from .utils import load_orm_sheet
 from .utils import load_settings_sheet
+from .utils import ScanRangeModel
 from .app_settings_view import SettingsView
 
 OP_MODE_MAP = {
@@ -220,6 +221,7 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         self.orm_runner.started.connect(self.start_eta_timer)
         self.orm_runner.resultsReady.connect(partial(self.on_results_ready, 'measure'))
         self.orm_runner.update_progress.connect(partial(self.update_pb, self.measure_pb))
+        self.orm_runner.update_progress.connect(self.hl_row)
         self.orm_runner.finished.connect(self.stop_eta_timer)
         self.orm_runner.finished.connect(partial(self.orm_worker_completed, self.measure_pb, self.stop_measure_btn, [self.run_btn]))
         self.orm_runner.finished.connect(self.thread.quit)
@@ -228,6 +230,11 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         self.thread.finished.connect(self.thread.deleteLater)
         self.thread.started.connect(self.orm_runner.run)
         self.thread.start()
+
+    @pyqtSlot(float, 'QString')
+    def hl_row(self, x, msg):
+        row_id = self._pb_msg_to_index(msg)
+        self.cor_srange_tableView.selectRow(row_id)
 
     @pyqtSlot(float, 'QString')
     def update_pb(self, pb, x, s):
@@ -380,6 +387,10 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         print("NS, NC, DT, NS, DS: ", ns, nc, dt, nshot, 1.0/daq_rate)
         print("... ETA: {} [t]".format(eta))
         self.eta_lbl.setText(uptime(int(eta)))
+        # update srange model
+        #self._backup_scan_range()
+        self.on_set_srange_model()
+        #self._restore_scan_range()
 
     def __apply_with_settings(self, settings=None, **kws):
         # apply settings to correct central trajectory
@@ -821,10 +832,8 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         sstart = float(self.alter_start_lineEdit.text())
         sstop = float(self.alter_stop_lineEdit.text())
 
-        from .utils import ScanRangeModel
-
         model = ScanRangeModel(self.cor_srange_tableView, data,
-                               sstart, sstop)#, fmt=self.get_fmt())
+                               sstart, sstop, fmt=self.get_fmt())
         model.set_model()
 
     def get_srange_list(self, n=None):
@@ -837,6 +846,21 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         srange_list = m.get_scan_range(n)
         self._srange_list = srange_list
         return srange_list
+
+    def _pb_msg_to_index(self, msg):
+        #
+        # return corrector index from pb msg.
+        #
+        return int(msg.split()[3].replace('[','').replace(']','')) - 1
+
+    def _backup_scan_range(self):
+        #
+        # backup scan range list
+        #
+        sstart0 = float(self.alter_start_lineEdit.text())
+        sstop0 = float(self.alter_stop_lineEdit.text())
+        srange_list = self.cor_srange_tableView.model().get_scan_range_config()
+
 
 
 
