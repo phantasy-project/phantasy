@@ -54,7 +54,7 @@ def ensure_put(element, field, goal, tol=None, timeout=None):
     goal : float
         The final value that the field of element would like to reach.
     tol : float
-        Tolerance for the relative discrepancy between current readback
+        Tolerance for discrepancy between current readback
         value and the set goal, default is 0.01.
     timeout : float
         Maximum wait time, default is 10 sec.
@@ -71,7 +71,7 @@ def ensure_put(element, field, goal, tol=None, timeout=None):
         sq.put(fld.value)
 
     def is_equal(v, goal, tol):
-        return abs(v/goal - 1.0) < tol
+        return abs(v - goal) < tol
 
     fld = element.get_field(field)
     pv = fld.readback_pv[0]
