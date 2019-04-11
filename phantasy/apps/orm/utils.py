@@ -49,9 +49,10 @@ class OrmWorker(QObject):
         self._mode = mode
         if mode == 'measure':
             (bpms, cors), (source, srange, cor_field, xoy, wait, ndigits), \
-            (daq_rate, daq_nshot, reset_wait, keep_all_data) = params
+            (daq_rate, daq_nshot, reset_wait, keep_all_data), srange_list = params
             self._source = source
             self._srange = srange
+            self._srange_list = srange_list
             self._cor_field = cor_field
             self._bpms = bpms
             self._cors = cors
@@ -90,7 +91,7 @@ class OrmWorker(QObject):
                     self.stopped.emit()
                     break
                 r, d = get_orm_for_one_corrector(cor, self._bpms,
-                        scan=self._srange, cor_field=self._cor_field,
+                        scan=self._srange_list[i][-1], cor_field=self._cor_field,
                         xoy=self._xoy, wait=self._wait, msg_queue=q,
                         idx=i, ncor=self._n_cor, ndigits=self._n_digits,
                         nshot=self._daq_nshot, rate=self._daq_rate,
@@ -339,6 +340,121 @@ class SettingsModel(QStandardItemModel):
         self.view_size.emit(w, h)
 
 
+class ScanRangeModel(QStandardItemModel):
+
+    item_changed = pyqtSignal(QVariant)
+    view_size = pyqtSignal(int, int)
+
+    def __init__(self, parent, data, sstart, sstop, **kws):
+        super(self.__class__, self).__init__(parent)
+        self._v = parent
+        self._data = data # list of (element, field)
+        self._sstart = sstart
+        self._sstop = sstop
+        self.fmt = kws.get('fmt', '{0:>.8g}')
+
+        #
+        self._pvs = []
+
+        # header
+        self.header = self.h_idx, self.h_name, self.h_field, \
+                self.h_cset, self.h_rd, \
+                self.h_sstart, self.h_sstop = \
+                "ID", "Name", "Field", \
+                "Setpoint", "Readback", \
+                "Scan Start", "Scan Stop"
+
+        self.ids = self.i_idx, self.i_name, self.i_field, \
+                self.i_cset, self.i_rd, \
+                self.i_sstart, self.i_sstop = \
+                range(len(self.header))
+        #
+        self.set_data()
+        #
+        for i, s in zip(self.ids, self.header):
+            self.setHeaderData(i, Qt.Horizontal, s)
+
+        #
+        self.item_changed.connect(self.update_item)
+
+    def set_model(self):
+        # set model
+        self._v.setModel(self)
+        #
+        self.set_cbs()
+        self.__post_init_ui(self._v)
+        #
+
+    def set_data(self):
+        for i, (c, f) in enumerate(self._data):
+            row = []
+            cset = c.current_setting(f)
+
+            item_idx = QStandardItem('{0:03d}'.format(i + 1))
+            item_ename = QStandardItem(c.name)
+            item_fname = QStandardItem(f)
+            item_cset = QStandardItem(self.fmt.format(cset))
+            item_rd = QStandardItem(self.fmt.format(getattr(c, f)))
+
+            item_sstart = QStandardItem(self.fmt.format(self._sstart))
+            item_sstop = QStandardItem(self.fmt.format(self._sstop))
+
+            for item in (item_idx, item_ename, item_fname, \
+                         item_cset, item_rd):
+                item.setEditable(False)
+                row.append(item)
+            row.append(item_sstart)
+            row.append(item_sstop)
+
+            self.appendRow(row)
+
+    def update_item(self, p):
+        self.setItem(*p)
+
+    def set_cbs(self):
+        def _cb(row, col, fld, **kws):
+            item = QStandardItem(self.fmt.format(fld.value))
+            self.item_changed.emit((row, col, item))
+
+        for i, (c, f) in enumerate(self._data):
+            row, col = i, self.i_rd
+            fld = c.get_field(f)
+            pv = fld.readback_pv[0]
+            pv.add_callback(partial(_cb, row, col, fld))
+            self._pvs.append(pv)
+
+    def __post_init_ui(self, tv):
+        # view properties
+        tv.setStyleSheet("font-family: monospace;")
+        tv.setAlternatingRowColors(True)
+        #tv.setSortingEnabled(True)
+        #tv.header().setStretchLastSection(False)
+        #w = 0
+        for i in self.ids:
+            tv.resizeColumnToContents(i)
+        #    w += tv.columnWidth(i)
+        #h = 0
+        #for i in range(len(self._data)):
+        #    h += tv.rowHeight(self.item(i, 0).index())
+        #self.sort(self.i_idx, Qt.AscendingOrder)
+        #tv.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        #tv.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        #self.view_size.emit(w, h)
+
+    def get_scan_range(self, n):
+        #
+        # list of (ename, scan_array)
+        #
+        s = []
+        for i in range(self.rowCount()):
+            item_ename = self.item(i, self.i_name)
+            item_sstart = self.item(i, self.i_sstart)
+            item_sstop = self.item(i, self.i_sstop)
+            x1, x2 = float(item_sstart.text()), float(item_sstop.text())
+            s.append((item_ename.text(), np.linspace(x1, x2, n)))
+        return s
+
+
 def get_orm_with_residuals(filepath):
     """Return ORM matrix with residuals from ORMDataSheet file.
     The shape of returned matrix (m): (n, m, 2), n: size of correctors,
@@ -364,3 +480,4 @@ def get_orm_with_residuals(filepath):
         mat_w_residual[i] = [np.polyfit(scan_arr, mat_data[i][:, k], 1) for k in range(m)]
 
     return np.asarray(mat_w_residual)
+
