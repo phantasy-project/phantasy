@@ -12,7 +12,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1600, 1200)
+        MainWindow.resize(1619, 1214)
         icon = QtGui.QIcon()
         icon.addPixmap(
             QtGui.QPixmap(":/icons/work.png"), QtGui.QIcon.Normal,
@@ -58,8 +58,8 @@ class Ui_MainWindow(object):
         MainWindow.setIconSize(QtCore.QSize(36, 36))
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
-        self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.centralwidget)
-        self.verticalLayout_2.setObjectName("verticalLayout_2")
+        self.gridLayout_2 = QtWidgets.QGridLayout(self.centralwidget)
+        self.gridLayout_2.setObjectName("gridLayout_2")
         self.splitter_2 = QtWidgets.QSplitter(self.centralwidget)
         self.splitter_2.setOrientation(QtCore.Qt.Vertical)
         self.splitter_2.setObjectName("splitter_2")
@@ -86,26 +86,69 @@ class Ui_MainWindow(object):
         self.verticalLayout = QtWidgets.QVBoxLayout(self.elem_models)
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout.setObjectName("verticalLayout")
-        self.horizontalLayout_11 = QtWidgets.QHBoxLayout()
-        self.horizontalLayout_11.setObjectName("horizontalLayout_11")
-        self.label_10 = QtWidgets.QLabel(self.elem_models)
-        self.label_10.setObjectName("label_10")
-        self.horizontalLayout_11.addWidget(self.label_10)
-        spacerItem = QtWidgets.QSpacerItem(40, 20,
-                                           QtWidgets.QSizePolicy.Expanding,
-                                           QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayout_11.addItem(spacerItem)
-        self.refresh_models_btn = QtWidgets.QPushButton(self.elem_models)
-        self.refresh_models_btn.setText("")
+        self.horizontalLayout_17 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_17.setContentsMargins(-1, 0, -1, -1)
+        self.horizontalLayout_17.setObjectName("horizontalLayout_17")
+        self.label_34 = QtWidgets.QLabel(self.elem_models)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
+                                           QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.label_34.sizePolicy().hasHeightForWidth())
+        self.label_34.setSizePolicy(sizePolicy)
+        self.label_34.setObjectName("label_34")
+        self.horizontalLayout_17.addWidget(self.label_34)
+        self.loaded_mach_lbl = QtWidgets.QLabel(self.elem_models)
+        font = QtGui.QFont()
+        font.setFamily("monospace")
+        self.loaded_mach_lbl.setFont(font)
+        self.loaded_mach_lbl.setStyleSheet("QLabel {\n"
+                                           "    font-family: monospace;\n"
+                                           "    border: 1px solid black;\n"
+                                           "    border-radius: 2px;\n"
+                                           "    background: white;\n"
+                                           "    margin: 2px;\n"
+                                           "}")
+        self.loaded_mach_lbl.setText("")
+        self.loaded_mach_lbl.setObjectName("loaded_mach_lbl")
+        self.horizontalLayout_17.addWidget(self.loaded_mach_lbl)
+        self.loaded_lattice_lbl = QtWidgets.QLabel(self.elem_models)
+        font = QtGui.QFont()
+        font.setFamily("monospace")
+        self.loaded_lattice_lbl.setFont(font)
+        self.loaded_lattice_lbl.setStyleSheet("QLabel {\n"
+                                              "    font-family: monospace;\n"
+                                              "    border: 1px solid black;\n"
+                                              "    border-radius: 2px;\n"
+                                              "    background: white;\n"
+                                              "    margin: 2px;\n"
+                                              "}")
+        self.loaded_lattice_lbl.setText("")
+        self.loaded_lattice_lbl.setObjectName("loaded_lattice_lbl")
+        self.horizontalLayout_17.addWidget(self.loaded_lattice_lbl)
+        self.lattice_info_btn = QtWidgets.QToolButton(self.elem_models)
         icon1 = QtGui.QIcon()
         icon1.addPixmap(
+            QtGui.QPixmap(":/icons/view-details.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.lattice_info_btn.setIcon(icon1)
+        self.lattice_info_btn.setIconSize(QtCore.QSize(24, 24))
+        self.lattice_info_btn.setAutoRaise(True)
+        self.lattice_info_btn.setObjectName("lattice_info_btn")
+        self.horizontalLayout_17.addWidget(self.lattice_info_btn)
+        self.refresh_models_btn = QtWidgets.QToolButton(self.elem_models)
+        self.refresh_models_btn.setText("")
+        icon2 = QtGui.QIcon()
+        icon2.addPixmap(
             QtGui.QPixmap(":/icons/refresh.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.refresh_models_btn.setIcon(icon1)
+        self.refresh_models_btn.setIcon(icon2)
         self.refresh_models_btn.setIconSize(QtCore.QSize(24, 24))
+        self.refresh_models_btn.setAutoRaise(True)
         self.refresh_models_btn.setObjectName("refresh_models_btn")
-        self.horizontalLayout_11.addWidget(self.refresh_models_btn)
-        self.verticalLayout.addLayout(self.horizontalLayout_11)
+        self.horizontalLayout_17.addWidget(self.refresh_models_btn)
+        self.verticalLayout.addLayout(self.horizontalLayout_17)
         self.line = QtWidgets.QFrame(self.elem_models)
         self.line.setFrameShape(QtWidgets.QFrame.HLine)
         self.line.setFrameShadow(QtWidgets.QFrame.Sunken)
@@ -131,11 +174,11 @@ class Ui_MainWindow(object):
             self.select_all_bpms_btn.sizePolicy().hasHeightForWidth())
         self.select_all_bpms_btn.setSizePolicy(sizePolicy)
         self.select_all_bpms_btn.setText("")
-        icon2 = QtGui.QIcon()
-        icon2.addPixmap(
+        icon3 = QtGui.QIcon()
+        icon3.addPixmap(
             QtGui.QPixmap(":/icons/select-all.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.select_all_bpms_btn.setIcon(icon2)
+        self.select_all_bpms_btn.setIcon(icon3)
         self.select_all_bpms_btn.setObjectName("select_all_bpms_btn")
         self.horizontalLayout_9.addWidget(self.select_all_bpms_btn)
         self.inverse_bpm_selection_btn = QtWidgets.QToolButton(
@@ -148,18 +191,18 @@ class Ui_MainWindow(object):
             self.inverse_bpm_selection_btn.sizePolicy().hasHeightForWidth())
         self.inverse_bpm_selection_btn.setSizePolicy(sizePolicy)
         self.inverse_bpm_selection_btn.setText("")
-        icon3 = QtGui.QIcon()
-        icon3.addPixmap(
+        icon4 = QtGui.QIcon()
+        icon4.addPixmap(
             QtGui.QPixmap(":/icons/invert-selection.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.inverse_bpm_selection_btn.setIcon(icon3)
+        self.inverse_bpm_selection_btn.setIcon(icon4)
         self.inverse_bpm_selection_btn.setObjectName(
             "inverse_bpm_selection_btn")
         self.horizontalLayout_9.addWidget(self.inverse_bpm_selection_btn)
-        spacerItem1 = QtWidgets.QSpacerItem(40, 20,
-                                            QtWidgets.QSizePolicy.Expanding,
-                                            QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayout_9.addItem(spacerItem1)
+        spacerItem = QtWidgets.QSpacerItem(40, 20,
+                                           QtWidgets.QSizePolicy.Expanding,
+                                           QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_9.addItem(spacerItem)
         self.label_6 = QtWidgets.QLabel(self.layoutWidget)
         self.label_6.setObjectName("label_6")
         self.horizontalLayout_9.addWidget(self.label_6)
@@ -209,7 +252,7 @@ class Ui_MainWindow(object):
             self.select_all_cors_btn.sizePolicy().hasHeightForWidth())
         self.select_all_cors_btn.setSizePolicy(sizePolicy)
         self.select_all_cors_btn.setText("")
-        self.select_all_cors_btn.setIcon(icon2)
+        self.select_all_cors_btn.setIcon(icon3)
         self.select_all_cors_btn.setObjectName("select_all_cors_btn")
         self.horizontalLayout_10.addWidget(self.select_all_cors_btn)
         self.inverse_cor_selection_btn = QtWidgets.QToolButton(
@@ -222,14 +265,14 @@ class Ui_MainWindow(object):
             self.inverse_cor_selection_btn.sizePolicy().hasHeightForWidth())
         self.inverse_cor_selection_btn.setSizePolicy(sizePolicy)
         self.inverse_cor_selection_btn.setText("")
-        self.inverse_cor_selection_btn.setIcon(icon3)
+        self.inverse_cor_selection_btn.setIcon(icon4)
         self.inverse_cor_selection_btn.setObjectName(
             "inverse_cor_selection_btn")
         self.horizontalLayout_10.addWidget(self.inverse_cor_selection_btn)
-        spacerItem2 = QtWidgets.QSpacerItem(40, 20,
+        spacerItem1 = QtWidgets.QSpacerItem(40, 20,
                                             QtWidgets.QSizePolicy.Expanding,
                                             QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayout_10.addItem(spacerItem2)
+        self.horizontalLayout_10.addItem(spacerItem1)
         self.label_17 = QtWidgets.QLabel(self.layoutWidget1)
         self.label_17.setObjectName("label_17")
         self.horizontalLayout_10.addWidget(self.label_17)
@@ -297,65 +340,134 @@ class Ui_MainWindow(object):
         self.operations_toolBox.setFrameShadow(QtWidgets.QFrame.Plain)
         self.operations_toolBox.setObjectName("operations_toolBox")
         self.orm_measurement = QtWidgets.QWidget()
-        self.orm_measurement.setGeometry(QtCore.QRect(0, 0, 1118, 809))
+        self.orm_measurement.setGeometry(QtCore.QRect(0, 0, 1137, 823))
         self.orm_measurement.setObjectName("orm_measurement")
-        self.gridLayout_2 = QtWidgets.QGridLayout(self.orm_measurement)
-        self.gridLayout_2.setObjectName("gridLayout_2")
-        spacerItem3 = QtWidgets.QSpacerItem(793, 20,
-                                            QtWidgets.QSizePolicy.Expanding,
-                                            QtWidgets.QSizePolicy.Minimum)
-        self.gridLayout_2.addItem(spacerItem3, 0, 2, 1, 1)
-        self.label = QtWidgets.QLabel(self.orm_measurement)
-        self.label.setObjectName("label")
-        self.gridLayout_2.addWidget(self.label, 0, 0, 1, 1)
-        self.horizontalLayout = QtWidgets.QHBoxLayout()
-        self.horizontalLayout.setObjectName("horizontalLayout")
-        self.label_16 = QtWidgets.QLabel(self.orm_measurement)
-        self.label_16.setObjectName("label_16")
-        self.horizontalLayout.addWidget(self.label_16)
-        self.alter_start_lineEdit = QtWidgets.QLineEdit(self.orm_measurement)
-        sizePolicy = QtWidgets.QSizePolicy(
-            QtWidgets.QSizePolicy.MinimumExpanding,
-            QtWidgets.QSizePolicy.Fixed)
+        self.gridLayout_4 = QtWidgets.QGridLayout(self.orm_measurement)
+        self.gridLayout_4.setObjectName("gridLayout_4")
+        self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_3.setObjectName("horizontalLayout_3")
+        self.label_25 = QtWidgets.QLabel(self.orm_measurement)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
+                                           QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(
-            self.alter_start_lineEdit.sizePolicy().hasHeightForWidth())
-        self.alter_start_lineEdit.setSizePolicy(sizePolicy)
-        self.alter_start_lineEdit.setObjectName("alter_start_lineEdit")
-        self.horizontalLayout.addWidget(self.alter_start_lineEdit)
-        self.label_4 = QtWidgets.QLabel(self.orm_measurement)
-        self.label_4.setObjectName("label_4")
-        self.horizontalLayout.addWidget(self.label_4)
-        self.alter_stop_lineEdit = QtWidgets.QLineEdit(self.orm_measurement)
-        sizePolicy = QtWidgets.QSizePolicy(
-            QtWidgets.QSizePolicy.MinimumExpanding,
-            QtWidgets.QSizePolicy.Fixed)
+            self.label_25.sizePolicy().hasHeightForWidth())
+        self.label_25.setSizePolicy(sizePolicy)
+        self.label_25.setObjectName("label_25")
+        self.horizontalLayout_3.addWidget(self.label_25)
+        self.daq_rate_sbox = QtWidgets.QSpinBox(self.orm_measurement)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
+                                           QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(
-            self.alter_stop_lineEdit.sizePolicy().hasHeightForWidth())
-        self.alter_stop_lineEdit.setSizePolicy(sizePolicy)
-        self.alter_stop_lineEdit.setObjectName("alter_stop_lineEdit")
-        self.horizontalLayout.addWidget(self.alter_stop_lineEdit)
-        self.label_5 = QtWidgets.QLabel(self.orm_measurement)
-        self.label_5.setObjectName("label_5")
-        self.horizontalLayout.addWidget(self.label_5)
-        self.alter_steps_lineEdit = QtWidgets.QLineEdit(self.orm_measurement)
-        sizePolicy = QtWidgets.QSizePolicy(
-            QtWidgets.QSizePolicy.MinimumExpanding,
-            QtWidgets.QSizePolicy.Fixed)
+            self.daq_rate_sbox.sizePolicy().hasHeightForWidth())
+        self.daq_rate_sbox.setSizePolicy(sizePolicy)
+        self.daq_rate_sbox.setMinimum(1)
+        self.daq_rate_sbox.setMaximum(20)
+        self.daq_rate_sbox.setObjectName("daq_rate_sbox")
+        self.horizontalLayout_3.addWidget(self.daq_rate_sbox)
+        self.label_26 = QtWidgets.QLabel(self.orm_measurement)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
+                                           QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(
-            self.alter_steps_lineEdit.sizePolicy().hasHeightForWidth())
-        self.alter_steps_lineEdit.setSizePolicy(sizePolicy)
-        self.alter_steps_lineEdit.setObjectName("alter_steps_lineEdit")
-        self.horizontalLayout.addWidget(self.alter_steps_lineEdit)
-        self.gridLayout_2.addLayout(self.horizontalLayout, 2, 1, 1, 2)
+            self.label_26.sizePolicy().hasHeightForWidth())
+        self.label_26.setSizePolicy(sizePolicy)
+        self.label_26.setObjectName("label_26")
+        self.horizontalLayout_3.addWidget(self.label_26)
+        self.daq_nshot_sbox = QtWidgets.QSpinBox(self.orm_measurement)
+        self.daq_nshot_sbox.setMinimum(1)
+        self.daq_nshot_sbox.setMaximum(10)
+        self.daq_nshot_sbox.setProperty("value", 2)
+        self.daq_nshot_sbox.setObjectName("daq_nshot_sbox")
+        self.horizontalLayout_3.addWidget(self.daq_nshot_sbox)
+        self.gridLayout_4.addLayout(self.horizontalLayout_3, 7, 1, 1, 3)
         self.label_3 = QtWidgets.QLabel(self.orm_measurement)
         self.label_3.setObjectName("label_3")
-        self.gridLayout_2.addWidget(self.label_3, 2, 0, 1, 1)
+        self.gridLayout_4.addWidget(self.label_3, 2, 0, 1, 1)
+        self.label_24 = QtWidgets.QLabel(self.orm_measurement)
+        self.label_24.setObjectName("label_24")
+        self.gridLayout_4.addWidget(self.label_24, 7, 0, 1, 1)
+        spacerItem2 = QtWidgets.QSpacerItem(20, 40,
+                                            QtWidgets.QSizePolicy.Minimum,
+                                            QtWidgets.QSizePolicy.Expanding)
+        self.gridLayout_4.addItem(spacerItem2, 9, 0, 1, 1)
+        self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_2.setContentsMargins(-1, 0, -1, -1)
+        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
+        self.update_eta_btn = QtWidgets.QToolButton(self.orm_measurement)
+        icon5 = QtGui.QIcon()
+        icon5.addPixmap(
+            QtGui.QPixmap(":/icons/update.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.update_eta_btn.setIcon(icon5)
+        self.update_eta_btn.setIconSize(QtCore.QSize(24, 24))
+        self.update_eta_btn.setAutoRaise(True)
+        self.update_eta_btn.setObjectName("update_eta_btn")
+        self.horizontalLayout_2.addWidget(self.update_eta_btn)
+        self.label_18 = QtWidgets.QLabel(self.orm_measurement)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
+                                           QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.label_18.sizePolicy().hasHeightForWidth())
+        self.label_18.setSizePolicy(sizePolicy)
+        self.label_18.setObjectName("label_18")
+        self.horizontalLayout_2.addWidget(self.label_18)
+        self.eta_lbl = QtWidgets.QLabel(self.orm_measurement)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
+                                           QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.eta_lbl.sizePolicy().hasHeightForWidth())
+        self.eta_lbl.setSizePolicy(sizePolicy)
+        self.eta_lbl.setStyleSheet("QLabel {\n"
+                                   "    font-family: monospace;\n"
+                                   "}")
+        self.eta_lbl.setAlignment(QtCore.Qt.AlignLeading | QtCore.Qt.AlignLeft
+                                  | QtCore.Qt.AlignVCenter)
+        self.eta_lbl.setObjectName("eta_lbl")
+        self.horizontalLayout_2.addWidget(self.eta_lbl)
+        spacerItem3 = QtWidgets.QSpacerItem(40, 20,
+                                            QtWidgets.QSizePolicy.Expanding,
+                                            QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_2.addItem(spacerItem3)
+        self.label_19 = QtWidgets.QLabel(self.orm_measurement)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
+                                           QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.label_19.sizePolicy().hasHeightForWidth())
+        self.label_19.setSizePolicy(sizePolicy)
+        self.label_19.setObjectName("label_19")
+        self.horizontalLayout_2.addWidget(self.label_19)
+        self.eta_timer_lbl = QtWidgets.QLabel(self.orm_measurement)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
+                                           QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.eta_timer_lbl.sizePolicy().hasHeightForWidth())
+        self.eta_timer_lbl.setSizePolicy(sizePolicy)
+        self.eta_timer_lbl.setStyleSheet("QLabel {\n"
+                                         "    color: blue;\n"
+                                         "    font-family: monospace;\n"
+                                         "}")
+        self.eta_timer_lbl.setAlignment(QtCore.Qt.AlignRight
+                                        | QtCore.Qt.AlignTrailing
+                                        | QtCore.Qt.AlignVCenter)
+        self.eta_timer_lbl.setObjectName("eta_timer_lbl")
+        self.horizontalLayout_2.addWidget(self.eta_timer_lbl)
+        self.gridLayout_4.addLayout(self.horizontalLayout_2, 10, 0, 1, 4)
+        self.label_20 = QtWidgets.QLabel(self.orm_measurement)
+        self.label_20.setObjectName("label_20")
+        self.gridLayout_4.addWidget(self.label_20, 6, 0, 1, 1)
         self.horizontalLayout_7 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_7.setObjectName("horizontalLayout_7")
         self.measure_pb = QtWidgets.QProgressBar(self.orm_measurement)
@@ -374,11 +486,11 @@ class Ui_MainWindow(object):
                                             QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_7.addItem(spacerItem4)
         self.stop_measure_btn = QtWidgets.QPushButton(self.orm_measurement)
-        icon4 = QtGui.QIcon()
-        icon4.addPixmap(
+        icon6 = QtGui.QIcon()
+        icon6.addPixmap(
             QtGui.QPixmap(":/icons/stop.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.stop_measure_btn.setIcon(icon4)
+        self.stop_measure_btn.setIcon(icon6)
         self.stop_measure_btn.setIconSize(QtCore.QSize(24, 24))
         self.stop_measure_btn.setObjectName("stop_measure_btn")
         self.horizontalLayout_7.addWidget(self.stop_measure_btn)
@@ -390,15 +502,31 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(
             self.run_btn.sizePolicy().hasHeightForWidth())
         self.run_btn.setSizePolicy(sizePolicy)
-        icon5 = QtGui.QIcon()
-        icon5.addPixmap(
+        icon7 = QtGui.QIcon()
+        icon7.addPixmap(
             QtGui.QPixmap(":/icons/run.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.run_btn.setIcon(icon5)
+        self.run_btn.setIcon(icon7)
         self.run_btn.setIconSize(QtCore.QSize(24, 24))
         self.run_btn.setObjectName("run_btn")
         self.horizontalLayout_7.addWidget(self.run_btn)
-        self.gridLayout_2.addLayout(self.horizontalLayout_7, 8, 0, 1, 3)
+        self.gridLayout_4.addLayout(self.horizontalLayout_7, 11, 0, 1, 4)
+        self.horizontalLayout_12 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_12.setObjectName("horizontalLayout_12")
+        self.keep_all_data_chkbox = QtWidgets.QCheckBox(self.orm_measurement)
+        self.keep_all_data_chkbox.setObjectName("keep_all_data_chkbox")
+        self.horizontalLayout_12.addWidget(self.keep_all_data_chkbox)
+        self.gridLayout_4.addLayout(self.horizontalLayout_12, 8, 1, 1, 3)
+        self.label_2 = QtWidgets.QLabel(self.orm_measurement)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
+                                           QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.label_2.sizePolicy().hasHeightForWidth())
+        self.label_2.setSizePolicy(sizePolicy)
+        self.label_2.setObjectName("label_2")
+        self.gridLayout_4.addWidget(self.label_2, 1, 0, 1, 1)
         self.horizontalLayout_19 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_19.setObjectName("horizontalLayout_19")
         self.label_30 = QtWidgets.QLabel(self.orm_measurement)
@@ -461,17 +589,68 @@ class Ui_MainWindow(object):
         self.label_15 = QtWidgets.QLabel(self.orm_measurement)
         self.label_15.setObjectName("label_15")
         self.horizontalLayout_19.addWidget(self.label_15)
-        self.gridLayout_2.addLayout(self.horizontalLayout_19, 1, 1, 1, 2)
-        self.label_2 = QtWidgets.QLabel(self.orm_measurement)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
-                                           QtWidgets.QSizePolicy.Preferred)
+        self.gridLayout_4.addLayout(self.horizontalLayout_19, 1, 1, 1, 3)
+        self.operation_mode_cbb = QtWidgets.QComboBox(self.orm_measurement)
+        self.operation_mode_cbb.setEnabled(False)
+        self.operation_mode_cbb.setObjectName("operation_mode_cbb")
+        self.operation_mode_cbb.addItem("")
+        self.operation_mode_cbb.addItem("")
+        self.gridLayout_4.addWidget(self.operation_mode_cbb, 0, 1, 1, 1)
+        self.label_33 = QtWidgets.QLabel(self.orm_measurement)
+        self.label_33.setObjectName("label_33")
+        self.gridLayout_4.addWidget(self.label_33, 8, 0, 1, 1)
+        self.label = QtWidgets.QLabel(self.orm_measurement)
+        self.label.setObjectName("label")
+        self.gridLayout_4.addWidget(self.label, 0, 0, 1, 1)
+        self.horizontalLayout = QtWidgets.QHBoxLayout()
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        self.label_16 = QtWidgets.QLabel(self.orm_measurement)
+        self.label_16.setObjectName("label_16")
+        self.horizontalLayout.addWidget(self.label_16)
+        self.alter_start_lineEdit = QtWidgets.QLineEdit(self.orm_measurement)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.MinimumExpanding,
+            QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(
-            self.label_2.sizePolicy().hasHeightForWidth())
-        self.label_2.setSizePolicy(sizePolicy)
-        self.label_2.setObjectName("label_2")
-        self.gridLayout_2.addWidget(self.label_2, 1, 0, 1, 1)
+            self.alter_start_lineEdit.sizePolicy().hasHeightForWidth())
+        self.alter_start_lineEdit.setSizePolicy(sizePolicy)
+        self.alter_start_lineEdit.setObjectName("alter_start_lineEdit")
+        self.horizontalLayout.addWidget(self.alter_start_lineEdit)
+        self.label_4 = QtWidgets.QLabel(self.orm_measurement)
+        self.label_4.setObjectName("label_4")
+        self.horizontalLayout.addWidget(self.label_4)
+        self.alter_stop_lineEdit = QtWidgets.QLineEdit(self.orm_measurement)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.MinimumExpanding,
+            QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.alter_stop_lineEdit.sizePolicy().hasHeightForWidth())
+        self.alter_stop_lineEdit.setSizePolicy(sizePolicy)
+        self.alter_stop_lineEdit.setObjectName("alter_stop_lineEdit")
+        self.horizontalLayout.addWidget(self.alter_stop_lineEdit)
+        self.label_5 = QtWidgets.QLabel(self.orm_measurement)
+        self.label_5.setObjectName("label_5")
+        self.horizontalLayout.addWidget(self.label_5)
+        self.alter_steps_lineEdit = QtWidgets.QLineEdit(self.orm_measurement)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.MinimumExpanding,
+            QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.alter_steps_lineEdit.sizePolicy().hasHeightForWidth())
+        self.alter_steps_lineEdit.setSizePolicy(sizePolicy)
+        self.alter_steps_lineEdit.setObjectName("alter_steps_lineEdit")
+        self.horizontalLayout.addWidget(self.alter_steps_lineEdit)
+        self.gridLayout_4.addLayout(self.horizontalLayout, 2, 1, 1, 3)
+        spacerItem6 = QtWidgets.QSpacerItem(793, 20,
+                                            QtWidgets.QSizePolicy.Expanding,
+                                            QtWidgets.QSizePolicy.Minimum)
+        self.gridLayout_4.addItem(spacerItem6, 0, 3, 1, 1)
         self.horizontalLayout_20 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_20.setObjectName("horizontalLayout_20")
         self.n_digits_measure_spinBox = QtWidgets.QSpinBox(
@@ -495,150 +674,49 @@ class Ui_MainWindow(object):
         self.label_21.setAlignment(QtCore.Qt.AlignCenter)
         self.label_21.setObjectName("label_21")
         self.horizontalLayout_20.addWidget(self.label_21)
-        self.gridLayout_2.addLayout(self.horizontalLayout_20, 3, 1, 1, 2)
-        self.operation_mode_cbb = QtWidgets.QComboBox(self.orm_measurement)
-        self.operation_mode_cbb.setEnabled(False)
-        self.operation_mode_cbb.setObjectName("operation_mode_cbb")
-        self.operation_mode_cbb.addItem("")
-        self.operation_mode_cbb.addItem("")
-        self.gridLayout_2.addWidget(self.operation_mode_cbb, 0, 1, 1, 1)
-        self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
-        self.horizontalLayout_2.setContentsMargins(-1, 0, -1, -1)
-        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
-        self.update_eta_btn = QtWidgets.QToolButton(self.orm_measurement)
-        icon6 = QtGui.QIcon()
-        icon6.addPixmap(
-            QtGui.QPixmap(":/icons/update.png"), QtGui.QIcon.Normal,
-            QtGui.QIcon.Off)
-        self.update_eta_btn.setIcon(icon6)
-        self.update_eta_btn.setIconSize(QtCore.QSize(24, 24))
-        self.update_eta_btn.setAutoRaise(True)
-        self.update_eta_btn.setObjectName("update_eta_btn")
-        self.horizontalLayout_2.addWidget(self.update_eta_btn)
-        self.label_18 = QtWidgets.QLabel(self.orm_measurement)
+        self.gridLayout_4.addLayout(self.horizontalLayout_20, 6, 1, 1, 3)
+        self.horizontalLayout_14 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_14.setContentsMargins(-1, 0, -1, -1)
+        self.horizontalLayout_14.setObjectName("horizontalLayout_14")
+        self.srange_relative_chkbox = QtWidgets.QCheckBox(self.orm_measurement)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
-                                           QtWidgets.QSizePolicy.Preferred)
+                                           QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(
-            self.label_18.sizePolicy().hasHeightForWidth())
-        self.label_18.setSizePolicy(sizePolicy)
-        self.label_18.setObjectName("label_18")
-        self.horizontalLayout_2.addWidget(self.label_18)
-        self.eta_lbl = QtWidgets.QLabel(self.orm_measurement)
+            self.srange_relative_chkbox.sizePolicy().hasHeightForWidth())
+        self.srange_relative_chkbox.setSizePolicy(sizePolicy)
+        self.srange_relative_chkbox.setObjectName("srange_relative_chkbox")
+        self.horizontalLayout_14.addWidget(self.srange_relative_chkbox)
+        self.srange_percentage_dspinbox = QtWidgets.QDoubleSpinBox(
+            self.orm_measurement)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
-                                           QtWidgets.QSizePolicy.Preferred)
+                                           QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(
-            self.eta_lbl.sizePolicy().hasHeightForWidth())
-        self.eta_lbl.setSizePolicy(sizePolicy)
-        self.eta_lbl.setStyleSheet("QLabel {\n"
-                                   "    font-family: monospace;\n"
-                                   "}")
-        self.eta_lbl.setAlignment(QtCore.Qt.AlignLeading | QtCore.Qt.AlignLeft
-                                  | QtCore.Qt.AlignVCenter)
-        self.eta_lbl.setObjectName("eta_lbl")
-        self.horizontalLayout_2.addWidget(self.eta_lbl)
-        spacerItem6 = QtWidgets.QSpacerItem(40, 20,
+            self.srange_percentage_dspinbox.sizePolicy().hasHeightForWidth())
+        self.srange_percentage_dspinbox.setSizePolicy(sizePolicy)
+        self.srange_percentage_dspinbox.setButtonSymbols(
+            QtWidgets.QAbstractSpinBox.UpDownArrows)
+        self.srange_percentage_dspinbox.setPrefix("")
+        self.srange_percentage_dspinbox.setDecimals(1)
+        self.srange_percentage_dspinbox.setProperty("value", 20.0)
+        self.srange_percentage_dspinbox.setObjectName(
+            "srange_percentage_dspinbox")
+        self.horizontalLayout_14.addWidget(self.srange_percentage_dspinbox)
+        spacerItem7 = QtWidgets.QSpacerItem(40, 20,
                                             QtWidgets.QSizePolicy.Expanding,
                                             QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayout_2.addItem(spacerItem6)
-        self.label_19 = QtWidgets.QLabel(self.orm_measurement)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
-                                           QtWidgets.QSizePolicy.Preferred)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(
-            self.label_19.sizePolicy().hasHeightForWidth())
-        self.label_19.setSizePolicy(sizePolicy)
-        self.label_19.setObjectName("label_19")
-        self.horizontalLayout_2.addWidget(self.label_19)
-        self.eta_timer_lbl = QtWidgets.QLabel(self.orm_measurement)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
-                                           QtWidgets.QSizePolicy.Preferred)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(
-            self.eta_timer_lbl.sizePolicy().hasHeightForWidth())
-        self.eta_timer_lbl.setSizePolicy(sizePolicy)
-        self.eta_timer_lbl.setStyleSheet("QLabel {\n"
-                                         "    color: blue;\n"
-                                         "    font-family: monospace;\n"
-                                         "}")
-        self.eta_timer_lbl.setAlignment(QtCore.Qt.AlignRight
-                                        | QtCore.Qt.AlignTrailing
-                                        | QtCore.Qt.AlignVCenter)
-        self.eta_timer_lbl.setObjectName("eta_timer_lbl")
-        self.horizontalLayout_2.addWidget(self.eta_timer_lbl)
-        self.gridLayout_2.addLayout(self.horizontalLayout_2, 7, 0, 1, 3)
-        self.label_20 = QtWidgets.QLabel(self.orm_measurement)
-        self.label_20.setObjectName("label_20")
-        self.gridLayout_2.addWidget(self.label_20, 3, 0, 1, 1)
-        spacerItem7 = QtWidgets.QSpacerItem(20, 40,
-                                            QtWidgets.QSizePolicy.Minimum,
-                                            QtWidgets.QSizePolicy.Expanding)
-        self.gridLayout_2.addItem(spacerItem7, 6, 0, 1, 1)
-        self.label_24 = QtWidgets.QLabel(self.orm_measurement)
-        self.label_24.setObjectName("label_24")
-        self.gridLayout_2.addWidget(self.label_24, 4, 0, 1, 1)
-        self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
-        self.horizontalLayout_3.setObjectName("horizontalLayout_3")
-        self.label_25 = QtWidgets.QLabel(self.orm_measurement)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
-                                           QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(
-            self.label_25.sizePolicy().hasHeightForWidth())
-        self.label_25.setSizePolicy(sizePolicy)
-        self.label_25.setObjectName("label_25")
-        self.horizontalLayout_3.addWidget(self.label_25)
-        self.daq_rate_sbox = QtWidgets.QSpinBox(self.orm_measurement)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
-                                           QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(
-            self.daq_rate_sbox.sizePolicy().hasHeightForWidth())
-        self.daq_rate_sbox.setSizePolicy(sizePolicy)
-        self.daq_rate_sbox.setMinimum(1)
-        self.daq_rate_sbox.setMaximum(20)
-        self.daq_rate_sbox.setObjectName("daq_rate_sbox")
-        self.horizontalLayout_3.addWidget(self.daq_rate_sbox)
-        self.label_26 = QtWidgets.QLabel(self.orm_measurement)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
-                                           QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(
-            self.label_26.sizePolicy().hasHeightForWidth())
-        self.label_26.setSizePolicy(sizePolicy)
-        self.label_26.setObjectName("label_26")
-        self.horizontalLayout_3.addWidget(self.label_26)
-        self.daq_nshot_sbox = QtWidgets.QSpinBox(self.orm_measurement)
-        self.daq_nshot_sbox.setMinimum(1)
-        self.daq_nshot_sbox.setMaximum(10)
-        self.daq_nshot_sbox.setProperty("value", 2)
-        self.daq_nshot_sbox.setObjectName("daq_nshot_sbox")
-        self.horizontalLayout_3.addWidget(self.daq_nshot_sbox)
-        self.gridLayout_2.addLayout(self.horizontalLayout_3, 4, 1, 1, 2)
-        self.label_33 = QtWidgets.QLabel(self.orm_measurement)
-        self.label_33.setObjectName("label_33")
-        self.gridLayout_2.addWidget(self.label_33, 5, 0, 1, 1)
-        self.horizontalLayout_12 = QtWidgets.QHBoxLayout()
-        self.horizontalLayout_12.setObjectName("horizontalLayout_12")
-        self.keep_all_data_chkbox = QtWidgets.QCheckBox(self.orm_measurement)
-        self.keep_all_data_chkbox.setObjectName("keep_all_data_chkbox")
-        self.horizontalLayout_12.addWidget(self.keep_all_data_chkbox)
-        self.gridLayout_2.addLayout(self.horizontalLayout_12, 5, 1, 1, 2)
-        icon7 = QtGui.QIcon()
-        icon7.addPixmap(
+        self.horizontalLayout_14.addItem(spacerItem7)
+        self.gridLayout_4.addLayout(self.horizontalLayout_14, 5, 1, 1, 3)
+        icon8 = QtGui.QIcon()
+        icon8.addPixmap(
             QtGui.QPixmap(":/icons/measure.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.operations_toolBox.addItem(self.orm_measurement, icon7, "")
+        self.operations_toolBox.addItem(self.orm_measurement, icon8, "")
         self.orm_apply = QtWidgets.QWidget()
-        self.orm_apply.setGeometry(QtCore.QRect(0, 0, 1118, 809))
+        self.orm_apply.setGeometry(QtCore.QRect(0, 0, 1137, 823))
         self.orm_apply.setObjectName("orm_apply")
         self.gridLayout = QtWidgets.QGridLayout(self.orm_apply)
         self.gridLayout.setObjectName("gridLayout")
@@ -824,27 +902,27 @@ class Ui_MainWindow(object):
                                              QtWidgets.QSizePolicy.Minimum)
         self.cached_settings_hbox.addItem(spacerItem10)
         self.undo_apply_btn = QtWidgets.QToolButton(self.orm_apply)
-        icon8 = QtGui.QIcon()
-        icon8.addPixmap(
+        icon9 = QtGui.QIcon()
+        icon9.addPixmap(
             QtGui.QPixmap(":/icons/undo.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.undo_apply_btn.setIcon(icon8)
+        self.undo_apply_btn.setIcon(icon9)
         self.undo_apply_btn.setIconSize(QtCore.QSize(30, 30))
         self.undo_apply_btn.setAutoRaise(True)
         self.undo_apply_btn.setObjectName("undo_apply_btn")
         self.cached_settings_hbox.addWidget(self.undo_apply_btn)
         self.redo_apply_btn = QtWidgets.QToolButton(self.orm_apply)
-        icon9 = QtGui.QIcon()
-        icon9.addPixmap(
+        icon10 = QtGui.QIcon()
+        icon10.addPixmap(
             QtGui.QPixmap(":/icons/redo.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.redo_apply_btn.setIcon(icon9)
+        self.redo_apply_btn.setIcon(icon10)
         self.redo_apply_btn.setIconSize(QtCore.QSize(30, 30))
         self.redo_apply_btn.setAutoRaise(True)
         self.redo_apply_btn.setObjectName("redo_apply_btn")
         self.cached_settings_hbox.addWidget(self.redo_apply_btn)
         self.reset_cached_settings_btn = QtWidgets.QToolButton(self.orm_apply)
-        self.reset_cached_settings_btn.setIcon(icon6)
+        self.reset_cached_settings_btn.setIcon(icon5)
         self.reset_cached_settings_btn.setIconSize(QtCore.QSize(30, 30))
         self.reset_cached_settings_btn.setAutoRaise(True)
         self.reset_cached_settings_btn.setObjectName(
@@ -872,16 +950,16 @@ class Ui_MainWindow(object):
                                              QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_8.addItem(spacerItem11)
         self.stop_apply_btn = QtWidgets.QPushButton(self.orm_apply)
-        self.stop_apply_btn.setIcon(icon4)
+        self.stop_apply_btn.setIcon(icon6)
         self.stop_apply_btn.setIconSize(QtCore.QSize(24, 24))
         self.stop_apply_btn.setObjectName("stop_apply_btn")
         self.horizontalLayout_8.addWidget(self.stop_apply_btn)
         self.cor_eva_btn = QtWidgets.QPushButton(self.orm_apply)
-        icon10 = QtGui.QIcon()
-        icon10.addPixmap(
+        icon11 = QtGui.QIcon()
+        icon11.addPixmap(
             QtGui.QPixmap(":/icons/evaluate.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.cor_eva_btn.setIcon(icon10)
+        self.cor_eva_btn.setIcon(icon11)
         self.cor_eva_btn.setIconSize(QtCore.QSize(20, 20))
         self.cor_eva_btn.setObjectName("cor_eva_btn")
         self.horizontalLayout_8.addWidget(self.cor_eva_btn)
@@ -893,7 +971,7 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(
             self.cor_apply_btn.sizePolicy().hasHeightForWidth())
         self.cor_apply_btn.setSizePolicy(sizePolicy)
-        self.cor_apply_btn.setIcon(icon5)
+        self.cor_apply_btn.setIcon(icon7)
         self.cor_apply_btn.setIconSize(QtCore.QSize(24, 24))
         self.cor_apply_btn.setObjectName("cor_apply_btn")
         self.horizontalLayout_8.addWidget(self.cor_apply_btn)
@@ -912,10 +990,10 @@ class Ui_MainWindow(object):
         self.log_textEdit.setReadOnly(True)
         self.log_textEdit.setObjectName("log_textEdit")
         self.gridLayout_3.addWidget(self.log_textEdit, 0, 0, 1, 1)
-        self.verticalLayout_2.addWidget(self.splitter_2)
+        self.gridLayout_2.addWidget(self.splitter_2, 0, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1600, 34))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1619, 34))
         self.menubar.setObjectName("menubar")
         self.menuFile = QtWidgets.QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
@@ -925,52 +1003,52 @@ class Ui_MainWindow(object):
         self.menu_Help.setObjectName("menu_Help")
         MainWindow.setMenuBar(self.menubar)
         self.load_settings = QtWidgets.QAction(MainWindow)
-        icon11 = QtGui.QIcon()
-        icon11.addPixmap(
-            QtGui.QPixmap(":/icons/open.png"), QtGui.QIcon.Normal,
-            QtGui.QIcon.Off)
-        self.load_settings.setIcon(icon11)
-        self.load_settings.setObjectName("load_settings")
-        self.save_settings = QtWidgets.QAction(MainWindow)
         icon12 = QtGui.QIcon()
         icon12.addPixmap(
-            QtGui.QPixmap(":/icons/save.png"), QtGui.QIcon.Normal,
+            QtGui.QPixmap(":/icons/open.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.save_settings.setIcon(icon12)
-        self.save_settings.setObjectName("save_settings")
-        self.actionAbout = QtWidgets.QAction(MainWindow)
+        self.load_settings.setIcon(icon12)
+        self.load_settings.setObjectName("load_settings")
+        self.save_settings = QtWidgets.QAction(MainWindow)
         icon13 = QtGui.QIcon()
         icon13.addPixmap(
-            QtGui.QPixmap(":/icons/info.png"), QtGui.QIcon.Normal,
+            QtGui.QPixmap(":/icons/save.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.actionAbout.setIcon(icon13)
-        self.actionAbout.setObjectName("actionAbout")
-        self.actionE_xit = QtWidgets.QAction(MainWindow)
+        self.save_settings.setIcon(icon13)
+        self.save_settings.setObjectName("save_settings")
+        self.actionAbout = QtWidgets.QAction(MainWindow)
         icon14 = QtGui.QIcon()
         icon14.addPixmap(
-            QtGui.QPixmap(":/icons/exit.png"), QtGui.QIcon.Normal,
+            QtGui.QPixmap(":/icons/info.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.actionE_xit.setIcon(icon14)
-        self.actionE_xit.setObjectName("actionE_xit")
-        self.actionContents = QtWidgets.QAction(MainWindow)
+        self.actionAbout.setIcon(icon14)
+        self.actionAbout.setObjectName("actionAbout")
+        self.actionE_xit = QtWidgets.QAction(MainWindow)
         icon15 = QtGui.QIcon()
         icon15.addPixmap(
-            QtGui.QPixmap(":/icons/help.png"), QtGui.QIcon.Normal,
+            QtGui.QPixmap(":/icons/exit.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.actionContents.setIcon(icon15)
-        self.actionContents.setObjectName("actionContents")
-        self.actionAbout_Qt = QtWidgets.QAction(MainWindow)
+        self.actionE_xit.setIcon(icon15)
+        self.actionE_xit.setObjectName("actionE_xit")
+        self.actionContents = QtWidgets.QAction(MainWindow)
         icon16 = QtGui.QIcon()
         icon16.addPixmap(
+            QtGui.QPixmap(":/icons/help.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.actionContents.setIcon(icon16)
+        self.actionContents.setObjectName("actionContents")
+        self.actionAbout_Qt = QtWidgets.QAction(MainWindow)
+        icon17 = QtGui.QIcon()
+        icon17.addPixmap(
             QtGui.QPixmap(":/icons/qt.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.actionAbout_Qt.setIcon(icon16)
+        self.actionAbout_Qt.setIcon(icon17)
         self.actionAbout_Qt.setObjectName("actionAbout_Qt")
         self.actionSave = QtWidgets.QAction(MainWindow)
-        self.actionSave.setIcon(icon12)
+        self.actionSave.setIcon(icon13)
         self.actionSave.setObjectName("actionSave")
         self.actionOpen = QtWidgets.QAction(MainWindow)
-        self.actionOpen.setIcon(icon11)
+        self.actionOpen.setIcon(icon12)
         self.actionOpen.setObjectName("actionOpen")
         self.menuFile.addAction(self.actionOpen)
         self.menuFile.addAction(self.actionSave)
@@ -1021,7 +1099,12 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.label_10.setText(_translate("MainWindow", "Refresh"))
+        self.label_34.setText(_translate("MainWindow", "Loaded"))
+        self.loaded_mach_lbl.setToolTip(
+            _translate("MainWindow", "Machine Name"))
+        self.loaded_lattice_lbl.setToolTip(
+            _translate("MainWindow", "Segment Name"))
+        self.lattice_info_btn.setText(_translate("MainWindow", "..."))
         self.refresh_models_btn.setToolTip(
             _translate(
                 "MainWindow",
@@ -1057,6 +1140,34 @@ class Ui_MainWindow(object):
         self.nelem_selected_cors_lineEdit.setText(
             _translate("MainWindow", "0"))
         self.cors_gbox.setTitle(_translate("MainWindow", "Correctors"))
+        self.label_25.setText(_translate("MainWindow", "Frequency"))
+        self.label_26.setText(_translate("MainWindow", "Short Number"))
+        self.label_3.setText(_translate("MainWindow", "Alter Range"))
+        self.label_24.setText(_translate("MainWindow", "Trajectory DAQ"))
+        self.update_eta_btn.setText(_translate("MainWindow", "Update"))
+        self.label_18.setText(_translate("MainWindow", "Estimated Time"))
+        self.eta_lbl.setText(_translate("MainWindow", "00:00:00"))
+        self.label_19.setText(_translate("MainWindow", "Running"))
+        self.eta_timer_lbl.setText(_translate("MainWindow", "00:00:00"))
+        self.label_20.setText(_translate("MainWindow", "Float Precision"))
+        self.stop_measure_btn.setToolTip(
+            _translate("MainWindow", "Stop ORM measurement"))
+        self.stop_measure_btn.setText(_translate("MainWindow", "Stop"))
+        self.run_btn.setToolTip(
+            _translate("MainWindow", "Start ORM measurement"))
+        self.run_btn.setText(_translate("MainWindow", "Measure"))
+        self.keep_all_data_chkbox.setText(
+            _translate("MainWindow", "Keep All Measurement Data"))
+        self.label_2.setText(_translate("MainWindow", "Wait Time"))
+        self.label_30.setText(_translate("MainWindow", "Alter"))
+        self.label_31.setText(_translate("MainWindow", "Second"))
+        self.label_32.setText(_translate("MainWindow", "Reset"))
+        self.label_15.setText(_translate("MainWindow", "Second"))
+        self.operation_mode_cbb.setItemText(0, _translate(
+            "MainWindow", "Live"))
+        self.operation_mode_cbb.setItemText(1, _translate(
+            "MainWindow", "Model"))
+        self.label_33.setText(_translate("MainWindow", "Data"))
         self.label.setText(_translate("MainWindow", "Operation Mode"))
         self.label_16.setText(_translate("MainWindow", "From"))
         self.alter_start_lineEdit.setText(_translate("MainWindow", "-0.003"))
@@ -1064,39 +1175,15 @@ class Ui_MainWindow(object):
         self.alter_stop_lineEdit.setText(_translate("MainWindow", "0.003"))
         self.label_5.setText(_translate("MainWindow", "N"))
         self.alter_steps_lineEdit.setText(_translate("MainWindow", "5"))
-        self.label_3.setText(_translate("MainWindow", "Alter Range"))
-        self.stop_measure_btn.setToolTip(
-            _translate("MainWindow", "Stop ORM measurement"))
-        self.stop_measure_btn.setText(_translate("MainWindow", "Stop"))
-        self.run_btn.setToolTip(
-            _translate("MainWindow", "Start ORM measurement"))
-        self.run_btn.setText(_translate("MainWindow", "Measure"))
-        self.label_30.setText(_translate("MainWindow", "Alter"))
-        self.label_31.setText(_translate("MainWindow", "Second"))
-        self.label_32.setText(_translate("MainWindow", "Reset"))
-        self.label_15.setText(_translate("MainWindow", "Second"))
-        self.label_2.setText(_translate("MainWindow", "Wait Time"))
         self.label_21.setText(
             _translate(
                 "MainWindow",
                 "e.g. for the case of 2, the original float 0.123 will be applied as 0.12."
             ))
-        self.operation_mode_cbb.setItemText(0, _translate(
-            "MainWindow", "Live"))
-        self.operation_mode_cbb.setItemText(1, _translate(
-            "MainWindow", "Model"))
-        self.update_eta_btn.setText(_translate("MainWindow", "Update"))
-        self.label_18.setText(_translate("MainWindow", "Estimated Time"))
-        self.eta_lbl.setText(_translate("MainWindow", "00:00:00"))
-        self.label_19.setText(_translate("MainWindow", "Running"))
-        self.eta_timer_lbl.setText(_translate("MainWindow", "00:00:00"))
-        self.label_20.setText(_translate("MainWindow", "Float Precision"))
-        self.label_24.setText(_translate("MainWindow", "Trajectory DAQ"))
-        self.label_25.setText(_translate("MainWindow", "Frequency"))
-        self.label_26.setText(_translate("MainWindow", "Short Number"))
-        self.label_33.setText(_translate("MainWindow", "Data"))
-        self.keep_all_data_chkbox.setText(
-            _translate("MainWindow", "Keep All Measurement Data"))
+        self.srange_relative_chkbox.setText(
+            _translate("MainWindow", "Relative"))
+        self.srange_percentage_dspinbox.setSuffix(
+            _translate("MainWindow", "%"))
         self.operations_toolBox.setItemText(
             self.operations_toolBox.indexOf(self.orm_measurement),
             _translate("MainWindow",
