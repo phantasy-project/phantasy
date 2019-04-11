@@ -115,6 +115,9 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
 
         # refresh element list models
         self.refresh_models_btn.clicked.connect(self.on_refresh_models)
+        # latinfo
+        self.lattice_info_btn.clicked.connect(self.on_show_latinfo)
+        self._lv = None
 
         # set up models for BPMs and CORs
         self.refresh_models_btn.clicked.emit()
@@ -781,6 +784,28 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         lat_name = self.__mp.last_lattice_name
         self.loaded_mach_lbl.setText(mach_name)
         self.loaded_lattice_lbl.setText(lat_name)
+
+    @pyqtSlot()
+    def on_show_latinfo(self):
+        machine = self.loaded_mach_lbl.text()
+        lattice = self.loaded_lattice_lbl.text()
+        if machine == '' or lattice == '':
+            return
+
+        from phantasy.apps.lattice_viewer import LatticeViewerWindow
+        from phantasy.apps.lattice_viewer import __version__
+        from phantasy.apps.lattice_viewer import __title__
+
+        if self._lv is None:
+            self._lv = LatticeViewerWindow(__version__)
+            self._lv.setWindowTitle("{} ({})".format(__title__, self.getAppTitle()))
+        lw = self._lv.latticeWidget
+        lw.mach_cbb.setCurrentText(machine)
+        lw.seg_cbb.setCurrentText(lattice)
+        lw.load_btn.clicked.emit()
+        lw.setEnabled(False)
+        self._lv.show()
+
 
 
 def sort_dict(d):
