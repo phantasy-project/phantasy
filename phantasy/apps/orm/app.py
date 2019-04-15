@@ -9,7 +9,6 @@ from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtWidgets import QDialog
 from PyQt5.QtGui import QDoubleValidator
-from PyQt5.QtGui import QIntValidator
 
 from functools import partial
 from collections import OrderedDict
@@ -231,6 +230,7 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
             enames = list(v.keys())
             model = ElementListModel(tv, self._mp, enames)
             model.set_model()
+            model.elementSelected.connect(partial(self.on_update_selection, mode))
             o = getattr(self, 'nelem_selected_{}s_lineEdit'.format(mode))
             model.nElementSelected.connect(lambda i:o.setText(str(i)))
             model.select_all_items() # select all by default
@@ -990,6 +990,11 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         print(self._rel_range)
         m = self.cor_srange_tableView.model()
         m.update_scan_range(self._rel_range)
+
+    def on_update_selection(self, mode, d):
+        # update the devices after selection changed
+        setattr(self, "_{}s_dict".format(mode), d)
+        self.init_elements()
 
 
 def _str2float(s):
