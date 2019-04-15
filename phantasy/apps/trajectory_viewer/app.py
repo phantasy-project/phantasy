@@ -43,6 +43,8 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
     monitorsChanged = pyqtSignal(dict)
     # selected correctors and fields
     correctorsChanged = pyqtSignal(dict)
+    # name elem map
+    name_map_changed = pyqtSignal(dict)
 
     def __init__(self, version):
         super(TrajectoryViewerWindow, self).__init__()
@@ -317,6 +319,9 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
         m = tv.model()
         m.elementSelected.connect(partial(self.on_elem_selection_updated, mode))
 
+        # update name_map
+        self.name_map_changed.emit(model.name_elem_map)
+
     @pyqtSlot(QVariant)
     def update_lattice(self, o):
         self.__mp = o
@@ -396,6 +401,7 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
                     partial(self._orm_window.on_update_elements, 'bpm'))
             self.correctorsChanged.connect(
                     partial(self._orm_window.on_update_elements, 'cor'))
+            self.name_map_changed.connect(self._orm_window.update_name_map)
         #
         self._orm_window.show()
 
