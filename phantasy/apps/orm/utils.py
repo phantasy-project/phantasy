@@ -145,7 +145,7 @@ def load_orm_sheet(filepath):
     t_wait = orm_conf_sheet.get('wait_seconds', 1.0)
     reset_wait = orm_conf_sheet.get('reset_wait_seconds', 1.0)
     ndigits = orm_conf_sheet.get('set_precision', 2)
-    srange = orm_conf_sheet.get('alter_range', {'from': '-5', 'to': '5', 'total_steps': '5'})
+    srange = orm_conf_sheet.get('alter_range', {'relative_range': 0.1, 'total_steps': 3})
     daq_nshot = orm_conf_sheet.get('daq_nshot', 1)
     daq_rate = orm_conf_sheet.get('daq_rate', 1)
     orm = np.asarray(orm_conf_sheet['orm'], dtype=np.float)
@@ -344,12 +344,11 @@ class ScanRangeModel(QStandardItemModel):
     item_changed = pyqtSignal(QVariant)
     view_size = pyqtSignal(int, int)
 
-    def __init__(self, parent, data, sstart, sstop, **kws):
+    def __init__(self, parent, data, rel_range, **kws):
         super(self.__class__, self).__init__(parent)
         self._v = parent
         self._data = data # list of (element, field)
-        self._sstart = sstart
-        self._sstop = sstop
+        self._rel_range = rel_range
         self.fmt = kws.get('fmt', '{0:>.8g}')
 
         #
@@ -389,15 +388,15 @@ class ScanRangeModel(QStandardItemModel):
         for i, (c, f) in enumerate(self._data):
             row = []
             cset = c.current_setting(f)
-
+            x1 = cset - self._rel_range
+            x2 = cset + self._rel_range
             item_idx = QStandardItem('{0:03d}'.format(i + 1))
             item_ename = QStandardItem(c.name)
             item_fname = QStandardItem(f)
             item_cset = QStandardItem(self.fmt.format(cset))
             item_rd = QStandardItem(self.fmt.format(getattr(c, f)))
-
-            item_sstart = QStandardItem(self.fmt.format(self._sstart))
-            item_sstop = QStandardItem(self.fmt.format(self._sstop))
+            item_sstart = QStandardItem(self.fmt.format(x1))
+            item_sstop = QStandardItem(self.fmt.format(x2))
 
             for item, idx in zip((item_idx, item_ename, item_fname,
                                   item_cset, item_sstart, item_sstop,
@@ -439,6 +438,13 @@ class ScanRangeModel(QStandardItemModel):
         #tv.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         #tv.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         #self.view_size.emit(w, h)
+
+    def update_scan_range(self, rel):
+        for i in range(self.rowCount()):
+            x0 = float(self.item(i, self.i_cset).text())
+            x1, x2 = x0 - rel, x0 + rel
+            self.item(i, self.i_sstart).setText(self.fmt.format(x1))
+            self.item(i, self.i_sstop).setText(self.fmt.format(x2))
 
     def get_scan_range(self, n):
         #
