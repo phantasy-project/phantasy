@@ -3,17 +3,15 @@
 
 import os
 import time
-import numpy as np
 
+from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtWidgets import QCheckBox
 from PyQt5.QtWidgets import QDialog
 from PyQt5.QtWidgets import QMessageBox
-from PyQt5.QtWidgets import QCheckBox
-from PyQt5.QtCore import pyqtSlot
 
-from phantasy.apps.utils import get_save_filename
 from phantasy import epoch2human
+from phantasy.apps.utils import get_save_filename
 from phantasy.recipes import save_all_settings
-
 from .ui.ui_save import Ui_Dialog
 
 TS_FMT = "%Y-%m-%d %H:%M:%S"
@@ -44,7 +42,7 @@ class SaveDataDialog(QDialog, Ui_Dialog):
 
         # figure format
         self.figure_format_cbb.currentTextChanged.connect(
-                self.on_update_figure_filepath)
+            self.on_update_figure_filepath)
 
     @pyqtSlot(list)
     def on_segments_updated(self, segs):
@@ -90,7 +88,7 @@ class SaveDataDialog(QDialog, Ui_Dialog):
         self._save_data(timestamp=ctime)
 
         if self.save_figure_chkbox.isChecked():
-                self._save_figure()
+            self._save_figure()
 
         if self.save_settings_chkbox.isChecked():
             self._save_settings(timestamp=ctime)
@@ -103,10 +101,10 @@ class SaveDataDialog(QDialog, Ui_Dialog):
             self.parent._save_data(filepath, ext)
         except:
             QMessageBox.warning(self, "Save Data Warning",
-                    "Failed to save data to {}.".format(filepath), QMessageBox.Ok)
+                                "Failed to save data to {}.".format(filepath), QMessageBox.Ok)
         else:
             QMessageBox.information(self, "Save Data",
-                    "Saved data to {}.".format(filepath), QMessageBox.Ok)
+                                    "Saved data to {}.".format(filepath), QMessageBox.Ok)
 
     def _save_figure(self):
         # save figure
@@ -118,10 +116,10 @@ class SaveDataDialog(QDialog, Ui_Dialog):
             o.figure.savefig(filepath, **opt)
         except:
             QMessageBox.warning(self, "Save Figure Warning",
-                    "Failed to save figure to {}.".format(filepath), QMessageBox.Ok)
+                                "Failed to save figure to {}.".format(filepath), QMessageBox.Ok)
         else:
             QMessageBox.information(self, "Save Figure",
-                    "Saved figure to {}.".format(filepath), QMessageBox.Ok)
+                                    "Saved figure to {}.".format(filepath), QMessageBox.Ok)
 
     def _save_settings(self, **kws):
         # save settings
@@ -131,18 +129,18 @@ class SaveDataDialog(QDialog, Ui_Dialog):
                               mp=self.parent.get_mp())
         except:
             QMessageBox.warning(self, "Save Settings Warning",
-                    "Failed to save settings to {}.".format(filepath), QMessageBox.Ok)
+                                "Failed to save settings to {}.".format(filepath), QMessageBox.Ok)
         else:
             QMessageBox.information(self, "Save Settings",
-                    "Saved settings to {}.".format(filepath), QMessageBox.Ok)
+                                    "Saved settings to {}.".format(filepath), QMessageBox.Ok)
 
     @pyqtSlot()
     def on_get_filepath(self):
         print("SaveDataDialog: Get filepath")
         cdir = os.path.dirname(self.filepath_lineEdit.text())
         filepath, ext = get_save_filename(self,
-                cdir=cdir,
-                filter="JSON Files (*.json);;CSV Files (*.csv)")
+                                          cdir=cdir,
+                                          filter="JSON Files (*.json);;CSV Files (*.csv)")
         if filepath is None:
             return
         self.filepath_lineEdit.setText(filepath)

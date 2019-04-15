@@ -2,6 +2,8 @@
 
 import json
 from collections import OrderedDict
+from copy import deepcopy
+
 from .data_templates import SHEET_TEMPLATES
 
 try:
@@ -19,8 +21,9 @@ class ScanDataModel(object):
         Numpy array with the shape of `(t, h, w)`, e.g.
         `t` is iteration number, `h` is shot number, `w` is scan dimension.
     """
+
     def __init__(self, data=None):
-       self.data = data
+        self.data = data
 
     @property
     def data(self):
@@ -41,27 +44,27 @@ class ScanDataModel(object):
         return self._data.shape
 
     def get_xerr(self, **kws):
-        ind = kws.get('ind', 0) # x index
-        skws = {k: v for k in kws if k != 'ind'}
+        ind = kws.get('ind', 0)  # x index
+        skws = {k: v for k, v in kws.items() if k != 'ind'}
         if skws == {}:
             return self._std[:, ind]
         else:
             return self._data.std(axis=1, **skws)[:, ind]
 
     def get_yerr(self, **kws):
-        ind = kws.get('ind', 1) # y index
-        skws = {k: v for k in kws if k != 'ind'}
+        ind = kws.get('ind', 1)  # y index
+        skws = {k: v for k, v in kws.items() if k != 'ind'}
         if skws == {}:
             return self._std[:, ind]
         else:
             return self._data.std(axis=1, **skws)[:, ind]
 
     def get_xavg(self, **kws):
-        ind = kws.get('ind', 0) # x index
+        ind = kws.get('ind', 0)  # x index
         return self._avg[:, ind]
 
     def get_yavg(self, **kws):
-        ind = kws.get('ind', 1) # y index
+        ind = kws.get('ind', 1)  # y index
         return self._avg[:, ind]
 
     def get_avg(self):
@@ -121,11 +124,12 @@ class DataSheetBase(OrderedDict):
 class JSONDataSheet(DataSheetBase):
     """Save/Open JSON formated data sheet.
     """
+
     def __init__(self, path=None, template='Quad Scan'):
         super(JSONDataSheet, self).__init__(path)
 
-        ## load 'Quad Scan' template
-        #self.load_template('Quad Scan')
+        # load 'Quad Scan' template
+        # self.load_template('Quad Scan')
 
     def read(self, fp):
         self.update(json.load(fp, object_pairs_hook=OrderedDict))
@@ -133,4 +137,3 @@ class JSONDataSheet(DataSheetBase):
     def write(self, path):
         with open(path, 'w') as fp:
             json.dump(self, fp, indent=2, sort_keys=False)
-

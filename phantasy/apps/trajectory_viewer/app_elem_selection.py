@@ -1,18 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from PyQt5.QtWidgets import QWidget
-from PyQt5.QtWidgets import QCheckBox
-from PyQt5.QtCore import pyqtSignal
-from PyQt5.QtCore import pyqtSlot
-from PyQt5.QtCore import QVariant
-from PyQt5.QtCore import Qt
-
 from functools import partial
 
+from PyQt5.QtCore import Qt
+from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtWidgets import QCheckBox
+from PyQt5.QtWidgets import QWidget
+
 from phantasy.apps.trajectory_viewer.ui.ui_app_elem_selection import Ui_Form
-from phantasy.apps.trajectory_viewer.utils import LatticeDataModel
 from phantasy.apps.trajectory_viewer.utils import DTYPE_HINT_MAP
+from phantasy.apps.trajectory_viewer.utils import LatticeDataModel
 
 
 class ElementSelectionWidget(QWidget, Ui_Form):
@@ -81,7 +80,7 @@ class ElementSelectionWidget(QWidget, Ui_Form):
 
         # refresh model
         self.update_lattice_data(self.treeView,
-                self.__mp, dtypes=self.__dtypes)
+                                 self.__mp, dtypes=self.__dtypes)
 
     def set_lattice_view(self):
         # set up lattice data view
@@ -92,21 +91,21 @@ class ElementSelectionWidget(QWidget, Ui_Form):
         # kws: dtypes
         model = LatticeDataModel(tv, o, **kws)
         model.itemsSelected.connect(self.on_items_selected)
-        model.selectedItemsNumberChanged.connect(lambda i:self.selected_nelem_lineEdit.setText(str(i)))
+        model.selectedItemsNumberChanged.connect(lambda i: self.selected_nelem_lineEdit.setText(str(i)))
         model.set_model()
         self.listed_nelem_lineEdit.setText("{}".format(tv.model().rowCount()))
 
     @pyqtSlot(list)
     def on_items_selected(self, enames):
         # update selected enames
-        #print("Selected: {} elements".format(len(enames)))
+        # print("Selected: {} elements".format(len(enames)))
         self._selected_enames = enames
 
     @pyqtSlot()
     def on_click_apply(self):
         """Apply selected elements.
         """
-        #print(self._selected_enames, len(self._selected_enames))
+        # print(self._selected_enames, len(self._selected_enames))
         self.elementsSelected.emit(self._selected_enames)
 
 

@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from PyQt5.QtWidgets import QWidget
-from PyQt5.QtWidgets import QToolButton
-from PyQt5.QtWidgets import QTableWidgetItem
-from PyQt5.QtGui import QIcon
-from PyQt5.QtGui import QPixmap
+import re
+from functools import partial
+
 from PyQt5.QtCore import QSize
 from PyQt5.QtCore import Qt
-from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtCore import pyqtSignal
-
-from functools import partial
-import re
+from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QPixmap
+from PyQt5.QtWidgets import QTableWidgetItem
+from PyQt5.QtWidgets import QToolButton
+from PyQt5.QtWidgets import QWidget
 
 from phantasy.apps.correlation_visualizer.ui.ui_monitors_view import Ui_Form
 
@@ -39,7 +39,7 @@ class MonitorsViewWidget(QWidget, Ui_Form):
         self.set_data(data)
 
         self.removeElement['QString'].connect(
-                self.parent.update_extra_monitors)
+            self.parent.update_extra_monitors)
 
     def set_data(self, data):
         """Set data to present.
@@ -60,7 +60,7 @@ class MonitorsViewWidget(QWidget, Ui_Form):
                     key_name = v
                     name, fname, _ = v.split()
                     if 'generic' in fname:
-                        fname = re.match(r"\<.*\>\[(.*)\]", fname).group(1)
+                        fname = re.match(r"<.*>\[(.*)\]", fname).group(1)
 
                     # ename
                     item = QTableWidgetItem(name)
@@ -72,7 +72,7 @@ class MonitorsViewWidget(QWidget, Ui_Form):
                     item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
                     self.tableWidget.setItem(i, 1, item)
 
-                elif j == 1: # elementWidget
+                elif j == 1:  # elementWidget
                     elem_widget = v
 
                     elem_btn = QToolButton(self)
@@ -86,7 +86,7 @@ class MonitorsViewWidget(QWidget, Ui_Form):
 
                     self.tableWidget.setCellWidget(i, 2, elem_btn)
             # Add another col for delete btn
-            del_btn= QToolButton(self)
+            del_btn = QToolButton(self)
             del_btn.setIcon(QIcon(QPixmap(":/icons/delete.png")))
             del_btn.setIconSize(TBTN_ICON_SIZE)
             del_btn.setToolTip("Delete current selection")
@@ -104,7 +104,7 @@ class MonitorsViewWidget(QWidget, Ui_Form):
     def _postset_table(self):
         """
         """
-        #self.tableWidget.setSortingEnabled(True)
+        # self.tableWidget.setSortingEnabled(True)
         self.tableWidget.resizeColumnsToContents()
 
     def _preset_table(self):
@@ -131,6 +131,7 @@ class MonitorsViewWidget(QWidget, Ui_Form):
         if e.key() == Qt.Key_Escape:
             self.close()
 
-    def on_show_elem_info(self, name, elemWidget):
-        elemWidget.setWindowTitle(name)
-        elemWidget.show()
+    @staticmethod
+    def on_show_elem_info(name, elem_widget):
+        elem_widget.setWindowTitle(name)
+        elem_widget.show()

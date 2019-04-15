@@ -1,36 +1,34 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from PyQt5.QtCore import pyqtSlot
-from PyQt5.QtCore import pyqtSignal
-from PyQt5.QtCore import QTimer
-from PyQt5.QtCore import QVariant
-from PyQt5.QtGui import QDoubleValidator
-from PyQt5.QtWidgets import QMessageBox
-
 from collections import OrderedDict
 from collections import deque
 from functools import partial
-import numpy as np
 
+import numpy as np
+from PyQt5.QtCore import QTimer
+from PyQt5.QtCore import QVariant
+from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtGui import QDoubleValidator
+from PyQt5.QtWidgets import QMessageBox
 from phantasy_ui import BaseAppForm
 from phantasy_ui.widgets import LatticeWidget
-from phantasy.apps.utils import get_save_filename
-from phantasy.apps.utils import get_open_filename
 
+from phantasy.apps.utils import get_open_filename
+from phantasy.apps.utils import get_save_filename
 from .app_elem_selection import ElementSelectionWidget
 from .app_help import HelpDialog
 from .ui.ui_app import Ui_MainWindow
-from .utils import apply_mplcurve_settings
 from .utils import ElementListModel
 from .utils import MonitorReadingsDataSheet
+from .utils import apply_mplcurve_settings
 from .utils import load_readings_sheet
 
 BPM_UNIT_FAC = {"mm": 1.0, "m": 1e3}
 
 
 class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
-
     # curves
     lineChanged = pyqtSignal(int)
     xdataChanged = pyqtSignal(QVariant)
@@ -79,11 +77,11 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
 
         # select element btn: BPMs
         self.select_bpms_btn.clicked.connect(
-                partial(self.on_select_elements, 'bpm', ["BPM"]))
+            partial(self.on_select_elements, 'bpm', ["BPM"]))
 
         # select element btn:CORs
         self.select_cors_btn.clicked.connect(
-                partial(self.on_select_elements, 'cor', ["HCOR", "VCOR"]))
+            partial(self.on_select_elements, 'cor', ["HCOR", "VCOR"]))
 
         # DAQ freq
         self.freq_dSpinbox.valueChanged[float].connect(self.update_daqfreq)
@@ -101,35 +99,35 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
         for o in self.__xylimits_lineEdits:
             o.setValidator(QDoubleValidator())
         self.xmin_lineEdit.textChanged.connect(
-                partial(self.update_xylimit, 'setXLimitMin'))
+            partial(self.update_xylimit, 'setXLimitMin'))
         self.xmax_lineEdit.textChanged.connect(
-                partial(self.update_xylimit, 'setXLimitMax'))
+            partial(self.update_xylimit, 'setXLimitMax'))
         self.ymin_lineEdit.textChanged.connect(
-                partial(self.update_xylimit, 'setYLimitMin'))
+            partial(self.update_xylimit, 'setYLimitMin'))
         self.ymax_lineEdit.textChanged.connect(
-                partial(self.update_xylimit, 'setYLimitMax'))
+            partial(self.update_xylimit, 'setYLimitMax'))
 
         # bpm unit
         self.bpm_unit_millimeter_rbtn.toggled.connect(
-                partial(self.on_update_unit, "mm"))
+            partial(self.on_update_unit, "mm"))
         self.bpm_unit_meter_rbtn.toggled.connect(
-                partial(self.on_update_unit, "m"))
+            partial(self.on_update_unit, "m"))
 
         # bpm selection for monitoring
         self.use_all_bpms_rbtn.toggled.connect(
-                partial(self.on_update_monitors, "all"))
+            partial(self.on_update_monitors, "all"))
         self.use_selected_bpms_rbtn.toggled.connect(
-                partial(self.on_update_monitors, "selected"))
+            partial(self.on_update_monitors, "selected"))
 
         # element selection for BPMs/CORs treeview
         self.select_all_bpms_btn.clicked.connect(
-                partial(self.on_select_all_elems, "bpm"))
+            partial(self.on_select_all_elems, "bpm"))
         self.inverse_bpm_selection_btn.clicked.connect(
-                partial(self.on_inverse_current_elem_selection, "bpm"))
+            partial(self.on_inverse_current_elem_selection, "bpm"))
         self.select_all_cors_btn.clicked.connect(
-                partial(self.on_select_all_elems, "cor"))
+            partial(self.on_select_all_elems, "cor"))
         self.inverse_cor_selection_btn.clicked.connect(
-                partial(self.on_inverse_current_elem_selection, "cor"))
+            partial(self.on_inverse_current_elem_selection, "cor"))
 
         # DAQ
         self.daq_timer = QTimer()
@@ -165,7 +163,7 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
         """
         if f:
             self._bpm_unit = unit
-            #print("BPM unit: {}".format(self._bpm_unit))
+            # print("BPM unit: {}".format(self._bpm_unit))
 
     @pyqtSlot()
     def on_select_elements(self, mode, dtype_list):
@@ -173,11 +171,11 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
         """
         if self.__mp is None:
             QMessageBox.warning(self, "Select Element",
-                    "Cannot find loaded lattice, try to load first, either by clicking Tools > Load Lattice or Ctrl+Shift+L.",
-                    QMessageBox.Ok)
+                                "Cannot find loaded lattice, try to load first, either by clicking Tools > Load Lattice or Ctrl+Shift+L.",
+                                QMessageBox.Ok)
             return
         w = self._elem_sel_widgets.setdefault(mode,
-                ElementSelectionWidget(self, self.__mp, dtypes=dtype_list))
+                                              ElementSelectionWidget(self, self.__mp, dtypes=dtype_list))
         w.elementsSelected.connect(partial(self.on_update_elems, mode))
         w.show()
 
@@ -243,15 +241,15 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
         # Add another curve as reference, data could be selected from
         # cached data
         self._ref_line = self.matplotlibcurveWidget.add_curve(
-                            label="Reference",
-                            color='#005500', marker='v', mfc='w')
+            label="Reference",
+            color='#005500', marker='v', mfc='w')
         # tuple of array of (s, b) for x and y
         self.__cached_traj = ()
 
         # ref_line for intensity
         self._ref_line_mag = self.bpms_magplot.add_curve(
-                            label="Reference", ls='--', lw=1,
-                            color='m', marker='D', mfc='w')
+            label="Reference", ls='--', lw=1,
+            color='m', marker='D', mfc='w')
 
     @pyqtSlot(OrderedDict)
     def on_elem_selection_updated(self, mode, d):
@@ -277,7 +275,7 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
             # emit selected correctors
             self.correctorsChanged.emit(model._selected_elements)
 
-        #print("[TV] Selection is updated: ", model._selected_elements)
+        # print("[TV] Selection is updated: ", model._selected_elements)
 
     @pyqtSlot()
     def on_select_all_elems(self, mode):
@@ -289,8 +287,8 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
             model.select_all_items()
         except AttributeError:
             QMessageBox.warning(self, "Element Selection",
-                    "Selection error, Choose elements first.",
-                    QMessageBox.Ok)
+                                "Selection error, Choose elements first.",
+                                QMessageBox.Ok)
 
     @pyqtSlot()
     def on_inverse_current_elem_selection(self, mode):
@@ -302,8 +300,8 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
             model.inverse_current_selection()
         except AttributeError:
             QMessageBox.warning(self, "Element Selection",
-                    "Selection error, Choose elements first.",
-                    QMessageBox.Ok)
+                                "Selection error, Choose elements first.",
+                                QMessageBox.Ok)
 
     @pyqtSlot(list)
     def on_update_elems(self, mode, enames):
@@ -332,10 +330,10 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
         # check if BPMs are selected from lattice.
         if self.not_selected_bpms():
             QMessageBox.warning(self, "DAQ Warning",
-                    "BPMs are not found, Choose Monitors first.", QMessageBox.Ok)
+                                "BPMs are not found, Choose Monitors first.", QMessageBox.Ok)
             return
         # start DAQ
-        self.daq_timer.start(1000.0/self._daqfreq)
+        self.daq_timer.start(1000.0 / self._daqfreq)
         self.start_btn.setEnabled(False)
         self.stop_btn.setEnabled(True)
         # not neat but good for testing
@@ -373,7 +371,8 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
         """
         if self.__mp is None:
             QMessageBox.warning(self, "ORM (Trajectory Viewer)",
-                "Cannot find loaded lattice, try to load first, either by clicking Tools > Load Lattice or Ctrl+Shift+L.", QMessageBox.Ok)
+                                "Cannot find loaded lattice, try to load first, either by clicking Tools > Load Lattice or Ctrl+Shift+L.",
+                                QMessageBox.Ok)
             return
 
         try:
@@ -393,14 +392,14 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
             from phantasy.apps.orm import OrbitResponseMatrixWindow
             from phantasy.apps.orm import __version__
             self._orm_window = OrbitResponseMatrixWindow(self, __version__,
-                    name_map=name_elem_map, mp=self.__mp,
-                    bpms=bpms_dict, cors=cors_dict)
+                                                         name_map=name_elem_map, mp=self.__mp,
+                                                         bpms=bpms_dict, cors=cors_dict)
             self._orm_window.setWindowTitle(
-                    "Beam Central Trajectory Response Matrix (Trajectory Viewer)")
+                "Beam Central Trajectory Response Matrix (Trajectory Viewer)")
             self.monitorsChanged.connect(
-                    partial(self._orm_window.on_update_elements, 'bpm'))
+                partial(self._orm_window.on_update_elements, 'bpm'))
             self.correctorsChanged.connect(
-                    partial(self._orm_window.on_update_elements, 'cor'))
+                partial(self._orm_window.on_update_elements, 'cor'))
             self.name_map_changed.connect(self._orm_window.update_name_map)
         #
         self._orm_window.show()
@@ -425,7 +424,7 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
     def on_auto_xyscale(self, f):
         """Set auto xyscale or not
         """
-        if f: # auto scale
+        if f:  # auto scale
             p = self.matplotlibcurveWidget
             xmin, xmax = p.get_xlim()
             ymin, ymax = p.get_ylim()
@@ -456,10 +455,10 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
             o.addItems(fields)
             o.currentTextChanged.connect(cb)
 
-        if 'X' in fields: # BPM
+        if 'X' in fields:  # BPM
             self.field1_cbb.setCurrentText("X")
             self.field2_cbb.setCurrentText("Y")
-        else: # PM, or others
+        else:  # PM, or others
             self.field1_cbb.setCurrentText("XCEN")
             self.field2_cbb.setCurrentText("YCEN")
 
@@ -515,7 +514,7 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
             dq = self._y_dq
         self.__update_reflines(dq)
         self.__cached_traj = (np.asarray(self._x_dq),
-                            np.asarray(self._y_dq))
+                              np.asarray(self._y_dq))
 
     def __update_reflines(self, dq):
         x, y = np.asarray(dq).mean(axis=0)
@@ -560,8 +559,8 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
     def on_save_trajectory(self):
         print("Save reference trajectory (both X and Y) to file")
         filepath, ext = get_save_filename(self,
-                cdir='.',
-                filter="JSON Files (*.json)")
+                                          cdir='.',
+                                          filter="JSON Files (*.json)")
         if filepath is None:
             return
 
@@ -583,12 +582,12 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
             field2 = self.field2_cbb.currentText()
             for (e, x, y) in zip(self._bpms, traj_x, traj_y):
                 readings.append(
-                        (e.name, {'field1': {'name': field1, 'value': x},
-                                  'field2': {'name': field2, 'value': y},
-                                  'phase': {'name': 'PHA', 'value': e.PHA},
-                                  'intensity': {
-                                      'name': self.__mag_field,
-                                      'value': getattr(e, self.__mag_field)}}))
+                    (e.name, {'field1': {'name': field1, 'value': x},
+                              'field2': {'name': field2, 'value': y},
+                              'phase': {'name': 'PHA', 'value': e.PHA},
+                              'intensity': {
+                                  'name': self.__mag_field,
+                                  'value': getattr(e, self.__mag_field)}}))
             ds['readings'] = readings
             ds.write(filepath)
 
@@ -596,7 +595,7 @@ class TrajectoryViewerWindow(BaseAppForm, Ui_MainWindow):
     def on_load_trajectory(self):
         print("Load reference trajectory (both X and Y) from file")
         filepath, ext = get_open_filename(self,
-                filter="JSON Files (*.json)")
+                                          filter="JSON Files (*.json)")
         if filepath is None:
             return
 

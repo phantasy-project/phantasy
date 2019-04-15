@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
 
-import epics
-import time
-import re
 import random
+import time
 
+import epics
 from PyQt5.QtCore import QEventLoop
 from PyQt5.QtCore import QTimer
-from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtGui import QColor
+from PyQt5.QtWidgets import QMessageBox
 
 # https://getbootstrap.com/docs/4.0/utilities/colors/
 COLOR_DANGER = QColor('#DC3545')
@@ -27,6 +26,7 @@ class PVElement(object):
     >>> elem.value # get value
     >>> elem.value = 1 # put with a new value
     """
+
     def __init__(self, put_pv_name, get_pv_name):
         self._put_pvname = put_pv_name
         self._get_pvname = get_pv_name
@@ -57,7 +57,7 @@ class PVElement(object):
 
     def __repr__(self):
         return "Element: {name}, cset: {cset}, rd: {rd}".format(
-                name=self.name, cset=str(self._putPV), rd=str(self._getPV))
+            name=self.name, cset=str(self._putPV), rd=str(self._getPV))
 
     def get_pv_name(self, type='readback'):
         if type == 'readback':
@@ -106,6 +106,7 @@ class PVElementReadonly(object):
     >>> elem = PVElement('VA:LS1_BTS:QH_D1942:I_RD')
     >>> elem.value # get value
     """
+
     def __init__(self, get_pv_name):
         self._get_pvname = get_pv_name
         self._getPV = epics.PV(get_pv_name)
@@ -130,11 +131,11 @@ class PVElementReadonly(object):
 
     def __repr__(self):
         return "Element: {name}, rd: {rd}".format(
-                name=self.name, rd=str(self._getPV))
+            name=self.name, rd=str(self._getPV))
 
     @property
     def pvname(self):
-        return (self._get_pvname,)
+        return self._get_pvname,
 
     @property
     def ename(self):
@@ -165,8 +166,10 @@ class PVElementReadonly(object):
 def delayed_exec(f, delay, *args, **kws):
     """Execute *f* after *delay* msecm `*args` and `**kws` is for *f*.
     """
+
     def func():
         return f(*args, **kws)
+
     QTimer.singleShot(delay, func)
 
 
@@ -194,11 +197,13 @@ def delayed_check_pv_status(obj, pvelem, delay=1000):
     delay : float
         Delay milliseconds to check PV status.
     """
+
     def check_status(elem):
         if not elem.connected:
             QMessageBox.warning(obj, "Warning",
-                    "Cannot connect to the input PV(s).",
-                    QMessageBox.Ok)
+                                "Cannot connect to the input PV(s).",
+                                QMessageBox.Ok)
+
     QTimer.singleShot(delay, lambda: check_status(pvelem))
 
 

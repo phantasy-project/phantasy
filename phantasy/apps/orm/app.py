@@ -1,36 +1,34 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from PyQt5.QtCore import pyqtSlot
-from PyQt5.QtCore import QThread
-from PyQt5.QtCore import QVariant
-from PyQt5.QtCore import QTimer
-from PyQt5.QtWidgets import QMainWindow
-from PyQt5.QtWidgets import QMessageBox
-from PyQt5.QtWidgets import QDialog
-from PyQt5.QtGui import QDoubleValidator
-
-from functools import partial
+import time
 from collections import OrderedDict
 from collections import deque
+from functools import partial
+
 import numpy as np
-import time
-
+from PyQt5.QtCore import QThread
+from PyQt5.QtCore import QTimer
+from PyQt5.QtCore import QVariant
+from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtGui import QDoubleValidator
+from PyQt5.QtWidgets import QDialog
+from PyQt5.QtWidgets import QMessageBox
 from phantasy_ui import BaseAppForm
-from phantasy.apps.trajectory_viewer.utils import ElementListModel
-from phantasy.apps.utils import get_save_filename
-from phantasy.apps.utils import get_open_filename
-from phantasy.apps.utils import uptime
-from phantasy import limit_input
 
+from phantasy import limit_input
+from phantasy.apps.trajectory_viewer.utils import ElementListModel
+from phantasy.apps.utils import get_open_filename
+from phantasy.apps.utils import get_save_filename
+from phantasy.apps.utils import uptime
+from .app_settings_view import SettingsView
 from .ui.ui_app import Ui_MainWindow
-from .utils import OrmWorker
 from .utils import ORMDataSheet
+from .utils import OrmWorker
+from .utils import ScanRangeModel
 from .utils import SettingsDataSheet
 from .utils import load_orm_sheet
 from .utils import load_settings_sheet
-from .utils import ScanRangeModel
-from .app_settings_view import SettingsView
 
 OP_MODE_MAP = {
     'Simulation': 'model',
@@ -113,7 +111,7 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         #
         for o in (self.rel_range_lineEdit,
                   self.lower_limit_lineEdit, self.upper_limit_lineEdit):
-                o.setValidator(QDoubleValidator())
+            o.setValidator(QDoubleValidator())
         #
         # source, mode
         self.operation_mode_cbb.currentTextChanged.connect(self.on_source_changed)
@@ -121,70 +119,70 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         self.keep_all_data_chkbox.toggled.connect(self.on_keep_all_data)
         # wait/reset wait sec
         self.wait_time_dsbox.valueChanged.connect(
-                partial(self.on_float_changed, '_wait_sec', True))
+            partial(self.on_float_changed, '_wait_sec', True))
         self.reset_wait_time_dsbox.valueChanged.connect(
-                partial(self.on_float_changed, '_reset_wait_sec', True))
+            partial(self.on_float_changed, '_reset_wait_sec', True))
         # alter steps, rel.range
         self.alter_steps_sbox.valueChanged.connect(
-                partial(self.on_int_changed, '_ssteps', True))
+            partial(self.on_int_changed, '_ssteps', True))
         self.rel_range_lineEdit.returnPressed.connect(
-                partial(self.on_value_changed, '_rel_range'))
+            partial(self.on_value_changed, '_rel_range'))
         self.rel_range_lineEdit.returnPressed.connect(
-                self.on_update_srange)
+            self.on_update_srange)
 
         # mprec
         self.mprec_sbox.valueChanged.connect(
-                partial(self.on_int_changed, '_mprec', False))
+            partial(self.on_int_changed, '_mprec', False))
         # daq rate
         self.daq_rate_sbox.valueChanged.connect(
-                partial(self.on_int_changed, '_daq_rate', True))
+            partial(self.on_int_changed, '_daq_rate', True))
         # daq nshot
         self.daq_nshot_sbox.valueChanged.connect(
-                partial(self.on_int_changed, '_daq_nshot', True))
+            partial(self.on_int_changed, '_daq_nshot', True))
         # set lower/upper limits
         self.lower_limit_lineEdit.returnPressed.connect(
-                partial(self.on_value_changed, '_lower_limit'))
+            partial(self.on_value_changed, '_lower_limit'))
         self.upper_limit_lineEdit.returnPressed.connect(
-                partial(self.on_value_changed, '_upper_limit'))
+            partial(self.on_value_changed, '_upper_limit'))
         # cor damping factor
         self.cor_damping_fac_dsbox.valueChanged.connect(
-                partial(self.on_float_changed, '_cor_dfac', False))
+            partial(self.on_float_changed, '_cor_dfac', False))
         # cor niter
         self.cor_niter_sbox.valueChanged.connect(
-                partial(self.on_int_changed, '_cor_niter', False))
+            partial(self.on_int_changed, '_cor_niter', False))
         # cor wait sec
         self.cor_wait_time_dsbox.valueChanged.connect(
-                partial(self.on_float_changed, '_cor_wait_sec', False))
+            partial(self.on_float_changed, '_cor_wait_sec', False))
         # cor prec
         self.cor_prec_sbox.valueChanged.connect(
-                partial(self.on_int_changed, '_cor_prec', False))
+            partial(self.on_int_changed, '_cor_prec', False))
         # cor eva daq rate
         self.eva_daq_rate_sbox.valueChanged.connect(
-                partial(self.on_int_changed, '_eva_daq_rate', False))
+            partial(self.on_int_changed, '_eva_daq_rate', False))
         # cor eva daq nshot
         self.eva_daq_nshot_sbox.valueChanged.connect(
-                partial(self.on_int_changed, '_eva_daq_nshot', False))
+            partial(self.on_int_changed, '_eva_daq_nshot', False))
 
         # update eta
         self.update_eta_btn.clicked.connect(self.on_update_eta)
         # element selection for BPMs/CORs treeview
         self.select_all_bpms_btn.clicked.connect(
-                partial(self.on_select_all_elems, "bpm"))
+            partial(self.on_select_all_elems, "bpm"))
         self.inverse_bpm_selection_btn.clicked.connect(
-                partial(self.on_inverse_current_elem_selection, "bpm"))
+            partial(self.on_inverse_current_elem_selection, "bpm"))
         self.select_all_cors_btn.clicked.connect(
-                partial(self.on_select_all_elems, "cor"))
+            partial(self.on_select_all_elems, "cor"))
         self.inverse_cor_selection_btn.clicked.connect(
-                partial(self.on_inverse_current_elem_selection, "cor"))
+            partial(self.on_inverse_current_elem_selection, "cor"))
         # batch change element field
         self.monitor_fields_cbb.currentTextChanged.connect(
-                self.on_update_monitor_field)
+            self.on_update_monitor_field)
         self.monitor_fields_cbb.currentTextChanged.connect(
-                partial(self.on_elem_field_changed, "bpm"))
+            partial(self.on_elem_field_changed, "bpm"))
         self.corrector_fields_cbb.currentTextChanged.connect(
-                self.on_update_corrector_field)
+            self.on_update_corrector_field)
         self.corrector_fields_cbb.currentTextChanged.connect(
-                partial(self.on_elem_field_changed, "cor"))
+            partial(self.on_elem_field_changed, "cor"))
 
         # refresh element list models
         self.refresh_models_btn.clicked.connect(self.on_refresh_models)
@@ -232,14 +230,14 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
             model.set_model()
             model.elementSelected.connect(partial(self.on_update_selection, mode))
             o = getattr(self, 'nelem_selected_{}s_lineEdit'.format(mode))
-            model.nElementSelected.connect(lambda i:o.setText(str(i)))
-            model.select_all_items() # select all by default
+            model.nElementSelected.connect(lambda i: o.setText(str(i)))
+            model.select_all_items()  # select all by default
 
         try:
             self.bpms_treeView.model().nElementSelected.connect(
-                    lambda i:self.nelem_selected_bpms_lineEdit.setText(str(i)))
+                lambda i: self.nelem_selected_bpms_lineEdit.setText(str(i)))
             self.cors_treeView.model().nElementSelected.connect(
-                    lambda i:self.nelem_selected_cors_lineEdit.setText(str(i)))
+                lambda i: self.nelem_selected_cors_lineEdit.setText(str(i)))
         except:
             pass
 
@@ -267,22 +265,22 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         self.orm_runner = OrmWorker(params)
         self.orm_runner.moveToThread(self.thread)
         self.orm_runner.started.connect(
-                partial(self.orm_worker_started, self.measure_pb,
-                        self.stop_measure_btn, [self.run_btn]))
+            partial(self.orm_worker_started, self.measure_pb,
+                    self.stop_measure_btn, [self.run_btn]))
         self.orm_runner.started.connect(self.start_eta_timer)
         self.orm_runner.resultsReady.connect(
-                partial(self.on_results_ready, 'measure'))
+            partial(self.on_results_ready, 'measure'))
         self.orm_runner.update_progress.connect(
-                partial(self.update_pb, self.measure_pb))
+            partial(self.update_pb, self.measure_pb))
         self.orm_runner.update_progress.connect(self.hl_row)
         self.orm_runner.finished.connect(self.stop_eta_timer)
         self.orm_runner.finished.connect(
-                partial(self.orm_worker_completed, self.measure_pb,
-                        self.stop_measure_btn, [self.run_btn]))
+            partial(self.orm_worker_completed, self.measure_pb,
+                    self.stop_measure_btn, [self.run_btn]))
         self.orm_runner.finished.connect(self.thread.quit)
         self.orm_runner.finished.connect(self.orm_runner.deleteLater)
         self.orm_runner.stopped.connect(
-                partial(self.on_stop_orm_worker, "Stopped ORM Measurement..."))
+            partial(self.on_stop_orm_worker, "Stopped ORM Measurement..."))
         self.thread.finished.connect(self.thread.deleteLater)
         self.thread.started.connect(self.orm_runner.run)
         self.thread.start()
@@ -398,8 +396,8 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         # apply settings to correct central trajectory
         if settings is None:
             QMessageBox.warning(self, "Apply ORM",
-                "Correctors settings are not ready, click 'Evaluate' and 'Apply' again.",
-                QMessageBox.Ok)
+                                "Correctors settings are not ready, click 'Evaluate' and 'Apply' again.",
+                                QMessageBox.Ok)
             return
 
         lat = self._mp.work_lattice_conf
@@ -414,10 +412,12 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         self.orm_consumer.moveToThread(self.thread1)
         if to_cache:
             self.orm_consumer.started.connect(partial(self.on_update_settings_dq, 'start'))
-        self.orm_consumer.started.connect(partial(self.orm_worker_started, self.cor_apply_pb, self.stop_apply_btn, btns))
+        self.orm_consumer.started.connect(
+            partial(self.orm_worker_started, self.cor_apply_pb, self.stop_apply_btn, btns))
         self.orm_consumer.resultsReady.connect(partial(self.on_results_ready, 'apply'))
         self.orm_consumer.update_progress.connect(partial(self.update_pb, self.cor_apply_pb))
-        self.orm_consumer.finished.connect(partial(self.orm_worker_completed, self.cor_apply_pb, self.stop_apply_btn, btns))
+        self.orm_consumer.finished.connect(
+            partial(self.orm_worker_completed, self.cor_apply_pb, self.stop_apply_btn, btns))
         self.orm_consumer.finished.connect(self.thread1.quit)
         self.orm_consumer.finished.connect(self.orm_consumer.deleteLater)
         if to_cache:
@@ -439,18 +439,18 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
     @pyqtSlot()
     def on_open_orm(self):
         filepath, ext = get_open_filename(self,
-                filter="JSON Files (*.json)")
+                                          filter="JSON Files (*.json)")
         if filepath is None:
             return
 
         try:
-            mp, name_map, bpms_dict, cors_dict, (orm, cor_field, bpm_field, \
-                t_wait, reset_wait, mprec, srange, daq_nshot, daq_rate),\
-                (cor_llmt, cor_ulmt, cor_dfac, cor_niter, cor_wait, cor_prec, \
-                 cor_daq_rate, cor_daq_nshot), ftype = load_orm_sheet(filepath)
+            mp, name_map, bpms_dict, cors_dict, \
+                (orm, cor_field, bpm_field, t_wait, reset_wait, mprec, srange, daq_nshot, daq_rate), \
+                (cor_llmt, cor_ulmt, cor_dfac, cor_niter, cor_wait, cor_prec, cor_daq_rate, cor_daq_nshot), \
+                ftype = load_orm_sheet(filepath)
         except:
             QMessageBox.warning(self, "Loading Response Matrix",
-                    "Cannot load selected file!", QMessageBox.Ok)
+                                "Cannot load selected file!", QMessageBox.Ok)
             return
 
         self._mp = mp
@@ -501,8 +501,8 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
     @pyqtSlot()
     def on_save_orm(self):
         filepath, ext = get_save_filename(self,
-                cdir='.',
-                filter="JSON Files (*.json)")
+                                          cdir='.',
+                                          filter="JSON Files (*.json)")
         if filepath is None:
             return
 
@@ -532,8 +532,8 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         orm_conf['reset_wait_seconds'] = self._reset_wait_sec
         orm_conf['set_precision'] = self._mprec
         orm_conf['alter_range'] = {
-                 'relative range': self._rel_range,
-                 'total_steps': self._ssteps
+            'relative range': self._rel_range,
+            'total_steps': self._ssteps
         }
         orm_conf['daq_nshot'] = self._daq_nshot
         orm_conf['daq_rate'] = self._daq_rate
@@ -563,8 +563,8 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
             model.select_all_items()
         except AttributeError:
             QMessageBox.warning(self, "Element Selection",
-                    "Selection error, Choose elements first.",
-                    QMessageBox.Ok)
+                                "Selection error, Choose elements first.",
+                                QMessageBox.Ok)
 
     @pyqtSlot()
     def on_inverse_current_elem_selection(self, mode):
@@ -576,8 +576,8 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
             model.inverse_current_selection()
         except AttributeError:
             QMessageBox.warning(self, "Element Selection",
-                    "Selection error, Choose elements first.",
-                    QMessageBox.Ok)
+                                "Selection error, Choose elements first.",
+                                QMessageBox.Ok)
 
     @pyqtSlot()
     def on_stop_measure_orm(self):
@@ -588,7 +588,7 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
 
     def on_stop_orm_worker(self, msg):
         QMessageBox.warning(self, "Orbit Response Matrix App",
-                msg, QMessageBox.Ok)
+                            msg, QMessageBox.Ok)
 
     @pyqtSlot()
     def on_stop_apply_orm(self):
@@ -607,8 +607,9 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
             model.change_field(s)
         except AttributeError:
             QMessageBox.warning(self, "Change {} Field".format(mode.upper()),
-                "No worries, probably {}s are not ready, try to load the matrix file.".format(mode.upper()),
-                QMessageBox.Ok)
+                                "No worries, probably {}s are not ready, try to load the matrix file.".format(
+                                    mode.upper()),
+                                QMessageBox.Ok)
 
     @pyqtSlot()
     def start_eta_timer(self):
@@ -642,9 +643,9 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
             print('OK')
             self._cor_settings = settings
             QMessageBox.information(self, "Evaluate Settings",
-                "New settings for the correctors are ready to apply, "
-                "click 'Apply' to proceed.",
-                QMessageBox.Ok)
+                                    "New settings for the correctors are ready to apply, "
+                                    "click 'Apply' to proceed.",
+                                    QMessageBox.Ok)
         else:
             print('Cancel')
 
@@ -652,12 +653,11 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
     def get_settings_from_orm(params):
         """Get corrector settings from ORM based on *params*.
         """
-        (lat,), (bpms, cors), \
-        (xoy, cor_field, dfac, niter, wait, l_limit, u_limit), \
-        (daq_rate, daq_nshot) = params
+        (lat,), (bpms, cors), (xoy, cor_field, dfac, niter, wait, l_limit, u_limit), \
+            (daq_rate, daq_nshot) = params
         s = lat.get_settings_from_orm(cors, bpms,
-                cor_field=cor_field, cor_min=l_limit, cor_max=u_limit,
-                damping_factor=dfac, nshot=daq_nshot, rate=daq_rate)
+                                      cor_field=cor_field, cor_min=l_limit, cor_max=u_limit,
+                                      damping_factor=dfac, nshot=daq_nshot, rate=daq_rate)
         return s
 
     @pyqtSlot()
@@ -668,11 +668,11 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
             self._settings_pt = len(self._settings_dq) - 1
             self.update_undo_redo_status()
             # Update buttons
-            #self.__update_settings_btnlist()
-            #from PyQt5.QtWidgets import QToolButton
-            #btn = QToolButton(self)
-            #btn.setText("")
-            #self.cached_settings_hbox.insertWidget(0, btn)
+            # self.__update_settings_btnlist()
+            # from PyQt5.QtWidgets import QToolButton
+            # btn = QToolButton(self)
+            # btn.setText("")
+            # self.cached_settings_hbox.insertWidget(0, btn)
 
         elif sg == 'stop':
             print("Stopped emit")
@@ -718,7 +718,7 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         cor_field = self.corrector_fields_cbb.currentText()
         settings = []
         for i in cors:
-            v =  i.current_setting(cor_field)
+            v = i.current_setting(cor_field)
             settings.append((i, cor_field, v, v))
 
         self._settings_dq.append(settings)
@@ -755,8 +755,8 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         #
 
         filepath, ext = get_save_filename(self,
-                cdir='.',
-                filter="JSON Files (*.json)")
+                                          cdir='.',
+                                          filter="JSON Files (*.json)")
         if filepath is None:
             return
 
@@ -769,12 +769,11 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
 
         ds.write(filepath)
 
-
     @pyqtSlot()
     def on_load_settings(self):
         print("Load settings from file.")
         filepath, ext = get_open_filename(self,
-                filter="JSON Files (*.json)")
+                                          filter="JSON Files (*.json)")
         if filepath is None:
             return
 
@@ -789,9 +788,9 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         if r == QDialog.Accepted:
             self._cor_settings = settings
             QMessageBox.information(self, "Evaluate Settings",
-                "New settings for the correctors are ready to apply, "
-                "click 'Apply' to proceed.",
-                QMessageBox.Ok)
+                                    "New settings for the correctors are ready to apply, "
+                                    "click 'Apply' to proceed.",
+                                    QMessageBox.Ok)
         else:
             print('Cancel')
 
@@ -856,16 +855,17 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         #
         return srange_list
 
-    def _pb_msg_to_index(self, msg):
+    @staticmethod
+    def _pb_msg_to_index(msg):
         #
         # return corrector index from pb msg.
         #
-        return int(msg.split()[3].replace('[','').replace(']','')) - 1
+        return int(msg.split()[3].replace('[', '').replace(']', '')) - 1
 
     def init_params(self):
         """Initialize parameters for matrix measurement/apply.
         """
-        ## measurement
+        # measurement
         # op mode
         self._source = OP_MODE_MAP[self.operation_mode_cbb.currentText()]
         # wait secs
@@ -882,6 +882,8 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         self._daq_nshot = self.daq_nshot_sbox.value()
         # keep all
         self._keep_all = self.keep_all_data_chkbox.isChecked()
+
+        # apply
         # lower/upper limits
         self._lower_limit = float(self.lower_limit_lineEdit.text())
         self._upper_limit = float(self.upper_limit_lineEdit.text())
@@ -942,7 +944,7 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
             setattr(self, var_str, v)
         else:
             QMessageBox.warning(self, "Warning",
-                    "Input is not a valid number", QMessageBox.Ok)
+                                "Input is not a valid number", QMessageBox.Ok)
 
         # debug
         print("rel_range ", self._rel_range)
@@ -985,7 +987,7 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         self.set_orm()
 
     @pyqtSlot()
-    def on_update_srange(self,):
+    def on_update_srange(self, ):
         # update scan range list model with updated rel_range.
         print(self._rel_range)
         m = self.cor_srange_tableView.model()
@@ -1009,4 +1011,4 @@ def _str2float(s):
 
 
 def sort_dict(d):
-    return OrderedDict([(k, d[k]) for k in sorted(d, key=lambda i:(i[-4:], i))])
+    return OrderedDict([(k, d[k]) for k in sorted(d, key=lambda i: (i[-4:], i))])

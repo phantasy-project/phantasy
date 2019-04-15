@@ -1,57 +1,52 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import epics
-import numpy as np
 import time
 from functools import partial
 from getpass import getuser
 
-from PyQt5.QtCore import pyqtSlot
-from PyQt5.QtCore import pyqtSignal
-from PyQt5.QtCore import QVariant
-from PyQt5.QtCore import Qt
+import epics
+import numpy as np
 from PyQt5.QtCore import QSize
 from PyQt5.QtCore import QThread
 from PyQt5.QtCore import QTimer
-
+from PyQt5.QtCore import QVariant
+from PyQt5.QtCore import Qt
+from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtGui import QColor
 from PyQt5.QtGui import QDoubleValidator
 from PyQt5.QtGui import QIcon
 from PyQt5.QtGui import QPixmap
-
-from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtWidgets import QAction
 from PyQt5.QtWidgets import QDialog
-from PyQt5.QtWidgets import QPushButton
 from PyQt5.QtWidgets import QHBoxLayout
 from PyQt5.QtWidgets import QMenu
-from PyQt5.QtWidgets import QAction
-
-from phantasy.library.misc import epoch2human
-from phantasy import CaField
-from phantasy.apps.utils import get_save_filename
-from phantasy.apps.utils import get_open_filename
-
+from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtWidgets import QPushButton
 from phantasy_ui import BaseAppForm
 from phantasy_ui.widgets import ElementWidget
 from phantasy_ui.widgets import LatticeWidget
 
-from .utils import random_string
-from .utils import COLOR_DANGER, COLOR_INFO, COLOR_WARNING, COLOR_PRIMARY
-from .utils import delayed_exec
-
-from .app_help import HelpDialog
-from .app_elem_select import ElementSelectDialog
+from phantasy import CaField
+from phantasy.apps.utils import get_open_filename
+from phantasy.apps.utils import get_save_filename
+from phantasy.library.misc import epoch2human
 from .app_array_set import ArraySetDialog
-from .app_points_view import PointsViewWidget
+from .app_elem_select import ElementSelectDialog
+from .app_help import HelpDialog
 from .app_monitors_view import MonitorsViewWidget
 from .app_mps_config import MpsConfigWidget
+from .app_points_view import PointsViewWidget
 from .app_save import SaveDataDialog
 from .data import ScanDataModel
 from .scan import ScanTask
 from .scan import ScanWorker
 from .scan import load_task
 from .ui.ui_app import Ui_MainWindow
+from .utils import COLOR_DANGER, COLOR_INFO, COLOR_WARNING, COLOR_PRIMARY
+from .utils import delayed_exec
+from .utils import random_string
 
 TS_FMT = "%Y-%m-%d %H:%M:%S"
 BOTTOM_TBTN_ICON_SIZE = 32
@@ -65,11 +60,12 @@ MPS_STATUS = ["Fault", "Disable", "Monitor", "Enable"]
 MPS_ENABLE_STATUS = "Enable"
 
 # default MPS pv name
-MPS_PV_DEFAULT = 'MPS_FPS:MSTR_N0001:MpsStatus' # FRIB MPS
-#MPS_PV_DEFAULT = 'VA:SVR:MpsStatus' # VA MPS
+MPS_PV_DEFAULT = 'MPS_FPS:MSTR_N0001:MpsStatus'  # FRIB MPS
+
+
+# MPS_PV_DEFAULT = 'VA:SVR:MpsStatus' # VA MPS
 
 class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
-
     # scan log
     scanlogUpdated = pyqtSignal('QString')
     scanlogTextColor = pyqtSignal(QColor)
@@ -158,7 +154,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 
         # set alter array btn
         self.alter_array_btn.clicked.connect(self.on_set_alter_array)
-        self._set_alter_array_dialogs = {} # keys: alter element name
+        self._set_alter_array_dialogs = {}  # keys: alter element name
 
         # enable arbitary alter array input
         self.enable_arbitary_array_chkbox.toggled.connect(self.on_toggle_array)
@@ -174,21 +170,21 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 
         # (new) unified button for setting alter element
         self.select_alter_elem_btn.clicked.connect(
-                partial(self.on_select_elem, 'alter'))
-        self._sel_elem_dialogs = {} # keys: 'alter', 'monitor'
+            partial(self.on_select_elem, 'alter'))
+        self._sel_elem_dialogs = {}  # keys: 'alter', 'monitor'
 
         # (new) main monitor
         self.select_monitor_elem_btn.clicked.connect(
-                partial(self.on_select_elem, 'monitor'))
+            partial(self.on_select_elem, 'monitor'))
 
         # additional monitors
         self.select_more_monitor_elems_btn.clicked.connect(
-                self.on_select_extra_elem)
+            self.on_select_extra_elem)
         # list of tuple of 'ename fname, mode',
         # ElementWidget keeps in self.elem_widgets_dict by indexing
         self._extra_monitors = []
         self.show_extra_monitors_btn.clicked.connect(
-                self.on_show_extra_monitors)
+            self.on_show_extra_monitors)
         # widget for monitors view
         self.monitors_viewer = None
 
@@ -235,8 +231,8 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         self._mps_pvname = MPS_PV_DEFAULT
         self.mps_pv = epics.PV(self._mps_pvname)
         # enable MPS guardian by default
-        delayed_exec(lambda:self.actionMPS_guardian.setChecked(True), 1.0)
-        #self.actionMPS_guardian.setChecked(True)
+        delayed_exec(lambda: self.actionMPS_guardian.setChecked(True), 1.0)
+        # self.actionMPS_guardian.setChecked(True)
         #
         self.pauseScan[bool].connect(self.on_pause_scan)
 
@@ -251,8 +247,8 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
             self.scanlogUpdated.emit("Scan task is paused, click 'Resume' to continue")
             self.scan_worker.pause()
             QMessageBox.warning(self, "MPS Guardian Says",
-                    "Scan is paused by MPS, click 'Resume' button to continue.",
-                    QMessageBox.Ok)
+                                "Scan is paused by MPS, click 'Resume' button to continue.",
+                                QMessageBox.Ok)
 
     @pyqtSlot(bool)
     def on_toggle_array(self, ischecked):
@@ -331,8 +327,8 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 
         if r == QDialog.Accepted:
             # update element obj (CaField)
-            sel_elem = dlg.sel_elem[0]                 # CaField
-            sel_elem_display = dlg.sel_elem_display[0] # CaElement
+            sel_elem = dlg.sel_elem[0]  # CaField
+            sel_elem_display = dlg.sel_elem_display[0]  # CaElement
             fname = dlg.sel_field[0]
             if fname is None:
                 elem_btn_lbl = sel_elem_display.ename
@@ -446,7 +442,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
             return
 
         filename, ext = get_save_filename(self, caption="Save data to file",
-            filter="JSON Files (*.json);;CSV Files (*.csv);;HDF5 Files (*.hdf5 *.h5)")
+                                          filter="JSON Files (*.json);;CSV Files (*.csv);;HDF5 Files (*.hdf5 *.h5)")
 
         if filename is None:
             return
@@ -486,7 +482,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
     def __save_data_as_array(self, filename):
         """csv/txt"""
         sm = ScanDataModel(self.scan_task.scan_out_data)
-        ynerr = [] # [yi, yi_err, ...], y0:x, y1:y
+        ynerr = []  # [yi, yi_err, ...], y0:x, y1:y
         for i in range(0, sm.shape[-1]):
             ynerr.append(sm.get_avg()[:, i])
             ynerr.append(sm.get_err()[:, i])
@@ -497,11 +493,11 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         header += 'Columns ({}) definitions: standard error comes after average reading\n'.format(2 * sm.shape[-1])
         header += '<x> x_std <y> y_std <y1> y1_std ...\n'
         header += 'x: {}\ny: {}\n'.format(
-                self.scan_task.alter_element.readback[0],
-                self.scan_task.monitor_element.readback[0])
+            self.scan_task.alter_element.readback[0],
+            self.scan_task.monitor_element.readback[0])
         header += 'yi is the i-th extra monitor\n'
-        for i,elem in enumerate(self.scan_task.get_extra_monitors()):
-            header += 'Extra monitor {}: {}\n'.format(i+1, elem.readback[0])
+        for i, elem in enumerate(self.scan_task.get_extra_monitors()):
+            header += 'Extra monitor {}: {}\n'.format(i + 1, elem.readback[0])
         np.savetxt(filename, np.vstack(ynerr).T, header=header,
                    delimiter='\t')
 
@@ -621,9 +617,9 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         # x-data & y-data cbbs
         self._idx, self._idy = 0, 1
         self.xdata_cbb.currentIndexChanged.connect(
-                partial(self.on_update_data_index, 'x'))
+            partial(self.on_update_data_index, 'x'))
         self.ydata_cbb.currentIndexChanged.connect(
-                partial(self.on_update_data_index, 'y'))
+            partial(self.on_update_data_index, 'y'))
 
         #
         self.scan_pb.setVisible(False)
@@ -680,7 +676,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         # check scan config
         if not self.scan_task.is_valid():
             QMessageBox.warning(self, "Scan Task Warning",
-                    "Scan Task is not valid", QMessageBox.Ok)
+                                "Scan Task is not valid", QMessageBox.Ok)
             return
 
         # init x[y]data cbbs
@@ -696,10 +692,10 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         # set alter element to start point
         x_start = self.scan_task.alter_start
         self.scanlogUpdated.emit(
-                "Setting alter element to {0:.3f}...".format(x_start))
+            "Setting alter element to {0:.3f}...".format(x_start))
         self.scan_task.alter_element.value = x_start
         self.scanlogUpdated.emit(
-                "Alter element reaches {0:.3f}".format(x_start))
+            "Alter element reaches {0:.3f}".format(x_start))
 
         # reset scan_plot_widget
 
@@ -733,15 +729,15 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         self.scan_worker.scanFinished.connect(self.thread.quit)
         self.scan_worker.scanFinished.connect(self.scan_worker.deleteLater)
         self.scan_worker.scanFinished.connect(self.reset_alter_element)
-        self.scan_worker.scanFinished.connect(lambda:self.set_btn_status(mode='stop'))
-        self.scan_worker.scanFinished.connect(lambda:self.set_timestamp(type='stop'))
+        self.scan_worker.scanFinished.connect(lambda: self.set_btn_status(mode='stop'))
+        self.scan_worker.scanFinished.connect(lambda: self.set_timestamp(type='stop'))
         self.scan_worker.scanFinished.connect(self.on_auto_title)
 
         # scan is stopped by STOP btn
         self.scan_worker.scanStopped.connect(self.scan_worker.scanFinished)
 
         # scan is paused by PAUSE btn
-        self.scan_worker.scanPaused.connect(lambda:self.set_btn_status(mode='pause'))
+        self.scan_worker.scanPaused.connect(lambda: self.set_btn_status(mode='pause'))
         self.scan_worker.scanPausedAtIndex.connect(self.on_keep_scan_index)
         #
         self.scan_worker.scanPaused.connect(self.thread.quit)
@@ -754,9 +750,9 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         # test
         self.thread.started.connect(self.test_scan_started)
 
-        self.thread.started.connect(lambda:self.set_btn_status(mode='start'))
+        self.thread.started.connect(lambda: self.set_btn_status(mode='start'))
         self.thread.started.connect(self.on_auto_labels)
-        self.thread.started.connect(lambda:self.set_timestamp(type='start'))
+        self.thread.started.connect(lambda: self.set_timestamp(type='start'))
 
         self.thread.started.connect(self.scan_worker.run)
         self.thread.start()
@@ -771,7 +767,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         niter = self.scan_task.alter_number
         self.scanlogTextColor.emit(COLOR_INFO)
         msg = 'Iter:{0:>3d}/[{1:d}] is done at value: {2:>9.2f}'.format(
-                idx + 1, niter, x)
+            idx + 1, niter, x)
         self.scanlogUpdated.emit(msg)
         self.scanProgressUpdated.emit((idx + 1.0) / niter)
         # update scan plot figure
@@ -801,23 +797,23 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
     def set_btn_status(self, mode='start'):
         """Set control btns status for 'start' and 'stop'.
         """
-        if mode == 'start': # after push start button to start scan
+        if mode == 'start':  # after push start button to start scan
             print("Thread is started...")
             self.start_btn.setEnabled(False)
             self.stop_btn.setEnabled(True)
             self.pause_btn.setEnabled(True)
             self.retake_btn.setEnabled(True)
-        elif mode == 'stop': # scan is finished or stopped
+        elif mode == 'stop':  # scan is finished or stopped
             print("Thread is stopped...")
             self.start_btn.setEnabled(True)
             self.stop_btn.setEnabled(False)
             self.pause_btn.setEnabled(False)
             self.retake_btn.setEnabled(True)
-        elif mode == 'pause': # scan is paused
+        elif mode == 'pause':  # scan is paused
             self.start_btn.setEnabled(True)
             self.stop_btn.setEnabled(False)
             self.retake_btn.setEnabled(False)
-        elif mode == 'init': # when app is started up
+        elif mode == 'init':  # when app is started up
             self.start_btn.setEnabled(True)
             self.stop_btn.setEnabled(False)
             self.pause_btn.setEnabled(False)
@@ -873,7 +869,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 
     @pyqtSlot(float)
     def on_update_daqrate(self, x):
-        ## scan DAQ rate, in Hz
+        # scan DAQ rate, in Hz
         self.scan_task.daq_rate = x
 
     def set_scan_daq(self):
@@ -902,11 +898,11 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         if self.qs_window is None:
             try:
                 self.qs_window = QuadScanWindow(__version__,
-                        self.scan_task.to_datasheet())
+                                                self.scan_task.to_datasheet())
             except (AttributeError, TypeError):
                 QMessageBox.warning(self, "",
-                    "Scan task is not complete, please try again later.",
-                    QMessageBox.Ok)
+                                    "Scan task is not complete, please try again later.",
+                                    QMessageBox.Ok)
                 return
         self.qs_window.show()
 
@@ -935,6 +931,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         """Enable MPS guardian or not.
         """
         btn = self.mps_status_btn
+
         def on_mps_connected(pvname=None, conn=None, **kws):
             # MPS connection is changed
             self.mpsConnectionChanged.emit(conn)
@@ -948,9 +945,9 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
             self.mps_pv.connection_callbacks = [on_mps_connected]
             self.mps_pv.add_callback(on_mps_changed)
             self.mpsConnectionChanged.connect(
-                    partial(self.on_update_mps_status, reason='conn'))
+                partial(self.on_update_mps_status, reason='conn'))
             self.mpsStatusChanged.connect(
-                    partial(self.on_update_mps_status, reason='val'))
+                partial(self.on_update_mps_status, reason='val'))
             # if connected, set
             if self.mps_pv.connected:
                 self.mpsConnectionChanged.emit(True)
@@ -972,11 +969,11 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         btn = self.mps_status_btn
         if reason == 'conn':
             if change:  # MPS is connected
-                #print("set btn to connected icon")
+                # print("set btn to connected icon")
                 btn.setIcon(self._mps_status_icons['connected'])
                 btn.setToolTip("MPS guardian is enabled, connection is established")
             else:  # MPS is disconnected
-                #print("set btn to disconnected icon")
+                # print("set btn to disconnected icon")
                 btn.setIcon(self._mps_status_icons['disconnected'])
                 btn.setToolTip("MPS guardian is enabled, connection is lost")
         else:  # val
@@ -987,12 +984,12 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         """
         btn = self.mps_status_btn
         if v != MPS_ENABLE_STATUS:
-            #print("set btn to fault icon")
+            # print("set btn to fault icon")
             btn.setIcon(self._mps_status_icons['fault'])
             # pause scan
             self.pauseScan.emit(True)
         else:
-            #print("set btn to normal icon")
+            # print("set btn to normal icon")
             btn.setIcon(self._mps_status_icons['normal'])
         btn.setToolTip("MPS guardian is enabled, status is {}".format(v))
 
@@ -1010,8 +1007,8 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
             if self.actionMPS_guardian.isChecked():
                 self.actionMPS_guardian.setChecked(False)
                 delayed_exec(
-                    lambda:self.actionMPS_guardian.setChecked(True), 5.0)
-#                self.actionMPS_guardian.toggled.emit(True)
+                    lambda: self.actionMPS_guardian.setChecked(True), 5.0)
+        #                self.actionMPS_guardian.toggled.emit(True)
         else:
             pass
 
@@ -1039,15 +1036,15 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 
         if self.scan_worker.is_running():
             QMessageBox.warning(self, "",
-                    "Scan task is not finished.",
-                    QMessageBox.Ok)
+                                "Scan task is not finished.",
+                                QMessageBox.Ok)
             return
 
         ts_start = self.scan_task.ts_start
         ts_stop = self.scan_task.ts_stop
         title = "Completed at {ts}\nSCAN Duration: {t:.2f} s".format(
-                    ts=epoch2human(ts_stop, fmt=TS_FMT),
-                    t=ts_stop - ts_start)
+            ts=epoch2human(ts_stop, fmt=TS_FMT),
+            t=ts_stop - ts_start)
         self.scan_plot_widget.setFigureTitle(title)
 
     @pyqtSlot()
@@ -1069,11 +1066,11 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         y_min, y_max = y.min(), y.max()
 
         alter_array = self.scan_task.get_alter_array()
-        if pos == 'peak': # peak
-            xm = alter_array[np.where(y==y_max)][0]
+        if pos == 'peak':  # peak
+            xm = alter_array[np.where(y == y_max)][0]
             ym = y_max
-        elif pos == 'valley': # valley
-            xm = alter_array[np.where(y==y_min)][0]
+        elif pos == 'valley':  # valley
+            xm = alter_array[np.where(y == y_min)][0]
             ym = y_min
 
         # draw/update cross-ruler
@@ -1088,9 +1085,9 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         """
         if not self._moveto_flag:
             QMessageBox.warning(self, "",
-                "No value to set, click 'MoveTo' button or use " +
-                "'Cross-ruler' tool to pick the coordinate to moveto",
-                QMessageBox.Ok)
+                                "No value to set, click 'MoveTo' button or use " +
+                                "'Cross-ruler' tool to pick the coordinate to moveto",
+                                QMessageBox.Ok)
         else:
             x0 = self.scan_plot_widget._cpoint.get_xdata()[0]
             self.scanlogTextColor.emit(COLOR_INFO)
@@ -1098,20 +1095,20 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
             self.scan_task.alter_element.value = x0
             self.scanlogUpdated.emit("Alter element reaches {0:.3f}.".format(x0))
             QMessageBox.information(self, "",
-                "Set alter element to {0:.3f}".format(x0),
-                QMessageBox.Ok)
+                                    "Set alter element to {0:.3f}".format(x0),
+                                    QMessageBox.Ok)
 
     def reset_alter_element(self):
         x0 = self.scan_task.get_initial_setting()
         # restore alter elem
         self.scanlogTextColor.emit(COLOR_INFO)
         self.scanlogUpdated.emit(
-                "Scan task is done, reset alter element...")
+            "Scan task is done, reset alter element...")
         self.scanlogUpdated.emit(
-                "Setting alter element to {0:.3f}...".format(x0))
+            "Setting alter element to {0:.3f}...".format(x0))
         self.scan_task.alter_element.value = x0
         self.scanlogUpdated.emit(
-                "Alter element reaches {0:.3f}".format(x0))
+            "Alter element reaches {0:.3f}".format(x0))
         # in case it is 'resume' while scan is done
         self.pause_btn.setText('Pause')
 
@@ -1138,14 +1135,14 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 
     def pb_changed(self, i):
         if i == 100:
-            QTimer.singleShot(500, lambda:self.scan_pb.setVisible(False))
+            QTimer.singleShot(500, lambda: self.scan_pb.setVisible(False))
 
     @pyqtSlot()
     def on_set_alter_array(self):
         """Set alter array dialog.
         """
         dlg = self._set_alter_array_dialogs.setdefault(
-                self.scan_task.name, ArraySetDialog(self))
+            self.scan_task.name, ArraySetDialog(self))
         r = dlg.exec_()
 
         if r == QDialog.Accepted:
@@ -1204,8 +1201,8 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 
     def init_xydata_cbbs(self):
         # initial x[y]data_cbb with selected elements.
-        monitors = [ self.scan_task.alter_element,
-                     self.scan_task.monitor_element, ] + \
+        monitors = [self.scan_task.alter_element,
+                    self.scan_task.monitor_element, ] + \
                    self.scan_task.get_extra_monitors()
         flds = []
         for o in monitors:
@@ -1220,7 +1217,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
             o.clear()
             o.addItems(flds)
             o.currentIndexChanged.connect(
-                    partial(self.on_update_data_index, i))
+                partial(self.on_update_data_index, i))
         # inital
         self.xdata_cbb.setCurrentIndex(0)
         self.ydata_cbb.setCurrentIndex(1)
@@ -1235,7 +1232,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
     def on_save_task(self):
         # save scan task into file, even scan is done.
         filename, ext = get_save_filename(self, caption="Save Scan Task to file",
-            filter="JSON Files (*.json)")
+                                          filter="JSON Files (*.json)")
 
         if filename is None:
             return
@@ -1245,7 +1242,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
     def on_load_task(self):
         # load scan task.
         filepath, ext = get_open_filename(self,
-                filter="JSON Files (*.json)")
+                                          filter="JSON Files (*.json)")
         if filepath is None:
             return
         scan_task = load_task(filepath)
@@ -1369,11 +1366,10 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
 
         return new_monis
 
-
     # test slots
     def test_scan_started(self):
         print(self.scan_task)
-        print("-"*20)
+        print("-" * 20)
         print("alter start : ", self.scan_task.alter_start)
         print("alter stop  : ", self.scan_task.alter_stop)
         print("alter number: ", self.scan_task.alter_number)
@@ -1385,12 +1381,12 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         print("initial set : ", self.scan_task.get_initial_setting())
         print("ts_start    : ", self.scan_task.ts_start)
         print("ts_stop     : ", self.scan_task.ts_stop)
-        print("-"*20)
+        print("-" * 20)
         print("\n")
 
     def test_scan_finished(self):
         print(self.scan_task)
-        print("-"*20)
+        print("-" * 20)
         print("alter start : ", self.scan_task.alter_start)
         print("alter stop  : ", self.scan_task.alter_stop)
         print("alter number: ", self.scan_task.alter_number)
@@ -1402,7 +1398,6 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         print("initial set : ", self.scan_task.get_initial_setting())
         print("ts_start    : ", self.scan_task.ts_start)
         print("ts_stop     : ", self.scan_task.ts_stop)
-        print("-"*20)
+        print("-" * 20)
         print("\n")
         print("thread is running?", self.thread.isRunning())
-

@@ -1,19 +1,19 @@
 # -*- coding: utf-8 -*-
 
-from PyQt5.QtCore import QObject
-from PyQt5.QtCore import pyqtSignal
-from PyQt5.QtCore import QVariant
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QStandardItem
-from PyQt5.QtGui import QStandardItemModel
-from PyQt5.QtGui import QBrush, QColor
-
 import getpass
-import numpy as np
 import time
 from collections import OrderedDict
-from threading import Thread
 from functools import partial
+from threading import Thread
+
+import numpy as np
+from PyQt5.QtCore import QObject
+from PyQt5.QtCore import QVariant
+from PyQt5.QtCore import Qt
+from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtGui import QBrush, QColor
+from PyQt5.QtGui import QStandardItem
+from PyQt5.QtGui import QStandardItemModel
 
 try:
     from queue import Queue
@@ -22,7 +22,6 @@ except:
 
 from phantasy import epoch2human
 from phantasy import get_orm_for_one_corrector
-from phantasy import get_orm
 from phantasy import MachinePortal
 from phantasy.apps.correlation_visualizer.data import JSONDataSheet
 
@@ -56,7 +55,7 @@ class OrmWorker(QObject):
             self._bpms = bpms
             self._cors = cors
             self._xoy = xoy
-            self._wait= wait
+            self._wait = wait
             self._reset_wait = reset_wait
             self._n_digits = ndigits
             self._n_cor = len(self._cors)
@@ -81,8 +80,8 @@ class OrmWorker(QObject):
             m = np.zeros([self._m_bpm * len(self._xoy), self._n_cor])
             if self._keep_all_data:
                 mat_data = np.zeros(
-                        [self._n_cor, len(self._srange_list[0][-1]),
-                         self._m_bpm * len(self._xoy)])
+                    [self._n_cor, len(self._srange_list[0][-1]),
+                     self._m_bpm * len(self._xoy)])
             else:
                 mat_data = None
             for i, cor in enumerate(self._cors):
@@ -90,12 +89,12 @@ class OrmWorker(QObject):
                     self.stopped.emit()
                     break
                 r, d = get_orm_for_one_corrector(cor, self._bpms,
-                        scan=self._srange_list[i][-1], cor_field=self._cor_field,
-                        xoy=self._xoy, wait=self._wait, msg_queue=q,
-                        idx=i, ncor=self._n_cor, ndigits=self._n_digits,
-                        nshot=self._daq_nshot, rate=self._daq_rate,
-                        reset_wait=self._reset_wait,
-                        keep_all=self._keep_all_data)
+                                                 scan=self._srange_list[i][-1], cor_field=self._cor_field,
+                                                 xoy=self._xoy, wait=self._wait, msg_queue=q,
+                                                 idx=i, ncor=self._n_cor, ndigits=self._n_digits,
+                                                 nshot=self._daq_nshot, rate=self._daq_rate,
+                                                 reset_wait=self._reset_wait,
+                                                 keep_all=self._keep_all_data)
                 m[:, i] = r
                 if self._keep_all_data:
                     mat_data[i] = d
@@ -107,9 +106,9 @@ class OrmWorker(QObject):
                     self.stopped.emit()
                     break
                 self._lat.apply_setting(setting,
-                        wait=self._wait, idx=ic,
-                        msg_queue=q, ncor=self._n_cor,
-                        ndigits=self._n_digits)
+                                        wait=self._wait, idx=ic,
+                                        msg_queue=q, ncor=self._n_cor,
+                                        ndigits=self._n_digits)
             result = True
 
         q.join()
@@ -119,6 +118,7 @@ class OrmWorker(QObject):
     def message_receiver(self, q):
         """Message receiver and processor from the message queue *q*.
         """
+
         def _receiver(q):
             while True:
                 per, msg = q.get()
@@ -157,9 +157,9 @@ def load_orm_sheet(filepath):
     #
     print("Loading {} of {}".format(segment, machine))
     #
-    orm_conf = (orm, cor_field, bpm_field, \
-               t_wait, reset_wait, ndigits, srange, \
-               daq_nshot, daq_rate)
+    orm_conf = (orm, cor_field, bpm_field,
+                t_wait, reset_wait, ndigits, srange,
+                daq_nshot, daq_rate)
     #
     cor_conf_sheet = data_sheet['correction_config']
     cor_llmt = cor_conf_sheet.get('lower_limit', -5)
@@ -171,13 +171,12 @@ def load_orm_sheet(filepath):
     cor_daq_rate = cor_conf_sheet.get('daq_rate', 1)
     cor_daq_nshot = cor_conf_sheet.get('daq_nshot', 1)
 
-    cor_conf = (cor_llmt, cor_ulmt, cor_dfac, cor_niter, cor_wait, \
+    cor_conf = (cor_llmt, cor_ulmt, cor_dfac, cor_niter, cor_wait,
                 cor_prec, cor_daq_rate, cor_daq_nshot)
 
     file_type = data_sheet['info'].get('file_type', None)
 
-    return mp, name_elem_map, bpms_dict, cors_dict, orm_conf, cor_conf, \
-           file_type
+    return mp, name_elem_map, bpms_dict, cors_dict, orm_conf, cor_conf, file_type
 
 
 class ORMDataSheet(JSONDataSheet):
@@ -187,8 +186,8 @@ class ORMDataSheet(JSONDataSheet):
         if path is None:
             d = OrderedDict()
             d['info'] = {
-                    'user': getpass.getuser(),
-                    'created': epoch2human(time.time(), fmt=TS_FMT)
+                'user': getpass.getuser(),
+                'created': epoch2human(time.time(), fmt=TS_FMT)
             }
             d['monitors'] = {}
             d['correctors'] = {}
@@ -233,7 +232,6 @@ def load_settings_sheet(filepath):
 
 
 class SettingsModel(QStandardItemModel):
-
     item_changed = pyqtSignal(QVariant)
     view_size = pyqtSignal(int, int)
 
@@ -248,14 +246,14 @@ class SettingsModel(QStandardItemModel):
 
         # header
         self.header = self.h_idx, self.h_name, self.h_field, \
-                self.h_oldset, self.h_read, self.h_newset1, self.h_newset2, \
-                self.h_dset, self.h_ilimit = \
-                "ID", "Name", "Field", "Setpoint", \
-                "Readback", "Setpoint(Raw)", "Setpoint(New)", "Diff", "Limit?"
+                      self.h_oldset, self.h_read, self.h_newset1, self.h_newset2, \
+                      self.h_dset, self.h_ilimit = \
+            "ID", "Name", "Field", "Setpoint", \
+            "Readback", "Setpoint(Raw)", "Setpoint(New)", "Diff", "Limit?"
         self.ids = self.i_idx, self.i_name, self.i_field, \
-                self.i_oldset, self.i_read, self.i_newset2, self.i_newset2, \
-                self.i_dset, self.i_ilimit = \
-                range(len(self.header))
+                   self.i_oldset, self.i_read, self.i_newset2, self.i_newset2, \
+                   self.i_dset, self.i_ilimit = \
+            range(len(self.header))
         #
         self.set_data()
         #
@@ -299,7 +297,7 @@ class SettingsModel(QStandardItemModel):
                 hexc = CN[0]
             item_dset.setForeground(QBrush(QColor(hexc)))
 
-            for item in (item_idx, item_ename, item_fname, item_set0, \
+            for item in (item_idx, item_ename, item_fname, item_set0,
                          item_read, item_set1, item_set2, item_dset, item_ilim):
                 item.setEditable(False)
                 row.append(item)
@@ -324,7 +322,7 @@ class SettingsModel(QStandardItemModel):
         # view properties
         tv.setStyleSheet("font-family: monospace;")
         tv.setAlternatingRowColors(True)
-        #tv.setSortingEnabled(True)
+        # tv.setSortingEnabled(True)
         tv.header().setStretchLastSection(False)
         w = 0
         for i in self.ids:
@@ -333,21 +331,20 @@ class SettingsModel(QStandardItemModel):
         h = 0
         for i in range(len(self._data)):
             h += tv.rowHeight(self.item(i, 0).index())
-        #self.sort(self.i_idx, Qt.AscendingOrder)
-        #tv.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        #tv.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        # self.sort(self.i_idx, Qt.AscendingOrder)
+        # tv.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        # tv.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.view_size.emit(w, h)
 
 
 class ScanRangeModel(QStandardItemModel):
-
     item_changed = pyqtSignal(QVariant)
     view_size = pyqtSignal(int, int)
 
     def __init__(self, parent, data, rel_range, **kws):
         super(self.__class__, self).__init__(parent)
         self._v = parent
-        self._data = data # list of (element, field)
+        self._data = data  # list of (element, field)
         self._rel_range = rel_range
         self.fmt = kws.get('fmt', '{0:>.8g}')
 
@@ -356,16 +353,16 @@ class ScanRangeModel(QStandardItemModel):
 
         # header
         self.header = self.h_idx, self.h_name, self.h_field, \
-                self.h_cset, \
-                self.h_sstart, self.h_sstop, self.h_rd = \
-                "ID", "Name", "Field", \
-                "Setpoint", \
-                "Scan Start", "Scan Stop", "Readback",
+                      self.h_cset, \
+                      self.h_sstart, self.h_sstop, self.h_rd = \
+            "ID", "Name", "Field", \
+            "Setpoint", \
+            "Scan Start", "Scan Stop", "Readback",
 
         self.ids = self.i_idx, self.i_name, self.i_field, \
-                self.i_cset, \
-                self.i_sstart, self.i_sstop, self.i_rd = \
-                range(len(self.header))
+                   self.i_cset, \
+                   self.i_sstart, self.i_sstop, self.i_rd = \
+            range(len(self.header))
         #
         self.set_data()
         #
@@ -427,17 +424,17 @@ class ScanRangeModel(QStandardItemModel):
         tv.setStyleSheet("font-family: monospace;")
         tv.setAlternatingRowColors(True)
         tv.horizontalHeader().setStretchLastSection(True)
-        #w = 0
+        # w = 0
         for i in self.ids:
             tv.resizeColumnToContents(i)
         #    w += tv.columnWidth(i)
-        #h = 0
-        #for i in range(len(self._data)):
+        # h = 0
+        # for i in range(len(self._data)):
         #    h += tv.rowHeight(self.item(i, 0).index())
-        #self.sort(self.i_idx, Qt.AscendingOrder)
-        #tv.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        #tv.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        #self.view_size.emit(w, h)
+        # self.sort(self.i_idx, Qt.AscendingOrder)
+        # tv.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        # tv.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        # self.view_size.emit(w, h)
 
     def update_scan_range(self, rel):
         for i in range(self.rowCount()):
@@ -498,4 +495,3 @@ def get_orm_with_residuals(filepath):
         mat_w_residual[i] = [np.polyfit(scan_arr, mat_data[i][:, k], 1) for k in range(m)]
 
     return np.asarray(mat_w_residual)
-

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from collections import OrderedDict
 import getpass
+from collections import OrderedDict
 
 
 # data sheet templates
@@ -11,7 +11,7 @@ def qs_data_sheet_template():
 
     # task
     task_dict = OrderedDict()
-    task_dict['user'] = getpass.getuser() #'<str, who does this task>'
+    task_dict['user'] = getpass.getuser()  # '<str, who does this task>'
     task_dict['start'] = '<timestamp, when does this task start>'
     task_dict['stop'] = '<timestamp, when does this task stop>'
     task_dict['duration'] = '<float, how long does this task last, in sec>'
@@ -27,13 +27,13 @@ def qs_data_sheet_template():
     # devices
     dev_dict = OrderedDict()
     dev_dict['alter_element'] = {
-            'name': '<str, element name>',
-            'readback_pv': '<str, readback pv name>',
-            'setpoint_pv': '<str, setpoint pv name>',
+        'name': '<str, element name>',
+        'readback_pv': '<str, readback pv name>',
+        'setpoint_pv': '<str, setpoint pv name>',
     }
     dev_dict['monitors'] = [
-            {'name':'<str, element name>', 'readback_pv': '<str, readback pv name>'}
-    ] # add other monitors
+        {'name': '<str, element name>', 'readback_pv': '<str, readback pv name>'}
+    ]  # add other monitors
 
     s.update({'devices': dev_dict})
 

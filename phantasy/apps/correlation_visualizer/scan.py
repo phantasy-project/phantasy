@@ -1,22 +1,21 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import numpy as np
 import time
-from PyQt5.QtCore import QObject
-from PyQt5.QtCore import pyqtSignal
-from PyQt5.QtCore import QVariant
-
 from collections import OrderedDict
-from phantasy.apps.correlation_visualizer.data import JSONDataSheet
-from phantasy.apps.correlation_visualizer.utils import random_string
-from phantasy.apps.correlation_visualizer.utils import PVElement
-from phantasy.apps.correlation_visualizer.utils import PVElementReadonly
 
-from phantasy import epoch2human
+import numpy as np
+from PyQt5.QtCore import QObject
+from PyQt5.QtCore import QVariant
+from PyQt5.QtCore import pyqtSignal
+
 from phantasy import CaField
 from phantasy import MachinePortal
-
+from phantasy import epoch2human
+from phantasy.apps.correlation_visualizer.data import JSONDataSheet
+from phantasy.apps.correlation_visualizer.utils import PVElement
+from phantasy.apps.correlation_visualizer.utils import PVElementReadonly
+from phantasy.apps.correlation_visualizer.utils import random_string
 
 TS_FMT = "%Y-%m-%d %H:%M:%S"
 
@@ -266,13 +265,13 @@ class ScanTask(object):
                "DAQ Rate: {rate}\n" \
                "Array mode: {array_mode}\n" \
                "Alter array: {array}\n" \
-               "Alter Number: {niter}\n"\
+               "Alter Number: {niter}\n" \
                "Alter start: {sstart}\n" \
                "Alter stop: {sstop}\n" \
                "Alter element: {alter}\n" \
                "Monitor element: {moni}\n" \
                "Extra monitors: {extra_moni}\n" \
-               .format(
+            .format(
             name=self.name,
             niter=self.alter_number,
             twait=self.t_wait,
@@ -495,7 +494,7 @@ class ScanWorker(QObject):
             time.sleep(wait_sec)
             # DAQ
             for i in range(nshot):
-                #tmp_data[i, :] = [elem.value for elem in all_monitors]
+                # tmp_data[i, :] = [elem.value for elem in all_monitors]
                 tmp_data[i, :] = self.get_readings(i, all_monitors)
                 time.sleep(daq_delt)
             out_data[idx, :, :] = tmp_data

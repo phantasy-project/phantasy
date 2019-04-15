@@ -1,16 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from PyQt5.QtWidgets import QWidget
-from PyQt5.QtWidgets import QToolButton
-from PyQt5.QtWidgets import QTableWidgetItem
+from PyQt5.QtCore import Qt
+from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtGui import QColor
 from PyQt5.QtGui import QIcon
 from PyQt5.QtGui import QPixmap
-from PyQt5.QtCore import Qt
-from PyQt5.QtCore import pyqtSlot
-from PyQt5.QtCore import pyqtSignal
-
+from PyQt5.QtWidgets import QTableWidgetItem
+from PyQt5.QtWidgets import QToolButton
+from PyQt5.QtWidgets import QWidget
 
 from phantasy.apps.correlation_visualizer.ui.ui_points_view import Ui_Form
 
@@ -49,12 +48,12 @@ class PointsViewWidget(QWidget, Ui_Form):
         self._preset_table()
         for i, row in enumerate(self.data):
             for j, v in enumerate(row):
-                if j == 0: # idx
-                    alter_idx = v # index of alter array
+                if j == 0:  # idx
+                    alter_idx = v  # index of alter array
                     item = QTableWidgetItem('{0:d}'.format(v))
                     item.setTextAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-                elif j == 4: # avg_y + sy
-                    item = QTableWidgetItem(u'{0:.4f}\N{PLUS-MINUS SIGN}{1:.1f}%'.format(v[0], v[1]/v[0]*100))
+                elif j == 4:  # avg_y + sy
+                    item = QTableWidgetItem(u'{0:.4f}\N{PLUS-MINUS SIGN}{1:.1f}%'.format(v[0], v[1] / v[0] * 100))
                     item.setForeground(QColor('red'))
                     item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
                 else:
@@ -62,12 +61,12 @@ class PointsViewWidget(QWidget, Ui_Form):
                     item.setTextAlignment(Qt.AlignLeft | Qt.AlignVCenter)
                 self.tableWidget.setItem(i, j, item)
             # Add another col for delete btn
-            del_btn= QToolButton(self)
+            del_btn = QToolButton(self)
             del_btn.setIcon(QIcon(QPixmap(":/icons/delete.png")))
             del_btn.setToolTip("Delete current selection")
             del_btn.setProperty("alter_idx", alter_idx)
             del_btn.clicked.connect(self.on_delete)
-            self.tableWidget.setCellWidget(i, j+1, del_btn)
+            self.tableWidget.setCellWidget(i, j + 1, del_btn)
         self._postset_table()
 
     @pyqtSlot()

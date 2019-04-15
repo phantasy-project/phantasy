@@ -4,20 +4,19 @@
 import re
 from collections import deque
 
-from PyQt5.QtWidgets import QDialog
-from PyQt5.QtWidgets import QMessageBox
-from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtCore import QSize
 from PyQt5.QtCore import QVariant
 from PyQt5.QtCore import Qt
-from PyQt5.QtCore import QSize
-
+from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtWidgets import QDialog
+from PyQt5.QtWidgets import QMessageBox
 from phantasy_ui.widgets.utils import LatticeDataModel
 
 from phantasy.apps.correlation_visualizer.ui.ui_elem_select import Ui_Dialog
 from phantasy.apps.correlation_visualizer.utils import PVElement
 from phantasy.apps.correlation_visualizer.utils import PVElementReadonly
-from phantasy.apps.correlation_visualizer.utils import milli_sleep1
 from phantasy.apps.correlation_visualizer.utils import delayed_check_pv_status
+from phantasy.apps.correlation_visualizer.utils import milli_sleep1
 
 # max number of elements for selection
 NMAX = 100
@@ -39,8 +38,8 @@ class ElementSelectDialog(QDialog, Ui_Dialog):
         self.setWindowTitle("Select Element")
 
         # mode
-        [o.setEnabled(mode=='alter') for o in
-            (self.pv_set_lbl, self.pv_set_lineEdit, self.copy_set_to_read_btn)]
+        [o.setEnabled(mode == 'alter') for o in
+         (self.pv_set_lbl, self.pv_set_lineEdit, self.copy_set_to_read_btn)]
 
         self.adjustSize()
 
@@ -88,9 +87,9 @@ class ElementSelectDialog(QDialog, Ui_Dialog):
         else:
             n = NMAX
         self.__elements = deque([], n)
-        self.sel_elem = deque([], n)          # selected CaField objs
+        self.sel_elem = deque([], n)  # selected CaField objs
         self.sel_elem_display = deque([], n)  # Element objs
-        self.sel_field = deque([], n)         # seleted field names
+        self.sel_field = deque([], n)  # seleted field names
 
     @pyqtSlot()
     def on_click_ok(self):
@@ -117,8 +116,8 @@ class ElementSelectDialog(QDialog, Ui_Dialog):
         for elem in elem_list:
             if not elem.connected:
                 QMessageBox.warning(self, "",
-                    "{} cannot be reached.".format(elem.ename),
-                    QMessageBox.Ok)
+                                    "{} cannot be reached.".format(elem.ename),
+                                    QMessageBox.Ok)
                 return False
         return True
 
@@ -135,19 +134,19 @@ class ElementSelectDialog(QDialog, Ui_Dialog):
         try:
             if self._is_elements_all_connected(self.sel_elem):
                 QMessageBox.information(self, "",
-                        "Devices are all connected.",
-                        QMessageBox.Ok)
+                                        "Devices are all connected.",
+                                        QMessageBox.Ok)
                 is_valid = True
                 self._already_validated = True
             else:
                 QMessageBox.warning(self, "",
-                        "Devices are not all connected.",
-                        QMessageBox.Ok)
+                                    "Devices are not all connected.",
+                                    QMessageBox.Ok)
                 is_valid = False
         except:
             QMessageBox.critical(self, "",
-                    "Validating failed",
-                    QMessageBox.Ok)
+                                 "Validating failed",
+                                 QMessageBox.Ok)
             is_valid = False
 
         return is_valid
@@ -159,23 +158,23 @@ class ElementSelectDialog(QDialog, Ui_Dialog):
             print(ename, fname, elem.name)
             self.sel_elem.append(elem.get_field(fname))
             self.sel_field.append(fname)
-            self.sel_elem_display.append(elem )
+            self.sel_elem_display.append(elem)
 
     @pyqtSlot()
     def set_elem(self):
         """Build PVElement from [set]/read PVs
         """
         if self.mode == 'alter':
-            putPV_str = self.pv_set_lineEdit.text()
-            getPV_str = self.pv_read_lineEdit.text()
-            if putPV_str == '' or getPV_str == '':
+            put_pv_str = self.pv_set_lineEdit.text()
+            get_pv_str = self.pv_read_lineEdit.text()
+            if put_pv_str == '' or get_pv_str == '':
                 return
-            sel_elem = PVElement(putPV_str, getPV_str)
+            sel_elem = PVElement(put_pv_str, get_pv_str)
         else:  # 'monitor' and 'extra'
-            getPV_str = self.pv_read_lineEdit.text()
-            if getPV_str == '':
+            get_pv_str = self.pv_read_lineEdit.text()
+            if get_pv_str == '':
                 return
-            sel_elem = PVElementReadonly(getPV_str)
+            sel_elem = PVElementReadonly(get_pv_str)
 
         self.sel_elem.append(sel_elem)
         self.sel_elem_display.append(sel_elem)

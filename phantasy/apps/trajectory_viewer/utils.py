@@ -1,30 +1,27 @@
 # -*- coding: utf-8 -*-
 
+import getpass
+import os
+import time
+from collections import OrderedDict
+from functools import partial
+
+from PyQt5.QtCore import QSize
+from PyQt5.QtCore import Qt
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import pyqtSlot
-from PyQt5.QtCore import Qt
-from PyQt5.QtCore import QSize
-from PyQt5.QtCore import QVariant
-from PyQt5.QtGui import QStandardItem
-from PyQt5.QtGui import QStandardItemModel
 from PyQt5.QtGui import QIcon
 from PyQt5.QtGui import QPixmap
+from PyQt5.QtGui import QStandardItem
+from PyQt5.QtGui import QStandardItemModel
 from PyQt5.QtWidgets import QComboBox
 from PyQt5.QtWidgets import QToolButton
-
-import getpass
-import time
-import os
-from functools import partial
-from collections import OrderedDict
-
 from mpl4qt.widgets.utils import MatplotlibCurveWidgetSettings
 
-from .ui import details_icon
-
-from phantasy import epoch2human
 from phantasy import MachinePortal
+from phantasy import epoch2human
 from phantasy.apps.correlation_visualizer.data import JSONDataSheet
+from .ui import details_icon
 
 TS_FMT = "%Y-%m-%d %H:%M:%S"
 
@@ -34,11 +31,11 @@ except NameError:
     basestring = str
 
 COLUMN_SFIELD_MAP_LITE = OrderedDict((
-        ('Name', 'name'),
-        ('Type', 'family'),
-        ('Pos [m]', 'sb'),
-        ('Length [m]', 'length'),
-        ('Index', 'index'),
+    ('Name', 'name'),
+    ('Type', 'family'),
+    ('Pos [m]', 'sb'),
+    ('Length [m]', 'length'),
+    ('Index', 'index'),
 ))
 
 COLUMN_NAMES_LITE = list(COLUMN_SFIELD_MAP_LITE.keys())
@@ -115,9 +112,9 @@ class LatticeDataModel(QStandardItemModel):
         self._mp = mp
 
         self.header = self.h_name, self.h_type, self.h_pos, self.h_len, self.h_index = \
-                COLUMN_NAMES_LITE
+            COLUMN_NAMES_LITE
         self.ids = self.i_name, self.i_type, self.i_pos, self.i_len, self.i_index = \
-                range(len(self.header))
+            range(len(self.header))
 
         # selected items
         self._selected_items = []
@@ -148,7 +145,7 @@ class LatticeDataModel(QStandardItemModel):
             self._selected_items.remove(ename)
         self.itemsSelected.emit(self._selected_items)
         self.selectedItemsNumberChanged.emit(len(self._selected_items))
-        #print(self._selected_items)
+        # print(self._selected_items)
 
     def set_data(self, **kws):
         dtypes = kws.get('dtypes', None)
@@ -158,7 +155,7 @@ class LatticeDataModel(QStandardItemModel):
         for elem in self._mp.work_lattice_conf:
 
             if elem.family not in dtypes:
-                #print(elem.name, 'is skipped')
+                # print(elem.name, 'is skipped')
                 continue
             row = []
             for i, f in enumerate(SFIELD_NAMES_LITE):
@@ -219,10 +216,10 @@ class ElementListModel(QStandardItemModel):
         ))
         self._col_name_map = col_name_map
         # header
-        self.header = self.h_name, self.h_field, self.h_info  = \
-                list(col_name_map.keys())
+        self.header = self.h_name, self.h_field, self.h_info = \
+            list(col_name_map.keys())
         self.ids = self.i_name, self.i_field, self.i_info = \
-                range(len(self.header))
+            range(len(self.header))
         # set data, do not set field and info colmuns
         self.set_data()
         # set headers
@@ -272,7 +269,7 @@ class ElementListModel(QStandardItemModel):
             v.setIndexWidget(self.index(i, self.i_field), cbb)
             elem_item = self.item(i, self.i_name)
             cbb.currentTextChanged.connect(
-                    partial(self.on_field_changed, elem_item))
+                partial(self.on_field_changed, elem_item))
             # info
             btn = QToolButton()
             btn.setIcon(QIcon(QPixmap(details_icon)))
@@ -333,18 +330,18 @@ class ElementListModel(QStandardItemModel):
             names = self._enames
         else:
             names = self._selected_elements
-        return [self.name_elem_map[i] for i in sorted(names, key=lambda i:i[-4:])]
+        return [self.name_elem_map[i] for i in sorted(names, key=lambda i: i[-4:])]
 
     def __post_init_ui(self, tv):
         # view properties
         tv.setStyleSheet("font-family: monospace;")
         tv.setAlternatingRowColors(True)
         tv.header().setStretchLastSection(False)
-        #tv.setSortingEnabled(True)
+        # tv.setSortingEnabled(True)
         for i in self.ids:
             tv.resizeColumnToContents(i)
-        #tv.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        #tv.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        # tv.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        # tv.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
     def select_all_items(self):
         """Mark all items as checked.

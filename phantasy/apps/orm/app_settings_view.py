@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+from PyQt5.QtCore import Qt
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QDialog
-from PyQt5.QtCore import QSize
-from PyQt5.QtCore import Qt
 
 from .ui.ui_settings_view import Ui_Dialog
 from .utils import SettingsModel

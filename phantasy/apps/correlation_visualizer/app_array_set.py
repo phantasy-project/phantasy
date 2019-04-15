@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from PyQt5.QtWidgets import QDialog
-from PyQt5.QtWidgets import QMessageBox
+import numpy as np
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtGui import QDoubleValidator
-
-import numpy as np
+from PyQt5.QtWidgets import QDialog
+from PyQt5.QtWidgets import QMessageBox
 
 from phantasy.apps.correlation_visualizer.ui.ui_array_set import Ui_Dialog
 from phantasy.apps.utils import get_open_filename
@@ -58,7 +57,7 @@ class ArraySetDialog(QDialog, Ui_Dialog):
             v_step = float(self.vstep_lineEdit.text())
         except ValueError:
             QMessageBox.warning(self, "", "Input values are invalid",
-                    QMessageBox.Ok)
+                                QMessageBox.Ok)
         else:
             self.array = np.arange(v_from, v_to + v_step, v_step)
             self.data_textEdit.setPlainText(str(self.array.tolist()))
@@ -68,7 +67,7 @@ class ArraySetDialog(QDialog, Ui_Dialog):
         """Import array from external file.
         """
         filepath, ext = get_open_filename(self,
-                filter="TXT Files (*.txt);;NPY Files (*.npy);;CSV Files (*.csv)")
+                                          filter="TXT Files (*.txt);;NPY Files (*.npy);;CSV Files (*.csv)")
         if filepath is None:
             return
         if ext.upper() == 'TXT':
@@ -87,8 +86,8 @@ class ArraySetDialog(QDialog, Ui_Dialog):
     def on_click_ok(self):
         if self.array is None:
             QMessageBox.warning(self, "Alter Array Set",
-                    "No Array is Set",
-                    QMessageBox.Ok)
+                                "No Array is Set",
+                                QMessageBox.Ok)
             return
 
         if self.array.size != 0:
@@ -96,8 +95,8 @@ class ArraySetDialog(QDialog, Ui_Dialog):
             self.setResult(QDialog.Accepted)
         else:
             QMessageBox.warning(self, "Alter Array Set",
-                    "Empty Array is not valid",
-                    QMessageBox.Ok)
+                                "Empty Array is not valid",
+                                QMessageBox.Ok)
             return
 
     @pyqtSlot()
@@ -110,11 +109,12 @@ class ArraySetDialog(QDialog, Ui_Dialog):
         """Text (array) is changed.
         """
         o = self.sender()
-        array = self.__plainText_to_array(o.toPlainText())
+        array = self.plain_text_to_array(o.toPlainText())
         if array is not None:
             self.array = array
 
-    def __plainText_to_array(self, text):
+    @staticmethod
+    def plain_text_to_array(text):
         """Convert plain text to array.
         """
         try:
