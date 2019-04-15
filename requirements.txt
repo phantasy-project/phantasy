@@ -1,3 +1,5 @@
+pyqt5
+numpy
 sphinx_rtd_theme
 nbsphinx
 pyepics
