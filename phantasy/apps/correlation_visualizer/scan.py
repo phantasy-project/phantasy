@@ -385,7 +385,7 @@ def load_task(filepath):
     scan_task.shotnum = task['task']['n_shot']
     scan_task.daq_rate = task['task']['daq_rate']
     scan_task.t_wait = task['task']['t_wait']
-    array_mode = task['task']['array_mode']
+    array_mode = task['task'].get('array_mode', False)
     array = task['task']['scan_range']
     scan_task.set_alter_array(array)
     scan_task.array_mode = array_mode
@@ -394,8 +394,8 @@ def load_task(filepath):
     scan_task.scan_out_data = np.asarray(task['data']['array'])
 
     # mp
-    machine = task['task'].get('machine','')
-    segment = task['task'].get('segment','')
+    machine = task['task'].get('machine', 'FRIB')
+    segment = task['task'].get('segment', 'LINAC')
     mp = MachinePortal(machine, segment)
     if mp.last_load_success:
         scan_task.lattice = mp
