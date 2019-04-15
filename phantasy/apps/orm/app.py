@@ -69,10 +69,12 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         self._name_map = kws.get('name_map', {})
 
         # mp
-        self.__mp = kws.get('mp', None)
+        self._lat = None
+        self._mp = kws.get('mp', None)
 
         # orm
-        self._orm = None
+        self._orm = np.array([])
+        self._orm_all_data = np.array([])
 
         # bpms dict
         self._bpms_dict = sort_dict(kws.get('bpms', OrderedDict()))
@@ -109,44 +111,66 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         self.post_init()
 
     def post_init(self):
-        # cor settings
-        self._cor_settings = None
-        # hide cached setting view btn
-        self.view_cached_settings_btn.setVisible(False)
-
-        # refresh element list models
-        self.refresh_models_btn.clicked.connect(self.on_refresh_models)
-        # latinfo
-        self.lattice_info_btn.clicked.connect(self.on_show_latinfo)
-        self._lv = None
-
-        # set up models for BPMs and CORs
-        self.refresh_models_btn.clicked.emit()
-
-        #
-        self.measure_pb.setVisible(False)
-        self.measure_pb.setValue(0)
-        self.cor_apply_pb.setVisible(False)
-        self.cor_apply_pb.setValue(0)
-        #
-        self.stop_measure_btn.setEnabled(False)
-        self.stop_apply_btn.setEnabled(False)
-
         #
         for o in (self.alter_start_lineEdit, self.alter_stop_lineEdit,
                   self.lower_limit_lineEdit, self.upper_limit_lineEdit):
                 o.setValidator(QDoubleValidator())
-        for o in (self.alter_steps_lineEdit,):
-            o.setValidator(QIntValidator())
-
         #
-        self.alter_steps_lineEdit.returnPressed.connect(self.on_update_eta)
-        self.wait_time_dspinbox.valueChanged.connect(self.on_update_eta)
-        self.reset_wait_time_dspinbox.valueChanged.connect(self.on_update_eta)
-        self.daq_rate_sbox.valueChanged.connect(self.on_update_eta)
-        self.daq_nshot_sbox.valueChanged.connect(self.on_update_eta)
-        self.update_eta_btn.clicked.connect(self.on_update_eta)
+        # source, mode
+        self.operation_mode_cbb.currentTextChanged.connect(self.on_source_changed)
+        # keep all intermediate ORM data or not
+        self.keep_all_data_chkbox.toggled.connect(self.on_keep_all_data)
+        # wait/reset wait sec
+        self.wait_time_dsbox.valueChanged.connect(
+                partial(self.on_float_changed, '_wait_sec', True))
+        self.reset_wait_time_dsbox.valueChanged.connect(
+                partial(self.on_float_changed, '_reset_wait_sec', True))
+        # alter start, stop and steps
+        self.alter_start_lineEdit.returnPressed.connect(
+                partial(self.on_value_changed, '_sstart'))
+        self.alter_stop_lineEdit.returnPressed.connect(
+                partial(self.on_value_changed, '_sstop'))
+        self.alter_steps_sbox.valueChanged.connect(
+                partial(self.on_int_changed, '_ssteps', True))
+        # mprec
+        self.mprec_sbox.valueChanged.connect(
+                partial(self.on_int_changed, '_mprec', False))
+        # daq rate
+        self.daq_rate_sbox.valueChanged.connect(
+                partial(self.on_int_changed, '_daq_rate', True))
+        # daq nshot
+        self.daq_nshot_sbox.valueChanged.connect(
+                partial(self.on_int_changed, '_daq_nshot', True))
+        # set lower/upper limits
+        self.lower_limit_lineEdit.returnPressed.connect(
+                partial(self.on_value_changed, '_lower_limit'))
+        self.upper_limit_lineEdit.returnPressed.connect(
+                partial(self.on_value_changed, '_upper_limit'))
+        # cor damping factor
+        self.cor_damping_fac_dsbox.valueChanged.connect(
+                partial(self.on_float_changed, '_cor_dfac', False))
+        # cor niter
+        self.cor_niter_sbox.valueChanged.connect(
+                partial(self.on_int_changed, '_cor_niter', False))
+        # cor wait sec
+        self.cor_wait_time_dsbox.valueChanged.connect(
+                partial(self.on_float_changed, '_cor_wait_sec', False))
+        # cor prec
+        self.cor_prec_sbox.valueChanged.connect(
+                partial(self.on_int_changed, '_cor_prec', False))
+        # cor eva daq rate
+        self.eva_daq_rate_sbox.valueChanged.connect(
+                partial(self.on_int_changed, '_eva_daq_rate', False))
+        # cor eva daq nshot
+        self.eva_daq_nshot_sbox.valueChanged.connect(
+                partial(self.on_int_changed, '_eva_daq_nshot', False))
 
+        # refresh element list models
+        self.refresh_models_btn.clicked.connect(self.on_refresh_models)
+        self.refresh_models_btn.clicked.connect(self.on_update_eta)
+        self.refresh_models_btn.clicked.connect(self.on_set_srange_model)
+        # update eta
+        self.update_eta_btn.clicked.connect(self.on_update_eta)
         # element selection for BPMs/CORs treeview
         self.select_all_bpms_btn.clicked.connect(
                 partial(self.on_select_all_elems, "bpm"))
@@ -158,14 +182,39 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
                 partial(self.on_inverse_current_elem_selection, "cor"))
         # batch change element field
         self.monitor_fields_cbb.currentTextChanged.connect(
+                self.on_update_monitor_field)
+        self.monitor_fields_cbb.currentTextChanged.connect(
                 partial(self.on_elem_field_changed, "bpm"))
+        self.corrector_fields_cbb.currentTextChanged.connect(
+                self.on_update_corrector_field)
         self.corrector_fields_cbb.currentTextChanged.connect(
                 partial(self.on_elem_field_changed, "cor"))
 
-        #
-        self.on_update_eta()
+        # init params
+        self.init_params()
 
-        #
+        # init lat
+        self.init_lattice()
+
+        # init elements
+        self.init_elements()
+
+        # init settings table
+        self.init_settings_table()
+
+        # init latinfo
+        self.init_latinfo()
+
+        # init widget status
+        self.init_widgets()
+
+        # init bpm/cor models, set up models for BPMs and CORs
+        self.refresh_models_btn.clicked.emit()
+
+        # init _bpm_field, _cor_field, _xoy
+        self.init_fields()
+
+        # WIP
         self.init_settings_dq()
 
         # mach/lat info
@@ -178,7 +227,7 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
             v = getattr(self, '_{}s_dict'.format(mode))
             tv = getattr(self, '{}s_treeView'.format(mode))
             enames = list(v.keys())
-            model = ElementListModel(tv, self.__mp, enames)
+            model = ElementListModel(tv, self._mp, enames)
             model.set_model()
             o = getattr(self, 'nelem_selected_{}s_lineEdit'.format(mode))
             model.nElementSelected.connect(lambda i:o.setText(str(i)))
@@ -191,12 +240,6 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
                     lambda i:self.nelem_selected_cors_lineEdit.setText(str(i)))
         except:
             pass
-
-        #
-        self.on_update_eta()
-
-        #
-        self.on_set_srange_model()
 
     @pyqtSlot(dict)
     def on_update_elements(self, mode, elems_dict):
@@ -217,16 +260,23 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         self.thread = QThread()
         self.orm_runner = OrmWorker(params)
         self.orm_runner.moveToThread(self.thread)
-        self.orm_runner.started.connect(partial(self.orm_worker_started, self.measure_pb, self.stop_measure_btn, [self.run_btn]))
+        self.orm_runner.started.connect(
+                partial(self.orm_worker_started, self.measure_pb,
+                        self.stop_measure_btn, [self.run_btn]))
         self.orm_runner.started.connect(self.start_eta_timer)
-        self.orm_runner.resultsReady.connect(partial(self.on_results_ready, 'measure'))
-        self.orm_runner.update_progress.connect(partial(self.update_pb, self.measure_pb))
+        self.orm_runner.resultsReady.connect(
+                partial(self.on_results_ready, 'measure'))
+        self.orm_runner.update_progress.connect(
+                partial(self.update_pb, self.measure_pb))
         self.orm_runner.update_progress.connect(self.hl_row)
         self.orm_runner.finished.connect(self.stop_eta_timer)
-        self.orm_runner.finished.connect(partial(self.orm_worker_completed, self.measure_pb, self.stop_measure_btn, [self.run_btn]))
+        self.orm_runner.finished.connect(
+                partial(self.orm_worker_completed, self.measure_pb,
+                        self.stop_measure_btn, [self.run_btn]))
         self.orm_runner.finished.connect(self.thread.quit)
         self.orm_runner.finished.connect(self.orm_runner.deleteLater)
-        self.orm_runner.stopped.connect(partial(self.on_stop_orm_worker, "Stopped ORM Measurement..."))
+        self.orm_runner.stopped.connect(
+                partial(self.on_stop_orm_worker, "Stopped ORM Measurement..."))
         self.thread.finished.connect(self.thread.deleteLater)
         self.thread.started.connect(self.orm_runner.run)
         self.thread.start()
@@ -262,135 +312,79 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         if mode == 'measure':
             self._orm = result[0]
             self._orm_all_data = result[1]
+            self.set_orm()
             print("ORM is ready")
         else:
             pass
 
+    def set_orm(self):
+        if self._lat is None:
+            return
+        self._lat.orm = self._orm
+
     def __prepare_inputs_for_orm_apply(self):
-        # limit for correctors
-        try:
-            llimit = float(self.lower_limit_lineEdit.text())
-            ulimit = float(self.upper_limit_lineEdit.text())
-        except ValueError:
-            QMessageBox.warning(self, "Warning",
-                    "Invalid Input", QMessageBox.Ok)
+        #
+        if self._lat.orm is None:
             return None
         #
-        dfac = self.cor_damping_fac_dspinbox.value()
-        niter = self.cor_niter_spinbox.value()
-        t_wait = self.cor_wait_time_dspinbox.value()
-        # daq rate and nshot
-        daq_rate = self.eva_daq_rate_sbox.value()
-        daq_nshot = self.eva_daq_nshot_sbox.value()
-        #
-        cor_field = self.corrector_fields_cbb.currentText()
-        bpm_fields = self.monitor_fields_cbb.currentText()
-        if bpm_fields== 'X&Y':
-            xoy = 'xy'
-        else:
-            xoy = bpm_fields.lower()
-        #
-        bpms = [self._name_map[e] for e in self._bpms_dict]
-        cors = [self._name_map[e] for e in self._cors_dict]
-        self._bpms = bpms
-        self._cors = cors
-        self._xoy = xoy
-        #
-        if self.__mp is None:
-            return None
-        lat = self.__mp.work_lattice_conf
-        lat.orm = self._orm
-        #
-        # print info debug only
+        # debug
         print("\nTo Apply Correctors Settings...")
         print("--- Name of lattice to correct: {}/{}".format(
-            lat.name, self.__mp.last_machine_name))
-        print("--- # of BPMs loaded: {}".format(len(bpms)))
-        print("--- # of CORs loaded: {}".format(len(cors)))
-        print("--- Field of CORs to write: {}".format(cor_field))
-        print("--- Field of BPMs to read : {}".format(xoy))
-        print("--- Damping factor: {}".format(dfac))
-        print("--- # of iteration: {}".format(niter))
-        print("--- Wait second after put: {}".format(t_wait))
-        print("--- Corrector limit: [{}, {}]".format(llimit, ulimit))
-        print("--- DAQ rate, nshot: {}, {}".format(daq_rate, daq_nshot))
+            self._lat.name, self._mp.last_machine_name))
+        print("--- # of BPMs loaded: {}".format(len(self._bpms)))
+        print("--- # of CORs loaded: {}".format(len(self._cors)))
+        print("--- Field of CORs to write: {}".format(self._cor_field))
+        print("--- Field of BPMs to read : {}".format(self._xoy))
+        print("--- Damping factor: {}".format(self._cor_dfac))
+        print("--- # of iteration: {}".format(self._cor_niter))
+        print("--- Wait second after put: {}".format(self._cor_wait_sec))
+        print("--- Corrector limit: [{}, {}]".format(self._lower_limit, self._upper_limit))
+        print("--- DAQ rate, nshot: {}, {}".format(self._eva_daq_rate, self._eva_daq_nshot))
 
-        return (lat,), (bpms, cors), \
-               (xoy, cor_field, dfac, niter, t_wait, llimit, ulimit), \
-               (daq_rate, daq_nshot)
+        return (self._lat,), (self._bpms, self._cors), \
+               (self._xoy, self._cor_field, self._cor_dfac, self._cor_niter,
+                self._cor_wait_sec, self._lower_limit, self._upper_limit), \
+               (self._eva_daq_rate, self._eva_daq_nshot)
 
     def __prepare_inputs_for_orm_measurement(self):
-        source = OP_MODE_MAP[self.operation_mode_cbb.currentText()]
-        try:
-            x1 = float(self.alter_start_lineEdit.text())
-            x2 = float(self.alter_stop_lineEdit.text())
-            n = int(self.alter_steps_lineEdit.text())
-        except ValueError:
-            QMessageBox.warning(self, "Warning",
-                    "Invalid Input", QMessageBox.Ok)
-            return None
-        srange = np.linspace(x1, x2, n)
-        # srange element-wised
-        srange_list = self.get_srange_list(n)
-
-        #
-        cor_field = self.corrector_fields_cbb.currentText()
-        bpm_fields = self.monitor_fields_cbb.currentText()
-        if bpm_fields== 'X&Y':
-            xoy = 'xy'
-        else:
-            xoy = bpm_fields.lower()
-        wait = self.wait_time_dspinbox.value()
-        reset_wait = self.reset_wait_time_dspinbox.value()
-        ndigits = self.n_digits_measure_spinBox.value()
-        # daq rate and nshot
-        daq_rate = self.daq_rate_sbox.value()
-        daq_nshot = self.daq_nshot_sbox.value()
-        # keep all orm data
-        keep_all = self.keep_all_data_chkbox.isChecked()
-        #
-        bpms = [self._name_map[e] for e in self._bpms_dict]
-        cors = [self._name_map[e] for e in self._cors_dict]
-        self._bpms = bpms
-        self._cors = cors
-        self._xoy = xoy
-        self._keep_all = keep_all
-        #
+        # debug
         print("\nTo Measure Response Matrix...")
-        print("--- Mode:", source)
-        print("--- Alter Range: ", srange)
-        print("--- Field of CORs to write: ", cor_field)
-        print("--- Field of BPMs to read: ", xoy)
-        print("--- Wait second after alter: ", wait)
-        print("--- Wait second after reset: ", reset_wait)
-        print("--- # of Precison Digit: ", ndigits)
-        print("--- DAQ rate, nshot: ", daq_rate, daq_nshot)
-        print("--- Keep ORM data?: ", keep_all)
+        print("--- Mode:", self._source)
+        print("--- Alter Range: ", self._srange_list)
+        print("--- Field of CORs to write: ", self._cor_field)
+        print("--- Field of BPMs to read: ", self._xoy)
+        print("--- Wait second after alter: ", self._wait_sec)
+        print("--- Wait second after reset: ", self._reset_wait_sec)
+        print("--- # of Precison Digit: ", self._mprec)
+        print("--- DAQ rate, nshot: ", self._daq_rate, self._daq_nshot)
+        print("--- Keep ORM data?: ", self._keep_all)
         #
-        nc = len(cors)
-        eta = n * nc * (wait + daq_nshot * 1.0 / daq_rate) + reset_wait * nc
-        print("... ETA: {} [H:M:S]".format(eta))
-        self.eta_lbl.setText(uptime(int(eta)))
-        return (bpms, cors), \
-               (source, srange, cor_field, xoy, wait, ndigits), \
-               (daq_rate, daq_nshot, reset_wait, keep_all), srange_list
+        return (self._bpms, self._cors), \
+               (self._source, self._srange_list, self._cor_field, self._xoy,
+                self._wait_sec, self._mprec), \
+               (self._daq_rate, self._daq_nshot, self._reset_wait_sec,
+                self._keep_all)
 
     @pyqtSlot()
     def on_update_eta(self):
-        ns = int(self.alter_steps_lineEdit.text())
+        ns = self._ssteps
         nc = len(self._cors_dict)
-        dt = self.wait_time_dspinbox.value()
-        r_dt = self.reset_wait_time_dspinbox.value()
-        nshot = self.daq_nshot_sbox.value()
-        daq_rate = self.daq_rate_sbox.value()
+        dt = self._wait_sec
+        r_dt = self._reset_wait_sec
+        nshot = self._daq_nshot
+        daq_rate = self._daq_rate
+
         eta = ns * nc * (dt + nshot * 1.0 / daq_rate) + nc * r_dt
-        print("NS, NC, DT, NS, DS: ", ns, nc, dt, nshot, 1.0/daq_rate)
-        print("... ETA: {} [t]".format(eta))
         self.eta_lbl.setText(uptime(int(eta)))
-        # update srange model
-        #self._backup_scan_range()
-        self.on_set_srange_model()
-        #self._restore_scan_range()
+
+        print("ETA Info:")
+        print("--- # of alter points: ", ns)
+        print("--- # of correctors: ", nc)
+        print("--- Wait sec / step: ", dt)
+        print("--- Reset wait sec: ", r_dt)
+        print("--- DAQ # of shot: ", nshot)
+        print("--- DAQ rate: ", daq_rate)
+        print("--- ETA {} [s], or {}".format(eta, uptime(int(eta))))
 
     def __apply_with_settings(self, settings=None, **kws):
         # apply settings to correct central trajectory
@@ -400,10 +394,10 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
                 QMessageBox.Ok)
             return
 
-        lat = self.__mp.work_lattice_conf
-        t_wait = self.cor_wait_time_dspinbox.value()
-        ndigits = self.n_digits_apply_spinBox.value()
-        params = lat, settings, t_wait, ndigits
+        lat = self._mp.work_lattice_conf
+        t_wait = self.cor_wait_time_dsbox.value()
+        cprec = self.cor_prec_sbox.value()
+        params = lat, settings, t_wait, cprec
         to_cache = kws.get('to_cache', True)
         btns = kws.get('btns', [self.cor_apply_btn, self.undo_apply_btn, self.redo_apply_btn])
 
@@ -443,7 +437,7 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
 
         try:
             mp, name_map, bpms_dict, cors_dict, (orm, cor_field, bpm_field, \
-                t_wait, reset_wait, n_digits, srange, daq_nshot, daq_rate),\
+                t_wait, reset_wait, mprec, srange, daq_nshot, daq_rate),\
                 (cor_llmt, cor_ulmt, cor_dfac, cor_niter, cor_wait, cor_prec, \
                  cor_daq_rate, cor_daq_nshot), ftype = load_orm_sheet(filepath)
         except:
@@ -451,7 +445,7 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
                     "Cannot load selected file!", QMessageBox.Ok)
             return
 
-        self.__mp = mp
+        self._mp = mp
         self._name_map = name_map
         self._bpms_dict = bpms_dict
         self._cors_dict = cors_dict
@@ -460,27 +454,30 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         self.refresh_models_btn.clicked.emit()
         self.corrector_fields_cbb.setCurrentText(cor_field)
         self.monitor_fields_cbb.setCurrentText(bpm_field)
-        self.wait_time_dspinbox.setValue(t_wait)
-        self.reset_wait_time_dspinbox.setValue(reset_wait)
-        self.n_digits_measure_spinBox.setValue(n_digits)
+        self.wait_time_dsbox.setValue(t_wait)
+        self.reset_wait_time_dsbox.setValue(reset_wait)
+        self.mprec_sbox.setValue(mprec)
         self.daq_rate_sbox.setValue(daq_rate)
         self.daq_nshot_sbox.setValue(daq_nshot)
         srange_start, srange_stop, srange_steps = srange['from'], \
                 srange['to'], srange['total_steps']
-        self.alter_start_lineEdit.setText(srange_start)
-        self.alter_stop_lineEdit.setText(srange_stop)
-        self.alter_steps_lineEdit.setText(srange_steps)
+        self.alter_start_lineEdit.setText(str(srange_start))
+        self.alter_stop_lineEdit.setText(str(srange_stop))
+        self.alter_steps_sbox.setValue(srange_steps)
         self.corrector_fields_cbb.currentTextChanged.emit(cor_field)
         self.monitor_fields_cbb.currentTextChanged.emit(bpm_field)
         #
         self.lower_limit_lineEdit.setText(str(cor_llmt))
         self.upper_limit_lineEdit.setText(str(cor_ulmt))
-        self.cor_damping_fac_dspinbox.setValue(cor_dfac)
-        self.cor_niter_spinbox.setValue(int(cor_niter))
-        self.cor_wait_time_dspinbox.setValue(cor_wait)
-        self.n_digits_apply_spinBox.setValue(int(cor_prec))
+        self.cor_damping_fac_dsbox.setValue(cor_dfac)
+        self.cor_niter_sbox.setValue(int(cor_niter))
+        self.cor_wait_time_dsbox.setValue(cor_wait)
+        self.cor_prec_sbox.setValue(int(cor_prec))
         self.eva_daq_nshot_sbox.setValue(int(cor_daq_nshot))
         self.eva_daq_rate_sbox.setValue(int(cor_daq_rate))
+
+        #
+        self.init_elements()
 
         #
         self.update_lattice_info()
@@ -491,6 +488,9 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         #
         self.on_update_eta()
 
+        #
+        self.init_lattice()
+
     @pyqtSlot()
     def on_save_orm(self):
         filepath, ext = get_save_filename(self,
@@ -499,7 +499,7 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         if filepath is None:
             return
 
-        machine, segment = self.__mp.last_machine_name, self.__mp.last_lattice_name
+        machine, segment = self._mp.last_machine_name, self._mp.last_lattice_name
         bpms_dict = sort_dict(self.bpms_treeView.model()._selected_elements)
         cors_dict = sort_dict(self.cors_treeView.model()._selected_elements)
 
@@ -521,15 +521,16 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         orm_conf['orm'] = orm
         orm_conf['corrector_field'] = self.corrector_fields_cbb.currentText()
         orm_conf['monitor_field'] = self.monitor_fields_cbb.currentText()
-        orm_conf['wait_seconds'] = self.wait_time_dspinbox.value()
-        orm_conf['reset_wait_seconds'] = self.reset_wait_time_dspinbox.value()
-        orm_conf['set_precision'] = self.n_digits_measure_spinBox.value()
+        orm_conf['wait_seconds'] = self._wait_sec
+        orm_conf['reset_wait_seconds'] = self._reset_wait_sec
+        orm_conf['set_precision'] = self._mprec
         orm_conf['alter_range'] = {
-                 'from': self.alter_start_lineEdit.text(),
-                 'to': self.alter_stop_lineEdit.text(),
-                 'total_steps': self.alter_steps_lineEdit.text()}
-        orm_conf['daq_nshot'] = self.daq_nshot_sbox.value()
-        orm_conf['daq_rate'] = self.daq_rate_sbox.value()
+                 'from': self._sstart,
+                 'to': self._sstop,
+                 'total_steps': self._ssteps
+        }
+        orm_conf['daq_nshot'] = self._daq_nshot
+        orm_conf['daq_rate'] = self._daq_rate
         if self._keep_all:
             orm_conf['orm_all'] = self._orm_all_data.tolist()
 
@@ -537,10 +538,10 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         cor_conf = data_sheet['correction_config']
         cor_conf['lower_limit'] = float(self.lower_limit_lineEdit.text())
         cor_conf['upper_limit'] = float(self.upper_limit_lineEdit.text())
-        cor_conf['damping_factor'] = self.cor_damping_fac_dspinbox.value()
-        cor_conf['niter'] = self.cor_niter_spinbox.value()
-        cor_conf['wait_seconds'] = self.cor_wait_time_dspinbox.value()
-        cor_conf['set_precision'] = self.n_digits_apply_spinBox.value()
+        cor_conf['damping_factor'] = self.cor_damping_fac_dsbox.value()
+        cor_conf['niter'] = self.cor_niter_sbox.value()
+        cor_conf['wait_seconds'] = self.cor_wait_time_dsbox.value()
+        cor_conf['set_precision'] = self.cor_prec_sbox.value()
         cor_conf['daq_nshot'] = self.eva_daq_nshot_sbox.value()
         cor_conf['daq_rate'] = self.eva_daq_rate_sbox.value()
 
@@ -599,8 +600,9 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
             model = getattr(self, '{}s_treeView'.format(mode)).model()
             model.change_field(s)
         except AttributeError:
-            QMessageBox.warning(self, "Change Field",
-                    "Failed to change field.", QMessageBox.Ok)
+            QMessageBox.warning(self, "Change {} Field".format(mode.upper()),
+                "No worries, probably {}s are not ready, try to load the matrix file.".format(mode.upper()),
+                QMessageBox.Ok)
 
     @pyqtSlot()
     def start_eta_timer(self):
@@ -752,7 +754,7 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         if filepath is None:
             return
 
-        machine, segment = self.__mp.last_machine_name, self.__mp.last_lattice_name
+        machine, segment = self._mp.last_machine_name, self._mp.last_lattice_name
         ds = SettingsDataSheet()
         ds['settings'] = {e.name: {'field': f, 'setpoint': s, 'setpoint_limited': sl}
                           for (e, f, s, sl) in settings}
@@ -772,8 +774,8 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
 
         settings, mp = load_settings_sheet(filepath)
 
-        if self.__mp is None:
-            self.__mp = mp
+        if self._mp is None:
+            self._mp = mp
 
         self._sv_loaded = SettingsView(settings, fmt=self.get_fmt())
         self._sv_loaded.setWindowTitle("Overview of Loaded Correctors' Settings")
@@ -788,7 +790,7 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
             print('Cancel')
 
     def get_fmt(self):
-        n = self.n_digits_apply_spinBox.value()
+        n = self.cor_prec_sbox.value()
         return '{{{0}:.{1}g}}'.format(0, n)
 
     @pyqtSlot(bool)
@@ -796,10 +798,10 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         self._keep_all = f
 
     def update_lattice_info(self):
-        if self.__mp is None:
+        if self._mp is None:
             return
-        mach_name = self.__mp.last_machine_name
-        lat_name = self.__mp.last_lattice_name
+        mach_name = self._mp.last_machine_name
+        lat_name = self._mp.last_lattice_name
         self.loaded_mach_lbl.setText(mach_name)
         self.loaded_lattice_lbl.setText(lat_name)
 
@@ -836,15 +838,22 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
                                sstart, sstop, fmt=self.get_fmt())
         model.set_model()
 
+        # init/update srange list
+        self.get_srange_list()
+
     def get_srange_list(self, n=None):
         #
         # list of (cor, srange)
         #
         m = self.cor_srange_tableView.model()
         if n is None:
-            n = int(self.alter_steps_lineEdit.text())
+            n = self.alter_steps_sbox.value()
         srange_list = m.get_scan_range(n)
         self._srange_list = srange_list
+        # debug
+        for i, (cname, srange) in enumerate(srange_list):
+            print("[{}] {}: {}".format(i, cname, srange))
+        #
         return srange_list
 
     def _pb_msg_to_index(self, msg):
@@ -862,6 +871,139 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         srange_list = self.cor_srange_tableView.model().get_scan_range_config()
 
 
+    def init_params(self):
+        """Initialize parameters for matrix measurement/apply.
+        """
+        ## measurement
+        # op mode
+        self._source = OP_MODE_MAP[self.operation_mode_cbb.currentText()]
+        # wait secs
+        self._wait_sec = self.wait_time_dsbox.value()
+        self._reset_wait_sec = self.reset_wait_time_dsbox.value()
+        # global sstart and sstop, ssteps
+        self._ssteps = self.alter_steps_sbox.value()
+        self._sstart = float(self.alter_start_lineEdit.text())
+        self._sstop = float(self.alter_stop_lineEdit.text())
+        # n-prec
+        self._mprec = self.mprec_sbox.value()
+        # daq rate, nshot
+        self._daq_rate = self.daq_rate_sbox.value()
+        self._daq_nshot = self.daq_nshot_sbox.value()
+        # keep all
+        self._keep_all = self.keep_all_data_chkbox.isChecked()
+        # lower/upper limits
+        self._lower_limit = float(self.lower_limit_lineEdit.text())
+        self._upper_limit = float(self.upper_limit_lineEdit.text())
+        # cor damping factor
+        self._cor_dfac = self.cor_damping_fac_dsbox.value()
+        # cor nter
+        self._cor_niter = self.cor_niter_sbox.value()
+        # cor wait sec
+        self._cor_wait_sec = self.cor_wait_time_dsbox.value()
+        # cor prec
+        self._cor_prec = self.cor_prec_sbox.value()
+        # cor eva daq rate, nshot
+        self._eva_daq_rate = self.eva_daq_rate_sbox.value()
+        self._eva_daq_nshot = self.eva_daq_nshot_sbox.value()
+
+    def init_fields(self):
+        for o in (self.monitor_fields_cbb, self.corrector_fields_cbb,):
+            o.currentTextChanged.emit(o.currentText())
+
+    def init_settings_table(self):
+        # WIP
+        # initial table for settings
+        # cor settings
+        self._cor_settings = None
+        # hide cached setting view btn
+        self.view_cached_settings_btn.setVisible(False)
+
+    def init_latinfo(self):
+        # initial lattice info view
+        self._lv = None
+        self.lattice_info_btn.clicked.connect(self.on_show_latinfo)
+
+    def init_widgets(self):
+        # initial widget status
+        self.measure_pb.setVisible(False)
+        self.measure_pb.setValue(0)
+        self.cor_apply_pb.setVisible(False)
+        self.cor_apply_pb.setValue(0)
+        #
+        self.stop_measure_btn.setEnabled(False)
+        self.stop_apply_btn.setEnabled(False)
+
+    @pyqtSlot('QString')
+    def on_source_changed(self, s):
+        # operation mode changed, Simuation/Live
+        self._source = OP_MODE_MAP[s]
+
+    @pyqtSlot(bool)
+    def on_keep_all_data(self, f):
+        self._keep_all = f
+
+    @pyqtSlot()
+    def on_value_changed(self, var_str):
+        # lineedit returnpressed
+        # var_str: attr name
+        v = _str2float(self.sender().text())
+        if v is not None:
+            setattr(self, var_str, v)
+        else:
+            QMessageBox.warning(self, "Warning",
+                    "Input is not a valid number", QMessageBox.Ok)
+
+        # debug
+        print("sstart: ", self._sstart)
+        print("sstop: ", self._sstop)
+        print("lower limit: ", self._lower_limit)
+        print("upper limit: ", self._upper_limit)
+
+    @pyqtSlot(float)
+    def on_float_changed(self, var_str, update_eta, x):
+        setattr(self, var_str, x)
+        if update_eta:
+            self.on_update_eta()
+
+    @pyqtSlot(int)
+    def on_int_changed(self, var_str, update_eta, i):
+        setattr(self, var_str, i)
+        if update_eta:
+            self.on_update_eta()
+
+    @pyqtSlot('QString')
+    def on_update_monitor_field(self, s):
+        if s == 'X&Y':
+            xoy = 'xy'
+        else:
+            xoy = s.lower()
+        self._xoy = xoy
+        self._bpm_field = s
+
+    @pyqtSlot('QString')
+    def on_update_corrector_field(self, s):
+        self._cor_field = s
+
+    def init_elements(self):
+        # initial bpms and cors list(elements).
+        self._bpms = [self._name_map[e] for e in self._bpms_dict]
+        self._cors = [self._name_map[e] for e in self._cors_dict]
+
+    def init_lattice(self):
+        if self._mp is not None:
+            self._lat = self._mp.work_lattice_conf
+        self.set_orm()
+
+
+def _str2float(s):
+    try:
+        x = float(s)
+    except:
+        r = None
+    else:
+        r = x
+    finally:
+        return r
 
 
 def sort_dict(d):
