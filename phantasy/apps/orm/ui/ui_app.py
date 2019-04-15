@@ -514,34 +514,6 @@ class Ui_MainWindow(object):
         self.gridLayout_4.addLayout(self.horizontalLayout_19, 1, 1, 1, 2)
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setObjectName("horizontalLayout")
-        self.label_16 = QtWidgets.QLabel(self.orm_measurement)
-        self.label_16.setObjectName("label_16")
-        self.horizontalLayout.addWidget(self.label_16)
-        self.alter_start_lineEdit = QtWidgets.QLineEdit(self.orm_measurement)
-        sizePolicy = QtWidgets.QSizePolicy(
-            QtWidgets.QSizePolicy.MinimumExpanding,
-            QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(
-            self.alter_start_lineEdit.sizePolicy().hasHeightForWidth())
-        self.alter_start_lineEdit.setSizePolicy(sizePolicy)
-        self.alter_start_lineEdit.setObjectName("alter_start_lineEdit")
-        self.horizontalLayout.addWidget(self.alter_start_lineEdit)
-        self.label_4 = QtWidgets.QLabel(self.orm_measurement)
-        self.label_4.setObjectName("label_4")
-        self.horizontalLayout.addWidget(self.label_4)
-        self.alter_stop_lineEdit = QtWidgets.QLineEdit(self.orm_measurement)
-        sizePolicy = QtWidgets.QSizePolicy(
-            QtWidgets.QSizePolicy.MinimumExpanding,
-            QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(
-            self.alter_stop_lineEdit.sizePolicy().hasHeightForWidth())
-        self.alter_stop_lineEdit.setSizePolicy(sizePolicy)
-        self.alter_stop_lineEdit.setObjectName("alter_stop_lineEdit")
-        self.horizontalLayout.addWidget(self.alter_stop_lineEdit)
         self.label_5 = QtWidgets.QLabel(self.orm_measurement)
         self.label_5.setObjectName("label_5")
         self.horizontalLayout.addWidget(self.label_5)
@@ -550,6 +522,19 @@ class Ui_MainWindow(object):
         self.alter_steps_sbox.setProperty("value", 3)
         self.alter_steps_sbox.setObjectName("alter_steps_sbox")
         self.horizontalLayout.addWidget(self.alter_steps_sbox)
+        self.label_35 = QtWidgets.QLabel(self.orm_measurement)
+        self.label_35.setObjectName("label_35")
+        self.horizontalLayout.addWidget(self.label_35)
+        self.rel_range_lineEdit = QtWidgets.QLineEdit(self.orm_measurement)
+        self.rel_range_lineEdit.setObjectName("rel_range_lineEdit")
+        self.horizontalLayout.addWidget(self.rel_range_lineEdit)
+        self.label_4 = QtWidgets.QLabel(self.orm_measurement)
+        self.label_4.setStyleSheet("QLabel {\n"
+                                   "    color: gray;\n"
+                                   "    font-style: italic;\n"
+                                   "}")
+        self.label_4.setObjectName("label_4")
+        self.horizontalLayout.addWidget(self.label_4)
         self.gridLayout_4.addLayout(self.horizontalLayout, 2, 1, 1, 2)
         self.label = QtWidgets.QLabel(self.orm_measurement)
         self.label.setObjectName("label")
@@ -1121,11 +1106,18 @@ class Ui_MainWindow(object):
         self.label_31.setText(_translate("MainWindow", "Second"))
         self.label_32.setText(_translate("MainWindow", "Reset"))
         self.label_15.setText(_translate("MainWindow", "Second"))
-        self.label_16.setText(_translate("MainWindow", "From"))
-        self.alter_start_lineEdit.setText(_translate("MainWindow", "-0.003"))
-        self.label_4.setText(_translate("MainWindow", "To"))
-        self.alter_stop_lineEdit.setText(_translate("MainWindow", "0.003"))
-        self.label_5.setText(_translate("MainWindow", "N"))
+        self.label_5.setText(_translate("MainWindow", "Total # of points"))
+        self.label_35.setText(
+            _translate(
+                "MainWindow",
+                "<html><head/><body><p>Relative (<span style=\" font-style:italic;\">Δx</span>) w.r.t current setting (<span style=\" font-style:italic;\">x</span><span style=\" vertical-align:sub;\">0</span>)</p></body></html>"
+            ))
+        self.rel_range_lineEdit.setText(_translate("MainWindow", "0.1"))
+        self.label_4.setText(
+            _translate(
+                "MainWindow",
+                "<html><head/><body><p>The alter range is [<span style=\" font-style:italic;\">x</span><span style=\" vertical-align:sub;\">0 </span>- <span style=\" font-style:italic;\">Δ</span>x, <span style=\" font-style:italic;\">x</span><span style=\" vertical-align:sub;\">0 </span>+ <span style=\" font-style:italic;\">Δ</span>x].</p></body></html>"
+            ))
         self.label.setText(_translate("MainWindow", "Operation Mode"))
         self.update_eta_btn.setText(_translate("MainWindow", "Update"))
         self.label_18.setText(_translate("MainWindow", "Estimated Time"))
