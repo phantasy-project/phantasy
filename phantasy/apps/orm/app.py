@@ -112,7 +112,7 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
 
     def post_init(self):
         #
-        for o in (self.alter_start_lineEdit, self.alter_stop_lineEdit,
+        for o in (self.rel_range_lineEdit,
                   self.lower_limit_lineEdit, self.upper_limit_lineEdit):
                 o.setValidator(QDoubleValidator())
         #
@@ -125,13 +125,14 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
                 partial(self.on_float_changed, '_wait_sec', True))
         self.reset_wait_time_dsbox.valueChanged.connect(
                 partial(self.on_float_changed, '_reset_wait_sec', True))
-        # alter start, stop and steps
-        self.alter_start_lineEdit.returnPressed.connect(
-                partial(self.on_value_changed, '_sstart'))
-        self.alter_stop_lineEdit.returnPressed.connect(
-                partial(self.on_value_changed, '_sstop'))
+        # alter steps, rel.range
         self.alter_steps_sbox.valueChanged.connect(
                 partial(self.on_int_changed, '_ssteps', True))
+        self.rel_range_lineEdit.returnPressed.connect(
+                partial(self.on_value_changed, '_rel_range'))
+        self.rel_range_lineEdit.returnPressed.connect(
+                self.on_update_srange)
+
         # mprec
         self.mprec_sbox.valueChanged.connect(
                 partial(self.on_int_changed, '_mprec', False))
@@ -351,6 +352,8 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
                (self._eva_daq_rate, self._eva_daq_nshot)
 
     def __prepare_inputs_for_orm_measurement(self):
+        #
+        self._srange_list = self.get_srange_list()
         # debug
         print("\nTo Measure Response Matrix...")
         print("--- Mode:", self._source)
@@ -463,11 +466,10 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         self.mprec_sbox.setValue(mprec)
         self.daq_rate_sbox.setValue(daq_rate)
         self.daq_nshot_sbox.setValue(daq_nshot)
-        srange_start, srange_stop, srange_steps = srange['from'], \
-                srange['to'], srange['total_steps']
-        self.alter_start_lineEdit.setText(str(srange_start))
-        self.alter_stop_lineEdit.setText(str(srange_stop))
+        srange_steps = srange['total_steps']
+        rel_range = srange.get('relative_range', 0.1)
         self.alter_steps_sbox.setValue(srange_steps)
+        self.rel_range_lineEdit.setText(str(rel_range))
         self.corrector_fields_cbb.currentTextChanged.emit(cor_field)
         self.monitor_fields_cbb.currentTextChanged.emit(bpm_field)
         #
@@ -529,8 +531,7 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         orm_conf['reset_wait_seconds'] = self._reset_wait_sec
         orm_conf['set_precision'] = self._mprec
         orm_conf['alter_range'] = {
-                 'from': self._sstart,
-                 'to': self._sstop,
+                 'relative range': self._rel_range,
                  'total_steps': self._ssteps
         }
         orm_conf['daq_nshot'] = self._daq_nshot
@@ -835,15 +836,9 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         data = [(self._name_map[ename], fname[0])
                 for ename, fname in self._cors_dict.items()]
 
-        sstart = float(self.alter_start_lineEdit.text())
-        sstop = float(self.alter_stop_lineEdit.text())
-
         model = ScanRangeModel(self.cor_srange_tableView, data,
-                               sstart, sstop, fmt=self.get_fmt())
+                               self._rel_range, fmt=self.get_fmt())
         model.set_model()
-
-        # init/update srange list
-        self.get_srange_list()
 
     def get_srange_list(self, n=None):
         #
@@ -866,15 +861,6 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         #
         return int(msg.split()[3].replace('[','').replace(']','')) - 1
 
-    def _backup_scan_range(self):
-        #
-        # backup scan range list
-        #
-        sstart0 = float(self.alter_start_lineEdit.text())
-        sstop0 = float(self.alter_stop_lineEdit.text())
-        srange_list = self.cor_srange_tableView.model().get_scan_range_config()
-
-
     def init_params(self):
         """Initialize parameters for matrix measurement/apply.
         """
@@ -884,10 +870,10 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         # wait secs
         self._wait_sec = self.wait_time_dsbox.value()
         self._reset_wait_sec = self.reset_wait_time_dsbox.value()
-        # global sstart and sstop, ssteps
+        # global ssteps
         self._ssteps = self.alter_steps_sbox.value()
-        self._sstart = float(self.alter_start_lineEdit.text())
-        self._sstop = float(self.alter_stop_lineEdit.text())
+        # rel range
+        self._rel_range = float(self.rel_range_lineEdit.text())
         # n-prec
         self._mprec = self.mprec_sbox.value()
         # daq rate, nshot
@@ -958,8 +944,7 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
                     "Input is not a valid number", QMessageBox.Ok)
 
         # debug
-        print("sstart: ", self._sstart)
-        print("sstop: ", self._sstop)
+        print("rel_range ", self._rel_range)
         print("lower limit: ", self._lower_limit)
         print("upper limit: ", self._upper_limit)
 
@@ -997,6 +982,13 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         if self._mp is not None:
             self._lat = self._mp.work_lattice_conf
         self.set_orm()
+
+    @pyqtSlot()
+    def on_update_srange(self,):
+        # update scan range list model with updated rel_range.
+        print(self._rel_range)
+        m = self.cor_srange_tableView.model()
+        m.update_scan_range(self._rel_range)
 
 
 def _str2float(s):
