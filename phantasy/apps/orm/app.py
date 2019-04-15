@@ -191,6 +191,7 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         self.refresh_models_btn.clicked.connect(self.on_refresh_models)
         self.refresh_models_btn.clicked.connect(self.on_update_eta)
         self.refresh_models_btn.clicked.connect(self.on_set_srange_model)
+        self.refresh_models_btn.clicked.connect(self.init_elements)
 
         # init params
         self.init_params()
