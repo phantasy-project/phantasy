@@ -48,10 +48,9 @@ class OrmWorker(QObject):
         super(self.__class__, self).__init__()
         self._mode = mode
         if mode == 'measure':
-            (bpms, cors), (source, srange, cor_field, xoy, wait, ndigits), \
-            (daq_rate, daq_nshot, reset_wait, keep_all_data), srange_list = params
+            (bpms, cors), (source, srange_list, cor_field, xoy, wait, ndigits), \
+            (daq_rate, daq_nshot, reset_wait, keep_all_data) = params
             self._source = source
-            self._srange = srange
             self._srange_list = srange_list
             self._cor_field = cor_field
             self._bpms = bpms
@@ -82,7 +81,7 @@ class OrmWorker(QObject):
             m = np.zeros([self._m_bpm * len(self._xoy), self._n_cor])
             if self._keep_all_data:
                 mat_data = np.zeros(
-                        [self._n_cor, len(self._srange),
+                        [self._n_cor, len(self._srange_list[0][-1]),
                          self._m_bpm * len(self._xoy)])
             else:
                 mat_data = None
