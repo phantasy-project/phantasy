@@ -165,10 +165,6 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         self.eva_daq_nshot_sbox.valueChanged.connect(
                 partial(self.on_int_changed, '_eva_daq_nshot', False))
 
-        # refresh element list models
-        self.refresh_models_btn.clicked.connect(self.on_refresh_models)
-        self.refresh_models_btn.clicked.connect(self.on_update_eta)
-        self.refresh_models_btn.clicked.connect(self.on_set_srange_model)
         # update eta
         self.update_eta_btn.clicked.connect(self.on_update_eta)
         # element selection for BPMs/CORs treeview
@@ -190,6 +186,11 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         self.corrector_fields_cbb.currentTextChanged.connect(
                 partial(self.on_elem_field_changed, "cor"))
 
+        # refresh element list models
+        self.refresh_models_btn.clicked.connect(self.on_refresh_models)
+        self.refresh_models_btn.clicked.connect(self.on_update_eta)
+        self.refresh_models_btn.clicked.connect(self.on_set_srange_model)
+
         # init params
         self.init_params()
 
@@ -208,17 +209,16 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         # init widget status
         self.init_widgets()
 
-        # init bpm/cor models, set up models for BPMs and CORs
-        self.refresh_models_btn.clicked.emit()
-
-        # init _bpm_field, _cor_field, _xoy
-        self.init_fields()
-
         # WIP
         self.init_settings_dq()
 
         # mach/lat info
         self.update_lattice_info()
+
+        # init bpm/cor models, set up models for BPMs and CORs
+        self.refresh_models_btn.clicked.emit()
+        # init _bpm_field, _cor_field, _xoy
+        self.init_fields()
 
     @pyqtSlot()
     def on_refresh_models(self):
@@ -248,6 +248,10 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         print("[ORM]-{}: {}".format(mode, elems_dict))
         e_dict = sort_dict(elems_dict)
         setattr(self, '_{}s_dict'.format(mode), e_dict)
+
+    @pyqtSlot(dict)
+    def update_name_map(self, name_map):
+        self._name_map.update(name_map)
 
     @pyqtSlot()
     def on_measure_orm(self):
