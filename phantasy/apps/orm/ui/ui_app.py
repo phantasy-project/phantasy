@@ -865,21 +865,45 @@ class Ui_MainWindow(object):
         self.cached_settings_hbox = QtWidgets.QHBoxLayout()
         self.cached_settings_hbox.setContentsMargins(-1, 0, -1, -1)
         self.cached_settings_hbox.setObjectName("cached_settings_hbox")
-        spacerItem7 = QtWidgets.QSpacerItem(40, 20,
-                                            QtWidgets.QSizePolicy.Expanding,
-                                            QtWidgets.QSizePolicy.Minimum)
-        self.cached_settings_hbox.addItem(spacerItem7)
+        self.label_16 = QtWidgets.QLabel(self.orm_apply)
+        self.label_16.setStyleSheet("QLabel {\n" "    color: gray;\n" "}")
+        self.label_16.setObjectName("label_16")
+        self.cached_settings_hbox.addWidget(self.label_16)
+        self.del_setting_btn = QtWidgets.QToolButton(self.orm_apply)
+        icon9 = QtGui.QIcon()
+        icon9.addPixmap(
+            QtGui.QPixmap(":/icons/del.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.del_setting_btn.setIcon(icon9)
+        self.del_setting_btn.setIconSize(QtCore.QSize(24, 24))
+        self.del_setting_btn.setAutoRaise(True)
+        self.del_setting_btn.setObjectName("del_setting_btn")
+        self.cached_settings_hbox.addWidget(self.del_setting_btn)
+        self.add_setting_btn = QtWidgets.QToolButton(self.orm_apply)
+        icon10 = QtGui.QIcon()
+        icon10.addPixmap(
+            QtGui.QPixmap(":/icons/add.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.add_setting_btn.setIcon(icon10)
+        self.add_setting_btn.setIconSize(QtCore.QSize(24, 24))
+        self.add_setting_btn.setAutoRaise(True)
+        self.add_setting_btn.setObjectName("add_setting_btn")
+        self.cached_settings_hbox.addWidget(self.add_setting_btn)
         self.apply_selected_settings_btn = QtWidgets.QToolButton(
             self.orm_apply)
-        self.apply_selected_settings_btn.setIcon(icon6)
-        self.apply_selected_settings_btn.setIconSize(QtCore.QSize(30, 30))
+        icon11 = QtGui.QIcon()
+        icon11.addPixmap(
+            QtGui.QPixmap(":/icons/apply.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.apply_selected_settings_btn.setIcon(icon11)
+        self.apply_selected_settings_btn.setIconSize(QtCore.QSize(24, 24))
         self.apply_selected_settings_btn.setAutoRaise(True)
         self.apply_selected_settings_btn.setObjectName(
             "apply_selected_settings_btn")
         self.cached_settings_hbox.addWidget(self.apply_selected_settings_btn)
         self.reset_cached_settings_btn = QtWidgets.QToolButton(self.orm_apply)
         self.reset_cached_settings_btn.setIcon(icon7)
-        self.reset_cached_settings_btn.setIconSize(QtCore.QSize(30, 30))
+        self.reset_cached_settings_btn.setIconSize(QtCore.QSize(24, 24))
         self.reset_cached_settings_btn.setAutoRaise(True)
         self.reset_cached_settings_btn.setObjectName(
             "reset_cached_settings_btn")
@@ -898,21 +922,21 @@ class Ui_MainWindow(object):
         self.cor_apply_pb.setProperty("value", 24)
         self.cor_apply_pb.setObjectName("cor_apply_pb")
         self.horizontalLayout_8.addWidget(self.cor_apply_pb)
-        spacerItem8 = QtWidgets.QSpacerItem(10, 20,
+        spacerItem7 = QtWidgets.QSpacerItem(10, 20,
                                             QtWidgets.QSizePolicy.Expanding,
                                             QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayout_8.addItem(spacerItem8)
+        self.horizontalLayout_8.addItem(spacerItem7)
         self.stop_apply_btn = QtWidgets.QPushButton(self.orm_apply)
         self.stop_apply_btn.setIcon(icon5)
         self.stop_apply_btn.setIconSize(QtCore.QSize(24, 24))
         self.stop_apply_btn.setObjectName("stop_apply_btn")
         self.horizontalLayout_8.addWidget(self.stop_apply_btn)
         self.cor_eva_btn = QtWidgets.QPushButton(self.orm_apply)
-        icon9 = QtGui.QIcon()
-        icon9.addPixmap(
+        icon12 = QtGui.QIcon()
+        icon12.addPixmap(
             QtGui.QPixmap(":/icons/evaluate.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.cor_eva_btn.setIcon(icon9)
+        self.cor_eva_btn.setIcon(icon12)
         self.cor_eva_btn.setIconSize(QtCore.QSize(20, 20))
         self.cor_eva_btn.setObjectName("cor_eva_btn")
         self.horizontalLayout_8.addWidget(self.cor_eva_btn)
@@ -1009,52 +1033,52 @@ class Ui_MainWindow(object):
         self.menuFile.setObjectName("menuFile")
         MainWindow.setMenuBar(self.menubar)
         self.load_settings = QtWidgets.QAction(MainWindow)
-        icon10 = QtGui.QIcon()
-        icon10.addPixmap(
-            QtGui.QPixmap(":/icons/open.png"), QtGui.QIcon.Normal,
-            QtGui.QIcon.Off)
-        self.load_settings.setIcon(icon10)
-        self.load_settings.setObjectName("load_settings")
-        self.save_settings = QtWidgets.QAction(MainWindow)
-        icon11 = QtGui.QIcon()
-        icon11.addPixmap(
-            QtGui.QPixmap(":/icons/save.png"), QtGui.QIcon.Normal,
-            QtGui.QIcon.Off)
-        self.save_settings.setIcon(icon11)
-        self.save_settings.setObjectName("save_settings")
-        self.actionAbout = QtWidgets.QAction(MainWindow)
-        icon12 = QtGui.QIcon()
-        icon12.addPixmap(
-            QtGui.QPixmap(":/icons/info.png"), QtGui.QIcon.Normal,
-            QtGui.QIcon.Off)
-        self.actionAbout.setIcon(icon12)
-        self.actionAbout.setObjectName("actionAbout")
-        self.actionE_xit = QtWidgets.QAction(MainWindow)
         icon13 = QtGui.QIcon()
         icon13.addPixmap(
-            QtGui.QPixmap(":/icons/exit.png"), QtGui.QIcon.Normal,
+            QtGui.QPixmap(":/icons/open.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.actionE_xit.setIcon(icon13)
-        self.actionE_xit.setObjectName("actionE_xit")
-        self.actionContents = QtWidgets.QAction(MainWindow)
+        self.load_settings.setIcon(icon13)
+        self.load_settings.setObjectName("load_settings")
+        self.save_settings = QtWidgets.QAction(MainWindow)
         icon14 = QtGui.QIcon()
         icon14.addPixmap(
-            QtGui.QPixmap(":/icons/help.png"), QtGui.QIcon.Normal,
+            QtGui.QPixmap(":/icons/save.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.actionContents.setIcon(icon14)
-        self.actionContents.setObjectName("actionContents")
-        self.actionAbout_Qt = QtWidgets.QAction(MainWindow)
+        self.save_settings.setIcon(icon14)
+        self.save_settings.setObjectName("save_settings")
+        self.actionAbout = QtWidgets.QAction(MainWindow)
         icon15 = QtGui.QIcon()
         icon15.addPixmap(
+            QtGui.QPixmap(":/icons/info.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.actionAbout.setIcon(icon15)
+        self.actionAbout.setObjectName("actionAbout")
+        self.actionE_xit = QtWidgets.QAction(MainWindow)
+        icon16 = QtGui.QIcon()
+        icon16.addPixmap(
+            QtGui.QPixmap(":/icons/exit.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.actionE_xit.setIcon(icon16)
+        self.actionE_xit.setObjectName("actionE_xit")
+        self.actionContents = QtWidgets.QAction(MainWindow)
+        icon17 = QtGui.QIcon()
+        icon17.addPixmap(
+            QtGui.QPixmap(":/icons/help.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.actionContents.setIcon(icon17)
+        self.actionContents.setObjectName("actionContents")
+        self.actionAbout_Qt = QtWidgets.QAction(MainWindow)
+        icon18 = QtGui.QIcon()
+        icon18.addPixmap(
             QtGui.QPixmap(":/icons/qt.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.actionAbout_Qt.setIcon(icon15)
+        self.actionAbout_Qt.setIcon(icon18)
         self.actionAbout_Qt.setObjectName("actionAbout_Qt")
         self.actionSave = QtWidgets.QAction(MainWindow)
-        self.actionSave.setIcon(icon11)
+        self.actionSave.setIcon(icon14)
         self.actionSave.setObjectName("actionSave")
         self.actionOpen = QtWidgets.QAction(MainWindow)
-        self.actionOpen.setIcon(icon10)
+        self.actionOpen.setIcon(icon13)
         self.actionOpen.setObjectName("actionOpen")
         self.menu_Settings.addAction(self.load_settings)
         self.menu_Settings.addAction(self.save_settings)
@@ -1098,6 +1122,8 @@ class Ui_MainWindow(object):
             MainWindow.on_keep_all_orm_data)
         self.apply_selected_settings_btn.clicked.connect(
             MainWindow.on_apply_selected_settings)
+        self.add_setting_btn.clicked.connect(MainWindow.on_add_settings)
+        self.del_setting_btn.clicked.connect(MainWindow.on_del_settings)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -1217,6 +1243,20 @@ class Ui_MainWindow(object):
         self.label_27.setText(_translate("MainWindow", "Trajectory DAQ"))
         self.label_28.setText(_translate("MainWindow", "Frequency"))
         self.label_29.setText(_translate("MainWindow", "Short Number"))
+        self.label_16.setText(
+            _translate("MainWindow", "Select/Apply settings from above list"))
+        self.del_setting_btn.setToolTip(
+            _translate(
+                "MainWindow",
+                "<html><head/><body><p>Delete the selected settings entry.</p></body></html>"
+            ))
+        self.del_setting_btn.setText(_translate("MainWindow", "..."))
+        self.add_setting_btn.setToolTip(
+            _translate(
+                "MainWindow",
+                "<html><head/><body><p>Add the current live settings into the list.</p></body></html>"
+            ))
+        self.add_setting_btn.setText(_translate("MainWindow", "..."))
         self.apply_selected_settings_btn.setToolTip(
             _translate(
                 "MainWindow",
@@ -1227,7 +1267,7 @@ class Ui_MainWindow(object):
         self.reset_cached_settings_btn.setToolTip(
             _translate(
                 "MainWindow",
-                "<html><head/><body><p>Reset settings history with current ones.</p></body></html>"
+                "<html><head/><body><p>Reset settings history only with current live ones.</p></body></html>"
             ))
         self.reset_cached_settings_btn.setText(
             _translate("MainWindow", "Reset"))
