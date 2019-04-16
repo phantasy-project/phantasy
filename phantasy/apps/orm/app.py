@@ -408,7 +408,7 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         cprec = self.cor_prec_sbox.value()
         params = lat, settings, t_wait, cprec
         to_cache = kws.get('to_cache', True)
-        btns = kws.get('btns', [self.cor_apply_btn,])
+        btns = kws.get('btns', [self.cor_apply_btn, self.apply_selected_settings_btn])
 
         self.thread1 = QThread()
         self.orm_consumer = OrmWorker(params, mode='apply')
@@ -964,6 +964,26 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         # update the devices after selection changed
         setattr(self, "_{}s_dict".format(mode), d)
         self.init_elements()
+
+    def on_apply_selected_settings(self):
+        v = self.settings_history_treeView
+        idx = v.currentIndex()
+        settings = self._settings_dq[idx.row()]
+        cor_settings = self._settings_from_settings(settings)
+        #self._cor_settings = cor_settings
+        o = self.__apply_with_settings(cor_settings, to_cache=False)
+
+    def _settings_from_settings(self, s):
+        # return settings for apply from settings *s*
+        # (which is from settings history)
+        settings = []
+        ll, ul = self._lower_limit, self._upper_limit
+        for (en, fn, cset) in s[-1]:
+            settings.append([self._name_map[en], fn,
+                             cset, limit_input(cset, ll, ul)])
+        return settings
+
+
 
 
 def _str2float(s):
