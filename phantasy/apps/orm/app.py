@@ -540,7 +540,7 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         }
         orm_conf['daq_nshot'] = self._daq_nshot
         orm_conf['daq_rate'] = self._daq_rate
-        if self._keep_all:
+        if self._keep_all and self._orm_all_data is not None:
             orm_conf['orm_all'] = self._orm_all_data.tolist()
 
         # correction config
@@ -609,10 +609,11 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
             model = getattr(self, '{}s_treeView'.format(mode)).model()
             model.change_field(s)
         except AttributeError:
-            QMessageBox.warning(self, "Change {} Field".format(mode.upper()),
-                                "No worries, probably {}s are not ready, try to load the matrix file.".format(
-                                    mode.upper()),
-                                QMessageBox.Ok)
+            print("No worries, probably {}s are not ready, try to load the matrix file.".format(mode.upper()))
+            # QMessageBox.warning(self, "Change {} Field".format(mode.upper()),
+            #                    "No worries, probably {}s are not ready, try to load the matrix file.".format(
+            #                        mode.upper()),
+            #                    QMessageBox.Ok)
 
     @pyqtSlot()
     def start_eta_timer(self):
