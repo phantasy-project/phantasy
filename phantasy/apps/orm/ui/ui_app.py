@@ -869,6 +869,14 @@ class Ui_MainWindow(object):
                                             QtWidgets.QSizePolicy.Expanding,
                                             QtWidgets.QSizePolicy.Minimum)
         self.cached_settings_hbox.addItem(spacerItem7)
+        self.apply_selected_settings_btn = QtWidgets.QToolButton(
+            self.orm_apply)
+        self.apply_selected_settings_btn.setIcon(icon6)
+        self.apply_selected_settings_btn.setIconSize(QtCore.QSize(30, 30))
+        self.apply_selected_settings_btn.setAutoRaise(True)
+        self.apply_selected_settings_btn.setObjectName(
+            "apply_selected_settings_btn")
+        self.cached_settings_hbox.addWidget(self.apply_selected_settings_btn)
         self.reset_cached_settings_btn = QtWidgets.QToolButton(self.orm_apply)
         self.reset_cached_settings_btn.setIcon(icon7)
         self.reset_cached_settings_btn.setIconSize(QtCore.QSize(30, 30))
@@ -1088,6 +1096,8 @@ class Ui_MainWindow(object):
         self.load_settings.triggered.connect(MainWindow.on_load_settings)
         self.keep_all_data_chkbox.toggled['bool'].connect(
             MainWindow.on_keep_all_orm_data)
+        self.apply_selected_settings_btn.clicked.connect(
+            MainWindow.on_apply_selected_settings)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -1207,8 +1217,18 @@ class Ui_MainWindow(object):
         self.label_27.setText(_translate("MainWindow", "Trajectory DAQ"))
         self.label_28.setText(_translate("MainWindow", "Frequency"))
         self.label_29.setText(_translate("MainWindow", "Short Number"))
+        self.apply_selected_settings_btn.setToolTip(
+            _translate(
+                "MainWindow",
+                "<html><head/><body><p>Apply the selected settings.</p></body></html>"
+            ))
+        self.apply_selected_settings_btn.setText(
+            _translate("MainWindow", "..."))
         self.reset_cached_settings_btn.setToolTip(
-            _translate("MainWindow", "Reset corrector settings cache"))
+            _translate(
+                "MainWindow",
+                "<html><head/><body><p>Reset settings history with current ones.</p></body></html>"
+            ))
         self.reset_cached_settings_btn.setText(
             _translate("MainWindow", "Reset"))
         self.stop_apply_btn.setToolTip(
