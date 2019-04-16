@@ -506,11 +506,15 @@ class SettingsHistoryModel(QStandardItemModel):
         for i in self.ids:
             v.resizeColumnToContents(i)
         v.collapseAll()
+        last_item = self.item(self.rowCount() - 1, 0)
+        if last_item is not None:
+            v.expand(last_item.index())
 
     def set_data(self):
         for ts, settings in self._data:
             print("Timestamp: ", ts)
             p = QStandardItem(ts)
+            p.setEditable(False)
             for i, (ename, fname, cset) in enumerate(settings):
                 print("---", ename, fname, cset)
                 i0 = QStandardItem('')
@@ -518,7 +522,10 @@ class SettingsHistoryModel(QStandardItemModel):
                 i2 = QStandardItem(fname)
                 i3 = QStandardItem(self.fmt.format(cset))
                 i4 = QStandardItem("{0:03d}".format(i + 1))
-                p.appendRow([i0, i1, i2, i3, i4])
+                row = [i0, i1, i2, i3, i4]
+                for i in row:
+                    i.setEditable(False)
+                p.appendRow(row)
             self.appendRow(p)
 
 
