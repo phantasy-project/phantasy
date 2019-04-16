@@ -720,6 +720,12 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
 
         machine, segment = self._mp.last_machine_name, self._mp.last_lattice_name
         ds = SettingsDataSheet()
+        #
+        info_conf = ds['info']
+        info_conf['app'] = self.getAppTitle()
+        info_conf['version'] = self.getAppVersion()
+        info_conf['file_type'] = 'settings'
+        #
         ds['settings'] = {e.name: {'field': f, 'setpoint': s, 'setpoint_limited': sl}
                           for (e, f, s, sl) in settings}
         ds['machine'] = machine

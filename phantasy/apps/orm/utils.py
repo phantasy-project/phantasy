@@ -205,8 +205,10 @@ class SettingsDataSheet(JSONDataSheet):
 
         if path is None:
             d = OrderedDict()
-            d['user'] = getpass.getuser()
-            d['created'] = epoch2human(time.time(), fmt=TS_FMT)
+            d['info'] = {
+                'user': getpass.getuser(),
+                'created': epoch2human(time.time(), fmt=TS_FMT)
+            }
             d['settings'] = {}
             d['machine'] = ''
             d['segment'] = ''
