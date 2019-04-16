@@ -965,12 +965,12 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         setattr(self, "_{}s_dict".format(mode), d)
         self.init_elements()
 
+    @pyqtSlot()
     def on_apply_selected_settings(self):
         v = self.settings_history_treeView
         idx = v.currentIndex()
         settings = self._settings_dq[idx.row()]
         cor_settings = self._settings_from_settings(settings)
-        #self._cor_settings = cor_settings
         o = self.__apply_with_settings(cor_settings, to_cache=False)
 
     def _settings_from_settings(self, s):
@@ -983,7 +983,25 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
                              cset, limit_input(cset, ll, ul)])
         return settings
 
+    @pyqtSlot()
+    def on_add_settings(self):
+        # add current live settings into history
+        self.append_settings_dq()
 
+    @pyqtSlot()
+    def on_del_settings(self):
+        # delete current selected settings from history
+        v = self.settings_history_treeView
+        idx = v.currentIndex()
+        ts = v.model().itemFromIndex(idx)
+        if ts is None:
+            return
+        r = QMessageBox.warning(self, "Delete Settings",
+                "Are you sure to delete the settings with timestamp {}?".format(ts.text()),
+                QMessageBox.Yes | QMessageBox.No)
+        if r == QMessageBox.Yes:
+            del self._settings_dq[idx.row()]
+            self.on_set_shistory_model()
 
 
 def _str2float(s):
