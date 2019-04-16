@@ -794,8 +794,11 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         else:
             print('Cancel')
 
-    def get_fmt(self):
-        n = self.cor_prec_sbox.value()
+    def get_fmt(self, mode="apply"):
+        if mode == "apply":
+            n = self.cor_prec_sbox.value()
+        else:
+            n = self.mprec_sbox.value()
         return '{{{0}:.{1}g}}'.format(0, n)
 
     @pyqtSlot(bool)
@@ -837,7 +840,8 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
                 for ename, fname in self._cors_dict.items()]
 
         model = ScanRangeModel(self.cor_srange_tableView, data,
-                               self._rel_range, fmt=self.get_fmt())
+                               self._rel_range,
+                               fmt=self.get_fmt(mode="measure"))
         model.set_model()
 
     def get_srange_list(self, n=None):
