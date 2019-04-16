@@ -27,6 +27,8 @@ from .utils import ORMDataSheet
 from .utils import OrmWorker
 from .utils import ScanRangeModel
 from .utils import SettingsDataSheet
+from .utils import SettingsHistoryModel
+from .utils import get_settings_snapshot
 from .utils import load_orm_sheet
 from .utils import load_settings_sheet
 
@@ -34,6 +36,7 @@ OP_MODE_MAP = {
     'Simulation': 'model',
     'Live': 'control',
 }
+NMAX_HISTORY = 100
 
 
 class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
@@ -405,7 +408,7 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         cprec = self.cor_prec_sbox.value()
         params = lat, settings, t_wait, cprec
         to_cache = kws.get('to_cache', True)
-        btns = kws.get('btns', [self.cor_apply_btn, self.undo_apply_btn, self.redo_apply_btn])
+        btns = kws.get('btns', [self.cor_apply_btn,])
 
         self.thread1 = QThread()
         self.orm_consumer = OrmWorker(params, mode='apply')
@@ -664,15 +667,7 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
     def on_update_settings_dq(self, sg):
         if sg == 'finish' and self._append_settings_dq:
             print("Finished emit")
-            self._settings_dq.append(self._cor_settings)
-            self._settings_pt = len(self._settings_dq) - 1
-            self.update_undo_redo_status()
-            # Update buttons
-            # self.__update_settings_btnlist()
-            # from PyQt5.QtWidgets import QToolButton
-            # btn = QToolButton(self)
-            # btn.setText("")
-            # self.cached_settings_hbox.insertWidget(0, btn)
+            self.append_settings_dq()
 
         elif sg == 'stop':
             print("Stopped emit")
@@ -681,61 +676,24 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
             print("Started emit")
             self._append_settings_dq = True
 
-    def update_undo_redo_status(self):
-        print("spt:", self._settings_pt)
-        print("sl :", len(self._settings_dq))
-        if self._settings_pt == 0:
-            self.undo_apply_btn.setEnabled(False)
-        else:
-            self.undo_apply_btn.setEnabled(True)
-        if self._settings_pt == len(self._settings_dq) - 1:
-            self.redo_apply_btn.setEnabled(False)
-        else:
-            self.redo_apply_btn.setEnabled(True)
-
-    @pyqtSlot()
-    def on_undo_apply_orm(self):
-        print("Undo Apply...")
-        self._settings_pt -= 1
-        s = self._settings_dq[self._settings_pt]
-        o = self.__apply_with_settings(s, to_cache=False)
-        o.finished.connect(self.update_undo_redo_status)
-
-    @pyqtSlot()
-    def on_redo_apply_orm(self):
-        print("Redo Apply...")
-        self._settings_pt += 1
-        s = self._settings_dq[self._settings_pt]
-        o = self.__apply_with_settings(s, to_cache=False)
-        o.finished.connect(self.update_undo_redo_status)
-
     def init_settings_dq(self):
         # initialize settings_dq
-        self._settings_dq = deque([], 3)
-        self._settings_pt = None
-
-        cors = [self._name_map[e] for e in self._cors_dict]
-        cor_field = self.corrector_fields_cbb.currentText()
-        settings = []
-        for i in cors:
-            v = i.current_setting(cor_field)
-            settings.append((i, cor_field, v, v))
-
-        self._settings_dq.append(settings)
-        self._settings_pt = len(self._settings_dq) - 1
+        self._settings_dq = deque([], NMAX_HISTORY)
+        try:
+            self.append_settings_dq()
+        except:
+            pass
         #
-        self.update_undo_redo_status()
 
-    @pyqtSlot()
-    def on_show_cached_settings(self):
-        # show cached settings
-        print("Show cached settings (TBI)...")
-        for s in self._settings_dq:
-            print(s)
+    def append_settings_dq(self):
+        snp = get_settings_snapshot(self._cors, self._cor_field)
+        self._settings_dq.append(snp)
+        self.on_set_shistory_model()
 
     @pyqtSlot()
     def on_reset_cached_settings(self):
         self.init_settings_dq()
+        self.on_set_shistory_model()
 
     @pyqtSlot()
     def on_save_settings(self):
@@ -844,6 +802,13 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
                                fmt=self.get_fmt(mode="measure"))
         model.set_model()
 
+    def on_set_shistory_model(self):
+        # set up settings history model view
+        model = SettingsHistoryModel(self.settings_history_treeView,
+                                     self._settings_dq,
+                                     fmt=self.get_fmt())
+        model.set_model()
+
     def get_srange_list(self, n=None):
         #
         # list of (cor, srange)
@@ -912,8 +877,6 @@ class OrbitResponseMatrixWindow(BaseAppForm, Ui_MainWindow):
         # initial table for settings
         # cor settings
         self._cor_settings = None
-        # hide cached setting view btn
-        self.view_cached_settings_btn.setVisible(False)
 
     def init_latinfo(self):
         # initial lattice info view
