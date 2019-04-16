@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from datetime import datetime
 import getpass
 import time
 from collections import OrderedDict
@@ -468,6 +469,67 @@ class ScanRangeModel(QStandardItemModel):
             x1, x2 = float(item_sstart.text()), float(item_sstop.text())
             s.append((item_ename.text(), x1, x2))
         return s
+
+
+class SettingsHistoryModel(QStandardItemModel):
+    def __init__(self, parent, data, **kws):
+        super(self.__class__, self).__init__(parent)
+        self._v = parent
+        self._data = data
+        # [
+        #  (ts1, [(ename, fname, cset), ...]),
+        #  (ts2, [(ename, fname, cset), ...]),
+        #  ...
+        # ]
+        #
+        #
+        self.fmt = kws.get('fmt', '{0:>.2g}')
+        self.header = self.h_ts, self.h_name, self.h_field, \
+                      self.h_cset, self.h_id \
+                    = "Timestamp", "Name", "Field", "Setpoint", "ID"
+        self.ids = self.i_ts, self.i_name, self.i_field, \
+                   self.i_cset, self.i_id \
+                 = range(len(self.header))
+        self.set_data()
+        self.setHorizontalHeaderLabels(self.header)
+
+    def set_model(self):
+        self._v.setModel(self)
+        self._post_init_ui(self._v)
+
+    def _post_init_ui(self, v):
+        # view properties
+        v.setStyleSheet("font-family: monospace;")
+        v.setAlternatingRowColors(True)
+        v.header().setStretchLastSection(True)
+        v.expandAll()
+        for i in self.ids:
+            v.resizeColumnToContents(i)
+        v.collapseAll()
+
+    def set_data(self):
+        for ts, settings in self._data:
+            print("Timestamp: ", ts)
+            p = QStandardItem(ts)
+            for i, (ename, fname, cset) in enumerate(settings):
+                print("---", ename, fname, cset)
+                i0 = QStandardItem('')
+                i1 = QStandardItem(ename)
+                i2 = QStandardItem(fname)
+                i3 = QStandardItem(self.fmt.format(cset))
+                i4 = QStandardItem("{0:03d}".format(i + 1))
+                p.appendRow([i0, i1, i2, i3, i4])
+            self.appendRow(p)
+
+
+def get_settings_snapshot(correctors, field):
+    # take cor settings current snapshot (setpoints)
+    # correctors: list of CaElement
+    ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    settings = []
+    for cor in correctors:
+        settings.append((cor.name, field, cor.current_setting(field)))
+    return (ts, settings)
 
 
 def get_orm_with_residuals(filepath):
