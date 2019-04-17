@@ -10,6 +10,9 @@ from epics import camonitor as epics_camonitor
 import logging
 from functools import partial
 import time
+from phantasy.library.exception import TimeoutError
+from phantasy.library.exception import PutFinishedException
+
 
 try:
     from Queue import Queue, Empty
@@ -61,6 +64,13 @@ def ensure_put(element, field, goal, tol=None, timeout=None):
     timeout : float
         Maximum wait time, default is 10.0 sec.
 
+    Returns
+    -------
+    r : str
+        One of "Empty" (1), "Timeout" (2) and "PutFinished" (3), (1) and (2)
+        indicate operation reaches defined timeout, only (3) indicates put
+        works as expected, (1) is rare.
+
     Examples
     --------
     >>> # get element, e.g. elem = mp.get_elements(name='*D0874*')[0]
@@ -89,12 +99,12 @@ def ensure_put(element, field, goal, tol=None, timeout=None):
     cid = pv.add_callback(partial(callback, q, fld))
     fld.value = goal
     t0 = time.time()
+    v = fld.value
     while True:
-        v = fld.value
         try:
-            if is_equal(v, goal, tol): raise Empty
+            if is_equal(v, goal, tol): raise PutFinishedException
             v, ts = q.get(timeout=timeout)
-            if ts - t0 > timeout: raise Empty
+            if ts - t0 > timeout: raise TimeoutError
             _LOGGER.debug(
                 "Field '{fname}' of '{ename}' reached: {v}[{g}].".format(
                     fname=field, ename=element.name, v=v, g=goal))
@@ -103,4 +113,20 @@ def ensure_put(element, field, goal, tol=None, timeout=None):
                 "Field '{fname}' of '{ename}' reached: {v}.".format(
                     fname=field, ename=element.name, v=fld.value))
             pv.remove_callback(cid)
+            ret = "Empty"
             break
+        except TimeoutError:
+            _LOGGER.info(
+                "Field '{fname}' of '{ename}' reached: {v}.".format(
+                    fname=field, ename=element.name, v=fld.value))
+            pv.remove_callback(cid)
+            ret = "Timeout"
+            break
+        except PutFinishedException:
+            _LOGGER.info(
+                "Field '{fname}' of '{ename}' reached: {v}.".format(
+                    fname=field, ename=element.name, v=fld.value))
+            pv.remove_callback(cid)
+            ret = "PutFinished"
+            break
+    return ret
