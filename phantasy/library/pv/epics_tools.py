@@ -9,6 +9,7 @@ from epics import camonitor as epics_camonitor
 
 import logging
 from functools import partial
+import time
 
 try:
     from Queue import Queue, Empty
@@ -42,8 +43,9 @@ def camonitor(pvname, callback=None, **kws):
 
 
 def ensure_put(element, field, goal, tol=None, timeout=None):
-    """Ensure put operation to the *field* of *element* to reach the value
-    of *goal* within the difference tolerance defined by *tol*.
+    """Put operation to the *field* of *element*, ensure to reach the value
+    of *goal* within the discrepancy tolerance defined by *tol*, within the
+    time period defined by *timeout*.
 
     Parameters
     ----------
@@ -57,18 +59,26 @@ def ensure_put(element, field, goal, tol=None, timeout=None):
         Tolerance for discrepancy between current readback
         value and the set goal, default is 0.01.
     timeout : float
-        Maximum wait time, default is 10 sec.
+        Maximum wait time, default is 10.0 sec.
 
     Examples
     --------
     >>> # get element, e.g. elem = mp.get_elements(name='*D0874*')[0]
     >>> # set 'V' field of element to 1000
     >>> ensure_put(elem, 'V', 1000)
+    >>> # set 'V' field to 1, but with *tol* never could be reached,
+    >>> # will return after 10 sec.
+    >>> ensure_put(elem, 'V', 1, tol=1e-10)
+    >>> # if set *timeout* as 2, will return after 2 sec.
+    >>> ensure_put(elem, 'V', 1, tol=1e-10, timeout=2.0)
     """
+    tol = 0.01 if tol is None else tol
+    timeout = 10.0 if timeout is None else timeout
 
     def callback(sq, fld, **kws):
         val = kws.get('value')
-        sq.put(fld.value)
+        ts = kws.get('timestamp')
+        sq.put((fld.value, ts))
 
     def is_equal(v, goal, tol):
         return abs(v - goal) < tol
@@ -78,14 +88,13 @@ def ensure_put(element, field, goal, tol=None, timeout=None):
     q = Queue()
     cid = pv.add_callback(partial(callback, q, fld))
     fld.value = goal
-
-    tol = 0.01 if tol is None else tol
-    timeout = 10.0 if timeout is None else timeout
+    t0 = time.time()
     while True:
         v = fld.value
         try:
             if is_equal(v, goal, tol): raise Empty
-            v = q.get(timeout=timeout)
+            v, ts = q.get(timeout=timeout)
+            if ts - t0 > timeout: raise Empty
             _LOGGER.debug(
                 "Field '{fname}' of '{ename}' reached: {v}[{g}].".format(
                     fname=field, ename=element.name, v=v, g=goal))
@@ -95,4 +104,3 @@ def ensure_put(element, field, goal, tol=None, timeout=None):
                     fname=field, ename=element.name, v=fld.value))
             pv.remove_callback(cid)
             break
-
