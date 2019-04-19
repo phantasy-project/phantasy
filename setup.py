@@ -54,6 +54,7 @@ def set_entry_points():
         'correct_orbit=phantasy.tools.correct_orbit:main',
         'test_phantasy=phantasy.tests:main',
         'pm_dat2json=phantasy.apps.wire_scanner.converter:main',
+        'as_out2json=phantasy.apps.allison_scanner.out2json:main',
     ]
 
     r['gui_scripts'] = [
