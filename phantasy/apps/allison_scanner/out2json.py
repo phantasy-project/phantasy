@@ -20,16 +20,16 @@ def out2json(outfile, jsonfile=None):
     r = []
     data = np.loadtxt(outfile)
     xoy = {0: 'x', 1: 'y'}[data[0]]
-    pos_start, pos_end, pos_step = data[1:4]
-    volt_start, volt_end, volt_step = data[4:7]
-    pos_size = int((pos_end - pos_start) / pos_step) + 1
-    volt_size = int((volt_end - volt_start) / volt_step) + 1
+    pos_begin, pos_end, pos_step = data[1:4]
+    volt_begin, volt_end, volt_step = data[4:7]
+    pos_size = int((pos_end - pos_begin) / pos_step) + 1
+    volt_size = int((volt_end - volt_begin) / volt_step) + 1
 
     data1 = data[7:].reshape(volt_size, pos_size)
 
     r.append(('xoy', xoy))
-    r.append(('position', {'start': pos_start, 'end': pos_end, 'step': pos_step}))
-    r.append(('voltage', {'start': volt_start, 'end': volt_end, 'step': volt_step}))
+    r.append(('position', {'begin': pos_begin, 'end': pos_end, 'step': pos_step}))
+    r.append(('voltage', {'begin': volt_begin, 'end': volt_end, 'step': volt_step}))
     r.append(('data', {'shape': (pos_size, volt_size), 'array': data1.tolist()}))
 
     with open(jsonfile, 'w') as fp:
