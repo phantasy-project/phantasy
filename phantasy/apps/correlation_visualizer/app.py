@@ -186,7 +186,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         self.show_extra_monitors_btn.clicked.connect(
             self.on_show_extra_monitors)
         # widget for monitors view
-        self.monitors_viewer = None
+        self.init_attached_widget('monitors_viewer')
 
         # alter range
         self.lower_limit_lineEdit.textChanged.connect(self.set_alter_range)
@@ -217,14 +217,14 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         self.qs_window = None
 
         # lattice-load window
-        self.lattice_load_window = None
+        self.init_attached_widget('lattice_load_window')
         self._mp = None
 
         # moveto flag, set True when moveto some point.
         self._moveto_flag = False
 
         # points selected viewer
-        self.pts_viewer = None
+        self.init_attached_widget('pts_viewer')
 
         # mps config widget
         self.mps_config_widget = None
@@ -431,6 +431,7 @@ class CorrelationVisualizerWindow(BaseAppForm, Ui_MainWindow):
         w = self.elem_widgets_dict[name]
         w.setWindowTitle(name)
         w.show()
+        self.add_attached_widget(w)
 
     @pyqtSlot()
     def save_data(self):

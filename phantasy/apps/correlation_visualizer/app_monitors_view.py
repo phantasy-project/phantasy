@@ -131,7 +131,7 @@ class MonitorsViewWidget(QWidget, Ui_Form):
         if e.key() == Qt.Key_Escape:
             self.close()
 
-    @staticmethod
-    def on_show_elem_info(name, elem_widget):
+    def on_show_elem_info(self, name, elem_widget):
         elem_widget.setWindowTitle(name)
         elem_widget.show()
+        self.parent.add_attached_widget(elem_widget)
