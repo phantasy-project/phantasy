@@ -6,11 +6,17 @@ import numpy as np
 
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import QUrl
+from PyQt5.QtGui import QDesktopServices
 from PyQt5.QtGui import QPixmap
+from PyQt5.QtWidgets import QMessageBox
 
 from phantasy_ui.templates import BaseAppForm
 from phantasy import MachinePortal
 from phantasy import Configuration
+
+from phantasy.apps.utils import get_open_filename
+from phantasy.apps.utils import get_save_filename
 
 from .device import Device
 from .utils import get_all_devices
@@ -138,6 +144,85 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
 
 
     @pyqtSlot()
+    def on_loadfrom_config(self):
+        """Load configuration from a file.
+        """
+        filepath, ext = get_open_filename(self, filter="INI Files (*.ini)")
+        if filepath is None:
+            return
+
+        try:
+            dconf_copy = Configuration(self._dconf.config_path)
+            self._dconf = Configuration(filepath)
+        except:
+            self._dconf = dconf_copy
+            QMessageBox.warning(self, "Load Configuration",
+                    "Failed to load configuration file from {}.".format(filepath),
+                    QMessageBox.Ok)
+        else:
+            QMessageBox.information(self, "Load Configuration",
+                    "Loaded configuration file from {}.".format(filepath),
+                    QMessageBox.Ok)
+        finally:
+            self.on_update_device()
+
+        print("Load config from {}".format(filepath))
+
+    @pyqtSlot()
+    def on_saveas_config(self):
+        """Save configuration to a file.
+        """
+        filepath, ext = get_save_filename(self, filter="INI Files (*.ini)")
+        if filepath is None:
+            return
+        self.__save_config_to_file(filepath)
+        print("Save config as {}".format(filepath))
+
+    @pyqtSlot()
+    def on_save_config(self):
+        """Save configuration.
+        """
+        filepath = self._dconf.config_path
+        self.__save_config_to_file(filepath)
+        print("Save config to {}".format(filepath))
+
+    def __save_config_to_file(self, filepath):
+        try:
+            with open(filepath, 'w') as f:
+                self._dconf.write(f)
+        except:
+            QMessageBox.warning(self, "Save Configuration",
+                    "Failed to save configuration file to {}".format(filepath),
+                    QMessageBox.Ok)
+        else:
+            QMessageBox.information(self, "Save Configuration",
+                    "Saved configuration file to {}".format(filepath),
+                    QMessageBox.Ok)
+
+    @pyqtSlot()
+    def on_reload_config(self):
+        """Reload configuration.
+        """
+        filepath = self._dconf.config_path
+
+        self._dconf = Configuration(self._dconf.config_path)
+        self.on_update_device()
+        QMessageBox.information(self, "Reload Configuration",
+                "Reloaded configuration file from {}.".format(filepath),
+                QMessageBox.Ok)
+
+        print("Reload config from {}".format(filepath))
+
+    @pyqtSlot()
+    def on_locate_config(self):
+        """Locate (find and open) device configuration file path.
+        """
+        path = self._dconf.config_path
+        QDesktopServices.openUrl(QUrl(path))
+
+
+
+    @pyqtSlot()
     def on_run(self):
         from cothread.catools import camonitor, caput
 
@@ -146,7 +231,6 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
         print(r)
         caput("EMS:TRIGGER_CMD", 1)
         self.i = 0
-
 
     def on_update(self, value):
         self.i += 1
