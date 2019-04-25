@@ -152,6 +152,9 @@ class Ui_MainWindow(object):
         font.setUnderline(True)
         font.setWeight(50)
         self.label_16.setFont(font)
+        self.label_16.setAlignment(QtCore.Qt.AlignRight
+                                   | QtCore.Qt.AlignTrailing
+                                   | QtCore.Qt.AlignVCenter)
         self.label_16.setObjectName("label_16")
         self.gridLayout_4.addWidget(self.label_16, 7, 0, 1, 1)
         self.horizontalLayout_4 = QtWidgets.QHBoxLayout()
@@ -200,6 +203,9 @@ class Ui_MainWindow(object):
         font.setUnderline(True)
         font.setWeight(50)
         self.label_8.setFont(font)
+        self.label_8.setAlignment(QtCore.Qt.AlignRight
+                                  | QtCore.Qt.AlignTrailing
+                                  | QtCore.Qt.AlignVCenter)
         self.label_8.setObjectName("label_8")
         self.gridLayout_4.addWidget(self.label_8, 2, 0, 1, 1)
         self.horizontalLayout_6 = QtWidgets.QHBoxLayout()
@@ -268,6 +274,8 @@ class Ui_MainWindow(object):
         self.horizontalLayout_6.addWidget(self.volt_settling_sec_dsbox)
         self.gridLayout_4.addLayout(self.horizontalLayout_6, 7, 1, 1, 2)
         self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_3.setContentsMargins(4, -1, -1, -1)
+        self.horizontalLayout_3.setSpacing(13)
         self.horizontalLayout_3.setObjectName("horizontalLayout_3")
         self.label_11 = QtWidgets.QLabel(self.gridWidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
@@ -295,6 +303,9 @@ class Ui_MainWindow(object):
         font.setUnderline(True)
         font.setWeight(50)
         self.label_15.setFont(font)
+        self.label_15.setAlignment(QtCore.Qt.AlignRight
+                                   | QtCore.Qt.AlignTrailing
+                                   | QtCore.Qt.AlignVCenter)
         self.label_15.setObjectName("label_15")
         self.gridLayout_4.addWidget(self.label_15, 6, 0, 1, 1)
         self.label_6 = QtWidgets.QLabel(self.gridWidget)
@@ -303,6 +314,9 @@ class Ui_MainWindow(object):
         font.setUnderline(True)
         font.setWeight(50)
         self.label_6.setFont(font)
+        self.label_6.setAlignment(QtCore.Qt.AlignRight
+                                  | QtCore.Qt.AlignTrailing
+                                  | QtCore.Qt.AlignVCenter)
         self.label_6.setObjectName("label_6")
         self.gridLayout_4.addWidget(self.label_6, 0, 0, 1, 1)
         self.horizontalLayout_5 = QtWidgets.QHBoxLayout()
@@ -376,11 +390,14 @@ class Ui_MainWindow(object):
         font.setUnderline(True)
         font.setWeight(50)
         self.label_9.setFont(font)
+        self.label_9.setAlignment(QtCore.Qt.AlignRight
+                                  | QtCore.Qt.AlignTrailing
+                                  | QtCore.Qt.AlignVCenter)
         self.label_9.setObjectName("label_9")
         self.gridLayout_4.addWidget(self.label_9, 4, 0, 1, 1)
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_2.setContentsMargins(4, -1, -1, -1)
-        self.horizontalLayout_2.setSpacing(14)
+        self.horizontalLayout_2.setSpacing(13)
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.label_10 = QtWidgets.QLabel(self.gridWidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
@@ -464,12 +481,14 @@ class Ui_MainWindow(object):
         self.gridLayout_2.addWidget(self.splitter_2, 0, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1920, 32))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1920, 34))
         self.menubar.setObjectName("menubar")
         self.menu_File = QtWidgets.QMenu(self.menubar)
         self.menu_File.setObjectName("menu_File")
         self.menu_Help = QtWidgets.QMenu(self.menubar)
         self.menu_Help.setObjectName("menu_Help")
+        self.menuConfiguration = QtWidgets.QMenu(self.menubar)
+        self.menuConfiguration.setObjectName("menuConfiguration")
         MainWindow.setMenuBar(self.menubar)
         self.actionE_xit = QtWidgets.QAction(MainWindow)
         icon2 = QtGui.QIcon()
@@ -492,10 +511,27 @@ class Ui_MainWindow(object):
             QtGui.QIcon.Off)
         self.actionAbout_Qt.setIcon(icon4)
         self.actionAbout_Qt.setObjectName("actionAbout_Qt")
+        self.actionReload = QtWidgets.QAction(MainWindow)
+        self.actionReload.setObjectName("actionReload")
+        self.actionSave = QtWidgets.QAction(MainWindow)
+        self.actionSave.setObjectName("actionSave")
+        self.actionLoad_From = QtWidgets.QAction(MainWindow)
+        self.actionLoad_From.setObjectName("actionLoad_From")
+        self.actionSave_As = QtWidgets.QAction(MainWindow)
+        self.actionSave_As.setObjectName("actionSave_As")
+        self.actionLocate = QtWidgets.QAction(MainWindow)
+        self.actionLocate.setObjectName("actionLocate")
         self.menu_File.addAction(self.actionE_xit)
         self.menu_Help.addAction(self.actionAbout)
         self.menu_Help.addAction(self.actionAbout_Qt)
+        self.menuConfiguration.addAction(self.actionReload)
+        self.menuConfiguration.addAction(self.actionSave)
+        self.menuConfiguration.addAction(self.actionLoad_From)
+        self.menuConfiguration.addAction(self.actionSave_As)
+        self.menuConfiguration.addSeparator()
+        self.menuConfiguration.addAction(self.actionLocate)
         self.menubar.addAction(self.menu_File.menuAction())
+        self.menubar.addAction(self.menuConfiguration.menuAction())
         self.menubar.addAction(self.menu_Help.menuAction())
 
         self.retranslateUi(MainWindow)
@@ -503,6 +539,11 @@ class Ui_MainWindow(object):
         self.actionAbout_Qt.triggered.connect(MainWindow.onAboutQt)
         self.actionE_xit.triggered.connect(MainWindow.close)
         self.run_btn.clicked.connect(MainWindow.on_run)
+        self.actionReload.triggered.connect(MainWindow.on_reload_config)
+        self.actionLoad_From.triggered.connect(MainWindow.on_loadfrom_config)
+        self.actionSave.triggered.connect(MainWindow.on_save_config)
+        self.actionSave_As.triggered.connect(MainWindow.on_saveas_config)
+        self.actionLocate.triggered.connect(MainWindow.on_locate_config)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -577,9 +618,16 @@ class Ui_MainWindow(object):
         self.groupBox_3.setTitle(_translate("MainWindow", "Data Analysis"))
         self.menu_File.setTitle(_translate("MainWindow", "&File"))
         self.menu_Help.setTitle(_translate("MainWindow", "&Help"))
+        self.menuConfiguration.setTitle(
+            _translate("MainWindow", "&Configuration"))
         self.actionE_xit.setText(_translate("MainWindow", "E&xit"))
         self.actionAbout.setText(_translate("MainWindow", "About"))
         self.actionAbout_Qt.setText(_translate("MainWindow", "About Qt"))
+        self.actionReload.setText(_translate("MainWindow", "Reload"))
+        self.actionSave.setText(_translate("MainWindow", "Save"))
+        self.actionLoad_From.setText(_translate("MainWindow", "Load From"))
+        self.actionSave_As.setText(_translate("MainWindow", "Save As"))
+        self.actionLocate.setText(_translate("MainWindow", "Locate"))
 
 
 from mpl4qt.widgets.mplimagewidget import MatplotlibImageWidget
