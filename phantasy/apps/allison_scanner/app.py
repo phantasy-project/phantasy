@@ -1,31 +1,29 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from numpy import ndarray
-import numpy as np
+from functools import partial
 
-from PyQt5.QtCore import pyqtSlot
-from PyQt5.QtCore import pyqtSignal
+import numpy as np
 from PyQt5.QtCore import QUrl
+from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtGui import QDesktopServices
 from PyQt5.QtGui import QPixmap
+from PyQt5.QtWidgets import QLineEdit
 from PyQt5.QtWidgets import QMessageBox
-
+from numpy import ndarray
 from phantasy_ui.templates import BaseAppForm
-from phantasy import MachinePortal
-from phantasy import Configuration
 
+from phantasy import Configuration
 from phantasy.apps.utils import get_open_filename
 from phantasy.apps.utils import get_save_filename
-
 from .device import Device
-from .utils import get_all_devices
-from .utils import find_dconf
 from .ui.ui_app import Ui_MainWindow
+from .utils import find_dconf
+from .utils import get_all_devices
 
 
 class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
-
     image_data_changed = pyqtSignal(ndarray)
 
     def __init__(self, version):
@@ -77,8 +75,22 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
         self.ems_names_cbb.addItems(all_devices_dict)
         self.ems_names_cbb.currentTextChanged.connect(self.on_device_changed)
 
+        # pos
+        for s in ['{}_{}'.format(u, v) for u in ('pos', 'volt')
+                  for v in ('begin', 'end', 'step', 'settling_time')]:
+            o = getattr(self, s + '_dsbox')
+            o.valueChanged.connect(partial(self.on_update_config, s))
+
         #
         self.ems_names_cbb.currentTextChanged.emit(self.ems_names_cbb.currentText())
+        #
+        for o in self.findChildren(QLineEdit):
+            o.textChanged.connect(self.highlight_text)
+
+    @pyqtSlot(float)
+    def on_update_config(self, attr, x):
+        setattr(self._ems_device, attr, x)
+        self._dconf = self._ems_device.dconf
 
     @pyqtSlot('QString')
     def on_update_orientation(self, s):
@@ -126,22 +138,21 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
         """Show default loaded device config.
         """
         ems = self._ems_device
-        self.length_lineEdit.setText(str(ems.length * 1e3))
-        self.length1_lineEdit.setText(str(ems.length1 * 1e3))
-        self.length2_lineEdit.setText(str(ems.length2 * 1e3))
-        self.gap_lineEdit.setText(str(ems.gap * 1e3))
-        self.slit_width_lineEdit.setText(str(ems.slit_width * 1e3))
-        self.slit_thickness_lineEdit.setText(str(ems.slit_thickness * 1e3))
+        self.length_lineEdit.setText(str(ems.length))
+        self.length1_lineEdit.setText(str(ems.length1))
+        self.length2_lineEdit.setText(str(ems.length2))
+        self.gap_lineEdit.setText(str(ems.gap))
+        self.slit_width_lineEdit.setText(str(ems.slit_width))
+        self.slit_thickness_lineEdit.setText(str(ems.slit_thickness))
         #
         self.pos_begin_dsbox.setValue(ems.pos_begin)
         self.pos_end_dsbox.setValue(ems.pos_end)
         self.pos_step_dsbox.setValue(ems.pos_step)
-        self.pos_settling_sec_dsbox.setValue(ems.pos_settling_time)
+        self.pos_settling_time_dsbox.setValue(ems.pos_settling_time)
         self.volt_begin_dsbox.setValue(ems.volt_begin)
         self.volt_end_dsbox.setValue(ems.volt_end)
         self.volt_step_dsbox.setValue(ems.volt_step)
-        self.volt_settling_sec_dsbox.setValue(ems.volt_settling_time)
-
+        self.volt_settling_time_dsbox.setValue(ems.volt_settling_time)
 
     @pyqtSlot()
     def on_loadfrom_config(self):
@@ -157,12 +168,12 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
         except:
             self._dconf = dconf_copy
             QMessageBox.warning(self, "Load Configuration",
-                    "Failed to load configuration file from {}.".format(filepath),
-                    QMessageBox.Ok)
+                                "Failed to load configuration file from {}.".format(filepath),
+                                QMessageBox.Ok)
         else:
             QMessageBox.information(self, "Load Configuration",
-                    "Loaded configuration file from {}.".format(filepath),
-                    QMessageBox.Ok)
+                                    "Loaded configuration file from {}.".format(filepath),
+                                    QMessageBox.Ok)
         finally:
             self.on_update_device()
 
@@ -188,16 +199,15 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
 
     def __save_config_to_file(self, filepath):
         try:
-            with open(filepath, 'w') as f:
-                self._dconf.write(f)
+            self._ems_device.save_dconf(filepath)
         except:
             QMessageBox.warning(self, "Save Configuration",
-                    "Failed to save configuration file to {}".format(filepath),
-                    QMessageBox.Ok)
+                                "Failed to save configuration file to {}".format(filepath),
+                                QMessageBox.Ok)
         else:
             QMessageBox.information(self, "Save Configuration",
-                    "Saved configuration file to {}".format(filepath),
-                    QMessageBox.Ok)
+                                    "Saved configuration file to {}".format(filepath),
+                                    QMessageBox.Ok)
 
     @pyqtSlot()
     def on_reload_config(self):
@@ -208,8 +218,8 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
         self._dconf = Configuration(self._dconf.config_path)
         self.on_update_device()
         QMessageBox.information(self, "Reload Configuration",
-                "Reloaded configuration file from {}.".format(filepath),
-                QMessageBox.Ok)
+                                "Reloaded configuration file from {}.".format(filepath),
+                                QMessageBox.Ok)
 
         print("Reload config from {}".format(filepath))
 
@@ -220,14 +230,12 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
         path = self._dconf.config_path
         QDesktopServices.openUrl(QUrl(path))
 
-
-
     @pyqtSlot()
     def on_run(self):
         from cothread.catools import camonitor, caput
 
         r = camonitor("EMS:ArrayData", self.on_update,
-                notify_disconnect=True)
+                      notify_disconnect=True)
         print(r)
         caput("EMS:TRIGGER_CMD", 1)
         self.i = 0
