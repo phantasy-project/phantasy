@@ -1,13 +1,26 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+from numpy import ndarray
+import numpy as np
+
+from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtGui import QPixmap
+
 from phantasy_ui.templates import BaseAppForm
+from phantasy import MachinePortal
+from phantasy import Configuration
 
-
+from .device import Device
+from .utils import get_all_devices
+from .utils import find_dconf
 from .ui.ui_app import Ui_MainWindow
 
 
 class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
+
+    image_data_changed = pyqtSignal(ndarray)
 
     def __init__(self, version):
         super(AllisonScannerWindow, self).__init__()
@@ -36,3 +49,109 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
 
         # UI
         self.setupUi(self)
+
+        self.image_data_changed.connect(self.matplotlibimageWidget.update_image)
+
+        self._post_init()
+
+    def _post_init(self):
+        #
+        self.installed_px = QPixmap(":/icons/installed.png")
+        self.not_installed_px = QPixmap(":/icons/not-installed.png")
+        # conf
+        self._dconf = self.get_device_config()
+
+        # orientation
+        self._ems_orientation = 'X'
+        self.ems_orientation_cbb.currentTextChanged.connect(self.on_update_orientation)
+
+        # init EMS devices
+        all_devices_dict = get_all_devices()
+        self._all_devices_dict = all_devices_dict
+        self.ems_names_cbb.addItems(all_devices_dict)
+        self.ems_names_cbb.currentTextChanged.connect(self.on_device_changed)
+
+        #
+        self.ems_names_cbb.currentTextChanged.emit(self.ems_names_cbb.currentText())
+
+    @pyqtSlot('QString')
+    def on_update_orientation(self, s):
+        self._ems_orientation = s
+        try:
+            self._ems_device.xoy = s
+            self.show_default_config()
+        except:
+            pass
+
+    def get_device_config(self, path=None):
+        """Return device config from *path*.
+        """
+        path = find_dconf() if path is None else path
+        dconf = Configuration(path)
+        return dconf
+
+    @pyqtSlot('QString')
+    def on_device_changed(self, s):
+        """Change device by selecting the name.
+        """
+        self._currnet_device_name = s
+        self._current_device_elem = self._all_devices_dict[s]
+        self.on_update_device()
+        self.statusInfoChanged.emit("Selected device: {}".format(s))
+
+    def on_update_device(self):
+        # update ems device.
+        ems = Device(self._current_device_elem, self._ems_orientation,
+                     self._dconf)
+        self._ems_device = ems
+
+        if ems.info == "Installed":
+            px = self.installed_px
+            tt = "Device is ready to use"
+        else:
+            px = self.not_installed_px
+            tt = "Device is not ready to use"
+        self.info_lbl.setPixmap(px)
+        self.info_lbl.setToolTip(tt)
+
+        self.show_default_config()
+
+    def show_default_config(self):
+        """Show default loaded device config.
+        """
+        ems = self._ems_device
+        self.length_lineEdit.setText(str(ems.length * 1e3))
+        self.length1_lineEdit.setText(str(ems.length1 * 1e3))
+        self.length2_lineEdit.setText(str(ems.length2 * 1e3))
+        self.gap_lineEdit.setText(str(ems.gap * 1e3))
+        self.slit_width_lineEdit.setText(str(ems.slit_width * 1e3))
+        self.slit_thickness_lineEdit.setText(str(ems.slit_thickness * 1e3))
+        #
+        self.pos_begin_dsbox.setValue(ems.pos_begin)
+        self.pos_end_dsbox.setValue(ems.pos_end)
+        self.pos_step_dsbox.setValue(ems.pos_step)
+        self.pos_settling_sec_dsbox.setValue(ems.pos_settling_time)
+        self.volt_begin_dsbox.setValue(ems.volt_begin)
+        self.volt_end_dsbox.setValue(ems.volt_end)
+        self.volt_step_dsbox.setValue(ems.volt_step)
+        self.volt_settling_sec_dsbox.setValue(ems.volt_settling_time)
+
+
+    @pyqtSlot()
+    def on_run(self):
+        from cothread.catools import camonitor, caput
+
+        r = camonitor("EMS:ArrayData", self.on_update,
+                notify_disconnect=True)
+        print(r)
+        caput("EMS:TRIGGER_CMD", 1)
+        self.i = 0
+
+
+    def on_update(self, value):
+        self.i += 1
+        if self.i == 61:
+            print
+        m = value.reshape(501, 61)
+        m = np.flipud(m)
+        self.image_data_changed.emit(m)
