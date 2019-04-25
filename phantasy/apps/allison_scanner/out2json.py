@@ -7,8 +7,9 @@ Tong Zhang <zhangt@frib.msu.edu>
 2019-04-18 04:44:48 PM EDT
 """
 
-from collections import OrderedDict
 import json
+from collections import OrderedDict
+
 import numpy as np
 
 
@@ -42,7 +43,7 @@ def main():
     import sys
 
     parser = ArgumentParser(prog=os.path.basename(sys.argv[0]),
-                description="Convert old raw data file of Allison-Scanner measurment into JSON formatted file.")
+                            description="Convert old raw data file of Allison-Scanner measurment into JSON format.")
     parser.add_argument("outfilepath", help="path of the old raw data file (.out)")
     parser.add_argument("--json", dest="jsonfilepath", help="path of the output JSON file")
     print_help = parser.print_help

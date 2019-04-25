@@ -7,10 +7,8 @@
 import logging
 import os
 
-from phantasy import ensure_put
-from phantasy import epoch2human
 from phantasy import Configuration
-
+from phantasy import ensure_put
 from .utils import find_dconf
 
 _LOGGER = logging.getLogger(__name__)
