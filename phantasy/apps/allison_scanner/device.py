@@ -62,19 +62,19 @@ class Device(object):
         # orientation
         self.xoy = xoy
 
-        # length: [m]
-        self.length = float(self.dconf.get(name, 'length')) / 1000.0
+        # length: [mm]
+        self.length = float(self.dconf.get(name, 'length'))
 
-        # length1,2: [m]
-        self.length1 = float(self.dconf.get(name, 'length1')) / 1000.0
-        self.length2 = float(self.dconf.get(name, 'length2')) / 1000.0
+        # length1,2: [mm]
+        self.length1 = float(self.dconf.get(name, 'length1'))
+        self.length2 = float(self.dconf.get(name, 'length2'))
 
-        # gap: [m]
-        self.gap = float(self.dconf.get(name, 'gap')) / 1000.0
+        # gap: [mm]
+        self.gap = float(self.dconf.get(name, 'gap'))
 
-        # slit, width & thickness: [m]
-        self.slit_width = float(self.dconf.get(name, 'slit_width')) / 1000.0
-        self.slit_thickness = float(self.dconf.get(name, 'slit_thickness')) / 1000.0
+        # slit, width & thickness: [mm]
+        self.slit_width = float(self.dconf.get(name, 'slit_width'))
+        self.slit_thickness = float(self.dconf.get(name, 'slit_thickness'))
 
         # bias volt threshold
         self.bias_volt_threshold = float(self.dconf.get(name, 'bias_volt_threshold'))
@@ -85,7 +85,7 @@ class Device(object):
     def update_xoy_conf(self, name):
         # xoy
         # default pos/volt alter ranges, [mm], [V], settling time: [sec]
-        kxoy = "{}.{}".format(name, self.xoy)
+        self.kxoy = kxoy = "{}.{}".format(name, self.xoy)
         self.pos_begin = float(self.dconf.get(kxoy, 'pos_begin'))
         self.pos_end = float(self.dconf.get(kxoy, 'pos_end'))
         self.pos_step = float(self.dconf.get(kxoy, 'pos_step'))
@@ -120,57 +120,63 @@ class Device(object):
 
     @property
     def length(self):
-        """float: E-dipole plat length, [m]."""
+        """float: E-dipole plat length, [mm]."""
         return self._length
 
     @length.setter
     def length(self, x):
         self._length = x
+        self.dconf.set(self.name, 'length', str(x))
 
     @property
     def length1(self):
-        """float: Length from slit-entrance to plate, [m]."""
+        """float: Length from slit-entrance to plate, [mm]."""
         return self._length1
 
     @length1.setter
     def length1(self, x):
         self._length1 = x
+        self.dconf.set(self.name, 'length1', str(x))
 
     @property
     def length2(self):
-        """float: Length from plate to slit-exit, [m]."""
+        """float: Length from plate to slit-exit, [mm]."""
         return self._length2
 
     @length2.setter
     def length2(self, x):
         self._length2 = x
+        self.dconf.set(self.name, 'length2', str(x))
 
     @property
     def gap(self):
-        """float: Distance between plates, [m]."""
+        """float: Distance between plates, [mm]."""
         return self._gap
 
     @gap.setter
     def gap(self, x):
         self._gap = x
+        self.dconf.set(self.name, 'gap', str(x))
 
     @property
     def slit_width(self):
-        """float: Slit width, [m]."""
+        """float: Slit width, [mm]."""
         return self._slit_width
 
     @slit_width.setter
     def slit_width(self, x):
         self._slit_width = x
+        self.dconf.set(self.name, 'slit_width', str(x))
 
     @property
     def slit_thickness(self):
-        """float: Slit thickness, [m]."""
+        """float: Slit thickness, [mm]."""
         return self._slit_thickness
 
     @slit_thickness.setter
     def slit_thickness(self, x):
         self._slit_thickness = x
+        self.dconf.set(self.name, 'slit_thickness', str(x))
 
     @property
     def pos_begin(self):
@@ -180,6 +186,7 @@ class Device(object):
     @pos_begin.setter
     def pos_begin(self, x):
         self._pos_begin = x
+        self.dconf.set(self.kxoy, 'pos_begin', str(x))
 
     @property
     def pos_end(self):
@@ -189,6 +196,7 @@ class Device(object):
     @pos_end.setter
     def pos_end(self, x):
         self._pos_end = x
+        self.dconf.set(self.kxoy, 'pos_end', str(x))
 
     @property
     def pos_step(self):
@@ -198,6 +206,7 @@ class Device(object):
     @pos_step.setter
     def pos_step(self, x):
         self._pos_step = x
+        self.dconf.set(self.kxoy, 'pos_step', str(x))
 
     @property
     def volt_begin(self):
@@ -207,6 +216,7 @@ class Device(object):
     @volt_begin.setter
     def volt_begin(self, x):
         self._volt_begin = x
+        self.dconf.set(self.kxoy, 'volt_begin', str(x))
 
     @property
     def volt_end(self):
@@ -216,6 +226,7 @@ class Device(object):
     @volt_end.setter
     def volt_end(self, x):
         self._volt_end = x
+        self.dconf.set(self.kxoy, 'volt_end', str(x))
 
     @property
     def volt_step(self):
@@ -225,6 +236,7 @@ class Device(object):
     @volt_step.setter
     def volt_step(self, x):
         self._volt_step = x
+        self.dconf.set(self.kxoy, 'volt_step', str(x))
 
     @property
     def pos_settling_time(self):
@@ -234,6 +246,7 @@ class Device(object):
     @pos_settling_time.setter
     def pos_settling_time(self, x):
         self._pos_settling_time = x
+        self.dconf.set(self.kxoy, 'pos_settling_time', str(x))
 
     @property
     def volt_settling_time(self):
@@ -243,6 +256,7 @@ class Device(object):
     @volt_settling_time.setter
     def volt_settling_time(self, x):
         self._volt_settling_time = x
+        self.dconf.set(self.kxoy, 'volt_settling_time', str(x))
 
     @property
     def bias_volt_threshold(self):
@@ -253,6 +267,7 @@ class Device(object):
     @bias_volt_threshold.setter
     def bias_volt_threshold(self, x):
         self._bias_volt_threshold = x
+        self.dconf.set(self.name, 'bias_volt_threshold', str(x))
 
     def is_bias_volt_ready(self, mode):
         # test if bias voltage (setpoint, readback) for FC is OK.
@@ -348,3 +363,43 @@ class Device(object):
     def on_data_updated(self, **kws):
         data = kws.get('value')
         print(data)
+
+    def __repr__(self):
+        s = "Device configuration: [{}.{}]".format(self.name, self.xoy)
+        s += "\n--- info: {}".format(self.info)
+        s += "\n--- length: {}".format(self.length)
+        s += "\n--- length-1: {}, length-2: {}".format(self.length1, self.length2)
+        s += "\n--- gap: {}".format(self.gap)
+        s += "\n--- slit width: {}".format(self.slit_width)
+        s += "\n--- slit thickness: {}".format(self.slit_thickness)
+        s += "\n--- bias voltage threshold: {}".format(self.bias_volt_threshold)
+        s += "\n--- pos start: {}, end: {}, step: {}".format(self.pos_begin, self.pos_end, self.pos_step)
+        s += "\n--- volt start: {}, end: {}, step: {}".format(self.volt_begin, self.volt_end, self.volt_step)
+        s += "\n--- settling times, pos: {}, volt: {}".format(self.pos_settling_time, self.volt_settling_time)
+        return s
+
+    def save_dconf(self, filepath):
+        with open(filepath, 'w') as f:
+            self.dconf.write(f)
+
+    def __eq__(self, other):
+        xoy0, xoy0_other = self.xoy, other.xoy
+        attr_all = ('bias_volt_threshold', 'gap',
+                    'length', 'length1', 'length2',
+                    'slit_width', 'slit_thickness',
+                    'pos_begin', 'pos_end', 'pos_step',
+                    'pos_settling_time',
+                    'volt_begin', 'volt_end', 'volt_step',
+                    'volt_settling_time')
+        for xoy in ['X', 'Y']:
+            self.xoy = xoy
+            other.xoy = xoy
+            for i in attr_all:
+                if getattr(self, i) != getattr(other, i):
+                    self.xoy = xoy0
+                    other.xoy = xoy0_other
+                    return False
+
+        self.xoy = xoy0
+        other.xoy = xoy0_other
+        return True
