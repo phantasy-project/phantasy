@@ -234,16 +234,17 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
     def on_run(self):
         from cothread.catools import camonitor, caput
 
-        r = camonitor("EMS:ArrayData", self.on_update,
+        self._r = camonitor("EMS:ArrayData", self.on_update,
                       notify_disconnect=True)
-        print(r)
+        print(self._r)
         caput("EMS:TRIGGER_CMD", 1)
         self.i = 0
 
     def on_update(self, value):
+        print(self.i)
         self.i += 1
         if self.i == 61:
-            print
+            self._r.close()
         m = value.reshape(501, 61)
         m = np.flipud(m)
         self.image_data_changed.emit(m)
