@@ -1268,10 +1268,27 @@ class CaElement(BaseElement):
 
     def current_setting(self, field):
         """Return the value of current setting for dynamic field defined by
-        *field*.
+        *field*, if setpoint PV is not available, return None.
+
+        Parameters
+        ----------
+        field : str
+            Name of valid dynamic field.
+
+        Returns
+        -------
+        r :
+            Field current setting or None.
         """
+        if field not in self.fields:
+            _LOGGER.error("Invalid field, should be one of {}.".format(self.fields))
+            return None
         fld = self.get_field(field)
-        return fld.read_policy(fld.setpoint_pv)
+        if fld.setpoint:
+            return fld.read_policy(fld.setpoint_pv)
+        else:
+            _LOGGER.error("Field '{}' is readonly.".format(field))
+            return None
 
 
 def main():
