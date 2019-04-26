@@ -124,8 +124,11 @@ class ImageViewerWindow(BaseAppForm, Ui_MainWindow):
         self.update_image(data)
 
     def daq_single(self, iiter):
+        t0 = time.time()
         data = self._pv.get()
-        time.sleep(1.0 / self._daq_rate)
+        dt = time.time() - t0
+        print("Execution Time: {} ms".format(dt * 1000))
+        time.sleep(1.0 / self._daq_rate - dt)
         return data
 
     def on_update_daq_status(self, f, s):
