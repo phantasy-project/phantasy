@@ -401,3 +401,26 @@ class Device(object):
         self.xoy = xoy0
         other.xoy = xoy0_other
         return True
+
+    @property
+    def geometric_factor(self):
+        """float: Geometric factor based on device configuration.
+        """
+        l_total = self.length + self.length1 + self.length2
+        return (self.length + 2 * self.length2) / l_total
+
+    @property
+    def prefactor1(self):
+        return (self.length + 2 * self.length1) / (self.length + 2 * self.length2)
+
+    @property
+    def prefactor2(self):
+        l_total = self.length + self.length1 + self.length2
+        slit_thickness = self.slit_thickness
+        return slit_thickness * 2 * (self.length2 - self.length1) / \
+                l_total / (l_total + 2 * slit_thickness)
+
+    @property
+    def dxp0(self):
+        # delta_x'
+        return 2 * self.slit_width / (self.length + self.length1 + self.length2)
