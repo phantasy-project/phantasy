@@ -7,6 +7,9 @@ from phantasy_ui import QApp as QApplication
 from phantasy_ui import set_mplstyle
 
 from .app import AllisonScannerWindow
+from .model import Model
+from .device import Device
+from .data import Data
 
 __authors__ = "Tong Zhang"
 __copyright__ = "(c) 2019, Facility for Rare Isotope beams," \
