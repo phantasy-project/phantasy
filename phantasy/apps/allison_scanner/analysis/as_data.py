@@ -68,10 +68,15 @@ class ASData(object):
         self.y_array = xp_results[:,1]
         self.W_array = xp_results[:,3]
 
-        self.Y_grid = np.tile( self.y_array, (self.pos_count, 1) )
-        self.Y_grid = self.Y_grid.transpose()*1000
-        self.W_grid = np.tile( self.W_array, (self.pos_count, 1) )
-        self.W_grid = self.W_grid.transpose()
+        self.Y_grid, _ = np.meshgrid(self.y_array, self.X_grid[0])
+        self.Y_grid *= 1000
+        self.Y_grid = self.Y_grid.T
+        self.W_grid, _ = np.meshgrid(self.W_array, self.X_grid[0])
+        self.W_grid = self.W_grid.T
+        #self.Y_grid = np.tile( self.y_array, (self.pos_count, 1) )
+        #self.Y_grid = self.Y_grid.transpose()*1000
+        #self.W_grid = np.tile( self.W_array, (self.pos_count, 1) )
+        #self.W_grid = self.W_grid.transpose()
 
         self.angle_step = np.abs( self.scanner.xp_from_V(self.vol_step)[1] )
 
