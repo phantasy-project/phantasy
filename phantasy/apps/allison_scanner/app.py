@@ -232,19 +232,27 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
 
     @pyqtSlot()
     def on_run(self):
-        from cothread.catools import camonitor, caput
+        from cothread.catools import camonitor, caput, caget
 
+        x1, x2, dx = caget(["pos_begin", "pos_end", "pos_step"])
+        s = caget("EMS:ArrayData.NORD")
+        sx = int((x2 - x1) / dx) + 1
+        sy = int(s / sx)
+        self.sx = sx
+        self.sy = sy
+        print(self.sx, self.sy)
+
+        self.i = 1
         self._r = camonitor("EMS:ArrayData", self.on_update,
                       notify_disconnect=True)
-        print(self._r)
         caput("EMS:TRIGGER_CMD", 1)
-        self.i = 0
 
     def on_update(self, value):
-        print(self.i)
-        self.i += 1
-        if self.i == 61:
-            self._r.close()
-        m = value.reshape(501, 61)
+        print("{0:03d}/[{1:03d}]".format(self.i, self.sx))
+        m = value.reshape(self.sy, self.sx)
         m = np.flipud(m)
         self.image_data_changed.emit(m)
+
+        self.i += 1
+        if self.i > self.sx:
+            self._r.close()
