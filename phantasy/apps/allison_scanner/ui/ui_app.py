@@ -115,12 +115,12 @@ class Ui_MainWindow(object):
         self.run_btn.setIconSize(QtCore.QSize(24, 24))
         self.run_btn.setObjectName("run_btn")
         self.horizontalLayout.addWidget(self.run_btn)
-        self.gridLayout_3.addLayout(self.horizontalLayout, 0, 2, 1, 1)
+        self.gridLayout_3.addLayout(self.horizontalLayout, 0, 3, 1, 1)
         self.line = QtWidgets.QFrame(self.groupBox_2)
         self.line.setFrameShape(QtWidgets.QFrame.HLine)
         self.line.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.line.setObjectName("line")
-        self.gridLayout_3.addWidget(self.line, 2, 0, 1, 3)
+        self.gridLayout_3.addWidget(self.line, 2, 0, 1, 4)
         self.label = QtWidgets.QLabel(self.groupBox_2)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
                                            QtWidgets.QSizePolicy.Preferred)
@@ -134,16 +134,8 @@ class Ui_MainWindow(object):
         font.setWeight(75)
         self.label.setFont(font)
         self.label.setObjectName("label")
-        self.gridLayout_3.addWidget(self.label, 0, 0, 1, 1)
-        self.label_3 = QtWidgets.QLabel(self.groupBox_2)
-        font = QtGui.QFont()
-        font.setBold(True)
-        font.setWeight(75)
-        self.label_3.setFont(font)
-        self.label_3.setAlignment(QtCore.Qt.AlignLeading | QtCore.Qt.AlignLeft
-                                  | QtCore.Qt.AlignTop)
-        self.label_3.setObjectName("label_3")
-        self.gridLayout_3.addWidget(self.label_3, 3, 0, 1, 1)
+        self.gridLayout_3.addWidget(self.label, 0, 0, 1, 1,
+                                    QtCore.Qt.AlignHCenter)
         self.splitter_3 = QtWidgets.QSplitter(self.groupBox_2)
         self.splitter_3.setOrientation(QtCore.Qt.Horizontal)
         self.splitter_3.setObjectName("splitter_3")
@@ -616,17 +608,31 @@ class Ui_MainWindow(object):
                                   | QtCore.Qt.AlignVCenter)
         self.label_2.setObjectName("label_2")
         self.verticalLayout_2.addWidget(self.label_2)
-        self.gridLayout_3.addWidget(self.splitter_3, 3, 2, 1, 1)
+        self.gridLayout_3.addWidget(self.splitter_3, 3, 3, 1, 1)
         self.line_3 = QtWidgets.QFrame(self.groupBox_2)
         self.line_3.setFrameShape(QtWidgets.QFrame.VLine)
         self.line_3.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.line_3.setObjectName("line_3")
-        self.gridLayout_3.addWidget(self.line_3, 3, 1, 1, 1)
+        self.gridLayout_3.addWidget(self.line_3, 3, 2, 1, 1)
         self.line_4 = QtWidgets.QFrame(self.groupBox_2)
         self.line_4.setFrameShape(QtWidgets.QFrame.VLine)
         self.line_4.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.line_4.setObjectName("line_4")
-        self.gridLayout_3.addWidget(self.line_4, 0, 1, 1, 1)
+        self.gridLayout_3.addWidget(self.line_4, 0, 2, 1, 1)
+        self.pushButton = QtWidgets.QPushButton(self.groupBox_2)
+        font = QtGui.QFont()
+        font.setBold(True)
+        font.setWeight(75)
+        self.pushButton.setFont(font)
+        icon2 = QtGui.QIcon()
+        icon2.addPixmap(
+            QtGui.QPixmap(":/icons/update.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.pushButton.setIcon(icon2)
+        self.pushButton.setIconSize(QtCore.QSize(20, 20))
+        self.pushButton.setObjectName("pushButton")
+        self.gridLayout_3.addWidget(self.pushButton, 3, 0, 1, 1,
+                                    QtCore.Qt.AlignTop)
         self.splitter = QtWidgets.QSplitter(self.splitter_2)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
                                            QtWidgets.QSizePolicy.Preferred)
@@ -667,27 +673,29 @@ class Ui_MainWindow(object):
         self.menu_Help.setObjectName("menu_Help")
         self.menuConfiguration = QtWidgets.QMenu(self.menubar)
         self.menuConfiguration.setObjectName("menuConfiguration")
+        self.menu_Device = QtWidgets.QMenu(self.menubar)
+        self.menu_Device.setObjectName("menu_Device")
         MainWindow.setMenuBar(self.menubar)
         self.actionE_xit = QtWidgets.QAction(MainWindow)
-        icon2 = QtGui.QIcon()
-        icon2.addPixmap(
-            QtGui.QPixmap(":/icons/exit.png"), QtGui.QIcon.Normal,
-            QtGui.QIcon.Off)
-        self.actionE_xit.setIcon(icon2)
-        self.actionE_xit.setObjectName("actionE_xit")
-        self.actionAbout = QtWidgets.QAction(MainWindow)
         icon3 = QtGui.QIcon()
         icon3.addPixmap(
-            QtGui.QPixmap(":/icons/info.png"), QtGui.QIcon.Normal,
+            QtGui.QPixmap(":/icons/exit.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.actionAbout.setIcon(icon3)
-        self.actionAbout.setObjectName("actionAbout")
-        self.actionAbout_Qt = QtWidgets.QAction(MainWindow)
+        self.actionE_xit.setIcon(icon3)
+        self.actionE_xit.setObjectName("actionE_xit")
+        self.actionAbout = QtWidgets.QAction(MainWindow)
         icon4 = QtGui.QIcon()
         icon4.addPixmap(
+            QtGui.QPixmap(":/icons/info.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.actionAbout.setIcon(icon4)
+        self.actionAbout.setObjectName("actionAbout")
+        self.actionAbout_Qt = QtWidgets.QAction(MainWindow)
+        icon5 = QtGui.QIcon()
+        icon5.addPixmap(
             QtGui.QPixmap(":/icons/qt.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
-        self.actionAbout_Qt.setIcon(icon4)
+        self.actionAbout_Qt.setIcon(icon5)
         self.actionAbout_Qt.setObjectName("actionAbout_Qt")
         self.actionReload = QtWidgets.QAction(MainWindow)
         self.actionReload.setObjectName("actionReload")
@@ -699,6 +707,9 @@ class Ui_MainWindow(object):
         self.actionSave_As.setObjectName("actionSave_As")
         self.actionLocate = QtWidgets.QAction(MainWindow)
         self.actionLocate.setObjectName("actionLocate")
+        self.actionSimulation_Mode = QtWidgets.QAction(MainWindow)
+        self.actionSimulation_Mode.setCheckable(True)
+        self.actionSimulation_Mode.setObjectName("actionSimulation_Mode")
         self.menu_File.addAction(self.actionE_xit)
         self.menu_Help.addAction(self.actionAbout)
         self.menu_Help.addAction(self.actionAbout_Qt)
@@ -708,8 +719,10 @@ class Ui_MainWindow(object):
         self.menuConfiguration.addAction(self.actionSave_As)
         self.menuConfiguration.addSeparator()
         self.menuConfiguration.addAction(self.actionLocate)
+        self.menu_Device.addAction(self.actionSimulation_Mode)
         self.menubar.addAction(self.menu_File.menuAction())
         self.menubar.addAction(self.menuConfiguration.menuAction())
+        self.menubar.addAction(self.menu_Device.menuAction())
         self.menubar.addAction(self.menu_Help.menuAction())
 
         self.retranslateUi(MainWindow)
@@ -722,6 +735,9 @@ class Ui_MainWindow(object):
         self.actionSave.triggered.connect(MainWindow.on_save_config)
         self.actionSave_As.triggered.connect(MainWindow.on_saveas_config)
         self.actionLocate.triggered.connect(MainWindow.on_locate_config)
+        self.pushButton.clicked.connect(MainWindow.sync_config)
+        self.actionSimulation_Mode.toggled['bool'].connect(
+            MainWindow.on_enable_simulation_mode)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -735,7 +751,6 @@ class Ui_MainWindow(object):
         self.ems_orientation_cbb.setItemText(1, _translate("MainWindow", "Y"))
         self.run_btn.setText(_translate("MainWindow", "Run"))
         self.label.setText(_translate("MainWindow", "Select Device"))
-        self.label_3.setText(_translate("MainWindow", "Configuration"))
         self.label_16.setText(_translate("MainWindow", "Voltage [V]"))
         self.label_7.setText(
             _translate(
@@ -791,6 +806,7 @@ class Ui_MainWindow(object):
                 "MainWindow",
                 "<html><head/><body><p><span style=\" font-style:italic;\">g</span></p></body></html>"
             ))
+        self.pushButton.setText(_translate("MainWindow", "Configuration"))
         self.groupBox.setTitle(_translate("MainWindow", "Data Visualization"))
         self.matplotlibimageWidget.setFigureAspectRatio(
             _translate("MainWindow", "auto"))
@@ -799,6 +815,7 @@ class Ui_MainWindow(object):
         self.menu_Help.setTitle(_translate("MainWindow", "&Help"))
         self.menuConfiguration.setTitle(
             _translate("MainWindow", "&Configuration"))
+        self.menu_Device.setTitle(_translate("MainWindow", "&Device"))
         self.actionE_xit.setText(_translate("MainWindow", "E&xit"))
         self.actionAbout.setText(_translate("MainWindow", "About"))
         self.actionAbout_Qt.setText(_translate("MainWindow", "About Qt"))
@@ -807,6 +824,8 @@ class Ui_MainWindow(object):
         self.actionLoad_From.setText(_translate("MainWindow", "Load From"))
         self.actionSave_As.setText(_translate("MainWindow", "Save As"))
         self.actionLocate.setText(_translate("MainWindow", "Locate"))
+        self.actionSimulation_Mode.setText(
+            _translate("MainWindow", "Simulation Mode"))
 
 
 from mpl4qt.widgets.mplimagewidget import MatplotlibImageWidget
