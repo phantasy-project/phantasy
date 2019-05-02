@@ -13,7 +13,7 @@ from PyQt5.QtWidgets import QLineEdit
 from PyQt5.QtWidgets import QMessageBox
 from numpy import ndarray
 from phantasy_ui.templates import BaseAppForm
-
+from cothread.catools import camonitor, caput, caget
 from phantasy import Configuration
 from phantasy.apps.utils import get_open_filename
 from phantasy.apps.utils import get_save_filename
@@ -21,6 +21,10 @@ from .device import Device
 from .ui.ui_app import Ui_MainWindow
 from .utils import find_dconf
 from .utils import get_all_devices
+
+
+# simulation
+DATA_PV_SIM = "EMS:ArrayData"
 
 
 class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
@@ -43,7 +47,7 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
         self.app_about_info = """
             <html>
             <h4>About Allison Scanner App</h4>
-            <p>This app is created to ease the usage of allison-scanner
+            <p>This app is created for the operation of allison-scanner
             devices, including the DAQ and post data analysis,
             current version is {}.
             </p>
@@ -60,13 +64,15 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
 
     def _post_init(self):
         #
+        self._device_mode = "Live"
+        #
         self.installed_px = QPixmap(":/icons/installed.png")
         self.not_installed_px = QPixmap(":/icons/not-installed.png")
         # conf
         self._dconf = self.get_device_config()
 
         # orientation
-        self._ems_orientation = 'X'
+        self._ems_orientation = "X"
         self.ems_orientation_cbb.currentTextChanged.connect(self.on_update_orientation)
 
         # init EMS devices
@@ -75,31 +81,47 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
         self.ems_names_cbb.addItems(all_devices_dict)
         self.ems_names_cbb.currentTextChanged.connect(self.on_device_changed)
 
-        # pos
-        for s in ['{}_{}'.format(u, v) for u in ('pos', 'volt')
-                  for v in ('begin', 'end', 'step', 'settling_time')]:
+        for o in self.findChildren(QLineEdit):
+            o.textChanged.connect(self.highlight_text)
+
+        # pos,volt,dt...
+        self.__attr_names = [
+                '{}_{}'.format(u, v)
+                for u in ('pos', 'volt')
+                      for v in ('begin', 'end', 'step', 'settling_time')
+        ]
+        for s in self.__attr_names:
             o = getattr(self, s + '_dsbox')
             o.valueChanged.connect(partial(self.on_update_config, s))
 
         #
-        self.ems_names_cbb.currentTextChanged.emit(self.ems_names_cbb.currentText())
+        self.ems_names_cbb.currentTextChanged.emit(
+                self.ems_names_cbb.currentText())
         #
-        for o in self.findChildren(QLineEdit):
-            o.textChanged.connect(self.highlight_text)
+        self.ems_orientation_cbb.currentTextChanged.emit(
+                self.ems_orientation_cbb.currentText())
 
     @pyqtSlot(float)
     def on_update_config(self, attr, x):
+        # update attr of ems (1), live config (2) and _dconf (3)
         setattr(self._ems_device, attr, x)
+        getattr(self._ems_device, 'set_{}'.format(attr))()
         self._dconf = self._ems_device.dconf
 
     @pyqtSlot('QString')
     def on_update_orientation(self, s):
         self._ems_orientation = s
-        try:
-            self._ems_device.xoy = s
-            self.show_default_config()
-        except:
-            pass
+        self._ems_device.xoy = s
+        self._oid = oid = self._ems_device._id
+        self._pos_begin_fname = "START_POS{}".format(oid)
+        self._pos_end_fname = "STOP_POS{}".format(oid)
+        self._pos_step_fname = "STEP_POS{}".format(oid)
+        self._volt_begin_fname = "START_VOLT{}".format(oid)
+        self._volt_end_fname = "STOP_VOLT{}".format(oid)
+        self._volt_step_fname = "STEP_VOLT{}".format(oid)
+        self._data_pv = self._ems_device.elem.pv("DATA{}".format(oid))[0]
+        if self._device_mode == "Live":
+            self.sync_config()
 
     def get_device_config(self, path=None):
         """Return device config from *path*.
@@ -132,19 +154,30 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
         self.info_lbl.setPixmap(px)
         self.info_lbl.setToolTip(tt)
 
-        self.show_default_config()
+        self.show_device_config()
 
-    def show_default_config(self):
-        """Show default loaded device config.
+    def show_device_config(self):
+        """Show current device config, use device.sync_params() to refresh
+        config with the live data.
         """
         ems = self._ems_device
+        self.__show_device_config_static(ems)
+        self.__show_device_config_dynamic(ems)
+
+    def __show_device_config_static(self, ems):
+        # static
         self.length_lineEdit.setText(str(ems.length))
         self.length1_lineEdit.setText(str(ems.length1))
         self.length2_lineEdit.setText(str(ems.length2))
         self.gap_lineEdit.setText(str(ems.gap))
         self.slit_width_lineEdit.setText(str(ems.slit_width))
         self.slit_thickness_lineEdit.setText(str(ems.slit_thickness))
-        #
+
+    def __show_device_config_dynamic(self, ems):
+        # dynamic
+        for s in self.__attr_names:
+            o = getattr(self, s + '_dsbox')
+            o.valueChanged.disconnect()
         self.pos_begin_dsbox.setValue(ems.pos_begin)
         self.pos_end_dsbox.setValue(ems.pos_end)
         self.pos_step_dsbox.setValue(ems.pos_step)
@@ -153,6 +186,17 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
         self.volt_end_dsbox.setValue(ems.volt_end)
         self.volt_step_dsbox.setValue(ems.volt_step)
         self.volt_settling_time_dsbox.setValue(ems.volt_settling_time)
+        for s in self.__attr_names:
+            o = getattr(self, s + '_dsbox')
+            o.valueChanged.connect(partial(self.on_update_config, s))
+
+    def sync_config(self):
+        """Pull current device configuration from controls network, update
+        on the UI.
+        """
+        ems = self._ems_device
+        ems.sync_params()
+        self.__show_device_config_dynamic(ems)
 
     @pyqtSlot()
     def on_loadfrom_config(self):
@@ -230,29 +274,93 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
         path = self._dconf.config_path
         QDesktopServices.openUrl(QUrl(path))
 
-    @pyqtSlot()
-    def on_run(self):
-        from cothread.catools import camonitor, caput, caget
-
+    def _run_simulation(self):
+        # simulation
+        data_pv = DATA_PV_SIM
         x1, x2, dx = caget(["pos_begin", "pos_end", "pos_step"])
-        s = caget("EMS:ArrayData.NORD")
-        sx = int((x2 - x1) / dx) + 1
-        sy = int(s / sx)
-        self.sx = sx
-        self.sy = sy
-        print(self.sx, self.sy)
+        y1, y2, dy = caget(["volt_begin", "volt_end", "volt_step"])
+        #
+        xdim = self._xdim = int((x2 - x1) / dx) + 1
+        ydim = self._ydim = int((y2 - y1) / dy) + 1
 
-        self.i = 1
-        self._r = camonitor("EMS:ArrayData", self.on_update,
-                      notify_disconnect=True)
+        self._col_cnt = 1
+        self._r = camonitor(data_pv, self.on_update,
+                            notify_disconnect=True)
+        #
+        print("on_run:")
+        print(x1, x2, dx, data_pv, xdim, ydim)
+
+        # start moving
         caput("EMS:TRIGGER_CMD", 1)
 
-    def on_update(self, value):
-        print("{0:03d}/[{1:03d}]".format(self.i, self.sx))
-        m = value.reshape(self.sy, self.sx)
-        m = np.flipud(m)
-        self.image_data_changed.emit(m)
+    @pyqtSlot()
+    def on_run(self):
+        if self._device_mode == 'Simulation':
+            self._run_simulation()
+        else:  # Live
+            self._run_live()
 
-        self.i += 1
-        if self.i > self.sx:
+    def _run_live(self):
+        # live
+        elem = self._ems_device.elem
+        x1 = getattr(elem, self._pos_begin_fname)
+        x2 = getattr(elem, self._pos_end_fname)
+        dx = getattr(elem, self._pos_step_fname)
+
+        try:
+            assert (x2 - x1) % dx == 0
+        except AssertionError:
+            QMessageBox.warning(self, "Scan Range Warning",
+                "Input scan range for position indicates non-integer points.",
+                QMessageBox.Ok)
+            return
+
+        y1 = getattr(elem, self._volt_begin_fname)
+        y2 = getattr(elem, self._volt_end_fname)
+        dy = getattr(elem, self._volt_step_fname)
+
+        data_pv = self._data_pv
+
+        #
+        xdim = self._xdim = int((x2 - x1) / dx) + 1
+        ydim = self._ydim = int((y2 - y1) / dy) + 1
+
+        self._col_cnt = 1
+        self._r = camonitor(data_pv, self.on_update,
+                            notify_disconnect=True)
+        #
+        print("on_run:")
+        print(elem.name, x1, x2, dx, data_pv, xdim, ydim)
+
+        # start moving
+        self._ems_device.move()
+
+    def on_update(self, value):
+        #
+        print("{0:03d}/[{1:03d}]".format(self._col_cnt, self._xdim))
+        #
+        m = value.reshape(self._ydim, self._xdim)
+        m = np.flipud(m)
+        # m: initial values are nan, which should be zero. or auto_clim does not work
+        self.image_data_changed.emit(np.nan_to_num(m))
+
+        self._col_cnt += 1
+        if self._col_cnt > self._xdim:
             self._r.close()
+
+    def closeEvent(self, e):
+        #  terminate called after throwing an instance of 'epicsMutex::invalidMutex'
+        #  what():  epicsMutex::invalidMutex()
+        #  Aborted
+        try:
+            self._r.close()
+        except:
+            pass
+        BaseAppForm.closeEvent(self, e)
+
+    @pyqtSlot(bool)
+    def on_enable_simulation_mode(self, f):
+        if f:
+            self._device_mode = "Simulation"
+        else:
+            self._device_mode = "Live"
