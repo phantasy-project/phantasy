@@ -9,6 +9,7 @@ import os
 
 from phantasy import Configuration
 from phantasy import ensure_put
+from phantasy.apps.wire_scanner.utils import wait
 from .utils import find_dconf
 
 _LOGGER = logging.getLogger(__name__)
@@ -295,7 +296,7 @@ class Device(object):
         volt = self.bias_volt_threshold
         ensure_put(self.elem, 'BIAS_VOLT', volt, tol=1.0, timeout=timeout)
         _LOGGER.info("Bias voltage now is {}.".format(self.elem.BIAS_VOLT))
-        if self.is_bias_volt_ready():
+        if self.is_bias_volt_ready('readback'):
             _LOGGER.info("Bias voltage is ready.")
             return True
         else:
@@ -315,6 +316,7 @@ class Device(object):
             return False
 
     def set_pos_begin(self):
+        """Set live config with current config."""
         setattr(self.elem, 'START_POS{}'.format(self._id), self.pos_begin)
 
     def set_pos_end(self):
@@ -332,6 +334,48 @@ class Device(object):
     def set_volt_step(self):
         setattr(self.elem, 'STEP_VOLT{}'.format(self._id), self.volt_step)
 
+    def set_pos_settling_time(self):
+        setattr(self.elem, 'WAIT_POS{}'.format(self._id), self.pos_settling_time)
+
+    def set_volt_settling_time(self):
+        setattr(self.elem, 'WAIT_VOLT{}'.format(self._id), self.volt_settling_time)
+
+    def get_pos_begin(self):
+        """Return live config from controls network."""
+        return getattr(self.elem, 'START_POS{}'.format(self._id))
+
+    def get_pos_end(self):
+        return getattr(self.elem, 'STOP_POS{}'.format(self._id))
+
+    def get_pos_step(self):
+        return getattr(self.elem, 'STEP_POS{}'.format(self._id))
+
+    def get_volt_begin(self):
+        return getattr(self.elem, 'START_VOLT{}'.format(self._id))
+
+    def get_volt_end(self):
+        return getattr(self.elem, 'STOP_VOLT{}'.format(self._id))
+
+    def get_volt_step(self):
+        return getattr(self.elem, 'STEP_VOLT{}'.format(self._id))
+
+    def get_pos_settling_time(self):
+        return getattr(self.elem, 'WAIT_POS{}'.format(self._id))
+
+    def get_volt_settling_time(self):
+        return getattr(self.elem, 'WAIT_VOLT{}'.format(self._id))
+
+    def sync_params(self):
+        """Pull device config from controls network, update
+        regarding attr, and dconf as well.
+        """
+        ks = ['{}_{}'.format(u, v) for u in ('pos', 'volt')
+              for v in ('begin', 'end', 'step', 'settling_time')]
+        for s in ks:
+            v = getattr(self, 'get_{}'.format(s))()
+            setattr(self, s, v)
+            _LOGGER.info("Sync '{}' with '{}'.".format(s, v))
+
     def set_params(self):
         self.set_pos_begin()
         self.set_pos_end()
@@ -340,20 +384,32 @@ class Device(object):
         self.set_volt_end()
         self.set_volt_step()
 
+    def abort(self):
+        setattr(self.elem, 'ABORT_SCAN{}'.format(self._id), 1)
+
     def move(self, timeout=600):
         """Start scan."""
-        scan_status = getattr(self.elem, 'SCAN_STATUS{}'.format(self._id))
+        ss_fld_name = 'SCAN_STATUS{}'.format(self._id)
+        ss_fld = self.elem.get_field(ss_fld_name)
+        ss_pv = ss_fld.readback_pv[0]
+        scan_status = ss_fld.value
         if scan_status != 0:
             raise RuntimeError("Device is busy, not be ready for moving.")
-        setattr(self.elem, 'START_SCAN{}'.format(self._id))
+        setattr(self.elem, 'START_SCAN{}'.format(self._id), 1)
         self.init_data_cb()
-        wait(scan_status, 0, timeout)
+        wait(ss_pv, 0, timeout)
         self.reset_data_cb()
         print("Move is done.")
 
+    def run_all_in_one(self):
+        self.enable()
+        self.set_params()
+        self.move()
+        print("Run-All-in-One is done.")
+
     def init_data_cb(self):
-        self._data_pv = self.elem.get_field('DATA{}'.format(self._id)).readback_pv()
-        self._cid = data_pv.add_callback(self.on_data_updated)
+        self._data_pv = self.elem.get_field('DATA{}'.format(self._id)).readback_pv[0]
+        self._cid = self._data_pv.add_callback(self.on_data_updated)
 
     def reset_data_cb(self):
         self._data_pv.remove_callback(self._cid)
