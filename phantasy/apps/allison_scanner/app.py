@@ -95,6 +95,8 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
             o.valueChanged.connect(partial(self.on_update_config, s))
 
         #
+        self.actionSimulation_Mode.setChecked(True)
+        #
         self.ems_names_cbb.currentTextChanged.emit(
                 self.ems_names_cbb.currentText())
         #
