@@ -9,8 +9,11 @@ import os
 
 from phantasy import Configuration
 from phantasy import ensure_put
-from phantasy.apps.wire_scanner.utils import wait
+from phantasy.apps.wire_scanner.utils import wait as _wait
 from .utils import find_dconf
+from PyQt5.QtCore import QObject
+from PyQt5.QtCore import pyqtSignal
+from numpy import ndarray
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -25,7 +28,7 @@ except NameError:
 XY2ID = {'X': 1, 'Y': 2}
 
 
-class Device(object):
+class Device(QObject):
     """Build allison-scanner devices from CaElement, which family is 'EMS',
     After instantiating, the operations like device control, data analysis
     control could be expected.
@@ -44,7 +47,10 @@ class Device(object):
         loaded full path: `Device.dconf.config_path`.
     """
 
+    data_changed = pyqtSignal(ndarray)
+
     def __init__(self, elem, xoy='X', dconf=None):
+        super(self.__class__, self).__init__()
         self.elem = elem
 
         if dconf is None:
@@ -387,7 +393,7 @@ class Device(object):
     def abort(self):
         setattr(self.elem, 'ABORT_SCAN{}'.format(self._id), 1)
 
-    def move(self, timeout=600):
+    def move(self, timeout=600, wait=True):
         """Start scan."""
         ss_fld_name = 'SCAN_STATUS{}'.format(self._id)
         ss_fld = self.elem.get_field(ss_fld_name)
@@ -397,9 +403,10 @@ class Device(object):
             raise RuntimeError("Device is busy, not be ready for moving.")
         setattr(self.elem, 'START_SCAN{}'.format(self._id), 1)
         self.init_data_cb()
-        wait(ss_pv, 0, timeout)
-        self.reset_data_cb()
-        print("Move is done.")
+        if wait:
+            _wait(ss_pv, 0, timeout)
+            self.reset_data_cb()
+            print("Move is done.")
 
     def run_all_in_one(self):
         self.enable()
@@ -409,14 +416,14 @@ class Device(object):
 
     def init_data_cb(self):
         self._data_pv = self.elem.get_field('DATA{}'.format(self._id)).readback_pv[0]
+        self._data_pv.auto_monitor=True
         self._cid = self._data_pv.add_callback(self.on_data_updated)
 
     def reset_data_cb(self):
         self._data_pv.remove_callback(self._cid)
 
-    def on_data_updated(self, **kws):
-        data = kws.get('value')
-        print(data)
+    def on_data_updated(self, value, **kws):
+        self.data_changed.emit(value)
 
     def __repr__(self):
         s = "Device configuration: [{}.{}]".format(self.name, self.xoy)
