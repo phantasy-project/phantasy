@@ -13,7 +13,6 @@ from PyQt5.QtWidgets import QLineEdit
 from PyQt5.QtWidgets import QMessageBox
 from numpy import ndarray
 from phantasy_ui.templates import BaseAppForm
-from cothread.catools import camonitor, caput, caget
 from phantasy import Configuration
 from phantasy.apps.utils import get_open_filename
 from phantasy.apps.utils import get_save_filename
@@ -21,10 +20,6 @@ from .device import Device
 from .ui.ui_app import Ui_MainWindow
 from .utils import find_dconf
 from .utils import get_all_devices
-
-
-# simulation
-DATA_PV_SIM = "EMS:ArrayData"
 
 
 class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
@@ -278,22 +273,24 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
 
     def _run_simulation(self):
         # simulation
-        data_pv = DATA_PV_SIM
-        x1, x2, dx = caget(["pos_begin", "pos_end", "pos_step"])
-        y1, y2, dy = caget(["volt_begin", "volt_end", "volt_step"])
+        from ._sim import SimDevice
+        from epics import caget
+
+        print("Simulation mode...")
+        data_pv = "EMS:Det1Data"
+        x1, x2, dx = [caget(i) for i in
+                ("EMS:POS_BEGIN", "EMS:POS_END", "EMS:POS_STEP")]
+        y1, y2, dy = [caget(i) for i in
+                ("EMS:VOLT_BEGIN", "EMS:VOLT_END", "EMS:VOLT_STEP")]
         #
         xdim = self._xdim = int((x2 - x1) / dx) + 1
         ydim = self._ydim = int((y2 - y1) / dy) + 1
-
         self._col_cnt = 1
-        self._r = camonitor(data_pv, self.on_update,
-                            notify_disconnect=True)
-        #
         print("on_run:")
         print(x1, x2, dx, data_pv, xdim, ydim)
-
-        # start moving
-        caput("EMS:TRIGGER_CMD", 1)
+        device = self._sim_device = SimDevice(data_pv)
+        device.data_changed.connect(self.on_update)
+        device.start("EMS:START_SCAN")
 
     @pyqtSlot()
     def on_run(self):
@@ -304,6 +301,8 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
 
     def _run_live(self):
         # live
+        print("Live mode...")
+        #
         elem = self._ems_device.elem
         x1 = getattr(elem, self._pos_begin_fname)
         x2 = getattr(elem, self._pos_end_fname)
@@ -328,36 +327,28 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
         ydim = self._ydim = int((y2 - y1) / dy) + 1
 
         self._col_cnt = 1
-        self._r = camonitor(data_pv, self.on_update,
-                            notify_disconnect=True)
-        #
         print("on_run:")
         print(elem.name, x1, x2, dx, data_pv, xdim, ydim)
 
+        self._ems_device.data_changed.connect(self.on_update)
+
         # start moving
-        self._ems_device.move()
+        self._ems_device.move(wait=False)
 
-    def on_update(self, value):
-        #
-        print("{0:03d}/[{1:03d}]".format(self._col_cnt, self._xdim))
-        #
-        m = value.reshape(self._ydim, self._xdim)
+    def on_update(self, data):
+        m = data.reshape(self._ydim, self._xdim)
         m = np.flipud(m)
-        # m: initial values are nan, which should be zero. or auto_clim does not work
         self.image_data_changed.emit(np.nan_to_num(m))
-
         self._col_cnt += 1
         if self._col_cnt > self._xdim:
-            self._r.close()
+            if self._device_mode == "Live":
+                self._ems_device.reset_data_cb()
+            else:
+                self._sim_device.reset_data_cb()
+            QMessageBox.information(self, "EMS DAQ", "Data is ready!",
+                                    QMessageBox.Ok)
 
     def closeEvent(self, e):
-        #  terminate called after throwing an instance of 'epicsMutex::invalidMutex'
-        #  what():  epicsMutex::invalidMutex()
-        #  Aborted
-        try:
-            self._r.close()
-        except:
-            pass
         BaseAppForm.closeEvent(self, e)
 
     @pyqtSlot(bool)
