@@ -7,13 +7,14 @@
 import logging
 import os
 
+from PyQt5.QtCore import QObject
+from PyQt5.QtCore import pyqtSignal
+from numpy import ndarray
+
 from phantasy import Configuration
 from phantasy import ensure_put
 from phantasy.apps.wire_scanner.utils import wait as _wait
 from .utils import find_dconf
-from PyQt5.QtCore import QObject
-from PyQt5.QtCore import pyqtSignal
-from numpy import ndarray
 
 _LOGGER = logging.getLogger(__name__)
 

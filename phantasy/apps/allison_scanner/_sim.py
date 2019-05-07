@@ -1,7 +1,7 @@
 import epics
-from numpy import ndarray
 from PyQt5.QtCore import QObject
 from PyQt5.QtCore import pyqtSignal
+from numpy import ndarray
 
 
 class SimDevice(QObject):

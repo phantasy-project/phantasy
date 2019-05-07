@@ -13,6 +13,7 @@ from PyQt5.QtWidgets import QLineEdit
 from PyQt5.QtWidgets import QMessageBox
 from numpy import ndarray
 from phantasy_ui.templates import BaseAppForm
+
 from phantasy import Configuration
 from phantasy.apps.utils import get_open_filename
 from phantasy.apps.utils import get_save_filename
