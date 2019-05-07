@@ -3,7 +3,7 @@ from matplotlib import patches
 import numpy as np
 
 
-def draw_beam_ellipse(ax, alpha, beta, gamma, epsilon):
+def draw_beam_ellipse(ax, alpha, beta, gamma, epsilon, **kws):
     """Draw beam ellipse with given Twiss parameters.
 
     Parameters
@@ -13,26 +13,48 @@ def draw_beam_ellipse(ax, alpha, beta, gamma, epsilon):
     alpha : float
         Twiss parameter: alpha.
     beta : float
-        Twiss parameter: beta.
+        Twiss parameter: beta, [m].
     gamma : float
-        Twiss parameter: gamma.
+        Twiss parameter: gamma, [1/m].
     epsilon : float
         Geometrical transverse emittance, [m.rad].
-    """
-    ax.clear()
 
-    xc, yc = 0, 0
+    Keyword Arguments
+    -----------------
+    xc : float
+        X coord for the central of ellipse, default is 0.
+    yc : float
+        Y coord for the central of ellipse, default is 0.
+    color : str
+        Ellipse border color, default is black.
+    clear : bool
+        Clear axes or not before drawing, default is True.
+    fill :
+        Fill ellipse with color or not, defalut is 'green', or False.
+    anote : bool
+        Put annotations or not, default is True.
+    factor : float
+        Scaling factor applied to ellipse width and height, default is 1.0.
+    """
+    anote = kws.get('anote', True)
+    clear_ax = kws.get('clear', True)
+    color = kws.get('color', 'k')
+    factor = kws.get('factor', 1.0)
+    if clear_ax:
+        ax.clear()
+
+    xc, yc = kws.get('xc', 0), kws.get('yc', 0)
 
     w = (2 * epsilon / (beta + gamma + ((beta + gamma)**2 - 4)**0.5))**0.5
     h = (0.5 * epsilon * (beta + gamma + ((beta + gamma)**2 - 4)**0.5))**0.5
 
-    angle = np.arctan(2 * alpha / (gamma - beta))  # radian
+    angle = np.arctan(2 * alpha / (gamma - beta)) / 2.0  # radian
     if angle >= 0:
         phi_coord = (0.54, 0.51)
     else:
         phi_coord = (0.54, 0.47)
 
-    w, h = w * 1e3, h * 1e3  # mm mrad
+    w, h = factor * w * 1e3, factor * h * 1e3  # m -> mm, rad -> mrad
 
     theta = np.deg2rad(np.arange(0.0, 360.0, 1.0))
 
@@ -49,7 +71,9 @@ def draw_beam_ellipse(ax, alpha, beta, gamma, epsilon):
     x += xc
     y += yc
 
-    ax.fill(x, y, alpha=0.2, facecolor='green', edgecolor='green', zorder=1)
+    cfill = kws.get('fill', 'green')
+    if cfill:
+        ax.fill(x, y, alpha=0.2, facecolor=cfill, edgecolor=cfill, zorder=1)
     e1 = patches.Ellipse(
         (xc, yc),
         w,
@@ -57,9 +81,13 @@ def draw_beam_ellipse(ax, alpha, beta, gamma, epsilon):
         angle=np.rad2deg(angle),
         linewidth=2,
         fill=False,
-        zorder=2)
+        zorder=2,
+        color=color)
 
     ax.add_patch(e1)
+
+    if not anote:
+        return
 
     xm, y_xm = x.max(), y[np.where(x == x.max())][0]
     ym, x_ym = y.max(), x[np.where(y == y.max())][0]
@@ -122,4 +150,5 @@ def draw_beam_ellipse(ax, alpha, beta, gamma, epsilon):
     ax.set_title(
         r"$\phi={0:.1f}^\degree$".format(np.rad2deg(angle)), fontsize=20)
 
-    ax.axis('off')
+    if clear_ax:
+        ax.axis('off')
