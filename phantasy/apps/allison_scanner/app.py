@@ -279,6 +279,9 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
 
         print("Simulation mode...")
         data_pv = "EMS:Det1Data"
+        status_pv = "EMS:SCAN_STATUS"
+        trigger_pv = "EMS:START_SCAN"
+        #
         x1, x2, dx = [caget(i) for i in
                 ("EMS:POS_BEGIN", "EMS:POS_END", "EMS:POS_STEP")]
         y1, y2, dy = [caget(i) for i in
@@ -286,12 +289,17 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
         #
         xdim = self._xdim = int((x2 - x1) / dx) + 1
         ydim = self._ydim = int((y2 - y1) / dy) + 1
-        self._col_cnt = 1
-        print("on_run:")
-        print(x1, x2, dx, data_pv, xdim, ydim)
-        device = self._sim_device = SimDevice(data_pv)
+        #
+        x = np.linspace(x1, x2, xdim)
+        y = np.linspace(y1, y2, ydim)
+        xx, yy = np.meshgrid(x, y)
+        self.matplotlibimageWidget.setXData(xx)
+        self.matplotlibimageWidget.setYData(yy)
+        #
+        device = self._sim_device = SimDevice(data_pv, status_pv, trigger_pv)
         device.data_changed.connect(self.on_update)
-        device.start("EMS:START_SCAN")
+        device.finished.connect(self.on_finished)
+        device.start()
 
     @pyqtSlot()
     def on_run(self):
@@ -327,11 +335,8 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
         xdim = self._xdim = int((x2 - x1) / dx) + 1
         ydim = self._ydim = int((y2 - y1) / dy) + 1
 
-        self._col_cnt = 1
-        print("on_run:")
-        print(elem.name, x1, x2, dx, data_pv, xdim, ydim)
-
         self._ems_device.data_changed.connect(self.on_update)
+        self._ems_device.finished.connect(self.on_finished)
 
         # start moving
         self._ems_device.move(wait=False)
@@ -340,14 +345,12 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
         m = data.reshape(self._ydim, self._xdim)
         m = np.flipud(m)
         self.image_data_changed.emit(np.nan_to_num(m))
-        self._col_cnt += 1
-        if self._col_cnt > self._xdim:
-            if self._device_mode == "Live":
-                self._ems_device.reset_data_cb()
-            else:
-                self._sim_device.reset_data_cb()
-            QMessageBox.information(self, "EMS DAQ", "Data is ready!",
-                                    QMessageBox.Ok)
+
+    @pyqtSlot()
+    def on_finished(self):
+        QMessageBox.information(self, "EMS DAQ",
+                                "Data is ready!",
+                                QMessageBox.Ok)
 
     def closeEvent(self, e):
         BaseAppForm.closeEvent(self, e)
