@@ -10,6 +10,7 @@ from numpy import ndarray
 class Data(object):
     """Class for post-processing of data from allison-scanner.
     """
+    # kws: array, file
     def __init__(self, model, **kws):
         self.model = model
         self.device = device = model.device
@@ -29,8 +30,8 @@ class Data(object):
 
 
     def read_data(self, **kws):
-        # 1. array?
-        # 2. file? (json)
+        # 1. array?: for online analysis
+        # 2. file? (json) : for offline analysis
         array = kws.get('array', None)
         if array is not None and isinstance(array, ndarray):
             return array
@@ -62,7 +63,7 @@ class Data(object):
         assert (self._volt_end - self._volt_begin) % self._volt_step == 0
         self._volt_dim = int((self._volt_end - self._volt_begin) / self._volt_step) + 1
 
-    def initial_data_grid(self,):
+    def initial_data_grid(self):
         """Initial data grid.
 
         Returns
@@ -96,8 +97,13 @@ class Data(object):
 
         return x_grid, xp_grid, volt_grid, weight_grid,
 
-    def calculate_beam_parameters(self, x, xp, intensity=None):
+    def calculate_beam_parameters(self, x=None, xp=None, intensity=None, **kws):
+        # kws: weight_correction
+        x = self.x_grid if x is None else x
+        xp = self.xp_grid if xp is None else xp
         intensity = self.intensity if intensity is None else intensity
+        if kws.get('weight_correction', True):
+            intensity *= 1./self.weight_grid * self.grid_to_res_ratio
         return calculate_beam_parameters(x, xp, intensity,
                                          self.model.bg, self.device.xoy)
 
@@ -157,8 +163,8 @@ def calculate_beam_parameters(x, xp, intensity, bg, xoy):
     Returns
     -------
     r : dict
-        k: <u>cen, <u>pcen, <u>rms, <u><u>p, <u>prms, <u>emit, <u>emitn,
-        alpha, beta, gamma, I_total, <u> could be 'x' or 'y'.
+        k: <u>_cen, <u>_pcen, <u>_rms, <u>_<u>p, <u>p_rms, <u>_emit, <u>_emitn,
+        alpha_<u>, beta_<u>, gamma_<u>, I_total, <u> could be 'x' or 'y'.
     """
     x, xp = np.copy(x), np.copy(xp)
     dx = abs(x[1,1] - x[0,0])
@@ -188,11 +194,8 @@ def calculate_beam_parameters(x, xp, intensity, bg, xoy):
 
     v = (x_avg, xp_avg, x_rms, xxp, xp_rms, x_emit, x_emit_n,
          alpha, beta, gamma, intensity_total)
-    if xoy == 'X':
-        k = ('xcen', 'xpcen', 'xrms', 'xxp', 'xp_rms', 'xemit', 'xemitn',
-             'alpha', 'beta', 'gamma', 'I_total')
-    else:
-        k = ('ycen', 'ypcen', 'yrms', 'yyp', 'yp_rms', 'yemit', 'yemitn',
-             'alpha', 'beta', 'gamma', 'I_total')
+    l = ('{u}_cen', '{u}p_cen', '{u}_rms', '{u}_{u}p', 'xp_rms', '{u}_emit', '{u}_emitn',
+         'alpha_{u}', 'beta_{u}', 'gamma_{u}', 'total_intensity')
+    k = [i.format(u=xoy.lower()) for i in l]
     return dict(zip(k, v))
 
