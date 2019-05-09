@@ -8,6 +8,7 @@ from phantasy_ui import set_mplstyle
 
 from .app import AllisonScannerWindow
 from .data import Data
+from .data import draw_beam_ellipse_with_params
 from .device import Device
 from .model import Model
 
