@@ -3,8 +3,10 @@
 
 import json
 
+import matplotlib.pyplot as plt
 import numpy as np
 from numpy import ndarray
+from phantasy.apps.quad_scan import draw_beam_ellipse
 
 
 class Data(object):
@@ -97,8 +99,31 @@ class Data(object):
 
         return x_grid, xp_grid, volt_grid, weight_grid,
 
-    def calculate_beam_parameters(self, x=None, xp=None, intensity=None, **kws):
-        # kws: weight_correction
+    def calculate_beam_parameters(self, intensity=None, x=None, xp=None, **kws):
+        """Calculator beam Twiss parameters and more.
+
+        Parameters
+        ----------
+        intensity : array
+            Array for intensity.
+        x : array
+            Array for position, [mm].
+        xp : array
+            Array for divergence, [mrad].
+
+        Keyword Arguments
+        -----------------
+        weight_correction : bool
+            If apply weighted correction or not, default is True.
+
+        Returns
+        -------
+        r : dict
+            The keys with unit of dict are: `alpha_u`, `beta_u` [m],
+            `gamma_u` [1/m], `total_intensity`, `u_cen` [mm], `up_cen` [mrad],
+            `u_rms` [m], `up_rms` [m], `u_up` [mm.mrad], `u_emit` [mm.mrad],
+            `u_emitn` [mm.mrad], where `u` could be `x` or `y`.
+        """
         x = self.x_grid if x is None else x
         xp = self.xp_grid if xp is None else xp
         intensity = self.intensity if intensity is None else intensity
@@ -112,6 +137,43 @@ class Data(object):
         intensity = self.intensity if intensity is None else intensity
         return filter_initial_background_noise(
                     intensity, n_elements, threshold)
+
+    def plot(self, intensity=None, raw_view=False, with_return=False, **kws):
+        """Plot intensity as image.
+
+        Parameters
+        ----------
+        intensity : array
+            If not defined, use the default one (unprocessed).
+        raw_view : bool
+            If set, plot y axis with voltage, or x'.
+
+        Returns
+        -------
+        r : tuple
+            Tuple of figure and axes, if *with_return* is True.
+        """
+        data = self.intensity if intensity is None else intensity
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+
+        im = ax.imshow(data, origin="left", aspect="auto", **kws)
+        fig.colorbar(im)
+
+        xlbl = "$x\,\mathrm{[mm]}$"
+        x = self.x_grid
+        if raw_view:
+            y = self.volt_grid
+            ylbl = "Voltage [V]"
+        else:
+            y = self.xp_grid
+            ylbl = "$x'\,\mathrm{[mrad]}$"
+        ax.set_xlabel(xlbl)
+        ax.set_ylabel(ylbl)
+        im.set_extent((x[0, 0], x[-1, -1], y[0, 0], y[-1, -1]))
+
+        if with_return:
+            return fig, ax
 
 
 def filter_initial_background_noise(m_intensity, n_elements=2, threshold=5):
@@ -199,3 +261,56 @@ def calculate_beam_parameters(x, xp, intensity, bg, xoy):
     k = [i.format(u=xoy.lower()) for i in l]
     return dict(zip(k, v))
 
+
+def draw_beam_ellipse_with_params(params, ax=None, factor=4.0, xoy='x', **kws):
+    """Draw beam ellipse with beam Twiss parameters calculated from function:
+    :func:`~calculate_beam_parameters`.
+
+    Parameters
+    ----------
+    params : dict
+        Beam Twiss parameters.
+    ax :
+        If set, draw on defined one.
+    factor : float
+        Scaling factor applied to ellipse width and height, default is 4.0.
+    xoy : str
+        'x' or 'y'.
+
+    Keyword Arguments
+    -----------------
+    color : str
+        Ellipse border color, default is black.
+    clear : bool
+        Clear axes or not before drawing, default is True.
+    fill :
+        Fill ellipse with color or not, defalut is 'green', or False.
+    anote : bool
+        Put annotations or not, default is True.
+
+    Returns
+    -------
+    r : tuple
+        Return tuple of figure and axes, iff input *ax* is not defined.
+    """
+    a, b, g = [params.get('{}_{}'.format(k, xoy))
+                          for k in ('alpha', 'beta', 'gamma')]
+    epsilon, xc, yc = [params.get('{}{}'.format(xoy, k))
+                       for k in ('_emit', '_cen', 'p_cen')]
+
+    color = kws.get('color', 'w')
+    clear = kws.get('clear', False)
+    anote = kws.get('anote', False)
+    fill = kws.get('fill', False) # or color
+
+    auto_scale = False
+    if ax is None:
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+        auto_scale = True
+    draw_beam_ellipse(ax=ax, alpha=a, beta=b, gamma=g, epsilon=epsilon/1.0e6,
+                      xc=xc, yc=yc, factor=factor, color=color,
+                      clear=clear, anote=anote, fill=fill)
+    if auto_scale:
+        ax.autoscale()
+        return fig, ax
