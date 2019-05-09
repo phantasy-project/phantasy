@@ -395,20 +395,29 @@ class Device(QObject):
     def abort(self):
         setattr(self.elem, 'ABORT_SCAN{}'.format(self._id), 1)
 
-    def move(self, timeout=600, wait=True):
+    def move(self, timeout=600, wait=True, validate=True):
         """Start scan."""
+        if validate:  # check scan status or not
+            s = self.check_status()
+            if s != 0:
+                raise RuntimeError("Device is busy, not be ready for moving.")
+
+        self.init_data_cb()
+        setattr(self.elem, 'START_SCAN{}'.format(self._id), 1)
+        if wait:
+            _wait(self.get_status_pv(), 0, timeout)
+            self.reset_data_cb()
+            print("Move is done.")
+
+    def get_status_pv(self):
         ss_fld_name = 'SCAN_STATUS{}'.format(self._id)
         ss_fld = self.elem.get_field(ss_fld_name)
         ss_pv = ss_fld.readback_pv[0]
-        scan_status = ss_fld.value
-        if scan_status != 0:
-            raise RuntimeError("Device is busy, not be ready for moving.")
-        setattr(self.elem, 'START_SCAN{}'.format(self._id), 1)
-        self.init_data_cb()
-        if wait:
-            _wait(ss_pv, 0, timeout)
-            self.reset_data_cb()
-            print("Move is done.")
+        return ss_pv
+
+    def check_status(self):
+        pv = self.get_status_pv()
+        return pv.get()
 
     def run_all_in_one(self):
         self.enable()
