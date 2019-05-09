@@ -31,7 +31,7 @@ def out2json(outfile, jsonfile=None):
     r.append(('xoy', xoy))
     r.append(('position', {'begin': pos_begin, 'end': pos_end, 'step': pos_step}))
     r.append(('voltage', {'begin': volt_begin, 'end': volt_end, 'step': volt_step}))
-    r.append(('data', {'shape': (pos_size, volt_size), 'array': data1.tolist()}))
+    r.append(('data', {'shape': (volt_size, pos_size), 'array': data1.tolist()}))
 
     with open(jsonfile, 'w') as fp:
         json.dump(OrderedDict(r), fp, indent=2)
