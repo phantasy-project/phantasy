@@ -296,7 +296,7 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
         self.matplotlibimageWidget.setXData(xx)
         self.matplotlibimageWidget.setYData(yy)
         #
-        device = self._sim_device = SimDevice(data_pv, status_pv, trigger_pv)
+        device = self._ems_device = SimDevice(data_pv, status_pv, trigger_pv)
         device.data_changed.connect(self.on_update)
         device.finished.connect(self.on_finished)
         device.start()
@@ -329,8 +329,6 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
         y2 = getattr(elem, self._volt_end_fname)
         dy = getattr(elem, self._volt_step_fname)
 
-        data_pv = self._data_pv
-
         #
         xdim = self._xdim = int((x2 - x1) / dx) + 1
         ydim = self._ydim = int((y2 - y1) / dy) + 1
@@ -339,18 +337,29 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
         self._ems_device.finished.connect(self.on_finished)
 
         # start moving
-        self._ems_device.move(wait=False)
+        if not self.is_valid_to_move():
+            QMessageBox.warning(self, "Starting Device",
+                    "Device is busy.",
+                    QMessageBox.Ok)
+            return
+        self._ems_device.move(wait=False, validate=False)
+
+    def is_valid_to_move(self):
+        # if ok to move or not.
+        return self._ems_device.check_status() == 0
 
     def on_update(self, data):
         m = data.reshape(self._ydim, self._xdim)
         m = np.flipud(m)
-        self.image_data_changed.emit(np.nan_to_num(m))
+        m = np.nan_to_num(m)
+        self.image_data_changed.emit(m)
 
     @pyqtSlot()
     def on_finished(self):
         QMessageBox.information(self, "EMS DAQ",
-                                "Data is ready!",
+                                "Data is almost ready!",
                                 QMessageBox.Ok)
+        self.on_update(self._ems_device._data_pv.value)
 
     def closeEvent(self, e):
         BaseAppForm.closeEvent(self, e)
