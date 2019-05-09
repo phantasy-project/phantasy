@@ -49,6 +49,7 @@ class Device(QObject):
     """
 
     data_changed = pyqtSignal(ndarray)
+    finished = pyqtSignal()
 
     def __init__(self, elem, xoy='X', dconf=None):
         super(self.__class__, self).__init__()
@@ -416,12 +417,20 @@ class Device(QObject):
         print("Run-All-in-One is done.")
 
     def init_data_cb(self):
+        self._status_pv = self.elem.get_field('SCAN_STATUS{}'.format(self._id)).readback_pv[0]
+        self._scid = self._status_pv.add_callback(self.on_status_updated)
         self._data_pv = self.elem.get_field('DATA{}'.format(self._id)).readback_pv[0]
         self._data_pv.auto_monitor=True
-        self._cid = self._data_pv.add_callback(self.on_data_updated)
+        self._dcid = self._data_pv.add_callback(self.on_data_updated)
 
     def reset_data_cb(self):
-        self._data_pv.remove_callback(self._cid)
+        self._data_pv.remove_callback(self._dcid)
+        self._status_pv.remove_callback(self._scid)
+        self.finished.emit()
+
+    def on_status_updated(self, value, **kws):
+        if value == 12:
+            self.reset_data_cb()
 
     def on_data_updated(self, value, **kws):
         self.data_changed.emit(value)
