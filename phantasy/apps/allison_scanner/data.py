@@ -154,8 +154,7 @@ class Data(object):
             Tuple of figure and axes, if *with_return* is True.
         """
         data = self.intensity if intensity is None else intensity
-        fig = plt.figure()
-        ax = fig.add_subplot(111)
+        fig, ax = plt.subplots()
 
         im = ax.imshow(data, origin="left", aspect="auto", **kws)
         fig.colorbar(im)
@@ -305,8 +304,7 @@ def draw_beam_ellipse_with_params(params, ax=None, factor=4.0, xoy='x', **kws):
 
     auto_scale = False
     if ax is None:
-        fig = plt.figure()
-        ax = fig.add_subplot(111)
+        fig, ax = plt.subplots()
         auto_scale = True
     draw_beam_ellipse(ax=ax, alpha=a, beta=b, gamma=g, epsilon=epsilon/1.0e6,
                       xc=xc, yc=yc, factor=factor, color=color,
