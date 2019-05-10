@@ -18,6 +18,7 @@ from phantasy import Configuration
 from phantasy.apps.utils import get_open_filename
 from phantasy.apps.utils import get_save_filename
 from .device import Device
+from ._sim import SimDevice
 from .ui.ui_app import Ui_MainWindow
 from .utils import find_dconf
 from .utils import get_all_devices
@@ -274,7 +275,6 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
 
     def _run_simulation(self):
         # simulation
-        from ._sim import SimDevice
         from epics import caget
 
         print("Simulation mode...")
@@ -296,7 +296,7 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
         self.matplotlibimageWidget.setXData(xx)
         self.matplotlibimageWidget.setYData(yy)
         #
-        device = self._ems_device = SimDevice(data_pv, status_pv, trigger_pv)
+        device = self._device = SimDevice(data_pv, status_pv, trigger_pv)
         device.data_changed.connect(self.on_update)
         device.finished.connect(self.on_finished)
         device.start()
@@ -333,8 +333,14 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
         xdim = self._xdim = int((x2 - x1) / dx) + 1
         ydim = self._ydim = int((y2 - y1) / dy) + 1
 
-        self._ems_device.data_changed.connect(self.on_update)
-        self._ems_device.finished.connect(self.on_finished)
+        _id = self._ems_device._id
+        data_pv = elem.pv('DATA{}'.format(_id))[0]
+        status_pv = elem.pv('SCAN_STATUS{}'.format(_id))[0]
+        trigger_pv = elem.pv('START_SCAN{}'.format(_id))[0]
+
+        device = self._device = SimDevice(data_pv, status_pv, trigger_pv)
+        device.data_changed.connect(self.on_update)
+        device.finished.connect(self.on_finished)
 
         # start moving
         if not self.is_valid_to_move():
@@ -342,7 +348,7 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
                     "Device is busy.",
                     QMessageBox.Ok)
             return
-        self._ems_device.move(wait=False, validate=False)
+        device.start()
 
     def is_valid_to_move(self):
         # if ok to move or not.
@@ -357,9 +363,9 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
     @pyqtSlot()
     def on_finished(self):
         QMessageBox.information(self, "EMS DAQ",
-                                "Data is almost ready!",
+                                "Data readiness is approaching...",
                                 QMessageBox.Ok)
-        self.on_update(self._ems_device._data_pv.value)
+        self.on_update(self._device._data_pv.value)
 
     def closeEvent(self, e):
         BaseAppForm.closeEvent(self, e)
