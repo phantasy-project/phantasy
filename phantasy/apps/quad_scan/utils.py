@@ -35,6 +35,11 @@ def draw_beam_ellipse(ax, alpha, beta, gamma, epsilon, **kws):
         Put annotations or not, default is True.
     factor : float
         Scaling factor applied to ellipse width and height, default is 1.0.
+
+    Returns
+    -------
+    r : patches
+        Ellipse patches.
     """
     anote = kws.get('anote', True)
     clear_ax = kws.get('clear', True)
@@ -87,7 +92,7 @@ def draw_beam_ellipse(ax, alpha, beta, gamma, epsilon, **kws):
     ax.add_patch(e1)
 
     if not anote:
-        return
+        return e1
 
     xm, y_xm = x.max(), y[np.where(x == x.max())][0]
     ym, x_ym = y.max(), x[np.where(y == y.max())][0]
@@ -152,3 +157,5 @@ def draw_beam_ellipse(ax, alpha, beta, gamma, epsilon, **kws):
 
     if clear_ax:
         ax.axis('off')
+
+    return e1
