@@ -11,6 +11,7 @@ from .data import Data
 from .data import draw_beam_ellipse_with_params
 from .device import Device
 from .model import Model
+from .utils import point_in_ellipse
 
 __authors__ = "Tong Zhang"
 __copyright__ = "(c) 2019, Facility for Rare Isotope beams," \
