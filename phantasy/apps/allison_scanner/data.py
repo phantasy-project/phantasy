@@ -6,30 +6,32 @@ import json
 import matplotlib.pyplot as plt
 import numpy as np
 from numpy import ndarray
+
 from phantasy.apps.quad_scan import draw_beam_ellipse
+from .utils import point_in_ellipse
 
 
 class Data(object):
     """Class for post-processing of data from allison-scanner.
     """
+
     # kws: array, file
     def __init__(self, model, **kws):
         self.model = model
         self.device = device = model.device
         self.update_pos_conf(
-                {"begin": device.pos_begin,
-                 "end": device.pos_end,
-                 "step": device.pos_step})
+            {"begin": device.pos_begin,
+             "end": device.pos_end,
+             "step": device.pos_step})
         self.update_volt_conf(
-                {"begin": device.volt_begin,
-                 "end": device.volt_end,
-                 "step": device.volt_step})
+            {"begin": device.volt_begin,
+             "end": device.volt_end,
+             "step": device.volt_step})
         # raw intensity array
         self.intensity = self.read_data(**kws)
         #
         self.x_grid, self.xp_grid, self.volt_grid, self.weight_grid = \
-                self.initial_data_grid()
-
+            self.initial_data_grid()
 
     def read_data(self, **kws):
         # 1. array?: for online analysis
@@ -75,8 +77,8 @@ class Data(object):
         """
         # original position, voltage data grid
         pos_grid, volt_grid = np.meshgrid(
-                np.linspace(self._pos_begin, self._pos_end, self._pos_dim),
-                np.linspace(self._volt_begin, self._volt_end, self._volt_dim))
+            np.linspace(self._pos_begin, self._pos_end, self._pos_dim),
+            np.linspace(self._volt_begin, self._volt_end, self._volt_dim))
         x_grid = pos_grid  # mm
 
         model = self.model
@@ -94,8 +96,7 @@ class Data(object):
 
         # ratio of grid unit size to resolution
         dxp = model.voltage_to_divergence(self._volt_step)[1]
-        self.grid_to_res_ratio = dxp * self._pos_step / 1000.0 \
-                / self.device.dxp0 / self.device.slit_width
+        self.grid_to_res_ratio = dxp * self._pos_step / 1000.0 / self.device.dxp0 / self.device.slit_width
 
         return x_grid, xp_grid, volt_grid, weight_grid,
 
@@ -128,7 +129,7 @@ class Data(object):
         xp = self.xp_grid if xp is None else xp
         intensity = self.intensity if intensity is None else intensity
         if kws.get('weight_correction', True):
-            intensity *= 1./self.weight_grid * self.grid_to_res_ratio
+            intensity *= 1. / self.weight_grid * self.grid_to_res_ratio
         return calculate_beam_parameters(x, xp, intensity,
                                          self.model.bg, self.device.xoy)
 
@@ -136,7 +137,7 @@ class Data(object):
                                         n_elements=2, threshold=5):
         intensity = self.intensity if intensity is None else intensity
         return filter_initial_background_noise(
-                    intensity, n_elements, threshold)
+            intensity, n_elements, threshold)
 
     def plot(self, intensity=None, raw_view=False, with_return=False, **kws):
         """Plot intensity as image.
@@ -147,6 +148,8 @@ class Data(object):
             If not defined, use the default one (unprocessed).
         raw_view : bool
             If set, plot y axis with voltage, or x'.
+        with_return : bool
+            If set, return tuple will be enabled.
 
         Returns
         -------
@@ -159,20 +162,62 @@ class Data(object):
         im = ax.imshow(data, origin="left", aspect="auto", **kws)
         fig.colorbar(im)
 
-        xlbl = "$x\,\mathrm{[mm]}$"
+        xlbl = r"$x\,\mathrm{[mm]}$"
         x = self.x_grid
         if raw_view:
             y = self.volt_grid
-            ylbl = "Voltage [V]"
+            ylbl = r"Voltage [V]"
         else:
             y = self.xp_grid
-            ylbl = "$x'\,\mathrm{[mrad]}$"
+            ylbl = r"$x'\,\mathrm{[mrad]}$"
         ax.set_xlabel(xlbl)
         ax.set_ylabel(ylbl)
         im.set_extent((x[0, 0], x[-1, -1], y[0, 0], y[-1, -1]))
 
         if with_return:
             return fig, ax
+
+    def _get_points(self):
+        x, y = self.x_grid[0, :], self.xp_grid[:, 0]
+        return np.asarray([(i, j) for j in y for i in x])
+
+    def tag_noise_signal(self, ellipse, factor=1.0):
+        """Return array of boolean, to indicate if point is noise (False) or
+        signal (True).
+        """
+        _xp1 = self.xp_grid[:, 0]
+        _x1 = self.x_grid[0, :]
+        z = np.zeros(self.x_grid.shape)
+        for j, yi in enumerate(_xp1):
+            for i, xi in enumerate(_x1):
+                if point_in_ellipse(xi, yi, ellipse, factor=factor):
+                    z[j, i] = True  # signal
+                else:
+                    z[j, i] = False  # noise
+        return z
+
+    def noise_correction(self, noise_signal_array, intensity=None, **kws):
+        """
+        Parameters
+        ----------
+        noise_signal_array : array
+            Boolean array with True as signal, and False as False tagging.
+        intensity : array:
+            Intensity array, if not defined, use the initial one.
+
+        Keyword Arguments
+        -----------------
+        threshold_sigma : float
+            Additional threshold for noise level measured by noise
+            standard deviation, default is 2.0.
+
+        Returns
+        -------
+        m : array:
+            Intensity after noise correction.
+        """
+        intensity = self.intensity if intensity is None else intensity
+        return noise_correction(intensity, noise_signal_array, **kws)
 
 
 def filter_initial_background_noise(m_intensity, n_elements=2, threshold=5):
@@ -228,8 +273,8 @@ def calculate_beam_parameters(x, xp, intensity, bg, xoy):
         alpha_<u>, beta_<u>, gamma_<u>, I_total, <u> could be 'x' or 'y'.
     """
     x, xp = np.copy(x), np.copy(xp)
-    dx = abs(x[1,1] - x[0,0])
-    dxp = abs(xp[1,1] - xp[0,0])
+    dx = abs(x[1, 1] - x[0, 0])
+    dxp = abs(xp[1, 1] - xp[0, 0])
     j = intensity / (dx * dxp)
     intensity_total = intensity.sum()
     x_avg = np.sum(x * intensity) / intensity_total
@@ -243,9 +288,9 @@ def calculate_beam_parameters(x, xp, intensity, bg, xoy):
     xp_up = xp + dxp / 2.0
     xp_down = xp - dxp / 2.0
 
-    xx = abs(dxp * np.sum((x_up ** 3 - x_down ** 3)/3.0 * j)) / intensity_total
+    xx = abs(dxp * np.sum((x_up ** 3 - x_down ** 3) / 3.0 * j)) / intensity_total
     xxp = np.sum(x * xp * intensity) / intensity_total
-    xpxp = abs(dx * np.sum((xp_up ** 3 - xp_down ** 3)/3.0 * j)) / intensity_total
+    xpxp = abs(dx * np.sum((xp_up ** 3 - xp_down ** 3) / 3.0 * j)) / intensity_total
 
     x_rms, xp_rms = np.sqrt(xx), np.sqrt(xpxp)
     x_emit = np.sqrt(xx * xpxp - xxp ** 2)
@@ -290,25 +335,65 @@ def draw_beam_ellipse_with_params(params, ax=None, factor=4.0, xoy='x', **kws):
     Returns
     -------
     r : tuple
-        Return tuple of figure and axes, iff input *ax* is not defined.
+        Return tuple of ellipse, figure, axes, iff input *ax* is not defined,
+        or return tuple of ellipse, None, None.
     """
     a, b, g = [params.get('{}_{}'.format(k, xoy))
-                          for k in ('alpha', 'beta', 'gamma')]
+               for k in ('alpha', 'beta', 'gamma')]
     epsilon, xc, yc = [params.get('{}{}'.format(xoy, k))
                        for k in ('_emit', '_cen', 'p_cen')]
 
     color = kws.get('color', 'w')
     clear = kws.get('clear', False)
     anote = kws.get('anote', False)
-    fill = kws.get('fill', False) # or color
+    fill = kws.get('fill', False)  # or color
 
     auto_scale = False
     if ax is None:
         fig, ax = plt.subplots()
         auto_scale = True
-    draw_beam_ellipse(ax=ax, alpha=a, beta=b, gamma=g, epsilon=epsilon/1.0e6,
-                      xc=xc, yc=yc, factor=factor, color=color,
-                      clear=clear, anote=anote, fill=fill)
+    e1 = draw_beam_ellipse(ax=ax, alpha=a, beta=b, gamma=g, epsilon=epsilon / 1.0e6,
+                           xc=xc, yc=yc, factor=factor, color=color,
+                           clear=clear, anote=anote, fill=fill)
     if auto_scale:
         ax.autoscale()
-        return fig, ax
+        return e1, fig, ax
+    else:
+        return e1, None, None
+
+
+def noise_correction(intensity, noise_signal_array, threshold_sigma=2.0):
+    """Apply noise correction to the *intensity* matrix, the noise threshold
+    is defined by average noise and noise standard deviation defined
+    multiplied by *threshold_sigma*, signal and noise is defined in
+    *noise_signal_array*.
+
+    Parameters
+    ----------
+    intensity : array
+        Intensity matrix.
+    noise_signal_array : array
+        Boolean array with True as signal, and False as False tagging.
+    threshold_sigma : float
+        Additional noise threshold level.
+
+    Returns
+    -------
+    m : array:
+        Matrix of signal after noise correction.
+    """
+    noise_arr = intensity[noise_signal_array == False]
+    noise_avg = noise_arr.mean()
+    noise_std = noise_arr.std()
+
+    shape = intensity.shape
+    arr_flat = intensity.flatten()
+    noise_threshold = threshold_sigma * noise_std + noise_avg
+    for i, v in enumerate(arr_flat):
+        if v < noise_threshold:
+            arr_flat[i] = 0
+        else:
+            arr_flat[i] -= noise_avg
+    m = arr_flat.reshape(shape)
+    m[noise_signal_array == False] = 0
+    return m
