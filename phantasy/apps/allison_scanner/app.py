@@ -9,6 +9,7 @@ from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtGui import QDesktopServices
 from PyQt5.QtGui import QPixmap
+from PyQt5.QtGui import QDoubleValidator
 from PyQt5.QtWidgets import QLineEdit
 from PyQt5.QtWidgets import QMessageBox
 from numpy import ndarray
@@ -22,6 +23,8 @@ from ._sim import SimDevice
 from .ui.ui_app import Ui_MainWindow
 from .utils import find_dconf
 from .utils import get_all_devices
+from .model import Model
+from .data import Data
 
 
 class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
@@ -71,6 +74,14 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
         # orientation
         self._ems_orientation = "X"
         self.ems_orientation_cbb.currentTextChanged.connect(self.on_update_orientation)
+
+        # model
+        for o in (self.ion_charge_lineEdit, self.ion_mass_lineEdit,
+                  self.ion_energy_lineEdit, ):
+            o.setValidator(QDoubleValidator(0, 99999999, 6))
+            o.returnPressed.connect(self.on_update_model)
+        self.voltage_lineEdit.setValidator(QDoubleValidator())
+        self.voltage_lineEdit.textChanged.connect(self.on_v2d)
 
         # init EMS devices
         all_devices_dict = get_all_devices()
@@ -154,6 +165,13 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
         self.info_lbl.setToolTip(tt)
 
         self.show_device_config()
+
+        # initial/update model
+        ionc = float(self.ion_charge_lineEdit.text())
+        ionm = float(self.ion_mass_lineEdit.text())
+        ione = float(self.ion_energy_lineEdit.text())
+        self._model = Model(device=ems,
+                            ion_charge=ionc, ion_mass=ionm, ion_energy=ione)
 
     def show_device_config(self):
         """Show current device config, use device.sync_params() to refresh
@@ -358,6 +376,7 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
         m = data.reshape(self._ydim, self._xdim)
         m = np.flipud(m)
         m = np.nan_to_num(m)
+        self._current_array = m
         self.image_data_changed.emit(m)
 
     @pyqtSlot()
@@ -366,6 +385,8 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
                                 "Data readiness is approaching...",
                                 QMessageBox.Ok)
         self.on_update(self._device._data_pv.value)
+        # show raw data
+        self.on_plot_raw_data()
 
     def closeEvent(self, e):
         BaseAppForm.closeEvent(self, e)
@@ -376,3 +397,38 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
             self._device_mode = "Simulation"
         else:
             self._device_mode = "Live"
+
+    @pyqtSlot()
+    def on_update_results(self):
+        """Calculate Twiss parameters and update UI.
+        """
+        print("Update Twiss params")
+
+    def on_plot_raw_data(self):
+        # plot raw data.
+        data = Data(model=self._model, array=self._current_array)
+        inten1 = data.filter_initial_background_noise()
+        r1 = data.calculate_beam_parameters(inten1)
+        print(r1)
+
+    @pyqtSlot()
+    def on_update_model(self):
+        ionc = float(self.ion_charge_lineEdit.text())
+        ionm = float(self.ion_mass_lineEdit.text())
+        ione = float(self.ion_energy_lineEdit.text())
+        self._model.ion_charge = ionc
+        self._model.ion_mass = ionm
+        self._model.ion_energy = ione
+        self.on_v2d(self.voltage_lineEdit.text())
+
+    @pyqtSlot('QString')
+    def on_v2d(self, s):
+        try:
+            v = float(s)
+        except ValueError:
+            out = ''
+        else:
+            d = self._model.voltage_to_divergence(v)[1] * 1000
+            out = "{0:.3f}".format(d)
+        finally:
+            self.divergence_lineEdit.setText(out)
