@@ -316,8 +316,9 @@ def filter_initial_background_noise(m_intensity, n_elements=2, threshold=5):
 
     Returns
     -------
-    m : array
-        Intensity matrix over sampled noise threshold.
+    r : tuple
+        Tuple of Intensity matrix over sampled noise threshold and noise
+        matrix.
     """
     m = m_intensity
     n = n_elements
@@ -325,7 +326,7 @@ def filter_initial_background_noise(m_intensity, n_elements=2, threshold=5):
     subm = m_intensity[np.ix_(_range, _range)]
     mmax, mmin, mavg, mstd = subm.max(), subm.min(), subm.mean(), subm.std()
     idx = m >= (mmax + threshold * mstd)
-    return (m - mavg) * idx
+    return (m - mavg) * idx, subm
 
 
 def calculate_beam_parameters(x, xp, intensity, bg, xoy):
