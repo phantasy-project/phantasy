@@ -29,7 +29,10 @@ from .data import Data
 
 class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
     image_data_changed = pyqtSignal(ndarray)
-
+    xdata_changed = pyqtSignal(ndarray)
+    ydata_changed = pyqtSignal(ndarray)
+    xlabel_changed = pyqtSignal('QString')
+    ylabel_changed = pyqtSignal('QString')
     def __init__(self, version):
         super(AllisonScannerWindow, self).__init__()
 
@@ -59,6 +62,10 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
         self.setupUi(self)
 
         self.image_data_changed.connect(self.matplotlibimageWidget.update_image)
+        self.xdata_changed.connect(self.matplotlibimageWidget.setXData)
+        self.ydata_changed.connect(self.matplotlibimageWidget.setYData)
+        self.xlabel_changed.connect(self.matplotlibimageWidget.setFigureXlabel)
+        self.ylabel_changed.connect(self.matplotlibimageWidget.setFigureYlabel)
 
         self._post_init()
 
@@ -82,6 +89,12 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
             o.returnPressed.connect(self.on_update_model)
         self.voltage_lineEdit.setValidator(QDoubleValidator())
         self.voltage_lineEdit.textChanged.connect(self.on_v2d)
+
+        # data
+        self._data = None
+        # bkgd noise
+        for o in (self.bkgd_noise_nelem_sbox, self.bkgd_noise_threshold_sbox):
+            o.valueChanged.emit(o.value())
 
         # init EMS devices
         all_devices_dict = get_all_devices()
@@ -385,7 +398,8 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
                                 "Data readiness is approaching...",
                                 QMessageBox.Ok)
         self.on_update(self._device._data_pv.value)
-        # show raw data
+        # initial data
+        self.on_initial_data()
         self.on_plot_raw_data()
 
     def closeEvent(self, e):
@@ -403,13 +417,19 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
         """Calculate Twiss parameters and update UI.
         """
         print("Update Twiss params")
+        inten = self.matplotlibimageWidget.get_data()
+        res = self._data.calculate_beam_parameters(inten)
+        self.update_results_ui(res)
+
+    def on_initial_data(self):
+        self._data = Data(model=self._model, array=self._current_array)
 
     def on_plot_raw_data(self):
-        # plot raw data.
-        data = Data(model=self._model, array=self._current_array)
-        inten1 = data.filter_initial_background_noise()
-        r1 = data.calculate_beam_parameters(inten1)
-        print(r1)
+        # plot raw data, before processing.
+        self.xdata_changed.emit(self._data.x_grid)
+        self.xlabel_changed.emit("$x\,\mathrm{[mm]}$")
+        self.image_data_changed.emit(self._data.intensity)
+        self.raw_view_chkbox.toggled.emit(self.raw_view_chkbox.isChecked())
 
     @pyqtSlot()
     def on_update_model(self):
@@ -432,3 +452,84 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
             out = "{0:.3f}".format(d)
         finally:
             self.divergence_lineEdit.setText(out)
+
+    @pyqtSlot()
+    def on_open_data(self,):
+        # open data.
+        filepath, ext = get_open_filename(self, filter="JSON Files (*.json)")
+        if filepath is None:
+            return
+
+        try:
+            data = self._data = Data(self._model, file=filepath)
+        except KeyError:
+            QMessageBox.warning(self, "Open Data", "Failed to open data.",
+                    QMessageBox.Ok)
+            return
+        else:
+            # show raw_data
+            #
+            self.on_plot_raw_data()
+            #
+            #inten1 = self._update_bkgd_noise()
+            # r1 = data.calculate_beam_parameters(inten1)
+            # print(r1)
+
+    def _update_bkgd_noise(self):
+        if self._data is None:
+            return
+        try:
+            inten1, bkgd_noise = self._data.filter_initial_background_noise(
+                               n_elements=self._bkgd_noise_nelem,
+                               threshold=self._bkgd_noise_nsigma)
+        except (IndexError, ValueError):
+            pass
+        else:
+            self.plot_bkgd_noise(self.bkgd_noise_plot, bkgd_noise,
+                                 self._bkgd_noise_nsigma)
+            self.image_data_changed.emit(inten1)
+            return inten1
+
+    @pyqtSlot(int)
+    def on_update_nsampling(self, i):
+        # bkgd noise nelem.
+        self._bkgd_noise_nelem = i
+        self._update_bkgd_noise()
+
+    @pyqtSlot(int)
+    def on_update_threshold0(self, i):
+        self._bkgd_noise_nsigma = i
+        self._update_bkgd_noise()
+
+    def plot_bkgd_noise(self, o, m, n):
+        ax = o.axes
+        ax.clear()
+        m = m.flatten()
+        avg = m.mean()
+        std = m.std()
+        ax.plot(m, color='b')
+        ax.axhline(avg, ls='--', color='r')
+        ax.axhline(avg + n * std, ls='--', color='m')
+        t = r'$\mathrm{{Average}}: {0:.3g}, \sigma: {1:.3g}, \mathrm{{threshold}}: {2:.3g}$'.format(
+                avg, std, avg + n * std)
+        ax.set_title(t)
+        ax.xaxis.set_visible(False)
+        o.update_figure()
+
+    @pyqtSlot(bool)
+    def on_enable_raw_view(self, f):
+        if f: # show pos, volt, intensity
+            self.ydata_changed.emit(self._data.volt_grid)
+            self.ylabel_changed.emit("$\mathrm{Voltage}\,\mathrm{[V]}$")
+        else: # show pos, angle, intensity
+            self.ydata_changed.emit(self._data.xp_grid)
+            self.ylabel_changed.emit("$x'\,\mathrm{[mrad]}$")
+
+    def update_results_ui(self, res):
+        ks = ('x_cen', 'xp_cen', 'x_rms', 'xp_rms',
+              'alpha_x', 'beta_x', 'gamma_x', 'emit_x', 'emitn_x', )
+        u = self._ems_device.xoy.lower()
+        for k in ks:
+            o = getattr(self, k + '_lineEdit')
+            v = res.get(k.replace('x', u))
+            o.setText("{0:.6f}".format(v))
