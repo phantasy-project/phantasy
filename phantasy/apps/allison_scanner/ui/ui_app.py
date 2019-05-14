@@ -646,7 +646,7 @@ class Ui_MainWindow(object):
         self.groupBox = QtWidgets.QGroupBox(self.splitter)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
                                            QtWidgets.QSizePolicy.Preferred)
-        sizePolicy.setHorizontalStretch(3)
+        sizePolicy.setHorizontalStretch(7)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(
             self.groupBox.sizePolicy().hasHeightForWidth())
@@ -660,10 +660,20 @@ class Ui_MainWindow(object):
         self.matplotlibimageWidget.setAutoColorLimit(True)
         self.matplotlibimageWidget.setObjectName("matplotlibimageWidget")
         self.gridLayout.addWidget(self.matplotlibimageWidget, 1, 0, 1, 1)
+        self.horizontalLayout_9 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_9.setContentsMargins(-1, 0, -1, -1)
+        self.horizontalLayout_9.setObjectName("horizontalLayout_9")
+        self.raw_view_chkbox = QtWidgets.QCheckBox(self.groupBox)
+        self.raw_view_chkbox.setObjectName("raw_view_chkbox")
+        self.horizontalLayout_9.addWidget(self.raw_view_chkbox)
+        self.checkBox = QtWidgets.QCheckBox(self.groupBox)
+        self.checkBox.setObjectName("checkBox")
+        self.horizontalLayout_9.addWidget(self.checkBox)
+        self.gridLayout.addLayout(self.horizontalLayout_9, 2, 0, 1, 1)
         self.groupBox_3 = QtWidgets.QGroupBox(self.splitter)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
                                            QtWidgets.QSizePolicy.Preferred)
-        sizePolicy.setHorizontalStretch(1)
+        sizePolicy.setHorizontalStretch(4)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(
             self.groupBox_3.sizePolicy().hasHeightForWidth())
@@ -675,38 +685,32 @@ class Ui_MainWindow(object):
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
                                            QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setVerticalStretch(1)
         sizePolicy.setHeightForWidth(
             self.toolBox.sizePolicy().hasHeightForWidth())
         self.toolBox.setSizePolicy(sizePolicy)
         self.toolBox.setObjectName("toolBox")
         self.page_3 = QtWidgets.QWidget()
+        self.page_3.setGeometry(QtCore.QRect(0, 0, 1050, 280))
         self.page_3.setObjectName("page_3")
         self.gridLayout_6 = QtWidgets.QGridLayout(self.page_3)
         self.gridLayout_6.setObjectName("gridLayout_6")
-        self.ion_mass_lineEdit = QtWidgets.QLineEdit(self.page_3)
-        self.ion_mass_lineEdit.setObjectName("ion_mass_lineEdit")
-        self.gridLayout_6.addWidget(self.ion_mass_lineEdit, 0, 4, 1, 1)
-        self.label_33 = QtWidgets.QLabel(self.page_3)
-        self.label_33.setObjectName("label_33")
-        self.gridLayout_6.addWidget(self.label_33, 0, 2, 1, 1)
         self.label_34 = QtWidgets.QLabel(self.page_3)
         self.label_34.setObjectName("label_34")
-        self.gridLayout_6.addWidget(self.label_34, 1, 0, 1, 1)
+        self.gridLayout_6.addWidget(self.label_34, 2, 0, 1, 1)
+        self.label_33 = QtWidgets.QLabel(self.page_3)
+        self.label_33.setObjectName("label_33")
+        self.gridLayout_6.addWidget(self.label_33, 1, 0, 1, 1)
+        self.ion_mass_lineEdit = QtWidgets.QLineEdit(self.page_3)
+        self.ion_mass_lineEdit.setObjectName("ion_mass_lineEdit")
+        self.gridLayout_6.addWidget(self.ion_mass_lineEdit, 1, 1, 1, 1)
         self.label_35 = QtWidgets.QLabel(self.page_3)
         self.label_35.setObjectName("label_35")
-        self.gridLayout_6.addWidget(self.label_35, 1, 2, 1, 1)
-        self.ion_charge_lineEdit = QtWidgets.QLineEdit(self.page_3)
-        self.ion_charge_lineEdit.setObjectName("ion_charge_lineEdit")
-        self.gridLayout_6.addWidget(self.ion_charge_lineEdit, 0, 1, 1, 1)
+        self.gridLayout_6.addWidget(self.label_35, 2, 2, 1, 1)
         self.ion_energy_lineEdit = QtWidgets.QLineEdit(self.page_3)
         self.ion_energy_lineEdit.setObjectName("ion_energy_lineEdit")
-        self.gridLayout_6.addWidget(self.ion_energy_lineEdit, 1, 1, 1, 1)
-        self.label_32 = QtWidgets.QLabel(self.page_3)
-        self.label_32.setObjectName("label_32")
-        self.gridLayout_6.addWidget(self.label_32, 0, 0, 1, 1)
+        self.gridLayout_6.addWidget(self.ion_energy_lineEdit, 2, 1, 1, 1)
         self.horizontalLayout_8 = QtWidgets.QHBoxLayout()
-        self.horizontalLayout_8.setContentsMargins(0, -1, -1, -1)
         self.horizontalLayout_8.setObjectName("horizontalLayout_8")
         self.voltage_lineEdit = QtWidgets.QLineEdit(self.page_3)
         self.voltage_lineEdit.setObjectName("voltage_lineEdit")
@@ -714,6 +718,11 @@ class Ui_MainWindow(object):
         self.label_36 = QtWidgets.QLabel(self.page_3)
         self.label_36.setObjectName("label_36")
         self.horizontalLayout_8.addWidget(self.label_36)
+        self.label_38 = QtWidgets.QLabel(self.page_3)
+        self.label_38.setText("")
+        self.label_38.setPixmap(QtGui.QPixmap(":/icons/to.png"))
+        self.label_38.setObjectName("label_38")
+        self.horizontalLayout_8.addWidget(self.label_38)
         self.divergence_lineEdit = QtWidgets.QLineEdit(self.page_3)
         self.divergence_lineEdit.setReadOnly(True)
         self.divergence_lineEdit.setObjectName("divergence_lineEdit")
@@ -721,14 +730,90 @@ class Ui_MainWindow(object):
         self.label_37 = QtWidgets.QLabel(self.page_3)
         self.label_37.setObjectName("label_37")
         self.horizontalLayout_8.addWidget(self.label_37)
-        self.gridLayout_6.addLayout(self.horizontalLayout_8, 1, 4, 1, 1)
+        self.gridLayout_6.addLayout(self.horizontalLayout_8, 3, 0, 1, 2)
+        self.ion_charge_lineEdit = QtWidgets.QLineEdit(self.page_3)
+        self.ion_charge_lineEdit.setObjectName("ion_charge_lineEdit")
+        self.gridLayout_6.addWidget(self.ion_charge_lineEdit, 0, 1, 1, 1)
+        self.label_32 = QtWidgets.QLabel(self.page_3)
+        self.label_32.setObjectName("label_32")
+        self.gridLayout_6.addWidget(self.label_32, 0, 0, 1, 1)
+        spacerItem1 = QtWidgets.QSpacerItem(20, 40,
+                                            QtWidgets.QSizePolicy.Minimum,
+                                            QtWidgets.QSizePolicy.Expanding)
+        self.gridLayout_6.addItem(spacerItem1, 4, 0, 1, 1)
         self.toolBox.addItem(self.page_3, "")
         self.page = QtWidgets.QWidget()
-        self.page.setGeometry(QtCore.QRect(0, 0, 251, 73))
+        self.page.setGeometry(QtCore.QRect(0, 0, 1050, 280))
         self.page.setObjectName("page")
+        self.verticalLayout_3 = QtWidgets.QVBoxLayout(self.page)
+        self.verticalLayout_3.setObjectName("verticalLayout_3")
+        self.horizontalLayout_10 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_10.setObjectName("horizontalLayout_10")
+        self.label_39 = QtWidgets.QLabel(self.page)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
+                                           QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.label_39.sizePolicy().hasHeightForWidth())
+        self.label_39.setSizePolicy(sizePolicy)
+        self.label_39.setObjectName("label_39")
+        self.horizontalLayout_10.addWidget(self.label_39)
+        self.bkgd_noise_nelem_sbox = QtWidgets.QSpinBox(self.page)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
+                                           QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.bkgd_noise_nelem_sbox.sizePolicy().hasHeightForWidth())
+        self.bkgd_noise_nelem_sbox.setSizePolicy(sizePolicy)
+        self.bkgd_noise_nelem_sbox.setProperty("value", 2)
+        self.bkgd_noise_nelem_sbox.setObjectName("bkgd_noise_nelem_sbox")
+        self.horizontalLayout_10.addWidget(self.bkgd_noise_nelem_sbox)
+        self.label_40 = QtWidgets.QLabel(self.page)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
+                                           QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.label_40.sizePolicy().hasHeightForWidth())
+        self.label_40.setSizePolicy(sizePolicy)
+        self.label_40.setObjectName("label_40")
+        self.horizontalLayout_10.addWidget(self.label_40)
+        self.bkgd_noise_threshold_sbox = QtWidgets.QSpinBox(self.page)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
+                                           QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.bkgd_noise_threshold_sbox.sizePolicy().hasHeightForWidth())
+        self.bkgd_noise_threshold_sbox.setSizePolicy(sizePolicy)
+        self.bkgd_noise_threshold_sbox.setProperty("value", 5)
+        self.bkgd_noise_threshold_sbox.setObjectName(
+            "bkgd_noise_threshold_sbox")
+        self.horizontalLayout_10.addWidget(self.bkgd_noise_threshold_sbox)
+        self.auto_update_image_chkbox = QtWidgets.QCheckBox(self.page)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
+                                           QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.auto_update_image_chkbox.sizePolicy().hasHeightForWidth())
+        self.auto_update_image_chkbox.setSizePolicy(sizePolicy)
+        self.auto_update_image_chkbox.setObjectName("auto_update_image_chkbox")
+        self.horizontalLayout_10.addWidget(self.auto_update_image_chkbox)
+        spacerItem2 = QtWidgets.QSpacerItem(40, 20,
+                                            QtWidgets.QSizePolicy.Expanding,
+                                            QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_10.addItem(spacerItem2)
+        self.verticalLayout_3.addLayout(self.horizontalLayout_10)
+        self.bkgd_noise_plot = MatplotlibBaseWidget(self.page)
+        self.bkgd_noise_plot.setProperty("figureTightLayout", True)
+        self.bkgd_noise_plot.setObjectName("bkgd_noise_plot")
+        self.verticalLayout_3.addWidget(self.bkgd_noise_plot)
         self.toolBox.addItem(self.page, "")
         self.page_2 = QtWidgets.QWidget()
-        self.page_2.setGeometry(QtCore.QRect(0, 0, 1292, 73))
+        self.page_2.setGeometry(QtCore.QRect(0, 0, 1050, 280))
         self.page_2.setObjectName("page_2")
         self.toolBox.addItem(self.page_2, "")
         self.verticalLayout.addWidget(self.toolBox)
@@ -745,24 +830,15 @@ class Ui_MainWindow(object):
         self.groupBox_4.setObjectName("groupBox_4")
         self.gridLayout_5 = QtWidgets.QGridLayout(self.groupBox_4)
         self.gridLayout_5.setObjectName("gridLayout_5")
-        self.x_cen_lineEdit = QtWidgets.QLineEdit(self.groupBox_4)
-        self.x_cen_lineEdit.setObjectName("x_cen_lineEdit")
-        self.gridLayout_5.addWidget(self.x_cen_lineEdit, 1, 1, 1, 1)
-        self.xp_rms_lineEdit = QtWidgets.QLineEdit(self.groupBox_4)
-        self.xp_rms_lineEdit.setObjectName("xp_rms_lineEdit")
-        self.gridLayout_5.addWidget(self.xp_rms_lineEdit, 4, 1, 1, 1)
-        self.emit_lineEdit = QtWidgets.QLineEdit(self.groupBox_4)
-        self.emit_lineEdit.setObjectName("emit_lineEdit")
-        self.gridLayout_5.addWidget(self.emit_lineEdit, 8, 1, 1, 1)
         self.x_rms_lineEdit = QtWidgets.QLineEdit(self.groupBox_4)
         self.x_rms_lineEdit.setObjectName("x_rms_lineEdit")
         self.gridLayout_5.addWidget(self.x_rms_lineEdit, 3, 1, 1, 1)
         self.label_25 = QtWidgets.QLabel(self.groupBox_4)
         self.label_25.setObjectName("label_25")
         self.gridLayout_5.addWidget(self.label_25, 3, 0, 1, 1)
-        self.alpha_lineEdit = QtWidgets.QLineEdit(self.groupBox_4)
-        self.alpha_lineEdit.setObjectName("alpha_lineEdit")
-        self.gridLayout_5.addWidget(self.alpha_lineEdit, 5, 1, 1, 1)
+        self.alpha_x_lineEdit = QtWidgets.QLineEdit(self.groupBox_4)
+        self.alpha_x_lineEdit.setObjectName("alpha_x_lineEdit")
+        self.gridLayout_5.addWidget(self.alpha_x_lineEdit, 5, 1, 1, 1)
         self.label_30 = QtWidgets.QLabel(self.groupBox_4)
         self.label_30.setObjectName("label_30")
         self.gridLayout_5.addWidget(self.label_30, 8, 0, 1, 1)
@@ -772,21 +848,30 @@ class Ui_MainWindow(object):
         self.label_29 = QtWidgets.QLabel(self.groupBox_4)
         self.label_29.setObjectName("label_29")
         self.gridLayout_5.addWidget(self.label_29, 7, 0, 1, 1)
-        self.label_3 = QtWidgets.QLabel(self.groupBox_4)
-        self.label_3.setObjectName("label_3")
-        self.gridLayout_5.addWidget(self.label_3, 1, 0, 1, 1)
         self.label_24 = QtWidgets.QLabel(self.groupBox_4)
         self.label_24.setObjectName("label_24")
         self.gridLayout_5.addWidget(self.label_24, 2, 0, 1, 1)
-        self.emitn_lineEdit = QtWidgets.QLineEdit(self.groupBox_4)
-        self.emitn_lineEdit.setObjectName("emitn_lineEdit")
-        self.gridLayout_5.addWidget(self.emitn_lineEdit, 9, 1, 1, 1)
-        self.gamma_lineEdit = QtWidgets.QLineEdit(self.groupBox_4)
-        self.gamma_lineEdit.setObjectName("gamma_lineEdit")
-        self.gridLayout_5.addWidget(self.gamma_lineEdit, 7, 1, 1, 1)
+        self.emitn_x_lineEdit = QtWidgets.QLineEdit(self.groupBox_4)
+        self.emitn_x_lineEdit.setObjectName("emitn_x_lineEdit")
+        self.gridLayout_5.addWidget(self.emitn_x_lineEdit, 9, 1, 1, 1)
+        self.gamma_x_lineEdit = QtWidgets.QLineEdit(self.groupBox_4)
+        self.gamma_x_lineEdit.setObjectName("gamma_x_lineEdit")
+        self.gridLayout_5.addWidget(self.gamma_x_lineEdit, 7, 1, 1, 1)
         self.label_26 = QtWidgets.QLabel(self.groupBox_4)
         self.label_26.setObjectName("label_26")
         self.gridLayout_5.addWidget(self.label_26, 4, 0, 1, 1)
+        self.emit_x_lineEdit = QtWidgets.QLineEdit(self.groupBox_4)
+        self.emit_x_lineEdit.setObjectName("emit_x_lineEdit")
+        self.gridLayout_5.addWidget(self.emit_x_lineEdit, 8, 1, 1, 1)
+        self.xp_rms_lineEdit = QtWidgets.QLineEdit(self.groupBox_4)
+        self.xp_rms_lineEdit.setObjectName("xp_rms_lineEdit")
+        self.gridLayout_5.addWidget(self.xp_rms_lineEdit, 4, 1, 1, 1)
+        self.x_cen_lineEdit = QtWidgets.QLineEdit(self.groupBox_4)
+        self.x_cen_lineEdit.setObjectName("x_cen_lineEdit")
+        self.gridLayout_5.addWidget(self.x_cen_lineEdit, 1, 1, 1, 1)
+        self.label_3 = QtWidgets.QLabel(self.groupBox_4)
+        self.label_3.setObjectName("label_3")
+        self.gridLayout_5.addWidget(self.label_3, 1, 0, 1, 1)
         self.xp_cen_lineEdit = QtWidgets.QLineEdit(self.groupBox_4)
         self.xp_cen_lineEdit.setObjectName("xp_cen_lineEdit")
         self.gridLayout_5.addWidget(self.xp_cen_lineEdit, 2, 1, 1, 1)
@@ -796,12 +881,36 @@ class Ui_MainWindow(object):
         self.label_27 = QtWidgets.QLabel(self.groupBox_4)
         self.label_27.setObjectName("label_27")
         self.gridLayout_5.addWidget(self.label_27, 5, 0, 1, 1)
-        self.beta_lineEdit = QtWidgets.QLineEdit(self.groupBox_4)
-        self.beta_lineEdit.setObjectName("beta_lineEdit")
-        self.gridLayout_5.addWidget(self.beta_lineEdit, 6, 1, 1, 1)
+        self.beta_x_lineEdit = QtWidgets.QLineEdit(self.groupBox_4)
+        self.beta_x_lineEdit.setObjectName("beta_x_lineEdit")
+        self.gridLayout_5.addWidget(self.beta_x_lineEdit, 6, 1, 1, 1)
         self.toolButton = QtWidgets.QToolButton(self.groupBox_4)
         self.toolButton.setObjectName("toolButton")
         self.gridLayout_5.addWidget(self.toolButton, 10, 1, 1, 1)
+        self.label_41 = QtWidgets.QLabel(self.groupBox_4)
+        self.label_41.setObjectName("label_41")
+        self.gridLayout_5.addWidget(self.label_41, 1, 2, 1, 1)
+        self.label_42 = QtWidgets.QLabel(self.groupBox_4)
+        self.label_42.setObjectName("label_42")
+        self.gridLayout_5.addWidget(self.label_42, 2, 2, 1, 1)
+        self.label_43 = QtWidgets.QLabel(self.groupBox_4)
+        self.label_43.setObjectName("label_43")
+        self.gridLayout_5.addWidget(self.label_43, 3, 2, 1, 1)
+        self.label_44 = QtWidgets.QLabel(self.groupBox_4)
+        self.label_44.setObjectName("label_44")
+        self.gridLayout_5.addWidget(self.label_44, 4, 2, 1, 1)
+        self.label_45 = QtWidgets.QLabel(self.groupBox_4)
+        self.label_45.setObjectName("label_45")
+        self.gridLayout_5.addWidget(self.label_45, 6, 2, 1, 1)
+        self.label_46 = QtWidgets.QLabel(self.groupBox_4)
+        self.label_46.setObjectName("label_46")
+        self.gridLayout_5.addWidget(self.label_46, 7, 2, 1, 1)
+        self.label_47 = QtWidgets.QLabel(self.groupBox_4)
+        self.label_47.setObjectName("label_47")
+        self.gridLayout_5.addWidget(self.label_47, 8, 2, 1, 1)
+        self.label_48 = QtWidgets.QLabel(self.groupBox_4)
+        self.label_48.setObjectName("label_48")
+        self.gridLayout_5.addWidget(self.label_48, 9, 2, 1, 1)
         self.verticalLayout.addWidget(self.groupBox_4)
         self.gridLayout_2.addWidget(self.splitter_2, 0, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
@@ -851,6 +960,15 @@ class Ui_MainWindow(object):
         self.actionSimulation_Mode = QtWidgets.QAction(MainWindow)
         self.actionSimulation_Mode.setCheckable(True)
         self.actionSimulation_Mode.setObjectName("actionSimulation_Mode")
+        self.actionOpen = QtWidgets.QAction(MainWindow)
+        icon6 = QtGui.QIcon()
+        icon6.addPixmap(
+            QtGui.QPixmap(":/icons/open.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.actionOpen.setIcon(icon6)
+        self.actionOpen.setObjectName("actionOpen")
+        self.menu_File.addAction(self.actionOpen)
+        self.menu_File.addSeparator()
         self.menu_File.addAction(self.actionE_xit)
         self.menu_Help.addAction(self.actionAbout)
         self.menu_Help.addAction(self.actionAbout_Qt)
@@ -867,7 +985,7 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menu_Help.menuAction())
 
         self.retranslateUi(MainWindow)
-        self.toolBox.setCurrentIndex(1)
+        self.toolBox.setCurrentIndex(2)
         self.actionAbout.triggered.connect(MainWindow.onAbout)
         self.actionAbout_Qt.triggered.connect(MainWindow.onAboutQt)
         self.actionE_xit.triggered.connect(MainWindow.close)
@@ -881,6 +999,15 @@ class Ui_MainWindow(object):
         self.actionSimulation_Mode.toggled['bool'].connect(
             MainWindow.on_enable_simulation_mode)
         self.toolButton.clicked.connect(MainWindow.on_update_results)
+        self.actionOpen.triggered.connect(MainWindow.on_open_data)
+        self.bkgd_noise_nelem_sbox.valueChanged['int'].connect(
+            MainWindow.on_update_nsampling)
+        self.bkgd_noise_threshold_sbox.valueChanged['int'].connect(
+            MainWindow.on_update_threshold0)
+        self.checkBox.toggled['bool'].connect(
+            self.matplotlibimageWidget.setColorBarToggle)
+        self.raw_view_chkbox.toggled['bool'].connect(
+            MainWindow.on_enable_raw_view)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -953,33 +1080,43 @@ class Ui_MainWindow(object):
         self.groupBox.setTitle(_translate("MainWindow", "Data Visualization"))
         self.matplotlibimageWidget.setFigureAspectRatio(
             _translate("MainWindow", "auto"))
+        self.raw_view_chkbox.setText(_translate("MainWindow", "Raw View"))
+        self.checkBox.setText(_translate("MainWindow", "Show Colorbar"))
         self.groupBox_3.setTitle(_translate("MainWindow", "Data Analysis"))
-        self.ion_mass_lineEdit.setText(_translate("MainWindow", "39.948"))
-        self.label_33.setText(
-            _translate(
-                "MainWindow",
-                "<html><head/><body><p>Ion Mass (<span style=\" font-style:italic;\">A</span>)</p></body></html>"
-            ))
         self.label_34.setText(
             _translate(
                 "MainWindow",
                 "<html><head/><body><p>Ion Energy (<span style=\" font-style:italic;\">E</span><span style=\" font-style:italic; vertical-align:sub;\">k</span>)</p></body></html>"
             ))
+        self.label_33.setText(
+            _translate(
+                "MainWindow",
+                "<html><head/><body><p>Ion Mass (<span style=\" font-style:italic;\">A</span>)</p></body></html>"
+            ))
+        self.ion_mass_lineEdit.setText(_translate("MainWindow", "39.948"))
         self.label_35.setText(
             _translate("MainWindow",
                        "<html><head/><body><p>eV</p></body></html>"))
-        self.ion_charge_lineEdit.setText(_translate("MainWindow", "9"))
         self.ion_energy_lineEdit.setText(_translate("MainWindow", "12000"))
+        self.label_36.setText(_translate("MainWindow", "V"))
+        self.label_37.setText(_translate("MainWindow", "mrad"))
+        self.ion_charge_lineEdit.setText(_translate("MainWindow", "9"))
         self.label_32.setText(
             _translate(
                 "MainWindow",
                 "<html><head/><body><p>Ion Charge (<span style=\" font-style:italic;\">Q</span>)</p></body></html>"
             ))
-        self.label_36.setText(_translate("MainWindow", "V"))
-        self.label_37.setText(_translate("MainWindow", "mrad"))
         self.toolBox.setItemText(
             self.toolBox.indexOf(self.page_3), _translate(
                 "MainWindow", "Beam"))
+        self.label_39.setText(_translate("MainWindow", "# of Sampling Points"))
+        self.label_40.setText(
+            _translate(
+                "MainWindow",
+                "<html><head/><body><p>Threshold by <span style=\" font-style:italic;\">σ</span></p></body></html>"
+            ))
+        self.auto_update_image_chkbox.setText(
+            _translate("MainWindow", "Auto Update"))
         self.toolBox.setItemText(
             self.toolBox.indexOf(self.page),
             _translate("MainWindow", "Background Noise"))
@@ -991,12 +1128,30 @@ class Ui_MainWindow(object):
         self.label_30.setText(_translate("MainWindow", "emit"))
         self.label_31.setText(_translate("MainWindow", "emit_n"))
         self.label_29.setText(_translate("MainWindow", "gamma"))
-        self.label_3.setText(_translate("MainWindow", "x_cen"))
         self.label_24.setText(_translate("MainWindow", "xp_cen"))
         self.label_26.setText(_translate("MainWindow", "xp_rms"))
+        self.label_3.setText(_translate("MainWindow", "x_cen"))
         self.label_28.setText(_translate("MainWindow", "beta"))
         self.label_27.setText(_translate("MainWindow", "alpha"))
         self.toolButton.setText(_translate("MainWindow", "Update"))
+        self.label_41.setText(_translate("MainWindow", "mm"))
+        self.label_42.setText(_translate("MainWindow", "mrad"))
+        self.label_43.setText(_translate("MainWindow", "mm"))
+        self.label_44.setText(_translate("MainWindow", "mrad"))
+        self.label_45.setText(_translate("MainWindow", "m"))
+        self.label_46.setText(
+            _translate(
+                "MainWindow",
+                "<html><head/><body><p>m<span style=\" vertical-align:super;\">-1</span></p></body></html>"
+            ))
+        self.label_47.setText(
+            _translate(
+                "MainWindow",
+                "<html><head/><body><p>mm&middot;mrad</p></body></html>"))
+        self.label_48.setText(
+            _translate(
+                "MainWindow",
+                "<html><head/><body><p>mm&middot;mrad</p></body></html>"))
         self.menu_File.setTitle(_translate("MainWindow", "&File"))
         self.menu_Help.setTitle(_translate("MainWindow", "&Help"))
         self.menuConfiguration.setTitle(
@@ -1012,8 +1167,11 @@ class Ui_MainWindow(object):
         self.actionLocate.setText(_translate("MainWindow", "Locate"))
         self.actionSimulation_Mode.setText(
             _translate("MainWindow", "Simulation Mode"))
+        self.actionOpen.setText(_translate("MainWindow", "Open"))
+        self.actionOpen.setShortcut(_translate("MainWindow", "Ctrl+O"))
 
 
+from mpl4qt.widgets.mplbasewidget import MatplotlibBaseWidget
 from mpl4qt.widgets.mplimagewidget import MatplotlibImageWidget
 from . import resources_rc
 
