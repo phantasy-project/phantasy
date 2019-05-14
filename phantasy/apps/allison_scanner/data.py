@@ -19,6 +19,7 @@ class Data(object):
     def __init__(self, model, **kws):
         self.model = model
         self.device = device = model.device
+        self.xoy = device.xoy
         self.update_pos_conf(
             {"begin": device.pos_begin,
              "end": device.pos_end,
@@ -127,19 +128,20 @@ class Data(object):
         """
         x = self.x_grid if x is None else x
         xp = self.xp_grid if xp is None else xp
-        intensity = self.intensity if intensity is None else intensity
+        intensity = self.intensity.copy() if intensity is None else intensity.copy()
         if kws.get('weight_correction', True):
             intensity *= 1. / self.weight_grid * self.grid_to_res_ratio
         return calculate_beam_parameters(x, xp, intensity,
-                                         self.model.bg, self.device.xoy)
+                                         self.model.bg, self.xoy)
 
     def filter_initial_background_noise(self, intensity=None,
                                         n_elements=2, threshold=5):
-        intensity = self.intensity if intensity is None else intensity
+        intensity = self.intensity.copy() if intensity is None else intensity.copy()
         return filter_initial_background_noise(
             intensity, n_elements, threshold)
 
-    def plot(self, intensity=None, raw_view=False, with_return=False, **kws):
+    def plot(self, intensity=None, raw_view=False, results={},
+             with_return=False, **kws):
         """Plot intensity as image.
 
         Parameters
@@ -150,6 +152,8 @@ class Data(object):
             If set, plot y axis with voltage, or x'.
         with_return : bool
             If set, return tuple will be enabled.
+        results : dict
+            If defined, print Twiss paramters on the figure.
 
         Returns
         -------
@@ -173,6 +177,18 @@ class Data(object):
         ax.set_xlabel(xlbl)
         ax.set_ylabel(ylbl)
         im.set_extent((x[0, 0], x[-1, -1], y[0, 0], y[-1, -1]))
+
+        if results:
+            print(results)
+            xoy = self.xoy.lower()
+            a = r'$\alpha = {0:.3f}$'.format(results.get('alpha_{}'.format(xoy)))
+            b = r'$\beta = {0:.3}\,\mathrm{{[m]}}$'.format(results.get('beta_{}'.format(xoy)))
+            g = r'$\gamma = {0:.3}\,\mathrm{{[m^{{-1}}]}}$'.format(results.get('gamma_{}'.format(xoy)))
+            en = r'$\epsilon_n = {0:.3}\,\mathrm{{[mm \cdot mrad]}}$'.format(results.get('emitn_{}'.format(xoy)))
+            info = '\n'.join((a, b, g, en))
+            props = dict(boxstyle='round', facecolor='w', alpha=0.5)
+            ax.text(0.05, 0.95, info, transform=ax.transAxes, fontsize=10,
+                    verticalalignment='top', bbox=props,)
 
         if with_return:
             return fig, ax
@@ -216,7 +232,7 @@ class Data(object):
         m : array:
             Intensity after noise correction.
         """
-        intensity = self.intensity if intensity is None else intensity
+        intensity = self.intensity.copy() if intensity is None else intensity.copy()
         return noise_correction(intensity, noise_signal_array, **kws)
 
 
@@ -300,7 +316,7 @@ def calculate_beam_parameters(x, xp, intensity, bg, xoy):
 
     v = (x_avg, xp_avg, x_rms, xxp, xp_rms, x_emit, x_emit_n,
          alpha, beta, gamma, intensity_total)
-    l = ('{u}_cen', '{u}p_cen', '{u}_rms', '{u}_{u}p', 'xp_rms', '{u}_emit', '{u}_emitn',
+    l = ('{u}_cen', '{u}p_cen', '{u}_rms', '{u}_{u}p', '{u}p_rms', 'emit_{u}', 'emitn_{u}',
          'alpha_{u}', 'beta_{u}', 'gamma_{u}', 'total_intensity')
     k = [i.format(u=xoy.lower()) for i in l]
     return dict(zip(k, v))
@@ -338,10 +354,9 @@ def draw_beam_ellipse_with_params(params, ax=None, factor=4.0, xoy='x', **kws):
         Return tuple of ellipse, figure, axes, iff input *ax* is not defined,
         or return tuple of ellipse, None, None.
     """
-    a, b, g = [params.get('{}_{}'.format(k, xoy))
-               for k in ('alpha', 'beta', 'gamma')]
-    epsilon, xc, yc = [params.get('{}{}'.format(xoy, k))
-                       for k in ('_emit', '_cen', 'p_cen')]
+    a, b, g, epsilon = [params.get('{}_{}'.format(k, xoy))
+               for k in ('alpha', 'beta', 'gamma', 'emit')]
+    xc, yc = [params.get('{}{}'.format(xoy, k)) for k in ('_cen', 'p_cen')]
 
     color = kws.get('color', 'w')
     clear = kws.get('clear', False)
