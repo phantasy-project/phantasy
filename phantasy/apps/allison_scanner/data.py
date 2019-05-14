@@ -155,41 +155,103 @@ class Data(object):
         results : dict
             If defined, print Twiss paramters on the figure.
 
+        Keyword Arguments
+        -----------------
+        figsize : tuple
+            Tuple of `(w, h)` for figure size in inches.
+        normalize : bool
+            If set, normalize the intensity to percentage.
+        profile_on : bool
+            If set, draw projected profile to horizontal and vertical axis.
+        profile_opt : dict
+            Options for profiles, 'frac': fraction height for profiles,
+            default is 0.2, and other line options
+        ellipse_on : bool
+            If set, draw beam ellipse.
+        ellipse_opt : dict
+            Options for ellipse, 'factor': area size measured by emittance,
+            default is 4.0; 'color': ellipse border color, default is white;
+            'fill': fill ellipse with color or not, defalut is False;
+            'anote': put annotations or not, default is False.
+
         Returns
         -------
         r : tuple
             Tuple of figure and axes, if *with_return* is True.
         """
+        xoy = self.xoy.lower()
+        figsize = kws.pop('figsize', (5, 4))
+        norm = kws.pop('normalize', False)
+        prof_on = kws.pop('profile_on', False)
+        prof_opt = kws.pop('profile_opt', {})
+        ellipse_on = kws.pop('ellipse_on', False)
+        ellipse_opt = kws.pop('ellipse_opt', {})
+
         data = self.intensity if intensity is None else intensity
         fig, ax = plt.subplots()
+        fig.set_size_inches(figsize)
 
+        if norm:
+            data = data / data.sum() * 100
+            lbl = "beam %"
+        else:
+            lbl = ""
         im = ax.imshow(data, origin="left", aspect="auto", **kws)
-        fig.colorbar(im)
+        cb = fig.colorbar(im)
+        cb.set_label(lbl)
 
-        xlbl = r"$x\,\mathrm{[mm]}$"
+        xlbl = r'${}\,\mathrm{{[mm]}}$'.format(xoy)
         x = self.x_grid
         if raw_view:
             y = self.volt_grid
             ylbl = r"Voltage [V]"
         else:
             y = self.xp_grid
-            ylbl = r"$x'\,\mathrm{[mrad]}$"
+            ylbl = r'${}\,\mathrm{{[mrad]}}$'.format(xoy + "'")
         ax.set_xlabel(xlbl)
         ax.set_ylabel(ylbl)
-        im.set_extent((x[0, 0], x[-1, -1], y[0, 0], y[-1, -1]))
 
         if results:
-            print(results)
-            xoy = self.xoy.lower()
-            a = r'$\alpha = {0:.3f}$'.format(results.get('alpha_{}'.format(xoy)))
-            b = r'$\beta = {0:.3}\,\mathrm{{[m]}}$'.format(results.get('beta_{}'.format(xoy)))
-            g = r'$\gamma = {0:.3}\,\mathrm{{[m^{{-1}}]}}$'.format(results.get('gamma_{}'.format(xoy)))
-            en = r'$\epsilon_n = {0:.3}\,\mathrm{{[mm \cdot mrad]}}$'.format(results.get('emitn_{}'.format(xoy)))
-            info = '\n'.join((a, b, g, en))
-            props = dict(boxstyle='round', facecolor='w', alpha=0.5)
+            a = r'$\alpha = {0:.3f}$'.format(
+                    results.get('alpha_{}'.format(xoy)))
+            b = r'$\beta = {0:.3}\,\mathrm{{[m]}}$'.format(
+                    results.get('beta_{}'.format(xoy)))
+            #g = r'$\gamma = {0:.3}\,\mathrm{{[m^{{-1}}]}}$'.format(results.get('gamma_{}'.format(xoy)))
+            en = r'$\epsilon_n = {0:.3}\,\mathrm{{[mm \cdot mrad]}}$'.format(
+                    results.get('emitn_{}'.format(xoy)))
+            info = '\n'.join((en, a, b))
+            props = dict(boxstyle='round', facecolor='w', alpha=0.8)
             ax.text(0.05, 0.95, info, transform=ax.transAxes, fontsize=10,
                     verticalalignment='top', bbox=props,)
+        if prof_on:
+            x1, y1 = x[0, :], y[:, 0]
+            hy, vx = data.sum(0), data.sum(1)
+            hy_max, vx_max = hy.max(), vx.max()
+            hprof = prof_opt.pop('frac', 0.2)
+            cprof = prof_opt.pop('color', 'w')
+            wprof = prof_opt.pop('lw', 1.0)
+            lsprof = prof_opt.pop('ls', '-')
+            prof_h = ax.plot(x1, hy / hy_max * (y1.max() - y1.min()) * hprof + y1.min(),
+                             drawstyle='steps', color=cprof, ls=lsprof, lw=wprof, **prof_opt)
+            prof_v = ax.plot(vx / vx_max * (x1.max() - x1.min()) * hprof + x1.min(), y1,
+                             drawstyle='steps', color=cprof, ls=lsprof, lw=wprof, **prof_opt)
 
+        if ellipse_on and results:
+             fac = ellipse_opt.pop('factor', 4.0)
+             fill = ellipse_opt.pop('fill', False)
+             anote = ellipse_opt.pop('anote', False)
+             color = ellipse_opt.pop('color', 'w')
+             ellipse, _, _ = draw_beam_ellipse_with_params(
+                     results, ax=ax, factor=fac, xoy=xoy,
+                     fill=fill, anote=anote, color=color)
+             x0, y0 = ellipse.center
+             ls = ellipse_opt.pop('ls', '--')
+             lw = ellipse_opt.pop('lw', 1.0)
+             lc = ellipse_opt.pop('c', 'w')
+             ax.axvline(x0, ls=ls, lw=lw, c=lc, **ellipse_opt)
+             ax.axhline(y0, ls=ls, lw=lw, c=lc, **ellipse_opt)
+
+        im.set_extent((x[0, 0], x[-1, -1], y[0, 0], y[-1, -1]))
         if with_return:
             return fig, ax
 
@@ -340,13 +402,13 @@ def draw_beam_ellipse_with_params(params, ax=None, factor=4.0, xoy='x', **kws):
     Keyword Arguments
     -----------------
     color : str
-        Ellipse border color, default is black.
+        Ellipse border color, default is white.
     clear : bool
-        Clear axes or not before drawing, default is True.
+        Clear axes or not before drawing, default is False.
     fill :
-        Fill ellipse with color or not, defalut is 'green', or False.
+        Fill ellipse with color or not, defalut is False.
     anote : bool
-        Put annotations or not, default is True.
+        Put annotations or not, default is False.
 
     Returns
     -------
