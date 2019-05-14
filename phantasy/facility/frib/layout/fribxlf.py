@@ -50,7 +50,8 @@ from phantasy.library.parser import Configuration
 
 NON_DRIFT_ELEMENTS = (
         BCMElement, BLElement, BLMElement, BPMElement, BendElement,
-        CavityElement, ColumnElement, CorElement, EBendElement, EMSElement,
+        CavityElement, ColumnElement, CorElement, HCorElement, VCorElement,
+        EBendElement, EMSElement,
         EQuadElement, ElectrodeElement, FCElement, HCorElement, PMElement,
         PortElement, QuadElement, SextElement, SolElement, SolCorElement,
         StripElement, VCorElement, VDElement, ValveElement, SlitElement,
@@ -75,12 +76,14 @@ DEVICE_SKIP_WORDS = ( "end", "start", "END", )
 NAME_SKIP_WORDS = ("FE_MEBT:PM_D1053", )
 
 # device alias for valve: ValveElement
-DEVICE_ALIAS_VALVE = ( "GV", "FVS", "FAV", "FV", "FAVS", )
+DEVICE_ALIAS_VALVE = ( "GV", "FVS", "FAV", "FV", "FAVS",
+                       "BGV", ) # ReA
 # device alias for cavity: CavityElement
 DEVICE_ALIAS_CAV = ( "CAV1", "CAV2", "CAV3", "CAV4",
                      "CAV5", "CAV6", "CAV7", "CAV8", "CAV", )
 # device alias for solenoid: SolElement
-DEVICE_ALIAS_SOLR = ( "SOLR", )
+DEVICE_ALIAS_SOLR = ( "SOLR",
+                      "SOL", ) # ReA
 # device alias for solenoid w/ hcor&vcor: SolCorElement
 DEVICE_ALIAS_SOL = ( "SOL1", "SOL2", "SOL3", "SOLS", )
 # device alias for BPM
@@ -109,8 +112,13 @@ DEVICE_ALIAS_PORT = ( "PORT", "TMP", "NEGP", "IP", "CP",
                      "CCG", )  # CCG is cold cathod gauge, temporarily put it here
 # device alias for correctors, comes with H&V pair.
 DEVICE_ALIAS_COR = ( "DC", "DC0", "CH", "DCHV", )
+# device alias for HCOR
+DEVICE_ALIAS_HCOR = ( "DCHE", "DCH", ) # ReA
+# device alias for VCOR
+DEVICE_ALIAS_VCOR = ( "DCVE", "DCV", ) # ReA
 # device alias for dipole, bend
-DEVICE_ALIAS_BEND = ( "DH", )
+DEVICE_ALIAS_BEND = ( "DH",
+                      "DV", ) # ReA
 # device alias for quad
 DEVICE_ALIAS_QUAD = ( "QH", "QV", "Q", )
 # device alias for sextupole
@@ -120,9 +128,11 @@ DEVICE_ALIAS_ELC = ( "ELC1", "ELC2", "ELC3", )
 # device alias for acc column
 DEVICE_ALIAS_ACC = ( "ACC", )
 # device alias for ES bend
-DEVICE_ALIAS_EBEND = ( "DVE", )
+DEVICE_ALIAS_EBEND = ( "DVE",
+                       "DHE", ) # ReA
 # device alias for ES quad
-DEVICE_ALIAS_EQUAD = ( "QHE", "QVE", )
+DEVICE_ALIAS_EQUAD = ( "QHE", "QVE",
+                       "QE", ) # ReA
 # device alias for slit
 DEVICE_ALIAS_SLIT = ( "SLH", "SLT", )
 # device alias for chopper
@@ -703,6 +713,24 @@ class AccelFactory(XlfConfig):
                                              "{elem.system}_{elem.subsystem}:DCV_{elem.inst}".format(elem=elem),
                                              system=row.system, subsystem=row.subsystem, device="DCV",
                                              dtype=row.device_type, inst=inst)
+                        subsequence.append(elem)
+
+                    elif row.device in DEVICE_ALIAS_HCOR:
+                        row.device = self.d_map.get(row.device, row.device)
+                        inst = FMT_INST.format(int(row.position))
+                        elem = HCorElement(row.center_position, row.eff_length, row.diameter, row.name,
+                                           desc=row.element_name,
+                                           system=row.system, subsystem=row.subsystem, device=row.device,
+                                           dtype=row.device_type, inst=inst)
+                        subsequence.append(elem)
+
+                    elif row.device in DEVICE_ALIAS_VCOR:
+                        row.device = self.d_map.get(row.device, row.device)
+                        inst = FMT_INST.format(int(row.position))
+                        elem = VCorElement(row.center_position, row.eff_length, row.diameter, row.name,
+                                           desc=row.element_name,
+                                           system=row.system, subsystem=row.subsystem, device=row.device,
+                                           dtype=row.device_type, inst=inst)
                         subsequence.append(elem)
 
                     elif row.device in DEVICE_ALIAS_BEND:
