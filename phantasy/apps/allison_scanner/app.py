@@ -33,7 +33,7 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
     ydata_changed = pyqtSignal(ndarray)
     xlabel_changed = pyqtSignal('QString')
     ylabel_changed = pyqtSignal('QString')
-    def __init__(self, version):
+    def __init__(self, version, mode="Live"):
         super(AllisonScannerWindow, self).__init__()
 
         # app version
@@ -67,11 +67,10 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
         self.xlabel_changed.connect(self.matplotlibimageWidget.setFigureXlabel)
         self.ylabel_changed.connect(self.matplotlibimageWidget.setFigureYlabel)
 
+        self._device_mode = mode.capitalize()
         self._post_init()
 
     def _post_init(self):
-        #
-        self._device_mode = "Live"
         #
         self.installed_px = QPixmap(":/icons/installed.png")
         self.not_installed_px = QPixmap(":/icons/not-installed.png")
@@ -87,8 +86,10 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
                   self.ion_energy_lineEdit, ):
             o.setValidator(QDoubleValidator(0, 99999999, 6))
             o.returnPressed.connect(self.on_update_model)
-        self.voltage_lineEdit.setValidator(QDoubleValidator())
-        self.voltage_lineEdit.textChanged.connect(self.on_v2d)
+        ve = self.voltage_lineEdit
+        ve.setValidator(QDoubleValidator())
+        ve.textChanged.connect(self.on_v2d)
+        ve.returnPressed.connect(partial(self.on_v2d, ve.text()))
 
         # data
         self._data = None
@@ -107,8 +108,10 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
             o = getattr(self, s + '_dsbox')
             o.valueChanged.connect(partial(self.on_update_config, s))
 
-        # simulation mode by default
-        self.actionSimulation_Mode.setChecked(True)
+        #
+        is_sim = self._device_mode=="Simulation"
+        self.actionSimulation_Mode.setChecked(is_sim)
+        self.actionSimulation_Mode.toggled.emit(is_sim)
 
         for o in self.findChildren(QLineEdit):
             o.textChanged.connect(self.highlight_text)
@@ -132,8 +135,7 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
         self._volt_end_fname = "STOP_VOLT{}".format(oid)
         self._volt_step_fname = "STEP_VOLT{}".format(oid)
         self._data_pv = self._ems_device.elem.pv("DATA{}".format(oid))[0]
-        if self._device_mode == "Live":
-            self.sync_config()
+        self.sync_config()
         # update result keys
         self._update_result_keys(s)
 
