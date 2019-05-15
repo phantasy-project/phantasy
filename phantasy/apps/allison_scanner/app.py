@@ -399,7 +399,7 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
                                 QMessageBox.Ok)
         self.on_update(self._device._data_pv.value)
         # initial data
-        self.on_initial_data()
+        self.on_initial_data(mode=self._device_mode)
         self.on_plot_raw_data()
 
     def closeEvent(self, e):
@@ -421,8 +421,11 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
         res = self._data.calculate_beam_parameters(inten)
         self.update_results_ui(res)
 
-    def on_initial_data(self):
+    def on_initial_data(self, mode="Live"):
         self._data = Data(model=self._model, array=self._current_array)
+        print(self._current_array.shape)
+        if mode == "Simulation":
+            pass
 
     def on_plot_raw_data(self):
         # plot raw data, before processing.
@@ -440,6 +443,9 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
         self._model.ion_mass = ionm
         self._model.ion_energy = ione
         self.on_v2d(self.voltage_lineEdit.text())
+        # update data
+        if self._data is not None:
+            self._data.model = self._model
 
     @pyqtSlot('QString')
     def on_v2d(self, s):
