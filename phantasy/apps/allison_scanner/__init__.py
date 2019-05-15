@@ -2,7 +2,6 @@
 
 import sys
 
-# import cothread
 from phantasy_ui import QApp as QApplication
 from phantasy_ui import set_mplstyle
 
@@ -22,13 +21,16 @@ __version__ = '0.1'
 
 
 def run(cli=False):
-    set_mplstyle(sys.argv)
-    # QApplication(sys.argv)()
-    app = QApplication(sys.argv)
-    w = AllisonScannerWindow(version=__version__)
+    args = sys.argv
+    set_mplstyle(args)
+    if '--mode' in args:
+        mode = args[args.index('--mode') + 1]
+    else:
+        mode = "Live"
+    app = QApplication(args)
+    w = AllisonScannerWindow(version=__version__, mode=mode)
     w.show()
     w.setWindowTitle(__title__)
-    # cothread.WaitForQuit()
     if cli:
         app.exec_()
     else:
