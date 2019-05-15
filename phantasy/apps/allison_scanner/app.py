@@ -96,33 +96,22 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
         for o in (self.bkgd_noise_nelem_sbox, self.bkgd_noise_threshold_sbox):
             o.valueChanged.emit(o.value())
 
-        # init EMS devices
-        all_devices_dict = get_all_devices()
-        self._all_devices_dict = all_devices_dict
-        self.ems_names_cbb.addItems(all_devices_dict)
-        self.ems_names_cbb.currentTextChanged.connect(self.on_device_changed)
-
-        for o in self.findChildren(QLineEdit):
-            o.textChanged.connect(self.highlight_text)
-
         # pos,volt,dt...
-        self.__attr_names = [
+        self._attr_names = [
                 '{}_{}'.format(u, v)
                 for u in ('pos', 'volt')
                       for v in ('begin', 'end', 'step', 'settling_time')
         ]
-        for s in self.__attr_names:
+
+        for s in self._attr_names:
             o = getattr(self, s + '_dsbox')
             o.valueChanged.connect(partial(self.on_update_config, s))
 
-        #
+        # simulation mode by default
         self.actionSimulation_Mode.setChecked(True)
-        #
-        self.ems_names_cbb.currentTextChanged.emit(
-                self.ems_names_cbb.currentText())
-        #
-        self.ems_orientation_cbb.currentTextChanged.emit(
-                self.ems_orientation_cbb.currentText())
+
+        for o in self.findChildren(QLineEdit):
+            o.textChanged.connect(self.highlight_text)
 
     @pyqtSlot(float)
     def on_update_config(self, attr, x):
@@ -145,6 +134,8 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
         self._data_pv = self._ems_device.elem.pv("DATA{}".format(oid))[0]
         if self._device_mode == "Live":
             self.sync_config()
+        # update result keys
+        self._update_result_keys(s)
 
     def get_device_config(self, path=None):
         """Return device config from *path*.
@@ -205,7 +196,7 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
 
     def __show_device_config_dynamic(self, ems):
         # dynamic
-        for s in self.__attr_names:
+        for s in self._attr_names:
             o = getattr(self, s + '_dsbox')
             o.valueChanged.disconnect()
         self.pos_begin_dsbox.setValue(ems.pos_begin)
@@ -216,7 +207,7 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
         self.volt_end_dsbox.setValue(ems.volt_end)
         self.volt_step_dsbox.setValue(ems.volt_step)
         self.volt_settling_time_dsbox.setValue(ems.volt_settling_time)
-        for s in self.__attr_names:
+        for s in self._attr_names:
             o = getattr(self, s + '_dsbox')
             o.valueChanged.connect(partial(self.on_update_config, s))
 
@@ -304,45 +295,11 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
         path = self._dconf.config_path
         QDesktopServices.openUrl(QUrl(path))
 
-    def _run_simulation(self):
-        # simulation
-        from epics import caget
-
-        print("Simulation mode...")
-        data_pv = "EMS:Det1Data"
-        status_pv = "EMS:SCAN_STATUS"
-        trigger_pv = "EMS:START_SCAN"
-        #
-        x1, x2, dx = [caget(i) for i in
-                ("EMS:POS_BEGIN", "EMS:POS_END", "EMS:POS_STEP")]
-        y1, y2, dy = [caget(i) for i in
-                ("EMS:VOLT_BEGIN", "EMS:VOLT_END", "EMS:VOLT_STEP")]
-        #
-        xdim = self._xdim = int((x2 - x1) / dx) + 1
-        ydim = self._ydim = int((y2 - y1) / dy) + 1
-        #
-        x = np.linspace(x1, x2, xdim)
-        y = np.linspace(y1, y2, ydim)
-        xx, yy = np.meshgrid(x, y)
-        self.matplotlibimageWidget.setXData(xx)
-        self.matplotlibimageWidget.setYData(yy)
-        #
-        device = self._device = SimDevice(data_pv, status_pv, trigger_pv)
-        device.data_changed.connect(self.on_update)
-        device.finished.connect(self.on_finished)
-        device.start()
-
     @pyqtSlot()
     def on_run(self):
-        if self._device_mode == 'Simulation':
-            self._run_simulation()
-        else:  # Live
-            self._run_live()
+        self._run()
 
-    def _run_live(self):
-        # live
-        print("Live mode...")
-        #
+    def _run(self):
         elem = self._ems_device.elem
         x1 = getattr(elem, self._pos_begin_fname)
         x2 = getattr(elem, self._pos_end_fname)
@@ -411,12 +368,14 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
             self._device_mode = "Simulation"
         else:
             self._device_mode = "Live"
+        self._initial_devices(self._device_mode)
 
     @pyqtSlot()
     def on_update_results(self):
         """Calculate Twiss parameters and update UI.
         """
-        print("Update Twiss params")
+        if self._data is None:
+            return
         inten = self.matplotlibimageWidget.get_data()
         res = self._data.calculate_beam_parameters(inten)
         self.update_results_ui(res)
@@ -539,3 +498,31 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
             o = getattr(self, k + '_lineEdit')
             v = res.get(k.replace('x', u))
             o.setText("{0:.6f}".format(v))
+
+    def _update_result_keys(self, s):
+        u = s.lower()
+        o = (self.x_cen_lbl, self.xp_cen_lbl,
+             self.x_rms_lbl, self.xp_rms_lbl,
+             self.alpha_x_lbl, self.beta_x_lbl, self.gamma_x_lbl,
+             self.emit_x_lbl, self.emitn_x_lbl)
+        v = ["<html>{}<sub>{}</sub></html>".format(i, j) for (i, j) in
+                zip((u, u + "'", '&sigma;', '&sigma;', '&alpha;',
+                    '&beta;', '&gamma;', '&epsilon;', '&epsilon;'),
+                    (0, 0, u, u + "'", u, u, u, u, u + '<sup>n</sup>',))]
+        for (i, j) in zip(o, v):
+            i.setText(j)
+
+    def _initial_devices(self, mode="Live"):
+        if mode == "Live":
+            all_devices_dict = get_all_devices()
+        else:
+            all_devices_dict = get_all_devices("DEVICES", "DEVICES", "EMS")
+        self._all_devices_dict = all_devices_dict
+        self.ems_names_cbb.addItems(all_devices_dict)
+        self.ems_names_cbb.currentTextChanged.connect(self.on_device_changed)
+        #
+        self.ems_names_cbb.currentTextChanged.emit(
+                self.ems_names_cbb.currentText())
+        #
+        self.ems_orientation_cbb.currentTextChanged.emit(
+                self.ems_orientation_cbb.currentText())
