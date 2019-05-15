@@ -94,6 +94,8 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
         # data
         self._data = None
         # bkgd noise
+        self._intensity_clean_bkgd = None
+        self._auto_bkgd_noise_filter = False
         for o in (self.bkgd_noise_nelem_sbox, self.bkgd_noise_threshold_sbox):
             o.valueChanged.emit(o.value())
 
@@ -454,19 +456,20 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
         else:
             self.plot_bkgd_noise(self.bkgd_noise_plot, bkgd_noise,
                                  self._bkgd_noise_nsigma)
-            self.image_data_changed.emit(inten1)
+            if self._auto_bkgd_noise_filter:
+                self.image_data_changed.emit(inten1)
             return inten1
 
     @pyqtSlot(int)
     def on_update_nsampling(self, i):
         # bkgd noise nelem.
         self._bkgd_noise_nelem = i
-        self._update_bkgd_noise()
+        self._intensity_clean_bkgd = self._update_bkgd_noise()
 
     @pyqtSlot(int)
     def on_update_threshold0(self, i):
         self._bkgd_noise_nsigma = i
-        self._update_bkgd_noise()
+        self._intensity_clean_bkgd = self._update_bkgd_noise()
 
     def plot_bkgd_noise(self, o, m, n):
         ax = o.axes
@@ -528,3 +531,9 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
         #
         self.ems_orientation_cbb.currentTextChanged.emit(
                 self.ems_orientation_cbb.currentText())
+
+    @pyqtSlot(bool)
+    def on_enable_auto_filter_bkgd_noise(self, f):
+        self._auto_bkgd_noise_filter = f
+        if f and self._intensity_clean_bkgd is not None:
+            self.image_data_changed.emit(self._intensity_clean_bkgd)

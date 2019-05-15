@@ -691,7 +691,7 @@ class Ui_MainWindow(object):
         self.toolBox.setSizePolicy(sizePolicy)
         self.toolBox.setObjectName("toolBox")
         self.page_3 = QtWidgets.QWidget()
-        self.page_3.setGeometry(QtCore.QRect(0, 0, 563, 280))
+        self.page_3.setGeometry(QtCore.QRect(0, 0, 690, 280))
         self.page_3.setObjectName("page_3")
         self.gridLayout_6 = QtWidgets.QGridLayout(self.page_3)
         self.gridLayout_6.setObjectName("gridLayout_6")
@@ -743,7 +743,7 @@ class Ui_MainWindow(object):
         self.gridLayout_6.addItem(spacerItem1, 4, 0, 1, 1)
         self.toolBox.addItem(self.page_3, "")
         self.page = QtWidgets.QWidget()
-        self.page.setGeometry(QtCore.QRect(0, 0, 670, 267))
+        self.page.setGeometry(QtCore.QRect(0, 0, 690, 280))
         self.page.setObjectName("page")
         self.verticalLayout_3 = QtWidgets.QVBoxLayout(self.page)
         self.verticalLayout_3.setObjectName("verticalLayout_3")
@@ -813,7 +813,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_3.addWidget(self.bkgd_noise_plot)
         self.toolBox.addItem(self.page, "")
         self.page_2 = QtWidgets.QWidget()
-        self.page_2.setGeometry(QtCore.QRect(0, 0, 563, 280))
+        self.page_2.setGeometry(QtCore.QRect(0, 0, 690, 280))
         self.page_2.setObjectName("page_2")
         self.toolBox.addItem(self.page_2, "")
         self.verticalLayout.addWidget(self.toolBox)
@@ -1039,7 +1039,7 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menu_Help.menuAction())
 
         self.retranslateUi(MainWindow)
-        self.toolBox.setCurrentIndex(0)
+        self.toolBox.setCurrentIndex(1)
         self.actionAbout.triggered.connect(MainWindow.onAbout)
         self.actionAbout_Qt.triggered.connect(MainWindow.onAboutQt)
         self.actionE_xit.triggered.connect(MainWindow.close)
@@ -1062,6 +1062,8 @@ class Ui_MainWindow(object):
             self.matplotlibimageWidget.setColorBarToggle)
         self.raw_view_chkbox.toggled['bool'].connect(
             MainWindow.on_enable_raw_view)
+        self.auto_update_image_chkbox.toggled['bool'].connect(
+            MainWindow.on_enable_auto_filter_bkgd_noise)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
