@@ -29,6 +29,8 @@ from phantasy.library.layout import PMElement
 from phantasy.library.layout import SolCorElement
 from phantasy.library.layout import PortElement
 from phantasy.library.layout import CorElement
+from phantasy.library.layout import HCorElement
+from phantasy.library.layout import VCorElement
 from phantasy.library.layout import BendElement
 from phantasy.library.layout import QuadElement
 from phantasy.library.layout import StripElement
@@ -552,6 +554,64 @@ class FlameLatticeFactory(BaseLatticeFactory):
                                ('dstkick', int(dstkick)), ('step', int(step)),
                                ('aper', elem.aperture / 2.0),
                                name=elem.name, etype=elem.ETYPE)
+
+            elif isinstance(elem, HCorElement):
+                hkick = 0.0
+                if settings is not None:
+                    try:
+                        hkick = settings[elem.name][elem.fields.angle_phy]
+                    except KeyError:
+                        raise RuntimeError(
+                            "FlameLatticeFactory: '{}' setting not found for element: {}".format(elem.fields.angle_phy,
+                                                                                                 elem.name))
+
+                if elem.length != 0.0:
+                    lattice.append(_drift_name(elem.name, 1), "drift",
+                                   ('L', elem.length / 2.0),
+                                   ('aper', elem.apertureX / 2.0))
+
+                kick_gauge = self._get_config(elem.dtype, CONFIG_FLAME_COR_GAUGE, None)
+                if kick_gauge == "tm_kick":
+                    lattice.append(elem.name, "orbtrim",
+                                   ('realpara', 1), ('tm_xkick', hkick),
+                                   name=elem.name, etype=elem.ETYPE)
+                else:
+                    lattice.append(elem.name, "orbtrim", ('theta_x', hkick),
+                                   name=elem.name, etype=elem.ETYPE)
+
+                if elem.length != 0.0:
+                    lattice.append(_drift_name(elem.name, 2), "drift",
+                                   ('L', elem.length / 2.0),
+                                   ('aper', elem.apertureX / 2.0))
+
+            elif isinstance(elem, VCorElement):
+                vkick = 0.0
+                if settings is not None:
+                    try:
+                        vkick = settings[elem.name][elem.fields.angle_phy]
+                    except KeyError:
+                        raise RuntimeError(
+                            "FlameLatticeFactory: '{}' setting not found for element: {}".format(elem.fields.angle_phy,
+                                                                                                 elem.name))
+
+                if elem.length != 0.0:
+                    lattice.append(_drift_name(elem.name, 1), "drift",
+                                   ('L', elem.length / 2.0),
+                                   ('aper', elem.apertureX / 2.0))
+
+                kick_gauge = self._get_config(elem.dtype, CONFIG_FLAME_COR_GAUGE, None)
+                if kick_gauge == "tm_kick":
+                    lattice.append(elem.name, "orbtrim",
+                                   ('realpara', 1), ('tm_ykick', hkick),
+                                   name=elem.name, etype=elem.ETYPE)
+                else:
+                    lattice.append(elem.name, "orbtrim", ('theta_y', hkick),
+                                   name=elem.name, etype=elem.ETYPE)
+
+                if elem.length != 0.0:
+                    lattice.append(_drift_name(elem.name, 2), "drift",
+                                   ('L', elem.length / 2.0),
+                                   ('aper', elem.apertureX / 2.0))
 
             elif isinstance(elem, CorElement):
                 hkick = 0.0
