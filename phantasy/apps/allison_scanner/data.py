@@ -157,8 +157,12 @@ class Data(object):
 
         Keyword Arguments
         -----------------
+        ax :
+            Axes
+        image_on : bool
+            If draw image or not.
         figsize : tuple
-            Tuple of `(w, h)` for figure size in inches.
+            Tuple of `(w, h)` for figure size in inches, when `ax` is None.
         normalize : bool
             If set, normalize the intensity to percentage.
         profile_on : bool
@@ -186,19 +190,24 @@ class Data(object):
         prof_opt = kws.pop('profile_opt', {})
         ellipse_on = kws.pop('ellipse_on', False)
         ellipse_opt = kws.pop('ellipse_opt', {})
+        image_on = kws.pop('image_on', True)
+        ax = kws.pop('ax', None)
 
         data = self.intensity if intensity is None else intensity
-        fig, ax = plt.subplots()
-        fig.set_size_inches(figsize)
+        if ax is None:
+            fig, ax = plt.subplots()
+            fig.set_size_inches(figsize)
 
         if norm:
             data = data / data.sum() * 100
             lbl = "beam %"
         else:
             lbl = ""
-        im = ax.imshow(data, origin="left", aspect="auto", **kws)
-        cb = fig.colorbar(im)
-        cb.set_label(lbl)
+
+        if image_on:
+            im = ax.imshow(data, origin="left", aspect="auto", **kws)
+            cb = fig.colorbar(im)
+            cb.set_label(lbl)
 
         xlbl = r'${}\,\mathrm{{[mm]}}$'.format(xoy)
         x = self.x_grid
@@ -251,7 +260,9 @@ class Data(object):
              ax.axvline(x0, ls=ls, lw=lw, c=lc, **ellipse_opt)
              ax.axhline(y0, ls=ls, lw=lw, c=lc, **ellipse_opt)
 
-        im.set_extent((x[0, 0], x[-1, -1], y[0, 0], y[-1, -1]))
+        if image_on:
+            im.set_extent((x[0, 0], x[-1, -1], y[0, 0], y[-1, -1]))
+
         if with_return:
             return fig, ax
 
