@@ -302,8 +302,8 @@ class Data(object):
 
         Returns
         -------
-        m : array:
-            Intensity after noise correction.
+        r : tuple
+            Intensity after noise correction and noise matrix.
         """
         intensity = self.intensity.copy() if intensity is None else intensity.copy()
         return noise_correction(intensity, noise_signal_array, **kws)
@@ -468,8 +468,8 @@ def noise_correction(intensity, noise_signal_array, threshold_sigma=2.0):
 
     Returns
     -------
-    m : array:
-        Matrix of signal after noise correction.
+    r : tuple
+        Matrix of signal after noise correction, and noise matrix.
     """
     noise_arr = intensity[noise_signal_array == False]
     noise_avg = noise_arr.mean()
@@ -485,4 +485,4 @@ def noise_correction(intensity, noise_signal_array, threshold_sigma=2.0):
             arr_flat[i] -= noise_avg
     m = arr_flat.reshape(shape)
     m[noise_signal_array == False] = 0
-    return m
+    return m, noise_arr
