@@ -25,6 +25,7 @@ from .utils import find_dconf
 from .utils import get_all_devices
 from .model import Model
 from .data import Data
+from .plot_final import PlotResults
 
 
 class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
@@ -117,6 +118,9 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
 
         for o in self.findChildren(QLineEdit):
             o.textChanged.connect(self.highlight_text)
+
+        #
+        self._plot_window = None
 
     @pyqtSlot(float)
     def on_update_config(self, attr, x):
@@ -382,6 +386,7 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
             return
         inten = self.matplotlibimageWidget.get_data()
         res = self._data.calculate_beam_parameters(inten)
+        self._results = res
         self.update_results_ui(res)
 
     def on_initial_data(self, mode="Live"):
@@ -535,5 +540,45 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
     @pyqtSlot(bool)
     def on_enable_auto_filter_bkgd_noise(self, f):
         self._auto_bkgd_noise_filter = f
-        if f and self._intensity_clean_bkgd is not None:
-            self.image_data_changed.emit(self._intensity_clean_bkgd)
+        if f:
+            inten = self._update_bkgd_noise()
+            if inten is None:
+                self.sender().setChecked(False)
+                return
+            else:
+                self._intensity_clean_bkgd = inten
+                self.image_data_changed.emit(self._intensity_clean_bkgd)
+
+    @pyqtSlot()
+    def on_plot_region(self):
+        # tag noise/signal pts.
+        from .plot import PlotWidget
+        m = self.matplotlibimageWidget.get_data()
+        if self._plot_window is None:
+            self._plot_window = PlotWidget()
+        self._plot_window.matplotlibimageWidget.update_image(m)
+        self._plot_window.show()
+
+
+
+    @pyqtSlot()
+    def on_apply_noise_correction(self):
+        pass
+
+    @pyqtSlot(float)
+    def on_update_noise_threshold(self, x):
+        self._noise_threshold = x
+
+    @pyqtSlot(float)
+    def on_update_ellipse_size_factor(self, x):
+        self._ellipse_sf = x
+
+    @pyqtSlot()
+    def on_finalize_results(self):
+        # show Twiss parameters as figure.
+        self._plot_results_window = PlotResults(self)
+        self._plot_results_window.results = self._results
+        self._plot_results_window.plot_data()
+        self._plot_results_window.show()
+        self._plot_results_window.setWindowTitle("Finalize Twiss Parameters")
+
