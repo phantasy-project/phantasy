@@ -23,17 +23,21 @@ from ._sim import SimDevice
 from .ui.ui_app import Ui_MainWindow
 from .utils import find_dconf
 from .utils import get_all_devices
-from .model import Model
 from .data import Data
+from .model import Model
+from .plot import PlotWidget
 from .plot_final import PlotResults
 
 
 class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
     image_data_changed = pyqtSignal(ndarray)
+    data_changed = pyqtSignal(ndarray)
     xdata_changed = pyqtSignal(ndarray)
     ydata_changed = pyqtSignal(ndarray)
     xlabel_changed = pyqtSignal('QString')
     ylabel_changed = pyqtSignal('QString')
+    results_changed = pyqtSignal(dict)
+    size_factor_changed = pyqtSignal(float)
     def __init__(self, version, mode="Live"):
         super(AllisonScannerWindow, self).__init__()
 
@@ -97,7 +101,9 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
         # bkgd noise
         self._intensity_clean_bkgd = None
         self._auto_bkgd_noise_filter = False
-        for o in (self.bkgd_noise_nelem_sbox, self.bkgd_noise_threshold_sbox):
+        # noise cor
+        for o in (self.bkgd_noise_nelem_sbox, self.bkgd_noise_threshold_sbox,
+                  self.factor_dsbox, self.noise_threshold_sbox):
             o.valueChanged.emit(o.value())
 
         # pos,volt,dt...
@@ -388,6 +394,7 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
         res = self._data.calculate_beam_parameters(inten)
         self._results = res
         self.update_results_ui(res)
+        self.results_changed.emit(res)
 
     def on_initial_data(self, mode="Live"):
         self._data = Data(model=self._model, array=self._current_array)
@@ -459,10 +466,11 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
         except (IndexError, ValueError):
             pass
         else:
-            self.plot_bkgd_noise(self.bkgd_noise_plot, bkgd_noise,
+            self.plot_noise(self.bkgd_noise_plot, bkgd_noise,
                                  self._bkgd_noise_nsigma)
             if self._auto_bkgd_noise_filter:
                 self.image_data_changed.emit(inten1)
+                self.data_changed.emit(inten1)
             return inten1
 
     @pyqtSlot(int)
@@ -476,7 +484,7 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
         self._bkgd_noise_nsigma = i
         self._intensity_clean_bkgd = self._update_bkgd_noise()
 
-    def plot_bkgd_noise(self, o, m, n):
+    def plot_noise(self, o, m, n):
         ax = o.axes
         ax.clear()
         m = m.flatten()
@@ -548,30 +556,45 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
             else:
                 self._intensity_clean_bkgd = inten
                 self.image_data_changed.emit(self._intensity_clean_bkgd)
+                self.data_changed.emit(self._intensity_clean_bkgd)
 
     @pyqtSlot()
     def on_plot_region(self):
         # tag noise/signal pts.
-        from .plot import PlotWidget
         m = self.matplotlibimageWidget.get_data()
         if self._plot_window is None:
-            self._plot_window = PlotWidget()
-        self._plot_window.matplotlibimageWidget.update_image(m)
+            self._plot_window = PlotWidget(self)
+        self.data_changed.connect(self._plot_window.data_changed)
+        self.results_changed.connect(self._plot_window.on_ellipse_updated)
+        self.size_factor_changed.connect(self._plot_window.on_ellipse_size_updated)
         self._plot_window.show()
-
-
+        self._plot_window.setWindowTitle("ROI for Noise Correction")
 
     @pyqtSlot()
     def on_apply_noise_correction(self):
-        pass
+        m, _ = self._data.noise_correction(self._noise_signal_arr,
+                threshold_sigma=self._noise_threshold)
+        self.image_data_changed.emit(m)
 
     @pyqtSlot(float)
     def on_update_noise_threshold(self, x):
         self._noise_threshold = x
+        if self._data is None:
+            return
+        try:
+            _, noise_arr = self._data.noise_correction(self._noise_signal_arr,
+                threshold_sigma=x)
+        except:
+            QMessageBox.warning(self, "", "Noise estimation is not ready.",
+                    QMessageBox.Ok)
+            return
+        else:
+            self.plot_noise(self.noise_plot, noise_arr, x)
 
     @pyqtSlot(float)
     def on_update_ellipse_size_factor(self, x):
         self._ellipse_sf = x
+        self.size_factor_changed.emit(x)
 
     @pyqtSlot()
     def on_finalize_results(self):
@@ -581,4 +604,3 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
         self._plot_results_window.plot_data()
         self._plot_results_window.show()
         self._plot_results_window.setWindowTitle("Finalize Twiss Parameters")
-
