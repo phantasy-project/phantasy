@@ -53,7 +53,16 @@ def draw_beam_ellipse(ax, alpha, beta, gamma, epsilon, **kws):
     w = (2 * epsilon / (beta + gamma + ((beta + gamma)**2 - 4)**0.5))**0.5
     h = (0.5 * epsilon * (beta + gamma + ((beta + gamma)**2 - 4)**0.5))**0.5
 
+    try:
+        r1, r2 = sorted((w, h))
+        assert gamma > beta
+    except AssertionError:
+        h, w = r1, r2
+    else:
+        h, w = r2, r1
+
     angle = np.arctan(2 * alpha / (gamma - beta)) / 2.0  # radian
+
     if angle >= 0:
         phi_coord = (0.54, 0.51)
     else:
