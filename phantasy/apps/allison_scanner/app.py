@@ -515,7 +515,7 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
         for k in ks:
             o = getattr(self, k + '_lineEdit')
             v = res.get(k.replace('x', u))
-            o.setText("{0:.6f}".format(v))
+            o.setText("{0:.4f}".format(v))
 
     def _update_result_keys(self, s):
         u = s.lower()
@@ -532,9 +532,9 @@ class AllisonScannerWindow(BaseAppForm, Ui_MainWindow):
 
     def _initial_devices(self, mode="Live"):
         if mode == "Live":
-            all_devices_dict = get_all_devices()
+            all_devices_dict = get_all_devices("FRIB", "LEBT", "EMS")
         else:
-            all_devices_dict = get_all_devices("DEVICES", "DEVICES", "EMS")
+            all_devices_dict = get_all_devices("SIM", "DEVICES", "EMS")
         self._all_devices_dict = all_devices_dict
         self.ems_names_cbb.addItems(all_devices_dict)
         self.ems_names_cbb.currentTextChanged.connect(self.on_device_changed)
