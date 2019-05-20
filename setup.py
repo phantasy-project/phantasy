@@ -53,24 +53,6 @@ def set_entry_points():
         'plot_orbit=phantasy.tools.plot_orbit:main',
         'correct_orbit=phantasy.tools.correct_orbit:main',
         'test_phantasy=phantasy.tests:main',
-        'pm_dat2json=phantasy.apps.wire_scanner.converter:main',
-        'as_out2json=phantasy.apps.allison_scanner.out2json:main',
-    ]
-
-    r['gui_scripts'] = [
-        'unicorn_app=phantasy.apps.unicorn:run',
-        'lattice_viewer=phantasy.apps.lattice_viewer:run',
-        'trajectory_viewer=phantasy.apps.trajectory_viewer:run',
-        'correlation_visualizer=phantasy.apps.correlation_visualizer:run',
-        'quad_scan=phantasy.apps.quad_scan:run',
-        'va_launcher=phantasy.apps.va:run',
-        'orm=phantasy.apps.orm:run',
-        'wire_scanner=phantasy.apps.wire_scanner:run',
-        'settings_manager=phantasy.apps.settings_manager:run',
-        'allison_scanner=phantasy.apps.allison_scanner:run',
-        'app_launcher=phantasy.apps.app_launcher:run',
-        'device_viewer=phantasy.apps.diag_viewer:run',
-        'image_viewer=phantasy.apps.imageviewer:run',
     ]
     return r
 
