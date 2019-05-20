@@ -70,6 +70,7 @@ def set_entry_points():
         'allison_scanner=phantasy.apps.allison_scanner:run',
         'app_launcher=phantasy.apps.app_launcher:run',
         'device_viewer=phantasy.apps.diag_viewer:run',
+        'image_viewer=phantasy.apps.imageviewer:run',
     ]
     return r
 
