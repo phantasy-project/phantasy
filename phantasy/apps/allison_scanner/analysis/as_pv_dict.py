@@ -24,9 +24,9 @@ scan_start = 'FE_SCS1:EMS_D0739:DRV1_scan2.EXSC',
 scan_status = 'FE_SCS1:EMS1_D0739:scan2.FAZE',
 
 pos_default = 'FE_SCS1:STPC01_D0739:POSH.VAL',
-pos_readback = 'FE_SCS1:EMS_D0739:DRV2.RBV',
-scanner_out = 'FE_SCS1:EMS_D0739:LMPOS_RSTS_DRV2',
-scanner_in = 'FE_SCS1:EMS_D0739:LMNEG_RSTS_DRV2',
+pos_readback = 'FE_SCS1:EMS_D0739:DRV1.RBV',
+scanner_out = 'FE_SCS1:EMS_D0739:LMPOS_RSTS_DRV1',
+scanner_in = 'FE_SCS1:EMS_D0739:LMNEG_RSTS_DRV1',
 
 data = 'FE_SCS1:EMS1_D0739:Det1Data',
 
@@ -59,7 +59,7 @@ scan_start = 'FE_SCS1:EMS_D0739:DRV2_scan2.EXSC',
 scan_status = 'FE_SCS1:EMS2_D0739:scan2.FAZE',
 
 pos_default = 'FE_SCS1:STPC01_D0739:POSV.VAL',
-pos_readback = 'FE_SCS1:EMS_D0739:DRV1.RBV',
+pos_readback = 'FE_SCS1:EMS_D0739:DRV2.RBV',
 scanner_out = 'FE_SCS1:EMS_D0739:LMPOS_RSTS_DRV2',
 scanner_in = 'FE_SCS1:EMS_D0739:LMNEG_RSTS_DRV2',
 

@@ -8,3 +8,4 @@ recursive-include phantasy/tests/lattice *
 recursive-include phantasy/apps/trajectory_viewer/config *
 recursive-include phantasy/apps/wire_scanner/config *
 recursive-include phantasy/apps/app_launcher/config *
+recursive-include phantasy/apps/allison_scanner/config *

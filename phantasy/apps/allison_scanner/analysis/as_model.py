@@ -122,7 +122,7 @@ class FribASModel(ASModel):
 
     def __init__(self, beamline, A_ion = 39.948, Q_ion = 9, KE_per_u = 12e3):
         if beamline == 'artemis':
-            ASModel.__init__(self, L = 71.85, g = 7.91, l1 = 2.01, l2 = 4.986,
+            ASModel.__init__(self, L = 71.85, g = 7.91, l1 = 4.938, l2 = 4.986,
                                     s = 0.06, d = 0.254,
                                     A_ion = A_ion, Q_ion = Q_ion, KE_per_u = KE_per_u)
         elif beamline == 'venus':

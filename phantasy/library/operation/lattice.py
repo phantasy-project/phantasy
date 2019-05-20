@@ -464,7 +464,9 @@ def prefix_pv(pv, prefix):
         return pv[3:]
 
     m = re.match("(.*:)?(.*):(.*):(.*)", pv)
-    if m.group(1) is None:
+    if m is None:
+        chanprefix = prefix
+    elif m.group(1) is None:
         chanprefix = prefix
     else:
         chanprefix = ''

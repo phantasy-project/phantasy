@@ -54,6 +54,7 @@ def set_entry_points():
         'correct_orbit=phantasy.tools.correct_orbit:main',
         'test_phantasy=phantasy.tests:main',
         'pm_dat2json=phantasy.apps.wire_scanner.converter:main',
+        'as_out2json=phantasy.apps.allison_scanner.out2json:main',
     ]
 
     r['gui_scripts'] = [
@@ -66,6 +67,7 @@ def set_entry_points():
         'orm=phantasy.apps.orm:run',
         'wire_scanner=phantasy.apps.wire_scanner:run',
         'settings_manager=phantasy.apps.settings_manager:run',
+        'allison_scanner=phantasy.apps.allison_scanner:run',
         'app_launcher=phantasy.apps.app_launcher:run',
         'device_viewer=phantasy.apps.diag_viewer:run',
     ]

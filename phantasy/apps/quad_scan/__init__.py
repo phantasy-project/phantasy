@@ -3,6 +3,7 @@
 import sys
 from phantasy_ui import QApp as QApplication
 from phantasy_ui import set_mplstyle
+from .utils import draw_beam_ellipse
 
 from .app import QuadScanWindow
 
