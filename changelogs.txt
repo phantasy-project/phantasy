@@ -1,3 +1,20 @@
+Version 1.10.2
+-------------
+2019-05-20
+
+- Maintenance:
+  - Split phantasy/apps into a separate repo: 'phantasy-apps'.
+  - Fix requirements.
+
+- Bugfixes:
+  - [3b188010] Prefix PV with defined string if re.match returns None.
+  - [cca2e6ef] Return None if current_setting fails to return a value.
+
+- Improvements:
+  - [4e106414] Add new user-defined exception classes.
+  - [089781c8] Return put status from ensure_put().
+  - [70f22bef] Make 'ensure_put()' return after 'timeout' sec.
+
 Version 1.10.1
 -------------
 2019-04-05
