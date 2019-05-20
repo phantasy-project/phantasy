@@ -33,7 +33,7 @@ __authors__ = "Tong Zhang"
 __copyright__ = "(c) 2016-2019, Facility for Rare Isotope beams," \
                 " Michigan State University"
 __contact__ = "Tong Zhang <zhangt@frib.msu.edu>"
-__version__ = "1.10.1"
+__version__ = "1.10.2"
 
 __doc__ = \
 """PHANTASY: [P]hysics [H]igh-level [A]pplications a[N]d [T]oolkit for
@@ -45,7 +45,7 @@ PHANTASY features:
 - Online modeling, integrating physics and engineering units scaling laws
 - Device abstraction and configuration management
 - Interactive Python scripting controls to the accelerator system
-- GUI apps for commissioning and operation
+- GUI apps for commissioning and operation (see phantasy-apps)
 
 For Debian 8 and 9, meta package: `phantasy' contain all the software
 product from this development.
