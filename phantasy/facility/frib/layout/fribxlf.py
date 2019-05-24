@@ -82,10 +82,10 @@ DEVICE_ALIAS_VALVE = ( "GV", "FVS", "FAV", "FV", "FAVS",
 DEVICE_ALIAS_CAV = ( "CAV1", "CAV2", "CAV3", "CAV4",
                      "CAV5", "CAV6", "CAV7", "CAV8", "CAV", )
 # device alias for solenoid: SolElement
-DEVICE_ALIAS_SOLR = ( "SOLR",
-                      "SOL", ) # ReA
+DEVICE_ALIAS_SOLR = ( "SOLR", )
 # device alias for solenoid w/ hcor&vcor: SolCorElement
-DEVICE_ALIAS_SOL = ( "SOL1", "SOL2", "SOL3", "SOLS", )
+DEVICE_ALIAS_SOL = ( "SOL1", "SOL2", "SOL3", "SOLS",
+                     "SOL", ) # ReA
 # device alias for BPM
 DEVICE_ALIAS_BPM = ( "BPM", )
 # device alias for PM
