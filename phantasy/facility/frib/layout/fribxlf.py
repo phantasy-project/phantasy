@@ -75,9 +75,32 @@ DEVICE_SKIP_WORDS = ( "end", "start", "END", )
 # skip line whose name field is any one of the words defined by NAME_SKIP_WORDS
 NAME_SKIP_WORDS = ("FE_MEBT:PM_D1053", )
 
+# element name as drift
+ELEMENT_NAME_STRING_AS_DRIFT = [
+    "coil-out", "coil-out (assumed)", "coil out", "coil out + leads",
+    "collimation flange", "collimation flange moved??",
+    "BPM-box", "diagnostic box", "vacuum box", "box",
+    "box+tube", "mhb box", "4 way cross", "6 way cross",
+    "artemis_b extraction/puller", "artemis_b extraction wall",
+    "extraction mounting plate", "extraction box",
+    "gap (puller & extraction hole)", "gap (puller main & bias)",
+    "puller tube", "8 mm extraction hole",
+    "artemis_b extraction conical wall",
+    "RFQ end wall", "RFQ inn-wall (match point)", "RFQ inn-wall",
+    "BOB1", "BOB2", "BOB3", "BOB4", # ReA
+    "BOX1", "BOX2", "BOX3", "BOX4", # ReA
+    "BOX5", "BOX6", "BOX7", "BOX8", # ReA
+    "BOX9", "BOX10", "BOX11", "Box 13", # ReA
+    "Box 14", "Box 15", "Box 16", "Box 17", # ReA
+    "Box 18", "Box 19", "Box 20", "Box 21", "Box 22", # ReA
+    "RFQ entrance=100m by definition", # ReA
+    "ORIGIN POINT", # ReA
+    "6-Way Cross (temporary)", # ReA
+]
+
 # device alias for valve: ValveElement
 DEVICE_ALIAS_VALVE = ( "GV", "FVS", "FAV", "FV", "FAVS",
-                       "BGV", ) # ReA
+                       "BGV", "RV", "VV", "TGV", ) # ReA
 # device alias for cavity: CavityElement
 DEVICE_ALIAS_CAV = ( "CAV1", "CAV2", "CAV3", "CAV4",
                      "CAV5", "CAV6", "CAV7", "CAV8", "CAV", )
@@ -103,24 +126,39 @@ DEVICE_ALIAS_BCM = ( "BCM", )
 # device alias for EMS (emittance scanner)
 DEVICE_ALIAS_EMS = ( "EMS", )
 # device alias for faraday cup
-DEVICE_ALIAS_FC = ( "FC", "FFC", )
+DEVICE_ALIAS_FC = ( "FC", "FFC",
+                    "FCS",  # ReA
+                    "FSD",  # ReA, decay counter, temporarily here
+)
 # device alias for viewer
 DEVICE_ALIAS_VD = ( "VD",
-                    "SiD", ) # SiD is silicon detector, temporarily put it here
+                    "SiD",  # SiD is silicon detector, temporarily put it here
+                    "CAM",  # ReA
+                    "MCPV", # ReA, (MCPV) Multichannel plate temporarily here
+                    "TID",  # ReA, Timing detector, temporarily here
+)
 # device alias for pump, port, etc.
 DEVICE_ALIAS_PORT = ( "PORT", "TMP", "NEGP", "IP", "CP",
-                     "CCG", )  # CCG is cold cathod gauge, temporarily put it here
+                      "CCG",  # CCG is cold cathod gauge, temporarily put it here
+                      "FE",   # ReA, flow meter, temporarily here
+                      "TSH", "TSH1", "TSH2", "TS", # ReA, temperature switch, temporarily here
+                      "FPG", "PG",  # ReA, vacuum, temporarily here
+                      "LT", # ReA, light, temporarily here
+                      "PSD",  # ReA, power supply dipole?
+)
 # device alias for correctors, comes with H&V pair.
 DEVICE_ALIAS_COR = ( "DC", "DC0", "CH", "DCHV", )
 # device alias for HCOR
-DEVICE_ALIAS_HCOR = ( "DCHE", "DCH", ) # ReA
+DEVICE_ALIAS_HCOR = ( "DCHE", "DCH", "PSC2", ) # ReA
 # device alias for VCOR
-DEVICE_ALIAS_VCOR = ( "DCVE", "DCV", ) # ReA
+DEVICE_ALIAS_VCOR = ( "DCVE", "DCV", "PSC1", ) # ReA
 # device alias for dipole, bend
 DEVICE_ALIAS_BEND = ( "DH",
                       "DV", ) # ReA
 # device alias for quad
-DEVICE_ALIAS_QUAD = ( "QH", "QV", "Q", )
+DEVICE_ALIAS_QUAD = ( "QH", "QV", "Q",
+                      "PSQ", # ReA
+)
 # device alias for sextupole
 DEVICE_ALIAS_SEXT = ( "S", )
 # device alias for electrode
@@ -134,13 +172,17 @@ DEVICE_ALIAS_EBEND = ( "DVE",
 DEVICE_ALIAS_EQUAD = ( "QHE", "QVE",
                        "QE", ) # ReA
 # device alias for slit
-DEVICE_ALIAS_SLIT = ( "SLH", "SLT", )
+DEVICE_ALIAS_SLIT = ( "SLH", "SLT",
+                      "SLHGAP", "SLHCEN", "DD", "SLV", # ReA
+                      "SLB", "SLL", "SLR", # ReA
+)
 # device alias for chopper
 DEVICE_ALIAS_CHP = ( "CHP", )
 # device alias for aperture
 DEVICE_ALIAS_AP = ( "AP", )
 # device alias for attenuator
-DEVICE_ALIAS_ATT = ( "ATT", )
+DEVICE_ALIAS_ATT = ( "ATT",
+                     "ATP", ) # ReA
 # device alias for dump
 DEVICE_ALIAS_DUMP = ( "dump", "DUMP", "BD", )
 # device alias for halo ring
@@ -882,17 +924,7 @@ class AccelFactory(XlfConfig):
                         subsequence.append(
                             DriftElement(row.center_position, row.eff_length, row.diameter, name_drift(), desc=row.element_name))
 
-                    elif row.element_name in ["coil-out", "coil-out (assumed)", "coil out", "coil out + leads",
-                                              "collimation flange", "collimation flange moved??",
-                                              "BPM-box", "diagnostic box", "vacuum box", "box",
-                                              "box+tube", "mhb box", "4 way cross", "6 way cross",
-                                              "artemis_b extraction/puller", "artemis_b extraction wall",
-                                              "extraction mounting plate", "extraction box",
-                                              "gap (puller & extraction hole)", "gap (puller main & bias)",
-                                              "puller tube", "8 mm extraction hole",
-                                              "artemis_b extraction conical wall",
-                                              "RFQ end wall", "RFQ inn-wall (match point)", "RFQ inn-wall",
-                                              ]:
+                    elif row.element_name in ELEMENT_NAME_STRING_AS_DRIFT:
                         if drift_delta != 0.0:
                             raise Exception("Unsupported drift delta on element: {}".format(row.element_name))
                         subsequence.append(
