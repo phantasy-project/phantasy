@@ -73,7 +73,11 @@ SYSTEM_SKIP_WORDS = ( "dump", "SEGMENT", "LINAC", "Target",
 DEVICE_SKIP_WORDS = ( "end", "start", "END", )
 
 # skip line whose name field is any one of the words defined by NAME_SKIP_WORDS
-NAME_SKIP_WORDS = ("FE_MEBT:PM_D1053", )
+NAME_SKIP_WORDS = ("FE_MEBT:PM_D1053",
+                   "DANS:TL_D1439", # ReA
+                   "DATP:TL_D1460", # ReA
+                   "DJNS:TL_D1465", # ReA
+)
 
 # element name as drift
 ELEMENT_NAME_STRING_AS_DRIFT = [
