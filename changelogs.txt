@@ -1,5 +1,11 @@
+Version 1.11.0
+--------------
+2019-06-05
+
+- Support ReA xlsx lattice file, layout, VA.
+
 Version 1.10.2
--------------
+--------------
 2019-05-20
 
 - Maintenance:
@@ -16,7 +22,7 @@ Version 1.10.2
   - [70f22bef] Make 'ensure_put()' return after 'timeout' sec.
 
 Version 1.10.1
--------------
+--------------
 2019-04-05
 
 - Correlation Visualizer:
@@ -29,7 +35,7 @@ Version 1.10.1
   - Add missing icon of Device Viewer app for launcher.
 
 Version 1.10.0
--------------
+--------------
 2019-04-04
 
 - PHANTASY core:
@@ -72,7 +78,7 @@ Version 1.10.0
   - Update dataviz style.
 
 Version 1.9.10
--------------
+--------------
 2019-03-06
 
 - PHANTASY core:
