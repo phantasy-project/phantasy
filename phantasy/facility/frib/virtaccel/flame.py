@@ -34,6 +34,8 @@ from phantasy.library.layout import SeqElement
 from phantasy.library.layout import CavityElement
 from phantasy.library.layout import SolCorElement
 from phantasy.library.layout import CorElement
+from phantasy.library.layout import HCorElement
+from phantasy.library.layout import VCorElement
 from phantasy.library.layout import QuadElement
 from phantasy.library.layout import BendElement
 from phantasy.library.layout import SextElement
@@ -397,6 +399,20 @@ class VirtualAcceleratorFactory(object):
                              self._findChannel(elem.v.name, elem.v.fields.angle, "readset"),
                              self._findChannel(elem.v.name, elem.v.fields.angle, "readback"),
                              (elem.v.name, elem.v.fields.angle_phy), desc="Vertical Corrector", egu="radian") #, drvabs=0.001)
+                va.append_elem(elem)
+
+            elif isinstance(elem, HCorElement):
+                va.append_rw(self._findChannel(elem.name, elem.fields.angle, "setpoint"),
+                             self._findChannel(elem.name, elem.fields.angle, "readset"),
+                             self._findChannel(elem.name, elem.fields.angle, "readback"),
+                             (elem.name, elem.fields.angle_phy), desc="Horizontal Corrector", egu="radian") #, drvabs=0.001)
+                va.append_elem(elem)
+
+            elif isinstance(elem, VCorElement):
+                va.append_rw(self._findChannel(elem.name, elem.fields.angle, "setpoint"),
+                             self._findChannel(elem.name, elem.fields.angle, "readset"),
+                             self._findChannel(elem.name, elem.fields.angle, "readback"),
+                             (elem.name, elem.fields.angle_phy), desc="Vertical Corrector", egu="radian") #, drvabs=0.001)
                 va.append_elem(elem)
 
             elif isinstance(elem, BendElement):
