@@ -169,6 +169,12 @@ def build_layout(layoutPath=None, **kwargs):
             elif etype == SolElement.ETYPE:
                 elements.append(buildElement(row, SolElement))
 
+            elif etype == HCorElement.ETYPE:
+                elements.append(buildElement(row, HCorElement))
+
+            elif etype == VCorElement.ETYPE:
+                elements.append(buildElement(row, VCorElement))
+
             elif etype == SolCorElement.ETYPE or etype == CorElement.ETYPE:
                 if etype == SolCorElement.ETYPE:
                     elem = buildElement(row, SolCorElement)

@@ -19,6 +19,8 @@ from phantasy.library.layout import BPMElement
 from phantasy.library.layout import BendElement
 from phantasy.library.layout import CavityElement
 from phantasy.library.layout import CorElement
+from phantasy.library.layout import HCorElement
+from phantasy.library.layout import VCorElement
 from phantasy.library.layout import DriftElement
 from phantasy.library.layout import EBendElement
 from phantasy.library.layout import ElectrodeElement
@@ -282,6 +284,28 @@ def build_channels(layout, psfile, machine=None, **kws):
                 data.append((channel + ":I_RSET", OrderedDict(props), list(tags)))
                 props[_HANDLE_PROPERTY] = "readback"
                 data.append((channel + ":I_RD", OrderedDict(props), list(tags)))
+
+        elif isinstance(elem, HCorElement):
+            props[_TYPE_PROPERTY] = "HCOR"
+            props[_FIELD_ENG_PROPERTY] = elem.fields.angle
+            props[_FIELD_PHY_PROPERTY] = elem.fields.angle_phy
+            props[_HANDLE_PROPERTY] = "setpoint"
+            data.append((channel + ":I_CSET", OrderedDict(props), list(tags)))
+            props[_HANDLE_PROPERTY] = "readset"
+            data.append((channel + ":I_RSET", OrderedDict(props), list(tags)))
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel + ":I_RD", OrderedDict(props), list(tags)))
+
+        elif isinstance(elem, VCorElement):
+            props[_TYPE_PROPERTY] = "VCOR"
+            props[_FIELD_ENG_PROPERTY] = elem.fields.angle
+            props[_FIELD_PHY_PROPERTY] = elem.fields.angle_phy
+            props[_HANDLE_PROPERTY] = "setpoint"
+            data.append((channel + ":I_CSET", OrderedDict(props), list(tags)))
+            props[_HANDLE_PROPERTY] = "readset"
+            data.append((channel + ":I_RSET", OrderedDict(props), list(tags)))
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel + ":I_RD", OrderedDict(props), list(tags)))
 
         elif isinstance(elem, CorElement):
             try:
