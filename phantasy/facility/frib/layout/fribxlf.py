@@ -46,6 +46,7 @@ from phantasy.library.layout import AttenuatorElement
 from phantasy.library.layout import DumpElement
 from phantasy.library.layout import ApertureElement
 from phantasy.library.layout import CollimatorElement
+from phantasy.library.layout import RotElement
 from phantasy.library.parser import Configuration
 
 NON_DRIFT_ELEMENTS = (
@@ -56,7 +57,7 @@ NON_DRIFT_ELEMENTS = (
         PortElement, QuadElement, SextElement, SolElement, SolCorElement,
         StripElement, VCorElement, VDElement, ValveElement, SlitElement,
         ChopperElement, AttenuatorElement, DumpElement, ApertureElement,
-        HMRElement, CollimatorElement, NDElement, ICElement,
+        HMRElement, CollimatorElement, NDElement, ICElement, RotElement,
 )
 
 # constants for parsing xlsx file
@@ -163,6 +164,8 @@ DEVICE_ALIAS_BEND = ( "DH",
 DEVICE_ALIAS_QUAD = ( "QH", "QV", "Q",
                       "PSQ", # ReA
 )
+# device alias for rotation elements (virtual)
+DEVICE_ALIAS_ROT = ( "ROT", ) # ReA
 # device alias for sextupole
 DEVICE_ALIAS_SEXT = ( "S", )
 # device alias for electrode
@@ -777,6 +780,15 @@ class AccelFactory(XlfConfig):
                                            desc=row.element_name,
                                            system=row.system, subsystem=row.subsystem, device=row.device,
                                            dtype=row.device_type, inst=inst)
+                        subsequence.append(elem)
+
+                    elif row.device in DEVICE_ALIAS_ROT:
+                        row.device = self.d_map.get(row.device, row.device)
+                        inst = FMT_INST.format(int(row.position))
+                        elem = RotElement(row.center_position, row.eff_length, row.diameter, row.name,
+                                          desc=row.element_name,
+                                          system=row.system, subsystem=row.subsystem, device=row.device,
+                                          dtype=row.device_type, inst=inst)
                         subsequence.append(elem)
 
                     elif row.device in DEVICE_ALIAS_BEND:
