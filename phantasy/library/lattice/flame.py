@@ -49,6 +49,7 @@ from phantasy.library.layout import DumpElement
 from phantasy.library.layout import ChopperElement
 from phantasy.library.layout import HMRElement
 from phantasy.library.layout import CollimatorElement
+from phantasy.library.layout import RotElement
 from phantasy.library.settings import Settings
 
 try:
@@ -82,6 +83,8 @@ CONFIG_FLAME_BEND_FOCUSING = 'focusing_component'
 # Corrector:
 # flag to indicate if using kick ([T.m]) ("tm_kick") or theta ([rad]) ("rad_kick")
 CONFIG_FLAME_COR_GAUGE = "flame_cor_gauge"
+# virtual element: rotation, deg
+CONFIG_FLAME_ROT_ANG = "flame_xyrotation"
 
 # drift mask: bool
 CONFIG_DRIFT_MASK = "drift_mask"
@@ -607,6 +610,22 @@ class FlameLatticeFactory(BaseLatticeFactory):
                 else:
                     lattice.append(elem.name, "orbtrim", ('theta_y', hkick),
                                    name=elem.name, etype=elem.ETYPE)
+
+                if elem.length != 0.0:
+                    lattice.append(_drift_name(elem.name, 2), "drift",
+                                   ('L', elem.length / 2.0),
+                                   ('aper', elem.apertureX / 2.0))
+
+            elif isinstance(elem, RotElement):
+                if elem.length != 0.0:
+                    lattice.append(_drift_name(elem.name, 1), "drift",
+                                   ('L', elem.length / 2.0),
+                                   ('aper', elem.apertureX / 2.0))
+
+                xyrotate = self._get_config(elem.name, CONFIG_FLAME_ROT_ANG, 0)
+                lattice.append(elem.name, "orbtrim",
+                               ("xyrotate", float(xyrotate)),
+                               name=elem.name, etype=elem.ETYPE)
 
                 if elem.length != 0.0:
                     lattice.append(_drift_name(elem.name, 2), "drift",
