@@ -65,6 +65,7 @@ from .accel import DumpElement
 from .accel import AttenuatorElement
 from .accel import HMRElement
 from .accel import CollimatorElement
+from .accel import RotElement
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -174,6 +175,9 @@ def build_layout(layoutPath=None, **kwargs):
 
             elif etype == VCorElement.ETYPE:
                 elements.append(buildElement(row, VCorElement))
+
+            elif etype == RotElement.ETYPE:
+                elements.append(buildElement(row, RotElement))
 
             elif etype == SolCorElement.ETYPE or etype == CorElement.ETYPE:
                 if etype == SolCorElement.ETYPE:
