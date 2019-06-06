@@ -559,6 +559,21 @@ class BendElement(Element):
         self.fields.entrAngle = "ENTANG"
 
 
+class RotElement(Element):
+    """RotElement represents a rotation action on the phasespace, virtual
+    only.
+    """
+
+    ETYPE = "ROT"
+
+    def __init__(self, z, length, aperture, name,
+                 desc="virtual element for ps rotation", **meta):
+        super(RotElement, self).__init__(z, length, aperture, name, desc=desc,
+                                         **meta)
+        # self.fields.angle = "I"
+        # self.fields.angle_phy = "ANG"
+
+
 class HCorElement(Element):
     """HCorElement represents a horizontal corrector magnet or coil.
     """

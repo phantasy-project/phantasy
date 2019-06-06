@@ -37,6 +37,7 @@ from .accel import CollimatorElement
 from .accel import Fields
 from .accel import NDElement
 from .accel import ICElement
+from .accel import RotElement
 
 __all__ = [
     'build_layout', 'Layout',
@@ -49,7 +50,7 @@ __all__ = [
     'SextElement', 'SolCorElement', 'SolElement',
     'StripElement', 'VCorElement', 'VDElement', 'ValveElement',
     'SlitElement', 'ChopperElement', 'AttenuatorElement', 'DumpElement',
-    'ApertureElement', "NDElement", "ICElement",
+    'ApertureElement', "NDElement", "ICElement", "RotElement",
     'Element', 'Fields',
 ]
 
