@@ -62,6 +62,7 @@ from phantasy.library.layout import DumpElement
 from phantasy.library.layout import ApertureElement
 from phantasy.library.layout import HMRElement
 from phantasy.library.layout import CollimatorElement
+from phantasy.library.layout import RotElement
 from phantasy.library.lattice import FlameLatticeFactory
 
 
@@ -494,6 +495,9 @@ class VirtualAcceleratorFactory(object):
                                    ChopperElement, DumpElement, SlitElement,
                                    HMRElement, CollimatorElement)):
                 # no channels for now
+                pass
+
+            elif isinstance(elem, RotElement):
                 pass
 
             elif isinstance(elem, (EMSElement, VDElement, FCElement)):

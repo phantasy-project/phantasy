@@ -43,6 +43,7 @@ from phantasy.library.layout import DumpElement
 from phantasy.library.layout import ChopperElement
 from phantasy.library.layout import HMRElement
 from phantasy.library.layout import CollimatorElement
+from phantasy.library.layout import RotElement
 
 
 _INDEX_PROPERTY = "elemIndex"
@@ -475,6 +476,10 @@ def build_channels(layout, psfile, machine=None, **kws):
 
         elif isinstance(elem, (BLElement, BLMElement, )):
             # Diagnostic elements do not have defined channels
+            pass
+
+        elif isinstance(elem, RotElement):
+            # rotation virtual element
             pass
 
         elif isinstance(elem, NDElement):
