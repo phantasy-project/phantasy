@@ -485,6 +485,11 @@ class FCElement(Element):
         self.fields.intensity_phy = "I"
         self.fields.biasvolt = "V"
         self.fields.biasvolt_phy = "V"
+        # VA only
+        self.fields.x = "XCEN"
+        self.fields.y = "YCEN"
+        self.fields.xrms = "XRMS"
+        self.fields.yrms = "YRMS"
 
 
 class HMRElement(Element):
@@ -509,6 +514,18 @@ class VDElement(Element):
     def __init__(self, z, length, aperture, name, desc="viewer detector",
                  **meta):
         super(VDElement, self).__init__(z, length, aperture, name, desc=desc,
+                                        **meta)
+
+
+class SDElement(Element):
+    """SDElement represents a Silicon Detector device.
+    """
+
+    ETYPE = "SD"
+
+    def __init__(self, z, length, aperture, name, desc="silicon detector",
+                 **meta):
+        super(SDElement, self).__init__(z, length, aperture, name, desc=desc,
                                         **meta)
 
 
