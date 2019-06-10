@@ -516,6 +516,11 @@ class VDElement(Element):
         super(VDElement, self).__init__(z, length, aperture, name, desc=desc,
                                         **meta)
 
+        self.fields.x = "XCEN"
+        self.fields.y = "YCEN"
+        self.fields.xrms = "XRMS"
+        self.fields.yrms = "YRMS"
+
 
 class SDElement(Element):
     """SDElement represents a Silicon Detector device.
