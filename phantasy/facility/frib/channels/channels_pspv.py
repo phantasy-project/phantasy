@@ -35,6 +35,7 @@ from phantasy.library.layout import SolCorElement
 from phantasy.library.layout import SolElement
 from phantasy.library.layout import StripElement
 from phantasy.library.layout import VDElement
+from phantasy.library.layout import SDElement
 from phantasy.library.layout import ValveElement
 from phantasy.library.layout import ApertureElement
 from phantasy.library.layout import AttenuatorElement
@@ -537,6 +538,9 @@ def build_channels(layout, psfile, machine=None, **kws):
         elif isinstance(elem, CollimatorElement):
             pass
 
+        elif isinstance(elem, SDElement):
+            pass
+
         elif isinstance(elem, VDElement):
             pass
 
@@ -560,6 +564,27 @@ def build_channels(layout, psfile, machine=None, **kws):
             props[_FIELD_PHY_PROPERTY] = elem.fields.biasvolt_phy
             props[_HANDLE_PROPERTY] = "setpoint"
             data.append(("#" + channel + ":VoltageSet", OrderedDict(props), list(tags)))
+
+            # VA only
+            props[_FIELD_ENG_PROPERTY] = elem.fields.x
+            props[_FIELD_PHY_PROPERTY] = elem.fields.x
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel + ":XCEN_RD", OrderedDict(props), list(tags)))
+
+            props[_FIELD_ENG_PROPERTY] = elem.fields.y
+            props[_FIELD_PHY_PROPERTY] = elem.fields.y
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel + ":YCEN_RD", OrderedDict(props), list(tags)))
+
+            props[_FIELD_ENG_PROPERTY] = elem.fields.xrms
+            props[_FIELD_PHY_PROPERTY] = elem.fields.xrms
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel + ":XRMS_RD", OrderedDict(props), list(tags)))
+
+            props[_FIELD_ENG_PROPERTY] = elem.fields.yrms
+            props[_FIELD_PHY_PROPERTY] = elem.fields.yrms
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel + ":YRMS_RD", OrderedDict(props), list(tags)))
 
         else:
             raise RuntimeError("read_layout: Element type '{}' not supported".format(elem.ETYPE))

@@ -39,6 +39,7 @@ from phantasy.library.layout import SolElement
 from phantasy.library.layout import StripElement
 from phantasy.library.layout import VCorElement
 from phantasy.library.layout import VDElement
+from phantasy.library.layout import SDElement
 from phantasy.library.layout import ValveElement
 from phantasy.library.layout import SlitElement
 from phantasy.library.layout import ChopperElement
@@ -58,6 +59,7 @@ NON_DRIFT_ELEMENTS = (
         StripElement, VCorElement, VDElement, ValveElement, SlitElement,
         ChopperElement, AttenuatorElement, DumpElement, ApertureElement,
         HMRElement, CollimatorElement, NDElement, ICElement, RotElement,
+        SDElement,
 )
 
 # constants for parsing xlsx file
@@ -133,14 +135,17 @@ DEVICE_ALIAS_EMS = ( "EMS", )
 # device alias for faraday cup
 DEVICE_ALIAS_FC = ( "FC", "FFC",
                     "FCS",  # ReA
-                    "FSD",  # ReA, decay counter, temporarily here
+)
+# device alias for silicon detector
+DEVICE_ALIAS_SD = (
+    "FSD",  # ReA, decay counter, temporarily here
+    "MCPV", # ReA, (MCPV) Multichannel plate temporarily here
+    "TID",  # ReA, Timing detector, temporarily here
 )
 # device alias for viewer
 DEVICE_ALIAS_VD = ( "VD",
                     "SiD",  # SiD is silicon detector, temporarily put it here
                     "CAM",  # ReA
-                    "MCPV", # ReA, (MCPV) Multichannel plate temporarily here
-                    "TID",  # ReA, Timing detector, temporarily here
 )
 # device alias for pump, port, etc.
 DEVICE_ALIAS_PORT = ( "PORT", "TMP", "NEGP", "IP", "CP",
@@ -732,6 +737,14 @@ class AccelFactory(XlfConfig):
                     elif row.device in DEVICE_ALIAS_VD:
                         inst = FMT_INST.format(int(row.position))
                         elem = VDElement(row.center_position, row.eff_length, row.diameter, row.name,
+                                         desc=row.element_name,
+                                         system=row.system, subsystem=row.subsystem, device=row.device,
+                                         dtype=row.device_type, inst=inst)
+                        subsequence.append(elem)
+
+                    elif row.device in DEVICE_ALIAS_SD:
+                        inst = FMT_INST.format(int(row.position))
+                        elem = SDElement(row.center_position, row.eff_length, row.diameter, row.name,
                                          desc=row.element_name,
                                          system=row.system, subsystem=row.subsystem, device=row.device,
                                          dtype=row.device_type, inst=inst)

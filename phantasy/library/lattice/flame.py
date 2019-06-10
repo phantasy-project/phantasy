@@ -39,6 +39,7 @@ from phantasy.library.layout import EBendElement
 from phantasy.library.layout import EQuadElement
 from phantasy.library.layout import FCElement
 from phantasy.library.layout import VDElement
+from phantasy.library.layout import SDElement
 from phantasy.library.layout import EMSElement
 from phantasy.library.layout import ElectrodeElement
 from phantasy.library.layout import SolElement
@@ -805,6 +806,9 @@ class FlameLatticeFactory(BaseLatticeFactory):
                 lattice.append(elem.name, "drift", ('L', elem.length), ('aper', elem.aperture / 2.0),
                                name=elem.name, etype=elem.ETYPE)
             elif isinstance(elem, VDElement):
+                lattice.append(elem.name, "drift", ('L', elem.length), ('aper', elem.aperture / 2.0),
+                               name=elem.name, etype=elem.ETYPE)
+            elif isinstance(elem, SDElement):
                 lattice.append(elem.name, "drift", ('L', elem.length), ('aper', elem.aperture / 2.0),
                                name=elem.name, etype=elem.ETYPE)
             elif isinstance(elem, EMSElement):

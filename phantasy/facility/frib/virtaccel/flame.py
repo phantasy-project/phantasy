@@ -53,6 +53,7 @@ from phantasy.library.layout import EBendElement
 from phantasy.library.layout import EMSElement
 from phantasy.library.layout import SolElement
 from phantasy.library.layout import VDElement
+from phantasy.library.layout import SDElement
 from phantasy.library.layout import FCElement
 from phantasy.library.layout import ElectrodeElement
 from phantasy.library.layout import SlitElement
@@ -500,7 +501,18 @@ class VirtualAcceleratorFactory(object):
             elif isinstance(elem, RotElement):
                 pass
 
-            elif isinstance(elem, (EMSElement, VDElement, FCElement)):
+            elif isinstance(elem, FCElement):
+                va.append_ro(self._findChannel(elem.name, elem.fields.x, "readback"),
+                             (elem.name, elem.fields.x), desc="Horizontal Position", egu="m")
+                va.append_ro(self._findChannel(elem.name, elem.fields.y, "readback"),
+                             (elem.name, elem.fields.y), desc="Vertical Position", egu="m")
+                va.append_ro(self._findChannel(elem.name, elem.fields.xrms, "readback"),
+                             (elem.name, elem.fields.xrms), desc="Horizontal Size", egu="m")
+                va.append_ro(self._findChannel(elem.name, elem.fields.yrms, "readback"),
+                             (elem.name, elem.fields.yrms), desc="Vertical Size", egu="m")
+                va.append_elem(elem)
+
+            elif isinstance(elem, (EMSElement, VDElement, SDElement, )):
                 pass
 
             elif isinstance(elem, ElectrodeElement):
@@ -947,6 +959,7 @@ class VirtualAccelerator(object):
 
                 if output_map[i] in self._elemmap:
                     elem = self._elemmap[output_map[i]]
+
                     if isinstance(elem, BPMElement):
                         x_centroid = S.moment0_env[0]/1.0e3 # convert mm to m
                         _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
@@ -965,6 +978,7 @@ class VirtualAccelerator(object):
                         _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
                                       self._readfieldmap[elem.name][elem.fields.energy_phy], energy)
                         batch[self._readfieldmap[elem.name][elem.fields.energy_phy]] = energy
+
                     elif isinstance(elem, PMElement):
                         x_centroid = S.moment0_env[0]/1.0e3 # convert mm to m
                         _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
@@ -1001,6 +1015,24 @@ class VirtualAccelerator(object):
                         _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
                                       self._readfieldmap[elem.name][elem.fields.cxy], cxy)
                         batch[self._readfieldmap[elem.name][elem.fields.cxy]] = cxy
+
+                    elif isinstance(elem, FCElement):
+                        x_centroid = S.moment0_env[0]/1.0e3 # convert mm to m
+                        _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
+                                      self._readfieldmap[elem.name][elem.fields.x], x_centroid)
+                        batch[self._readfieldmap[elem.name][elem.fields.x]] = x_centroid
+                        y_centroid = S.moment0_env[2]/1.0e3 # convert mm to m
+                        _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
+                                      self._readfieldmap[elem.name][elem.fields.y], y_centroid)
+                        batch[self._readfieldmap[elem.name][elem.fields.y]] = y_centroid
+                        x_rms = S.moment0_rms[0]/1.0e3 # convert mm to m
+                        _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
+                                      self._readfieldmap[elem.name][elem.fields.xrms], x_rms)
+                        batch[self._readfieldmap[elem.name][elem.fields.xrms]] = x_rms
+                        y_rms = S.moment0_rms[2]/1.0e3
+                        _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
+                                      self._readfieldmap[elem.name][elem.fields.yrms], y_rms)
+                        batch[self._readfieldmap[elem.name][elem.fields.yrms]] = y_rms
 
             batch.caput()
 

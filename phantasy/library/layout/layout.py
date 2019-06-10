@@ -58,6 +58,7 @@ from .accel import BendElement
 from .accel import QuadElement
 from .accel import SextElement
 from .accel import VDElement
+from .accel import SDElement
 from .accel import SlitElement
 from .accel import ChopperElement
 from .accel import ApertureElement
@@ -160,6 +161,9 @@ def build_layout(layoutPath=None, **kwargs):
 
             elif etype == VDElement.ETYPE:
                 elements.append(buildElement(row, VDElement))
+
+            elif etype == SDElement.ETYPE:
+                elements.append(buildElement(row, SDElement))
 
             elif etype == EMSElement.ETYPE:
                 elements.append(buildElement(row, EMSElement))
