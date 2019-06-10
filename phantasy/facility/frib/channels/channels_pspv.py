@@ -542,7 +542,28 @@ def build_channels(layout, psfile, machine=None, **kws):
             pass
 
         elif isinstance(elem, VDElement):
-            pass
+            # viewer camera
+            props[_TYPE_PROPERTY] = "VD"
+
+            props[_FIELD_ENG_PROPERTY] = elem.fields.x
+            props[_FIELD_PHY_PROPERTY] = elem.fields.x
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel + ":XCEN_RD", OrderedDict(props), list(tags)))
+
+            props[_FIELD_ENG_PROPERTY] = elem.fields.y
+            props[_FIELD_PHY_PROPERTY] = elem.fields.y
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel + ":YCEN_RD", OrderedDict(props), list(tags)))
+
+            props[_FIELD_ENG_PROPERTY] = elem.fields.xrms
+            props[_FIELD_PHY_PROPERTY] = elem.fields.xrms
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel + ":XRMS_RD", OrderedDict(props), list(tags)))
+
+            props[_FIELD_ENG_PROPERTY] = elem.fields.yrms
+            props[_FIELD_PHY_PROPERTY] = elem.fields.yrms
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel + ":YRMS_RD", OrderedDict(props), list(tags)))
 
         elif isinstance(elem, ElectrodeElement):
             pass
