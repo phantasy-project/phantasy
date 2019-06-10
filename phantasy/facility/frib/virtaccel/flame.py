@@ -512,7 +512,18 @@ class VirtualAcceleratorFactory(object):
                              (elem.name, elem.fields.yrms), desc="Vertical Size", egu="m")
                 va.append_elem(elem)
 
-            elif isinstance(elem, (EMSElement, VDElement, SDElement, )):
+            elif isinstance(elem, VDElement):
+                va.append_ro(self._findChannel(elem.name, elem.fields.x, "readback"),
+                             (elem.name, elem.fields.x), desc="Horizontal Position", egu="m")
+                va.append_ro(self._findChannel(elem.name, elem.fields.y, "readback"),
+                             (elem.name, elem.fields.y), desc="Vertical Position", egu="m")
+                va.append_ro(self._findChannel(elem.name, elem.fields.xrms, "readback"),
+                             (elem.name, elem.fields.xrms), desc="Horizontal Size", egu="m")
+                va.append_ro(self._findChannel(elem.name, elem.fields.yrms, "readback"),
+                             (elem.name, elem.fields.yrms), desc="Vertical Size", egu="m")
+                va.append_elem(elem)
+
+            elif isinstance(elem, (EMSElement, SDElement, )):
                 pass
 
             elif isinstance(elem, ElectrodeElement):
@@ -1016,7 +1027,7 @@ class VirtualAccelerator(object):
                                       self._readfieldmap[elem.name][elem.fields.cxy], cxy)
                         batch[self._readfieldmap[elem.name][elem.fields.cxy]] = cxy
 
-                    elif isinstance(elem, FCElement):
+                    elif isinstance(elem, (FCElement, VDElement,)):
                         x_centroid = S.moment0_env[0]/1.0e3 # convert mm to m
                         _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
                                       self._readfieldmap[elem.name][elem.fields.x], x_centroid)
