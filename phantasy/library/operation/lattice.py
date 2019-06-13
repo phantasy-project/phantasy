@@ -14,7 +14,6 @@ from __future__ import unicode_literals
 import logging
 import os
 import re
-import tempfile
 import time
 from fnmatch import fnmatch
 
@@ -22,6 +21,7 @@ from phantasy.facility.frib import INI_DICT
 from phantasy.library.lattice import CaElement
 from phantasy.library.lattice import Lattice
 from phantasy.library.misc import simplify_data
+from phantasy.library.misc import create_tempdir
 from phantasy.library.parser import find_machine_config
 from phantasy.library.pv import DataSource
 #from phantasy.library.layout import build_layout
@@ -234,7 +234,7 @@ def load_lattice(machine, segment=None, **kws):
         # model data temp directory
         if not os.path.exists(model_data_dir):
             os.makedirs(model_data_dir)
-        data_dir = tempfile.mkdtemp(prefix="data_", dir=model_data_dir)
+        data_dir = create_tempdir(prefix="data_", dir=model_data_dir)
         _LOGGER.info("Model data directory: {}".format(data_dir))
 
         # build lattice from PV data

@@ -33,6 +33,7 @@ from phantasy.library.misc import parse_dt
 from phantasy.library.misc import pattern_filter
 from phantasy.library.misc import epoch2human
 from phantasy.library.misc import truncate_number
+from phantasy.library.misc import create_tempfile
 from phantasy.library.model import BeamState
 from phantasy.library.model import ModelFlame
 from phantasy.library.parser import Configuration
@@ -357,7 +358,7 @@ class Lattice(object):
     def data_dir(self, path):
         if path is None:
             systmp = '/tmp'
-            self._data_dir = tempfile.mkdtemp(prefix='model_', dir=systmp)
+            self._data_dir = create_tempdir(prefix='data_', dir=systmp)
         else:
             self._data_dir = path
 
@@ -962,8 +963,8 @@ class Lattice(object):
             return work_dir, None
         elif self.model == "FLAME":
             lat = self.model_factory.build()
-            _, latpath = tempfile.mkstemp(prefix='model_', suffix='.lat',
-                                          dir=self.data_dir)
+            latpath = create_tempfile(prefix='model_', suffix='.lat',
+                                      dir=self.data_dir)
             with open(latpath, 'w') as f:
                 lat.write(f)
             fm = self._flame_model(latconf=lat.conf())
