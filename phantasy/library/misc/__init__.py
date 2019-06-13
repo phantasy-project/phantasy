@@ -14,6 +14,8 @@ from .miscutils import epoch2human
 from .miscutils import convert_epoch
 from .miscutils import QCallback
 from .miscutils import truncate_number
+from .miscutils import create_tempdir
+from .miscutils import create_tempfile
 from .message import disable_warnings
 from .message import set_loglevel
 from .httputils import cofetch
@@ -24,5 +26,6 @@ __all__ = [
     'complicate_data', 'SpecialDict', 'parse_dt', 'epoch2human',
     'cofetch', 'disable_warnings', 'set_loglevel', 'QCallback',
     'convert_epoch', 'truncate_number',
+    'create_tempfile', 'create_tempdir',
 ]
 

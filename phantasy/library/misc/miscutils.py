@@ -14,6 +14,8 @@ from bisect import bisect
 from fnmatch import fnmatch
 import getpass
 from datetime import datetime
+import os
+import tempfile
 
 try:
     from UserDict import DictMixin
@@ -473,3 +475,44 @@ class QCallback(object):
 def truncate_number(x, n):
     v = '{0:.{1}f}'.format(x, n)
     return float(v)
+
+
+def create_tempdir(mode='ts', ts_fmt="%H%M%S", dir="/tmp", prefix="_"):
+    """Create temp directory, mode: 'ts', 'str'.
+
+    See Also
+    --------
+    create_tempfile
+    """
+    if mode == 'ts':
+        dirname = datetime.strftime(datetime.now(), ts_fmt)
+        tmpdir = os.path.join(dir, "{}{}".format(prefix, dirname))
+        i = 1
+        while os.path.exists(tmpdir):
+            tmpdir = '{}_{}'.format(tmpdir, i)
+            i += 1
+        os.makedirs(tmpdir, mode=0o700)
+    else:
+        tmpdir = tempfile.mkdtemp(prefix=prefix, dir=dir)
+    return tmpdir
+
+
+def create_tempfile(mode='ts', ts_fmt="%H%M%S", dir="/tmp", prefix="_",
+                    suffix=""):
+    """Create temp file, mode: 'ts', 'str'.
+
+    See Also
+    --------
+    create_tempdir
+    """
+    if mode == 'ts':
+        fn = datetime.strftime(datetime.now(), ts_fmt)
+        tmpfile = os.path.join(dir, "{}{}{}".format(prefix, fn, suffix))
+        i = 1
+        while os.path.exists(tmpfile):
+            tmpfile = '{}_{}'.format(tmpfile, i)
+            i += 1
+        os.mknod(tmpfile, mode=0o600)
+    else:
+        _, tmpfile = tempfile.mkstemp(prefix=prefix, suffix=suffix, dir=dir)
+    return tmpfile
