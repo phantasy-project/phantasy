@@ -124,6 +124,7 @@ class Lattice(object):
 
     def __init__(self, name, **kws):
         self.name = name
+        self._model_factory = None
         self.source = kws.get('source', None)
         self.s_begin = kws.get('s_begin', None)
         self.s_end = kws.get('s_end', None)
@@ -206,7 +207,7 @@ class Lattice(object):
 
     @property
     def settings(self):
-        """Obj: Lattice settings object."""
+        """Settings: Object of lattice model settings."""
         return self._settings
 
     @settings.setter
@@ -216,7 +217,9 @@ class Lattice(object):
         else:
             self._settings = self._get_default_settings()
         # update model factory
-        self.model_factory = None
+        if self._model_factory is not None:
+            self._model_factory.settings = settings
+            _LOGGER.info("Updating model settings.")
 
     @property
     def model_factory(self):
@@ -495,19 +498,19 @@ class Lattice(object):
         return 0
 
     def _set_control_field(self, elem, field, value):
-        """Set value to element field onto control environment.
+        """Set value to element field onto 'control' environment.
         """
-        value0 = elem.last_settings.get('field')
+        value0 = elem.last_settings.get(field)
         if value0 is None:
             value0 = getattr(elem, field)
-        if elem.family == "CAV" and field == 'PHA':
+        if elem.family == "CAV" and field in {'PHA', 'PHASE'}:
             value = _normalize_phase(value)
         setattr(elem, field, value)
         self._log_trace('control', element=elem.name,
                         field=field, value0=value0, value=value)
 
     def _set_model_field(self, elem, field, value):
-        """Set value to element field.
+        """Set value to element field onto 'model' environment.
         """
         if isinstance(elem, CaElement):
             elem_name = elem.name
@@ -982,7 +985,7 @@ class Lattice(object):
             m = Machine(open(latfile, 'r'))
         ms = BeamState(machine=m)
         fm = ModelFlame()
-        fm.mstates, fm.machine = ms, m
+        fm.bmstate, fm.machine = ms, m
         obs = fm.get_index_by_type(type='bpm')['bpm']
         r, s = fm.run(monitor=obs)
         self._update_viewer_settings(fm, r)
