@@ -69,12 +69,15 @@ def main():
 
     import matplotlib.pyplot as plt
 
+    import matplotlib.style as mplstyle
+    mplstyle.use('bmh')
+
     plt.rcParams['font.size'] = 18
     plt.rcParams['font.family'] = 'serif'
     plt.rcParams['axes.linewidth'] = 1.0
     plt.rcParams['lines.linewidth'] = 2.0
     plt.rcParams['figure.figsize'] = (10, 8)
-    plt.rcParams['figure.dpi'] = 100
+    plt.rcParams['figure.dpi'] = 90
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
@@ -88,6 +91,7 @@ def main():
 
     ax.set_xlabel('$z\,\mathrm{[m]}$')
     ax.set_ylabel('$\mathrm{Centroid\,\mathrm{[mm]}}$')
+    ax.set_title(args.latfile, family="monospace")
     ax.legend(loc='best')
 
     if args.output is not None:
