@@ -56,13 +56,12 @@ def snp2dict(snpfile):
     r : dict
         Dict of PV names and setpoint values.
     """
-    f = open(snpfile, 'r')
-    csv_data = csv.reader(f, delimiter=',', skipinitialspace=True)
-    next(csv_data)
-    header = next(csv_data)
-    ipv, ival = header.index('PV'), header.index('VALUE')
-    settings = {line[ipv]: line[ival] for line in csv_data if line}
-    f.close()
+    with open(snpfile, 'r') as fp:
+        csv_data = csv.reader(fp, delimiter=',', skipinitialspace=True)
+        next(csv_data)
+        header = next(csv_data)
+        ipv, ival = header.index('PV'), header.index('VALUE')
+        settings = {line[ipv]: line[ival] for line in csv_data if line}
     return settings
 
 
@@ -138,13 +137,15 @@ def generate_settings(snpfile, lattice, **kws):
     --------
     :class:`~phantasy.library.settings.common.Settings`
     """
-    only_phy = kws.get('only_physics')
+    only_phy = kws.get('only_physics', False)
     settings_new = snp2dict(snpfile)
     settings = Settings()
-    for elem in (i for i in lattice if i.name in lattice.settings):
+
+    lat_settings = lattice.settings
+    for elem in (i for i in lattice if i.name in lat_settings):
         elem_settings = {
             k: v
-            for k, v in lattice.settings.get(elem.name).items()
+            for k, v in lat_settings.get(elem.name).items()
         }
         elem_settings.update(get_setting(settings_new, elem,
                                          only_physics=only_phy))
