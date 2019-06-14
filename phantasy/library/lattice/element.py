@@ -1279,6 +1279,10 @@ class CaElement(BaseElement):
         -------
         r :
             Field current setting or None.
+
+        See Also
+        --------
+        get_settings : Get field setpoint value from given setpoint pv values.
         """
         if field not in self.fields:
             _LOGGER.error("Invalid field, should be one of {}.".format(self.fields))
@@ -1289,6 +1293,34 @@ class CaElement(BaseElement):
         else:
             _LOGGER.error("Field '{}' is readonly.".format(field))
             return None
+
+    def get_settings(self, field, settings):
+        """Get the *field* setpoint value from *settings*.
+
+        Parameters
+        ----------
+        field : str
+            Dynamic field name of element.
+        settings : dict
+            Dict of setpoing pv(s) reading(s).
+
+        Returns
+        -------
+        r : float
+            Setting value of defined dynamic field.
+
+        See Also
+        --------
+        current_setting : Get current field setting.
+        """
+        fld = self.get_field(field)
+        sp_vals = [Number(settings.get(sp)) for sp in fld.setpoint]
+        return fld.read_policy(sp_vals)
+
+
+class Number(float):
+    def __init__(self, v):
+        self.value = v
 
 
 def main():
