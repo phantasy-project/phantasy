@@ -30,45 +30,58 @@ import csv
 import logging
 import os.path
 
-from .accel import BLMElement
-from .accel import NDElement
-from .accel import ICElement
-from .accel import BPMElement
-from .accel import BLElement
-from .accel import PMElement
+from .accel import ApertureElement
+from .accel import AttenuatorElement
 from .accel import BCMElement
-from .accel import ColumnElement
-from .accel import DriftElement
-from .accel import ValveElement
-from .accel import PortElement
+from .accel import BLElement
+from .accel import BLMElement
+from .accel import BPMElement
+from .accel import BendElement
 from .accel import CavityElement
+from .accel import ChopperElement
+from .accel import CollimatorElement
+from .accel import ColumnElement
+from .accel import CorElement
+from .accel import DriftElement
+from .accel import DumpElement
 from .accel import EBendElement
 from .accel import EMSElement
 from .accel import EQuadElement
 from .accel import ElectrodeElement
 from .accel import FCElement
 from .accel import HCorElement
-from .accel import VCorElement
-from .accel import CorElement
-from .accel import SolCorElement
+from .accel import HMRElement
+from .accel import ICElement
+from .accel import NDElement
+from .accel import PMElement
+from .accel import PortElement
+from .accel import QuadElement
+from .accel import RotElement
+from .accel import SDElement
 from .accel import SeqElement
+from .accel import SextElement
+from .accel import SlitElement
+from .accel import SolCorElement
 from .accel import SolElement
 from .accel import StripElement
-from .accel import BendElement
-from .accel import QuadElement
-from .accel import SextElement
+from .accel import VCorElement
 from .accel import VDElement
-from .accel import SDElement
-from .accel import SlitElement
-from .accel import ChopperElement
-from .accel import ApertureElement
-from .accel import DumpElement
-from .accel import AttenuatorElement
-from .accel import HMRElement
-from .accel import CollimatorElement
-from .accel import RotElement
+from .accel import ValveElement
 
 _LOGGER = logging.getLogger(__name__)
+
+ELEMENT_CLASS_LIST = (
+    DriftElement, PortElement, ValveElement, CavityElement, PMElement,
+    BLElement, BLMElement, NDElement, ICElement, BPMElement,
+    BCMElement, FCElement,
+    VDElement, SDElement, EMSElement, ColumnElement, SolElement,
+    HCorElement, VCorElement, RotElement, BendElement, QuadElement,
+    SextElement, EBendElement, EQuadElement, StripElement,
+    ElectrodeElement, SlitElement, ChopperElement, ApertureElement,
+    DumpElement, AttenuatorElement, HMRElement, CollimatorElement,
+)
+
+ELEMENT_ETYPE_DICT = {getattr(cls, 'ETYPE'): cls for cls in ELEMENT_CLASS_LIST}
 
 
 def build_layout(layoutPath=None, **kwargs):
@@ -97,10 +110,10 @@ def build_layout(layoutPath=None, **kwargs):
 
         header = next(csvstream)
 
-        def buildEtype(row):
+        def build_etype(row):
             return row[header.index("type")]
 
-        def buildElement(row, ElemType):
+        def build_element(row, ElemType):
             name = row[header.index("name")]
             length = float(row[header.index("L")])
             z = float(row[header.index("s")])
@@ -121,134 +134,31 @@ def build_layout(layoutPath=None, **kwargs):
             except StopIteration:
                 break
 
-            etype = buildEtype(row)
+            etype = build_etype(row)
 
-            if etype == DriftElement.ETYPE:
-                elements.append(buildElement(row, DriftElement))
-
-            elif etype == PortElement.ETYPE:
-                elements.append(buildElement(row, PortElement))
-
-            elif etype == ValveElement.ETYPE:
-                elements.append(buildElement(row, ValveElement))
-
-            elif etype == CavityElement.ETYPE:
-                elements.append(buildElement(row, CavityElement))
-
-            elif etype == PMElement.ETYPE:
-                elements.append(buildElement(row, PMElement))
-
-            elif etype == BLElement.ETYPE:
-                elements.append(buildElement(row, BLElement))
-
-            elif etype == BLMElement.ETYPE:
-                elements.append(buildElement(row, BLMElement))
-
-            elif etype == NDElement.ETYPE:
-                elements.append(buildElement(row, NDElement))
-
-            elif etype == ICElement.ETYPE:
-                elements.append(buildElement(row, ICElement))
-
-            elif etype == BPMElement.ETYPE:
-                elements.append(buildElement(row, BPMElement))
-
-            elif etype == BCMElement.ETYPE:
-                elements.append(buildElement(row, BCMElement))
-
-            elif etype == FCElement.ETYPE:
-                elements.append(buildElement(row, FCElement))
-
-            elif etype == VDElement.ETYPE:
-                elements.append(buildElement(row, VDElement))
-
-            elif etype == SDElement.ETYPE:
-                elements.append(buildElement(row, SDElement))
-
-            elif etype == EMSElement.ETYPE:
-                elements.append(buildElement(row, EMSElement))
-
-            elif etype == ColumnElement.ETYPE:
-                elements.append(buildElement(row, ColumnElement))
-
-            elif etype == SolElement.ETYPE:
-                elements.append(buildElement(row, SolElement))
-
-            elif etype == HCorElement.ETYPE:
-                elements.append(buildElement(row, HCorElement))
-
-            elif etype == VCorElement.ETYPE:
-                elements.append(buildElement(row, VCorElement))
-
-            elif etype == RotElement.ETYPE:
-                elements.append(buildElement(row, RotElement))
-
-            elif etype == SolCorElement.ETYPE or etype == CorElement.ETYPE:
+            if etype in (SolCorElement.ETYPE, CorElement.ETYPE):
                 if etype == SolCorElement.ETYPE:
-                    elem = buildElement(row, SolCorElement)
+                    elem = build_element(row, SolCorElement)
                 else:
-                    elem = buildElement(row, CorElement)
-
+                    elem = build_element(row, CorElement)
                 for _ in range(2):
                     row = next(csvstream)
-                    etype = buildEtype(row)
+                    etype = build_etype(row)
                     if etype == HCorElement.ETYPE:
                         if elem.h is None:
-                            elem.h = buildElement(row, HCorElement)
+                            elem.h = build_element(row, HCorElement)
                         else:
                             raise RuntimeError(
                                 "build_layout: HCorElement already found")
                     elif etype == VCorElement.ETYPE:
                         if elem.v is None:
-                            elem.v = buildElement(row, VCorElement)
+                            elem.v = build_element(row, VCorElement)
                         else:
                             raise RuntimeError(
                                 "build_layout: VCorElement already found")
-
                 elements.append(elem)
-
-            elif etype == BendElement.ETYPE:
-                elements.append(buildElement(row, BendElement))
-
-            elif etype == QuadElement.ETYPE:
-                elements.append(buildElement(row, QuadElement))
-
-            elif etype == SextElement.ETYPE:
-                elements.append(buildElement(row, SextElement))
-
-            elif etype == EBendElement.ETYPE:
-                elements.append(buildElement(row, EBendElement))
-
-            elif etype == EQuadElement.ETYPE:
-                elements.append(buildElement(row, EQuadElement))
-
-            elif etype == StripElement.ETYPE:
-                elements.append(buildElement(row, StripElement))
-
-            elif etype == ElectrodeElement.ETYPE:
-                elements.append(buildElement(row, ElectrodeElement))
-
-            elif etype == SlitElement.ETYPE:
-                elements.append(buildElement(row, SlitElement))
-
-            elif etype == ChopperElement.ETYPE:
-                elements.append(buildElement(row, ChopperElement))
-
-            elif etype == ApertureElement.ETYPE:
-                elements.append(buildElement(row, ApertureElement))
-
-            elif etype == DumpElement.ETYPE:
-                elements.append(buildElement(row, DumpElement))
-
-            elif etype == AttenuatorElement.ETYPE:
-                elements.append(buildElement(row, AttenuatorElement))
-
-            elif etype == HMRElement.ETYPE:
-                elements.append(buildElement(row, HMRElement))
-
-            elif etype == CollimatorElement.ETYPE:
-                elements.append(buildElement(row, CollimatorElement))
-
+            elif etype in ELEMENT_ETYPE_DICT:
+                elements.append(build_element(row, ELEMENT_ETYPE_DICT[etype]))
             else:
                 raise RuntimeError(
                     "read_layout: Element type '{}' not supported".format(etype))
@@ -282,7 +192,7 @@ class Layout(SeqElement):
             Name of end element.
         """
 
-        def buildElemDict(element):
+        def build_elem_dict(element):
             metakeys.update(element.meta.keys())
             elemdict = dict(element.meta)
             elemdict["name"] = element.name
@@ -298,14 +208,14 @@ class Layout(SeqElement):
         elemdicts = []
 
         for element in self.iter(start, end):
-            elemdicts.append(buildElemDict(element))
+            elemdicts.append(build_elem_dict(element))
             if isinstance(element, (CorElement, SolCorElement)):
-                elemdicts.append(buildElemDict(element.h))
-                elemdicts.append(buildElemDict(element.v))
+                elemdicts.append(build_elem_dict(element.h))
+                elemdicts.append(build_elem_dict(element.v))
 
         fixedkeys = ["name", "type", "L", "s", "apx", "apy"]
 
-        metakeys = list(metakeys)
+        metakeys = sorted(metakeys, reverse=True)
 
         csvstream = csv.writer(stream, delimiter=',')
 
@@ -321,4 +231,3 @@ class Layout(SeqElement):
                 else:
                     row.append("NONE")
             csvstream.writerow(row)
-
