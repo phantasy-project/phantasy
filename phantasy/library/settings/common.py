@@ -76,7 +76,7 @@ def snp2dict(snpfile):
     return settings
 
 
-def get_setting(settings, element, **kws):
+def get_element_settings(settings, element, **kws):
     """Get *element* field settings from *settings*.
 
     Parameters
@@ -100,6 +100,7 @@ def get_setting(settings, element, **kws):
     --------
     snp2dict
     :class:`~phantasy.library.lattice.element.CaElement`
+    :meth:`~phantasy.library.lattice.eleemnt.CaElement.get_settings`
     """
     only_phy = kws.get('only_physics', False)
     elem_settings = {}
