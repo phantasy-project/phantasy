@@ -14,9 +14,8 @@ except:
 
 class Settings(OrderedDict):
     """Settings is a simple extention of :class:`OrderedDict` with
-	the addition of some utility functions for use within the library.
-	"""
-
+    the addition of some utility functions for use within the library.
+    """
     def __init__(self, settingsPath=None):
         super(Settings, self).__init__()
         # if settingsPath is not None:
@@ -27,20 +26,32 @@ class Settings(OrderedDict):
     def readfp(self, fp):
         """Read settings from file-like object in JSON format.
 
-		Parameters
-		----------
-		fp :
-			File-like object to read settings.
-		"""
+        Parameters
+	----------
+	fp :
+            File-like object to read settings.
+	"""
         self.update(json.load(fp, object_pairs_hook=OrderedDict))
 
     def __deepcopy__(self, memo):
-        """Due to the custom class initializer the default deepcopy
-		implementation is broken. Override it to make it work again.
-		"""
+        # Due to the custom class initializer the default deepcopy
+        # implementation is broken. Override it to make it work again.
         s = Settings()
         s.update(deepcopy(list(self.items()), memo))
         return s
+
+    def write(self, filepath, indent=2):
+        """Save settings into *filepath*.
+
+        Parameters
+        ----------
+        filepath : str
+            JSON file name.
+        indent : int
+            Indentation with spaces.
+        """
+        with open(filepath, 'w') as fp:
+            json.dump(self, fp, indent=indent)
 
 
 def snp2dict(snpfile):
@@ -91,22 +102,25 @@ def get_setting(settings, element, **kws):
     :class:`~phantasy.library.lattice.element.CaElement`
     """
     only_phy = kws.get('only_physics', False)
-    elem_setting = {}
-    for f in element.get_eng_fields():
-        # mag_pv = "{}:{}_CSET".format(element.name, f) # engineering dynamic field, I/V
-        # if mag_pv in settings:
-        #     elem_setting.update({f: float(settings[mag_pv])})
-        # else: # search by PS PVs
-        # FRIB rule
-        pv = element.pv(handle='setpoint')[-1]
-        if pv in settings:
-            v = float(settings[pv])
-            phy_field = element.get_phy_fields()
-            if phy_field and phy_field[0] != f:
-                elem_setting.update({phy_field[0]: element._unicorn_e2p(v)})
-            if not only_phy:
-                elem_setting.update({f: v})
-    return elem_setting
+    elem_settings = {}
+    eng_flds = element.get_eng_fields()
+    phy_flds = element.get_phy_fields()
+    if phy_flds == []:  # for some element, no physics fields, the eng if phy
+        phy_flds = eng_flds
+        only_phy = True
+
+    for eng_f, phy_f in zip(eng_flds, phy_flds):
+        phy_v = element.get_settings(phy_f, settings)
+        if phy_v is None:
+            continue
+        else:
+            elem_settings.update({phy_f: phy_v})
+
+        if not only_phy:
+            eng_v = element.get_settings(eng_f, settings)
+            elem_settings.update({eng_f: eng_v})
+
+    return elem_settings
 
 
 def generate_settings(snpfile, lattice, **kws):
@@ -147,7 +161,8 @@ def generate_settings(snpfile, lattice, **kws):
             k: v
             for k, v in lat_settings.get(elem.name).items()
         }
-        elem_settings.update(get_setting(settings_new, elem,
-                                         only_physics=only_phy))
+        elem_settings.update(
+                get_element_settings(settings_new, elem,
+                                     only_physics=only_phy))
         settings.update({elem.name: elem_settings})
     return settings
