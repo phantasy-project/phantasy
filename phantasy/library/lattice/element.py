@@ -1307,15 +1307,19 @@ class CaElement(BaseElement):
         Returns
         -------
         r : float
-            Setting value of defined dynamic field.
+            Setting value of defined dynamic field, or None.
 
         See Also
         --------
         current_setting : Get current field setting.
         """
         fld = self.get_field(field)
-        sp_vals = [Number(settings.get(sp)) for sp in fld.setpoint]
-        return fld.read_policy(sp_vals)
+        sp_vals = [float(settings.get(sp)) for sp in fld.setpoint]
+        if None in sp_vals:
+            _LOGGER.warning(
+                "Cannot get all of the setpoint PV readings of '{}'.".format(self.name))
+            return None
+        return fld.read_policy([Number(x) for x in sp_vals])
 
 
 class Number(float):
