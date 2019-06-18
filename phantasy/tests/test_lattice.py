@@ -71,8 +71,10 @@ class TestLatSettings(unittest.TestCase):
             self.assertEqual(set(elem.last_settings).issubset(elem.design_settings), True)
 
         elem0 = lat[0]
+        self.assertEqual(elem0.last_settings['I'], None)
         self.assertEqual(elem0.last_settings['B'], None)
-        self.assertEqual(elem0.design_settings['B'], None)
+        self.assertEqual(elem0.design_settings['I'], None)
+        self.assertEqual(elem0.design_settings['B'], 0.0)
 
     def test_settings_2(self):
         """test load settings"""
@@ -83,9 +85,9 @@ class TestLatSettings(unittest.TestCase):
         settings = Settings(SETTINGS_FILE)
 
         lat.load_settings(settings, stype='design')
-        self.assertEqual(elem0.design_settings, {'B': 0.0})
+        self.assertEqual(elem0.design_settings, {'I': None, 'B': 0.0})
         self.assertEqual(elem1.design_settings, {'V': 3985.557698574019})
 
         lat.load_settings(settings, stype='last')
-        self.assertEqual(elem0.last_settings, {'B': 0.0})
+        self.assertEqual(elem0.last_settings, {'I': None, 'B': 0.0})
         self.assertEqual(elem1.last_settings, {'V': 3985.557698574019})
