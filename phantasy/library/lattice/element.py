@@ -319,6 +319,7 @@ class CaField(object):
         self._cset_pv = []
         self.init_pvs()
         pv_policy = kws.get('pv_policy', PV_POLICIES['DEFAULT'])
+
         self._default_read_policy = pv_policy['read']
         self._default_write_policy = pv_policy['write']
         self.read_policy = self._default_read_policy
@@ -552,7 +553,8 @@ class CaField(object):
             self._read_policy = f
 
     def reset_policy(self, policy=None):
-        """Reset policy, by policy name."""
+        """Reset policy, by policy name ('read' or 'write'), if not defined,
+        reset for both 'read' and 'write'."""
         if policy is None:
             self._reset_read_policy()
             self._reset_write_policy()
@@ -983,6 +985,7 @@ class CaElement(BaseElement):
         # if field_phy is undefined, use the same as field_eng
         field_name_phy = props.get('field_phy', None)
         pv_policy_str = props.get('pv_policy', 'DEFAULT')
+
         pv_policy = PV_POLICIES.get(pv_policy_str)
         # pv_policy passed as string, which is defined in channels datafile,
         # while pv_policy passed to CaField is a dict: {'read': rp, 'write': wp}
@@ -1302,7 +1305,7 @@ class CaElement(BaseElement):
         field : str
             Dynamic field name of element.
         settings : dict
-            Dict of setpoing pv(s) reading(s).
+            Dict of setpoint pv(s) reading(s).
 
         Returns
         -------

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-"""Read and write policy for PVs. The policy for PV read and write is a
-defined function, for which the input parameters are:
+"""Read/write policy for PVs. The policy for PV read/write is a
+defined function, of which the input parameters are:
 
 * read: `readback_pv` attribute as argument, return a value;
 * write: `setpoint_pv` attribute and new value(s) as arguments;
@@ -13,8 +13,8 @@ All input PV parameters are list type, while value for writing is a scalar.
 """
 
 # Default policy for all PVs except those defined by other policies.
-# Read: return the average reading of all readback PVs.
-# Write: set all setpoint PVs with the same value defined by *v*.
+#   Read: return the average reading of all readback PVs.
+#   Write: set all setpoint PVs with the same value defined by *v*.
 
 
 def _default_read_policy(x):
@@ -34,15 +34,15 @@ def _default_write_policy(x, v, **kws):
 
 # Policy for horizontal focusing equad
 # Signs: PSQ1(-), PSQ2(+), Value(+)
-# Read: return the average reading for all readback PVs, the final sign
-#       depends on the one of `Value` (here is `+`)
-# Write: set PSQ1: -Value, PSQ2: Value
+#   Read: return the average reading for all readback PVs, the final sign
+#         depends on the one of `Value` (here is `+`)
+#   Write: set PSQ1: -Value, PSQ2: Value
 
 # Policy for vertical focusing equad
 # Signs: PSQ1(+), PSQ2(-), Value(-)
-# Read: return the average reading for all readback PVs, the final sign
-#       depends on the one of `Value` (here is `-`)
-# Write: set PSQ1: -Value, PSQ2: Value
+#   Read: return the average reading for all readback PVs, the final sign
+#         depends on the one of `Value` (here is `-`)
+#   Write: set PSQ1: -Value, PSQ2: Value
 
 def _equad_read_policy(x):
     return 0.5 * (-x[0].value + x[1].value)

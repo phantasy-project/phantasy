@@ -60,12 +60,12 @@ def snp2dict(snpfile):
     Parameters
     ----------
     snpfile : str
-        Filename of snp file from save&restore app.
+        Filename of snp file exported from save&restore app.
 
     Returns
     -------
     r : dict
-        Dict of PV names and setpoint values.
+        Dict of pairs of PV name and setpoint value.
     """
     with open(snpfile, 'r') as fp:
         csv_data = csv.reader(fp, delimiter=',', skipinitialspace=True)
@@ -125,11 +125,13 @@ def get_element_settings(settings, element, **kws):
 
 
 def generate_settings(snpfile, lattice, **kws):
-    """Generate settings (Settings object) from .snp file.
-    ##
-    # The generated settings may has both PHY and ENG fields, e.g. settings
-    # for solenoid should have 'I' and 'B' as keys in the returned dict.
-    ##
+    """Generate settings (Settings object) from .snp file. The generated
+    settings are lattice-wised, so be sure the machine/segment configuration
+    does have settings file for loading, typical settings file are named as
+    settings.json, which could be defined in phantasy.cfg file.
+
+    The generated settings may has both PHY and ENG fields, e.g. settings
+    for solenoid should have 'I' and 'B' as keys in the returned dict.
 
     Parameters
     ----------

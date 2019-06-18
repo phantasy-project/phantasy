@@ -6,13 +6,13 @@ only for physics field: elemField_phy, field_phy.
 def unicorn_read(fn):
     """Decorator to apply scaling law upon read_policy, the decorated
     function will be the new read_policy (for physics field).
-    
+
     Parameters
     ----------
     fn :
         Scaling law from engineering to physics, UNICORN function name
         ends with '-P'.
-    
+
     Examples
     --------
     >>> # 1. define read policy function or already known as `rp`
@@ -66,7 +66,7 @@ if __name__ == '__main__':
         @property
         def value(self):
             return self._val
-        
+
         def put(self, x):
             self._val = x
 
