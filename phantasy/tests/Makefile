@@ -2,6 +2,12 @@
 
 PYTHON_EXECUTABLE ?= $$(which python)
 
+pytest:
+	# pip install pytest pytest-cov
+	PYTHONPATH=../ \
+	python3 -m "pytest" -v
+	# --cov-report term-missing --cov=phantasy
+
 test:
 	PYTHONPATH=../ \
 	$(PYTHON_EXECUTABLE) -m "nose.core" .
@@ -10,7 +16,7 @@ test-py3:
 	PYTHONPATH=../ \
 	nosetests3 --with-coverage --cover-package=phantasy \
 		-v --logging-level=INFO
-		# --with-id 
+		# --with-id
 		# --exclude-dir-file="skiptests"
 
 test-py2:
@@ -18,8 +24,8 @@ test-py2:
 	nosetests \
 		--with-coverage --cover-package=phantasy \
 		-v --logging-level=INFO
-		# --with-id 
-		# --exclude-dir-file="skiptests" 
+		# --with-id
+		# --exclude-dir-file="skiptests"
 
 ioc:
 	docker run -d --name phantasy-ioc tonyzhang/phantasy-ioc:jessie
