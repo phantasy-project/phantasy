@@ -1,3 +1,17 @@
+Version 1.11.1
+--------------
+2019-06-19
+
+- Add more support to the ReA xlsx lattice file.
+- Add support ov VDElement and FCElement (mimic PM) to FLAME VA.
+- Refactor the functions for temp dir/file creation, sort out the temp
+  data dir/file with datetime rather than random strings.
+- Bugfix when Lattice.sync_settings() from 'model' to 'control', cavity phase
+  is always zero.
+- Enhanced the feature of get settings from snp file for dynamic field settings.
+- Kick off the work to replace unittests under pytest framework.
+- Add more unittests.
+
 Version 1.11.0
 --------------
 2019-06-05
