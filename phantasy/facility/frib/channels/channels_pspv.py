@@ -8,6 +8,7 @@ Reading external csv sheet for power supply PV information.
 
 from collections import OrderedDict
 import csv
+import logging
 import re
 
 from phantasy.library.layout import BCMElement
@@ -46,6 +47,7 @@ from phantasy.library.layout import HMRElement
 from phantasy.library.layout import CollimatorElement
 from phantasy.library.layout import RotElement
 
+_LOGGER = logging.getLogger(__name__)
 
 _INDEX_PROPERTY = "elemIndex"
 _POSITION_PROPERTY = "elemPosition"
@@ -86,10 +88,15 @@ def build_item(row):
 def get_all_pspvs(psfile):
     with open(psfile, 'r') as f_ps:
         csv_stream = csv.reader(f_ps, delimiter=',', skipinitialspace=True)
+
+    elem_pv_rules = {}
+    try:
         header = next(csv_stream)
-        elem_pv_rules = {}
         for line in csv_stream:
             elem_pv_rules.update(build_item(line))
+        _LOGGER.info("Loaded CSV file for power supply PV config.")
+    except ValueError:
+        _LOGGER.warning("Cannot load CSV file for power supply PV config.")
     return elem_pv_rules
 
 
@@ -170,7 +177,7 @@ def build_channels(layout, psfile, machine=None, **kws):
             tags = []
             tags.append("phantasy.sys." + element.system)
             tags.append("phantasy.sub." + element.subsystem)
-            return channel, props, tags
+            return [channel], props, tags
 
         def buildChannel(element):
             channel = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}".format(prefix, elem=element)
@@ -193,11 +200,27 @@ def build_channels(layout, psfile, machine=None, **kws):
             return channel, props, tags
 
         def buildChannel_pspv(element):
-            # EQUAD, E-Dipole, COR
-            dev_ps, policy = elem_pv_rules.get(element.name)
-            channel = []
+            # EQUAD, E-Dipole, COR, SOL, BEND
+            #
+            _LOGGER.info("Building channels for {}".format(element.name))
+            #
+            pv_rules = elem_pv_rules.get(element.name, None)
+            if pv_rules is None:
+                if isinstance(element, EQuadElement):
+                    raise PSPVRulesNotFoundForEQUAD
+                elif isinstance(element, BendElement):
+                    raise PSPVRulesNotFoundForBEND
+                elif isinstance(element, EBendElement):
+                    raise PSPVRulesNotFoundForEBEND
+                elif isinstance(element, (HCorElement, VCorElement)):
+                    raise PSPVRulesNotFoundForCOR
+                elif isinstance(element, SolElement):
+                    raise PSPVRulesNotFoundForSOL
+
+            dev_ps, policy = pv_rules
+            channels = []
             for i in dev_ps:
-                channel.append(
+                channels.append(
                     "{}{elem.system}_{elem.subsystem}:{dev}_{elem.inst}".format(prefix, dev=i, elem=element)
                 )
             props = OrderedDict()
@@ -216,7 +239,7 @@ def build_channels(layout, psfile, machine=None, **kws):
             tags = []
             tags.append("phantasy.sys." + element.system)
             tags.append("phantasy.sub." + element.subsystem)
-            return channel, props, tags
+            return channels, props, tags
 
         channel, props, tags = buildChannel(elem)
 
@@ -251,7 +274,8 @@ def build_channels(layout, psfile, machine=None, **kws):
             props[_HANDLE_PROPERTY] = "readback"
             data.append((channel + ":I_RD", OrderedDict(props), list(tags)))
 
-            channel, props, tags = buildChannel_cor(elem.h)
+            channels, props, tags = buildChannel_cor(elem.h)
+            channel = channels[0]
             props[_TYPE_PROPERTY] = "HCOR"
             props[_FIELD_ENG_PROPERTY] = elem.h.fields.angle
             props[_FIELD_PHY_PROPERTY] = elem.h.fields.angle_phy
@@ -262,7 +286,8 @@ def build_channels(layout, psfile, machine=None, **kws):
             props[_HANDLE_PROPERTY] = "readback"
             data.append((channel + ":I_RD", OrderedDict(props), list(tags)))
 
-            channel, props, tags = buildChannel_cor(elem.v)
+            channels, props, tags = buildChannel_cor(elem.v)
+            channel = channels[0]
             props[_TYPE_PROPERTY] = "VCOR"
             props[_FIELD_ENG_PROPERTY] = elem.v.fields.angle
             props[_FIELD_PHY_PROPERTY] = elem.v.fields.angle_phy
@@ -274,7 +299,12 @@ def build_channels(layout, psfile, machine=None, **kws):
             data.append((channel + ":I_RD", OrderedDict(props), list(tags)))
 
         elif isinstance(elem, SolElement):
-            channels, props, tags = buildChannel_pspv(elem)
+            try:
+                channels, props, tags = buildChannel_pspv(elem)
+            except PSPVRulesNotFoundForSOL:
+                channel, props, tags = buildChannel(elem)
+                channels = (channel, )
+
             props[_TYPE_PROPERTY] = "SOL"
             props[_FIELD_ENG_PROPERTY] = elem.fields.field
             props[_FIELD_PHY_PROPERTY] = elem.fields.field_phy
@@ -312,9 +342,8 @@ def build_channels(layout, psfile, machine=None, **kws):
         elif isinstance(elem, CorElement):
             try:
                 channels, props, tags = buildChannel_pspv(elem.h)
-            except:
-                channel, props, tags = buildChannel_cor(elem.h)
-                channels = [channel]
+            except PSPVRulesNotFoundForCOR:
+                channels, props, tags = buildChannel_cor(elem.h)
 
             props[_TYPE_PROPERTY] = "HCOR"
             props[_FIELD_ENG_PROPERTY] = elem.h.fields.angle
@@ -330,9 +359,8 @@ def build_channels(layout, psfile, machine=None, **kws):
 
             try:
                 channels, props, tags = buildChannel_pspv(elem.v)
-            except:
-                channel, props, tags = buildChannel_cor(elem.v)
-                channels = [channel]
+            except PSPVRulesNotFoundForCOR:
+                channels, props, tags = buildChannel_cor(elem.v)
 
             props[_TYPE_PROPERTY] = "VCOR"
             props[_FIELD_ENG_PROPERTY] = elem.v.fields.angle
@@ -358,7 +386,11 @@ def build_channels(layout, psfile, machine=None, **kws):
             data.append((channel + ":I_RD", OrderedDict(props), list(tags)))
 
         elif isinstance(elem, BendElement):
-            channels, props, tags = buildChannel_pspv(elem)
+            try:
+                channels, props, tags = buildChannel_pspv(elem)
+            except PSPVRulesNotFoundForBEND:
+                channel, props, tags = buildChannel(elem)
+                channels = (channel, )
             props[_TYPE_PROPERTY] = "BEND"
             props[_FIELD_ENG_PROPERTY] = elem.fields.field
             props[_FIELD_PHY_PROPERTY] = elem.fields.field_phy
@@ -444,7 +476,11 @@ def build_channels(layout, psfile, machine=None, **kws):
             data.append((channel + ":XYRMS_RD", OrderedDict(props), list(tags)))
 
         elif isinstance(elem, EBendElement):
-            channels, props, tags = buildChannel_pspv(elem)
+            try:
+                channels, props, tags = buildChannel_pspv(elem)
+            except PSPVRulesNotFoundForEBEND:
+                channel, props, tags = buildChannel(elem)
+                channels = (channel, )
             props[_TYPE_PROPERTY] = "EBEND"
             props[_FIELD_ENG_PROPERTY] = elem.fields.field
             props[_FIELD_PHY_PROPERTY] = elem.fields.field_phy
@@ -458,7 +494,11 @@ def build_channels(layout, psfile, machine=None, **kws):
                 data.append((channel + ":V_RD", OrderedDict(props), list(tags)))
 
         elif isinstance(elem, EQuadElement):
-            channels, props, tags = buildChannel_pspv(elem)
+            try:
+                channels, props, tags = buildChannel_pspv(elem)
+            except PSPVRulesNotFoundForEQUAD:
+                channel, props, tags = buildChannel(elem)
+                channels = (channel, )
             props[_TYPE_PROPERTY] = "EQUAD"
             props[_FIELD_ENG_PROPERTY] = elem.fields.gradient
             props[_FIELD_PHY_PROPERTY] = elem.fields.gradient_phy
@@ -611,3 +651,23 @@ def build_channels(layout, psfile, machine=None, **kws):
             raise RuntimeError("read_layout: Element type '{}' not supported".format(elem.ETYPE))
 
     return data
+
+
+class PSPVRulesNotFoundForEQUAD(Exception):
+    pass
+
+
+class PSPVRulesNotFoundForEBEND(Exception):
+    pass
+
+
+class PSPVRulesNotFoundForBEND(Exception):
+    pass
+
+
+class PSPVRulesNotFoundForCOR(Exception):
+    pass
+
+
+class PSPVRulesNotFoundForSOL(Exception):
+    pass
