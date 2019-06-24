@@ -234,7 +234,7 @@ def _find_machine_path(machine):
         return None, "".
     """
     # if machine is an abs path
-    _LOGGER.info("Searching configuration in relative or absolute path: '%s'" % machine)
+    _LOGGER.debug("Searching configuration in relativer/absolute path: '%s'" % machine)
     if os.path.isdir(machine):
         machine = os.path.realpath(machine)
         mname = os.path.basename(machine)
@@ -242,7 +242,7 @@ def _find_machine_path(machine):
 
     # try "machine" in PHANTASY_CONFIG_DIR and ~/.phantasy/ (default)
     phantasy_config_dir = os.environ.get("PHANTASY_CONFIG_DIR", _HOME_DEFAULT)
-    _LOGGER.info("Searching configuration under path: '%s' '%s'" % (phantasy_config_dir, machine))
+    _LOGGER.debug("Searching configuration in: '%s' for '%s'" % (phantasy_config_dir, machine))
     home_machine = os.path.join(phantasy_config_dir, machine)
     if os.path.isdir(home_machine):
         mname = os.path.basename(os.path.realpath(machine))
@@ -260,7 +260,7 @@ def _find_machine_path(machine):
     #    mname = os.path.basename(os.path.realpath(sys_mach))
     #    return sys_mach, mname
 
-    _LOGGER.warning("Can not find machine dir")
+    _LOGGER.critical("Can not find machine dir")
     return None, ""
 
 
@@ -311,9 +311,10 @@ def find_machine_config(machine, **kwargs):
 
     try:
         cfg = Configuration(os.path.join(machdir, filename))
-        _LOGGER.info("Using config file: {0}".format(filename))
+        _LOGGER.info("Loading machine configuration file: {0}".format(
+            cfg.config_path))
     except:
-        raise RuntimeError("Can not open '%s' to read configurations" %
+        raise RuntimeError("Can not open '%s' to read machine configurations" %
                 (os.path.join(machdir, filename)))
 
     return cfg, machdir, machname

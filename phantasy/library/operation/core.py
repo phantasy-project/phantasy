@@ -336,21 +336,23 @@ class MachinePortal(object):
         keyword is True, always return False.
         """
         machine = os.path.basename(machine)
-        if segment is None:
-            segment = 'DEFAULT'
         _f_reload = kws.get('re_load')
         if machine in self._machine_names and segment in self._lattice_names:
             if _f_reload:
-                _LOGGER.warning("Force reload machine: {} segment: {}".format(
+                _LOGGER.warning("Force reload machine: '{}', segment: '{}'".format(
                     machine, segment))
                 retval = False
             else:
-                _LOGGER.warning("Use cached results for machine: {} segment: {}".format(
+                _LOGGER.warning("Use cached results for machine: '{}', segment: '{}'".format(
                     machine, segment))
                 retval = True
         else:
-            _LOGGER.warning("Load new machine: {} segment: {}".format(
-                machine, segment))
+            if segment is None:
+                _LOGGER.warning("Load new machine: '{}', with default segment".format(
+                    machine))
+            else:
+                _LOGGER.info("Load new machine: '{}', segment: '{}'".format(
+                    machine, segment))
             retval = False
         return retval
 
