@@ -48,7 +48,7 @@ PHANTASY features:
 - GUI apps for commissioning and operation (see phantasy-apps)
 
 For Debian 8 and 9, meta package: `phantasy' contain all the software
-product from this development.
+product from this development. Debian 8 support is deprecated.
 
 :version: %s
 :authors: %s
