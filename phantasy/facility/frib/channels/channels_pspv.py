@@ -432,6 +432,11 @@ def build_channels(layout, psfile, machine=None, **kws):
             props[_HANDLE_PROPERTY] = "readback"
             data.append((channel + ":PHASE_RD", OrderedDict(props), list(tags)))
 
+            props[_FIELD_ENG_PROPERTY] = elem.fields.energy
+            props[_FIELD_PHY_PROPERTY] = elem.fields.energy_phy
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel + ":ENG_RD", OrderedDict(props), list(tags)))
+
             props[_FIELD_ENG_PROPERTY] = elem.fields.magnitude
             props[_FIELD_PHY_PROPERTY] = elem.fields.magnitude_phy
             props[_HANDLE_PROPERTY] = "readback"
