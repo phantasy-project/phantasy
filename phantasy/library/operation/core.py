@@ -42,16 +42,17 @@ except NameError:
 
 
 class MachinePortal(object):
-    """The very first step to control the machine on physics high-level layer:
-    create high-level lattice object from segment of machine, upon which
-    various operations could be preceded.
+    """The very first step to control the machine (accelerator system) on
+    physics high-level view, create high-level lattice object from segment
+    of machine, upon which various operations could be proceeded.
 
     Parameters
     ----------
     machine : str
-        Name of the accelerator machine, typically, use one folder of the
-        machine name to host all the related configuration files, also could
-        be the path of the configuration folder, "FRIB" by default.
+        Name of the accelerator machine, typically, is the name of the data
+        directory, within which all the related configuration files are
+        hosted, could be the path of the configuration folder. The default
+        value is ``FRIB``.
     segment : str
         All machine segments are defined in *segments* field in the
         configuration file "phantasy.ini", separated by space, e.g.
@@ -940,6 +941,14 @@ class MachinePortal(object):
                           INI_DICT['KEYNAME_SEGMENTS']).split()
 
     def __repr__(self):
+        return 'MachinePortal({!r}, {!r})'.format(
+                    self.last_machine_name,
+                    self.last_lattice_name)
+
+    def _repr_pretty_(self, p, cycle):
+        p.text(str(self))
+
+    def __str__(self):
         if not self.last_load_success:
             return "[{}] MachinePortal cannot be initialized.".format(self._machine)
         all_segments = self.get_all_segment_names()
