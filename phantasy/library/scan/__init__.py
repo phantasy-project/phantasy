@@ -7,7 +7,7 @@ try:
     import scan
 except ImportError:
     HAS_SCAN = False
-    _LOGGER.warning("Package 'scanclient' does not exit, some" \
+    _LOGGER.debug("Package 'scanclient' does not exit, some" \
             " features may not be available.")
 else:
     HAS_SCAN = True
