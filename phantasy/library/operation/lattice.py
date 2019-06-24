@@ -191,8 +191,11 @@ def load_lattice(machine, segment=None, **kws):
                      for f in UnicornData(
                          udata_file, data_x_col_idx=4, data_y_col_idx=5).functions]
                      # will be deprecated in 2.0
+            _LOGGER.info("UNICORN policy will be loaded from {}.".format(
+                os.path.abspath(udata_file)))
         else:
             udata = None  # no unicorn data provided
+            _LOGGER.warning("Default UNICORN policy will be applied.")
 
         # machine type, linear (non-loop) or ring (loop)
         mtype = int(d_msect.get(INI_DICT['KEYNAME_MTYPE'],
@@ -379,8 +382,6 @@ def create_lattice(latname, pv_data, tag, **kws):
 
     if data_source is None:
         _LOGGER.warning("PV data source type should be explicitly defined.")
-    if udata is None:
-        _LOGGER.warning("Default UNICORN policy will be applied.")
 
     _LOGGER.debug("Creating lattice {0} from {1}.".format(latname, data_source))
     _LOGGER.info("Found {0:d} PVs in {1}.".format(len(pv_data), latname))
