@@ -81,6 +81,11 @@ CONFIG_FLAME_EBEND_VERBOOL = 'flame_ver'
 CONFIG_FLAME_EBEND_SPHERBOOL = 'flame_spher'
 CONFIG_FLAME_EBEND_ASYMFAC = 'flame_asym_fac'
 CONFIG_FLAME_BEND_FOCUSING = 'focusing_component'
+
+# alignment error
+CONFIG_ALIGNMENT_DX = "align_dx"
+CONFIG_ALIGNMENT_DY = "align_dy"
+
 # Corrector:
 # flag to indicate if using kick ([T.m]) ("tm_kick") or theta ([rad]) ("rad_kick")
 CONFIG_FLAME_COR_GAUGE = "flame_cor_gauge"
@@ -314,6 +319,18 @@ class FlameLatticeFactory(BaseLatticeFactory):
             _LOGGER.debug("LatticeFactory: [{}] {} found in configuration: {}".format(dtype, option, value))
             return value
         return _DEFAULT_SPLIT
+
+    def get_alignment_error(self, ename):
+        align_error_conf = []
+        dx = self._get_config(ename, CONFIG_ALIGNMENT_DX, None)
+        if dx is not None:
+            _LOGGER.info("Alignment error: dx of {} is {} m.".format(ename, dx))
+            align_error_conf.append(('dx', float(dx)))
+        dy = self._get_config(ename, CONFIG_ALIGNMENT_DY, None)
+        if dx is not None:
+            _LOGGER.info("Alignment error: dx of {} is {} m.".format(ename, dx))
+            align_error_conf.append(('dy', float(dy)))
+        return align_error_conf
 
     def build(self):
         settings = None
@@ -889,9 +906,13 @@ class FlameLatticeFactory(BaseLatticeFactory):
                 radius = self._get_config(elem.dtype, CONFIG_FLAME_EQUAD_RADIUS, None)
                 if radius is None:
                     raise RuntimeError("FlameLatticeFactory: EQuad 'radius' not found for {}".format(elem.dtype))
+
+                # alignment error
+                align_error_conf = self.get_alignment_error(elem.name)
+
                 lattice.append(elem.name, "equad", ('L', elem.length),
                                ('aper', elem.aperture / 2.0), ('V', gradient),
-                               ('radius', float(radius)),
+                               ('radius', float(radius)), *align_error_conf,
                                name=elem.name, etype=elem.ETYPE)
 
             else:
@@ -1113,3 +1134,4 @@ class FlameLattice(object):
 
     def write(self, fp):
         fp.write(GLPSPrinter(self.conf()))
+
