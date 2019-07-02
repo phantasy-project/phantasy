@@ -2069,6 +2069,48 @@ class Lattice(object):
             return [self._find_exact_element(e) for e in group]
 
     def __repr__(self):
+        return str(self)
+
+    def _repr_html_(self):
+        curdir = os.path.dirname(__file__)
+        with open(os.path.join(curdir, 'style.css'), 'r') as fp:
+            style = fp.read()
+
+        return """{1}{0}""".format(
+                self.to_html(), style)
+
+    def to_html(self):
+        t = []
+        t.append('''
+            <thead>
+              <tr>
+                <th width="10%"></th>
+                <th>Name</th>
+                <th>Family</th>
+                <th>Position</th>
+                <th>Length</th>
+              </tr>
+            </thead>''')
+        tbody = ['<tbody>']
+        fmt = '''
+            <th>{idx}</th>
+            <td>{name}</td>
+            <td>{family}</td>
+            <td>{pos}</td>
+            <td>{len}</td>'''
+        for i, e in enumerate(self._elements):
+            if e.virtual:
+                continue
+            row = fmt.format(idx=i, name=e.name, family=e.family,
+                             pos=e.sb, len=e.length)
+            tbody.append('<tr>{}</tr>'.format(row))
+        tbody.append('</tbody>')
+        t.append('\n'.join(tbody))
+        return '''<html><body>
+                    <table class="mystyle">{}</table>
+                </body></html>'''.format('\n'.join(t))
+
+    def __str__(self):
         s0 = "Segment: '{}' | Machine: '{}': {} elements".format(
                 self.name, self.mname, len(self._elements))
         s1 = "Length unit: [m]"

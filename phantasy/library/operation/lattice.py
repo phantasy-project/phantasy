@@ -128,6 +128,8 @@ def load_lattice(machine, segment=None, **kws):
     if segment is None:
         segment = default_segment
 
+    _LOGGER.info("Loading segment: '{}'".format(segment))
+
     # filter out valid segment(s) from 'segment' string or pattern.
     msects = [s for s in re.findall(r'\w+', all_segments)
               if fnmatch(s, segment)]
@@ -191,8 +193,11 @@ def load_lattice(machine, segment=None, **kws):
                      for f in UnicornData(
                          udata_file, data_x_col_idx=4, data_y_col_idx=5).functions]
                      # will be deprecated in 2.0
+            _LOGGER.info("UNICORN policy will be loaded from {}.".format(
+                os.path.abspath(udata_file)))
         else:
             udata = None  # no unicorn data provided
+            _LOGGER.warning("Default UNICORN policy will be applied.")
 
         # machine type, linear (non-loop) or ring (loop)
         mtype = int(d_msect.get(INI_DICT['KEYNAME_MTYPE'],
@@ -216,16 +221,17 @@ def load_lattice(machine, segment=None, **kws):
 
         if re.match(r"https?://.*", cf_svr_url, re.I):
             # pv data source is cfs
-            _LOGGER.info("Using Channel Finder Service '%s' for '%s'" %
+            _LOGGER.info("Loading PV data from CFS: '%s' for '%s'" %
                          (cf_svr_url, msect))
             ds = DataSource(source=cf_svr_url)
         elif os.path.isfile(ds_sql_path):
             # pv data source is sqlite/csv file
-            _LOGGER.info("Using CSV/SQLite instead of CFS '%s'" % ds_sql_path)
+            _LOGGER.info("Loading PV data from CSV/SQLite: {}".format(
+                os.path.abspath(ds_sql_path)))
             ds = DataSource(source=ds_sql_path)
         else:
-            _LOGGER.warning("Invalid CFS is defined.")
-            raise RuntimeError("Unknown channel finder source '%s'" %
+            _LOGGER.warning("Invalid PV data source is defined.")
+            raise RuntimeError("Unknown PV data source '%s'" %
                                cf_svr_url)
 
         ds.get_data(tag_filter=cf_svr_tag, prop_filter=cf_svr_prop)
@@ -379,11 +385,9 @@ def create_lattice(latname, pv_data, tag, **kws):
 
     if data_source is None:
         _LOGGER.warning("PV data source type should be explicitly defined.")
-    if udata is None:
-        _LOGGER.warning("Default UNICORN policy will be applied.")
 
-    _LOGGER.debug("Creating lattice {0} from {1}.".format(latname, data_source))
-    _LOGGER.info("Found {0:d} PVs in {1}.".format(len(pv_data), latname))
+    _LOGGER.debug("Creating lattice '{0}' from '{1}'.".format(latname, data_source))
+    _LOGGER.info("Found {0:d} PVs in '{1}'.".format(len(pv_data), latname))
 
     if isinstance(tag, basestring):
         tag = tag,

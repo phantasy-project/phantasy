@@ -1,0 +1,26 @@
+<style>
+    .mystyle {
+      font-size: 10pt;
+      border-collapse: collapse;
+      border: 1px solid silver;
+      width: 100%;
+    }
+
+    .mystyle th {
+      text-align: left;
+    }
+
+    .mystyle td {
+      text-align: left;
+      padding: 5px;
+    }
+
+    .mystyle tr:nth-child(even) {
+      background-color: #E0E0E0
+    }
+
+    .mystyle tr:hover {
+      background-color: silver;
+      cursor: pointer;
+    }
+</style>
