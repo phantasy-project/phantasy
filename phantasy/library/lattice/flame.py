@@ -327,7 +327,7 @@ class FlameLatticeFactory(BaseLatticeFactory):
             _LOGGER.info("Alignment error: dx of {} is {} m.".format(ename, dx))
             align_error_conf.append(('dx', float(dx)))
         dy = self._get_config(ename, CONFIG_ALIGNMENT_DY, None)
-        if dx is not None:
+        if dy is not None:
             _LOGGER.info("Alignment error: dx of {} is {} m.".format(ename, dx))
             align_error_conf.append(('dy', float(dy)))
         return align_error_conf
