@@ -16,6 +16,8 @@ import numpy.linalg as linalg
 from phantasy.library.misc import epoch2human
 from phantasy.library.misc import truncate_number
 
+from .devices import process_devices
+
 TS_FMT = "%Y-%m-%d %H:%M:%S"
 
 
@@ -273,6 +275,9 @@ def get_orbit(monitors, **kws):
     xoy = kws.get('xoy', 'xy')
     xyfld = list(zip(range(len(xoy)), orb_field))
     arr = np.zeros((nshot, len(xoy) * len(monitors)))
+    #
+    process_devices(monitors)
+    #
     for i in range(nshot):
         a = [[getattr(elem, fld) for elem in monitors] for _, fld in xyfld]
         arr[i, :] = np.asarray(a).flatten()
