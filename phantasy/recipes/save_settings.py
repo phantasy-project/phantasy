@@ -40,7 +40,7 @@ def init_mp(machine, segments=None, **kws):
     return mp
 
 
-def save_all_settings(filepath, segments=["LEBT", "MEBT"], machine="FRIB",
+def save_all_settings(filepath=None, segments=["LEBT", "MEBT"], machine="FRIB",
                       **kws):
     """Save all physics and engineering settings for all the elements defined
     in each one of *segments* of *machine* to JSON file *filepath*,
@@ -50,7 +50,7 @@ def save_all_settings(filepath, segments=["LEBT", "MEBT"], machine="FRIB",
     Parameters
     ----------
     filepath : str
-        File path for the JSON file to save data.
+        File path for the JSON file to save data, if defined.
     segments : list[str]
         List of segments.
     machine : str
@@ -99,8 +99,9 @@ def save_all_settings(filepath, segments=["LEBT", "MEBT"], machine="FRIB",
                     settings[elem_name].update({eng_fields[0]: v})
 
     settings.update(**{k:v for k,v in kws.items() if k not in ["wait",]})
-    with open(filepath, 'w') as f:
-        json.dump(settings, f, indent=2)
+    if filepath is not None:
+        with open(filepath, 'w') as f:
+            json.dump(settings, f, indent=2)
 
     return settings
 
