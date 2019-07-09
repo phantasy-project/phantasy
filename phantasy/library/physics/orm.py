@@ -276,7 +276,7 @@ def get_orbit(monitors, **kws):
     xyfld = list(zip(range(len(xoy)), orb_field))
     arr = np.zeros((nshot, len(xoy) * len(monitors)))
     #
-    process_devices(monitors)
+    process_devices(monitors, **kws)
     #
     for i in range(nshot):
         a = [[getattr(elem, fld) for elem in monitors] for _, fld in xyfld]
