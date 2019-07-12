@@ -1,3 +1,27 @@
+Version 1.12.0
+--------------
+2019-07-12
+
+- ENH: Add routine for wire-scanner operating and data processing.
+- ENH: Only save settings when filepath is defined.
+- ENH: Add support to send message to log queue.
+- ENH: Add module template for device processors.
+- ENH: Add module to handle slow monitors.
+- ENH: Add support to slow devices regarding diagnostics.
+- MNT: Apply ISO-8601 format to datetime timestamps in logmsg.
+- BUG: Fix typo.
+- REF: Update logging messages display
+- ENH: Add suport for device alignment errors for FLAME model.
+- ENH: Add rule to build PV for BPM energy field, only for VA.
+- REF: Add support to buildchannels_pspv when feeding empty pspvconfig file.
+- REF: Update log message regarding lattice loading.
+- REF: Update log msg for unicorn policy.
+- MNT: Add style.css into package.
+- ENH: Add HTML repr of Lattice object for Jupyter-notebook.
+- ENH: Fix repr of MachinePortal object.
+- ENH: Add stylesheet for lattice html repr.
+- MNT: Suppress warning msg from package channelfinder and scan.
+
 Version 1.11.1
 --------------
 2019-06-19
