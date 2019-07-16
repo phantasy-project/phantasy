@@ -39,12 +39,12 @@ def pm_processor(elem):
             separators=(',', ': '))
 
     # sync results to IOC
-    results_for_ioc = {
-        'xcen': r['xcen'], 'ycen': r['ycen'],
-        'xrms': r['xrms'], 'yrms': r['yrms'],
-        'cxy': r['cxy']}
-    for k, v in results_for_ioc.items():
-        setattr(elem, k.upper(), v)
+    # results_for_ioc = {
+    #     'xcen': r['xcen'], 'ycen': r['ycen'],
+    #     'xrms': r['xrms'], 'yrms': r['yrms'],
+    #     'cxy': r['cxy']}
+    # for k, v in results_for_ioc.items():
+    #     setattr(elem, k.upper(), v)
 
 
 def vd_processor(elem):
