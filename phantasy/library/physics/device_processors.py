@@ -11,7 +11,7 @@ def pm_processor(elem):
     import profilemonitor_plot_util
     import profilemonitor_scan_util
 
-    pm_plot = profilemonitor_plot_util.profilemonitor_plot()
+    pm_plot = profilemonitor_plot_util.profilemonitor_plot(batch=True)
     pm_scan = profilemonitor_scan_util.profilemonitor_scan()
     starttime = datetime.now().strftime("%Y%m%d_%H%M%S")
     fn_json = 'pm_' + starttime + '.json'
@@ -24,7 +24,7 @@ def pm_processor(elem):
     for i in range(npm):
         res = pm_scan.execute(pms[i])
         try:
-            datad[pms[i]] = r = pm_plot.execute(res)
+            datad[pms[i]] = pm_plot.execute(res)
         except:
             print('error happend')
 
