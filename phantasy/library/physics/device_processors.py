@@ -3,6 +3,21 @@
 
 
 def pm_processor(elem):
+#    import time, random
+#    time.sleep(random.random() * 2 + 1)
+#    r = {'xcen': random.random(),
+#         'ycen': random.random(),
+#         'xrms': random.random(),
+#         'yrms': random.random(),
+#         'cxy': random.random(),}
+#    results_for_ioc = {
+#        'xcen': r['xcen'], 'ycen': r['ycen'],
+#        'xrms': r['xrms'], 'yrms': r['yrms'],
+#        'cxy': r['cxy']}
+#    for k, v in results_for_ioc.items():
+#        setattr(elem, k.upper(), v)
+#    return
+
     import sys
     sys.path.append('/files/shared/ap/phyapp_notebooks/ProfileMonitorAnalysis/')
     from phantasy.recipes import save_all_settings
