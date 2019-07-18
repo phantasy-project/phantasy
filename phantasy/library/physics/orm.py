@@ -262,6 +262,9 @@ def get_orbit(monitors, **kws):
         DAQ frequency, default is 1.
     nshot : int
         Total shot number for DAQ process, default is 1.
+    slow_mode_on : bool
+        If set, apply processor for slow device, e.g. PM, default is True,
+        set False might be useful for orbit evaluation of ORM correction.
 
     Returns
     -------
@@ -273,10 +276,12 @@ def get_orbit(monitors, **kws):
     delt = 1.0 / rate
     orb_field = kws.get('orb_field', ('X', 'Y'))
     xoy = kws.get('xoy', 'xy')
+    slow_mode_on = kws.get('slow_mode_on', True)
     xyfld = list(zip(range(len(xoy)), orb_field))
     arr = np.zeros((nshot, len(xoy) * len(monitors)))
     #
-    process_devices(monitors, **kws)
+    if slow_mode_on:
+        process_devices(monitors, **kws)
     #
     for i in range(nshot):
         a = [[getattr(elem, fld) for elem in monitors] for _, fld in xyfld]
