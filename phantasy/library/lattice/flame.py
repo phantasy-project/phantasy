@@ -623,10 +623,10 @@ class FlameLatticeFactory(BaseLatticeFactory):
                 kick_gauge = self._get_config(elem.dtype, CONFIG_FLAME_COR_GAUGE, None)
                 if kick_gauge == "tm_kick":
                     lattice.append(elem.name, "orbtrim",
-                                   ('realpara', 1), ('tm_ykick', hkick),
+                                   ('realpara', 1), ('tm_ykick', vkick),
                                    name=elem.name, etype=elem.ETYPE)
                 else:
-                    lattice.append(elem.name, "orbtrim", ('theta_y', hkick),
+                    lattice.append(elem.name, "orbtrim", ('theta_y', vkick),
                                    name=elem.name, etype=elem.ETYPE)
 
                 if elem.length != 0.0:
@@ -680,7 +680,7 @@ class FlameLatticeFactory(BaseLatticeFactory):
                                    ('realpara', 1), ('tm_xkick', hkick),
                                    name=elem.h.name, etype=elem.h.ETYPE)
                     lattice.append(elem.v.name, "orbtrim",
-                                   ('realpara', 1), ('tm_ykick', hkick),
+                                   ('realpara', 1), ('tm_ykick', vkick),
                                    name=elem.v.name, etype=elem.v.ETYPE)
                 else:
                     lattice.append(elem.h.name, "orbtrim", ('theta_x', hkick),
