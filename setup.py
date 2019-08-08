@@ -76,8 +76,8 @@ setup(
         'Programming Language :: Python :: 3',
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Topic :: Scientific/Engineering :: Physics'],
-    tests_require=['nose'],
-    test_suite='nose.collector',
-    install_requires=app_install_requires,
-    extras_require=app_extras_require,
+    # tests_require=['nose'],
+    # test_suite='nose.collector',
+    # install_requires=app_install_requires,
+    # extras_require=app_extras_require,
 )

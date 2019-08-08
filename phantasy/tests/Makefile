@@ -2,6 +2,9 @@
 
 PYTHON_EXECUTABLE ?= $$(which python)
 
+localtest:
+	python3 -m "pytest" -v --cov-report term-missing --cov=phantasy
+
 pytest:
 	# pip install pytest pytest-cov
 	PYTHONPATH=../ \

@@ -160,15 +160,23 @@ class SeqElement(Element):
         Description of this accelerator element.
     elements : list
         List of elements contained by this sequence.
+
+    Examples
+    --------
+    >>> a = SeqElement(elements)
+    >>> a[<element_name>]
+    >>> a[0]
     """
 
     def __init__(self, name, elements=None, desc="sequence", **meta):
         super(SeqElement, self).__init__(None, None, None, name, desc=desc,
                                          **meta)
+        self._elements_dict = {}
         if elements is None:
             self._elements = []
         else:
             self._elements = elements
+        self._elements_dict.update({o.name: o for o in self._elements})
 
     @property
     def elements(self):
@@ -241,6 +249,7 @@ class SeqElement(Element):
 
     def append(self, elem):
         self._elements.append(elem)
+        self._elements_dict.update({elem.name: elem})
 
     def write(self, indent=2, stream=sys.stdout):
         level = 0
@@ -273,6 +282,12 @@ class SeqElement(Element):
             "nelements:{nelements} }}"
         return type(self).__name__ + s.format(elem=self,
                                               nelements=len(self.elements))
+
+    def __getitem__(self, i):
+        if isinstance(i, basestring):
+            return self._elements_dict.get(i, None)
+        else:
+            return self._elements[i]
 
 
 class _SeqElementIterator(object):
