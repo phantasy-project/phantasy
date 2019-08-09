@@ -268,10 +268,6 @@ def load_lattice(machine, segment=None, **kws):
         #         if IMPACT_ELEMENT_MAP is not None:
         #             lat.createLatticeModelMap(IMPACT_ELEMENT_MAP)
 
-        lat.s_begin = float(d_msect.get(INI_DICT['KEYNAME_SBEGIN'],
-                                        INI_DICT['DEFAULT_SBEGIN']))
-        lat.s_end = float(d_msect.get(INI_DICT['KEYNAME_SEND'],
-                                      INI_DICT['DEFAULT_SEND']))
         lat.loop = bool(d_msect.get(INI_DICT['KEYNAME_MTYPE'],
                                     INI_DICT['DEFAULT_MTYPE']))
 
@@ -454,10 +450,12 @@ def create_lattice(latname, pv_data, tag, **kws):
         lat.sort(inplace=True)
 
     # lattice length
-    lat.length = (lat[-1].se - lat[0].sb) if lat.size() > 0 else 0.0
+    lat.s_begin, lat.s_end, lat.length = lat.get_layout_length()
+
+    # link layout elements to lattice elements
+    lat.refresh_with_layout_info()
 
     _LOGGER.info("'{0:s}' has {1:d} elements".format(lat.name, lat.size()))
-
     return lat
 
 

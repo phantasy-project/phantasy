@@ -73,9 +73,9 @@ class Lattice(object):
     Keyword Arguments
     -----------------
     s_begin : float
-        Start position along beam trajectory, [m].
+        Longitudinal position at the beginning of current lattice layout, [m].
     s_end : float
-        End position along beam trajectory, [m].
+        Longitudinal position at the end of current lattice layout, [m].
     mname : str
         Name of loaded machine, from which lattice itself is loaded.
     mpath : str
@@ -88,7 +88,7 @@ class Lattice(object):
         Source of PV data, URL of channel finder service, file name of SQLite
         database or csv spreadsheet.
     length : float
-        Total length of lattice, if 'mtype' is 1, refers to circumference.
+        Total length of lattice (layout), if 'mtype' is 1, refers to circumference.
     model : str
         Model type (case insensitive), or code name for simulation, 'FLAME'
         or 'IMPACT', the former is the default one.
@@ -240,7 +240,7 @@ class Lattice(object):
 
     @property
     def s_begin(self):
-        """float: Start position along beam trajectory, [m]."""
+        """float: Longitudinal position at the beginning of current lattice layout, [m]."""
         return self._s_begin
 
     @s_begin.setter
@@ -252,7 +252,7 @@ class Lattice(object):
 
     @property
     def s_end(self):
-        """float: End position along beam trajectory, [m]."""
+        """float: Longitudinal position at the end of current lattice layout, [m]."""
         return self._s_end
 
     @s_end.setter
@@ -1994,9 +1994,30 @@ class Lattice(object):
 
         return settings
 
-
     def measure_orm(self):
         pass
+
+    def refresh_with_layout_info(self):
+        """Update every element of current lattice with layout info, which is
+        an accel Element instance.
+        """
+        for i in self._elements:
+            i.layout = self.layout[i.name]
+
+    def get_layout_length(self):
+        """Return the length of current lattice layout, as well as starting
+        and ending positions.
+
+        Returns
+        -------
+        r : tuple
+            Tuple of s_begin, s_end and length.
+        """
+        le0, le1 = self.layout[0], self.layout[-1]
+        z0 = le0.z - le0.length / 2.0
+        z1 = le1.z + le1.length / 2.0
+        l = z1 - z0
+        return z0, z1, l
 
     ###############################################################################
     def createLatticeModelMap(self, mapfile):
