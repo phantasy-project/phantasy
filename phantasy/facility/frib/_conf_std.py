@@ -127,17 +127,6 @@ DEFAULT_MTYPE = 0
 INI_DICT['KEYNAME_MTYPE'] = KEYNAME_MTYPE
 INI_DICT['DEFAULT_MTYPE'] = DEFAULT_MTYPE
 
-# begin and end of s positoin
-KEYNAME_SBEGIN = 's_begin'
-DEFAULT_SBEGIN = 0.0
-KEYNAME_SEND = 's_end'
-DEFAULT_SEND = 0.0
-
-INI_DICT['KEYNAME_SBEGIN'] = KEYNAME_SBEGIN
-INI_DICT['DEFAULT_SBEGIN'] = DEFAULT_SBEGIN
-INI_DICT['KEYNAME_SEND'] = KEYNAME_SEND
-INI_DICT['DEFAULT_SEND'] = DEFAULT_SEND
-
 # the properties used for initializing Element are different from those defined
 # by cfs or sqlite, re-name property to Element property may needed.
 _cf_map = {'elemName' : 'name',
@@ -172,8 +161,6 @@ INI_DCONF[INI_DICT['COMMON_SECTION_NAME']] = dcomm
 # LINAC SECTION
 dsect_linac = OrderedDict()
 dsect_linac[INI_DICT['KEYNAME_CONTROLS_PROTOCOL']] = 'EPICS'
-dsect_linac[INI_DICT['KEYNAME_SBEGIN']] = '0.0'
-dsect_linac[INI_DICT['KEYNAME_SEND']] = '158.094'
 dsect_linac[INI_DICT['KEYNAME_MTYPE']] = '0'
 dsect_linac[INI_DICT['KEYNAME_SIMULATION_CODE']] = 'flame'
 dsect_linac[INI_DICT['KEYNAME_MODEL_DATA_DIR']] = 'model_data'
@@ -194,14 +181,14 @@ def generate_inifile(dconf=None, out=None):
     ----------
     dconf : dict
         Dict of configuration, if not given, use template dict.
-    out : 
+    out :
         output stream, stdout by default.
 
     Examples
     --------
     1. Generate default config file:
-    
-    >>> with open('phantasy.ini', 'w') as f: 
+
+    >>> with open('phantasy.ini', 'w') as f:
     >>>     generate_inifile(out=f)
     """
     try:
