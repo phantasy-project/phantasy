@@ -55,9 +55,9 @@ class BaseElement(object):
     length : float
         Effective element length.
     sb : float
-        Longitudinal position at the beginning point, unit: *m*.
+        Longitudinal position at the beginning of device, unit: *m*.
     se : float
-        Longitudinal position at the end point, unit: *m*.
+        Longitudinal position at the end of device, unit: *m*.
     enable : True or False
         Element is enabled or not, ``True`` is controllable, default is True.
     """
@@ -158,7 +158,7 @@ class BaseElement(object):
 
     @property
     def sb(self):
-        """float: Longitudinal position at the beginning point, *m*."""
+        """float: Longitudinal position at the beginning of device, *m*."""
         return self._sb
 
     @sb.setter
@@ -177,7 +177,7 @@ class BaseElement(object):
 
     @property
     def se(self):
-        """float: Longitudinal position at the end point, *m*."""
+        """float: Longitudinal position at the end of device, *m*."""
         return self._se
 
     @se.setter
