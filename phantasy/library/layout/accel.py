@@ -289,6 +289,12 @@ class SeqElement(Element):
         else:
             return self._elements[i]
 
+    def __len__(self):
+        return len(self._elements)
+
+    def size(self):
+        return len(self._elements)
+
 
 class _SeqElementIterator(object):
     """Deep iterator for SeqElements.
