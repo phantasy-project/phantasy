@@ -2001,6 +2001,10 @@ class Lattice(object):
         """Update every element of current lattice with layout info, which is
         an accel Element instance.
         """
+        if self.layout is None:
+            _LOGGER.warning("Layout does not exist.")
+            return
+
         for i in self._elements:
             i.layout = self.layout[i.name]
 
@@ -2013,6 +2017,10 @@ class Lattice(object):
         r : tuple
             Tuple of s_begin, s_end and length.
         """
+        if self.layout is None:
+            _LOGGER.warning("Layout does not exist.")
+            return 0.0, 0.0, 0.0
+
         le0, le1 = self.layout[0], self.layout[-1]
         z0 = le0.z - le0.length / 2.0
         z1 = le1.z + le1.length / 2.0
