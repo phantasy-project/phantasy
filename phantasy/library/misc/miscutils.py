@@ -516,3 +516,36 @@ def create_tempfile(mode='ts', ts_fmt="%H%M%S", dir="/tmp", prefix="_",
     else:
         _, tmpfile = tempfile.mkstemp(prefix=prefix, suffix=suffix, dir=dir)
     return tmpfile
+
+
+def find_conf(conf_file):
+    """Find configuration file, searching the following locations:
+    * ~/.phantasy/<conf_file>
+    * /etc/phantasy/<conf_file>
+    * package location: phantasy/config/<conf_file>
+
+    Parameters
+    ----------
+    conf_file : str
+        Name of config file, e.g. .ini.
+
+    Returns
+    -------
+    r : str
+        Config path or None.
+    """
+    home_conf = os.path.expanduser("~/.phantasy/{}".format(conf_file))
+    sys_conf = "/etc/phantasy/{}".format(conf_file)
+    if os.path.isfile(home_conf):
+        return home_conf
+    elif os.path.isfile(sys_conf):
+        return sys_conf
+    else:
+        basedir = os.path.abspath(os.path.dirname(__file__))
+        path = os.path.join(basedir, '../../config/{}'.format(conf_file))
+        try:
+            assert os.path.isfile(path)
+        except AssertionError:
+            return None
+        else:
+            return os.path.abspath(path)
