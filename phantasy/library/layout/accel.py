@@ -8,8 +8,12 @@ represent the various types of accelerator devices or components.
 from __future__ import print_function
 
 import sys
+import matplotlib.patches as patches
+from matplotlib.path import Path
+import numpy as np
 
 from phantasy.library.misc import SpecialDict
+from .style import get_style
 
 try:
     basestring
@@ -17,7 +21,6 @@ except NameError:
     basestring = str
 
 
-# Base Elements
 class Fields(object):
     """Fields is a simple container for element field names.
 
@@ -35,6 +38,7 @@ class Fields(object):
         return str(self.__dict__)
 
 
+# Base Elements
 class Element(object):
     """Element is the base for the layout element class heirarchy.
 
@@ -54,6 +58,12 @@ class Element(object):
     meta : dict
         Key-value pairs describing this element.
     """
+    ETYPE = 'DEFAULT'
+    _ls = get_style(ETYPE, 'ls')
+    _lw = get_style(ETYPE, 'lw')
+    _alpha = get_style(ETYPE, 'alpha')
+    _fc = get_style(ETYPE, 'fc')
+    _ec = get_style(ETYPE, 'ec')
 
     def __init__(self, z, length, aperture, name, **meta):
         self._z = z
@@ -146,6 +156,41 @@ class Element(object):
             "aperture:{elem.aperture}, meta={elem.meta}, " \
             "fields={elem.fields} }}"
         return type(self).__name__ + s.format(elem=self)
+
+    def set_drawing(self, p0=None, angle=0, mode='plain'):
+        """Define the artist drawing representation.
+
+        Parameters
+        ----------
+        p0 : tuple
+            The starting drawing point at coord (x, y).
+        angle : float
+            Rotation angle in degree.
+        mode : str
+            Artist representation mode, 'plain' or 'fancy'.
+        """
+        # --p0-----p1---
+
+        l = self.length
+        s = self.z
+        if p0 is None:
+            x0, y0 = s - l / 2.0, 0
+        else:
+            x0, y0 = p0
+        # plain viz
+        x1, y1 = x0 + l, y0 + l * np.tan(angle / 180 * np.pi)
+        vs = ((x0, y0), (x1, y1))
+        cs = ((Path.MOVETO, Path.LINETO))
+        pth = Path(vs, cs)
+        patch = patches.PathPatch(pth, lw=self._lw, ls=self._ls,
+                                  fc=self._fc, ec=self._ec,
+                                  alpha=self._alpha)
+        self._next_p0 = x1, y1
+        self._next_dtheta = 0
+        self._artist = patch
+        pc = s, (y0 + y1) * 0.5
+        self._anote = {'xypos': pc, 'textpos': pc,
+                       'name': self.name, 'type': self.ETYPE}
 
 
 class SeqElement(Element):
@@ -346,10 +391,38 @@ class DriftElement(Element):
     passive element.
     """
     ETYPE = "DRIFT"
+    _ls = get_style(ETYPE, 'ls')
+    _lw = get_style(ETYPE, 'lw')
+    _alpha = get_style(ETYPE, 'alpha')
+    _fc = get_style(ETYPE, 'fc')
+    _ec = get_style(ETYPE, 'ec')
 
     def __init__(self, z, length, aperture, name="DRIFT", desc="drift", **meta):
         super(DriftElement, self).__init__(z, length, aperture, name, desc=desc,
                                            **meta)
+
+    def set_drawing(self, p0=None, angle=0, mode='plain'):
+        l = self.length
+        s = self.z
+        if p0 is None:
+            x0, y0 = s - l / 2.0, 0
+        else:
+            x0, y0 = p0
+        # plain viz
+        x1, y1 = x0 + l, y0 + l * np.tan(angle / 180 * np.pi)
+        vs = ((x0, y0), (x1, y1))
+        cs = ((Path.MOVETO, Path.LINETO))
+        pth = Path(vs, cs)
+        patch = patches.PathPatch(pth, lw=self._lw, ls=self._ls,
+                                  fc=self._fc, ec=self._ec,
+                                  alpha=self._alpha)
+        self._next_p0 = x1, y1
+        self._next_dtheta = 0
+        self._artist = patch
+        pc = s, (y0 + y1) * 0.5
+        self._anote = {'xypos': pc, 'textpos': pc,
+                       'name': self.name, 'type': self.ETYPE}
+
 
 
 class ValveElement(Element):
@@ -415,6 +488,12 @@ class BPMElement(Element):
     """BPMElement represents Beam Position Monitor diagnostic device.
     """
     ETYPE = "BPM"
+    _ls = get_style(ETYPE, 'ls')
+    _lw = get_style(ETYPE, 'lw')
+    _alpha = get_style(ETYPE, 'alpha')
+    _fc = get_style(ETYPE, 'fc')
+    _ec = get_style(ETYPE, 'ec')
+    _h = get_style(ETYPE, 'h')
 
     def __init__(self, z, length, aperture, name, desc="beam positon monitor",
                  **meta):
@@ -431,6 +510,36 @@ class BPMElement(Element):
         # only for VA
         self.fields.energy = "ENG"
         self.fields.energy_phy = "ENERGY"
+
+    def set_drawing(self, p0=None, angle=0, mode='plain'):
+        l = self.length
+        s = self.z
+        h = self._h
+        #
+        #     p2
+        #     |
+        # -p1-p0-p3-
+        #     |
+        #     p4
+        #
+        x0, y0 = s, 0
+        x1, y1 = s - h, y0
+        x2, y2 = x0, y0 + h
+        x3, y3 = x0 + h, y0
+        x4, y4 = x0, y0 - h
+        vs = ((x1, y1), (x2, y2), (x3, y3), (x4, y4), (x1, y1))
+        cs = (Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY)
+        pth = Path(vs, cs)
+        patch = patches.PathPatch(pth, lw=self._lw, ls=self._ls,
+                                  fc=self._fc, ec=self._ec,
+                                  alpha=self._alpha)
+        self._next_p0 = x0, y0
+        self._next_dtheta = 0
+        self._artist = patch
+        pc = x0, y0
+        self._anote = {'xypos': pc, 'textpc': pc, 'name': self.name,
+                       'type': self.ETYPE}
+
 
 
 class BCMElement(Element):
@@ -563,11 +672,81 @@ class SolElement(Element):
 
     ETYPE = "SOL"
 
+    _ls = get_style(ETYPE, 'ls')
+    _lw = get_style(ETYPE, 'lw')
+    _alpha = get_style(ETYPE, 'alpha')
+    _fc = get_style(ETYPE, 'fc')
+    _ec = get_style(ETYPE, 'ec')
+    _ratio_hw = get_style(ETYPE, 'ratio_hw')
+
     def __init__(self, z, length, aperture, name, desc="solenoid", **meta):
         super(SolElement, self).__init__(z, length, aperture, name, desc=desc,
                                          **meta)
         self.fields.field = "I"
         self.fields.field_phy = "B"
+
+    def set_drawing(self, p0=None, angle=0, mode='plain'):
+        l = self.length
+        s = self.z
+        w = l
+        h = self._ratio_hw * w
+        if mode == 'plain':
+            #   p1---p6---p2
+            #   |         |
+            # --p0   pc   p3--
+            #   |         |
+            #   p5---p7---p4
+            if p0 is None:
+                x0, y0 = s - w / 2.0, 0
+            else:
+                x0, y0 = p0
+
+            x1, y1 = x0, y0 + h * 0.5
+            x6, y6 = x1 + w * 0.5, y1
+            x2, y2 = x0 + w, y1
+            x3, y3 = x2, y0
+            x4, y4 = x3, y0 - h * 0.5
+            x7, y7 = x6, y4
+            x5, y5 = x0, y4
+            pc = x0 + w * 0.5, y0
+
+            vs0 = [
+                (x0, y0),
+                (x1, y1),
+                (x6, y6),
+                (x2, y2),
+                (x3, y3),
+                (x4, y4),
+                (x7, y7),
+                (x5, y5),
+                (x0, y0),
+            ]
+            # rot? not now
+            vs = vs0
+            cs = [
+                Path.MOVETO,
+                Path.LINETO,
+                Path.LINETO,
+                Path.LINETO,
+                Path.LINETO,
+                Path.LINETO,
+                Path.LINETO,
+                Path.LINETO,
+                Path.CLOSEPOLY,
+            ]
+            pth = Path(vs, cs)
+            patch = patches.PathPatch(pth, fc=self._fc, ec=self._ec,
+                                     alpha=self._alpha,
+                                     lw=self._lw, ls=self._ls)
+            self._artist = patch
+            self._next_p0 = x3, y3
+            self._next_dtheta = 0
+        else:
+            pass
+
+        self._anote = {'xypos': pc, 'textpos': pc,
+                       'name': self.name, 'type': self.ETYPE}
+
 
 
 class SolCorElement(Element):
@@ -651,6 +830,13 @@ class CorElement(Element):
     """
 
     ETYPE = "COR"
+    _ls = get_style(ETYPE, 'ls')
+    _lw = get_style(ETYPE, 'lw')
+    _alpha = get_style(ETYPE, 'alpha')
+    _fc = get_style(ETYPE, 'fc')
+    _ec = get_style(ETYPE, 'ec')
+    _ratio_hw = get_style(ETYPE, 'ratio_hw')
+    _h = get_style(ETYPE, 'h')
 
     def __init__(self, z, length, aperture, name, desc="corrector magnet",
                  **meta):
@@ -659,12 +845,48 @@ class CorElement(Element):
         self.h = None
         self.v = None
 
+    def set_drawing(self, p0=None, angle=0, mode='plain'):
+        l = self.length
+        s = self.z
+        if l != 0.0:
+            h = self._ratio_hw * l
+        else:
+            h = self._h
+        #
+        #   p1
+        #   |
+        # --p0--
+        #   |
+        #   p2
+        #
+        x0, y0 = s, 0
+        x1, y1 = x0 + l/2.0, h
+        x2, y2 = x0 - l/2.0, -h
+        vs = ((x1, y1), (x2, y2))
+        cs = ((Path.MOVETO, Path.LINETO))
+        pth = Path(vs, cs)
+        patch = patches.PathPatch(pth, lw=self._lw, ls=self._ls,
+                                fc=self._fc, ec=self._ec,
+                                alpha=self._alpha)
+        self._next_p0 = x0, y0
+        self._next_dtheta = 0
+        self._artist = patch
+        pc = x0, y0
+        self._anote = {'xypos': pc, 'textpc': pc, 'name': self.name,
+                       'type': self.ETYPE}
+
 
 class QuadElement(Element):
     """QuadElement represents a quadrupole magnet.
     """
 
     ETYPE = "QUAD"
+    _ls = get_style(ETYPE, 'ls')
+    _lw = get_style(ETYPE, 'lw')
+    _alpha = get_style(ETYPE, 'alpha')
+    _fc = get_style(ETYPE, 'fc')
+    _ec = get_style(ETYPE, 'ec')
+    _ratio_hw = get_style(ETYPE, 'ratio_hw')
 
     def __init__(self, z, length, aperture, name, desc="quadrupole magnet",
                  **meta):
@@ -672,6 +894,68 @@ class QuadElement(Element):
                                           **meta)
         self.fields.gradient = "I"
         self.fields.gradient_phy = "GRAD"
+
+        self._hv = 'H'
+        if 'V' in self.name:
+            self._hv = 'V'
+
+    def set_drawing(self, p0=None, angle=0, mode='plain'):
+        l = self.length
+        s = self.z
+        w = l
+        h = self._ratio_hw * w
+
+        if p0 is None:
+            x0, y0 = s - l / 2.0, 0
+        else:
+            x0, y0 = p0
+
+        if mode == 'plain':
+            # _kval >= 0: 'H' in name
+            #
+            #    p1---p2
+            #    |    |
+            #    |    |
+            # ---p0---p3---
+            #    |    |
+            #    p4---p5
+            #
+            # _kval < 0: 'V' in name
+            #
+            #    p4---p5
+            #    |    |
+            # ---p0---p3---
+            #    |    |
+            #    |    |
+            #    p1---p2
+
+            if self._hv == 'H':
+                x1, y1 = x0, y0 + h * 0.8
+                x4, y4 = x0, y0 - h * 0.2
+            else:
+                x1, y1 = x0, y0 - h * 0.8
+                x4, y4 = x0, y0 + h * 0.2
+
+            x2, y2 = x0 + w, y1
+            x3, y3 = x2, y0
+            x5, y5 = x3, y4
+
+            vs = [(x0, y0), (x1, y1), (x2, y2), (x3, y3), (x5, y5), (x4, y4), (x0, y0)]
+            cs = [Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO,
+                  Path.LINETO, Path.LINETO, Path.CLOSEPOLY]
+            pth = Path(vs, cs)
+            patch = patches.PathPatch(pth, fc=self._fc, ec=self._ec,
+                                      alpha=self._alpha, lw=self._lw,
+                                      ls=self._ls)
+
+            self._artist = patch
+            self._next_p0 = x3, y3
+            self._next_dtheta = 0
+        else:  # fancy mode
+            pass
+        pc = x0 + 0.5 * w, y0
+        self._anote = {'xypos': pc, 'textpos': pc,
+                       'name': self.name, 'type': self.ETYPE}
 
 
 class SextElement(Element):
@@ -695,6 +979,12 @@ class EBendElement(Element):
     """
 
     ETYPE = "EBEND"
+    _ls = get_style(ETYPE, 'ls')
+    _lw = get_style(ETYPE, 'lw')
+    _alpha = get_style(ETYPE, 'alpha')
+    _fc = get_style(ETYPE, 'fc')
+    _ec = get_style(ETYPE, 'ec')
+    _ratio_hw = get_style(ETYPE, 'ratio_hw')
 
     def __init__(self, z, length, aperture, name, desc="ebend", **meta):
         super(EBendElement, self).__init__(z, length, aperture, name, desc=desc,
@@ -702,18 +992,148 @@ class EBendElement(Element):
         self.fields.field = "V"
         self.fields.field_phy = "V"
 
+    def set_drawing(self, p0=None, angle=0, mode='plain'):
+        l = self.length
+        s = self.z
+        w = l
+        h = self._ratio_hw * w
+        if mode == 'plain':
+            #   p1---p6---p2
+            #   |         |
+            # --p0   pc   p3--
+            #   |         |
+            #   p5---p7---p4
+            if p0 is None:
+                x0, y0 = s - w / 2.0, 0
+            else:
+                x0, y0 = p0
+
+            x1, y1 = x0, y0 + h * 0.5
+            x6, y6 = x1 + w * 0.5, y1
+            x2, y2 = x0 + w, y1
+            x3, y3 = x2, y0
+            x4, y4 = x3, y0 - h * 0.5
+            x7, y7 = x6, y4
+            x5, y5 = x0, y4
+            pc = x0 + w * 0.5, y0
+
+            vs0 = [
+                (x0, y0),
+                (x1, y1),
+                (x6, y6),
+                (x2, y2),
+                (x3, y3),
+                (x4, y4),
+                (x7, y7),
+                (x5, y5),
+                (x0, y0),
+            ]
+            # rot? not now
+            vs = vs0
+            cs = [
+                Path.MOVETO,
+                Path.LINETO,
+                Path.LINETO,
+                Path.LINETO,
+                Path.LINETO,
+                Path.LINETO,
+                Path.LINETO,
+                Path.LINETO,
+                Path.CLOSEPOLY,
+            ]
+            pth = Path(vs, cs)
+            patch = patches.PathPatch(pth, fc=self._fc, ec=self._ec,
+                                     alpha=self._alpha,
+                                     lw=self._lw, ls=self._ls)
+            self._artist = patch
+            self._next_p0 = x3, y3
+            self._next_dtheta = 0
+        else:
+            pass
+
+        self._anote = {'xypos': pc, 'textpos': pc,
+                       'name': self.name, 'type': self.ETYPE}
+
 
 class EQuadElement(Element):
     """EQuadElement represents and electrostatic quadrupole element.
     """
 
     ETYPE = "EQUAD"
+    _ls = get_style(ETYPE, 'ls')
+    _lw = get_style(ETYPE, 'lw')
+    _alpha = get_style(ETYPE, 'alpha')
+    _fc = get_style(ETYPE, 'fc')
+    _ec = get_style(ETYPE, 'ec')
+    _ratio_hw = get_style(ETYPE, 'ratio_hw')
 
     def __init__(self, z, length, aperture, name, desc="equad", **meta):
         super(EQuadElement, self).__init__(z, length, aperture, name, desc=desc,
                                            **meta)
         self.fields.gradient = "V"
         self.fields.gradient_phy = "V"
+
+        self._hv = 'H'
+        if 'V' in self.name:
+            self._hv = 'V'
+
+    def set_drawing(self, p0=None, angle=0, mode='plain'):
+        l = self.length
+        s = self.z
+        w = l
+        h = self._ratio_hw * w
+        if p0 is None:
+            x0, y0 = s - l / 2.0, 0
+        else:
+            x0, y0 = p0
+
+        if mode == 'plain':
+            # _kval >= 0: 'H' in name
+            #
+            #    p1---p2
+            #    |    |
+            #    |    |
+            # ---p0---p3---
+            #    |    |
+            #    p4---p5
+            #
+            # _kval < 0: 'V' in name
+            #
+            #    p4---p5
+            #    |    |
+            # ---p0---p3---
+            #    |    |
+            #    |    |
+            #    p1---p2
+
+            if self._hv == 'H':
+                x1, y1 = x0, y0 + h * 0.8
+                x4, y4 = x0, y0 - h * 0.2
+            else:
+                x1, y1 = x0, y0 - h * 0.8
+                x4, y4 = x0, y0 + h * 0.2
+
+            x2, y2 = x0 + w, y1
+            x3, y3 = x2, y0
+            x5, y5 = x3, y4
+
+            vs = [(x0, y0), (x1, y1), (x2, y2), (x3, y3), (x5, y5), (x4, y4), (x0, y0)]
+            cs = [Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO,
+                  Path.LINETO, Path.LINETO, Path.CLOSEPOLY]
+            pth = Path(vs, cs)
+            patch = patches.PathPatch(pth, fc=self._fc, ec=self._ec,
+                                      alpha=self._alpha, lw=self._lw,
+                                      ls=self._ls)
+
+            self._artist = patch
+            self._next_p0 = x3, y3
+            self._next_dtheta = 0
+        else:  # fancy mode
+            pass
+        pc = x0 + 0.5 * w, y0
+        self._anote = {'xypos': pc, 'textpos': pc,
+                       'name': self.name, 'type': self.ETYPE}
+
 
 
 # Accelerating Elements
@@ -724,6 +1144,13 @@ class CavityElement(Element):
 
     ETYPE = "CAV"
 
+    _ls = get_style(ETYPE, 'ls')
+    _lw = get_style(ETYPE, 'lw')
+    _alpha = get_style(ETYPE, 'alpha')
+    _fc = get_style(ETYPE, 'fc')
+    _ec = get_style(ETYPE, 'ec')
+    _ratio_hw = get_style(ETYPE, 'ratio_hw')
+
     def __init__(self, z, length, aperture, name, desc="cavity", **meta):
         super(CavityElement, self).__init__(z, length, aperture, name,
                                             desc=desc, **meta)
@@ -732,6 +1159,68 @@ class CavityElement(Element):
         self.fields.amplitude = "AMP"
         self.fields.amplitude_phy = "AMPLITUDE"
         self.fields.frequency = "FREQ"
+
+    def set_drawing(self, p0=None, angle=0, mode='plain'):
+        l = self.length
+        s = self.z
+        w = l
+        h = self._ratio_hw * w
+        if mode == 'plain':
+            #   p1---p6---p2
+            #   |         |
+            # --p0   pc   p3--
+            #   |         |
+            #   p5---p7---p4
+            if p0 is None:
+                x0, y0 = s - w / 2.0, 0
+            else:
+                x0, y0 = p0
+
+            x1, y1 = x0, y0 + h * 0.5
+            x6, y6 = x1 + w * 0.5, y1
+            x2, y2 = x0 + w, y1
+            x3, y3 = x2, y0
+            x4, y4 = x3, y0 - h * 0.5
+            x7, y7 = x6, y4
+            x5, y5 = x0, y4
+            pc = x0 + w * 0.5, y0
+
+            vs0 = [
+                (x0, y0),
+                (x1, y1),
+                (x6, y6),
+                (x2, y2),
+                (x3, y3),
+                (x4, y4),
+                (x7, y7),
+                (x5, y5),
+                (x0, y0),
+            ]
+            # rot? not now
+            vs = vs0
+            cs = [
+                Path.MOVETO,
+                Path.LINETO,
+                Path.LINETO,
+                Path.LINETO,
+                Path.LINETO,
+                Path.LINETO,
+                Path.LINETO,
+                Path.LINETO,
+                Path.CLOSEPOLY,
+            ]
+            pth = Path(vs, cs)
+            patch = patches.PathPatch(pth, fc=self._fc, ec=self._ec,
+                                     alpha=self._alpha,
+                                     lw=self._lw, ls=self._ls)
+            self._artist = patch
+            self._next_p0 = x3, y3
+            self._next_dtheta = 0
+        else:
+            pass
+
+        self._anote = {'xypos': pc, 'textpos': pc,
+                       'name': self.name, 'type': self.ETYPE}
 
 
 class ColumnElement(Element):
