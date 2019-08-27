@@ -6,3 +6,4 @@ include phantasy/library/lattice/style.css
 recursive-include phantasy/tests/config *
 recursive-include phantasy/tests/data *
 recursive-include phantasy/tests/lattice *
+recursive-include phantasy/config *
