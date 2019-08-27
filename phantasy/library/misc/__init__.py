@@ -16,6 +16,7 @@ from .miscutils import QCallback
 from .miscutils import truncate_number
 from .miscutils import create_tempdir
 from .miscutils import create_tempfile
+from .miscutils import find_conf
 from .message import disable_warnings
 from .message import set_loglevel
 from .httputils import cofetch
@@ -27,5 +28,5 @@ __all__ = [
     'cofetch', 'disable_warnings', 'set_loglevel', 'QCallback',
     'convert_epoch', 'truncate_number',
     'create_tempfile', 'create_tempdir',
+    'find_conf',
 ]
-
