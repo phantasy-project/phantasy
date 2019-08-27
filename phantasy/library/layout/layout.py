@@ -29,6 +29,7 @@ LS1_CA01:BPM_D1129,BPM,0.0,112.8833268,0.04,0.04,CA01,BPM6,LS1,D1129,BPM,"positi
 import csv
 import logging
 import os.path
+import matplotlib.pyplot as plt
 
 from .accel import ApertureElement
 from .accel import AttenuatorElement
@@ -231,3 +232,55 @@ class Layout(SeqElement):
                 else:
                     row.append("NONE")
             csvstream.writerow(row)
+
+    def generate_drawing(self):
+        """Generate drawing artifacts.
+        """
+        patch_list = []
+        anote_list = []
+        xmin0, xmax0, ymin0, ymax0 = 1e10, -1e10, 1e10, -1e10
+        xmin, xmax, ymin, ymax = 1e10, -1e10, 1e10, -1e10
+        for elem in self._elements:
+            elem.set_drawing()
+            patch_list.append(elem._artist)
+            if hasattr(elem, '_anote'):
+                anote_list.append(elem._anote)
+            xyrange = elem._artist.get_path().get_extents()
+            xmin, xmax = xyrange.xmin, xyrange.xmax
+            ymin, ymax = xyrange.ymin, xyrange.ymax
+            xmin0 = min(xmin, xmin0)
+            xmax0 = max(xmax, xmax0)
+            ymin0 = min(ymin, ymin0)
+            ymax0 = max(ymax, ymax0)
+        xc0 = 0.5 * ( xmax0 + xmin0 )
+        yc0 = 0.5 * ( ymax0 + ymin0 )
+        dx0 = xmax0 - xmin0
+        dy0 = ymax0 - ymin0
+        return patch_list, anote_list, (xmin0, xmax0, xc0, dx0), (ymin0, ymax0, yc0, dy0)
+
+    def draw(self, ax=None, span=(1.05, 1.05), fig_opt={}, ax_opt={}):
+        """Draw layout onto canvas.
+
+        Examples
+        --------
+        >>> from phantasy import MachinePortal
+        >>> mp = MachinePortal("FRIB", "LEBT")
+        >>> lat = mp.work_lattice_conf
+        >>> layout = lat.layout
+        >>> layout.draw(span=(1.1, 1.1),
+                        fig_opt={'figsize': (10, 8), 'dpi': 120},
+                        ax_opt={'aspect': 500})
+        >>> plt.show() # import matplotlib.pyplot as plt
+        """
+        if ax is None:
+            fig = plt.figure(**fig_opt)
+            ax = fig.add_subplot(111, **ax_opt)
+        p_list, a_list, (x0, x1, xc0, dx0), (y0, y1, yc0, dy0) = self.generate_drawing()
+        [ax.add_patch(p) for p in p_list]
+        span_x, span_y = span
+        dx = span_x * dx0 * 0.5
+        dy = span_y * dy0 * 0.5
+        ax.set_xlim(xc0 - dx, xc0 + dx)
+        ax.set_ylim(yc0 - dy, yc0 + dy)
+        if ax is None:
+            fig.show()
