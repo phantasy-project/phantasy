@@ -242,6 +242,8 @@ class Layout(SeqElement):
         xmin, xmax, ymin, ymax = 1e10, -1e10, 1e10, -1e10
         for elem in self._elements:
             elem.set_drawing()
+            if not hasattr(elem, '_artist'):
+                continue
             patch_list.append(elem._artist)
             if hasattr(elem, '_anote'):
                 anote_list.append(elem._anote)
@@ -272,6 +274,7 @@ class Layout(SeqElement):
                         ax_opt={'aspect': 500})
         >>> plt.show() # import matplotlib.pyplot as plt
         """
+        fig = None
         if ax is None:
             fig = plt.figure(**fig_opt)
             ax = fig.add_subplot(111, **ax_opt)
@@ -282,5 +285,4 @@ class Layout(SeqElement):
         dy = span_y * dy0 * 0.5
         ax.set_xlim(xc0 - dx, xc0 + dx)
         ax.set_ylim(yc0 - dy, yc0 + dy)
-        if ax is None:
-            fig.show()
+        return fig, ax

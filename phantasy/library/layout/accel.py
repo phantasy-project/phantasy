@@ -514,7 +514,7 @@ class BPMElement(Element):
     def set_drawing(self, p0=None, angle=0, mode='plain'):
         l = self.length
         s = self.z
-        h = self._h
+        h = self._h * 0.5
         #
         #     p2
         #     |
@@ -523,9 +523,9 @@ class BPMElement(Element):
         #     p4
         #
         x0, y0 = s, 0
-        x1, y1 = s - h, y0
+        x1, y1 = s - h * 0.5, y0
         x2, y2 = x0, y0 + h
-        x3, y3 = x0 + h, y0
+        x3, y3 = x0 + h * 0.5, y0
         x4, y4 = x0, y0 - h
         vs = ((x1, y1), (x2, y2), (x3, y3), (x4, y4), (x1, y1))
         cs = (Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY)
@@ -677,7 +677,7 @@ class SolElement(Element):
     _alpha = get_style(ETYPE, 'alpha')
     _fc = get_style(ETYPE, 'fc')
     _ec = get_style(ETYPE, 'ec')
-    _ratio_hw = get_style(ETYPE, 'ratio_hw')
+    _h = get_style(ETYPE, 'h')
 
     def __init__(self, z, length, aperture, name, desc="solenoid", **meta):
         super(SolElement, self).__init__(z, length, aperture, name, desc=desc,
@@ -689,7 +689,7 @@ class SolElement(Element):
         l = self.length
         s = self.z
         w = l
-        h = self._ratio_hw * w
+        h = self._h
         if mode == 'plain':
             #   p1---p6---p2
             #   |         |
@@ -835,7 +835,6 @@ class CorElement(Element):
     _alpha = get_style(ETYPE, 'alpha')
     _fc = get_style(ETYPE, 'fc')
     _ec = get_style(ETYPE, 'ec')
-    _ratio_hw = get_style(ETYPE, 'ratio_hw')
     _h = get_style(ETYPE, 'h')
 
     def __init__(self, z, length, aperture, name, desc="corrector magnet",
@@ -848,10 +847,7 @@ class CorElement(Element):
     def set_drawing(self, p0=None, angle=0, mode='plain'):
         l = self.length
         s = self.z
-        if l != 0.0:
-            h = self._ratio_hw * l
-        else:
-            h = self._h
+        h = self._h * 0.5
         #
         #   p1
         #   |
@@ -886,7 +882,7 @@ class QuadElement(Element):
     _alpha = get_style(ETYPE, 'alpha')
     _fc = get_style(ETYPE, 'fc')
     _ec = get_style(ETYPE, 'ec')
-    _ratio_hw = get_style(ETYPE, 'ratio_hw')
+    _h = get_style(ETYPE, 'h')
 
     def __init__(self, z, length, aperture, name, desc="quadrupole magnet",
                  **meta):
@@ -903,7 +899,7 @@ class QuadElement(Element):
         l = self.length
         s = self.z
         w = l
-        h = self._ratio_hw * w
+        h = self._h * 0.5
 
         if p0 is None:
             x0, y0 = s - l / 2.0, 0
@@ -930,11 +926,11 @@ class QuadElement(Element):
             #    p1---p2
 
             if self._hv == 'H':
-                x1, y1 = x0, y0 + h * 0.8
-                x4, y4 = x0, y0 - h * 0.2
+                x1, y1 = x0, y0 + h * 0.9
+                x4, y4 = x0, y0 - h * 0.1
             else:
-                x1, y1 = x0, y0 - h * 0.8
-                x4, y4 = x0, y0 + h * 0.2
+                x1, y1 = x0, y0 - h * 0.9
+                x4, y4 = x0, y0 + h * 0.1
 
             x2, y2 = x0 + w, y1
             x3, y3 = x2, y0
@@ -984,7 +980,7 @@ class EBendElement(Element):
     _alpha = get_style(ETYPE, 'alpha')
     _fc = get_style(ETYPE, 'fc')
     _ec = get_style(ETYPE, 'ec')
-    _ratio_hw = get_style(ETYPE, 'ratio_hw')
+    _h = get_style(ETYPE, 'h')
 
     def __init__(self, z, length, aperture, name, desc="ebend", **meta):
         super(EBendElement, self).__init__(z, length, aperture, name, desc=desc,
@@ -996,7 +992,7 @@ class EBendElement(Element):
         l = self.length
         s = self.z
         w = l
-        h = self._ratio_hw * w
+        h = self._h
         if mode == 'plain':
             #   p1---p6---p2
             #   |         |
@@ -1065,7 +1061,7 @@ class EQuadElement(Element):
     _alpha = get_style(ETYPE, 'alpha')
     _fc = get_style(ETYPE, 'fc')
     _ec = get_style(ETYPE, 'ec')
-    _ratio_hw = get_style(ETYPE, 'ratio_hw')
+    _h = get_style(ETYPE, 'h')
 
     def __init__(self, z, length, aperture, name, desc="equad", **meta):
         super(EQuadElement, self).__init__(z, length, aperture, name, desc=desc,
@@ -1081,7 +1077,7 @@ class EQuadElement(Element):
         l = self.length
         s = self.z
         w = l
-        h = self._ratio_hw * w
+        h = self._h * 0.5
         if p0 is None:
             x0, y0 = s - l / 2.0, 0
         else:
@@ -1149,7 +1145,7 @@ class CavityElement(Element):
     _alpha = get_style(ETYPE, 'alpha')
     _fc = get_style(ETYPE, 'fc')
     _ec = get_style(ETYPE, 'ec')
-    _ratio_hw = get_style(ETYPE, 'ratio_hw')
+    _h = get_style(ETYPE, 'h')
 
     def __init__(self, z, length, aperture, name, desc="cavity", **meta):
         super(CavityElement, self).__init__(z, length, aperture, name,
@@ -1162,9 +1158,11 @@ class CavityElement(Element):
 
     def set_drawing(self, p0=None, angle=0, mode='plain'):
         l = self.length
+        if l == 0.0:
+            return
         s = self.z
         w = l
-        h = self._ratio_hw * w
+        h = self._h
         if mode == 'plain':
             #   p1---p6---p2
             #   |         |
