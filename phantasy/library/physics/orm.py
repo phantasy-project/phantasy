@@ -270,6 +270,10 @@ def get_orbit(monitors, **kws):
     -------
     ret : array
         Monitors readings as beam orbit.
+
+    Note
+    ----
+    The returned array lines all 'X' readings first, then follows all 'Y's.
     """
     nshot = kws.get('nshot', 1)
     rate = kws.get('rate', 1)
