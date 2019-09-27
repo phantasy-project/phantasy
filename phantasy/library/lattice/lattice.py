@@ -1958,6 +1958,8 @@ class Lattice(object):
             Lower limit for corrector settings.
         cor_max : float
             Upper limit for corrector settings.
+        sf : float
+            Scaling factor multipied on settings, default is 1.0.
 
         Returns
         -------
@@ -1975,6 +1977,7 @@ class Lattice(object):
         cor_field = kws.get('cor_field', 'ANG')
         upper_limit_cor = kws.get('cor_max', 5.0)   # A
         lower_limit_cor = kws.get('cor_min', -5.0)  # A
+        sf = kws.get('sf', 1.0)
 
         if self._orm is None:
             _LOGGER.error("correct_orbit: ORM is not available, set ORM first.")
@@ -1988,7 +1991,7 @@ class Lattice(object):
         delt_cor = np.dot(m_inv, -bpm_readings * damp_fac)
         for ic, (e, v) in enumerate(zip(correctors, delt_cor)):
             v0 = getattr(e, cor_field)
-            v_to_set = v0 + v
+            v_to_set = ( v0 + v ) * sf
             v_to_set_limited = limit_input(v_to_set, lower_limit_cor, upper_limit_cor)
             settings.append((e, cor_field, v_to_set, v_to_set_limited))
 
