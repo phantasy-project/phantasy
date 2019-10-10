@@ -26,6 +26,8 @@ addons:
     - python3-scipy
     - python-dateutil
     - python3-dateutil
+    - python-tk
+    - python3-tk
     - pandoc
     - latexmk
     - texlive
