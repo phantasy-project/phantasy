@@ -28,6 +28,8 @@ addons:
     - python3-dateutil
     - python-tk
     - python3-tk
+    - python-pytest
+    - python3-pytest
     - pandoc
     - latexmk
     - texlive
@@ -68,7 +70,7 @@ script:
     - export PYTHONPATH=${TRAVIS_BUILD_DIR}:$HOME/pyCFClient:$HOME/PyScanClient
     - export PHANTASY_CONFIG_DIR=/usr/lib/phantasy-machines
     - cd ${TRAVIS_BUILD_DIR}/phantasy/tests
-    - make test
+    - make localtest
     - if [ ${TRAVIS_PYTHON_VERSION} == "2.7" ]; then
       cd ${TRAVIS_BUILD_DIR}/docs;
       make clean latexpdf html;
