@@ -804,6 +804,15 @@ class CaField(object):
             pv = self.setpoint[0]
         return pv
 
+    def current_setting(self):
+        """Return current setpoint value.
+
+        See Also
+        --------
+        value : get current readback value.
+        """
+        return self.read_policy(self.setpoint_pv)
+
 
 class CaElement(BaseElement):
     """Element with Channel Access support.
@@ -1154,8 +1163,8 @@ class CaElement(BaseElement):
         if field in self._fields:
             return self._fields[field]
         else:
-            print("INVALID field, could be one of ({}).".format(
-                ', '.join(sorted(self.fields))))
+            print("{1} of {0} is not defined, valid ones are ({2}).".format(
+                self.name, field, ', '.join(sorted(self.fields))))
             return None
 
     def __getattr__(self, key):
@@ -1305,7 +1314,7 @@ class CaElement(BaseElement):
         field : str
             Dynamic field name of element.
         settings : dict
-            Dict of setpoint pv(s) reading(s).
+            Key-value pairs of setpoint PV name and value.
 
         Returns
         -------
@@ -1317,12 +1326,12 @@ class CaElement(BaseElement):
         current_setting : Get current field setting.
         """
         fld = self.get_field(field)
-        sp_vals = [float(settings.get(sp)) for sp in fld.setpoint]
+        sp_vals = [settings.get(sp) for sp in fld.setpoint]
         if None in sp_vals:
             _LOGGER.warning(
-                "Cannot get all of the setpoint PV readings of '{}'.".format(self.name))
+                "Failed to get setpoint PV reading(s) of '{} [{}]'.".format(self.name, field))
             return None
-        return fld.read_policy([Number(x) for x in sp_vals])
+        return fld.read_policy([Number(float(x)) for x in sp_vals])
 
 
 class Number(float):
