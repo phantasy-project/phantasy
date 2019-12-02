@@ -2,6 +2,7 @@
 
 import json
 import csv
+import numpy as np
 
 from copy import deepcopy
 from collections import OrderedDict
@@ -117,13 +118,12 @@ def get_element_settings(settings, element, **kws):
         print("{}, ENG: {}, PHY: {} ({})".format(element.name, eng_f, phy_f, phy_v))
         #
 
-        if phy_v is None:
-            continue
-        else:
-            elem_settings.update({phy_f: phy_v})
+        if phy_v is None: phy_v = np.nan
+        elem_settings.update({phy_f: phy_v})
 
         if not only_phy:
             eng_v = element.get_settings(eng_f, settings)
+            if eng_v is None: eng_v = np.nan
             elem_settings.update({eng_f: eng_v})
         # debug
         print("{} settings: {}".format(element.name, elem_settings))
