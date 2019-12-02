@@ -1330,6 +1330,8 @@ class CaElement(BaseElement):
         if None in sp_vals:
             _LOGGER.warning(
                 "Failed to get setpoint PV reading(s) of '{} [{}]'.".format(self.name, field))
+            print(
+                "Failed to get setpoint PV reading(s) of '{} [{}]'.".format(self.name, field))
             return None
         return fld.read_policy([Number(float(x)) for x in sp_vals])
 
