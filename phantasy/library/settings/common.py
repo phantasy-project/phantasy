@@ -78,7 +78,7 @@ def snp2dict(snpfile):
 
 
 def get_element_settings(settings, element, **kws):
-    """Get *element* field settings from *settings*.
+    """Get *element* field settings from *settings* dict.
 
     Parameters
     ----------
@@ -96,6 +96,13 @@ def get_element_settings(settings, element, **kws):
     -------
     r : dict
         Dict of `{field: field_setting}` for element.
+
+    Note
+    ----
+    The way to locate element field by searching PV names depends on
+    the PVs saved in the snp file, any other mapping rules should
+    defined here in case not follow 'phantasy' internal Element->Field
+    design rules.
 
     See Also
     --------
@@ -125,6 +132,7 @@ def get_element_settings(settings, element, **kws):
             eng_v = element.get_settings(eng_f, settings)
             if eng_v is None: eng_v = np.nan
             elem_settings.update({eng_f: eng_v})
+
         # debug
         print("{} settings: {}".format(element.name, elem_settings))
         #
