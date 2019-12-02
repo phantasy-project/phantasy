@@ -511,7 +511,7 @@ class Lattice(object):
                         field=field, value0=value0, value=value)
 
     def _set_model_field(self, elem, field, value):
-        """Set value to element field onto 'model' environment.
+        """Set *value* to *elem* *field* in 'model' environment.
         """
         if isinstance(elem, CaElement):
             elem_name = elem.name
@@ -592,7 +592,7 @@ class Lattice(object):
         accept new values settings, e.g. corrector, cavity, etc., the other is
         devices that only can show readings, e.g. BPM, PM, etc. (so-called
         *viewer elements*). For *viewer elements*, ``BeamState`` could be
-        got after ``run()``, for flame model.
+        got after ``run()``, for FLAME model.
 
         Returns
         -------
@@ -864,14 +864,16 @@ class Lattice(object):
                         e=e_name, f=field))
 
     def sync_settings(self, data_source=None):
-        """Synchronize lattice settings between model and control environment.
+        """Synchronize lattice settings between 'model' and 'control'
+        environment.
 
         Parameters
         ----------
         data_source : str
-            Data source of synchronization, if 'model' is defined, will update
-            data of control environment with data from 'model'; if 'control'
-            is defined, model data will be synchronized; *data_source* is
+            Data source for settings synchronization. If 'model' is defined,
+            the settings of 'control' environment will be updated with the
+            settings from 'model'; if 'control' is defined, 'model' settings
+            will be updated with the data from 'control'. *data_source* is
             'control' by default.
         """
         data_source = 'control' if data_source is None else data_source
@@ -2204,7 +2206,9 @@ def _get_retroactive_trace_history(trace_history_data, retroaction):
 
 
 def _get_control_field(elem, field):
-    """Get field value(s) from element, source is control environment.
+    """Get field value(s) from element, data source is 'control' environment.
+
+    TODO: support get setpoint values
     """
     if not isinstance(field, (list, tuple)):
         field = field,
