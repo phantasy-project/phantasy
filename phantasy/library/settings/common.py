@@ -82,7 +82,7 @@ def get_element_settings(settings, element, **kws):
     Parameters
     ----------
     settings : dict
-        Dict contains key-values of PV name and set values.
+        Key-value pairs of PV name and set values.
     element :
         CaElement object.
 
@@ -100,18 +100,23 @@ def get_element_settings(settings, element, **kws):
     --------
     snp2dict
     :class:`~phantasy.library.lattice.element.CaElement`
-    :meth:`~phantasy.library.lattice.eleemnt.CaElement.get_settings`
+    :meth:`~phantasy.library.lattice.element.CaElement.get_settings`
     """
     only_phy = kws.get('only_physics', False)
     elem_settings = {}
     eng_flds = element.get_eng_fields()
     phy_flds = element.get_phy_fields()
-    if phy_flds == []:  # for some element, no physics fields, the eng if phy
+    if phy_flds == []:  # for some element, no physics fields, ENG is PHY
         phy_flds = eng_flds
         only_phy = True
 
     for eng_f, phy_f in zip(eng_flds, phy_flds):
         phy_v = element.get_settings(phy_f, settings)
+
+        # debug
+        print("{}, ENG: {}, PHY: {} ({})".format(element.name, eng_f, phy_f, phy_v))
+        #
+
         if phy_v is None:
             continue
         else:
@@ -120,7 +125,9 @@ def get_element_settings(settings, element, **kws):
         if not only_phy:
             eng_v = element.get_settings(eng_f, settings)
             elem_settings.update({eng_f: eng_v})
-
+        # debug
+        print("{} settings: {}".format(element.name, elem_settings))
+        #
     return elem_settings
 
 
@@ -153,6 +160,7 @@ def generate_settings(snpfile, lattice, **kws):
     See Also
     --------
     :class:`~phantasy.library.settings.common.Settings`
+    :class:`~phantasy.library.operation.MachinePortal`
     """
     only_phy = kws.get('only_physics', False)
     settings_new = snp2dict(snpfile)
