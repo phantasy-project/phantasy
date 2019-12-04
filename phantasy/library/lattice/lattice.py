@@ -17,6 +17,7 @@ import sys
 import tempfile
 import time
 from collections import OrderedDict
+from copy import deepcopy
 from datetime import datetime
 from fnmatch import fnmatch
 from math import log10
@@ -2164,6 +2165,25 @@ class Lattice(object):
             ret.append(fmt.format(idx=i, name=e.name, family=e.family,
                                   pos=e.sb, len=e.length))
         return '\n'.join(ret)
+
+    def get_settings(self, only_physics=False):
+        """Return lattice element settings, only include physics settings if
+        *only_physics* is True, otherwise return engineering settings as well.
+        """
+        s = deepcopy(self.settings)
+        if only_physics:
+            return s
+
+        # if B=v1, then I=elem.convert(field='B', value=v1)
+        for ename, phy_conf in self.settings.items():
+            elem = self[ename]
+            phy_flds = elem.get_phy_fields()
+            eng_flds = elem.get_eng_fields()
+            if elem is None: continue
+            for phy_fld, eng_fld in zip(phy_flds, eng_flds):
+                eng_val = elem.convert(field=phy_fld, value=phy_conf[phy_fld])
+                s[ename].update({eng_fld: eng_val})
+        return s
 
 
 def _inplace_order_insert(elem, lat):
