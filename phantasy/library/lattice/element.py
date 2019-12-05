@@ -1179,7 +1179,7 @@ class CaElement(BaseElement):
         if key in self._fields:
             fld = self._fields[key]
             if fld.ensure_put:
-                ensure_put(self, key, value, fld.tolerance, fld.timeout)
+                ensure_put(fld, value, fld.tolerance, fld.timeout)
             else:
                 self._fields[key].value = value
             self._last_settings.update([(key, value)])
@@ -1334,6 +1334,32 @@ class CaElement(BaseElement):
                 "Failed to get setpoint PV reading(s) of '{} [{}]'.".format(self.name, field))
             return None
         return fld.read_policy([Number(float(x)) for x in sp_vals])
+
+    def ensure_put(self, field, goal, tol=None, timeout=None):
+        """Ensure set the *field* of element to *goal* within the
+        discrepancy tolerance of *tol*, within the max *timeout* secs.
+        If field is invalid, return None.
+
+        Parameters
+        ----------
+        field : str
+            Dynamic field name of element.
+        goal : float
+            The final value that the field of element would like to reach.
+        tol : float
+            Tolerance for discrepancy between current readback
+            value and the set goal, default is 0.01.
+        timeout : float
+            Maximum wait time, default is 10.0 sec.
+
+        See Also
+        --------
+        :func:`~phantasy.library.pv.epics_tools.ensure_put`
+        """
+        fld = self.get_field(field)
+        if fld is None:
+            return None
+        ensure_put(fld, goal, tol, timeout)
 
 
 class Number(float):
