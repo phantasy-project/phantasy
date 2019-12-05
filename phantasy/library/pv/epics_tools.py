@@ -45,17 +45,15 @@ def camonitor(pvname, callback=None, **kws):
     return epics_camonitor(pvname, kws.get('writer', None), callback)
 
 
-def ensure_put(element, field, goal, tol=None, timeout=None):
-    """Put operation to the *field* of *element*, ensure to reach the value
+def ensure_put(field, goal, tol=None, timeout=None):
+    """Put operation to *field* object, ensure to reach the value
     of *goal* within the discrepancy tolerance defined by *tol*, within the
     time period defined by *timeout*.
 
     Parameters
     ----------
-    element : CaElement
-        High-level element object.
-    field : str
-        Name of dynamic field of element to control.
+    field : CaField, PVElement
+        Instance of dynamic field of CaElement or PVElement.
     goal : float
         The final value that the field of element would like to reach.
     tol : float
@@ -75,12 +73,13 @@ def ensure_put(element, field, goal, tol=None, timeout=None):
     --------
     >>> # get element, e.g. elem = mp.get_elements(name='*D0874*')[0]
     >>> # set 'V' field of element to 1000
-    >>> ensure_put(elem, 'V', 1000)
+    >>> fld = elem.get_field('V')
+    >>> ensure_put(fld, 1000)
     >>> # set 'V' field to 1, but with *tol* never could be reached,
     >>> # will return after 10 sec.
-    >>> ensure_put(elem, 'V', 1, tol=1e-10)
+    >>> ensure_put(fld, 1, tol=1e-10)
     >>> # if set *timeout* as 2, will return after 2 sec.
-    >>> ensure_put(elem, 'V', 1, tol=1e-10, timeout=2.0)
+    >>> ensure_put(fld, 1, tol=1e-10, timeout=2.0)
     """
     tol = 0.01 if tol is None else tol
     timeout = 10.0 if timeout is None else timeout
@@ -93,13 +92,14 @@ def ensure_put(element, field, goal, tol=None, timeout=None):
     def is_equal(v, goal, tol):
         return abs(v - goal) < tol
 
-    fld = element.get_field(field)
-    pv = fld.readback_pv[0]
+    pv = field.readback_pv[0]
     q = Queue()
-    cid = pv.add_callback(partial(callback, q, fld))
-    fld.value = goal
+    cid = pv.add_callback(partial(callback, q, field))
+    field.value = goal
     t0 = time.time()
-    v = fld.value
+    v = field.value
+    ename = field.ename
+    fname = field.name
     while True:
         try:
             if is_equal(v, goal, tol): raise PutFinishedException
@@ -107,25 +107,25 @@ def ensure_put(element, field, goal, tol=None, timeout=None):
             if ts - t0 > timeout: raise TimeoutError
             _LOGGER.debug(
                 "Field '{fname}' of '{ename}' reached: {v}[{g}].".format(
-                    fname=field, ename=element.name, v=v, g=goal))
+                    fname=fname, ename=ename, v=v, g=goal))
         except Empty:
             _LOGGER.info(
                 "Field '{fname}' of '{ename}' reached: {v}.".format(
-                    fname=field, ename=element.name, v=fld.value))
+                    fname=fname, ename=ename, v=field.value))
             pv.remove_callback(cid)
             ret = "Empty"
             break
         except TimeoutError:
             _LOGGER.info(
                 "Field '{fname}' of '{ename}' reached: {v}.".format(
-                    fname=field, ename=element.name, v=fld.value))
+                    fname=fname, ename=ename, v=field.value))
             pv.remove_callback(cid)
             ret = "Timeout"
             break
         except PutFinishedException:
             _LOGGER.info(
                 "Field '{fname}' of '{ename}' reached: {v}.".format(
-                    fname=field, ename=element.name, v=fld.value))
+                    fname=fname, ename=ename, v=field.value))
             pv.remove_callback(cid)
             ret = "PutFinished"
             break
