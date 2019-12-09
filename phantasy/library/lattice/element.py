@@ -35,6 +35,7 @@ _LOGGER = logging.getLogger(__name__)
 VALID_STATIC_KEYS = ('name', 'family', 'index', 'se', 'length', 'sb',
                      'phy_name', 'phy_type', 'machine')
 VALID_CA_KEYS = ('field_eng', 'field_phy', 'handle', 'pv_policy')
+AUTO_MONITOR = False
 
 
 class BaseElement(object):
@@ -393,7 +394,7 @@ class CaField(object):
 
     @property
     def tolerance(self):
-        """float: Tolerance for the relative discrepancy between current
+        """float: Tolerance for the relative (TODO: ?) discrepancy between current
         readback value and the set goal, default is 0.01."""
         return self._tolerance
 
@@ -411,8 +412,9 @@ class CaField(object):
 
     @readback.setter
     def readback(self, s):
-        """if s is string, append will be issued, or override will be issued, the
-        same policy for setpoint and readset."""
+        """If *s* is a string, append *s* to the current readback list,
+        otherwise override the current readback PV name list, the
+        same policy applies to *setpoint* and *readset*."""
         if isinstance(s, basestring):
             if s not in self._rdbk_pv_name:
                 self._rdbk_pv_name.append(s)
@@ -540,8 +542,8 @@ class CaField(object):
     def read_policy(self):
         """Defined read policy, i.e. how to read value from field.
 
-        The defined policy is a function, with *readback_pv* attribute as argument,
-        return a value.
+        The defined policy is a function, with *readback_pv* attribute as the
+        argument, return a value.
         """
         return self._read_policy
 
@@ -554,7 +556,7 @@ class CaField(object):
 
     def reset_policy(self, policy=None):
         """Reset policy, by policy name ('read' or 'write'), if not defined,
-        reset for both 'read' and 'write'."""
+        reset both."""
         if policy is None:
             self._reset_read_policy()
             self._reset_write_policy()
@@ -573,11 +575,14 @@ class CaField(object):
 
     @property
     def value(self):
-        """Get current field readback value, returned from CA request."""
+        """Get the current readback value from readback PVs, intepret with
+        read policy as the final field value as a return."""
         return self.read_policy(self.readback_pv)
 
     @value.setter
     def value(self, v):
+        """Set the current field value as *v*, by applying write policy to
+        attached setpoint PVs."""
         self.write_policy(self.setpoint_pv, v, timeout=self.timeout,
                           wait=self.wait)
 
@@ -592,15 +597,15 @@ class CaField(object):
 
     def _init_rdbk_pv(self, pvs, **kws):
         if pvs:
-            self.readback_pv = [PV(i) for i in pvs]
+            self.readback_pv = [PV(i, auto_monitor=AUTO_MONITOR) for i in pvs]
 
     def _init_rset_pv(self, pvs, **kws):
         if pvs:
-            self.readset_pv = [PV(i) for i in pvs]
+            self.readset_pv = [PV(i, auto_monitor=AUTO_MONITOR) for i in pvs]
 
     def _init_cset_pv(self, pvs, **kws):
         if pvs:
-            self.setpoint_pv = [PV(i) for i in pvs]
+            self.setpoint_pv = [PV(i, auto_monitor=AUTO_MONITOR) for i in pvs]
 
     def update(self, **kws):
         """Update PV with defined handle."""
@@ -608,7 +613,7 @@ class CaField(object):
             v = kws.get(k)
             if v is not None:
                 setattr(self, k, v)
-                setattr(self, "{}_pv".format(k), PV(v))
+                setattr(self, "{}_pv".format(k), PV(v, auto_monitor=AUTO_MONITOR))
 
     def pvs(self):
         """Return dict of valid pv type and names."""
@@ -1365,6 +1370,9 @@ class CaElement(BaseElement):
 class Number(float):
     def __init__(self, v):
         self.value = v
+
+    def get(self):
+        return self.value
 
 
 def main():
