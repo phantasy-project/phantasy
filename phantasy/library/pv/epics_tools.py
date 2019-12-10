@@ -82,6 +82,10 @@ def ensure_put(field, goal, tol=None, timeout=None):
     >>> ensure_put(fld, 1, tol=1e-10, timeout=2.0)
     >>> # ensure_put as the method of CaElement
     >>> elem.ensure_put('V', goal=1, tol=1e-3, timeout=1.0)
+
+    See Also
+    --------
+    :func:`~phantasy.library.PVElement`
     """
     tol = 0.01 if tol is None else tol
     timeout = 10.0 if timeout is None else timeout

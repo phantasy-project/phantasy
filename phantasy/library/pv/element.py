@@ -3,6 +3,7 @@
 """Class interface for generic RD/SET PVs w.r.t. CaField.
 """
 from epics import PV
+from .epics_tools import ensure_put
 
 
 class PVElement(object):
@@ -155,3 +156,35 @@ class PVElementReadonly(object):
             pv = self._put_pvname
         return pv
 
+
+def ensure_set(setpoint_pv, readback_pv, goal, tol=0.01, timeout=10):
+    """Set *setpoint_pv*, such that the *readback_pv* value reaches the
+    *goal* within the value discrepancy of *tol*, in the max time period of
+    *timeout* second.
+
+    Parameters
+    ----------
+    setpoint_pv: str
+        PV name for set value.
+    readback_pv: str
+        PV name for readback value.
+    goal : float
+        The final value the readback_pv would like to reach.
+    tol : float
+        Value discrepancy between the set goal and the final reached value.
+    timeout : float
+        Maximum wait time for this set action.
+
+    Return
+    ------
+    r : str
+        One of 'Timeout', 'Empty' and 'PutFinished'.
+
+    See Also
+    --------
+    :func:`~phantasy.library.pv.ensure_put`
+    """
+    if readback_pv is None:
+        readback_pv = setpoint_pv
+    elem = PVElement(setpoint_pv, readback_pv)
+    return ensure_put(elem, goal, tol, timeout)

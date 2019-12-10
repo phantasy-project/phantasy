@@ -4,6 +4,7 @@ from .cothread import Popen
 
 from .element import PVElement
 from .element import PVElementReadonly
+from .element import ensure_set
 
 from .epics_tools import caput
 from .epics_tools import caget
@@ -27,6 +28,6 @@ __all__ = [
     'DataSource', 'dump_data',
     'PV_POLICIES',
     'unicorn_read', 'unicorn_write',
-    'ensure_put',
+    'ensure_put', 'ensure_set',
     'PVElement', 'PVElementReadonly',
 ]
