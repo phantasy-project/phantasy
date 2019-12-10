@@ -80,6 +80,8 @@ def ensure_put(field, goal, tol=None, timeout=None):
     >>> ensure_put(fld, 1, tol=1e-10)
     >>> # if set *timeout* as 2, will return after 2 sec.
     >>> ensure_put(fld, 1, tol=1e-10, timeout=2.0)
+    >>> # ensure_put as the method of CaElement
+    >>> elem.ensure_put('V', goal=1, tol=1e-3, timeout=1.0)
     """
     tol = 0.01 if tol is None else tol
     timeout = 10.0 if timeout is None else timeout
@@ -93,6 +95,7 @@ def ensure_put(field, goal, tol=None, timeout=None):
         return abs(v - goal) < tol
 
     pv = field.readback_pv[0]
+    field.set_auto_monitor()
     q = Queue()
     cid = pv.add_callback(partial(callback, q, field))
     field.value = goal
@@ -113,6 +116,7 @@ def ensure_put(field, goal, tol=None, timeout=None):
                 "Field '{fname}' of '{ename}' reached: {v}.".format(
                     fname=fname, ename=ename, v=field.value))
             pv.remove_callback(cid)
+            field.set_auto_monitor(False)
             ret = "Empty"
             break
         except TimeoutError:
@@ -120,6 +124,7 @@ def ensure_put(field, goal, tol=None, timeout=None):
                 "Field '{fname}' of '{ename}' reached: {v}.".format(
                     fname=fname, ename=ename, v=field.value))
             pv.remove_callback(cid)
+            field.set_auto_monitor(False)
             ret = "Timeout"
             break
         except PutFinishedException:
@@ -127,6 +132,7 @@ def ensure_put(field, goal, tol=None, timeout=None):
                 "Field '{fname}' of '{ename}' reached: {v}.".format(
                     fname=fname, ename=ename, v=field.value))
             pv.remove_callback(cid)
+            field.set_auto_monitor(False)
             ret = "PutFinished"
             break
     return ret
