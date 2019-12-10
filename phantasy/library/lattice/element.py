@@ -818,6 +818,18 @@ class CaField(object):
         """
         return self.read_policy(self.setpoint_pv)
 
+    def set_auto_monitor(self, auto_monitor=True, type='readback'):
+        """Set auto_monitor bit True or False for the given PV type.
+        """
+        if type == 'readback':
+            pvs = self.readback_pv
+        elif type == 'setpoint':
+            pvs = self.setpoint_pv
+        else:
+            pvs = self.readset_pv
+        for i in pvs:
+            i.auto_monitor = auto_monitor
+
 
 class CaElement(BaseElement):
     """Element with Channel Access support.
