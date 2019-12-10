@@ -2,6 +2,9 @@
 
 from .cothread import Popen
 
+from .element import PVElement
+from .element import PVElementReadonly
+
 from .epics_tools import caput
 from .epics_tools import caget
 from .epics_tools import cainfo
@@ -25,4 +28,5 @@ __all__ = [
     'PV_POLICIES',
     'unicorn_read', 'unicorn_write',
     'ensure_put',
+    'PVElement', 'PVElementReadonly',
 ]
