@@ -2177,9 +2177,11 @@ class Lattice(object):
         # if B=v1, then I=elem.convert(field='B', value=v1)
         for ename, phy_conf in self.settings.items():
             elem = self[ename]
+            if elem is None:
+                print("{} does not have settings.".format(ename))
+                continue
             phy_flds = elem.get_phy_fields()
             eng_flds = elem.get_eng_fields()
-            if elem is None: continue
             for phy_fld, eng_fld in zip(phy_flds, eng_flds):
                 eng_val = elem.convert(field=phy_fld, value=phy_conf[phy_fld])
                 s[ename].update({eng_fld: eng_val})
