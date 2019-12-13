@@ -37,6 +37,15 @@ VALID_STATIC_KEYS = ('name', 'family', 'index', 'se', 'length', 'sb',
 VALID_CA_KEYS = ('field_eng', 'field_phy', 'handle', 'pv_policy')
 AUTO_MONITOR = False
 
+_pvobjs_dict = {}
+
+
+def _get_pvobj(pvname):
+    pv = _pvobjs_dict.get(pvname, None)
+    if pv is None:
+        pv = _pvobjs_dict.setdefault(pvname, PV(pvname, auto_monitor=AUTO_MONITOR))
+    return pv
+
 
 class BaseElement(object):
     """Base class for all elements, contains most of the device properties,
@@ -596,16 +605,19 @@ class CaField(object):
         self._init_cset_pv(cset_pv_name, **kws)
 
     def _init_rdbk_pv(self, pvs, **kws):
-        if pvs:
-            self.readback_pv = [PV(i, auto_monitor=AUTO_MONITOR) for i in pvs]
+        self._rdbk_pv = []
+        for i in pvs:
+            self._rdbk_pv.append(_get_pvobj(i))
 
     def _init_rset_pv(self, pvs, **kws):
-        if pvs:
-            self.readset_pv = [PV(i, auto_monitor=AUTO_MONITOR) for i in pvs]
+        self._rset_pv = []
+        for i in pvs:
+            self._rset_pv.append(_get_pvobj(i))
 
     def _init_cset_pv(self, pvs, **kws):
-        if pvs:
-            self.setpoint_pv = [PV(i, auto_monitor=AUTO_MONITOR) for i in pvs]
+        self._cset_pv = []
+        for i in pvs:
+            self._cset_pv.append(_get_pvobj(i))
 
     def update(self, **kws):
         """Update PV with defined handle."""
@@ -613,7 +625,7 @@ class CaField(object):
             v = kws.get(k)
             if v is not None:
                 setattr(self, k, v)
-                setattr(self, "{}_pv".format(k), PV(v, auto_monitor=AUTO_MONITOR))
+                setattr(self, "{}_pv".format(k), _get_pvobj(v))
 
     def pvs(self):
         """Return dict of valid pv type and names."""
