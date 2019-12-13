@@ -717,6 +717,7 @@ class CaField(object):
             pv = self._rset_pv
         elif handle == 'setpoint':
             pv = self._cset_pv
+        self.set_auto_monitor(True, handle)
         if pv is not None:
             if with_timestamp:
                 r = []
@@ -727,6 +728,7 @@ class CaField(object):
                     else:
                         avg, std, ts, _ = self.__get(ipv, n_sample, ts_format=ts_format, timeout=timeout)
                         r.append((avg, std, ts, []))
+                self.set_auto_monitor(False, handle)
                 return dict(zip(('mean', 'std', 'timestamp', 'data'), zip(*r)))
             else:
                 r = []
@@ -737,8 +739,10 @@ class CaField(object):
                     else:
                         avg, std, _, _ = self.__get(ipv, n_sample, ts_format="epoch", timeout=timeout)
                         r.append((avg, std, '', []))
+                self.set_auto_monitor(False, handle)
                 return dict(zip(('mean', 'std', 'timestamp', 'data'), zip(*r)))
         else:
+            self.set_auto_monitor(False, handle)
             return None
 
     def set(self, value, handle='setpoint', **kws):
