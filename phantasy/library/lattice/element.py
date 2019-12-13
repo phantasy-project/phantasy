@@ -12,7 +12,7 @@ try:
 except NameError:
     basestring = str
 
-from epics import PV
+from epics import PV, get_pv
 from phantasy.library.misc import flatten
 from phantasy.library.misc import epoch2human
 from phantasy.library.misc import convert_epoch
@@ -36,15 +36,6 @@ VALID_STATIC_KEYS = ('name', 'family', 'index', 'se', 'length', 'sb',
                      'phy_name', 'phy_type', 'machine')
 VALID_CA_KEYS = ('field_eng', 'field_phy', 'handle', 'pv_policy')
 AUTO_MONITOR = False
-
-_pvobjs_dict = {}
-
-
-def _get_pvobj(pvname):
-    pv = _pvobjs_dict.get(pvname, None)
-    if pv is None:
-        pv = _pvobjs_dict.setdefault(pvname, PV(pvname, auto_monitor=AUTO_MONITOR))
-    return pv
 
 
 class BaseElement(object):
@@ -607,17 +598,17 @@ class CaField(object):
     def _init_rdbk_pv(self, pvs, **kws):
         self._rdbk_pv = []
         for i in pvs:
-            self._rdbk_pv.append(_get_pvobj(i))
+            self._rdbk_pv.append(get_pv(i, auto_monitor=AUTO_MONITOR))
 
     def _init_rset_pv(self, pvs, **kws):
         self._rset_pv = []
         for i in pvs:
-            self._rset_pv.append(_get_pvobj(i))
+            self._rset_pv.append(get_pv(i, auto_monitor=AUTO_MONITOR))
 
     def _init_cset_pv(self, pvs, **kws):
         self._cset_pv = []
         for i in pvs:
-            self._cset_pv.append(_get_pvobj(i))
+            self._cset_pv.append(get_pv(i, auto_monitor=AUTO_MONITOR))
 
     def update(self, **kws):
         """Update PV with defined handle."""
@@ -625,7 +616,7 @@ class CaField(object):
             v = kws.get(k)
             if v is not None:
                 setattr(self, k, v)
-                setattr(self, "{}_pv".format(k), _get_pvobj(v))
+                setattr(self, "{}_pv".format(k), get_pv(v, auto_monitor=AUTO_MONITOR))
 
     def pvs(self):
         """Return dict of valid pv type and names."""
