@@ -63,6 +63,7 @@ except NameError:
 CONFIG_FLAME_SIM_TYPE = "flame_sim_type"
 CONFIG_FLAME_CAV_TYPE = "flame_cav_type"
 CONFIG_FLAME_CAV_CONF = "flame_cav_conf"
+CONFIG_FLAME_CAV_LENGTH = "flame_cav_length"
 CONFIG_FLAME_DATA_DIR = "flame_data_dir"
 CONFIG_FLAME_MPOLE_LEVEL = "flame_mpole_level"
 CONFIG_FLAME_HDIPOLE_FIT_MODE = "flame_hdipole_fit_mode"
@@ -96,6 +97,7 @@ CONFIG_FLAME_ROT_ANG = "flame_xyrotation"
 
 # drift mask: bool
 CONFIG_DRIFT_MASK = "drift_mask"
+CONFIG_DRIFT_MASK_LENGTH = "drift_length"
 
 # Sextupole
 CONFIG_FLAME_SEXT_STEP = 'step'
@@ -399,8 +401,12 @@ class FlameLatticeFactory(BaseLatticeFactory):
             # check drift mask first
             drift_mask_dtype = self._get_config(elem.dtype, CONFIG_DRIFT_MASK, 'False')
             drift_mask_name = self._get_config(elem.name, CONFIG_DRIFT_MASK, 'False')
+            l1 = self._get_config(elem.dtype, CONFIG_DRIFT_MASK_LENGTH, None)
+            dlength = l1 if l1 is not None else elem.length
+            l2 = self._get_config(elem.name, CONFIG_DRIFT_MASK_LENGTH, None)
+            dlength = float(l2) if l2 is not None else dlength
             if drift_mask_dtype.lower() == 'true' or drift_mask_name.lower() == 'true':
-                elem = DriftElement(elem.z, elem.length, elem.aperture, elem.name)
+                elem = DriftElement(elem.z, dlength, elem.aperture, elem.name)
             #
 
             if isinstance(elem, DriftElement):
@@ -478,24 +484,37 @@ class FlameLatticeFactory(BaseLatticeFactory):
                             "FlameLatticeFactory: '{}' setting not found for element: {}".format(elem.fields.frequency,
                                                                                                  elem.name))
 
-                cav_type = self._get_config(elem.dtype, CONFIG_FLAME_CAV_TYPE, None)
+                # element name-wise has higher priority
+                cav_type = None
+                conf_attr = 'dtype'
+                cav_type_from_dtype = self._get_config(elem.dtype, CONFIG_FLAME_CAV_TYPE, None)
+                cav_type_from_name = self._get_config(elem.name, CONFIG_FLAME_CAV_TYPE, None)
+                if cav_type_from_dtype is not None:
+                    cav_type = cav_type_from_dtype
+                    conf_attr = 'dtype'
+                if cav_type_from_name is not None:
+                    cav_type = cav_type_from_name
+                    conf_attr = 'name'
+
+                l = self._get_config(getattr(elem, conf_attr), CONFIG_FLAME_CAV_LENGTH, elem.length)
+
                 if cav_type is None:
                     raise RuntimeError("FlameLatticeFactory: Cavity type not found: {}".format(elem.dtype))
                 elif cav_type == 'Generic':
-                    cav_conf = self._get_config(elem.dtype, CONFIG_FLAME_CAV_CONF, None)
+                    cav_conf = self._get_config(getattr(elem, conf_attr), CONFIG_FLAME_CAV_CONF, None)
                     if cav_conf is None:
                         raise RuntimeError("FlameLatticeFactory: Generic cavity data file not found: {}".format(elem.dtype))
                     lattice.append(elem.name, "rfcavity",
                                    ('cavtype', cav_type), ('f', frequency),
                                    ('phi', phase), ('scl_fac', amplitude),
-                                   ('L', elem.length), ('aper', elem.aperture / 2.0),
+                                   ('L', float(l)), ('aper', elem.aperture / 2.0),
                                    ('datafile', cav_conf),
                                    name=elem.name, etype=elem.ETYPE)
                 else:
                     lattice.append(elem.name, "rfcavity",
                                    ('cavtype', cav_type), ('f', frequency),
                                    ('phi', phase), ('scl_fac', amplitude),
-                                   ('L', elem.length), ('aper', elem.aperture / 2.0),
+                                   ('L', float(l)), ('aper', elem.aperture / 2.0),
                                    name=elem.name, etype=elem.ETYPE)
 
             elif isinstance(elem, SolCorElement):
@@ -822,11 +841,13 @@ class FlameLatticeFactory(BaseLatticeFactory):
                 lattice.append(elem.name, "drift", ('L', elem.length), ('aper', elem.aperture / 2.0),
                                name=elem.name, etype=elem.ETYPE)
             elif isinstance(elem, FCElement):
-                lattice.append(elem.name, "drift", ('L', elem.length), ('aper', elem.aperture / 2.0),
-                               name=elem.name, etype=elem.ETYPE)
+                lattice.append(elem.name, "marker", name=elem.name, etype=elem.ETYPE)
+                #lattice.append(elem.name, "drift", ('L', elem.length), ('aper', elem.aperture / 2.0),
+                #               name=elem.name, etype=elem.ETYPE)
             elif isinstance(elem, VDElement):
-                lattice.append(elem.name, "drift", ('L', elem.length), ('aper', elem.aperture / 2.0),
-                               name=elem.name, etype=elem.ETYPE)
+                lattice.append(elem.name, "marker", name=elem.name, etype=elem.ETYPE)
+                #lattice.append(elem.name, "drift", ('L', elem.length), ('aper', elem.aperture / 2.0),
+                #               name=elem.name, etype=elem.ETYPE)
             elif isinstance(elem, SDElement):
                 lattice.append(elem.name, "drift", ('L', elem.length), ('aper', elem.aperture / 2.0),
                                name=elem.name, etype=elem.ETYPE)
@@ -849,17 +870,20 @@ class FlameLatticeFactory(BaseLatticeFactory):
                 lattice.append(elem.name, "drift", ('L', elem.length), ('aper', elem.aperture / 2.0),
                                name=elem.name, etype=elem.ETYPE)
             elif isinstance(elem, HMRElement):
-                lattice.append(elem.name, "drift", ('L', elem.length), ('aper', elem.aperture / 2.0),
-                               name=elem.name, etype=elem.ETYPE)
+                lattice.append(elem.name, "marker", name=elem.name, etype=elem.ETYPE)
+                #lattice.append(elem.name, "drift", ('L', elem.length), ('aper', elem.aperture / 2.0),
+                #               name=elem.name, etype=elem.ETYPE)
             elif isinstance(elem, CollimatorElement):
                 lattice.append(elem.name, "drift", ('L', elem.length), ('aper', elem.aperture / 2.0),
                                name=elem.name, etype=elem.ETYPE)
             elif isinstance(elem, NDElement):
-                lattice.append(elem.name, "drift", ('L', elem.length), ('aper', elem.aperture / 2.0),
-                               name=elem.name, etype=elem.ETYPE)
+                lattice.append(elem.name, "marker", name=elem.name, etype=elem.ETYPE)
+                #lattice.append(elem.name, "drift", ('L', elem.length), ('aper', elem.aperture / 2.0),
+                #               name=elem.name, etype=elem.ETYPE)
             elif isinstance(elem, ICElement):
-                lattice.append(elem.name, "drift", ('L', elem.length), ('aper', elem.aperture / 2.0),
-                               name=elem.name, etype=elem.ETYPE)
+                lattice.append(elem.name, "marker", name=elem.name, etype=elem.ETYPE)
+                #lattice.append(elem.name, "drift", ('L', elem.length), ('aper', elem.aperture / 2.0),
+                #               name=elem.name, etype=elem.ETYPE)
 
             elif isinstance(elem, EBendElement):
                 field = 0.0
