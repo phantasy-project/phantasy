@@ -180,7 +180,7 @@ class Layout(SeqElement):
     def __init__(self, name, elements=None, **meta):
         super(Layout, self).__init__(name, elements=elements, **meta)
 
-    def write(self, stream, start=None, end=None):
+    def write(self, stream, start=None, end=None, fmt=None):
         """Write the layout elements to the specified output stream.
 
         Parameters
@@ -192,6 +192,7 @@ class Layout(SeqElement):
         end :
             Name of end element.
         """
+        fmt = "{:.6f}" if fmt is None else fmt
 
         def build_elem_dict(element):
             metakeys.update(element.meta.keys())
@@ -214,7 +215,9 @@ class Layout(SeqElement):
                 elemdicts.append(build_elem_dict(element.h))
                 elemdicts.append(build_elem_dict(element.v))
 
-        fixedkeys = ["name", "type", "L", "s", "apx", "apy"]
+        fixedkeys_str = ["name", "type"]
+        fixedkeys_num = ["L", "s", "apx", "apy"]
+        fixedkeys = fixedkeys_str + fixedkeys_num
 
         metakeys = sorted(metakeys, reverse=True)
 
@@ -224,11 +227,13 @@ class Layout(SeqElement):
 
         for element in elemdicts:
             row = []
-            for key in fixedkeys:
-                row.append(str(element[key]))
+            for key in fixedkeys_str:
+                row.append(element[key])
+            for key in fixedkeys_num:
+                row.append(fmt.format(element[key]))
             for key in metakeys:
                 if key in element:
-                    row.append(str(element[key]))
+                    row.append(element[key])
                 else:
                     row.append("NONE")
             csvstream.writerow(row)
