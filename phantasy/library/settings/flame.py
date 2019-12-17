@@ -36,17 +36,17 @@ except ImportError:
 
 def build_settings(latpath, start=None, end=None):
     """Convenience method to initialize SettingsFactory and generate settings
-	from lattice file.
+    from lattice file.
 
-	Parameters
-	----------
-	latpath :
-		Path to lattice file.
-	start : str
-		Name of accelerator element to start processing.
-	end : str
-		Name of accelerator element to end processing.
-	"""
+    Parameters
+    ----------
+    latpath: str
+        Path to lattice file.
+    start: str
+        Name of accelerator element to start processing.
+    end: str
+        Name of accelerator element to end processing.
+    """
     settings_factory = SettingsFactory(latpath)
 
     if start is None:
@@ -60,13 +60,13 @@ def build_settings(latpath, start=None, end=None):
 
 class SettingsFactory(object):
     """SettingsFactory is a factory class to build a settings dictionary from
-	a FLAME lattice file (test.lat).
+    a FLAME lattice file (test.lat).
 
-	Parameters
-	----------
-	latpath :
-		Path to lattice file (test.lat)
-	"""
+    Parameters
+    ----------
+    latpath: str
+        Path to lattice file (test.lat)
+    """
 
     def __init__(self, latpath=None):
         # self.accel = accel
@@ -105,8 +105,7 @@ class SettingsFactory(object):
         self._end = end
 
     def build(self):
-        """Generate the settings dictionary from the FLAME lattice file.
-	"""
+        """Generate the settings dictionary from the FLAME lattice file."""
         try:
             if isinstance(self._latpath, basestring):
                 # latpath content
@@ -140,8 +139,9 @@ class SettingsFactory(object):
                 continue
 
             elif ftype in ['bpm', 'stripper']:
-                name = parseName(elem['name'])
-                settings[name] = OrderedDict()
+                continue
+                # name = parseName(elem['name'])
+                # settings[name] = OrderedDict()
 
             elif ftype == "rfcavity":
                 name = parseName(elem['name'])
