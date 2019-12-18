@@ -89,14 +89,15 @@ def get_all_pspvs(psfile):
     with open(psfile, 'r') as f_ps:
         csv_stream = csv.reader(f_ps, delimiter=',', skipinitialspace=True)
 
-    elem_pv_rules = {}
-    try:
-        header = next(csv_stream)
-        for line in csv_stream:
-            elem_pv_rules.update(build_item(line))
-        _LOGGER.info("Loaded CSV file for power supply PV config.")
-    except ValueError:
-        _LOGGER.warning("Cannot load CSV file for power supply PV config.")
+        elem_pv_rules = {}
+
+        try:
+            header = next(csv_stream)
+            for line in csv_stream:
+                elem_pv_rules.update(build_item(line))
+            _LOGGER.info("Loaded CSV file for power supply PV config.")
+        except ValueError:
+            _LOGGER.warning("Cannot load CSV file for power supply PV config.")
     return elem_pv_rules
 
 
@@ -145,6 +146,8 @@ def build_channels(layout, psfile, machine=None, **kws):
     # if offset is not defined,
     # the offset will be set as (z-l/2.0) of the first element.
 
+    fmt = kws.get('fmt', '{:.6f}')
+
     _start = kws.get('start', None)
     _end = kws.get('end', None)
     for elem in layout.iter(_start, _end):
@@ -163,8 +166,8 @@ def build_channels(layout, psfile, machine=None, **kws):
 
             props = OrderedDict()
             props[_INDEX_PROPERTY] = index
-            props[_POSITION_PROPERTY] = str(element.z + (element.length / 2.0) - offset)
-            props[_LENGTH_PROPERTY] = str(element.length)
+            props[_POSITION_PROPERTY] = fmt.format(element.z + (element.length / 2.0) - offset)
+            props[_LENGTH_PROPERTY] = fmt.format(element.length)
             props[_MACHINE_PROPERTY] = machine
             props[_NAME_PROPERTY] = element.name
             props[_HANDLE_PROPERTY] = ""
@@ -183,8 +186,8 @@ def build_channels(layout, psfile, machine=None, **kws):
             channel = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}".format(prefix, elem=element)
             props = OrderedDict()
             props[_INDEX_PROPERTY] = index
-            props[_POSITION_PROPERTY] = str(element.z + (element.length / 2.0) - offset)
-            props[_LENGTH_PROPERTY] = str(element.length)
+            props[_POSITION_PROPERTY] = fmt.format(element.z + (element.length / 2.0) - offset)
+            props[_LENGTH_PROPERTY] = fmt.format(element.length)
             props[_MACHINE_PROPERTY] = machine
             props[_NAME_PROPERTY] = element.name
             props[_HANDLE_PROPERTY] = ""
@@ -225,8 +228,8 @@ def build_channels(layout, psfile, machine=None, **kws):
                 )
             props = OrderedDict()
             props[_INDEX_PROPERTY] = index
-            props[_POSITION_PROPERTY] = str(element.z + (element.length / 2.0) - offset)
-            props[_LENGTH_PROPERTY] = str(element.length)
+            props[_POSITION_PROPERTY] = fmt.format(element.z + (element.length / 2.0) - offset)
+            props[_LENGTH_PROPERTY] = fmt.format(element.length)
             props[_MACHINE_PROPERTY] = machine
             props[_NAME_PROPERTY] = element.name
             props[_HANDLE_PROPERTY] = ""
@@ -264,6 +267,7 @@ def build_channels(layout, psfile, machine=None, **kws):
             data.append(("#" + channel + ":E_RD_CAVS", OrderedDict(props), list(tags)))
 
         elif isinstance(elem, SolCorElement):
+            print("SolCor: ", elem.name)
             props[_TYPE_PROPERTY] = "SOL"
             props[_FIELD_ENG_PROPERTY] = elem.fields.field
             props[_FIELD_PHY_PROPERTY] = elem.fields.field_phy
@@ -301,9 +305,11 @@ def build_channels(layout, psfile, machine=None, **kws):
         elif isinstance(elem, SolElement):
             try:
                 channels, props, tags = buildChannel_pspv(elem)
+                print("SOL (find rules): ", elem.name)
             except PSPVRulesNotFoundForSOL:
                 channel, props, tags = buildChannel(elem)
                 channels = (channel, )
+                print("SOL (no rules): ", elem.name)
 
             props[_TYPE_PROPERTY] = "SOL"
             props[_FIELD_ENG_PROPERTY] = elem.fields.field
