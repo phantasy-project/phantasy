@@ -1154,6 +1154,10 @@ class CavityElement(Element):
         self.fields.phase_phy = "PHASE"
         self.fields.amplitude = "AMP"
         self.fields.amplitude_phy = "AMPLITUDE"
+        self.fields.phase_crest = "PHA_CREST"
+        self.fields.phase_crest_phy = "PHASE_CREST"
+        self.fields.amplitude_coef = "AMP_COEF"
+        self.fields.amplitude_coef_phy = "AMPLITUDE_COEF"
         self.fields.frequency = "FREQ"
 
     def set_drawing(self, p0=None, angle=0, mode='plain'):
