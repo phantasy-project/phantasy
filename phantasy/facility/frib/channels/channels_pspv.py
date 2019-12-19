@@ -183,7 +183,19 @@ def build_channels(layout, psfile, machine=None, **kws):
             return [channel], props, tags
 
         def buildChannel(element):
-            channel = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}".format(prefix, elem=element)
+            if isinstance(element, CavityElement):
+                channel = "{}{elem.system}_{elem.subsystem}:RFC_{elem.inst}".format(prefix, elem=element)
+            elif isinstance(element, QuadElement):
+                channel = "{}{elem.system}_{elem.subsystem}:PSQ_{elem.inst}".format(prefix, elem=element)
+            elif isinstance(element, BendElement):
+                channel = "{}{elem.system}_{elem.subsystem}:PSD_{elem.inst}".format(prefix, elem=element)
+            elif isinstance(element, SolCorElement):
+                channel = "{}{elem.system}_{elem.subsystem}:PSOL_{elem.inst}".format(prefix, elem=element)
+            elif isinstance(element, SextElement):
+                channel = "{}{elem.system}_{elem.subsystem}:PSS_{elem.inst}".format(prefix, elem=element)
+            else:
+                channel = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}".format(prefix, elem=element)
+
             props = OrderedDict()
             props[_INDEX_PROPERTY] = index
             props[_POSITION_PROPERTY] = fmt.format(element.z + (element.length / 2.0) - offset)
@@ -251,20 +263,34 @@ def build_channels(layout, psfile, machine=None, **kws):
             props[_FIELD_ENG_PROPERTY] = elem.fields.phase
             props[_FIELD_PHY_PROPERTY] = elem.fields.phase_phy
             props[_HANDLE_PROPERTY] = "setpoint"
-            data.append(("#" + channel + ":PHA_CSET", OrderedDict(props), list(tags)))
+            data.append((channel + ":PHA_CSET", OrderedDict(props), list(tags)))
             props[_HANDLE_PROPERTY] = "readset"
-            data.append(("#" + channel + ":PHA_RSET", OrderedDict(props), list(tags)))
+            data.append((channel + ":PHA_RSET", OrderedDict(props), list(tags)))
             props[_HANDLE_PROPERTY] = "readback"
-            data.append(("#" + channel + ":PHA_RD_CAVS", OrderedDict(props), list(tags)))
+            data.append((channel + ":PHA_RD_CAVS", OrderedDict(props), list(tags)))
+
+            props[_FIELD_ENG_PROPERTY] = elem.fields.phase_crest
+            props[_FIELD_PHY_PROPERTY] = elem.fields.phase_crest_phy
+            props[_HANDLE_PROPERTY] = "setpoint"
+            data.append((channel.replace('RFC', 'CAV') + ":PHA_CREST_CSET", OrderedDict(props), list(tags)))
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel.replace('RFC', 'CAV') + ":PHA_CREST_RD", OrderedDict(props), list(tags)))
 
             props[_FIELD_ENG_PROPERTY] = elem.fields.amplitude
             props[_FIELD_PHY_PROPERTY] = elem.fields.amplitude_phy
             props[_HANDLE_PROPERTY] = "setpoint"
-            data.append(("#" + channel + ":E_CSET", OrderedDict(props), list(tags)))
+            data.append((channel + ":E_CSET", OrderedDict(props), list(tags)))
             props[_HANDLE_PROPERTY] = "readset"
-            data.append(("#" + channel + ":E_RSET", OrderedDict(props), list(tags)))
+            data.append((channel + ":E_RSET", OrderedDict(props), list(tags)))
             props[_HANDLE_PROPERTY] = "readback"
-            data.append(("#" + channel + ":E_RD_CAVS", OrderedDict(props), list(tags)))
+            data.append((channel + ":E_RD_CAVS", OrderedDict(props), list(tags)))
+
+            props[_FIELD_ENG_PROPERTY] = elem.fields.amplitude_coef
+            props[_FIELD_PHY_PROPERTY] = elem.fields.amplitude_coef_phy
+            props[_HANDLE_PROPERTY] = "setpoint"
+            data.append((channel.replace('RFC', 'CAV') + ":E_COEF_CSET", OrderedDict(props), list(tags)))
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel.replace('RFC', 'CAV') + ":E_COEF_RD", OrderedDict(props), list(tags)))
 
         elif isinstance(elem, SolCorElement):
             print("SolCor: ", elem.name)
