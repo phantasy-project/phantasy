@@ -86,6 +86,7 @@ NAME_SKIP_WORDS = ("FE_MEBT:PM_D1053",
 ELEMENT_NAME_STRING_AS_DRIFT = [
     "coil-out", "coil-out (assumed)", "coil out", "coil out + leads",
     "collimation flange", "collimation flange moved??",
+    "collimation flange removed",
     "BPM-box", "diagnostic box", "vacuum box", "box",
     "box+tube", "mhb box", "4 way cross", "6 way cross",
     "artemis_b extraction/puller", "artemis_b extraction wall",
@@ -174,7 +175,7 @@ DEVICE_ALIAS_ROT = ( "ROT", ) # ReA
 # device alias for sextupole
 DEVICE_ALIAS_SEXT = ( "S", )
 # device alias for electrode
-DEVICE_ALIAS_ELC = ( "ELC1", "ELC2", "ELC3", )
+DEVICE_ALIAS_ELC = ( "ELC1", "ELC2", "ELC3", "ELC0", )
 # device alias for acc column
 DEVICE_ALIAS_ACC = ( "ACC", )
 # device alias for ES bend
