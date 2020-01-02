@@ -377,12 +377,14 @@ class FlameLatticeFactory(BaseLatticeFactory):
         if self.count is not None:
             lattice.count = self.count
         else:
-            lattice.count = self._get_config_float_default(CONFIG_FLAME_COUNT, _DEFAULT_COUNT)
+            s = str(self._get_config_default(CONFIG_FLAME_COUNT, _DEFAULT_COUNT))
+            lattice.count = [float(x) for x in s.split()]
 
         if self.charge is not None:
             lattice.charge = self.charge
         else:
-            lattice.charge = self._get_config_float_default(CONFIG_FLAME_CHARGE, _DEFAULT_CHARGE)
+            s = str(self._get_config_default(CONFIG_FLAME_CHARGE, _DEFAULT_CHARGE))
+            lattice.charge = [float(x) for x in s.split()]
 
         if self.initialPosition is not None:
             lattice.initialPosition = self.initialPosition
