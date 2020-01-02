@@ -178,7 +178,7 @@ class SettingsFactory(object):
                 bend = BendElement(0, 0, 0, name)
                 if name not in settings:
                     fields = OrderedDict()
-                    fields[bend.fields.field_phy] = elem['bg']
+                    fields[bend.fields.field_phy] = elem.get('bg', 0)  # HdipoleFitMode must be nonzero
                     fields[bend.fields.angle] = elem['phi']
                     fields[bend.fields.entrAngle] = elem['phi1']
                     fields[bend.fields.exitAngle] = elem['phi2']
