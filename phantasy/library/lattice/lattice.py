@@ -149,6 +149,9 @@ class Lattice(object):
         self._elements = []
         self._orm = None
 
+        # name:element, assume no duplicated element.
+        self._name_element_map = {}
+
         # clean up the following parameters
         self.isring = bool(self.mtype)
         self.latticemodelmap = None
@@ -1029,10 +1032,11 @@ class Lattice(object):
         """
         if isinstance(name, BaseElement):
             name = name.name
-        for e in self._elements:
-            if str(e.name) == str(name):
-                return e
-        return None
+        return self._name_element_map.get(name, None)
+        #for e in self._elements:
+        #    if str(e.name) == str(name):
+        #        return e
+        #return None
 
     def get_elements(self, name=None, type=None, srange=None, **kws):
         """Get element(s) with defined filter rules.
@@ -1422,6 +1426,8 @@ class Lattice(object):
             else:
                 _inplace_order_insert(elem, self._elements)
 
+        self._name_element_map[elem.name] = elem
+
         if isinstance(groups, basestring):
             groups = groups,
         if groups is not None:
@@ -1441,6 +1447,7 @@ class Lattice(object):
         """
         if not self.has_element(elem.name):
             self._elements.append(elem)
+            self._name_element_map[elem.name] = elem
 
     def sort(self, elements=None, **kws):
         """Return sorted list of elements with defined key.
