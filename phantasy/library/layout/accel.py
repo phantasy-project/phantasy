@@ -612,9 +612,9 @@ class FCElement(Element):
                                         **meta)
 
         self.fields.intensity = "I"
-        self.fields.intensity_phy = "I"
+        self.fields.intensity_phy = "INTEN"
         self.fields.biasvolt = "V"
-        self.fields.biasvolt_phy = "V"
+        self.fields.biasvolt_phy = "VOLT"
         # VA only
         self.fields.x = "XCEN"
         self.fields.y = "YCEN"
@@ -986,7 +986,7 @@ class EBendElement(Element):
         super(EBendElement, self).__init__(z, length, aperture, name, desc=desc,
                                            **meta)
         self.fields.field = "V"
-        self.fields.field_phy = "V"
+        self.fields.field_phy = "VOLT"
 
     def set_drawing(self, p0=None, angle=0, mode='plain'):
         l = self.length
@@ -1067,7 +1067,7 @@ class EQuadElement(Element):
         super(EQuadElement, self).__init__(z, length, aperture, name, desc=desc,
                                            **meta)
         self.fields.gradient = "V"
-        self.fields.gradient_phy = "V"
+        self.fields.gradient_phy = "VOLT"
 
         self._hv = 'H'
         if 'V' in self.name:
