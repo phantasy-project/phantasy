@@ -42,7 +42,7 @@ class TestXLFParser(unittest.TestCase):
 def compare_csvfiles(tobj, file1, file2):
     """Compare two csv files.
     """
-    NPRC = 9  # assertAlmostEqual(x, y, places=NPRC)
+    NPRC = 6  # assertAlmostEqual(x, y, places=NPRC)
     with open(file1, 'r') as f1, open(file2, 'r') as f2:
         csv1, csv2 = csv.reader(f1), csv.reader(f2)
         header1, header2 = next(csv1), next(csv2)
