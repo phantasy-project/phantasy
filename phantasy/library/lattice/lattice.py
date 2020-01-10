@@ -2196,6 +2196,74 @@ class Lattice(object):
                 s[ename].update({eng_fld: eng_val})
         return s
 
+    def get_settings_from_element_list(self, elem_list=None, data_source='model',
+                                       only_physics=True):
+        """Get settings from a list of CaElement, for both engineering and
+        physics fields.
+
+        Note
+        ----
+        1. FREQ of CAV should be removed from Settings.
+
+        Parameters
+        ----------
+        elem_list : list
+            List of CaElement, if not defined, use the whole lattice.
+        data_source : str
+            'model' or 'control', get element settings from MODEL environment if
+            *data_source* is 'model', otherwise get live settings from controls
+            network.
+        only_physics : bool
+            If True, onle get physics settings, other wise, get engineering
+            settings as well.
+
+        Returns
+        -------
+        s : Settings
+            Settings object.
+
+        See Also
+        --------
+        :class:`~phantasy.library.settings.common.Settings`
+        """
+        lat_settings = self.settings
+        s = Settings()
+        elems = self if elem_list is None else elem_list
+        for elem in elems:
+            ename = elem.name
+            if ename not in lat_settings:
+                print("{} is not in lattice settings.".format(ename))
+                continue
+            m_settings = lat_settings[ename]
+            elem_settings = OrderedDict()
+            phy_flds = elem.get_phy_fields()
+            if only_physics:
+                for phy_fld in phy_flds:
+                    if phy_fld not in m_settings: continue
+                    if data_source == 'model':
+                        phy_val = m_settings[phy_fld]
+                    else:
+                        phy_val = getattr(elem, phy_fld)
+                    elem_settings.update([(phy_fld, phy_val)])
+            else:
+                eng_flds = elem.get_eng_fields()
+                for phy_fld, eng_fld in zip(phy_flds, eng_flds):
+                    if phy_fld not in m_settings: continue
+                    if data_source == 'model':
+                        phy_val = m_settings[phy_fld]
+                    else:
+                        phy_val = getattr(elem, phy_fld)
+                    eng_val = elem.convert(field=phy_fld, value=phy_val)
+                    elem_settings.update([(phy_fld, phy_val),
+                                          (eng_fld, eng_val)])
+            s.update([(ename, elem_settings)])
+
+        return s
+
+
+
+
+
 
 def _inplace_order_insert(elem, lat):
     k = 0
