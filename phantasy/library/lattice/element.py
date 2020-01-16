@@ -5,7 +5,6 @@
 """
 
 import logging
-from datetime import datetime
 
 try:
     basestring
@@ -14,7 +13,6 @@ except NameError:
 
 from epics import PV, get_pv
 from phantasy.library.misc import flatten
-from phantasy.library.misc import epoch2human
 from phantasy.library.misc import convert_epoch
 from phantasy.library.misc import QCallback
 from phantasy.library.pv import PV_POLICIES
@@ -36,6 +34,8 @@ VALID_STATIC_KEYS = ('name', 'family', 'index', 'se', 'length', 'sb',
                      'phy_name', 'phy_type', 'machine')
 VALID_CA_KEYS = ('field_eng', 'field_phy', 'handle', 'pv_policy')
 AUTO_MONITOR = False
+# diagnostic device types
+DIAG_DTYPES = ('FC', 'EMS', 'PM', 'BPM', 'BCM', 'ND', 'HMR', 'IC', 'VD')
 
 
 class BaseElement(object):
@@ -247,6 +247,11 @@ class BaseElement(object):
 
     def update_properties(self, props, **kws):
         raise NotImplementedError("Not implemented.")
+
+    def is_diag(self):
+        """Test if element is diagnostic device or not.
+        """
+        return self._family in DIAG_DTYPES
 
 
 class CaField(object):
