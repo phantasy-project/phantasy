@@ -842,6 +842,26 @@ class CaField(object):
         for i in pvs:
             i.auto_monitor = auto_monitor
 
+    @property
+    def read_access(self):
+        """bool: If field readable."""
+        return {pv.read_access for pv in self.readback_pv} == {True}
+
+    @property
+    def write_access(self):
+        """bool: If field writable."""
+        return {pv.write_access for pv in self.setpoint_pv} == {True}
+
+    @property
+    def access(self):
+        """tuple: (read_access, write_access), access permission of field.
+        """
+        # read
+        read_access = {pv.read_access for pv in self.readback_pv}
+        # write
+        write_access = {pv.write_access for pv in self.setpoint_pv}
+        return read_access == {True}, write_access == {True}
+
 
 class CaElement(BaseElement):
     """Element with Channel Access support.
