@@ -282,8 +282,8 @@ class CaField(object):
     ensure_put : bool
         Apply ensure set operation or not, default is False, see the notes.
     tolerance : float
-        Tolerance for the relative discrepancy between current readback value
-        and the set goal, default is 0.01, which is 1% discrepancy.
+        Absolute discrepancy tolerance between current readback value
+        and the set goal, default is 0.01.
     ename : str
         Name of element which the field attaches to.
     readback : str, list(str)
@@ -399,8 +399,8 @@ class CaField(object):
 
     @property
     def tolerance(self):
-        """float: Tolerance for the relative (TODO: ?) discrepancy between current
-        readback value and the set goal, default is 0.01."""
+        """float: Absolute discrepancy tolerance between current readback value
+        and the set goal, default is 0.01."""
         return self._tolerance
 
     @tolerance.setter
