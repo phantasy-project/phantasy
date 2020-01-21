@@ -830,17 +830,28 @@ class CaField(object):
         """
         return self.read_policy(self.setpoint_pv)
 
-    def set_auto_monitor(self, auto_monitor=True, type='readback'):
+    def set_auto_monitor(self, auto_monitor=True, handle='readback'):
         """Set auto_monitor bit True or False for the given PV type.
         """
-        if type == 'readback':
+        if handle == 'readback':
             pvs = self.readback_pv
-        elif type == 'setpoint':
+        elif handle == 'setpoint':
             pvs = self.setpoint_pv
         else:
             pvs = self.readset_pv
         for i in pvs:
             i.auto_monitor = auto_monitor
+
+    def get_auto_monitor(self, handle='readback'):
+        """Get auto_monitor bit for the given PV type.
+        """
+        if handle == 'readback':
+            pvs = self.readback_pv
+        elif handle == 'setpoint':
+            pvs = self.setpoint_pv
+        else:
+            pvs = self.readset_pv
+        return [pv.auto_monitor for pv in pvs]
 
     @property
     def read_access(self):
