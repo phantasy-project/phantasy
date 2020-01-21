@@ -87,7 +87,7 @@ class PVElement(object):
     def setpoint_pv(self):
         return [self._putPV]
 
-    def set_auto_monitor(self, auto_monitor=True, type='readback'):
+    def set_auto_monitor(self, auto_monitor=True, handle='readback'):
         for i in self.readback_pv:
             i.auto_monitor = auto_monitor
 
