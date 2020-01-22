@@ -588,6 +588,9 @@ class CaField(object):
     def value(self, v):
         """Set the current field value as *v*, by applying write policy to
         attached setpoint PVs."""
+        if not self.write_access:
+            _LOGGER.warning("{} [{}] is read only.".format(self.ename, self.name))
+            return
         self.write_policy(self.setpoint_pv, v, timeout=self.timeout,
                           wait=self.wait)
 
