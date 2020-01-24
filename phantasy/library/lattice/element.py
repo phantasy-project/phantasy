@@ -20,6 +20,7 @@ from phantasy.library.pv import PV_POLICIES
 from phantasy.library.pv import unicorn_read
 from phantasy.library.pv import unicorn_write
 from phantasy.library.pv import ensure_put
+from phantasy.library.settings import get_settings_from_element_list
 
 import numpy as np
 
@@ -1343,8 +1344,8 @@ class CaElement(BaseElement):
         return self.__unicorn[field](value)
 
     def current_setting(self, field):
-        """Return the value of current setting for dynamic field defined by
-        *field*, if setpoint PV is not available, return None.
+        """Return the value of current setting (setpoint) for dynamic field
+        defined by *field*, if setpoint PV is not available, return None.
 
         Parameters
         ----------
@@ -1424,6 +1425,23 @@ class CaElement(BaseElement):
         if fld is None:
             return None
         ensure_put(fld, goal, tol, timeout)
+
+    def get_current_physics_settings(self, field_of_interest=None):
+        """Get current setpoint readings of interested physics dynamic fields.
+
+        Parameters
+        ----------
+        field_of_interest : list
+            Interested physics field names, if not defined, use all valid ones.
+
+        Returns
+        -------
+        s : Settings
+            Settings of interested physics fields.
+        """
+        field_list = self.get_phy_fields() if field_of_interest is None else field_of_interest
+        return get_settings_from_element_list([self], data_source='control',
+                            field_of_interest={self.name: field_list})
 
 
 class Number(float):
