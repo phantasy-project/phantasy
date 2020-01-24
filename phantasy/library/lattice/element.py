@@ -4,6 +4,7 @@
 """Build elements with Channel Access support.
 """
 
+import re
 import logging
 
 try:
@@ -1431,6 +1432,72 @@ class Number(float):
 
     def get(self):
         return self.value
+
+
+def build_element(sp_pv, rd_pv, ename=None, fname=None):
+    """Build CaElement from general setpoint and readback PV names, *sp_pv*
+    and *rd_pv* could be the same. The created CaElement is of the element
+    name defined by *ename*, and engineering field name defined by *fname*,
+    the corresponding physics field is defined as *fname*_phy.
+
+    If *ename* or *fname* is not defined, smart matching will be applied to find the
+    element name from PV names based on naming convention.
+
+    e.g.: PV is named as: SYSTEM_SUBSYS:DTYPE_DNUM:FIELD_HANDLE, then ename is
+    "SYSTEM_SUBSYS:DTYPE_DNUM", engineering field name is "FIELD", physics
+    field name is "FIELD_PHY".
+
+    Parameters
+    ----------
+    sp_pv : str
+        Setpoint PV name.
+    rd_pv : str
+        Readback PV name.
+    ename : str
+        Element name.
+    fname : str
+        Field name.
+
+    Returns
+    -------
+    elem : CaElement
+        CaElement object.
+    """
+    if ename is None or fname is None:
+        ename_, fname_ = _get_names(sp_pv)
+    ename = ename if ename is not None else ename_
+    fname = fname if fname is not None else fname_
+    fname_phy = "{}_PHY".format(fname)
+
+    elem = CaElement(name=ename)
+    pv_props = {
+        'field_eng': fname,
+        'field_phy': fname_phy,
+        'handle': 'readback',
+        'pv_policy': 'DEFAULT',
+        'index': '-1',
+        'length': '0.0',
+        'sb': -1,
+        'family': 'PV',
+    }
+    pv_tags = []
+    for pv, handle in zip((sp_pv, rd_pv), ('setpoint', 'readback')):
+        pv_props['handle'] = handle
+        elem.process_pv(pv, pv_props, pv_tags)
+    return elem
+
+
+def _get_names(pvname):
+    """Return element name and field name from pv name, based on the following
+    naming convention: SYSTEM_SUBSYS:DEVICE_D####:FIELD_HANDLE
+    """
+    r = re.match(r'(.*):(.*)_.*', pvname)
+    try:
+        ename = r.group(1)
+        fname = r.group(2)
+    except AttributeError:
+        ename = fname = pvname
+    return ename, fname
 
 
 def main():
