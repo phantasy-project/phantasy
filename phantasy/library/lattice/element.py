@@ -584,6 +584,8 @@ class CaField(object):
     def value(self):
         """Get the current readback value from readback PVs, intepret with
         read policy as the final field value as a return."""
+        if not self.connected():
+            return None
         return self.read_policy(self.readback_pv)
 
     @value.setter
@@ -814,10 +816,16 @@ class CaField(object):
             pvobj.remove_callback(cid)
             return pvobj.value, 0.0, convert_epoch(pvobj.timestamp, ts_format), []
 
-    def connected(self):
-        """Check if the readback is connected.
+    def connected(self, handle="readback"):
+        """Check if the *handle* is connected.
         """
-        return self.readback_pv[0].connected
+        if handle == 'readback':
+            pvs = self.readback_pv
+        elif handle == 'setpoint':
+            pvs = self.setpoint_pv
+        else:
+            pvs = self.readset_pv
+        return {i.connected for i in pvs} == {True}
 
     def get_pv_name(self, type='readback'):
         if type == 'readback':
@@ -833,6 +841,10 @@ class CaField(object):
         --------
         value : get current readback value.
         """
+        if not self.connected('setpoint'):
+            _LOGGER.warning(
+                "{} [{}] is not connected".format(self.ename, self.name))
+            return None
         return self.read_policy(self.setpoint_pv)
 
     def set_auto_monitor(self, auto_monitor=True, handle='readback'):
@@ -1365,11 +1377,7 @@ class CaElement(BaseElement):
             _LOGGER.error("Invalid field, should be one of {}.".format(self.fields))
             return None
         fld = self.get_field(field)
-        if fld.setpoint:
-            return fld.read_policy(fld.setpoint_pv)
-        else:
-            _LOGGER.error("Field '{}' is readonly.".format(field))
-            return None
+        return fld.current_setting()
 
     def get_settings(self, field, settings):
         """Get the *field* setpoint value from *settings*.
