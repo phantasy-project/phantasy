@@ -225,7 +225,8 @@ def get_settings_from_element_list(elem_list, data_source='control',
     -------
     s : Settings
         Settings object contains all the physics settings of all interested
-        physics fields of input elements.
+        physics fields of input elements if only_physics is True, otherwise,
+        including engineering field settings, too.
 
     See Also
     --------
