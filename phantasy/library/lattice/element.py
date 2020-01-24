@@ -1426,13 +1426,17 @@ class CaElement(BaseElement):
             return None
         ensure_put(fld, goal, tol, timeout)
 
-    def get_current_physics_settings(self, field_of_interest=None):
-        """Get current setpoint readings of interested physics dynamic fields.
+    def get_current_settings(self, field_of_interest=None,
+                                     only_physics=True):
+        """Get current setpoint readings of interested dynamic fields.
 
         Parameters
         ----------
         field_of_interest : list
             Interested physics field names, if not defined, use all valid ones.
+        only_physics : bool
+            If `True`, only return physics settings otherwise return both
+            physics and engineering field settings.
 
         Returns
         -------
@@ -1441,7 +1445,8 @@ class CaElement(BaseElement):
         """
         field_list = self.get_phy_fields() if field_of_interest is None else field_of_interest
         return get_settings_from_element_list([self], data_source='control',
-                            field_of_interest={self.name: field_list})
+                            field_of_interest={self.name: field_list},
+                            only_physics=only_physics)
 
 
 class Number(float):

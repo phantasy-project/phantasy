@@ -1451,7 +1451,8 @@ class Lattice(object):
         ename = elem.name
         self._name_element_map[ename] = elem
         if ename not in self.settings:
-            self.settings.update(elem.get_current_physics_settings())
+            self.settings.update(
+                    elem.get_current_settings(only_physics=True))
 
     def sort(self, elements=None, **kws):
         """Return sorted list of elements with defined key.
