@@ -2,6 +2,7 @@
 
 import json
 import csv
+import logging
 import numpy as np
 
 from copy import deepcopy
@@ -11,6 +12,8 @@ try:
     basestring
 except:
     basestring = str
+
+_LOGGER = logging.getLogger(__name__)
 
 
 class Settings(OrderedDict):
@@ -228,9 +231,9 @@ def get_settings_from_element_list(elem_list, data_source='control',
     --------
     :class:`~phantasy.library.settings.common.Settings`
     """
-    def get_phy_field_value(elem, phy_fld, settings, data_source):
-        # get the value of physics field.
-        phy_val = getattr(elem, phy_fld)
+    def get_phy_field_setting(elem, phy_fld, settings, data_source):
+        # get the value of current physics field setting.
+        phy_val = elem.current_setting(phy_fld)
         if data_source == 'model':
             m_settings = settings.get(ename, {})
             if phy_fld in m_settings:
@@ -262,12 +265,12 @@ def get_settings_from_element_list(elem_list, data_source='control',
                 # for data_source of 'model':
                 # if phy_fld can find 'model' settings, get 'model' settings
                 # otherwise use live settings.
-                phy_val = get_phy_field_value(elem, phy_fld, settings, data_source)
+                phy_val = get_phy_field_setting(elem, phy_fld, settings, data_source)
                 elem_settings.update([(phy_fld, phy_val)])
         else:
             eng_flds = elem.get_eng_fields()
             for phy_fld, eng_fld in zip(phy_flds, eng_flds):
-                phy_val = get_phy_field_value(elem, phy_fld, settings, data_source)
+                phy_val = get_phy_field_setting(elem, phy_fld, settings, data_source)
                 eng_val = elem.convert(field=phy_fld, value=phy_val)
                 elem_settings.update([(phy_fld, phy_val), (eng_fld, eng_val)])
         s.update([(ename, elem_settings)])
