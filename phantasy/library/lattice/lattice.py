@@ -35,6 +35,7 @@ from phantasy.library.misc import pattern_filter
 from phantasy.library.misc import epoch2human
 from phantasy.library.misc import truncate_number
 from phantasy.library.misc import create_tempfile
+from phantasy.library.misc import create_tempdir
 from phantasy.library.model import BeamState
 from phantasy.library.model import ModelFlame
 from phantasy.library.parser import Configuration
@@ -1440,10 +1441,17 @@ class Lattice(object):
         ----------
         elem : CaElement
             Element object.
+
+        Returns:
+        r : bool
+            True if appended, otherwise False.
         """
         if not self.has_element(elem.name):
             self._elements.append(elem)
             self.update_name_element_map(elem)
+            return True
+        else:
+            return False
 
     def update_name_element_map(self, elem):
         """Update internal name element mapping and settings.
