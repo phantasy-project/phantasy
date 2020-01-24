@@ -2273,6 +2273,19 @@ class Lattice(object):
 
         return s
 
+    def reset_settings(self):
+        """Reset settings.
+        """
+        self.settings = Settings()
+        _LOGGER.info("Reset settings.")
+
+    def reset_elements(self):
+        """Reset elements.
+        """
+        self._elements = []
+        self._name_element_map = {}
+        _LOGGER.info("Reset elements and mapping.")
+
 
 def _inplace_order_insert(elem, lat):
     k = 0
