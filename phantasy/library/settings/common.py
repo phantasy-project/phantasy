@@ -267,12 +267,19 @@ def get_settings_from_element_list(elem_list, data_source='control',
                 # if phy_fld can find 'model' settings, get 'model' settings
                 # otherwise use live settings.
                 phy_val = get_phy_field_setting(elem, phy_fld, settings, data_source)
+                if phy_val is None:
+                    _LOGGER.warning("Skip unreachable {} [] for settings.".format(ename, phy_fld))
+                    continue
                 elem_settings.update([(phy_fld, phy_val)])
         else:
             eng_flds = elem.get_eng_fields()
             for phy_fld, eng_fld in zip(phy_flds, eng_flds):
                 phy_val = get_phy_field_setting(elem, phy_fld, settings, data_source)
+                if phy_val is None:
+                    _LOGGER.warning("Skip unreachable {} [] for settings.".format(ename, phy_fld))
+                    continue
                 eng_val = elem.convert(field=phy_fld, value=phy_val)
                 elem_settings.update([(phy_fld, phy_val), (eng_fld, eng_val)])
-        s.update([(ename, elem_settings)])
+        if elem_settings:
+            s.update([(ename, elem_settings)])
     return s
