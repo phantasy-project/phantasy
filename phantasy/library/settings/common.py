@@ -253,7 +253,7 @@ def get_settings_from_element_list(elem_list, data_source='control',
         ename = elem.name
         # skip diag elements
         if elem.is_diag():
-            _LOGGER.warning("Skip {} of type {}".format(ename, elem.family))
+            _LOGGER.warning("Skip {} [{}] for settings.".format(ename, elem.family))
             continue
         # field-of-interest for elem, if not defined, use all physics field
         field_list = field_of_interest.get(ename, elem.get_phy_fields())
