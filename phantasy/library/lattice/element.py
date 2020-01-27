@@ -1531,14 +1531,19 @@ def build_element(sp_pv, rd_pv, ename=None, fname=None, **kws):
 
 def _get_names(pvname):
     """Return element name and field name from pv name, based on the following
-    naming convention: SYSTEM_SUBSYS:DEVICE_D####:FIELD_HANDLE
+    naming convention: SYSTEM_SUBSYS:DEVICE_D####:FIELD_HANDLE, if HANDLE
+    is not CSET nor RD, FIELD_HANDLE will be extracted as field name.
     """
-    r = re.match(r'(.*):(.*)_.*', pvname)
+    pattern1 = r"(.*):(.*)_(CSET|RD)"
+    pattern2 = r"(.*):(.*)"
     try:
+        r = re.match(pattern1, pvname)
+        assert r is not None
+    except AssertionError:
+        r = re.match(pattern2, pvname)
+    finally:
         ename = r.group(1)
         fname = r.group(2)
-    except AttributeError:
-        ename = fname = pvname
     return ename, fname
 
 
