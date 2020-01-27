@@ -1544,7 +1544,7 @@ def _get_names(pvname):
     finally:
         ename = r.group(1)
         fname = r.group(2)
-    return ename, fname
+    return '{}:{}_'.format(ename, fname), fname
 
 
 def main():
