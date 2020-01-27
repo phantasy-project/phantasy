@@ -1465,7 +1465,7 @@ class Number(float):
         return self.value
 
 
-def build_element(sp_pv, rd_pv, ename=None, fname=None):
+def build_element(sp_pv, rd_pv, ename=None, fname=None, **kws):
     """Build CaElement from general setpoint and readback PV names, *sp_pv*
     and *rd_pv* could be the same. The created CaElement is of the element
     name defined by *ename*, and engineering field name defined by *fname*,
@@ -1489,6 +1489,17 @@ def build_element(sp_pv, rd_pv, ename=None, fname=None):
     fname : str
         Field name.
 
+    Keyword Arguments
+    -----------------
+    field_phy : str
+        Physics field name w.r.t. *fname*.
+    index : int
+        Element index, default is -1.
+    length : float
+        Element length, default is 0.0.
+    sb : float
+        Start s-position of element, default is -1.0.
+
     Returns
     -------
     elem : CaElement
@@ -1503,12 +1514,12 @@ def build_element(sp_pv, rd_pv, ename=None, fname=None):
     elem = CaElement(name=ename)
     pv_props = {
         'field_eng': fname,
-        'field_phy': fname_phy,
+        'field_phy': kws.get('field_phy', fname_phy),
         'handle': 'readback',
         'pv_policy': 'DEFAULT',
-        'index': '-1',
-        'length': '0.0',
-        'sb': -1,
+        'index': kws.get('index', -1),
+        'length': kws.get('length', 0.0),
+        'sb': kws.get('sb', -1.0),
         'family': 'PV',
     }
     pv_tags = []
