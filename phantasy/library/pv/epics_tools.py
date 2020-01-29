@@ -99,6 +99,7 @@ def ensure_put(field, goal, tol=None, timeout=None):
         return abs(v - goal) < tol
 
     pv = field.readback_pv[0]
+    am0 = field.get_auto_monitor()
     field.set_auto_monitor()
     q = Queue()
     cid = pv.add_callback(partial(callback, q, field))
@@ -120,7 +121,7 @@ def ensure_put(field, goal, tol=None, timeout=None):
                 "Field '{fname}' of '{ename}' reached: {v}.".format(
                     fname=fname, ename=ename, v=field.value))
             pv.remove_callback(cid)
-            field.set_auto_monitor(False)
+            field.set_auto_monitor(am0)
             ret = "Empty"
             break
         except TimeoutError:
@@ -128,7 +129,7 @@ def ensure_put(field, goal, tol=None, timeout=None):
                 "Field '{fname}' of '{ename}' reached: {v}.".format(
                     fname=fname, ename=ename, v=field.value))
             pv.remove_callback(cid)
-            field.set_auto_monitor(False)
+            field.set_auto_monitor(am0)
             ret = "Timeout"
             break
         except PutFinishedException:
@@ -136,7 +137,7 @@ def ensure_put(field, goal, tol=None, timeout=None):
                 "Field '{fname}' of '{ename}' reached: {v}.".format(
                     fname=fname, ename=ename, v=field.value))
             pv.remove_callback(cid)
-            field.set_auto_monitor(False)
+            field.set_auto_monitor(am0)
             ret = "PutFinished"
             break
     return ret
