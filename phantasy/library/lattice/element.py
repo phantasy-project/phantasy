@@ -1430,6 +1430,11 @@ class CaElement(BaseElement):
         timeout : float
             Maximum wait time, default is 10.0 sec.
 
+        Returns
+        -------
+        r : str
+            Returns what `ensure_put` returns, or None.
+
         See Also
         --------
         :func:`~phantasy.library.pv.epics_tools.ensure_put`
@@ -1437,7 +1442,7 @@ class CaElement(BaseElement):
         fld = self.get_field(field)
         if fld is None:
             return None
-        ensure_put(fld, goal, tol, timeout)
+        return ensure_put(fld, goal, tol, timeout)
 
     def get_current_settings(self, field_of_interest=None,
                                      only_physics=True):
