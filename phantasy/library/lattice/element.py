@@ -868,7 +868,12 @@ class CaField(object):
             pvs = self.setpoint_pv
         else:
             pvs = self.readset_pv
-        return [pv.auto_monitor for pv in pvs]
+        am_set = {pv.auto_monitor for pv in pvs}
+        if len(am_set) == 1:
+            return am_set.pop()
+        else:
+            raise RuntimeError(
+                    "All {} PVs should have the same monitoring policy.".format(handle))
 
     @property
     def read_access(self):
