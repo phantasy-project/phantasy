@@ -1,3 +1,18 @@
+Version 1.13.0
+--------------
+2020-01-30
+
+- Implement ensure_put() function for setting element field value.
+- Disable PV auto subscription, only activate when needed, which will
+  significantly improve the application performance.
+- Create function build_element() to build CaElement object from generic
+  PV names
+- Implement methods/functions to handle lattice/element field settings.
+- Update docstrings.
+- Update unittests.
+- Fix Python 3 incompatibilities.
+- Fix bugs.
+
 Version 1.12.1
 --------------
 2019-09-05
