@@ -49,10 +49,10 @@ def build_settings(latpath, start=None, end=None):
     """
     settings_factory = SettingsFactory(latpath)
 
-    if start is None:
+    if start is not None:
         settings_factory.start = start
 
-    if end is None:
+    if end is not None:
         settings_factory.end = end
 
     return settings_factory.build()
@@ -127,13 +127,34 @@ class SettingsFactory(object):
 
         def parseName(cname):
             # Too FRIB specific!
-            parts = re.split("[_:]", cname)
-            name = parts[0] + "_" + parts[1] + ":" + parts[2] + "_" + parts[3]
-            return name.upper()
+            try:
+                parts = re.split("[_:]", cname)
+                name = parts[0] + "_" + parts[1] + ":" + parts[2] + "_" + parts[3]
+            except IndexError:
+                return None
+            else:
+                return name.upper()
 
+        _start = False
+        _end = False
         for celem in conf['elements']:
             elem = OrderedDict(celem)
             ftype = elem['type'].lower()
+            name = parseName(elem['name'])
+
+            if name is None:
+                continue
+
+            if not _start and name != self._start:
+                continue
+            else:
+                _start = True
+
+            if _end:
+                break
+
+            if name == self._end:
+                _end = True
 
             if ftype in ['source', 'drift', 'marker']:
                 continue
@@ -144,7 +165,6 @@ class SettingsFactory(object):
                 # settings[name] = OrderedDict()
 
             elif ftype == "rfcavity":
-                name = parseName(elem['name'])
                 cav = CavityElement(0, 0, 0, name)
                 fields = OrderedDict()
                 fields[cav.fields.phase_phy] = elem['phi']
@@ -153,14 +173,12 @@ class SettingsFactory(object):
                 settings[name] = fields
 
             elif ftype == "solenoid":
-                name = parseName(elem['name'])
                 sol = SolElement(0, 0, 0, name)
                 fields = OrderedDict()
                 fields[sol.fields.field_phy] = elem['B']
                 settings[name] = fields
 
             elif ftype == "orbtrim":
-                name = parseName(elem['name'])
                 fields = OrderedDict()
                 if 'theta_x' in elem:
                     cor = HCorElement(0, 0, 0, name)
@@ -174,7 +192,6 @@ class SettingsFactory(object):
                 settings[name] = fields
 
             elif ftype == "sbend":
-                name = parseName(elem['name'])
                 bend = BendElement(0, 0, 0, name)
                 if name not in settings:
                     fields = OrderedDict()
@@ -192,28 +209,24 @@ class SettingsFactory(object):
                             raise RuntimeError("Bend element exit angle already defined")
 
             elif ftype == "quadrupole":
-                name = parseName(elem['name'])
                 quad = QuadElement(0, 0, 0, name)
                 fields = OrderedDict()
                 fields[quad.fields.gradient_phy] = elem['B2']
                 settings[name] = fields
 
             elif ftype == "equad":
-                name = parseName(elem['name'])
                 equad = EQuadElement(0, 0, 0, name)
                 fields = OrderedDict()
                 fields[equad.fields.gradient_phy] = elem['V']
                 settings[name] = fields
 
             elif ftype == "edipole":
-                name = parseName(elem['name'])
                 ebend = EBendElement(0, 0, 0, name)
                 fields = OrderedDict()
                 fields[ebend.fields.field_phy] = elem['beta']
                 settings[name] = fields
 
             elif ftype == "sextupole":
-                name = parseName(elem['name'])
                 sextupole = SextElement(0, 0, 0, name)
                 fields = OrderedDict()
                 fields[sextupole.fields.field_phy] = elem['B3']
