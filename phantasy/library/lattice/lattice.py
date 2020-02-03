@@ -1418,11 +1418,11 @@ class Lattice(object):
         append : Add element at the end of lattice.
         :class:`~phantasy.library.lattice.CaElement`
         """
-        if not kws.get('trust', False):
-            elem = self._find_exact_element(elem)
-            if elem is None:
-                _LOGGER.warning("insert: not a valid element.")
-                return
+        #if not kws.get('trust', False):
+            #elem = self._find_exact_element(elem)
+            #if elem is None:
+            #    _LOGGER.warning("insert: not a valid element.")
+            #    return
 
         if i is not None:
             self._elements.insert(i, elem)
@@ -2131,6 +2131,15 @@ class Lattice(object):
         elif isinstance(group, list):
             # exact one-by-one match, None if not found
             return [self._find_exact_element(e) for e in group]
+
+    def __add__(self, other):
+        # elements
+        # settings
+        l = Lattice('{}_{}'.format(self.name, other.name))
+        for i in self._elements + other._elements:
+            l.insert(i)
+        l.update_groups()
+        return l
 
     def __repr__(self):
         return str(self)
