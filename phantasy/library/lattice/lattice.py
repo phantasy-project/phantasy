@@ -2175,25 +2175,27 @@ class Lattice(object):
                 </body></html>'''.format('\n'.join(t))
 
     def __str__(self):
-        s0 = "Segment: '{}' | Machine: '{}': {} elements".format(
-                self.name, self.mname, len(self._elements))
-        s1 = "Length unit: [m]"
-        s2 = '{0:<4s} {1:^20s} {2:<6s} {3:>10s} {4:>10s}'.format(
-             'IDX', 'NAME', 'FAMILY', 'POSITION', 'LENGTH'
-        )
-        s3 = '{0:<4s}-{1:^20s}-{2:<6s}-{3:>10s}-{4:>10s}'.format(
-             '-'*4, '-'*20, '-'*6, '-'*10, '-'*10
-        )
-        ret = [s3, s0, s1, s3, s2, s3]
-
-        fmt = "{{idx:<{wi}d}} {{name:<{wn}s}} {{family:<{wf}s}} {{pos:>10.4f}} {{len:>10.4f}}".format(
-            wi=4, wn=20, wf=6)
-        for i, e in enumerate(self._elements):
-            if e.virtual:
-                continue
-            ret.append(fmt.format(idx=i, name=e.name, family=e.family,
-                                  pos=e.sb, len=e.length))
-        return '\n'.join(ret)
+        return "Lattice({}) of {}, [{}] elements.".format(
+                self.name, self.mname, self.size())
+#        s0 = "Segment: '{}' | Machine: '{}': {} elements".format(
+#                self.name, self.mname, len(self._elements))
+#        s1 = "Length unit: [m]"
+#        s2 = '{0:<4s} {1:^20s} {2:<6s} {3:>10s} {4:>10s}'.format(
+#             'IDX', 'NAME', 'FAMILY', 'POSITION', 'LENGTH'
+#        )
+#        s3 = '{0:<4s}-{1:^20s}-{2:<6s}-{3:>10s}-{4:>10s}'.format(
+#             '-'*4, '-'*20, '-'*6, '-'*10, '-'*10
+#        )
+#        ret = [s3, s0, s1, s3, s2, s3]
+#
+#        fmt = "{{idx:<{wi}d}} {{name:<{wn}s}} {{family:<{wf}s}} {{pos:>10.4f}} {{len:>10.4f}}".format(
+#            wi=4, wn=20, wf=6)
+#        for i, e in enumerate(self._elements):
+#            if e.virtual:
+#                continue
+#            ret.append(fmt.format(idx=i, name=e.name, family=e.family,
+#                                  pos=e.sb, len=e.length))
+#        return '\n'.join(ret)
 
     def get_settings(self, only_physics=False):
         """Return lattice element settings, only include physics settings if
