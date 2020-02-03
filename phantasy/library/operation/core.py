@@ -414,6 +414,7 @@ class MachinePortal(object):
             return self._work_lattice_name
 
     def get_elements(self, latname=None, name=None, type=None, srange=None,
+                     search_all=False,
                      **kws):
         """Get element(s) from working lattice.
 
@@ -429,6 +430,8 @@ class MachinePortal(object):
         srange : tuple
             Start and end points (tuple of float) of elements' longitudinal
             position.
+        search_all : bool
+            If True, search from all the loaded segments.
 
         Keyword Arguments
         -----------------
@@ -521,6 +524,13 @@ class MachinePortal(object):
         """
         if latname in self._lattice_names:
             lat = self._lattices.get(latname)
+        elif search_all:
+            elems = []
+            for _, lat in self._lattices.items():
+                elems.extend(
+                    lat.get_elements(
+                        name=name, type=type, srange=srange, **kws))
+            return elems
         else:
             lat = self._work_lattice_conf
         return lat.get_elements(name=name, type=type, srange=srange, **kws)
