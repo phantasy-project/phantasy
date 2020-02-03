@@ -368,28 +368,37 @@ class Lattice(object):
             self._data_dir = path
 
     def _get_default_config(self):
-        if self.mconf.has_option(self.name, "config_file"):
-            configfile = self.mconf.getabspath(self.name, "config_file")
-            config = Configuration(configfile)
-        else:
-            from phantasy.library.dconf import _DEMO_MCONFIG
-            config = _DEMO_MCONFIG
+        try:
+            if self.mconf.has_option(self.name, "config_file"):
+                configfile = self.mconf.getabspath(self.name, "config_file")
+                config = Configuration(configfile)
+            else:
+                from phantasy.library.dconf import _DEMO_MCONFIG
+                config = _DEMO_MCONFIG
+        except:
+            config = Configuration()
         return config
 
     def _get_default_settings(self):
-        if self.mconf.has_option(self.name, "settings_file"):
-            settingfile = self.mconf.getabspath(self.name, "settings_file")
-            settings = Settings(settingfile)
-            _LOGGER.debug("Apply settings file from machine configs.")
-        else:
-            settings = None
+        try:
+            if self.mconf.has_option(self.name, "settings_file"):
+                settingfile = self.mconf.getabspath(self.name, "settings_file")
+                settings = Settings(settingfile)
+                _LOGGER.debug("Apply settings file from machine configs.")
+            else:
+                settings = Settings()
+        except:
+            settings = Settings()
         return settings
 
     def _get_default_layout(self):
-        if self.mconf.has_option(self.name, "layout_file"):
-            layoutfile = self.mconf.getabspath(self.name, "layout_file")
-            layout = build_layout(layoutfile)
-        else:
+        try:
+            if self.mconf.has_option(self.name, "layout_file"):
+                layoutfile = self.mconf.getabspath(self.name, "layout_file")
+                layout = build_layout(layoutfile)
+            else:
+                layout = None
+        except:
             layout = None
         return layout
 
