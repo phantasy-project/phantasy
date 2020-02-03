@@ -320,6 +320,14 @@ class MachinePortal(object):
             self._last_load_success = retval is not None
         return retval
 
+    def combined_lattice(self):
+        """Combine all loaded lattice(s) into one Lattice to return.
+        """
+        if len(self.lattice_names) <= 1:
+            return self.work_lattice_conf
+        else:
+            return reduce(lambda x,y:x+y, self.lattices.values())
+
     def print_all_properties(self):
         """Print all properties, for debug only.
         """
