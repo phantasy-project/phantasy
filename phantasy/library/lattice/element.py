@@ -1508,7 +1508,8 @@ def build_element(sp_pv, rd_pv, ename=None, fname=None, **kws):
     length : float
         Element length, default is 0.0.
     sb : float
-        Start s-position of element, default is -1.0.
+        Start s-position of element, default is -1.0, if not defined, will
+        try to extract from the PV name.
 
     Returns
     -------
@@ -1516,7 +1517,7 @@ def build_element(sp_pv, rd_pv, ename=None, fname=None, **kws):
         CaElement object.
     """
     if ename is None or fname is None:
-        ename_, fname_ = _get_names(sp_pv)
+        ename_, fname_ = _parse_pv_name(sp_pv)
     ename = ename if ename is not None else ename_
     fname = fname if fname is not None else fname_
     fname_phy = "{}_PHY".format(fname)
@@ -1529,7 +1530,7 @@ def build_element(sp_pv, rd_pv, ename=None, fname=None, **kws):
         'pv_policy': 'DEFAULT',
         'index': kws.get('index', -1),
         'length': kws.get('length', 0.0),
-        'sb': kws.get('sb', -1.0),
+        'sb': kws.get('sb', _get_spos(sp_pv)),
         'family': 'PV',
     }
     pv_tags = []
@@ -1539,10 +1540,34 @@ def build_element(sp_pv, rd_pv, ename=None, fname=None, **kws):
     return elem
 
 
-def _get_names(pvname):
-    """Return element name and field name from pv name, based on the following
-    naming convention: SYSTEM_SUBSYS:DEVICE_D####:FIELD_HANDLE, if HANDLE
-    is not CSET nor RD, FIELD_HANDLE will be extracted as field name.
+def _get_spos(pvname):
+    """Extract s-position from PV name.
+    """
+    # pos
+    try:
+        r = re.match(r'.*D([0-9]{4}).*', pvname)
+        assert r is not None
+    except AssertionError:
+        pos = -1
+    else:
+        pos = float(r.group(1)) / 10.0  # m
+    return pos
+
+
+def _parse_pv_name(pvname):
+    """Extract element name, field name from pv name, based on the following
+    naming convention: SYSTEM_SUBSYS:DEVICE_D####:FIELD_HANDLE,
+    if HANDLE is not CSET nor RD, FIELD_HANDLE will be extracted as field name.
+
+    Parameters
+    ----------
+    pvname : str
+        PV name.
+
+    Returns
+    -------
+    r : tuple
+        A tuple of element name, field name.
     """
     pattern1 = r"(.*):(.*)_(CSET|RD)"
     pattern2 = r"(.*):(.*)"
@@ -1554,7 +1579,9 @@ def _get_names(pvname):
     finally:
         ename = r.group(1)
         fname = r.group(2)
-    return '{}:{}_'.format(ename, fname), fname
+    element_name = '{}:{}'.format(ename, fname)
+    field_name = fname
+    return element_name, field_name
 
 
 def main():
