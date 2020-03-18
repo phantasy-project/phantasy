@@ -91,6 +91,9 @@ class PVElement(object):
         for i in self.readback_pv:
             i.auto_monitor = auto_monitor
 
+    def get_auto_monitor(self, handle='readback'):
+        return self.readback_pv[0].auto_monitor
+
 
 class PVElementReadonly(object):
     """Unified interface for `get` to a PV, i.e. readonly.
