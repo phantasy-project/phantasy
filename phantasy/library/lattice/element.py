@@ -1491,6 +1491,7 @@ class CaElement(BaseElement):
 class Number(float):
     def __init__(self, v):
         self.value = v
+        self.auto_monitor = True
 
     def get(self):
         return self.value
