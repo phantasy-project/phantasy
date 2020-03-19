@@ -18,10 +18,13 @@ All input PV parameters are list type, while value for writing is a scalar.
 
 
 def _default_read_policy(x):
-    try:
-        return sum(i.get() for i in x)/len(x)
-    except:
-        return x[0].get()
+    if len(x) == 1:
+        return _get_value(x[0])
+    else:
+        try:
+            return sum(_get_value(x) for i in x)/len(x)
+        except:
+            return _get_value(x[0])
 
 
 def _default_write_policy(x, v, **kws):
@@ -45,7 +48,7 @@ def _default_write_policy(x, v, **kws):
 #   Write: set PSQ1: -Value, PSQ2: Value
 
 def _equad_read_policy(x):
-    return 0.5 * (-x[0].get() + x[1].get())
+    return 0.5 * (-_get_value(x[0]) + _get_value(x[1]))
 
 def _equad_write_policy(x, v, **kws):
     x[0].put(-v, **kws)
@@ -56,7 +59,7 @@ def _equad_write_policy(x, v, **kws):
 # Signs: PSD1(+), PSD2(-), Value(-)
 
 def _ebend_read_policy(x):
-    return 0.5 * (-x[0].get() + x[1].get())
+    return 0.5 * (-_get_value(x[0]) + _get_value(x[1]))
 
 
 def _ebend_write_policy(x, v, **kws):
@@ -79,3 +82,9 @@ PV_POLICIES = {
             "write": _ebend_write_policy,
         },
 }
+
+def _get_value(pv):
+    if pv.auto_monitor:
+        return pv.value
+    else:
+        return pv.get()
