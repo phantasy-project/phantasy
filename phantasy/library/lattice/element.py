@@ -35,7 +35,6 @@ _LOGGER = logging.getLogger(__name__)
 VALID_STATIC_KEYS = ('name', 'family', 'index', 'se', 'length', 'sb',
                      'phy_name', 'phy_type', 'machine')
 VALID_CA_KEYS = ('field_eng', 'field_phy', 'handle', 'pv_policy')
-AUTO_MONITOR = False
 # diagnostic device types
 DIAG_DTYPES = ('FC', 'EMS', 'PM', 'BPM', 'BCM', 'ND', 'HMR', 'IC', 'VD')
 
@@ -298,6 +297,13 @@ class CaField(object):
         Readset PV name(s).
     setpoint : str, list(str)
         Setpoint PV name(s).
+    pv_policy : dict
+        Name of PV read/write policy, keys: 'read' and 'write', values:
+        scaling law function object.
+    ftype : str
+        Field type, 'ENG' (default) or 'PHY'.
+    auto_monitor : bool
+        If set True, initialize all channels auto subscribe, default is False.
 
     Note
     ----
@@ -316,6 +322,7 @@ class CaField(object):
         self.wait = kws.get('wait', None)
         self.tolerance = kws.get('tolerance', None)
         self.ensure_put = kws.get('ensure_put', None)
+        self.init_auto_monitor = kws.get('auto_monitor', False)
         self._rdbk_pv_name = []
         self._rset_pv_name = []
         self._cset_pv_name = []
@@ -610,17 +617,17 @@ class CaField(object):
     def _init_rdbk_pv(self, pvs, **kws):
         self._rdbk_pv = []
         for i in pvs:
-            self._rdbk_pv.append(get_pv(i, auto_monitor=AUTO_MONITOR))
+            self._rdbk_pv.append(get_pv(i, auto_monitor=self.init_auto_monitor))
 
     def _init_rset_pv(self, pvs, **kws):
         self._rset_pv = []
         for i in pvs:
-            self._rset_pv.append(get_pv(i, auto_monitor=AUTO_MONITOR))
+            self._rset_pv.append(get_pv(i, auto_monitor=self.init_auto_monitor))
 
     def _init_cset_pv(self, pvs, **kws):
         self._cset_pv = []
         for i in pvs:
-            self._cset_pv.append(get_pv(i, auto_monitor=AUTO_MONITOR))
+            self._cset_pv.append(get_pv(i, auto_monitor=self.init_auto_monitor))
 
     def update(self, **kws):
         """Update PV with defined handle."""
@@ -628,7 +635,7 @@ class CaField(object):
             v = kws.get(k)
             if v is not None:
                 setattr(self, k, v)
-                setattr(self, "{}_pv".format(k), get_pv(v, auto_monitor=AUTO_MONITOR))
+                setattr(self, "{}_pv".format(k), get_pv(v, auto_monitor=self.init_auto_monitor))
 
     def pvs(self):
         """Return dict of valid pv type and names."""
@@ -933,6 +940,8 @@ class CaElement(BaseElement):
         PV record data to build an element, should be of a list of:
         ``string of PV name, dict of properties, list of tags``, or
         with dict of keys of: ``pv_name``, ``pv_props`` and ``pv_tags``.
+    auto_monitor : bool
+        If set True, initialize all channels auto subscribe, default is False.
 
     Note
     ----
@@ -962,11 +971,12 @@ class CaElement(BaseElement):
         self.__unicorn = {}
 
         pv_data = kws.get('pv_data', None)
+        am = kws.get('auto_monitor', False)
         if pv_data is not None:
             if isinstance(pv_data, list):
-                self.process_pv(*pv_data)
+                self.process_pv(*pv_data, auto_monitor=am)
             elif isinstance(pv_data, dict):
-                self.process_pv(**pv_data)
+                self.process_pv(**pv_data, auto_monitor=am)
 
     @property
     def last_settings(self):
@@ -1057,6 +1067,7 @@ class CaElement(BaseElement):
 
     def _update_ca_props(self, props, **kws):
         """CA"""
+        am = kws.get('auto_monitor', False)
         def build_pv_policy_phy(u_policy, pv_policy):
             # pv_policy is a dict
             fn_p, fn_n = u_policy['p'], u_policy['n']
@@ -1097,11 +1108,11 @@ class CaElement(BaseElement):
         if field_name is not None:
             self.__unicorn[field_name] = u_policy['p']
             self.set_field(field_name, pv, handle_name, ftype='ENG',
-                           pv_policy=pv_policy)
+                           pv_policy=pv_policy, auto_monitor=am)
         if field_name_phy is not None:
             self.__unicorn[field_name_phy] = u_policy['n']
             self.set_field(field_name_phy, pv, handle_name, ftype='PHY',
-                           pv_policy=pv_policy_phy)
+                           pv_policy=pv_policy_phy, auto_monitor=am)
 
     def set_field(self, field, pv, handle=None, **kws):
         """Set element field with CA support, i.e. dynamic field.
@@ -1123,6 +1134,8 @@ class CaElement(BaseElement):
             scaling law function object.
         ftype : str
             Field type, 'ENG' (default) or 'PHY'.
+        auto_monitor : bool
+            If set True, initialize all channels auto subscribe, default is False.
         """
         if handle is None:
             handle = 'readback'
@@ -1131,6 +1144,7 @@ class CaElement(BaseElement):
                                 ename=self.name,
                                 ftype=kws.get('ftype'),
                                 pv_policy=kws.get('pv_policy'),
+                                auto_monitor=kws.get('auto_monitor'),
                                 **{handle: pv})
             self._design_settings.update({field: None})
             self._last_settings.update({field: None})
@@ -1157,6 +1171,8 @@ class CaElement(BaseElement):
         -----------------
         pv : str
             Valid PV name.
+        auto_monitor : bool
+            If set True, initialize all channels auto subscribe, default is False.
         """
         prop_st = {k: v for k, v in props.items() if k in VALID_STATIC_KEYS}
         prop_ca = {k: v for k, v in props.items() if k in VALID_CA_KEYS}
@@ -1184,7 +1200,7 @@ class CaElement(BaseElement):
         else:
             self._tags[pv_name] = set(tags)
 
-    def process_pv(self, pv_name, pv_props, pv_tags=None, u_policy=None):
+    def process_pv(self, pv_name, pv_props, pv_tags=None, u_policy=None, **kws):
         """Process PV record to update element with properties and tags.
 
         Parameters
@@ -1195,12 +1211,17 @@ class CaElement(BaseElement):
             PV properties, key-value pairs.
         pv_tags : list
             PV tag list.
+
+        Keyword Arguments
+        -----------------
+        auto_monitor : bool
+            If set True, initialize all channels auto subscribe, default is False.
         """
         if not isinstance(pv_name, basestring):
             raise TypeError("{} is not a valid type".format(type(pv_name)))
 
         # properties
-        self.update_properties(pv_props, pv=pv_name, u_policy=u_policy)
+        self.update_properties(pv_props, pv=pv_name, u_policy=u_policy, **kws)
         # tags
         self.update_tags(pv_tags, pv=pv_name)
         self.update_groups(pv_props, pv=pv_name)

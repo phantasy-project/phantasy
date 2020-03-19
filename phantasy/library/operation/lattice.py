@@ -73,6 +73,8 @@ def load_lattice(machine, segment=None, **kws):
         configuration file (e.g. phantasy.cfg). If this parameter is not
         defined, will use the one defined by 'machine' in 'DEFAULT' section
         of configuration file.
+    auto_monitor : bool
+        If set True, initialize all channels auto subscribe, default is False.
 
     Returns
     -------
@@ -95,6 +97,7 @@ def load_lattice(machine, segment=None, **kws):
     verbose = kws.get('verbose', 0)
     sort_flag = kws.get('sort', False)
     pv_prefix = kws.get('prefix', None)
+    auto_monitor = kws.get('auto_monitor', False)
 
     # if use_cache:
     #    try:
@@ -263,7 +266,8 @@ def load_lattice(machine, segment=None, **kws):
                              udata=udata,
                              data_dir=data_dir,
                              sort=sort_flag,
-                             prefix=pv_prefix)
+                             prefix=pv_prefix,
+                             auto_monitor=auto_monitor)
 
         #         if IMPACT_ELEMENT_MAP is not None:
         #             lat.createLatticeModelMap(IMPACT_ELEMENT_MAP)
@@ -350,6 +354,8 @@ def create_lattice(latname, pv_data, tag, **kws):
         configuration file (e.g. phantasy.cfg). If this parameter is not
         defined, will use the one defined by 'machine' in 'DEFAULT' section
         of configuration file.
+    auto_monitor : bool
+        If set True, initialize all channels auto subscribe, default is False.
 
     Returns
     ---------
@@ -372,6 +378,7 @@ def create_lattice(latname, pv_data, tag, **kws):
     udata = kws.get('udata', None)
     data_source = kws.get('source', None)
     prefix = kws.get('prefix', None)
+    auto_monitor = kws.get('auto_monitor', False)
 
     config = kws.get('config', None)
     if config is not None:
@@ -416,7 +423,7 @@ def create_lattice(latname, pv_data, tag, **kws):
         elem = lat._find_exact_element(name=name)
         if elem is None:
             try:
-                elem = CaElement(**pv_props)
+                elem = CaElement(**pv_props, auto_monitor=auto_monitor)
             except:
                 _LOGGER.error(
                     "Error: creating element '{0}' with '{1}'.".format(
@@ -437,7 +444,8 @@ def create_lattice(latname, pv_data, tag, **kws):
             # this policy should created from unicorn_policy
             # u_policy: {'p': fn_p, 'n': fn_n}
             u_policy = get_unicorn_policy(elem.name, udata)
-            elem.process_pv(pv_name_prefixed, pv_props, pv_tags, u_policy=u_policy)
+            elem.process_pv(pv_name_prefixed, pv_props, pv_tags,
+                            u_policy=u_policy, auto_monitor=auto_monitor)
 
     # update group
     lat.update_groups()

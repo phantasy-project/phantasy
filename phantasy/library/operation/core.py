@@ -72,6 +72,8 @@ class MachinePortal(object):
         of configuration file.
     verbose : int
         If set nonzero, print out verbose message.
+    auto_monitor : bool
+        If set True, initialize all channels auto subscribe, default is False.
 
     Note
     ----
