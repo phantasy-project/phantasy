@@ -1532,6 +1532,8 @@ def build_element(sp_pv, rd_pv, ename=None, fname=None, **kws):
     sb : float
         Start s-position of element, default is -1.0, if not defined, will
         try to extract from the PV name.
+    family : str
+        Element family (type), default is 'PV'.
 
     Returns
     -------
@@ -1553,7 +1555,7 @@ def build_element(sp_pv, rd_pv, ename=None, fname=None, **kws):
         'index': kws.get('index', -1),
         'length': kws.get('length', 0.0),
         'sb': kws.get('sb', _get_spos(sp_pv)),
-        'family': 'PV',
+        'family': kws.get('family', 'PV'),
     }
     pv_tags = []
     for pv, handle in zip((sp_pv, rd_pv), ('setpoint', 'readback')):
@@ -1564,6 +1566,15 @@ def build_element(sp_pv, rd_pv, ename=None, fname=None, **kws):
 
 def _get_spos(pvname):
     """Extract s-position from PV name.
+
+    Note
+    ----
+    This is FRIB specific, D### to meter.
+
+    Returns
+    -------
+    pos : float
+        S-pos of PV device.
     """
     # pos
     try:
