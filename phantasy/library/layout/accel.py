@@ -541,6 +541,51 @@ class BPMElement(Element):
                        'type': self.ETYPE}
 
 
+class MarkerElement(Element):
+    """MarkerElement represents generic diagnostic device.
+    """
+    ETYPE = "MK"
+    _ls = get_style(ETYPE, 'ls')
+    _lw = get_style(ETYPE, 'lw')
+    _alpha = get_style(ETYPE, 'alpha')
+    _fc = get_style(ETYPE, 'fc')
+    _ec = get_style(ETYPE, 'ec')
+    _h = get_style(ETYPE, 'h')
+
+    def __init__(self, z, length, aperture, name, desc="general diagnostic marker",
+                 **meta):
+        super(MarkerElement, self).__init__(z, length, aperture, name, desc=desc,
+                                         **meta)
+
+    def set_drawing(self, p0=None, angle=0, mode='plain'):
+        l = self.length
+        s = self.z
+        h = self._h * 0.5
+        #
+        #     p2
+        #     |
+        # -p1-p0-p3-
+        #     |
+        #     p4
+        #
+        x0, y0 = s, 0
+        x1, y1 = s - h * 0.5, y0
+        x2, y2 = x0, y0 + h
+        x3, y3 = x0 + h * 0.5, y0
+        x4, y4 = x0, y0 - h
+        vs = ((x1, y1), (x2, y2), (x3, y3), (x4, y4), (x1, y1))
+        cs = (Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY)
+        pth = Path(vs, cs)
+        patch = patches.PathPatch(pth, lw=self._lw, ls=self._ls,
+                                  fc=self._fc, ec=self._ec,
+                                  alpha=self._alpha)
+        self._next_p0 = x0, y0
+        self._next_dtheta = 0
+        self._artist = patch
+        pc = x0, y0
+        self._anote = {'xypos': pc, 'textpc': pc, 'name': self.name,
+                       'type': self.ETYPE}
+
 
 class BCMElement(Element):
     """BCMElement represents Beam Current Monitor diagnostic device.
@@ -1338,6 +1383,17 @@ class ApertureElement(Element):
 
 
 # Source Elements
+
+class SourceElement(Element):
+    """Beam source.
+    """
+
+    ETYPE = "SOURCE"
+
+    def __init__(self, z, length, aperture, name, desc="beam source", **meta):
+        super(SourceElement, self).__init__(z, length, aperture, name,
+                                            desc=desc, **meta)
+
 
 class ElectrodeElement(Element):
     """ElectrodeElement represents an source electrode.

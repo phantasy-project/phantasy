@@ -18,6 +18,7 @@ from .accel import HCorElement
 from .accel import PMElement
 from .accel import PortElement
 from .accel import QuadElement
+from .accel import SourceElement
 from .accel import SeqElement
 from .accel import SextElement
 from .accel import SolCorElement
@@ -39,6 +40,7 @@ from .accel import Fields
 from .accel import NDElement
 from .accel import ICElement
 from .accel import RotElement
+from .accel import MarkerElement
 
 __all__ = [
     'build_layout', 'Layout',
@@ -52,7 +54,7 @@ __all__ = [
     'StripElement', 'VCorElement', 'VDElement', 'ValveElement',
     'SlitElement', 'ChopperElement', 'AttenuatorElement', 'DumpElement',
     'ApertureElement', "NDElement", "ICElement", "RotElement",
-    'SDElement',
+    'SDElement', 'SourceElement', 'MarkerElement',
     'Element', 'Fields',
 ]
 
