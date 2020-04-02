@@ -9,7 +9,7 @@ import logging
 import re
 
 from phantasy.library.settings import Settings
-from phantasy.library.parser import Configuration 
+from phantasy.library.parser import Configuration
 from phantasy.library.parser import find_machine_config
 from phantasy.library.layout import build_layout
 from phantasy.library.channelfinder import read_csv
@@ -44,7 +44,7 @@ def loadMachineConfig(machine, segment=None, **kws):
 
     Returns
     -------
-    ret : tuple 
+    ret : tuple
         Machine configuration object and name of lattice.
     """
     if os.path.isdir(machine):
@@ -154,7 +154,7 @@ def loadLatticeConfig(config_path, mconfig=None, segment=None):
 
 
 def loadChannels(source, cfstag, mconfig, segment):
-    """Load channel names from the given url or find the url from the 
+    """Load channel names from the given url or find the url from the
     configuration files.
 
     Parameters
@@ -183,7 +183,7 @@ def loadChannels(source, cfstag, mconfig, segment):
         cfsurl = source
 
     if re.match(r"https?://.*", cfsurl, re.I):
-        _LOGGER.info("loadChannels: using service '%s' for '%s'" % (cfsurl, segment))
+        _LOGGER.info("Loading channels from %s for %s" % (cfsurl, segment))
         if cfstag is None:
             if mconfig is not None and segment is not None \
                     and mconfig.has_option(segment, _CONFIG_CFS_TAG):
@@ -193,9 +193,9 @@ def loadChannels(source, cfstag, mconfig, segment):
         ds = DataSource(source=cfsurl)
         data = ds.get_data(tag_filter=cfstag)
         pvdata = [
-                  [d['name'], 
+                  [d['name'],
                   {p['name']:p['value'] for p in d['properties']},
-                  [t['name'] for t in d['tags']]] 
+                  [t['name'] for t in d['tags']]]
                   for d in data
                  ]
         return pvdata
@@ -210,19 +210,19 @@ def loadChannels(source, cfstag, mconfig, segment):
         cfspath = os.path.abspath(source)
 
     if cfspath.endswith(".sqlite") and os.path.isfile(cfspath):
-        _LOGGER.info("loadChannels: using SQLite '%s'" % (cfspath,))
+        _LOGGER.info("Loading channels from %s" % (cfspath,))
         ds = DataSource(source=cfspath)
         data = ds.get_data()
         pvdata = [
-                  [d['name'], 
+                  [d['name'],
                   {p['name']:p['value'] for p in d['properties']},
-                  [t['name'] for t in d['tags']]] 
+                  [t['name'] for t in d['tags']]]
                   for d in data
                  ]
         return pvdata
 
     if cfspath.endswith(".csv") and os.path.isfile(cfspath):
-        _LOGGER.info("loadChannels: using CSV '%s'" % (cfspath,))
+        _LOGGER.info("Loading channels from %s" % (os.path.abspath(cfspath),))
         return read_csv(cfspath)
 
     raise RuntimeError("Error loading channels from source: {}".format(cfsurl))

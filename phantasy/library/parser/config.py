@@ -307,11 +307,11 @@ def find_machine_config(machine, **kwargs):
         _LOGGER.error(msg)
         raise RuntimeError(msg)
 
-    _LOGGER.info("Importing '%s' from '%s'" % (machine, machdir))
+    _LOGGER.info("Importing %s from %s" % (machine, machdir))
 
     try:
         cfg = Configuration(os.path.join(machdir, filename))
-        _LOGGER.info("Loading machine configuration file: {0}".format(
+        _LOGGER.info("Loading machine configuration from {0}".format(
             cfg.config_path))
     except:
         raise RuntimeError("Can not open '%s' to read machine configurations" %
