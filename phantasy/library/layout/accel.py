@@ -157,6 +157,14 @@ class Element(object):
             "fields={elem.fields} }}"
         return type(self).__name__ + s.format(elem=self)
 
+    def __eq__(self, other):
+        # except fields
+        attr_list = ['z', 'length', 'aperture', 'name'] + list(self.meta.keys())
+        for k in attr_list:
+            if getattr(self, k) != getattr(other, k):
+                return False
+        return True
+
     def set_drawing(self, p0=None, angle=0, mode='plain'):
         """Define the artist drawing representation.
 
