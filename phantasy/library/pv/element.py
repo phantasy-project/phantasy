@@ -35,7 +35,10 @@ class PVElement(object):
     def value(self):
         """generic attribute name to present this PV element's value.
         """
-        return self._getPV.get()
+        if self._getPV.connected:
+            return self._getPV.get()
+        else:
+            return None
 
     @value.setter
     def value(self, x):
@@ -120,7 +123,10 @@ class PVElementReadonly(object):
     def value(self):
         """generic attribute name to present this PV element's value.
         """
-        return self._getPV.get()
+        if self._getPV.connected:
+            return self._getPV.get()
+        else:
+            return None
 
     @property
     def connected(self):
