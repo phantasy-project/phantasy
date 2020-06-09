@@ -192,9 +192,9 @@ def load_lattice(machine, segment=None, **kws):
         if udata_file is not None:
             if not os.path.isabs(udata_file):
                 udata_file = os.path.join(mdir, udata_file)
-            udata = [{'name': f['name'], 'fn': get_func(f['code'])}
+            udata = {f['name']: get_func(f['code'])
                      for f in UnicornData(
-                         udata_file, data_x_col_idx=4, data_y_col_idx=5).functions]
+                         udata_file, data_x_col_idx=4, data_y_col_idx=5).functions}
                      # will be deprecated in 2.0
             _LOGGER.info("UNICORN policy will be loaded from {}.".format(
                 os.path.abspath(udata_file)))
@@ -495,8 +495,8 @@ def get_unicorn_policy(ename, udata=None):
     ----------
     ename : str
         Name of element.
-    udata : list of dict
-        List of scaling laws functions, keys: `name` and `fn`.
+    udata : dict
+        Dirt of scaling laws functions, k,v: fname, fn.
 
     Returns
     -------
@@ -510,13 +510,10 @@ def get_unicorn_policy(ename, udata=None):
     The scaling law function name ends with '-P' refers to `fn_p`, while '-N'
     refers to `fn_n`.
     """
-    fn_p = lambda x:x
-    fn_n = lambda x:x
+    fn_p_0 = lambda x:x
+    fn_n_0 = lambda x:x
     if udata is None:
-        return {'p': fn_p, 'n': fn_n}
-    for item in udata:
-        if '{}-P'.format(ename) == item['name']:
-            fn_p = item['fn']
-        elif '{}-N'.format(ename) == item['name']:
-            fn_n = item['fn']
+        return {'p': fn_p_0, 'n': fn_n_0}
+    fn_p = udata.get('{}-P'.format(ename), fn_p_0)
+    fn_n = udata.get('{}-N'.format(ename), fn_n_0)
     return {'p': fn_p, 'n': fn_n}
