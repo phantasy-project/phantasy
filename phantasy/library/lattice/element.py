@@ -300,6 +300,8 @@ class CaField(object):
     pv_policy : dict
         Name of PV read/write policy, keys: 'read' and 'write', values:
         scaling law function object.
+    polarity : int
+        Device polarity, -1 or 1.
     ftype : str
         Field type, 'ENG' (default) or 'PHY'.
     auto_monitor : bool
@@ -334,12 +336,20 @@ class CaField(object):
         self._cset_pv = []
         self.init_pvs()
         pv_policy = kws.get('pv_policy', PV_POLICIES['DEFAULT'])
+        self._polarity = kws.get('polarity', 1)
 
         self._default_read_policy = pv_policy['read']
         self._default_write_policy = pv_policy['write']
         self.read_policy = self._default_read_policy
         self.write_policy = self._default_write_policy
+
         self.ftype = kws.get('ftype', 'ENG')
+
+    def validate_polarity(self, mode='read'):
+        if mode == 'read':
+            return validate_polarity(self.read_policy, self._polarity, mode)
+        else:
+            return validate_polarity(self.write_policy, self._polarity, mode)
 
     @property
     def name(self):
@@ -381,6 +391,21 @@ class CaField(object):
             self._wait = True
         else:
             self._wait = bool(b)
+
+    @property
+    def polarity(self):
+        """int: Device polarity, trend response of the physics field (+/-1) w.r.t. input current (+).
+        """
+        if self.ftype == "ENG":
+            print("Polarity of an engineering field does not have practical meaning.")
+        else:
+            if not self.validate_polarity():
+                print("Polarity of {} [{}] is not consistent with unit scaling law!".format(self.ename, self.name))
+        return self._polarity
+
+    @polarity.setter
+    def polarity(self, i):
+        self._polarity = i
 
     @property
     def ensure_put(self):
@@ -1104,15 +1129,18 @@ class CaElement(BaseElement):
             u_policy = {'n': lambda x:x, 'p': lambda x:x}
 
         pv = kws.get('pv', None)
+        polarity = kws.get('polarity', 1)
         #
         if field_name is not None:
             self.__unicorn[field_name] = u_policy['p']
             self.set_field(field_name, pv, handle_name, ftype='ENG',
-                           pv_policy=pv_policy, auto_monitor=am)
+                           pv_policy=pv_policy, auto_monitor=am,
+                           polarity=polarity)
         if field_name_phy is not None:
             self.__unicorn[field_name_phy] = u_policy['n']
             self.set_field(field_name_phy, pv, handle_name, ftype='PHY',
-                           pv_policy=pv_policy_phy, auto_monitor=am)
+                           pv_policy=pv_policy_phy, auto_monitor=am,
+                           polarity=polarity)
 
     def set_field(self, field, pv, handle=None, **kws):
         """Set element field with CA support, i.e. dynamic field.
@@ -1144,6 +1172,7 @@ class CaElement(BaseElement):
                                 ename=self.name,
                                 ftype=kws.get('ftype'),
                                 pv_policy=kws.get('pv_policy'),
+                                polarity=kws.get('polarity'),
                                 auto_monitor=kws.get('auto_monitor'),
                                 **{handle: pv})
             self._design_settings.update({field: None})
@@ -1200,7 +1229,7 @@ class CaElement(BaseElement):
         else:
             self._tags[pv_name] = set(tags)
 
-    def process_pv(self, pv_name, pv_props, pv_tags=None, u_policy=None, **kws):
+    def process_pv(self, pv_name, pv_props, pv_tags=None, u_policy=None, polarity=None, **kws):
         """Process PV record to update element with properties and tags.
 
         Parameters
@@ -1211,6 +1240,10 @@ class CaElement(BaseElement):
             PV properties, key-value pairs.
         pv_tags : list
             PV tag list.
+        u_policy : dict
+            Dict of unit conversion policies.
+        polarity : int
+            Device polarity, -1 or 1.
 
         Keyword Arguments
         -----------------
@@ -1221,7 +1254,8 @@ class CaElement(BaseElement):
             raise TypeError("{} is not a valid type".format(type(pv_name)))
 
         # properties
-        self.update_properties(pv_props, pv=pv_name, u_policy=u_policy, **kws)
+        self.update_properties(pv_props, pv=pv_name, u_policy=u_policy,
+                               polarity=polarity, **kws)
         # tags
         self.update_tags(pv_tags, pv=pv_name)
         self.update_groups(pv_props, pv=pv_name)
@@ -1495,6 +1529,30 @@ class Number(float):
 
     def get(self):
         return self.value
+
+    def put(self, x):
+        self.value = x
+
+
+def validate_polarity(fn, polarity, mode):
+    """Validate policy *fn* with *polarity*, return True if polarity is consistent, otherwise False.
+    """
+    test_n = Number(1.0)
+    if mode == 'read':
+        try:
+            assert np.sign(fn([test_n]) * 1.0) == polarity
+        except AssertionError:
+            return False
+        else:
+            return True
+    else:  # write
+        try:
+            fn([test_n], 2.0)
+            assert np.sign(test_n.get() * 1.0) == polarity
+        except AssertionError:
+            return False
+        else:
+            return True
 
 
 def build_element(sp_pv, rd_pv, ename=None, fname=None, **kws):
