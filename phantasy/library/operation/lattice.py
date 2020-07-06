@@ -23,6 +23,7 @@ from phantasy.library.lattice import Lattice
 from phantasy.library.misc import simplify_data
 from phantasy.library.misc import create_tempdir
 from phantasy.library.parser import find_machine_config
+from phantasy.library.parser import read_polarity
 from phantasy.library.pv import DataSource
 #from phantasy.library.layout import build_layout
 from phantasy.library.parser import Configuration
@@ -202,6 +203,17 @@ def load_lattice(machine, segment=None, **kws):
             udata = None  # no unicorn data provided
             _LOGGER.warning("Default UNICORN policy will be applied.")
 
+        pdata_file = d_msect.get('polarity_file', None)
+        if pdata_file is not None:
+            if not os.path.isabs(pdata_file):
+                pdata_file = os.path.join(mdir, pdata_file)
+            pdata = read_polarity(pdata_file)
+            _LOGGER.info("Device polarity data is loaded from {}.".format(
+                os.path.abspath(pdata_file)))
+        else:
+            pdata = None
+            _LOGGER.warning("Default device polarity will be applied.")
+
         # machine type, linear (non-loop) or ring (loop)
         mtype = int(d_msect.get(INI_DICT['KEYNAME_MTYPE'],
                                 INI_DICT['DEFAULT_MTYPE']))
@@ -264,6 +276,7 @@ def load_lattice(machine, segment=None, **kws):
                              config=config,
                              #settings=settings,
                              udata=udata,
+                             pdata=pdata,
                              data_dir=data_dir,
                              sort=sort_flag,
                              prefix=pv_prefix,
@@ -331,9 +344,11 @@ def create_lattice(latname, pv_data, tag, **kws):
         Machine type, 0 for linear (default), 1 for a ring.
     model : str
         Model code, 'FLAME' or 'IMPACT', 'FLAME' by default.
-    udata: list of dict
+    udata : list of dict
         Scaling law functions, represented via 'name' (function name) and 'fn'
         (function object) keys.
+    pdata : dict
+        Device polarity, key-value pairs of device polarity.
     data_dir: str
         Path of directory to host data generated from model, including input
         lattice files, output files and other related files, if not defined,
@@ -376,6 +391,7 @@ def create_lattice(latname, pv_data, tag, **kws):
         Unified data source class for PVs.
     """
     udata = kws.get('udata', None)
+    pdata = kws.get('pdata', None)
     data_source = kws.get('source', None)
     prefix = kws.get('prefix', None)
     auto_monitor = kws.get('auto_monitor', False)
@@ -444,8 +460,10 @@ def create_lattice(latname, pv_data, tag, **kws):
             # this policy should created from unicorn_policy
             # u_policy: {'p': fn_p, 'n': fn_n}
             u_policy = get_unicorn_policy(elem.name, udata)
+            polarity = get_polarity(elem.name, pdata)
             elem.process_pv(pv_name_prefixed, pv_props, pv_tags,
-                            u_policy=u_policy, auto_monitor=auto_monitor)
+                            u_policy=u_policy, polarity=polarity,
+                            auto_monitor=auto_monitor)
 
     # update group
     lat.update_groups()
@@ -517,3 +535,12 @@ def get_unicorn_policy(ename, udata=None):
     fn_p = udata.get('{}-P'.format(ename), fn_p_0)
     fn_n = udata.get('{}-N'.format(ename), fn_n_0)
     return {'p': fn_p, 'n': fn_n}
+
+
+def get_polarity(ename, pdata=None):
+    """Get device polarity from *pdata*.
+    """
+    if pdata is None:
+        return 1
+    else:
+        return pdata.get(ename, 1)
