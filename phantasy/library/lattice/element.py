@@ -1521,6 +1521,14 @@ class CaElement(BaseElement):
                             field_of_interest={self.name: field_list},
                             only_physics=only_physics)
 
+    def get_focusing_polarity(self):
+        """Only work with QUAD.
+        """
+        if self.family == 'QUAD':
+            return 'X-focusing' if self.get_field('GRAD')._polarity == 1 else "Y-focusing"
+        return None
+
+
 
 class Number(float):
     def __init__(self, v):
