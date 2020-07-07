@@ -1,3 +1,38 @@
+Version 1.15.0
+--------------
+2020-06-07
+
+- MNT: Bump up version to 1.15.0.
+- ENH: Add support to equal test for all elements, include Layout.
+- MNT: Update log message.
+- ENH: Add MarkerElement and SourceElement.
+- REF: Add 'family' keyword argument to build_element().
+- FIX: API updates regarding the changes of PV read policy.
+- REF: Add 'auto_monitor' as keyword argument of MachinePortal class.
+- REF: Improve the PV value reading routine.
+- BUG: Add get_auto_monitor() for PVElement.
+- REF: Try to extract D### as spos when building element from PVs.
+- ENH: Add method to return all loaded lattice as one.
+- REF: Implement '+' of two Lattice objects.
+- FIX: String format of log message.
+- REF: Update __str__ of Lattice.
+- FIX: Lattice config,layout,settings file init issue.
+- REF: Add 'search_all' option to get_elements() to search in all loaded lattices.
+- REF: Fix --start[--end] element options for building FLAME settings.
+- MNT: Change log messages regarding diag devices to DEBUG level.
+
+!!This release is a rollback release from 1.14.0 (2020-04-15), in which there are VA issues.
+These are the dropped commits:
+- REF: Add support of --pv-suffix argument to FLAME VA.
+- ENH: Add --pv-suffix to flame-vastart cmd to customize noise/rate PVs.
+- ENH: Add --rep-rate and --noise arguments to flame-vastart cmd.
+- ENH: Add support to initial VA with noise level.
+- ENH: Add channel to control the reprate of VA.
+- WIP: Refactor FLAME VA to be consistent with high-level architecture.
+- WIP: Fix channel prefix issue with info PVs.
+- REF: Refactor the flame va start up logic w.r.t. the new design.
+- WIP: Build virtual accelerator from high-level lattice.
+
 Version 1.13.0
 --------------
 2020-01-30
