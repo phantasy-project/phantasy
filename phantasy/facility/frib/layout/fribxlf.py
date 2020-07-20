@@ -637,6 +637,7 @@ class AccelFactory(XlfConfig):
                         subsequence.append(elem)
 
                     elif row.device in DEVICE_ALIAS_SOL:
+                        ii = row.device[-1]
                         row.device = self.d_map.get(row.device, row.device)
                         dtype = "SOL_{}".format(row.device_type)
                         inst = FMT_INST.format(int(row.position))
@@ -646,11 +647,11 @@ class AccelFactory(XlfConfig):
                                              inst=inst)
                         drift_delta = self.apply_config(elem, sequence, drift_delta)
                         elem.h = HCorElement(elem.z, 0.0, elem.aperture,
-                                             "{elem.system}_{elem.subsystem}:DCH_{elem.inst}".format(elem=elem),
+                                             "{elem.system}_{elem.subsystem}:DCH{ii}_{elem.inst}".format(elem=elem, ii=ii),
                                              system=row.system, subsystem=row.subsystem, device="DCH",
                                              dtype=row.device_type, inst=inst)
                         elem.v = VCorElement(elem.z, 0.0, elem.aperture,
-                                             "{elem.system}_{elem.subsystem}:DCV_{elem.inst}".format(elem=elem),
+                                             "{elem.system}_{elem.subsystem}:DCV{ii}_{elem.inst}".format(elem=elem, ii=ii),
                                              system=row.system, subsystem=row.subsystem, device="DCV",
                                              dtype=row.device_type, inst=inst)
                         subsequence.append(elem)
