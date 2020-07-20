@@ -1,0 +1,88 @@
+# field mapping, ENG -> PHY
+
+__title__ = "Element field mapping from engineering unit to physics unit"
+
+[BEND]
+  [BEND.FIELD]
+  ENG = 'I'
+  PHY = 'B'
+
+[BPM]
+  [BPM.X]
+  ENG = 'X'
+  PHY = 'XPOS'
+  [BPM.Y]
+  ENG = 'Y'
+  PHY = 'YPOS'
+  [BPM.PHASE]
+  ENG = 'PHA'
+  PHY = 'PHASE'
+  [BPM.MAGNITUDE]
+  ENG = "MAG"
+  PHY = "MAGNITUDE"
+  [BPM.ENERGY]
+  ENG = "ENG"
+  PHY = "ENERGY"
+
+[CAV]
+  [CAV.PHASE]
+  ENG = 'PHA'
+  PHY = 'PHASE'
+  [CAV.AMPLITUDE]
+  ENG = 'AMP'
+  PHY = 'AMPLITUDE'
+  [CAV.PHASE_CREST]
+  ENG = 'PHA_CREST'
+  PHY = 'PHASE_CREST'
+  [CAV.AMPLITUDE_COEF]
+  ENG = 'AMP_COEF'
+  PHY = 'AMPLITUDE_COEF'
+
+[HCOR]
+  [HCOR.ANGLE]
+  ENG = 'I'
+  PHY = 'TM' # ANG --> TM
+
+[VCOR]
+  [VCOR.ANGLE]
+  ENG = 'I'
+  PHY = 'TM' # ANG --> TM
+
+[EBEND]
+  [EBEND.FIELD]
+  ENG = 'V'
+  PHY = 'VOLT'
+
+[EQUAD]
+  [EQUAD.GRADIENT]
+  ENG = 'V'
+  PHY = 'VOLT'
+
+[FC]
+  [FC.INTENSITY]
+  ENG = 'I'
+  PHY = 'INTEN'
+  [FC.BIASVOLT]
+  ENG = 'V'
+  PHY = 'VOLT'
+
+[PM]
+[QUAD]
+  [QUAD.GRADIENT]
+  ENG = 'I'
+  PHY = 'B2' # GRAD --> B2
+
+[SEXT]
+  [SEXT.FIELD]
+  ENG = 'I'
+  PHY = 'B3'
+
+[SOL]
+  [SOL.FIELD]
+  ENG = 'I'
+  PHY = 'B'
+
+[SOLCOR]
+  [SOLCOR.FIELD]
+  ENG = 'I'
+  PHY = 'B'
