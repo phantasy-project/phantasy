@@ -14,6 +14,7 @@ import numpy as np
 
 from phantasy.library.misc import SpecialDict
 from .style import get_style
+from .field_map import get_field_map
 
 try:
     basestring
@@ -507,17 +508,22 @@ class BPMElement(Element):
                  **meta):
         super(BPMElement, self).__init__(z, length, aperture, name, desc=desc,
                                          **meta)
-        self.fields.x = "X"
-        self.fields.x_phy = "XPOS"
-        self.fields.y = "Y"
-        self.fields.y_phy = "YPOS"
-        self.fields.phase = "PHA"
-        self.fields.phase_phy = "PHASE"
-        self.fields.magnitude = "MAG"
-        self.fields.magnitude_phy = "MAGNITUDE"
+        fm_x = get_field_map(self.ETYPE, 'X')
+        fm_y = get_field_map(self.ETYPE, 'Y')
+        fm_phase = get_field_map(self.ETYPE, 'PHASE')
+        fm_magnitude = get_field_map(self.ETYPE, 'MAGNITUDE')
+        fm_energy = get_field_map(self.ETYPE, 'ENERGY')
+        self.fields.x = fm_x['ENG']
+        self.fields.x_phy = fm_x['PHY']
+        self.fields.y = fm_y['ENG']
+        self.fields.y_phy = fm_y['PHY']
+        self.fields.phase = fm_phase['ENG']
+        self.fields.phase_phy = fm_phase['PHY']
+        self.fields.magnitude = fm_magnitude['ENG']
+        self.fields.magnitude_phy = fm_magnitude['PHY']
         # only for VA
-        self.fields.energy = "ENG"
-        self.fields.energy_phy = "ENERGY"
+        self.fields.energy = fm_energy['ENG']
+        self.fields.energy_phy = fm_energy['PHY']
 
     def set_drawing(self, p0=None, angle=0, mode='plain'):
         l = self.length
@@ -664,10 +670,12 @@ class FCElement(Element):
         super(FCElement, self).__init__(z, length, aperture, name, desc=desc,
                                         **meta)
 
-        self.fields.intensity = "I"
-        self.fields.intensity_phy = "INTEN"
-        self.fields.biasvolt = "V"
-        self.fields.biasvolt_phy = "VOLT"
+        fm_int = get_field_map(self.ETYPE, 'INTENSITY')
+        fm_bv = get_field_map(self.ETYPE, 'BIASVOLT')
+        self.fields.intensity = fm_int['ENG']
+        self.fields.intensity_phy = fm_int['PHY']
+        self.fields.biasvolt = fm_bv['ENG']
+        self.fields.biasvolt_phy = fm_bv['PHY']
         # VA only
         self.fields.x = "XCEN"
         self.fields.y = "YCEN"
@@ -735,8 +743,9 @@ class SolElement(Element):
     def __init__(self, z, length, aperture, name, desc="solenoid", **meta):
         super(SolElement, self).__init__(z, length, aperture, name, desc=desc,
                                          **meta)
-        self.fields.field = "I"
-        self.fields.field_phy = "B"
+        fm = get_field_map(self.ETYPE, 'FIELD')
+        self.fields.field = fm['ENG']
+        self.fields.field_phy = fm['PHY']
 
     def set_drawing(self, p0=None, angle=0, mode='plain'):
         l = self.length
@@ -801,7 +810,6 @@ class SolElement(Element):
                        'name': self.name, 'type': self.ETYPE}
 
 
-
 class SolCorElement(Element):
     """SolenoidElement represents a solenoid magnet with correctors
     """
@@ -812,8 +820,9 @@ class SolCorElement(Element):
                  **meta):
         super(SolCorElement, self).__init__(z, length, aperture, name,
                                             desc=desc, **meta)
-        self.fields.field = "I"
-        self.fields.field_phy = "B"
+        fm = get_field_map(self.ETYPE, 'FIELD')
+        self.fields.field = fm['ENG']
+        self.fields.field_phy = fm['PHY']
         self.h = None
         self.v = None
 
@@ -827,8 +836,9 @@ class BendElement(Element):
     def __init__(self, z, length, aperture, name, desc="bend magnet", **meta):
         super(BendElement, self).__init__(z, length, aperture, name, desc=desc,
                                           **meta)
-        self.fields.field = "I"
-        self.fields.field_phy = "B"
+        fm_i = get_field_map(self.ETYPE, 'FIELD')
+        self.fields.field = fm_i['ENG']
+        self.fields.field_phy = fm_i['PHY']
         self.fields.angle = "ANG"
         self.fields.exitAngle = "EXTANG"
         self.fields.entrAngle = "ENTANG"
@@ -859,8 +869,9 @@ class HCorElement(Element):
                  desc="horiz. corrector magnet", **meta):
         super(HCorElement, self).__init__(z, length, aperture, name, desc=desc,
                                           **meta)
-        self.fields.angle = "I"
-        self.fields.angle_phy = "ANG"
+        fm = get_field_map(self.ETYPE, 'ANGLE')
+        self.fields.angle = fm['ENG']
+        self.fields.angle_phy = fm['PHY']
 
 
 class VCorElement(Element):
@@ -873,8 +884,9 @@ class VCorElement(Element):
                  **meta):
         super(VCorElement, self).__init__(z, length, aperture, name, desc=desc,
                                           **meta)
-        self.fields.angle = "I"
-        self.fields.angle_phy = "ANG"
+        fm = get_field_map(self.ETYPE, 'ANGLE')
+        self.fields.angle = fm['ENG']
+        self.fields.angle_phy = fm['PHY']
 
 
 class CorElement(Element):
@@ -941,8 +953,9 @@ class QuadElement(Element):
                  **meta):
         super(QuadElement, self).__init__(z, length, aperture, name, desc=desc,
                                           **meta)
-        self.fields.gradient = "I"
-        self.fields.gradient_phy = "GRAD"
+        fm = get_field_map(self.ETYPE, 'GRADIENT')
+        self.fields.gradient = fm['ENG']
+        self.fields.gradient_phy = fm['PHY']
 
         self._hv = 'H'
         if 'V' in self.name:
@@ -1017,8 +1030,9 @@ class SextElement(Element):
                  **meta):
         super(SextElement, self).__init__(z, length, aperture, name, desc=desc,
                                           **meta)
-        self.fields.field = "I"
-        self.fields.field_phy = "B3"
+        fm = get_field_map(self.ETYPE, 'FIELD')
+        self.fields.field = fm['ENG']
+        self.fields.field_phy = fm['PHY']
 
 
 # Electrostatic Elements
@@ -1038,8 +1052,9 @@ class EBendElement(Element):
     def __init__(self, z, length, aperture, name, desc="ebend", **meta):
         super(EBendElement, self).__init__(z, length, aperture, name, desc=desc,
                                            **meta)
-        self.fields.field = "V"
-        self.fields.field_phy = "VOLT"
+        fm = get_field_map(self.ETYPE, 'FIELD')
+        self.fields.field = fm['ENG']
+        self.fields.field_phy = fm['PHY']
 
     def set_drawing(self, p0=None, angle=0, mode='plain'):
         l = self.length
@@ -1119,8 +1134,9 @@ class EQuadElement(Element):
     def __init__(self, z, length, aperture, name, desc="equad", **meta):
         super(EQuadElement, self).__init__(z, length, aperture, name, desc=desc,
                                            **meta)
-        self.fields.gradient = "V"
-        self.fields.gradient_phy = "VOLT"
+        fm = get_field_map(self.ETYPE, 'GRADIENT')
+        self.fields.gradient = fm['ENG']
+        self.fields.gradient_phy = fm['PHY']
 
         self._hv = 'H'
         if 'V' in self.name:
@@ -1203,14 +1219,18 @@ class CavityElement(Element):
     def __init__(self, z, length, aperture, name, desc="cavity", **meta):
         super(CavityElement, self).__init__(z, length, aperture, name,
                                             desc=desc, **meta)
-        self.fields.phase = "PHA"
-        self.fields.phase_phy = "PHASE"
-        self.fields.amplitude = "AMP"
-        self.fields.amplitude_phy = "AMPLITUDE"
-        self.fields.phase_crest = "PHA_CREST"
-        self.fields.phase_crest_phy = "PHASE_CREST"
-        self.fields.amplitude_coef = "AMP_COEF"
-        self.fields.amplitude_coef_phy = "AMPLITUDE_COEF"
+        fm_phase = get_field_map(self.ETYPE, 'PHASE')
+        fm_amplitude = get_field_map(self.ETYPE, 'AMPLITUDE')
+        fm_phase_crest = get_field_map(self.ETYPE, 'PHASE_CREST')
+        fm_amplitude_coef = get_field_map(self.ETYPE, 'AMPLITUDE_COEF')
+        self.fields.phase = fm_phase['ENG']
+        self.fields.phase_phy = fm_phase['PHY']
+        self.fields.amplitude = fm_amplitude['ENG']
+        self.fields.amplitude_phy = fm_amplitude['PHY']
+        self.fields.phase_crest = fm_phase_crest['ENG']
+        self.fields.phase_crest_phy = fm_phase_crest['PHY']
+        self.fields.amplitude_coef = fm_amplitude_coef['ENG']
+        self.fields.amplitude_coef_phy = fm_amplitude_coef['PHY']
         self.fields.frequency = "FREQ"
 
     def set_drawing(self, p0=None, angle=0, mode='plain'):
