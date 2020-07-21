@@ -1,3 +1,13 @@
+Version 1.15.1
+--------------
+2020-07-21
+
+- MNT: Bump up version to 1.15.1.
+- REF: Loading dynamic ENG/PHY fields from configuration file.
+- ENH: Control element field mapping with .toml file.
+- REF: Name DCH[V] with number (1,2,3) for the SOLCOR device.
+- ENH: Add method to get QUAD focusing polarity: get_focusing_polarity().
+
 Version 1.15.0
 --------------
 2020-06-07
