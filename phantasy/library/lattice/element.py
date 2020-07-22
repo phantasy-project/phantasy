@@ -1407,7 +1407,7 @@ class CaElement(BaseElement):
         >>> # convert I = 100 A, to gradient 15.177 T/m
         >>> quad.convert(value=100, field='I')
         15.17734389601
-        >>> quad.convert(value=15, field='GRAD')
+        >>> quad.convert(value=15, field='B2')
         98.7534891752199
         """
         if field not in self.__unicorn:
@@ -1525,9 +1525,8 @@ class CaElement(BaseElement):
         """Only work with QUAD.
         """
         if self.family == 'QUAD':
-            return 'X-focusing' if self.get_field('GRAD')._polarity == 1 else "Y-focusing"
+            return 'X-focusing' if self.get_field('B2')._polarity == 1 else "Y-focusing"
         return None
-
 
 
 class Number(float):
