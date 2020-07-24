@@ -476,8 +476,9 @@ class NDElement(Element):
                  **meta):
         super(NDElement, self).__init__(z, length, aperture, name, desc=desc,
                                         **meta)
-        self.fields.current = "AVG"
-        self.fields.current_phy = "I_AVG"
+        fm_avg = get_field_map(self.ETYPE, 'AVERAGE_INTENSITY')
+        self.fields.current = fm_avg['ENG']
+        self.fields.current_phy = fm_avg['PHY']
 
 
 class ICElement(Element):
@@ -489,8 +490,9 @@ class ICElement(Element):
                  **meta):
         super(ICElement, self).__init__(z, length, aperture, name, desc=desc,
                                         **meta)
-        self.fields.current = "AVG"
-        self.fields.current_phy = "I_AVG"
+        fm_avg = get_field_map(self.ETYPE, 'AVERAGE_INTENSITY')
+        self.fields.current = fm_avg['ENG']
+        self.fields.current_phy = fm_avg['PHY']
 
 
 class BPMElement(Element):
@@ -610,10 +612,13 @@ class BCMElement(Element):
                  **meta):
         super(BCMElement, self).__init__(z, length, aperture, name, desc=desc,
                                          **meta)
-        self.fields.current_avg = "AVG"  # 1 Hz avg
-        self.fields.current_avg_phy = "I_AVG"
-        self.fields.current_peak = "TYP"  # peak avg
-        self.fields.current_peak_phy = "I_TYP"
+
+        fm_avg = get_field_map(self.ETYPE, 'AVERAGE_INTENSITY')
+        fm_pkavg = get_field_map(self.ETYPE, 'AVERAGE_PEAK_INTENSITY')
+        self.fields.current_avg = fm_avg['ENG']  # 1 Hz avg
+        self.fields.current_avg_phy = fm_avg['PHY']
+        self.fields.current_peak = fm_pkavg['ENG']   # peak avg
+        self.fields.current_peak_phy = fm_pkavg['PHY']
 
 
 class BLElement(Element):
@@ -670,10 +675,13 @@ class FCElement(Element):
         super(FCElement, self).__init__(z, length, aperture, name, desc=desc,
                                         **meta)
 
-        fm_int = get_field_map(self.ETYPE, 'INTENSITY')
+        fm_int = get_field_map(self.ETYPE, 'AVERAGE_INTENSITY')
+        fm_int_pk = get_field_map(self.ETYPE, 'AVERAGE_PEAK_INTENSITY')
         fm_bv = get_field_map(self.ETYPE, 'BIASVOLT')
         self.fields.intensity = fm_int['ENG']
         self.fields.intensity_phy = fm_int['PHY']
+        self.fields.intensity_pk = fm_int_pk['ENG']
+        self.fields.intensity_pk_phy = fm_int_pk['PHY']
         self.fields.biasvolt = fm_bv['ENG']
         self.fields.biasvolt_phy = fm_bv['PHY']
         # VA only
@@ -692,8 +700,9 @@ class HMRElement(Element):
     def __init__(self, z, length, aperture, name, desc="halo ring", **meta):
         super(HMRElement, self).__init__(z, length, aperture, name, desc=desc,
                                          **meta)
-        self.fields.current = "AVG"
-        self.fields.current_phy = "I_AVG"
+        fm_avg = get_field_map(self.ETYPE, 'AVERAGE_INTENSITY')
+        self.fields.current = fm_avg['ENG']
+        self.fields.current_phy = fm_avg['PHY']
 
 
 class VDElement(Element):
