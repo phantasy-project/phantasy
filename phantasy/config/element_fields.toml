@@ -2,6 +2,14 @@
 
 __title__ = "Element field mapping from engineering unit to physics unit"
 
+[BCM]
+  [BCM.AVERAGE_INTENSITY]
+  ENG = 'I_AVG'
+  PHY = 'AVERAGE_INTENSITY'
+  [BCM.AVERAGE_PEAK_INTENSITY]
+  ENG = 'I_PKAVG'
+  PHY = 'AVERAGE_PEAK_INTENSITY'
+
 [BEND]
   [BEND.FIELD]
   ENG = 'I'
@@ -59,12 +67,30 @@ __title__ = "Element field mapping from engineering unit to physics unit"
   PHY = 'VOLT'
 
 [FC]
-  [FC.INTENSITY]
-  ENG = 'I'
-  PHY = 'INTEN'
+  [FC.AVERAGE_INTENSITY]
+  ENG = 'I_AVG'
+  PHY = 'AVERAGE_INTENSITY'
+  [FC.AVERAGE_PEAK_INTENSITY]
+  ENG = 'I_PKAVG'
+  PHY = 'AVERAGE_PEAK_INTENSITY'
   [FC.BIASVOLT]
   ENG = 'V'
-  PHY = 'VOLT'
+  PHY = 'BIAS_VOLT'
+
+[HMR]
+  [HMR.AVERAGE_INTENSITY]
+  ENG = 'I_AVG'
+  PHY = 'AVERAGE_INTENSITY'
+
+[IC]
+  [IC.AVERAGE_INTENSITY]
+  ENG = 'I_AVG'
+  PHY = 'AVERAGE_INTENSITY'
+
+[ND]
+  [ND.AVERAGE_INTENSITY]
+  ENG = 'I_AVG'
+  PHY = 'AVERAGE_INTENSITY'
 
 [PM]
 [QUAD]
