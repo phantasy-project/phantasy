@@ -20,6 +20,7 @@ from .miscutils import find_conf
 from .message import disable_warnings
 from .message import set_loglevel
 from .httputils import cofetch
+from .random_word import get_random_name
 
 __all__ = [
     'flatten', 'get_intersection', 'machine_setter', 'bisect_index',
@@ -28,5 +29,5 @@ __all__ = [
     'cofetch', 'disable_warnings', 'set_loglevel', 'QCallback',
     'convert_epoch', 'truncate_number',
     'create_tempfile', 'create_tempdir',
-    'find_conf',
+    'find_conf', 'get_random_name',
 ]
