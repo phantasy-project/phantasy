@@ -157,6 +157,8 @@ def get_orm_for_one_corrector(corrector, monitors, **kws):
         Number of effective digits to keep for a float number.
     keep_all : bool
         Return all measured data or not, default is False.
+    tol : float
+        Absolute tolerance between setpoint and readback.
 
     Returns
     -------
@@ -181,6 +183,9 @@ def get_orm_for_one_corrector(corrector, monitors, **kws):
     n = kws.get('ncor', 1)     # total number of correctors
     q_msg = kws.get('msg_queue', None)
     n_trun = kws.get('ndigits', 6)
+    tol = kws.get('tol', 0.1)
+
+    print(f"{corrector.name}, tol: {tol}")
 
     ns = len(scan)
     nn = n * ns
@@ -188,10 +193,17 @@ def get_orm_for_one_corrector(corrector, monitors, **kws):
     m = len(monitors) * len(xoy)
     orbit_arr = np.zeros([len(scan), m])
     cor_val0 = corrector.current_setting(cor_field)
+    scan_rdbk = []
     for iscan, val in enumerate(scan):
         v_to_set =  truncate_number(val, n_trun)
-        setattr(corrector, cor_field, v_to_set)
-        time.sleep(wait)
+
+        # ensure put
+        corrector.ensure_put(cor_field, v_to_set, tol=tol, timeout=wait)
+
+        # setattr(corrector, cor_field, v_to_set)
+        # time.sleep(wait)
+        scan_rdbk.append(getattr(corrector, cor_field))
+
         msg = "[{0}] Set [{1:02d}] {2} [{3}]: {4:>10.6f} (RD: {5:>10.6f})".format(
                 epoch2human(time.time(), fmt=TS_FMT), idx + 1, corrector.name,
                 cor_field, v_to_set, getattr(corrector, cor_field))
@@ -200,8 +212,12 @@ def get_orm_for_one_corrector(corrector, monitors, **kws):
         print(msg)
         orbit_arr[iscan] = get_orbit(monitors, **kws)
 
-    setattr(corrector, cor_field, cor_val0)
-    time.sleep(reset_wait)
+    # ensure put
+    corrector.ensure_put(cor_field, cor_val0, tol=tol, timeout=reset_wait)
+
+    # setattr(corrector, cor_field, cor_val0)
+    # time.sleep(reset_wait)
+
     msg = "[{0}] Set [{1:02d}] {2} [{3}]: {4:>10.6f} (RD: {5:>10.6f}) [RESET]".format(
             epoch2human(time.time(), fmt=TS_FMT), idx + 1, corrector.name,
             cor_field, cor_val0, getattr(corrector, cor_field))
@@ -209,7 +225,7 @@ def get_orm_for_one_corrector(corrector, monitors, **kws):
         q_msg.put((-1, msg))
     print(msg)
 
-    r = np.asarray([np.polyfit(scan, orbit_arr[:, k], 1)[0] for k in range(m)])
+    r = np.asarray([np.polyfit(scan_rdbk, orbit_arr[:, k], 1)[0] for k in range(m)])
 
     if kws.get('keep_all', False):
         return r, np.asarray(orbit_arr)
