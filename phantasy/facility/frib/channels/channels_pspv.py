@@ -304,6 +304,13 @@ def build_channels(layout, psfile, machine=None, **kws):
             props[_HANDLE_PROPERTY] = "readback"
             data.append((channel + ":I_RD", OrderedDict(props), list(tags)))
 
+            props[_FIELD_ENG_PROPERTY] = elem.fields.power_status
+            props[_FIELD_PHY_PROPERTY] = elem.fields.power_status_phy
+            props[_HANDLE_PROPERTY] = "setpoint"
+            data.append((channel + ":ON_CMD", OrderedDict(props), list(tags)))
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel + ":ON_RSTS", OrderedDict(props), list(tags)))
+
             channels, props, tags = buildChannel_cor(elem.h)
             channel = channels[0]
             props[_TYPE_PROPERTY] = "HCOR"
@@ -316,6 +323,13 @@ def build_channels(layout, psfile, machine=None, **kws):
             props[_HANDLE_PROPERTY] = "readback"
             data.append((channel + ":I_RD", OrderedDict(props), list(tags)))
 
+            props[_FIELD_ENG_PROPERTY] = elem.h.fields.power_status
+            props[_FIELD_PHY_PROPERTY] = elem.h.fields.power_status_phy
+            props[_HANDLE_PROPERTY] = "setpoint"
+            data.append((channel + ":ON_CMD", OrderedDict(props), list(tags)))
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel + ":ON_RSTS", OrderedDict(props), list(tags)))
+
             channels, props, tags = buildChannel_cor(elem.v)
             channel = channels[0]
             props[_TYPE_PROPERTY] = "VCOR"
@@ -327,6 +341,13 @@ def build_channels(layout, psfile, machine=None, **kws):
             data.append((channel + ":I_RSET", OrderedDict(props), list(tags)))
             props[_HANDLE_PROPERTY] = "readback"
             data.append((channel + ":I_RD", OrderedDict(props), list(tags)))
+
+            props[_FIELD_ENG_PROPERTY] = elem.v.fields.power_status
+            props[_FIELD_PHY_PROPERTY] = elem.v.fields.power_status_phy
+            props[_HANDLE_PROPERTY] = "setpoint"
+            data.append((channel + ":ON_CMD", OrderedDict(props), list(tags)))
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel + ":ON_RSTS", OrderedDict(props), list(tags)))
 
         elif isinstance(elem, SolElement):
             try:
@@ -349,6 +370,15 @@ def build_channels(layout, psfile, machine=None, **kws):
                 props[_HANDLE_PROPERTY] = "readback"
                 data.append((channel + ":I_RD", OrderedDict(props), list(tags)))
 
+            props[_FIELD_ENG_PROPERTY] = elem.fields.power_status
+            props[_FIELD_PHY_PROPERTY] = elem.fields.power_status_phy
+
+            for channel in channels:
+                props[_HANDLE_PROPERTY] = "setpoint"
+                data.append((channel + ":ON_CMD", OrderedDict(props), list(tags)))
+                props[_HANDLE_PROPERTY] = "readback"
+                data.append((channel + ":ON_RSTS", OrderedDict(props), list(tags)))
+
         elif isinstance(elem, HCorElement):
             props[_TYPE_PROPERTY] = "HCOR"
             props[_FIELD_ENG_PROPERTY] = elem.fields.angle
@@ -360,6 +390,13 @@ def build_channels(layout, psfile, machine=None, **kws):
             props[_HANDLE_PROPERTY] = "readback"
             data.append((channel + ":I_RD", OrderedDict(props), list(tags)))
 
+            props[_FIELD_ENG_PROPERTY] = elem.fields.power_status
+            props[_FIELD_PHY_PROPERTY] = elem.fields.power_status_phy
+            props[_HANDLE_PROPERTY] = "setpoint"
+            data.append((channel + ":ON_CMD", OrderedDict(props), list(tags)))
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel + ":ON_RSTS", OrderedDict(props), list(tags)))
+
         elif isinstance(elem, VCorElement):
             props[_TYPE_PROPERTY] = "VCOR"
             props[_FIELD_ENG_PROPERTY] = elem.fields.angle
@@ -370,6 +407,13 @@ def build_channels(layout, psfile, machine=None, **kws):
             data.append((channel + ":I_RSET", OrderedDict(props), list(tags)))
             props[_HANDLE_PROPERTY] = "readback"
             data.append((channel + ":I_RD", OrderedDict(props), list(tags)))
+
+            props[_FIELD_ENG_PROPERTY] = elem.fields.power_status
+            props[_FIELD_PHY_PROPERTY] = elem.fields.power_status_phy
+            props[_HANDLE_PROPERTY] = "setpoint"
+            data.append((channel + ":ON_CMD", OrderedDict(props), list(tags)))
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel + ":ON_RSTS", OrderedDict(props), list(tags)))
 
         elif isinstance(elem, CorElement):
             try:
@@ -389,6 +433,14 @@ def build_channels(layout, psfile, machine=None, **kws):
                 props[_HANDLE_PROPERTY] = "readback"
                 data.append((channel + ":I_RD", OrderedDict(props), list(tags)))
 
+            props[_FIELD_ENG_PROPERTY] = elem.h.fields.power_status
+            props[_FIELD_PHY_PROPERTY] = elem.h.fields.power_status_phy
+            for channel in channels:
+                props[_HANDLE_PROPERTY] = "setpoint"
+                data.append((channel + ":ON_CMD", OrderedDict(props), list(tags)))
+                props[_HANDLE_PROPERTY] = "readback"
+                data.append((channel + ":ON_RSTS", OrderedDict(props), list(tags)))
+
             try:
                 channels, props, tags = buildChannel_pspv(elem.v)
             except PSPVRulesNotFoundForCOR:
@@ -406,6 +458,14 @@ def build_channels(layout, psfile, machine=None, **kws):
                 props[_HANDLE_PROPERTY] = "readback"
                 data.append((channel + ":I_RD", OrderedDict(props), list(tags)))
 
+            props[_FIELD_ENG_PROPERTY] = elem.v.fields.power_status
+            props[_FIELD_PHY_PROPERTY] = elem.v.fields.power_status_phy
+            for channel in channels:
+                props[_HANDLE_PROPERTY] = "setpoint"
+                data.append((channel + ":ON_CMD", OrderedDict(props), list(tags)))
+                props[_HANDLE_PROPERTY] = "readback"
+                data.append((channel + ":ON_RSTS", OrderedDict(props), list(tags)))
+
         elif isinstance(elem, QuadElement):
             props[_TYPE_PROPERTY] = "QUAD"
             props[_FIELD_ENG_PROPERTY] = elem.fields.gradient
@@ -416,6 +476,13 @@ def build_channels(layout, psfile, machine=None, **kws):
             data.append((channel + ":I_RSET", OrderedDict(props), list(tags)))
             props[_HANDLE_PROPERTY] = "readback"
             data.append((channel + ":I_RD", OrderedDict(props), list(tags)))
+
+            props[_FIELD_ENG_PROPERTY] = elem.fields.power_status
+            props[_FIELD_PHY_PROPERTY] = elem.fields.power_status_phy
+            props[_HANDLE_PROPERTY] = "setpoint"
+            data.append((channel + ":ON_CMD", OrderedDict(props), list(tags)))
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel + ":ON_RSTS", OrderedDict(props), list(tags)))
 
         elif isinstance(elem, BendElement):
             try:
@@ -435,6 +502,15 @@ def build_channels(layout, psfile, machine=None, **kws):
                 props[_HANDLE_PROPERTY] = "readback"
                 data.append((channel + ":I_RD", OrderedDict(props), list(tags)))
 
+            props[_FIELD_ENG_PROPERTY] = elem.fields.power_status
+            props[_FIELD_PHY_PROPERTY] = elem.fields.power_status_phy
+
+            for channel in channels:
+                props[_HANDLE_PROPERTY] = "setpoint"
+                data.append((channel + ":ON_CMD", OrderedDict(props), list(tags)))
+                props[_HANDLE_PROPERTY] = "readback"
+                data.append((channel + ":ON_RSTS", OrderedDict(props), list(tags)))
+
         elif isinstance(elem, SextElement):
             props[_TYPE_PROPERTY] = "SEXT"
             props[_FIELD_ENG_PROPERTY] = elem.fields.field
@@ -445,6 +521,13 @@ def build_channels(layout, psfile, machine=None, **kws):
             data.append((channel + ":I_RSET", OrderedDict(props), list(tags)))
             props[_HANDLE_PROPERTY] = "readback"
             data.append((channel + ":I_RD", OrderedDict(props), list(tags)))
+
+            props[_FIELD_ENG_PROPERTY] = elem.fields.power_status
+            props[_FIELD_PHY_PROPERTY] = elem.fields.power_status_phy
+            props[_HANDLE_PROPERTY] = "setpoint"
+            data.append((channel + ":ON_CMD", OrderedDict(props), list(tags)))
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel + ":ON_RSTS", OrderedDict(props), list(tags)))
 
         elif isinstance(elem, BPMElement):
             props[_TYPE_PROPERTY] = "BPM"
@@ -530,6 +613,15 @@ def build_channels(layout, psfile, machine=None, **kws):
                 props[_HANDLE_PROPERTY] = "readback"
                 data.append((channel + ":V_RD", OrderedDict(props), list(tags)))
 
+            props[_FIELD_ENG_PROPERTY] = elem.fields.power_status
+            props[_FIELD_PHY_PROPERTY] = elem.fields.power_status_phy
+
+            for channel in channels:
+                props[_HANDLE_PROPERTY] = "setpoint"
+                data.append((channel + ":ON_CMD", OrderedDict(props), list(tags)))
+                props[_HANDLE_PROPERTY] = "readback"
+                data.append((channel + ":ON_RSTS", OrderedDict(props), list(tags)))
+
         elif isinstance(elem, EQuadElement):
             try:
                 channels, props, tags = buildChannel_pspv(elem)
@@ -547,6 +639,15 @@ def build_channels(layout, psfile, machine=None, **kws):
                 data.append((channel + ":V_RSET", OrderedDict(props), list(tags)))
                 props[_HANDLE_PROPERTY] = "readback"
                 data.append((channel + ":V_RD", OrderedDict(props), list(tags)))
+
+            props[_FIELD_ENG_PROPERTY] = elem.fields.power_status
+            props[_FIELD_PHY_PROPERTY] = elem.fields.power_status_phy
+
+            for channel in channels:
+                props[_HANDLE_PROPERTY] = "setpoint"
+                data.append((channel + ":ON_CMD", OrderedDict(props), list(tags)))
+                props[_HANDLE_PROPERTY] = "readback"
+                data.append((channel + ":ON_RSTS", OrderedDict(props), list(tags)))
 
         elif isinstance(elem, StripElement):
             # Charge Stripper has no channels

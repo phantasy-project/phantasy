@@ -753,8 +753,11 @@ class SolElement(Element):
         super(SolElement, self).__init__(z, length, aperture, name, desc=desc,
                                          **meta)
         fm = get_field_map(self.ETYPE, 'FIELD')
+        fm_pwr = get_field_map(self.ETYPE, 'POWER_STATUS')
         self.fields.field = fm['ENG']
         self.fields.field_phy = fm['PHY']
+        self.fields.power_status = fm_pwr['ENG']
+        self.fields.power_status_phy = fm_pwr['PHY']
 
     def set_drawing(self, p0=None, angle=0, mode='plain'):
         l = self.length
@@ -830,8 +833,11 @@ class SolCorElement(Element):
         super(SolCorElement, self).__init__(z, length, aperture, name,
                                             desc=desc, **meta)
         fm = get_field_map(self.ETYPE, 'FIELD')
+        fm_pwr = get_field_map(self.ETYPE, 'POWER_STATUS')
         self.fields.field = fm['ENG']
         self.fields.field_phy = fm['PHY']
+        self.fields.power_status = fm_pwr['ENG']
+        self.fields.power_status_phy = fm_pwr['PHY']
         self.h = None
         self.v = None
 
@@ -846,8 +852,11 @@ class BendElement(Element):
         super(BendElement, self).__init__(z, length, aperture, name, desc=desc,
                                           **meta)
         fm_i = get_field_map(self.ETYPE, 'FIELD')
+        fm_pwr = get_field_map(self.ETYPE, 'POWER_STATUS')
         self.fields.field = fm_i['ENG']
         self.fields.field_phy = fm_i['PHY']
+        self.fields.power_status = fm_pwr['ENG']
+        self.fields.power_status_phy = fm_pwr['PHY']
         self.fields.angle = "ANG"
         self.fields.exitAngle = "EXTANG"
         self.fields.entrAngle = "ENTANG"
@@ -879,8 +888,11 @@ class HCorElement(Element):
         super(HCorElement, self).__init__(z, length, aperture, name, desc=desc,
                                           **meta)
         fm = get_field_map(self.ETYPE, 'ANGLE')
+        fm_pwr = get_field_map(self.ETYPE, 'POWER_STATUS')
         self.fields.angle = fm['ENG']
         self.fields.angle_phy = fm['PHY']
+        self.fields.power_status = fm_pwr['ENG']
+        self.fields.power_status_phy = fm_pwr['PHY']
 
 
 class VCorElement(Element):
@@ -894,8 +906,11 @@ class VCorElement(Element):
         super(VCorElement, self).__init__(z, length, aperture, name, desc=desc,
                                           **meta)
         fm = get_field_map(self.ETYPE, 'ANGLE')
+        fm_pwr = get_field_map(self.ETYPE, 'POWER_STATUS')
         self.fields.angle = fm['ENG']
         self.fields.angle_phy = fm['PHY']
+        self.fields.power_status = fm_pwr['ENG']
+        self.fields.power_status_phy = fm_pwr['PHY']
 
 
 class CorElement(Element):
@@ -963,8 +978,11 @@ class QuadElement(Element):
         super(QuadElement, self).__init__(z, length, aperture, name, desc=desc,
                                           **meta)
         fm = get_field_map(self.ETYPE, 'GRADIENT')
+        fm_pwr = get_field_map(self.ETYPE, 'POWER_STATUS')
         self.fields.gradient = fm['ENG']
         self.fields.gradient_phy = fm['PHY']
+        self.fields.power_status = fm_pwr['ENG']
+        self.fields.power_status_phy = fm_pwr['PHY']
 
         self._hv = 'H'
         if 'V' in self.name:
@@ -1040,8 +1058,11 @@ class SextElement(Element):
         super(SextElement, self).__init__(z, length, aperture, name, desc=desc,
                                           **meta)
         fm = get_field_map(self.ETYPE, 'FIELD')
+        fm_pwr = get_field_map(self.ETYPE, 'POWER_STATUS')
         self.fields.field = fm['ENG']
         self.fields.field_phy = fm['PHY']
+        self.fields.power_status = fm_pwr['ENG']
+        self.fields.power_status_phy = fm_pwr['PHY']
 
 
 # Electrostatic Elements
@@ -1062,8 +1083,11 @@ class EBendElement(Element):
         super(EBendElement, self).__init__(z, length, aperture, name, desc=desc,
                                            **meta)
         fm = get_field_map(self.ETYPE, 'FIELD')
+        fm_pwr = get_field_map(self.ETYPE, 'POWER_STATUS')
         self.fields.field = fm['ENG']
         self.fields.field_phy = fm['PHY']
+        self.fields.power_status = fm_pwr['ENG']
+        self.fields.power_status_phy = fm_pwr['PHY']
 
     def set_drawing(self, p0=None, angle=0, mode='plain'):
         l = self.length
@@ -1144,8 +1168,11 @@ class EQuadElement(Element):
         super(EQuadElement, self).__init__(z, length, aperture, name, desc=desc,
                                            **meta)
         fm = get_field_map(self.ETYPE, 'GRADIENT')
+        fm_pwr = get_field_map(self.ETYPE, 'POWER_STATUS')
         self.fields.gradient = fm['ENG']
         self.fields.gradient_phy = fm['PHY']
+        self.fields.power_status = fm_pwr['ENG']
+        self.fields.power_status_phy = fm_pwr['PHY']
 
         self._hv = 'H'
         if 'V' in self.name:

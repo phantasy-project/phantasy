@@ -14,6 +14,9 @@ __title__ = "Element field mapping from engineering unit to physics unit"
   [BEND.FIELD]
   ENG = 'I'
   PHY = 'B'
+  [BEND.POWER_STATUS]
+  ENG = 'PWRSTS'
+  PHY = 'POWER_STATUS'
 
 [BPM]
   [BPM.X]
@@ -50,21 +53,33 @@ __title__ = "Element field mapping from engineering unit to physics unit"
   [HCOR.ANGLE]
   ENG = 'I'
   PHY = 'TM' # ANG --> TM
+  [HCOR.POWER_STATUS]
+  ENG = 'PWRSTS'
+  PHY = 'POWER_STATUS'
 
 [VCOR]
   [VCOR.ANGLE]
   ENG = 'I'
   PHY = 'TM' # ANG --> TM
+  [VCOR.POWER_STATUS]
+  ENG = 'PWRSTS'
+  PHY = 'POWER_STATUS'
 
 [EBEND]
   [EBEND.FIELD]
   ENG = 'V'
   PHY = 'VOLT'
+  [EBEND.POWER_STATUS]
+  ENG = 'PWRSTS'
+  PHY = 'POWER_STATUS'
 
 [EQUAD]
   [EQUAD.GRADIENT]
   ENG = 'V'
   PHY = 'VOLT'
+  [EQUAD.POWER_STATUS]
+  ENG = 'PWRSTS'
+  PHY = 'POWER_STATUS'
 
 [FC]
   [FC.AVERAGE_INTENSITY]
@@ -97,18 +112,30 @@ __title__ = "Element field mapping from engineering unit to physics unit"
   [QUAD.GRADIENT]
   ENG = 'I'
   PHY = 'B2' # GRAD --> B2
+  [QUAD.POWER_STATUS]
+  ENG = 'PWRSTS'
+  PHY = 'POWER_STATUS'
 
 [SEXT]
   [SEXT.FIELD]
   ENG = 'I'
   PHY = 'B3'
+  [SEXT.POWER_STATUS]
+  ENG = 'PWRSTS'
+  PHY = 'POWER_STATUS'
 
 [SOL]
   [SOL.FIELD]
   ENG = 'I'
   PHY = 'B'
+  [SOL.POWER_STATUS]
+  ENG = 'PWRSTS'
+  PHY = 'POWER_STATUS'
 
 [SOLCOR]
   [SOLCOR.FIELD]
   ENG = 'I'
   PHY = 'B'
+  [SOLCOR.POWER_STATUS]
+  ENG = 'PWRSTS'
+  PHY = 'POWER_STATUS'
