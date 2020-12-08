@@ -48,6 +48,18 @@ __title__ = "Element field mapping from engineering unit to physics unit"
   [CAV.AMPLITUDE_COEF]
   ENG = 'AMP_COEF'
   PHY = 'AMPLITUDE_COEF'
+  [CAV.LOCK_STATUS]  # READONLY, LOCK_RD
+  ENG = 'LKSTS'
+  PHY = 'LOCK_STATUS'
+  [CAV.INTERLOCK_STATUS] # READONLY, ILK_LTCH_ANY
+  ENG = 'ITLKSTS'
+  PHY = 'INTERLOCK_STATUS'
+  [CAV.AUTO_START_STATUS] # write: (1) EN_CMD_ASTR, read: EN_RSTS_RFLK
+  ENG = 'ASTRSTS'
+  PHY = 'AUTO_START_STATUS'
+  [CAV.OFF_STATUS] # write: (0) EN_CMD_RF, read: EN_RSTS_RFLK
+  ENG = 'OFFSTS'
+  PHY = 'OFF_STATUS'
 
 [HCOR]
   [HCOR.ANGLE]
