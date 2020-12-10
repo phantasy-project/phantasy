@@ -20,8 +20,8 @@ class ColumnExtension(GObject.GObject, Explorer.MenuProvider):
 
     def get_background_items(self, window, file):
         top_mitem = Explorer.MenuItem(
-                name="AppsMenu::Physics Apps",
-                label="Physics Apps",
+                name="AppsMenu::Launch Physics Apps",
+                label="Launch Physics Apps",
                 tip="Global Launcher for Physics Applications",
                 icon="phantasy-al")
 
