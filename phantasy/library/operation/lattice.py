@@ -29,7 +29,6 @@ from phantasy.library.pv import DataSource
 from phantasy.library.parser import Configuration
 #from phantasy.library.settings import Settings
 from unicorn.utils import UnicornData
-from unicorn.utils import get_func
 
 try:
     basestring
@@ -193,10 +192,10 @@ def load_lattice(machine, segment=None, **kws):
         if udata_file is not None:
             if not os.path.isabs(udata_file):
                 udata_file = os.path.join(mdir, udata_file)
-            udata = {f['name']: get_func(f['code'])
-                     for f in UnicornData(
-                         udata_file, data_x_col_idx=4, data_y_col_idx=5).functions}
-                     # will be deprecated in 2.0
+            udata = {}
+            for f in UnicornData(udata_file).functions:
+                _d = udata.setdefault(f.ename, {})
+                _d[(f.from_field, f.to_field)] = f.code
             _LOGGER.info("UNICORN policy will be loaded from {}.".format(
                 os.path.abspath(udata_file)))
         else:
@@ -344,9 +343,9 @@ def create_lattice(latname, pv_data, tag, **kws):
         Machine type, 0 for linear (default), 1 for a ring.
     model : str
         Model code, 'FLAME' or 'IMPACT', 'FLAME' by default.
-    udata : list of dict
-        Scaling law functions, represented via 'name' (function name) and 'fn'
-        (function object) keys.
+    udata : dict
+        Scaling law functions, ename as the keys (1st level), (from_field, to_field) as 2nd level
+        keys, function object as the values, i.e. {ename: {(f1, f2): fn1, ...}, ...}
     pdata : dict
         Device polarity, key-value pairs of device polarity.
     data_dir: str
@@ -458,8 +457,8 @@ def create_lattice(latname, pv_data, tag, **kws):
             pv_name_prefixed = prefix_pv(pv_name, pv_prefix)
             # add 'u_policy' as keyword argument
             # this policy should created from unicorn_policy
-            # u_policy: {'p': fn_p, 'n': fn_n}
-            u_policy = get_unicorn_policy(elem.name, udata)
+            # new u_policy: {(f1, f2): fn1, ...} or None
+            u_policy = udata.get(elem.name, {})
             polarity = get_polarity(elem.name, pdata)
             elem.process_pv(pv_name_prefixed, pv_props, pv_tags,
                             u_policy=u_policy, polarity=polarity,
@@ -503,38 +502,6 @@ def prefix_pv(pv, prefix):
         return '{}:{}'.format(chanprefix, pv)
     else:
         return pv
-
-
-def get_unicorn_policy(ename, udata=None):
-    """Get unicorn policy for element of name as `ename` from `udata`,
-    if `udata` is not defined, then return `lambda x: x`.
-
-    Parameters
-    ----------
-    ename : str
-        Name of element.
-    udata : dict
-        Dirt of scaling laws functions, k,v: fname, fn.
-
-    Returns
-    -------
-    ret : dict
-        Keys: `p` and `n`, values: `fn_p` and `fn_n`, `fn_p` is the scaling law
-        to interpret engineering unit to physics unit, the reverse way is handled
-        by `fn_n`.
-
-    Notes
-    -----
-    The scaling law function name ends with '-P' refers to `fn_p`, while '-N'
-    refers to `fn_n`.
-    """
-    fn_p_0 = lambda x:x
-    fn_n_0 = lambda x:x
-    if udata is None:
-        return {'p': fn_p_0, 'n': fn_n_0}
-    fn_p = udata.get('{}-P'.format(ename), fn_p_0)
-    fn_n = udata.get('{}-N'.format(ename), fn_n_0)
-    return {'p': fn_p, 'n': fn_n}
 
 
 def get_polarity(ename, pdata=None):

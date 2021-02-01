@@ -990,9 +990,7 @@ class CaElement(BaseElement):
 
         self.last_settings = {}
         self.design_settings = {}
-        # unicorn laws, {'fname1': <fn>, 'fname2':...}
-        # if 'fname' is physics unit, <fn> converts from physics to engineering
-        # if 'fname' is engineering unit, <fn> converts from engineering to physics
+        # unicorn laws, {(f1, f2): fn1, (f2, f1): fn2, ...}
         self.__unicorn = {}
 
         pv_data = kws.get('pv_data', None)
@@ -1093,9 +1091,8 @@ class CaElement(BaseElement):
     def _update_ca_props(self, props, **kws):
         """CA"""
         am = kws.get('auto_monitor', False)
-        def build_pv_policy_phy(u_policy, pv_policy):
+        def build_pv_policy_phy(fn_p, fn_n, pv_policy):
             # pv_policy is a dict
-            fn_p, fn_n = u_policy['p'], u_policy['n']
             f_read, f_write = pv_policy['read'], pv_policy['write']
 
             @unicorn_read(fn_p)
@@ -1116,28 +1113,28 @@ class CaElement(BaseElement):
         pv_policy = PV_POLICIES.get(pv_policy_str)
         # pv_policy passed as string, which is defined in channels datafile,
         # while pv_policy passed to CaField is a dict: {'read': rp, 'write': wp}
-        u_policy = kws.get('u_policy')
-        if u_policy is not None:
-            pv_policy_phy = build_pv_policy_phy(u_policy, pv_policy)
-            # Set u_policy as element attributes
-            self._unicorn_e2p = u_policy['p']
-            self._unicorn_p2e = u_policy['n']
+        u_policy = kws.get('u_policy', {})
+        k_e2p = (field_name, field_name_phy)
+        k_p2e = (field_name_phy, field_name)
+        f_e2p = u_policy.get(k_e2p, None)
+        f_p2e = u_policy.get(k_p2e, None)
+        if f_e2p is not None and f_p2e is not None:
+            pv_policy_phy = build_pv_policy_phy(f_e2p, f_p2e, pv_policy)
         else:
             pv_policy_phy = PV_POLICIES.get(pv_policy_str)
-            self._unicorn_e2p = lambda x:x
-            self._unicorn_p2e = lambda x:x
-            u_policy = {'n': lambda x:x, 'p': lambda x:x}
+            f_e2p = lambda x:x
+            f_p2e = lambda x:x
 
         pv = kws.get('pv', None)
         polarity = kws.get('polarity', 1)
         #
         if field_name is not None:
-            self.__unicorn[field_name] = u_policy['p']
+            self.__unicorn[k_e2p] = f_e2p
             self.set_field(field_name, pv, handle_name, ftype='ENG',
                            pv_policy=pv_policy, auto_monitor=am,
                            polarity=polarity)
         if field_name_phy is not None:
-            self.__unicorn[field_name_phy] = u_policy['n']
+            self.__unicorn[k_p2e] = f_p2e
             self.set_field(field_name_phy, pv, handle_name, ftype='PHY',
                            pv_policy=pv_policy_phy, auto_monitor=am,
                            polarity=polarity)
@@ -1382,16 +1379,17 @@ class CaElement(BaseElement):
                     break
         return flatten(pvs)
 
-    def convert(self, value, field):
-        """Interpret the *value* of *field* of element, if *field* is physics
-        field, returned one is in engineering unit; if *field* is engineering
-        field, returned one is in physics unit.
+    def convert(self, value, from_field, to_field=None):
+        """Interpret the *value* of *from_field* of element to the value of *to_field*,
+        if *to_field* is not defined, choose the first out of all candidators (sorted).
 
         Parameters
         ----------
         value : float
             Value of field, no necessary be the current online reading.
-        field : str
+        from_field : str
+            Field name of element, which the paramter *value* stands for.
+        to_field : str
             Field name of element.
 
         Returns
@@ -1410,10 +1408,16 @@ class CaElement(BaseElement):
         >>> quad.convert(value=15, field='B2')
         98.7534891752199
         """
-        if field not in self.__unicorn:
-            _LOGGER.warning("Invalid field name.")
+        if from_field not in self.fields:
+            _LOGGER.warning("Invalid field name *from_field*.")
             return
-        return self.__unicorn[field](value)
+        if to_field is None:
+            to_field = sorted(filter(lambda x:x[0]==from_field, self.__unicorn))[0][-1]
+        else:
+            if to_field not in self.fields:
+                _LOGGER.warning("Invalid field name *to_field*.")
+                return
+        return self.__unicorn[(from_field, to_field)](value)
 
     def current_setting(self, field):
         """Return the value of current setting (setpoint) for dynamic field
