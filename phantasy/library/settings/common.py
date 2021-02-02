@@ -280,7 +280,7 @@ def get_settings_from_element_list(elem_list, data_source='control',
                 if phy_val is None:
                     _LOGGER.warning("Skip unreachable {} [] for settings.".format(ename, phy_fld))
                     continue
-                eng_val = elem.convert(field=phy_fld, value=phy_val)
+                eng_val = elem.convert(from_field=phy_fld, value=phy_val)
                 elem_settings.update([(phy_fld, phy_val), (eng_fld, eng_val)])
         if elem_settings:
             s.update([(ename, elem_settings)])
