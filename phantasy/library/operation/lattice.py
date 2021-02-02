@@ -458,7 +458,10 @@ def create_lattice(latname, pv_data, tag, **kws):
             # add 'u_policy' as keyword argument
             # this policy should created from unicorn_policy
             # new u_policy: {(f1, f2): fn1, ...} or None
-            u_policy = udata.get(elem.name, {})
+            if udata is None:
+                u_policy = {}
+            else:
+                u_policy = udata.get(elem.name, {})
             polarity = get_polarity(elem.name, pdata)
             elem.process_pv(pv_name_prefixed, pv_props, pv_tags,
                             u_policy=u_policy, polarity=polarity,
