@@ -218,7 +218,8 @@ def get_settings_from_element_list(elem_list, data_source='control',
         Predefined physics Settings from '.json' file which should includes
         all the elements in *elem_list*.
     field_of_interest : dict
-        Dict of interested physics fields for each element.
+        Dict of interested physics fields for each element type or element name,
+        element name has higher priority.
     only_physics : bool
         If True, only get physics settings, otherwise, get engineering
         settings as well.
@@ -254,15 +255,23 @@ def get_settings_from_element_list(elem_list, data_source='control',
     for elem in elem_list:
         # elemeng name
         ename = elem.name
+        etype = elem.family
         # skip diag elements
         if elem.is_diag():
-            _LOGGER.debug("Skip {} [{}] for settings.".format(ename, elem.family))
+            _LOGGER.debug("Skip {} [{}] for settings.".format(ename, etype))
             continue
         # field-of-interest for elem, if not defined, use all physics field
-        field_list = field_of_interest.get(ename, elem.get_phy_fields())
-
+        all_phy_fields = elem.get_phy_fields()
+        if etype in field_of_interest:
+            if ename in field_of_interest:
+                field_list = field_of_interest[ename]
+            else:
+                field_list = field_of_interest[etype]
+        else:
+            field_list = all_phy_fields[:]
+        #
         elem_settings = OrderedDict()
-        phy_flds = [i for i in elem.get_phy_fields() if i in field_list]
+        phy_flds = [i for i in all_phy_fields if i in field_list]
         if only_physics:
             for phy_fld in phy_flds:
                 # for data_source of 'model':
