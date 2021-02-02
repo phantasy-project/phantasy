@@ -1113,7 +1113,9 @@ class CaElement(BaseElement):
         pv_policy = PV_POLICIES.get(pv_policy_str)
         # pv_policy passed as string, which is defined in channels datafile,
         # while pv_policy passed to CaField is a dict: {'read': rp, 'write': wp}
-        u_policy = kws.get('u_policy', {})
+        u_policy = kws.get('u_policy', None)
+        if u_policy is None:
+            u_policy = {}
         k_e2p = (field_name, field_name_phy)
         k_p2e = (field_name_phy, field_name)
         f_e2p = u_policy.get(k_e2p, None)
@@ -1403,9 +1405,9 @@ class CaElement(BaseElement):
         >>> mp = MachinePortal("FRIB", "MEBT")
         >>> quad = mp.get_elements(type='QUAD', name='*D1078*')[0]
         >>> # convert I = 100 A, to gradient 15.177 T/m
-        >>> quad.convert(value=100, field='I')
+        >>> quad.convert(value=100, from_field='I')
         15.17734389601
-        >>> quad.convert(value=15, field='B2')
+        >>> quad.convert(value=15, from_field='B2')
         98.7534891752199
         """
         if from_field not in self.fields:
@@ -1417,6 +1419,8 @@ class CaElement(BaseElement):
             if to_field not in self.fields:
                 _LOGGER.warning("Invalid field name *to_field*.")
                 return
+        if from_field == to_field:
+            return value
         return self.__unicorn[(from_field, to_field)](value)
 
     def current_setting(self, field):
