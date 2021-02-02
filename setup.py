@@ -14,18 +14,17 @@ def read_license():
         return f.read()
 
 
-app_version="1.15.1"
-app_name = "phantasy"
-app_description = 'Physics high-level applications and toolkit for ' \
-        'accelerator system'
-app_long_description = readme() + '\n\n'
-app_platform = ["Linux"]
-app_author = "Tong Zhang"
-app_author_email = "zhangt@frib.msu.edu"
-app_license = read_license()
-app_url = "https://archman.github.io/phantasy/"
-app_keywords = "phantasy FRIB HLA high-level python FLAME IMPACT"
-app_install_requires = [
+_version="1.15.1"
+_name = "phantasy"
+_description = 'Physics high-level applications and toolkit for accelerator system'
+_long_description = readme() + '\n\n'
+_platform = ["Linux"]
+_author = "Tong Zhang"
+_author_email = "zhangt@frib.msu.edu"
+_license = read_license()
+_url = "https://archman.github.io/phantasy/"
+_keywords = "phantasy FRIB HLA high-level python FLAME IMPACT"
+_install_requires = [
     'numpy',
     'matplotlib',
     'xlrd',
@@ -34,8 +33,8 @@ app_install_requires = [
     'cothread',
     'pyepics',
 ]
-app_extras_require = {
-    'test': ['nose', 'nose-exclude', 'coverage'],
+_extras_require = {
+    'test': ['pytest', 'pytest-cov'],
 }
 
 def get_all_dirs(des_root, src_root):
@@ -57,27 +56,26 @@ def set_entry_points():
     return r
 
 setup(
-    name=app_name,
-    version=app_version,
-    description=app_description,
-    long_description=app_long_description,
-    author=app_author,
-    author_email=app_author_email,
-    url=app_url,
-    platforms=app_platform,
-    license=app_license,
-    keywords=app_keywords,
+    name=_name,
+    version=_version,
+    description=_description,
+    long_description=_long_description,
+    author=_author,
+    author_email=_author_email,
+    url=_url,
+    platforms=_platform,
+    license=_license,
+    keywords=_keywords,
     packages=find_packages(),
     include_package_data=True,
     data_files=get_all_dirs('/etc/phantasy/config', 'demo_mconfig'),
     entry_points=set_entry_points(),
     classifiers=[
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Topic :: Scientific/Engineering :: Physics'],
     # tests_require=['nose'],
     # test_suite='nose.collector',
-    # install_requires=app_install_requires,
-    # extras_require=app_extras_require,
+    install_requires=_install_requires,
+    extras_require=_extras_require,
 )
