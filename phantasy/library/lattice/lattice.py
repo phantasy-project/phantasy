@@ -3,27 +3,21 @@
 
 """Create high-level lattice object from machine configuration files.
 """
-
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
-
 import json
 import logging
+import numpy as np
 import os
 import shelve
 import sys
 import tempfile
 import time
+
 from collections import OrderedDict
 from copy import deepcopy
 from datetime import datetime
+from flame import Machine
 from fnmatch import fnmatch
 from math import log10
-
-import numpy as np
-from flame import Machine
 
 from phantasy.library.layout import Layout
 from phantasy.library.layout import build_layout
@@ -51,16 +45,6 @@ from .impact import run_lattice as run_impact_lattice
 
 _LOGGER = logging.getLogger(__name__)
 TS_FMT = "%Y-%m-%d %H:%M:%S"
-
-try:
-    basestring
-except NameError:
-    basestring = str
-
-try:
-    r_input = raw_input
-except NameError:
-    r_input = input
 
 
 class Lattice(object):
@@ -411,7 +395,7 @@ class Lattice(object):
                                      settings=self.settings)
         else:
             raise RuntimeError(
-                "Lattice: Model '{}' not supported".format(self.model))
+                f"Lattice: Model '{self.model}' not supported")
         return mf
 
     def get_model_settings(self, only_physics=False):
@@ -533,12 +517,10 @@ class Lattice(object):
             elem_name = elem
         if elem_name not in self.settings:
             _LOGGER.warning(
-                "Element:{} to set not found in lattice model.".format(
-                    elem_name))
+                f"Element:{elem_name} to set not found in lattice model.")
         elif field not in self.settings[elem_name]:
             _LOGGER.warning(
-                "Field: {} to set not found in element: {}.".format(
-                    field, elem_name))
+                f"Field: {field} to set not found in element: {elem_name}.")
         else:
             value0 = self.settings[elem_name][field]
             self.settings[elem_name][field] = value
@@ -870,12 +852,11 @@ class Lattice(object):
             if e_name in self.settings:
                 for field, value in e_setting.items():
                     self._set_model_field(e_name, field, value)
-                    _LOGGER.debug("Update model: {e}:{f} to be {v}.".format(
-                        e=e_name, f=field, v=value))
+                    _LOGGER.debug(
+                            f"Update model: {e_name}:{field} to be {value}.")
             else:
                 _LOGGER.debug(
-                    'Model settings does not have field: {e}:{f}.'.format(
-                        e=e_name, f=field))
+                    f'Model settings does not have field: {e_name}:{field}.')
 
     def sync_settings(self, data_source=None):
         """Synchronize lattice settings between 'model' and 'control'
@@ -904,20 +885,17 @@ class Lattice(object):
                                 self._set_model_field(elem, field, value)
                             else:
                                 _LOGGER.debug(
-                                    'Model settings does not have field: {e}:{f}.'.format(
-                                        e=elem.name, f=field))
+                                    f'Model settings does not have field: {elem.name}:{field}.')
                 else:
                     _LOGGER.debug(
-                        'Model settings does not have element: {e}.'.format(
-                            e=elem.name))
+                        f'Model settings does not have element: {elem.name}.')
         elif data_source == 'model':
             _LOGGER.info("Sync settings from 'model' to 'control'.")
             for e_name, e_setting in self.settings.items():
                 elem = self._get_element_list(e_name)
                 if elem == []:
                     _LOGGER.debug(
-                        'Control settings does not have element {0}.'.format(
-                            e_name))
+                        f'Control settings does not have element {e_name}.')
                     continue
                 for field, value in e_setting.items():
                     if not self._skip_elements(elem[0].name):
@@ -948,7 +926,7 @@ class Lattice(object):
                 elif stype == 'last':
                     el.last_settings.update(dict(v))
                 _LOGGER.debug(
-                    "Updated {0:<20}: {1}_settings.".format(el.name, stype))
+                    f"Updated {el.name:<20}: {stype}_settings.")
 
     def _skip_elements(self, name):
         """Presently, element should skip: SEXT
@@ -987,8 +965,7 @@ class Lattice(object):
             return latpath, fm
         else:
             raise RuntimeError(
-                "Lattice: Simulation code '{}' not supported".format(
-                    self.model))
+                f"Lattice: Simulation code '{self.model}' not supported")
 
     def _flame_model(self, **kws):
         """Create a new flame model
@@ -1029,7 +1006,7 @@ class Lattice(object):
             self._viewer_settings[elem_name] = readings
 
     def __getitem__(self, i):
-        if isinstance(i, basestring):
+        if isinstance(i, str):
             return self._find_exact_element(i)
         else:
             return self._elements[i]
@@ -1146,7 +1123,7 @@ class Lattice(object):
         valid_types = self.get_all_types(virtual=False)
 
         # name
-        if isinstance(name, basestring):
+        if isinstance(name, str):
             ele_names = self._get_element_list(name)
         elif isinstance(name, (list, tuple)):
             ele_names = flatten(self._get_element_list(n) for n in name)
@@ -1155,7 +1132,7 @@ class Lattice(object):
 
         # group
         if type is not None:
-            if isinstance(type, basestring):
+            if isinstance(type, str):
                 type = type,
             _type_list = flatten(pattern_filter(valid_types, p) for p in type)
             ele_types = flatten(self._get_element_list(t) for t in _type_list)
@@ -1286,7 +1263,7 @@ class Lattice(object):
         """
         ref_include_flag = kws.get('ref_include', False)
         if not isinstance(ref_elem, CaElement):
-            _LOGGER.warning("{} is not a valid CaElement.".format(str(ref_elem)))
+            _LOGGER.warning(f"{str(ref_elem)} is not a valid CaElement.")
             if ref_include_flag:
                 return [ref_elem]
             else:
@@ -1317,7 +1294,7 @@ class Lattice(object):
         if etype is None:
             ret = elem_sorted[eslice0][eslice]
         else:
-            if isinstance(etype, basestring):
+            if isinstance(etype, str):
                 etype = etype,
             if count_is_positive:
                 ret = flatten([e for e in elem_sorted[ref_idx + 1:]
@@ -1434,7 +1411,7 @@ class Lattice(object):
 
         self.update_name_element_map(elem)
 
-        if isinstance(groups, basestring):
+        if isinstance(groups, str):
             groups = groups,
         if groups is not None:
             for g in groups:
@@ -1572,7 +1549,7 @@ class Lattice(object):
         if name not in self._group:
             self._group[name] = []
         else:
-            raise ValueError("Group '{}' exists.".format(name))
+            raise ValueError(f"Group '{name}' exists.")
 
     def remove_group(self, name, **kws):
         """Remove group defined by *name*, by default only remove empty group.
@@ -1588,13 +1565,12 @@ class Lattice(object):
             Remove empty group only if True, True by default.
         """
         if name not in self._group:
-            raise ValueError("Group '{}' does not exist.".format(name))
+            raise ValueError(f"Group '{name}' does not exist.")
 
         empty_only = kws.get('empty_only', True)
         if len(self._group[name]) > 0:
             if empty_only:
-                raise ValueError("Cannot remove non-empty group '{}'.".format(
-                    name))
+                raise ValueError(f"Cannot remove non-empty group '{name}'.")
             else:
                 print("Warning: Group to remove is not empty.")
         self._group.pop(name)
@@ -1618,7 +1594,7 @@ class Lattice(object):
         new = kws.get('new', True)
         elem = self._find_exact_element(member)
         if elem is None:
-            raise ValueError("Invalid element '{}'.".format(member))
+            raise ValueError(f"Invalid element '{member}'.")
 
         if group in self._group:
             if elem in self._group[group]:
@@ -1733,7 +1709,7 @@ class Lattice(object):
             List of elements.
         """
         op = kws.get('op', 'and')
-        if isinstance(group, basestring):
+        if isinstance(group, str):
             group = group,
         group_list = flatten(
             [[g for g in self._group if fnmatch(g, gi)] for gi in group]
@@ -1847,7 +1823,7 @@ class Lattice(object):
             if mode != 'interactive':
                 next_iter = 'Y'
             else:
-                next_iter = r_input(
+                next_iter = input(
                     "Continue correction iteration: {0}/{1}? ([Y]/N)".format(i + 1,
                                                                              itern)
                 )
@@ -1916,7 +1892,7 @@ class Lattice(object):
             if mode != 'interactive':
                 next_iter = 'Y'
             else:
-                next_iter = r_input(
+                next_iter = input(
                     "Continue correction iteration: {0}/{1}? ([Y]/N)".format(i + 1,
                                                                              itern)
                 )
@@ -2116,7 +2092,7 @@ class Lattice(object):
         if group in self._group:
             return self._group[group][:]
 
-        if isinstance(group, basestring):
+        if isinstance(group, str):
             # do pattern match on element name
             ret, names = [], []
             for e in self._elements:

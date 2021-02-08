@@ -8,19 +8,9 @@ Utilities and extensions for the `cothread`_ catools library.
 .. moduleauthor:: Dylan Maxwell <maxwelld@frib.msu.edu>
 """
 
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 from collections import OrderedDict
 
 from cothread import catools
-
-try:
-    basestring # Python 2.X
-except NameError:
-    basestring = str # Python 3.X
 
 # Export constants from catools module
 FORMAT_RAW = catools.FORMAT_RAW
@@ -32,7 +22,7 @@ def _to_str(pvs):
     """Ensure argument is a string or list of strings."""
     # The logic follows that from the cothread library.
     # If is it NOT a string then assume it is an iterable.
-    if isinstance(pvs, basestring):
+    if isinstance(pvs, str):
         return str(pvs)
     else:
         return [str(pv) for pv in pvs]
@@ -57,7 +47,7 @@ def caput(pvs, values, repeat_value=None, datatype=None,
        array of channels, a repeat_value with the value
        of None is the same as the value of False.
     """
-    if isinstance(pvs, basestring):
+    if isinstance(pvs, str):
         if repeat_value is not None:
             raise ValueError("repeat_value must be None for a single channel")
         return catools.caput(_to_str(pvs), values,

@@ -49,8 +49,7 @@ class PVElement(object):
         return self._putPV.connected and self._getPV.connected
 
     def __repr__(self):
-        return "Element: {name}, cset: {cset}, rd: {rd}".format(
-            name=self.name, cset=str(self._putPV), rd=str(self._getPV))
+        return f"Element: {self.name}, cset: {str(self._putPV)}, rd: {str(self._getPV)}"
 
     def get_pv_name(self, type='readback'):
         if type == 'readback':
@@ -133,8 +132,7 @@ class PVElementReadonly(object):
         return self._getPV.connected
 
     def __repr__(self):
-        return "Element: {name}, rd: {rd}".format(
-            name=self.name, rd=str(self._getPV))
+        return f"Element: {self.name}, rd: {str(self._getPV)}"
 
     @property
     def pvname(self):

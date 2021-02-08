@@ -8,16 +8,12 @@ from epics import cainfo as epics_cainfo
 from epics import camonitor as epics_camonitor
 
 import logging
-from functools import partial
 import time
+from functools import partial
+from queue import Queue, Empty
+
 from phantasy.library.exception import TimeoutError
 from phantasy.library.exception import PutFinishedException
-
-
-try:
-    from Queue import Queue, Empty
-except ImportError:
-    from queue import Queue, Empty
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -114,28 +110,24 @@ def ensure_put(field, goal, tol=None, timeout=None):
             v, ts = q.get(timeout=timeout)
             if ts - t0 > timeout: raise TimeoutError
             _LOGGER.debug(
-                "Field '{fname}' of '{ename}' reached: {v}[{g}].".format(
-                    fname=fname, ename=ename, v=v, g=goal))
+                f"Field '{fname}' of '{ename}' reached: {v}[{goal}].")
         except Empty:
             _LOGGER.info(
-                "Field '{fname}' of '{ename}' reached: {v}.".format(
-                    fname=fname, ename=ename, v=field.value))
+                f"Field '{fname}' of '{ename}' reached: {field.value}.")
             pv.remove_callback(cid)
             field.set_auto_monitor(am0)
             ret = "Empty"
             break
         except TimeoutError:
             _LOGGER.info(
-                "Field '{fname}' of '{ename}' reached: {v}.".format(
-                    fname=fname, ename=ename, v=field.value))
+                f"Field '{fname}' of '{ename}' reached: {field.value}.")
             pv.remove_callback(cid)
             field.set_auto_monitor(am0)
             ret = "Timeout"
             break
         except PutFinishedException:
             _LOGGER.info(
-                "Field '{fname}' of '{ename}' reached: {v}.".format(
-                    fname=fname, ename=ename, v=field.value))
+                f"Field '{fname}' of '{ename}' reached: {field.value}.")
             pv.remove_callback(cid)
             field.set_auto_monitor(am0)
             ret = "PutFinished"

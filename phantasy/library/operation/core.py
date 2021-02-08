@@ -9,12 +9,6 @@ The workflow of the high-level physics operations are mainly defined in
 this module, each physics application should be initiated from here,
 other potential usages should also be defined here.
 """
-
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
-
 import logging
 import os
 import sys
@@ -34,11 +28,6 @@ __copyright__ = "(c) 2016-2017, Facility for Rare Isotope beams, \
 __contact__ = "Tong Zhang <zhangt@frib.msu.edu>"
 
 _LOGGER = logging.getLogger(__name__)
-
-try:
-    basestring
-except NameError:
-    basestring = str
 
 
 class MachinePortal(object):
@@ -315,8 +304,7 @@ class MachinePortal(object):
             if mach_name is not None and mach_name not in self._machine_names:
                 self._machine_names.append(mach_name)
         except:
-            _LOGGER.error("Cannot load machine: {} segment: {}".format(
-                 machine, segment))
+            _LOGGER.error(f"Cannot load machine: {machine} segment: {segment}")
             retval = None
         finally:
             self._last_load_success = retval is not None
@@ -338,7 +326,7 @@ class MachinePortal(object):
                      'last_machine_path', 'last_lattice_name',
                      # 'last_lattice_conf',
                      'last_machine_conf']:
-            print("{0:<17s} : {1}".format(attr, getattr(self, attr)))
+            print(f"{attr:<17s} : {getattr(self, attr)}")
 
     def _use_cached(self, segment, machine, **kws):
         """Test if continue parsing procedure is needed, if machine/segment
@@ -349,20 +337,16 @@ class MachinePortal(object):
         _f_reload = kws.get('re_load')
         if machine in self._machine_names and segment in self._lattice_names:
             if _f_reload:
-                _LOGGER.warning("Force reload machine: '{}', segment: '{}'".format(
-                    machine, segment))
+                _LOGGER.warning(f"Force reload machine: '{machine}', segment: '{segment}'")
                 retval = False
             else:
-                _LOGGER.warning("Use cached results for machine: '{}', segment: '{}'".format(
-                    machine, segment))
+                _LOGGER.warning(f"Use cached results for machine: '{machine}', segment: '{segment}'")
                 retval = True
         else:
             if segment is None:
-                _LOGGER.warning("Load new machine: '{}', with default segment".format(
-                    machine))
+                _LOGGER.warning(f"Load new machine: '{machine}', with default segment")
             else:
-                _LOGGER.info("Load new machine: '{}', segment: '{}'".format(
-                    machine, segment))
+                _LOGGER.info(f"Load new machine: '{machine}', segment: '{segment}'")
             retval = False
         return retval
 
@@ -415,7 +399,7 @@ class MachinePortal(object):
         load_lattice : Load machine/lattice from configuration files.
         """
         if lattice_name in self._lattice_names:
-            _LOGGER.info("Switch working lattice to: {}.".format(lattice_name))
+            _LOGGER.info(f"Switch working lattice to: {lattice_name}.")
             self._work_lattice_name = lattice_name
             self._work_lattice_conf = self._lattices[lattice_name]
             return self._work_lattice_name
