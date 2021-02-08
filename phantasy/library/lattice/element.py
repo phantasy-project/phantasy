@@ -4,13 +4,10 @@
 """Build elements with Channel Access support.
 """
 
-import re
+import copy
 import logging
-
-try:
-    basestring
-except NameError:
-    basestring = str
+import re
+import time
 
 from epics import PV, get_pv
 from phantasy.library.misc import flatten
@@ -99,7 +96,7 @@ class BaseElement(object):
     def name(self, name):
         if name is None:
             self._name = None
-        elif isinstance(name, basestring):
+        elif isinstance(name, str):
             self._name = name
         else:
             _LOGGER.warning("'name': Input should be a string.")
@@ -117,7 +114,7 @@ class BaseElement(object):
             self._index = -1
         elif isinstance(i, int):
             self._index = i
-        elif isinstance(i, basestring):
+        elif isinstance(i, str):
             try:
                 self._index = int(i)
             except ValueError:
@@ -134,7 +131,7 @@ class BaseElement(object):
     def family(self, t):
         if t is None:
             self._family = None
-        elif isinstance(t, basestring):
+        elif isinstance(t, str):
             self._family = t
         else:
             _LOGGER.warning("'family': Input should be a string.")
@@ -150,7 +147,7 @@ class BaseElement(object):
             self._length = 0.0
         elif isinstance(x, (int, float)):
             self._length = float(x)
-        elif isinstance(x, basestring):
+        elif isinstance(x, str):
             try:
                 self._length = float(x)
             except ValueError:
@@ -169,7 +166,7 @@ class BaseElement(object):
             self._sb = float('inf')
         elif isinstance(x, (int, float)):
             self._sb = float(x)
-        elif isinstance(x, basestring):
+        elif isinstance(x, str):
             try:
                 self._sb = float(x)
             except ValueError:
@@ -188,7 +185,7 @@ class BaseElement(object):
             self._se = float('inf')
         elif isinstance(x, (int, float)):
             self._se = float(x)
-        elif isinstance(x, basestring):
+        elif isinstance(x, str):
             try:
                 self._se = float(x)
             except ValueError:
@@ -324,7 +321,7 @@ class CaField(object):
         self.wait = kws.get('wait', None)
         self.tolerance = kws.get('tolerance', None)
         self.ensure_put = kws.get('ensure_put', None)
-        self.init_auto_monitor = kws.get('auto_monitor', False)
+        self._am = kws.get('auto_monitor', False)
         self._rdbk_pv_name = []
         self._rset_pv_name = []
         self._cset_pv_name = []
@@ -344,6 +341,9 @@ class CaField(object):
         self.write_policy = self._default_write_policy
 
         self.ftype = kws.get('ftype', 'ENG')
+        # callbacks
+        self._callbacks = {}
+        self._args = {}
 
     def validate_polarity(self, mode='read'):
         if mode == 'read':
@@ -360,7 +360,7 @@ class CaField(object):
     def name(self, s):
         if s is None:
             self._name = ''
-        elif isinstance(s, basestring):
+        elif isinstance(s, str):
             self._name = s
         else:
             _LOGGER.warning("Field name should be a valid string.")
@@ -374,7 +374,7 @@ class CaField(object):
     def ename(self, e):
         if e is None:
             self._ename = ''
-        elif isinstance(e, basestring):
+        elif isinstance(e, str):
             self._ename = e
         else:
             _LOGGER.warning("Element name should be a valid string")
@@ -454,7 +454,7 @@ class CaField(object):
         """If *s* is a string, append *s* to the current readback list,
         otherwise override the current readback PV name list, the
         same policy applies to *setpoint* and *readset*."""
-        if isinstance(s, basestring):
+        if isinstance(s, str):
             if s not in self._rdbk_pv_name:
                 self._rdbk_pv_name.append(s)
             else:
@@ -473,7 +473,7 @@ class CaField(object):
 
     @readset.setter
     def readset(self, s):
-        if isinstance(s, basestring):
+        if isinstance(s, str):
             if s not in self._rset_pv_name:
                 self._rset_pv_name.append(s)
             else:
@@ -492,7 +492,7 @@ class CaField(object):
 
     @setpoint.setter
     def setpoint(self, s):
-        if isinstance(s, basestring):
+        if isinstance(s, str):
             if s not in self._cset_pv_name:
                 self._cset_pv_name.append(s)
             else:
@@ -640,27 +640,28 @@ class CaField(object):
         self._init_cset_pv(cset_pv_name, **kws)
 
     def _init_rdbk_pv(self, pvs, **kws):
-        self._rdbk_pv = []
-        for i in pvs:
-            self._rdbk_pv.append(get_pv(i, auto_monitor=self.init_auto_monitor))
+        self._rdbk_pv = [get_pv(i, auto_monitor=self._am) for i in pvs]
 
     def _init_rset_pv(self, pvs, **kws):
-        self._rset_pv = []
-        for i in pvs:
-            self._rset_pv.append(get_pv(i, auto_monitor=self.init_auto_monitor))
+        self._rset_pv = [get_pv(i, auto_monitor=self._am) for i in pvs]
 
     def _init_cset_pv(self, pvs, **kws):
-        self._cset_pv = []
-        for i in pvs:
-            self._cset_pv.append(get_pv(i, auto_monitor=self.init_auto_monitor))
+        self._cset_pv = [get_pv(i, auto_monitor=self._am) for i in pvs]
 
-    def update(self, **kws):
-        """Update PV with defined handle."""
+    def update_pv(self, **kws):
+        """Update PV with defined handle.
+
+        Keyword Arguments:
+        ------------------
+        readback : str
+        setpoint : str
+        readset : str
+        """
         for k in ('readback', 'readset', 'setpoint'):
-            v = kws.get(k)
+            v = kws.get(k, None)
             if v is not None:
                 setattr(self, k, v)
-                setattr(self, "{}_pv".format(k), get_pv(v, auto_monitor=self.init_auto_monitor))
+                setattr(self, "{}_pv".format(k), get_pv(v, auto_monitor=self._am))
 
     def pvs(self):
         """Return dict of valid pv type and names."""
@@ -779,6 +780,28 @@ class CaField(object):
         else:
             self.set_auto_monitor(False, handle)
             return None
+
+    def set_am(self):
+        """Set am to all pvs.
+        """
+        for i in self._rdbk_pv + self._cset_pv + self._rset_pv:
+            i.auto_monitor = True
+            i.clear_callbacks()
+            i.add_callback(self.__on_updates)
+
+    def __on_updates(self, **kws):
+        self._args['value'] = self.value
+        self._args['timestamp'] = time.time()
+        self._args['current_setting'] = self.current_setting()
+        self._args['writable'] = self.write_access
+        # print(f"Update {self.ename}[{self.name}]: ", self._args)
+        self.run_callbacks()
+
+    def unset_am(self):
+        """Unset am to all pvs.
+        """
+        for i in self._rdbk_pv + self._cset_pv + self._rset_pv:
+            i.auto_monitor = False
 
     def set(self, value, handle='setpoint', **kws):
         """Set value(s) of PV(s) with specified *handle*, accept all *caput*
@@ -906,6 +929,31 @@ class CaField(object):
         else:
             raise RuntimeError(
                     "All {} PVs should have the same monitoring policy.".format(handle))
+
+    def run_callbacks(self):
+        for i in self._callbacks:
+            self.run_callback(i)
+
+    def run_callback(self, index):
+        f = self._callbacks[index]
+        kws = copy.copy(self._args)
+        f(**kws)
+
+    def add_callback(self, callback, index=None):
+        """Add callback to CaField.
+        """
+        if not callable(callback):
+            return
+        if index is None:
+            index = 1 + len(self._callbacks)
+        self._callbacks[index] = callback
+
+    def remove_callback(self, index=None):
+        if index in self._callbacks:
+            self._callbacks.pop(index)
+
+    def clear_callbacks(self):
+        self._callbacks.clear()
 
     @property
     def read_access(self):
@@ -1178,7 +1226,7 @@ class CaElement(BaseElement):
             self._last_settings.update({field: None})
             self._fields[field] = new_field
         else:
-            self._fields[field].update(**{handle: pv})
+            self._fields[field].update_pv(**{handle: pv})
 
         _LOGGER.debug("Process '{0}' PV: {1}.".format(handle, pv))
 
@@ -1249,7 +1297,7 @@ class CaElement(BaseElement):
         auto_monitor : bool
             If set True, initialize all channels auto subscribe, default is False.
         """
-        if not isinstance(pv_name, basestring):
+        if not isinstance(pv_name, str):
             raise TypeError("{} is not a valid type".format(type(pv_name)))
 
         # properties
@@ -1273,7 +1321,7 @@ class CaElement(BaseElement):
         """
         new_groups = props.get('group', None)
         if new_groups is not None:
-            if isinstance(new_groups, basestring):
+            if isinstance(new_groups, str):
                 new_groups = new_groups,
             [self._group.add(g) for g in new_groups]
         if self._family is not None:
@@ -1364,7 +1412,7 @@ class CaElement(BaseElement):
             f_pv = list()
             if field is None:
                 field = self.fields
-            elif isinstance(field, basestring):
+            elif isinstance(field, str):
                 field = field,
 
             for f in [k for k in field if k in self.fields]:
