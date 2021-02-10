@@ -3,12 +3,6 @@
 """
 Utility for generating a FLAME lattice from accelerator layout.
 """
-
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
-
 import re
 import logging
 import os.path
@@ -54,11 +48,6 @@ from phantasy.library.layout import RotElement
 from phantasy.library.layout import NDElement
 from phantasy.library.layout import ICElement
 from phantasy.library.settings import Settings
-
-try:
-    basestring
-except NameError:
-    basestring = str
 
 CONFIG_FLAME_SIM_TYPE = "flame_sim_type"
 CONFIG_FLAME_CAV_TYPE = "flame_cav_type"
@@ -185,21 +174,21 @@ class BaseLatticeFactory(object):
     def _get_config_default(self, option, defvalue):
         if self.config.has_default(option):
             value = self.config.get_default(option)
-            _LOGGER.debug("BaseLatticeFactory: '{}' found in configuration: {}".format(option, value))
+            _LOGGER.debug(f"BaseLatticeFactory: '{option}' found in configuration: {value}")
             return value
         return defvalue
 
     def _get_config_int_default(self, option, defvalue):
         if self.config.has_default(option):
             value = self.config.getint_default(option)
-            _LOGGER.debug("BaseLatticeFactory: '{}' found in configuration: {}".format(option, value))
+            _LOGGER.debug(f"BaseLatticeFactory: '{option}' found in configuration: {value}")
             return value
         return defvalue
 
     def _get_config_float_default(self, option, defvalue):
         if self.config.has_default(option):
             value = self.config.getfloat_default(option)
-            _LOGGER.debug("BaseLatticeFactory: '{}' found in configuration: {}".format(option, value))
+            _LOGGER.debug(f"BaseLatticeFactory: '{option}' found in configuration: {value}")
             return value
         return defvalue
 
@@ -208,21 +197,21 @@ class BaseLatticeFactory(object):
             value = self.config.getarray_default(option, conv=conv)
             if unpack and (len(value) == 1):
                 value = value[0]
-            _LOGGER.debug("BaseLatticeFactory: '{}' found in configuration: {}".format(option, value))
+            _LOGGER.debug(f"BaseLatticeFactory: '{option}' found in configuration: {value}")
             return value
         return defvalue
 
     def _get_config_abspath_default(self, option, defvalue):
         if self.config.has_default(option):
             value = self.config.getabspath_default(option)
-            _LOGGER.debug("BaseLatticeFactory: '{}' found in configuration: {}".format(option, value))
+            _LOGGER.debug(f"BaseLatticeFactory: '{option}' found in configuration: {value}")
             return value
         return defvalue
 
     def _get_config(self, section, option, defvalue):
         if self.config.has_option(section, option):
             value = self.config.get(section, option)
-            _LOGGER.debug("BaseLatticeFactory: [{}] '{}' found in configuration: {}".format(section, option, value))
+            _LOGGER.debug(f"BaseLatticeFactory: [{section}] '{option}' found in configuration: {value}")
             return value
         return defvalue
 
@@ -231,7 +220,7 @@ class BaseLatticeFactory(object):
             value = self.config.getarray(section, option, conv=conv)
             if unpack and (len(value) == 1):
                 value = value[0]
-            _LOGGER.debug("BaseLatticeFactory: [{}] '{}' found in configuration: {}".format(section, option, value))
+            _LOGGER.debug(f"BaseLatticeFactory: [{section}] '{option}' found in configuration: {value}")
             return value
         return defvalue
 
@@ -298,7 +287,7 @@ class FlameLatticeFactory(BaseLatticeFactory):
     def _get_config_data_default(self, option, defvalue):
         if self.config.has_default(option):
             value = self.config.getabspath_default(option)
-            _LOGGER.debug("FlameLatticeFactory: '{}' found in configuration: {}".format(option, value))
+            _LOGGER.debug(f"FlameLatticeFactory: '{option}' found in configuration: {value}")
             return numpy.loadtxt(value)
         return defvalue
 
@@ -316,11 +305,11 @@ class FlameLatticeFactory(BaseLatticeFactory):
         option = CONFIG_FLAME_SPLIT
         if (dtype is None) and self.config.has_default(option):
             value = self.config.getint_default(option)
-            _LOGGER.debug("FlameLatticeFactory: '{}' found in configuration: {}".format(option, value))
+            _LOGGER.debug(f"FlameLatticeFactory: '{option}' found in configuration: {value}")
             return value
         elif (dtype is not None) and self.config.has_option(dtype, option):
             value = self.config.getint(dtype, option)
-            _LOGGER.debug("LatticeFactory: [{}] {} found in configuration: {}".format(dtype, option, value))
+            _LOGGER.debug(f"LatticeFactory: [{dtype}] {option} found in configuration: {value}")
             return value
         return _DEFAULT_SPLIT
 
@@ -328,11 +317,11 @@ class FlameLatticeFactory(BaseLatticeFactory):
         align_error_conf = []
         dx = self._get_config(ename, CONFIG_ALIGNMENT_DX, None)
         if dx is not None:
-            _LOGGER.info("Alignment error: dx of {} is {} m.".format(ename, dx))
+            _LOGGER.info(f"Alignment error: dx of {ename} is {dx} m.")
             align_error_conf.append(('dx', float(dx)))
         dy = self._get_config(ename, CONFIG_ALIGNMENT_DY, None)
         if dy is not None:
-            _LOGGER.info("Alignment error: dx of {} is {} m.".format(ename, dx))
+            _LOGGER.info(f"Alignment error: dx of {ename} is {dy} m.")
             align_error_conf.append(('dy', float(dy)))
         return align_error_conf
 
@@ -465,8 +454,7 @@ class FlameLatticeFactory(BaseLatticeFactory):
                         phase = settings[elem.name][elem.fields.phase_phy]
                     except KeyError:
                         raise RuntimeError(
-                            "FlameLatticeFactory: '{}' setting not found for element: {}".format(elem.fields.phase_phy,
-                                                                                                 elem.name))
+                            f"FlameLatticeFactory: '{elem.fields.phase_phy}' setting not found for element: {elem.name}")
 
                 amplitude = 0.0
                 if settings is not None:
@@ -474,8 +462,7 @@ class FlameLatticeFactory(BaseLatticeFactory):
                         amplitude = settings[elem.name][elem.fields.amplitude_phy]
                     except KeyError:
                         raise RuntimeError(
-                            "FlameLatticeFactory: '{}' setting not found for element: {}".format(elem.fields.amplitude_phy,
-                                                                                                 elem.name))
+                            f"FlameLatticeFactory: '{elem.fields.amplitude_phy}' setting not found for element: {elem.name}")
 
                 frequency = 0.0
                 if settings is not None:
@@ -483,8 +470,7 @@ class FlameLatticeFactory(BaseLatticeFactory):
                         frequency = settings[elem.name][elem.fields.frequency]
                     except KeyError:
                         raise RuntimeError(
-                            "FlameLatticeFactory: '{}' setting not found for element: {}".format(elem.fields.frequency,
-                                                                                                 elem.name))
+                            f"FlameLatticeFactory: '{elem.fields.frequency}' setting not found for element: {elem.name}")
 
                 # element name-wise has higher priority
                 cav_type = None
@@ -501,11 +487,11 @@ class FlameLatticeFactory(BaseLatticeFactory):
                 l = self._get_config(getattr(elem, conf_attr), CONFIG_FLAME_CAV_LENGTH, elem.length)
 
                 if cav_type is None:
-                    raise RuntimeError("FlameLatticeFactory: Cavity type not found: {}".format(elem.dtype))
+                    raise RuntimeError(f"FlameLatticeFactory: Cavity type not found: {elem.dtype}")
                 elif cav_type == 'Generic':
                     cav_conf = self._get_config(getattr(elem, conf_attr), CONFIG_FLAME_CAV_CONF, None)
                     if cav_conf is None:
-                        raise RuntimeError("FlameLatticeFactory: Generic cavity data file not found: {}".format(elem.dtype))
+                        raise RuntimeError(f"FlameLatticeFactory: Generic cavity data file not found: {elem.dtype}")
                     lattice.append(elem.name, "rfcavity",
                                    ('cavtype', cav_type), ('f', frequency),
                                    ('phi', phase), ('scl_fac', amplitude),
@@ -526,8 +512,7 @@ class FlameLatticeFactory(BaseLatticeFactory):
                         field = settings[elem.name][elem.fields.field_phy]
                     except KeyError:
                         raise RuntimeError(
-                            "FlameLatticeFactory: '{}' setting not found for element: {}".format(elem.fields.field_phy,
-                                                                                                 elem.name))
+                            f"FlameLatticeFactory: '{elem.fields.field_phy}' setting not found for element: {elem.name}")
 
                 hkick = 0.0
                 if settings is not None:
@@ -535,8 +520,7 @@ class FlameLatticeFactory(BaseLatticeFactory):
                         hkick = settings[elem.h.name][elem.h.fields.angle_phy]
                     except KeyError:
                         raise RuntimeError(
-                            "FlameLatticeFactory: '{}' setting not found for element: {}".format(elem.h.fields.angle_phy,
-                                                                                                 elem.name))
+                            f"FlameLatticeFactory: '{elem.h.fields.angle_phy}' setting not found for element: {elem.name}")
 
                 vkick = 0.0
                 if settings is not None:
@@ -544,8 +528,7 @@ class FlameLatticeFactory(BaseLatticeFactory):
                         vkick = settings[elem.v.name][elem.v.fields.angle_phy]
                     except KeyError:
                         raise RuntimeError(
-                            "FlameLatticeFactory: '{}' setting not found for element: {}".format(elem.v.fields.angle_phy,
-                                                                                                 elem.name))
+                            f"FlameLatticeFactory: '{elem.v.fields.angle_phy}' setting not found for element: {elem.name}")
 
                 # error = self._get_error(elem)
 
@@ -570,8 +553,7 @@ class FlameLatticeFactory(BaseLatticeFactory):
                         gradient = settings[elem.name][elem.fields.gradient_phy]
                     except KeyError:
                         raise RuntimeError(
-                            "FlameLatticeFactory: '{}' setting not found for element: {}".format(elem.fields.gradient_phy,
-                                                                                                 elem.name))
+                            f"FlameLatticeFactory: '{elem.fields.gradient_phy}' setting not found for element: {elem.name}")
 
                 # error = self._get_error(elem)
 
@@ -586,8 +568,7 @@ class FlameLatticeFactory(BaseLatticeFactory):
                         field = settings[elem.name][elem.fields.field_phy]
                     except KeyError:
                         raise RuntimeError(
-                            "FlameLatticeFactory: '{}' setting not found for element: {}".format(elem.fields.field_phy,
-                                                                                                 elem.name))
+                            f"FlameLatticeFactory: '{elem.fields.field_phy}' setting not found for element: {elem.name}")
 
                 step = self._get_config(elem.dtype, CONFIG_FLAME_SEXT_STEP,
                                         DEFAULT_FLAME_SEXT_STEP)
@@ -606,8 +587,7 @@ class FlameLatticeFactory(BaseLatticeFactory):
                         hkick = settings[elem.name][elem.fields.angle_phy]
                     except KeyError:
                         raise RuntimeError(
-                            "FlameLatticeFactory: '{}' setting not found for element: {}".format(elem.fields.angle_phy,
-                                                                                                 elem.name))
+                            f"FlameLatticeFactory: '{elem.fields.angle_phy}' setting not found for element: {elem.name}")
 
                 if elem.length != 0.0:
                     lattice.append(_drift_name(elem.name, 1), "drift",
@@ -635,8 +615,7 @@ class FlameLatticeFactory(BaseLatticeFactory):
                         vkick = settings[elem.name][elem.fields.angle_phy]
                     except KeyError:
                         raise RuntimeError(
-                            "FlameLatticeFactory: '{}' setting not found for element: {}".format(elem.fields.angle_phy,
-                                                                                                 elem.name))
+                            f"FlameLatticeFactory: '{elem.fields.angle_phy}' setting not found for element: {elem.name}")
 
                 if elem.length != 0.0:
                     lattice.append(_drift_name(elem.name, 1), "drift",
@@ -680,8 +659,7 @@ class FlameLatticeFactory(BaseLatticeFactory):
                         hkick = settings[elem.h.name][elem.h.fields.angle_phy]
                     except KeyError:
                         raise RuntimeError(
-                            "FlameLatticeFactory: '{}' setting not found for element: {}".format(elem.h.fields.angle_phy,
-                                                                                                 elem.name))
+                            f"FlameLatticeFactory: '{elem.h.fields.angle_phy}' setting not found for element: {elem.name}")
 
                 vkick = 0.0
                 if settings is not None:
@@ -689,8 +667,7 @@ class FlameLatticeFactory(BaseLatticeFactory):
                         vkick = settings[elem.v.name][elem.v.fields.angle_phy]
                     except KeyError:
                         raise RuntimeError(
-                            "FlameLatticeFactory: '{}' setting not found for element: {}".format(elem.v.fields.angle_phy,
-                                                                                                 elem.name))
+                            f"FlameLatticeFactory: '{elem.v.fields.angle_phy}' setting not found for element: {elem.name}")
 
                 if elem.length != 0.0:
                     lattice.append(_drift_name(elem.name, 1), "drift",
@@ -723,8 +700,7 @@ class FlameLatticeFactory(BaseLatticeFactory):
                         field = settings[elem.name][elem.fields.field_phy]
                     except KeyError:
                         raise RuntimeError(
-                            "FlameLatticeFactory: '{}' setting not found for element: {}".format(elem.fields.field_phy,
-                                                                                                 elem.name))
+                            f"FlameLatticeFactory: '{elem.fields.field_phy}' setting not found for element: {elem.name}")
 
                 angle = 0.0
                 if settings is not None:
@@ -732,8 +708,7 @@ class FlameLatticeFactory(BaseLatticeFactory):
                         angle = settings[elem.name][elem.fields.angle]
                     except KeyError:
                         raise RuntimeError(
-                            "FlameLatticeFactory: '{}' setting not found for element: {}".format(elem.fields.angle,
-                                                                                                 elem.name))
+                            f"FlameLatticeFactory: '{elem.fields.angle}' setting not found for element: {elem.name}")
 
                 entr_angle = 0.0
                 if settings is not None:
@@ -741,8 +716,7 @@ class FlameLatticeFactory(BaseLatticeFactory):
                         entr_angle = settings[elem.name][elem.fields.entrAngle]
                     except KeyError:
                         raise RuntimeError(
-                            "FlameLatticeFactory: '{}' setting not found for element: {}".format(elem.fields.entrAngle,
-                                                                                                 elem.name))
+                            f"FlameLatticeFactory: '{elem.fields.entrAngle}' setting not found for element: {elem.name}")
 
                 exit_angle = 0.0
                 if settings is not None:
@@ -750,17 +724,16 @@ class FlameLatticeFactory(BaseLatticeFactory):
                         exit_angle = settings[elem.name][elem.fields.exitAngle]
                     except KeyError:
                         raise RuntimeError(
-                            "FlameLatticeFactory: '{}' setting not found for element: {}".format(elem.fields.exitAngle,
-                                                                                                 elem.name))
+                            f"FlameLatticeFactory: '{elem.fields.exitAngle}' setting not found for element: {elem.name}")
 
                 split = self._get_config_split(elem.dtype)
 
                 if split < 3:
-                    raise RuntimeError("FlameLatticeFactory: '{}' split must be greater than 3.".format(elem.name))
+                    raise RuntimeError(f"FlameLatticeFactory: '{elem.name}' split must be greater than 3.")
 
                 focusing_comp = self._get_config(elem.dtype, CONFIG_FLAME_BEND_FOCUSING, None)
                 if focusing_comp is not None:
-                    _LOGGER.debug("FlameLatticeFactory: focusing component of {} is defined.".format(elem.name))
+                    _LOGGER.debug(f"FlameLatticeFactory: focusing component of {elem.name} is defined.")
                     k = float(focusing_comp)
 
                     lattice.append(elem.name + "_1", "sbend", ('L', elem.length / split),
@@ -802,12 +775,12 @@ class FlameLatticeFactory(BaseLatticeFactory):
             elif isinstance(elem, StripElement):
                 stripper_charge = self._get_config_array(elem.name, CONFIG_FLAME_STRIPPER_CHARGE, None, conv=float)
                 if stripper_charge is None:
-                    raise RuntimeError("FlameLatticeFactory: Stripper charge not found: {}".format(elem.name))
+                    raise RuntimeError(f"FlameLatticeFactory: Stripper charge not found: {elem.name}")
                 stripper_charge = numpy.array(stripper_charge)
 
                 stripper_count = self._get_config_array(elem.name, CONFIG_FLAME_STRIPPER_COUNT, None, conv=float)
                 if stripper_count is None:
-                    raise RuntimeError("FlameLatticeFactory: Stripper count not found: {}".format(elem.name))
+                    raise RuntimeError(f"FlameLatticeFactory: Stripper count not found: {elem.name}")
                 stripper_count = numpy.array(stripper_count)
 
                 if elem.length != 0.0:
@@ -832,8 +805,7 @@ class FlameLatticeFactory(BaseLatticeFactory):
                         field = settings[elem.name][elem.fields.field_phy]
                     except KeyError:
                         raise RuntimeError(
-                            "FlameLatticeFactory: '{}' setting not found for element: {}".format(elem.fields.field_phy,
-                                                                                                 elem.name))
+                            f"FlameLatticeFactory: '{elem.fields.field_phy}' setting not found for element: {elem.name}")
 
                 lattice.append(elem.name, "solenoid", ('L', elem.length),
                                ('aper', elem.aperture / 2.0), ('B', field),
@@ -894,32 +866,31 @@ class FlameLatticeFactory(BaseLatticeFactory):
                         field = settings[elem.name][elem.fields.field_phy]
                     except KeyError:
                         raise RuntimeError(
-                            "FlameLatticeFactory: '{}' setting not found for element: {}".format(elem.fields.field_phy,
-                                                                                                 elem.name))
+                            f"FlameLatticeFactory: '{elem.fields.field_phy}' setting not found for element: {elem.name}")
 
                 phi = self._get_config(elem.dtype, CONFIG_FLAME_EBEND_PHI, None)
                 if phi is None:
-                    raise RuntimeError("FlameLatticeFactory: EBend 'phi' not found for {}".format(elem.dtype))
+                    raise RuntimeError(f"FlameLatticeFactory: EBend 'phi' not found for {elem.dtype}")
 
                 fringe_x = self._get_config(elem.dtype, CONFIG_FLAME_EBEND_FRINGEX, None)
                 if fringe_x is None:
-                    raise RuntimeError("FlameLatticeFactory: EBend 'fringe_x' not found for {}".format(elem.dtype))
+                    raise RuntimeError(f"FlameLatticeFactory: EBend 'fringe_x' not found for {elem.dtype}")
 
                 fringe_y = self._get_config(elem.dtype, CONFIG_FLAME_EBEND_FRINGEY, None)
                 if fringe_y is None:
-                    raise RuntimeError("FlameLatticeFactory: EBend 'fringe_y' not found for {}".format(elem.dtype))
+                    raise RuntimeError(f"FlameLatticeFactory: EBend 'fringe_y' not found for {elem.dtype}")
 
                 ver = self._get_config(elem.dtype, CONFIG_FLAME_EBEND_VERBOOL, None)
                 if ver is None:
-                    raise RuntimeError("FlameLatticeFactory: EBend 'ver' not found for {}".format(elem.dtype))
+                    raise RuntimeError(f"FlameLatticeFactory: EBend 'ver' not found for {elem.dtype}")
 
                 spher = self._get_config(elem.dtype, CONFIG_FLAME_EBEND_SPHERBOOL, None)
                 if spher is None:
-                    raise RuntimeError("FlameLatticeFactory: EBend 'spher' not found for {}".format(elem.dtype))
+                    raise RuntimeError(f"FlameLatticeFactory: EBend 'spher' not found for {elem.dtype}")
 
                 asym_fac = self._get_config(elem.dtype, CONFIG_FLAME_EBEND_ASYMFAC, None)
                 if asym_fac is None:
-                    raise RuntimeError("FlameLatticeFactory: EBend 'asym_fac' not found for {}".format(elem.dtype))
+                    raise RuntimeError(f"FlameLatticeFactory: EBend 'asym_fac' not found for {elem.dtype}")
 
                 lattice.append(elem.name, 'edipole', ('L', elem.length),
                                ('aper', elem.aperture / 2.0), ('phi', float(phi)),
@@ -934,12 +905,12 @@ class FlameLatticeFactory(BaseLatticeFactory):
                     try:
                         gradient = settings[elem.name][elem.fields.gradient_phy]
                     except KeyError:
-                        raise RuntimeError("FlameLatticeFactory: '{}' setting not found for element: {}".format(
-                            elem.fields.gradient_phy, elem.name))
+                        raise RuntimeError(
+                            f"FlameLatticeFactory: '{elem.fields.gradient_phy}' setting not found for element: {elem.name}")
 
                 radius = self._get_config(elem.dtype, CONFIG_FLAME_EQUAD_RADIUS, None)
                 if radius is None:
-                    raise RuntimeError("FlameLatticeFactory: EQuad 'radius' not found for {}".format(elem.dtype))
+                    raise RuntimeError(f"FlameLatticeFactory: EQuad 'radius' not found for {elem.dtype}")
 
                 # alignment error
                 align_error_conf = self.get_alignment_error(elem.name)
@@ -950,7 +921,7 @@ class FlameLatticeFactory(BaseLatticeFactory):
                                name=elem.name, etype=elem.ETYPE)
 
             else:
-                raise Exception("Unsupported accelerator element: {}".format(elem))
+                raise Exception(f"Unsupported accelerator element: {elem.name}")
 
         return lattice
 
@@ -994,7 +965,7 @@ class FlameLattice(object):
 
     @dataDir.setter
     def dataDir(self, dataDir):
-        if not isinstance(dataDir, basestring):
+        if not isinstance(dataDir, str):
             raise ValueError("FlameLattice: 'dataDir' property must be a string")
         self.variables['Eng_Data_Dir'] = dataDir
 

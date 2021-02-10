@@ -10,11 +10,6 @@
     - sqlite
 """
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
-
 import logging
 import os
 import requests
@@ -29,10 +24,6 @@ from phantasy.library.misc import cofetch
 
 _LOGGER = logging.getLogger(__name__)
 
-try:
-    basestring
-except NameError:
-    basestring = str
 
 from phantasy.library.channelfinder import HAS_CFC
 if HAS_CFC:
@@ -108,26 +99,23 @@ class DataSource(object):
 
     @source.setter
     def source(self, s):
-        if not isinstance(s, basestring):
+        if not isinstance(s, str):
             self._source, self._src_type = None, None
             return
         ext = os.path.splitext(s)[-1].lower()
         if fnmatch(s, 'http*://*'):
-            _LOGGER.info("Set source to be channel finder server address: {s}.".format(
-                s=s))
+            _LOGGER.info(f"Set source to be channel finder server address: {s}.")
             self._src_type = 'cfs'
         elif fnmatch(ext, '.sql*'):
-            _LOGGER.info("Set source to be sqlite database: {s}.".format(
-                s=os.path.basename(s)))
+            _LOGGER.info(f"Set source to be sqlite database: {os.path.basename(s)}.")
             self._src_type = 'sql'
         elif fnmatch(ext, '.csv*'):
-            _LOGGER.info("Set source to be CSV table: {s}.".format(
-                s=os.path.basename(s)))
+            _LOGGER.info(f"Set source to be CSV table: {os.path.basename(s)}.")
             self._src_type = 'csv'
         else:
-            _LOGGER.error("Cannot set PV data source with {s}, try with one \
+            _LOGGER.error(f"Cannot set PV data source with {s}, try with one \
                     of the following categories: 1) cfs URL 2) sqlite file 3) \
-                    csv file.".format(s=s))
+                    csv file.")
             self._src_type = None
         self._source = s
         # init data
@@ -363,7 +351,7 @@ class DataSource(object):
             c_url = cfc.get_resource('channel')
             t_url = cfc.get_resource('tag')
             p_url = cfc.get_resource('property')
-            
+
             resource_data = _cofetch_data([c_url, t_url, p_url])
 
             prop_list = sorted([p['name'] for p in resource_data[p_url]])
@@ -384,11 +372,9 @@ class DataSource(object):
         if self.source is None:
             return "DataSource [] to be initialized..."
         elif self.pvdata is None:
-            return "DataSource: [{}] at '{}', load data by `get_data`.".format(
-                self.source_type.upper(), self.source)
+            return f"DataSource: [{self.source_type.upper()}] at '{self.source}', load data by `get_data`."
         else:
-            return "DataSource: [{}] at '{}', loaded data: {} records.".format(
-                self.source_type.upper(), self.source, len(self.pvdata))
+            return f"DataSource: [{self.source_type.upper()}] at '{self.source}', loaded data: {len(self.pvdata)} records."
 
 
 def dump_data(data, fname, ftype, **kws):

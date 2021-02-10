@@ -4,11 +4,6 @@
 """functions for readback handler.
 """
 
-from __future__ import absolute_import
-from __future__ import unicode_literals
-from __future__ import division
-from __future__ import print_function
-
 import logging
 
 from cothread.catools import caget
@@ -19,11 +14,6 @@ __copyright__ = "(c) 2016-2017, Facility for Rare Isotope beams," \
 __contact__ = "Tong Zhang <zhangt@frib.msu.edu>"
 
 _LOGGER = logging.getLogger(__name__)
-
-try:
-    basestring
-except NameError:
-    basestring = str
 
 
 def get_readback(pv):
@@ -64,7 +54,7 @@ def get_readback(pv):
     :class:`~phyapps.flowutils.MachinePortal.get_pv_names`
     """
     rtype = 'dict'
-    if isinstance(pv, basestring):
+    if isinstance(pv, str):
         pv = {'pv': pv, }
         rtype = 'list'
     elif isinstance(pv, (list, tuple)):
