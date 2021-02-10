@@ -2214,7 +2214,7 @@ class Lattice(object):
         if only_physics:
             return s
 
-        # if B=v1, then I=elem.convert(field='B', value=v1)
+        # if B=v1, then I=elem.convert(from_field='B', value=v1)
         for ename, phy_conf in self.settings.items():
             elem = self[ename]
             if elem is None:
@@ -2225,7 +2225,7 @@ class Lattice(object):
             for phy_fld, eng_fld in zip(phy_flds, eng_flds):
                 if phy_fld not in phy_conf:
                     continue
-                eng_val = elem.convert(field=phy_fld, value=phy_conf[phy_fld])
+                eng_val = elem.convert(from_field=phy_fld, value=phy_conf[phy_fld])
                 s[ename].update({eng_fld: eng_val})
         return s
 
@@ -2286,7 +2286,7 @@ class Lattice(object):
                         phy_val = m_settings[phy_fld]
                     else:
                         phy_val = getattr(elem, phy_fld)
-                    eng_val = elem.convert(field=phy_fld, value=phy_val)
+                    eng_val = elem.convert(from_field=phy_fld, value=phy_val)
                     elem_settings.update([(phy_fld, phy_val),
                                           (eng_fld, eng_val)])
             s.update([(ename, elem_settings)])
