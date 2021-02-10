@@ -947,6 +947,7 @@ class CaField(object):
         if index is None:
             index = 1 + len(self._callbacks)
         self._callbacks[index] = callback
+        self.run_callbacks()
 
     def remove_callback(self, index=None):
         if index in self._callbacks:
