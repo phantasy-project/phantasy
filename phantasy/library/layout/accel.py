@@ -1259,6 +1259,8 @@ class CavityElement(Element):
         fm_amplitude = get_field_map(self.ETYPE, 'AMPLITUDE')
         fm_phase_crest = get_field_map(self.ETYPE, 'PHASE_CREST')
         fm_amplitude_coef = get_field_map(self.ETYPE, 'AMPLITUDE_COEF')
+        fm_lk = get_field_map(self.ETYPE, 'LOCK_STATUS')
+        fm_itlk = get_field_map(self.ETYPE, 'INTERLOCK_STATUS')
         self.fields.phase = fm_phase['ENG']
         self.fields.phase_phy = fm_phase['PHY']
         self.fields.amplitude = fm_amplitude['ENG']
@@ -1267,6 +1269,10 @@ class CavityElement(Element):
         self.fields.phase_crest_phy = fm_phase_crest['PHY']
         self.fields.amplitude_coef = fm_amplitude_coef['ENG']
         self.fields.amplitude_coef_phy = fm_amplitude_coef['PHY']
+        self.fields.lock_status = fm_lk['ENG']
+        self.fields.lock_status_phy = fm_lk['PHY']
+        self.fields.interlock_status = fm_itlk['ENG']
+        self.fields.interlock_status_phy = fm_itlk['PHY']
         self.fields.frequency = "FREQ"
 
     def set_drawing(self, p0=None, angle=0, mode='plain'):

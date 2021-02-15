@@ -292,6 +292,16 @@ def build_channels(layout, psfile, machine=None, **kws):
             props[_HANDLE_PROPERTY] = "readback"
             data.append((channel.replace('RFC', 'CAV') + ":E_COEF_RD", OrderedDict(props), list(tags)))
 
+            props[_FIELD_ENG_PROPERTY] = elem.fields.lock_status
+            props[_FIELD_PHY_PROPERTY] = elem.fields.lock_status_phy
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel + ":LOCK_RD", OrderedDict(props), list(tags)))
+
+            props[_FIELD_ENG_PROPERTY] = elem.fields.interlock_status
+            props[_FIELD_PHY_PROPERTY] = elem.fields.interlock_status_phy
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel + ":ILK_LTCH_ANY", OrderedDict(props), list(tags)))
+
         elif isinstance(elem, SolCorElement):
             print("SolCor: ", elem.name)
             props[_TYPE_PROPERTY] = "SOL"
