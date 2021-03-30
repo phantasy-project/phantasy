@@ -71,6 +71,7 @@ SYSTEM_SKIP_WORDS = ( "dump", "SEGMENT", "LINAC", "Target",
                       'Second beam dump line starts in "V" column',
                       'Third beam dump line starts in "V" column',
                       'Fourth beam dump line starts in "V" column',
+                      "location of temporary carbon foil without Li module: PM2225 to foil is 1.356008 m",
                       )
 # skip line whose device field in one of the tuple defined by DEVICE_SKIP_WORDS
 DEVICE_SKIP_WORDS = ( "end", "start", "END", )
@@ -104,6 +105,8 @@ ELEMENT_NAME_STRING_AS_DRIFT = [
     "RFQ entrance=100m by definition", # ReA
     "ORIGIN POINT", # ReA
     "6-Way Cross (temporary)", # ReA
+    "motor shield", "mirror shield", "mirror", "target collimator",
+    "a cross will be added"
 ]
 
 # device alias for valve: ValveElement
@@ -947,6 +950,7 @@ class AccelFactory(XlfConfig):
                                             "fast valve sensor will not install",
                                             "no BMP here",
                                             "vacuum box - bellow",
+                                            "Li module end flange", "bellow+spool",
                                             ):
                         if drift_delta != 0.0:
                             row.eff_length += drift_delta
@@ -961,7 +965,7 @@ class AccelFactory(XlfConfig):
                         subsequence.append(
                             DriftElement(row.center_position, row.eff_length, row.diameter, name_drift(), desc=row.element_name))
 
-                    elif row.element_name == "stripper module":
+                    elif row.element_name in ("stripper module", "carbon stripper chamber"):
                         if drift_delta != 0.0:
                             raise Exception("Unsupported drift delta on element: {}".format(row.element_name))
                         try:
