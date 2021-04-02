@@ -262,6 +262,7 @@ def get_settings_from_element_list(elem_list, data_source='control',
             continue
         # field-of-interest for elem, if not defined, use all physics field
         all_phy_fields = elem.get_phy_fields()
+        all_eng_fields = elem.get_eng_fields()
         if etype in field_of_interest:
             if ename in field_of_interest:
                 field_list = field_of_interest[ename]
@@ -269,9 +270,15 @@ def get_settings_from_element_list(elem_list, data_source='control',
                 field_list = field_of_interest[etype]
         else:
             field_list = all_phy_fields[:]
+
         #
         elem_settings = OrderedDict()
-        phy_flds = [i for i in all_phy_fields if i in field_list]
+        phy_flds = []
+        eng_flds = []
+        for i, j in zip(all_phy_fields, all_eng_fields):
+            if i in field_list:
+                phy_flds.append(i)
+                eng_flds.append(j)
         if only_physics:
             for phy_fld in phy_flds:
                 # for data_source of 'model':
@@ -283,7 +290,6 @@ def get_settings_from_element_list(elem_list, data_source='control',
                     continue
                 elem_settings.update([(phy_fld, phy_val)])
         else:
-            eng_flds = elem.get_eng_fields()
             for phy_fld, eng_fld in zip(phy_flds, eng_flds):
                 phy_val = get_phy_field_setting(elem, phy_fld, settings, data_source)
                 if phy_val is None:
@@ -293,4 +299,5 @@ def get_settings_from_element_list(elem_list, data_source='control',
                 elem_settings.update([(phy_fld, phy_val), (eng_fld, eng_val)])
         if elem_settings:
             s.update([(ename, elem_settings)])
+
     return s
