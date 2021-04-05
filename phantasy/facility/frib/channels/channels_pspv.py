@@ -700,7 +700,7 @@ def build_channels(layout, psfile, machine=None, **kws):
             props[_FIELD_ENG_PROPERTY] = elem.fields.current_peak
             props[_FIELD_PHY_PROPERTY] = elem.fields.current_peak_phy
             props[_HANDLE_PROPERTY] = "readback"
-            data.append((channel + ":TYP_RD", OrderedDict(props), list(tags)))
+            data.append((channel + ":AVGPK_RD", OrderedDict(props), list(tags)))
 
         elif isinstance(elem, (DriftElement, ValveElement, PortElement)):
             # Passive elements do not have defined channels
