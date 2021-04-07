@@ -480,6 +480,13 @@ class NDElement(Element):
         self.fields.current = fm_avg['ENG']
         self.fields.current_phy = fm_avg['PHY']
 
+        fm_pwr = get_field_map(self.ETYPE, 'POWER_STATUS')
+        self.fields.power_status = fm_pwr['ENG']
+        self.fields.power_status_phy = fm_pwr['PHY']
+        fm = get_field_map(self.ETYPE, 'BIAS_VOLTAGE')
+        self.fields.bias_voltage = fm['ENG']
+        self.fields.bias_voltage_phy = fm['PHY']
+
 
 class ICElement(Element):
     """ICElement represents Ion Chamber, one kind of Beam Loss Monitor.
@@ -493,6 +500,13 @@ class ICElement(Element):
         fm_avg = get_field_map(self.ETYPE, 'AVERAGE_INTENSITY')
         self.fields.current = fm_avg['ENG']
         self.fields.current_phy = fm_avg['PHY']
+
+        fm_pwr = get_field_map(self.ETYPE, 'POWER_STATUS')
+        self.fields.power_status = fm_pwr['ENG']
+        self.fields.power_status_phy = fm_pwr['PHY']
+        fm = get_field_map(self.ETYPE, 'BIAS_VOLTAGE')
+        self.fields.bias_voltage = fm['ENG']
+        self.fields.bias_voltage_phy = fm['PHY']
 
 
 class BPMElement(Element):
@@ -651,6 +665,12 @@ class PMElement(Element):
         self.fields.yrms = "YRMS"
         self.fields.xyrms = "XYRMS"
         self.fields.cxy = "CXY"
+        fm_pwr = get_field_map(self.ETYPE, 'POWER_STATUS')
+        self.fields.power_status = fm_pwr['ENG']
+        self.fields.power_status_phy = fm_pwr['PHY']
+        fm = get_field_map(self.ETYPE, 'BIAS_VOLTAGE')
+        self.fields.bias_voltage = fm['ENG']
+        self.fields.bias_voltage_phy = fm['PHY']
 
 
 class EMSElement(Element):
@@ -677,13 +697,18 @@ class FCElement(Element):
 
         fm_int = get_field_map(self.ETYPE, 'AVERAGE_INTENSITY')
         fm_int_pk = get_field_map(self.ETYPE, 'AVERAGE_PEAK_INTENSITY')
-        fm_bv = get_field_map(self.ETYPE, 'BIASVOLT')
         self.fields.intensity = fm_int['ENG']
         self.fields.intensity_phy = fm_int['PHY']
         self.fields.intensity_pk = fm_int_pk['ENG']
         self.fields.intensity_pk_phy = fm_int_pk['PHY']
-        self.fields.biasvolt = fm_bv['ENG']
-        self.fields.biasvolt_phy = fm_bv['PHY']
+
+        fm_pwr = get_field_map(self.ETYPE, 'POWER_STATUS')
+        self.fields.power_status = fm_pwr['ENG']
+        self.fields.power_status_phy = fm_pwr['PHY']
+        fm = get_field_map(self.ETYPE, 'BIAS_VOLTAGE')
+        self.fields.bias_voltage = fm['ENG']
+        self.fields.bias_voltage_phy = fm['PHY']
+
         # VA only
         self.fields.x = "XCEN"
         self.fields.y = "YCEN"
@@ -703,6 +728,13 @@ class HMRElement(Element):
         fm_avg = get_field_map(self.ETYPE, 'AVERAGE_INTENSITY')
         self.fields.current = fm_avg['ENG']
         self.fields.current_phy = fm_avg['PHY']
+
+        fm_pwr = get_field_map(self.ETYPE, 'POWER_STATUS')
+        self.fields.power_status = fm_pwr['ENG']
+        self.fields.power_status_phy = fm_pwr['PHY']
+        fm = get_field_map(self.ETYPE, 'BIAS_VOLTAGE')
+        self.fields.bias_voltage = fm['ENG']
+        self.fields.bias_voltage_phy = fm['PHY']
 
 
 class VDElement(Element):

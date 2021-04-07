@@ -605,6 +605,20 @@ def build_channels(layout, psfile, machine=None, **kws):
             props[_HANDLE_PROPERTY] = "readback"
             data.append((channel + ":XYRMS_RD", OrderedDict(props), list(tags)))
 
+            props[_FIELD_ENG_PROPERTY] = elem.fields.power_status
+            props[_FIELD_PHY_PROPERTY] = elem.fields.power_status_phy
+            props[_HANDLE_PROPERTY] = "setpoint"
+            data.append((channel + ":VBS:setOn", OrderedDict(props), list(tags)))
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel + ":VBS:isOn", OrderedDict(props), list(tags)))
+
+            props[_FIELD_ENG_PROPERTY] = elem.fields.bias_voltage
+            props[_FIELD_PHY_PROPERTY] = elem.fields.bias_voltage_phy
+            props[_HANDLE_PROPERTY] = "setpoint"
+            data.append((channel + ":VBS:VoltageSet", OrderedDict(props), list(tags)))
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel + ":VBS:VoltageMeasure", OrderedDict(props), list(tags)))
+
         elif isinstance(elem, EBendElement):
             try:
                 channels, props, tags = buildChannel_pspv(elem)
@@ -680,6 +694,20 @@ def build_channels(layout, psfile, machine=None, **kws):
             props[_HANDLE_PROPERTY] = "readback"
             data.append((channel + ":AVG_RD", OrderedDict(props), list(tags)))
 
+            props[_FIELD_ENG_PROPERTY] = elem.fields.bias_voltage
+            props[_FIELD_PHY_PROPERTY] = elem.fields.bias_voltage_phy
+            props[_HANDLE_PROPERTY] = "setpoint"
+            data.append((channel + ":VBS:VoltageSet", OrderedDict(props), list(tags)))
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel + ":VBS:VoltageMeasure", OrderedDict(props), list(tags)))
+
+            props[_FIELD_ENG_PROPERTY] = elem.fields.power_status
+            props[_FIELD_PHY_PROPERTY] = elem.fields.power_status_phy
+            props[_HANDLE_PROPERTY] = "setpoint"
+            data.append((channel + ":VBS:setOn", OrderedDict(props), list(tags)))
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel + ":VBS:isOn", OrderedDict(props), list(tags)))
+
         elif isinstance(elem, ICElement):
             # Beam loss monitor (IC)
             props[_TYPE_PROPERTY] = "IC"
@@ -688,6 +716,20 @@ def build_channels(layout, psfile, machine=None, **kws):
             props[_FIELD_PHY_PROPERTY] = elem.fields.current_phy
             props[_HANDLE_PROPERTY] = "readback"
             data.append((channel + ":AVG_RD", OrderedDict(props), list(tags)))
+
+            props[_FIELD_ENG_PROPERTY] = elem.fields.bias_voltage
+            props[_FIELD_PHY_PROPERTY] = elem.fields.bias_voltage_phy
+            props[_HANDLE_PROPERTY] = "setpoint"
+            data.append((channel + ":VBS:VoltageSet", OrderedDict(props), list(tags)))
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel + ":VBS:VoltageMeasure", OrderedDict(props), list(tags)))
+
+            props[_FIELD_ENG_PROPERTY] = elem.fields.power_status
+            props[_FIELD_PHY_PROPERTY] = elem.fields.power_status_phy
+            props[_HANDLE_PROPERTY] = "setpoint"
+            data.append((channel + ":VBS:setOn", OrderedDict(props), list(tags)))
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel + ":VBS:isOn", OrderedDict(props), list(tags)))
 
         elif isinstance(elem, BCMElement):
             props[_TYPE_PROPERTY] = "BCM"
@@ -722,6 +764,20 @@ def build_channels(layout, psfile, machine=None, **kws):
             props[_FIELD_PHY_PROPERTY] = elem.fields.current_phy
             props[_HANDLE_PROPERTY] = "readback"
             data.append((channel + ":AVG_RD", OrderedDict(props), list(tags)))
+
+            props[_FIELD_ENG_PROPERTY] = elem.fields.bias_voltage
+            props[_FIELD_PHY_PROPERTY] = elem.fields.bias_voltage_phy
+            props[_HANDLE_PROPERTY] = "setpoint"
+            data.append((channel + ":VBS:VoltageSet", OrderedDict(props), list(tags)))
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel + ":VBS:VoltageMeasure", OrderedDict(props), list(tags)))
+
+            props[_FIELD_ENG_PROPERTY] = elem.fields.power_status
+            props[_FIELD_PHY_PROPERTY] = elem.fields.power_status_phy
+            props[_HANDLE_PROPERTY] = "setpoint"
+            data.append((channel + ":VBS:setOn", OrderedDict(props), list(tags)))
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel + ":VBS:isOn", OrderedDict(props), list(tags)))
 
         elif isinstance(elem, CollimatorElement):
             pass
@@ -764,15 +820,19 @@ def build_channels(layout, psfile, machine=None, **kws):
             props[_HANDLE_PROPERTY] = "readback"
             data.append((channel + ":AVG_RD", OrderedDict(props), list(tags)))
 
-            props[_FIELD_ENG_PROPERTY] = elem.fields.biasvolt
-            props[_FIELD_PHY_PROPERTY] = elem.fields.biasvolt_phy
-            props[_HANDLE_PROPERTY] = "readback"
-            data.append(("#" + channel + ":VoltageMeasure", OrderedDict(props), list(tags)))
-
-            props[_FIELD_ENG_PROPERTY] = elem.fields.biasvolt
-            props[_FIELD_PHY_PROPERTY] = elem.fields.biasvolt_phy
+            props[_FIELD_ENG_PROPERTY] = elem.fields.bias_voltage
+            props[_FIELD_PHY_PROPERTY] = elem.fields.bias_voltage_phy
             props[_HANDLE_PROPERTY] = "setpoint"
-            data.append(("#" + channel + ":VoltageSet", OrderedDict(props), list(tags)))
+            data.append((channel + ":VBS:VoltageSet", OrderedDict(props), list(tags)))
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel + ":VBS:VoltageMeasure", OrderedDict(props), list(tags)))
+
+            props[_FIELD_ENG_PROPERTY] = elem.fields.power_status
+            props[_FIELD_PHY_PROPERTY] = elem.fields.power_status_phy
+            props[_HANDLE_PROPERTY] = "setpoint"
+            data.append((channel + ":VBS:setOn", OrderedDict(props), list(tags)))
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel + ":VBS:isOn", OrderedDict(props), list(tags)))
 
             # VA only
             props[_FIELD_ENG_PROPERTY] = elem.fields.x
