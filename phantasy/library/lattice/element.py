@@ -33,7 +33,8 @@ VALID_STATIC_KEYS = ('name', 'family', 'index', 'se', 'length', 'sb',
                      'phy_name', 'phy_type', 'machine')
 VALID_CA_KEYS = ('field_eng', 'field_phy', 'handle', 'pv_policy')
 # diagnostic device types
-DIAG_DTYPES = ('FC', 'EMS', 'PM', 'BPM', 'BCM', 'ND', 'HMR', 'IC', 'VD')
+# DIAG_DTYPES = ('FC', 'EMS', 'PM', 'BPM', 'BCM', 'ND', 'HMR', 'IC', 'VD')
+DIAG_DTYPES = ('BPM', 'BCM', 'VD')
 
 
 class BaseElement(object):
