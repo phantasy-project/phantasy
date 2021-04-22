@@ -1158,7 +1158,7 @@ class CaElement(BaseElement):
         field_name = props.get('field_eng', None) # engineering field name
         # if field_phy is undefined, use the same as field_eng
         field_name_phy = props.get('field_phy', None)
-        
+
         # if eng and phy has the same name:
         if field_name_phy == field_name:
             field_name_phy = f"{field_name}_phy"
