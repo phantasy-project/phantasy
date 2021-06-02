@@ -195,8 +195,8 @@ def test_element_channel_ca_2(mp_from_config2):
     lat = mp.work_lattice_conf
     elem = lat[1]
     fld_name = 'V'
-    assert len(elem.pv()) == 6
-    assert elem.fields == [fld_name]
+    assert len(elem.pv()) == 12
+    assert elem.fields == ['V', 'VOLT']
     assert elem.V == 0.1
     fld = elem.get_field(fld_name)
     assert list(fld.get(timeout=1.0)['mean']) == [-fld.value, fld.value]

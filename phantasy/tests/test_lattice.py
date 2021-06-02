@@ -86,8 +86,8 @@ class TestLatSettings(unittest.TestCase):
 
         lat.load_settings(settings, stype='design')
         self.assertEqual(elem0.design_settings, {'I': None, 'B': 0.0})
-        self.assertEqual(elem1.design_settings, {'V': 3985.557698574019})
+        self.assertEqual(elem1.design_settings, {'V': None, 'VOLT': 3985.557698574019})
 
         lat.load_settings(settings, stype='last')
         self.assertEqual(elem0.last_settings, {'I': None, 'B': 0.0})
-        self.assertEqual(elem1.last_settings, {'V': 3985.557698574019})
+        self.assertEqual(elem1.last_settings, {'V': None, 'VOLT': 3985.557698574019})

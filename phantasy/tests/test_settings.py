@@ -57,7 +57,8 @@ def test_element_get_settings(equad_element, dict_from_snp):
 
 def test_get_element_settings_1(equad_element, dict_from_snp):
     s = dict_from_snp
-    assert get_element_settings(s, equad_element) == {'V': 3072.0}
+    assert get_element_settings(s, equad_element) == {
+                'V': 3072.0, 'VOLT': 3072.0}
 
 
 def test_get_element_settings_2(sol_element, dict_from_snp):
@@ -69,7 +70,7 @@ def test_get_element_settings_2(sol_element, dict_from_snp):
 def test_generate_settings():
     assert generate_settings(snpfile, lat) == dict([
             ('FE_SCS1:SOLR_D0704', {'B': 0.1, 'I': 0.1}),
-            ('FE_SCS1:QHE_D0726', {'V': 3072.0})])
+            ('FE_SCS1:QHE_D0726', {'V': 3072.0, 'VOLT': 3072.0})])
     assert generate_settings(snpfile, lat, only_physics=True) == dict([
             ('FE_SCS1:SOLR_D0704', {'B': 0.1}),
-            ('FE_SCS1:QHE_D0726', {'V': 3072.0})])
+            ('FE_SCS1:QHE_D0726', {'VOLT': 3072.0})])
