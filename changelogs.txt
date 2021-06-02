@@ -1,3 +1,40 @@
+Version 2.0.0
+--------------
+2021-06-02
+
+ - Support parsing FRIB xlsx lattice file version 20210318.
+ - Add rate/noise controls for FLAME VA.
+ - Support new UNICORN API.
+ - Drop support for Python 2.
+ - Other details:
+   - REF: Skip line starts with '#' for reading QUAD polarity data.
+   - REF: Name physics field name as engineering field _phy if same.
+   - REF: Exlcude FC,EMS,PM,ND,IC,HMR from is_diag().
+   - REF: Generate PWRSTS and BIAS_VOLT channels for PM,IC,ND and HMR.
+   - REF: Add BIAS VOLT and PWRSTS for PM,IC,ND,HMR,FC.
+   - REF: Update naming convention for BCM:AVGPK.
+   - REF: Do not run cbs after changing am.
+   - BUG: Align the physics and engineering fields after filtering.
+   - ENH: Support to generate LOCK_STATUS and INTERLOCK_STATUS PVs for CAV.
+   - ENH: Run callbacks after adding.
+   - ENH: Implement new callback logic for CaField.
+   - REF: Search field_of_interest by element name (0) and element type (1).
+   - REF: Adjustment per CaElement.convert() API changes.
+   - MNT: Update install depends.
+   - MNT: Update makefile for testing.
+   - BUG: Fix constructing CaElement with None u_policy arg.
+   - BUG: Handle for machine configuration w/o 'unicorn_file'.
+   - API: Support new unicorn data format.
+   - REF: Rename nautils mitem to Launch Physics Apps.
+   - MNT: Update depends.
+   - REF: Add fields for CAV.
+   - REF: Add support to generate PVs for power status.
+   - ENH: Applied ensure put policy for orm measurement.
+   - ENH: Add function get_random_name().
+   - REF: Pull field names from configs for FC,BCM,ND,IC,HMR elements.
+   - MNT: Update the field names configs for FC,BCM,ND,IC,HMR elements.
+   - BUG: Change GRAD to B2, after renaming physics field of quad gradient.
+
 Version 1.15.1
 --------------
 2020-07-21
