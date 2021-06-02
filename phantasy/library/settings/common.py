@@ -127,7 +127,7 @@ def get_element_settings(settings, element, **kws):
         phy_v = element.get_settings(phy_f, settings)
 
         # debug
-        print("{}, ENG: {}, PHY: {} ({})".format(element.name, eng_f, phy_f, phy_v))
+        # print("{}, ENG: {}, PHY: {} ({})".format(element.name, eng_f, phy_f, phy_v))
         #
 
         if phy_v is None: phy_v = np.nan
@@ -139,7 +139,7 @@ def get_element_settings(settings, element, **kws):
             elem_settings.update({eng_f: eng_v})
 
         # debug
-        print("{} settings: {}".format(element.name, elem_settings))
+        # print("{} settings: {}".format(element.name, elem_settings))
         #
     return elem_settings
 
