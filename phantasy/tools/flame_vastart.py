@@ -44,6 +44,9 @@ parser.add_argument("--end", help="name of accelerator element to end processing
 parser.add_argument("--data", dest="datapath", help="path to directory with FLAME data")
 parser.add_argument("--work", dest="workpath", help="path to directory for executing FLAME")
 parser.add_argument("--pv-prefix", dest="pvprefix", help="string prefix to each PV name")
+parser.add_argument("--pv-suffix", dest="pvsuffix", default='', help="string suffix only to noise/mps/status PVs")
+parser.add_argument("--noise", dest="noise", type=float, default=0.001, help="noise level of device readback")
+parser.add_argument("--rep-rate", dest="reprate", type=float, default=1.0, help="repetition rate of virtual accelerator")
 
 print_help = parser.print_help
 
@@ -98,7 +101,8 @@ def main():
     try:
         va = build_flame_virtaccel(layout, config=config, channels=channels, settings=settings,
                                    start=args.start, end=args.end, data_dir=args.datapath, work_dir=args.workpath,
-                                   machine=args.pvprefix)
+                                   machine=args.pvprefix, pv_suffix=args.pvsuffix, noise=args.noise,
+                                   rate=args.reprate)
     except Exception as e:
         if args.verbosity > 0: traceback.print_exc()
         print("Error building virtual accelerator:", e, file=sys.stderr)

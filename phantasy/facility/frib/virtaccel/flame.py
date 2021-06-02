@@ -18,6 +18,7 @@ import tempfile
 import time
 from collections import OrderedDict
 from copy import deepcopy
+from datetime import datetime
 
 try:
     from StringIO import StringIO
@@ -66,6 +67,8 @@ from phantasy.library.layout import CollimatorElement
 from phantasy.library.layout import RotElement
 from phantasy.library.lattice import FlameLatticeFactory
 
+DEFAULT_NOISE_LEVEL = 0.001  # i.e. 0.1%
+DEFAULT_REP_RATE = 1         # Hz
 
 try:
     basestring  # Python 2.X
@@ -194,6 +197,10 @@ class VirtualAcceleratorFactory(object):
         self.end = kwargs.get("end", None)
         self.data_dir = kwargs.get("data_dir", None)
         self.work_dir = kwargs.get("work_dir", None)
+
+        self.rate = kwargs.get("rate", DEFAULT_REP_RATE)
+        self.noise = kwargs.get("noise", DEFAULT_REP_RATE)
+        self.pv_suffix = kwargs.get('pv_suffix', '') # only for rate/noise/cnt/status PVs.
 
         # machine: read from config file, the PV prefix
         if self.config is not None:
@@ -344,10 +351,12 @@ class VirtualAcceleratorFactory(object):
             # IMPORTANT: chanprefix must
             # be converted from unicode
             # if find prefix from the raw channel, do not prefix any more.
-            chanprefix = ''
-            #chanprefix = str(m.group(1))
+            chanprefix = m.group(1)
 
-        va = VirtualAccelerator(latfactory, settings, chanprefix, data_dir, work_dir)
+        va = VirtualAccelerator(latfactory, settings, chanprefix, data_dir, work_dir,
+                                noise=self.noise,
+                                rate=self.rate,
+                                pv_suffix=self.pv_suffix)
 
         for elem in self.layout.iter(start=self.start, end=self.end):
             # check drift mask first
@@ -539,16 +548,18 @@ class VirtualAccelerator(object):
     """VirtualAccelerator executes and manages the EPICS IOC process and
     FLAME simulation thread.
     """
-    def __init__(self, latfactory, settings, chanprefix, data_dir, work_dir=None):
+    def __init__(self, latfactory, settings, chanprefix, data_dir, work_dir=None, **kws):
         if not isinstance(latfactory, FlameLatticeFactory):
-            raise TypeError("VirtualAccelerator: Invalid type for FlameLatticeFactory")
+            raise TypeError("VA: Invalid type for FlameLatticeFactory")
         self._latfactory = latfactory
 
         if not isinstance(settings, dict):
-            raise TypeError("VirtualAccelerator: Invalid type for accelerator Settings")
+            raise TypeError("VA: Invalid type for accelerator Settings")
         self._settings = settings
 
+        # for info PVs: status, mps, noise, etc.
         self._chanprefix = chanprefix
+
         self._data_dir = data_dir
         self._work_dir = work_dir
 
@@ -558,7 +569,14 @@ class VirtualAccelerator(object):
         self._fieldmap = OrderedDict()
         self._readfieldmap = OrderedDict()
 
-        self._noise = 0.001
+        # noise
+        self._noise = kws.get('noise', DEFAULT_NOISE_LEVEL)
+
+        # rep-rate
+        self._rate = kws.get('rate', DEFAULT_REP_RATE)
+
+        # suffix for noise/rate/cnt/status PVs
+        self._pv_suffix = kws.get('pv_suffix', '')
 
         self._started = False
         self._continue = False
@@ -570,6 +588,8 @@ class VirtualAccelerator(object):
         self._subscriptions = None
         self._wait_event = cothread.Event(False)
 
+        self._ts_now = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+
     @property
     def data_dir(self):
         return self._data_dir
@@ -577,7 +597,7 @@ class VirtualAccelerator(object):
     @data_dir.setter
     def data_dir(self, data_dir):
         if not isinstance(data_dir, basestring):
-            raise TypeError("VirtualAccelerator: 'data_dir' property much be type string")
+            raise TypeError("VA: 'data_dir' property much be type string")
         self._data_dir = data_dir
 
     @property
@@ -587,7 +607,7 @@ class VirtualAccelerator(object):
     @work_dir.setter
     def work_dir(self, work_dir):
         if (work_dir is not None) and not isinstance(work_dir, basestring):
-            raise TypeError("VirtualAccelerator: 'work_dir' property much be type string or None")
+            raise TypeError("VA: 'work_dir' property much be type string or None")
         self._work_dir = work_dir
 
     def __prefix_pv(self, pv):
@@ -633,7 +653,7 @@ class VirtualAccelerator(object):
             Driven ratio of setting point value * (1 +- ratio).
         """
         if self.is_started():
-            raise RuntimeError("VirtualAccelerator: Cannot append RW channel when started")
+            raise RuntimeError("VA: Cannot append RW channel when started")
 
         val = self._settings[field[0]][field[1]]
         if drvabs is not None:
@@ -692,7 +712,7 @@ class VirtualAccelerator(object):
             EPICS display precision.
         """
         if self.is_started():
-            raise RuntimeError("VirtualAccelerator: Cannot append RO channel when started")
+            raise RuntimeError("VA: Cannot append RO channel when started")
 
         # prefix pvs
         read = self.__prefix_pv(read)
@@ -712,7 +732,7 @@ class VirtualAccelerator(object):
         """Append an accelerator element to this virtual accelerator.
         """
         if self.is_started():
-            raise RuntimeError("VirtualAccelerator: Cannot append element when started")
+            raise RuntimeError("VA: Cannot append element when started")
         self._elemmap[elem.name] = elem
 
     def is_started(self):
@@ -722,19 +742,19 @@ class VirtualAccelerator(object):
     def start(self, raise_on_wait=False):
         """Start the virtual accelerator. Spawn a new cothread to handle execution.
         """
-        _LOGGER.debug("VirtualAccelerator: Start")
+        _LOGGER.debug("VA: Start")
         cothread.Spawn(self._co_start, raise_on_wait, raise_on_wait=True).Wait()
 
     def _co_start(self, raise_on_wait):
-        _LOGGER.debug("VirtualAccelerator: Start (cothread)")
+        _LOGGER.debug("VA: Start (cothread)")
         if self._started:
-            raise RuntimeError("VirtualAccelerator: Already started")
+            raise RuntimeError("VA: Already started")
 
         if not os.path.isdir(self.data_dir):
-            raise RuntimeError("VirtualAccelerator: Data directory not found: {}".format(self.data_dir))
+            raise RuntimeError("VA: Data directory not found: {}".format(self.data_dir))
 
         if self.work_dir is not None and os.path.exists(self.work_dir):
-            raise RuntimeError("VirtualAccelerator: Working directory already exists: {}".format(self.work_dir))
+            raise RuntimeError("VA: Working directory already exists: {}".format(self.work_dir))
 
         self._started = True
         self._continue = True
@@ -745,66 +765,66 @@ class VirtualAccelerator(object):
         """Stop the virtual accelerator.
            Spawn a new cothread to stop gracefully.
         """
-        _LOGGER.debug("VirtualAccelerator: Stop")
+        _LOGGER.debug("VA: Stop")
         cothread.Spawn(self._co_stop, raise_on_wait=True).Wait()
 
     def _co_stop(self):
-        _LOGGER.debug("VirtualAccelerator: Stop (cothread)")
+        _LOGGER.debug("VA: Stop (cothread)")
         if self._started:
-            _LOGGER.debug("VirtualAccelerator: Initiate shutdown")
+            _LOGGER.debug("VA: Initiate shutdown")
             self._continue = False
         else:
-            raise RuntimeError("VirtualAccelerator: Not started")
+            raise RuntimeError("VA: Not started")
 
     def wait(self, timeout=None):
-        _LOGGER.debug("VirtualAccelerator: Wait")
+        _LOGGER.debug("VA: Wait")
         """Wait for the virtual accelerator to stop
         """
         cothread.Spawn(self._co_wait, timeout, raise_on_wait=True).Wait()
 
     def _co_wait(self, timeout):
-        _LOGGER.debug("VirtualAccelerator: Wait (cothread)")
+        _LOGGER.debug("VA: Wait (cothread)")
         if self._started:
             self._wait_event.Wait(timeout)
         else:
-            raise RuntimeError("VirtualAccelerator: Not started")
+            raise RuntimeError("VA: Not started")
 
     def _co_execute_with_cleanup(self, raise_on_wait):
         """Executer method wraps the call to _execute and ensure that
            the proper clean up of connections and processes.
         """
-        _LOGGER.debug("VirtualAccelerator: Execute (cothread)")
+        _LOGGER.debug("VA: Execute (cothread)")
         execute_error = None
         try:
             cothread.Spawn(self._co_execute, raise_on_wait=raise_on_wait).Wait()
         except Exception as e:
             execute_error = e
         finally:
-            _LOGGER.info("VirtualAccelerator: Cleanup")
+            _LOGGER.info("VA: Cleanup")
             if self._subscriptions is not None:
-                _LOGGER.debug("VirtualAccelerator: Cleanup: close connections")
+                _LOGGER.debug("VA: Cleanup: close connections")
                 for sub in self._subscriptions:
                     sub.close()
                 self._subscriptions = None
 
             if self._ioc_process is not None:
-                _LOGGER.debug("VirtualAccelerator: Cleanup: terminate IOC process")
+                _LOGGER.debug("VA: Cleanup: terminate IOC process")
                 self._ioc_process.terminate()
                 self._ioc_process.wait()
                 self._ioc_process = None
 
             if self._ioc_logfile is not None:
-                _LOGGER.debug("VirtualAccelerator: Cleanup: close IOC log file")
+                _LOGGER.debug("VA: Cleanup: close IOC log file")
                 self._ioc_logfile.close()
                 self._ioc_logfile = None
             else:
-                _LOGGER.debug("VirtualAccelerator: Cleanup: IOC log file is NONE")
+                _LOGGER.debug("VA: Cleanup: IOC log file is NONE")
 
             if self._rm_work_dir:
-                _LOGGER.debug("VirtualAccelerator: Cleanup: remove work directory")
+                _LOGGER.debug("VA: Cleanup: remove work directory")
                 shutil.rmtree(self.work_dir)
             else:
-                _LOGGER.debug("VirtualAccelerator: Cleanup: work directory is NONE")
+                _LOGGER.debug("VA: Cleanup: work directory is NONE")
 
             self._started = False
             self._continue = False
@@ -818,7 +838,7 @@ class VirtualAccelerator(object):
         """Execute the virtual accelerator. This includes the following:
 
         1. Creating a temporary working directory for execution of FLAME.
-        2. Setup the working directory by symlinking from the data directory.
+        2. Set up the working directory by symlinking from the data directory.
         3. Writing the EPICS DB to the working directory (va.db).
         4. Starting the softIoc and channel initializing monitors.
         5. Add noise to the settings for all input (CSET) channels.
@@ -828,32 +848,42 @@ class VirtualAccelerator(object):
         9. Update the REST channels of input devies.
         10. Repeat from step #5.
         """
-        _LOGGER.debug("VirtualAccelerator: Execute virtual accelerator")
+        _LOGGER.debug("VA: Execute virtual accelerator")
+        _LOGGER.info("VA: Running at " + self._ts_now)
 
-        if self._chanprefix is None:
-            chanprefix = ""
+        chanprefix = self._chanprefix
+        if self._pv_suffix != '':
+            suffix_str = "_" + self._pv_suffix
         else:
-            chanprefix = self._chanprefix + ':'
+            suffix_str = ""
+
+        # Add channel for VA rep-rate
+        chanrate = f"{chanprefix}:SVR:RATE{suffix_str}"
+        self._epicsdb.append(("ao", chanrate, OrderedDict([
+            ("DESC", "Rep-rate of Simulation Engine"),
+            ("VAL", self._rate),
+            ("PREC", 1),
+            ])))
+        _LOGGER.info("VA: Reprate PV is " + chanrate)
+
 
         # Add channel for sample counting
-        sample_cnt = chanprefix + "SVR:CNT"
-
-        self._epicsdb.append(("ai", sample_cnt, OrderedDict([
+        chansample_cnt = f"{chanprefix}:SVR:CNT{suffix_str}"
+        self._epicsdb.append(("ao", chansample_cnt, OrderedDict([
             ("DESC", "Sample counter for scan client"),
             ("VAL", 0)
             ])))
 
         # Add channel for VA configuration and control
-        channoise = chanprefix + "SVR:NOISE"
-
+        channoise = f"{chanprefix}:SVR:NOISE{suffix_str}"
         self._epicsdb.append(("ao", channoise, OrderedDict([
                 ("DESC", "Noise level of Virtual Accelerator"),
-                ("VAL", 0.001),
+                ("VAL", self._noise),
                 ("PREC", 5)
             ])))
+        _LOGGER.info("VA: Noise PV is " + channoise)
 
-        chanstat = chanprefix + "SVR:STATUS"
-
+        chanstat = f"{chanprefix}:SVR:STATUS{suffix_str}"
         self._epicsdb.append(("bi", chanstat, OrderedDict([
                 ("DESC", "Status of Virtual Accelerator"),
                 ("VAL", 1),
@@ -861,10 +891,10 @@ class VirtualAccelerator(object):
                 ("ONAM", "OK"),
                 ("PINI", "1")
             ])))
+        _LOGGER.info("VA: Status PV is " + chanstat)
 
         # MPS status
-        chan_mps_stat = chanprefix + "SVR:MpsStatus"
-
+        chan_mps_stat = f"{chanprefix}:SVR:MpsStatus"
         self._epicsdb.append(("mbbi", chan_mps_stat, OrderedDict([
                 ("DESC", "MPS Status of Virtual Accelerator"),
                 ("VAL", 3),
@@ -874,16 +904,17 @@ class VirtualAccelerator(object):
                 ("THST", "Enable"),
                 ("PINI", "1")
             ])))
+        _LOGGER.info("VA: MPS PV is " + chan_mps_stat)
 
         #
-        chancharge = chanprefix + "SVR:CHARGE"
-
+        chancharge = f"{chanprefix}:SVR:CHARGE{suffix_str}"
         self._epicsdb.append(("ai", chancharge, OrderedDict([
                 ("DESC", "Q/M of Virtual Accelerator"),
                 ("VAL", 0.0),
                 ("PREC", 5)
             ])))
 
+        #
         if self.work_dir is not None:
             os.makedirs(self.work_dir)
             self._rm_work_dir = False
@@ -891,7 +922,7 @@ class VirtualAccelerator(object):
             self.work_dir = tempfile.mkdtemp(_TEMP_DIRECTORY_SUFFIX)
             self._rm_work_dir = True
 
-        _LOGGER.info("VirtualAccelerator: Working directory: %s", self._work_dir)
+        _LOGGER.info("VA: Working directory: %s", self._work_dir)
 
         # input file paths
         epicsdbpath = os.path.join(self.work_dir, "va.db")
@@ -909,23 +940,21 @@ class VirtualAccelerator(object):
 
         with open(epicsdbpath, "w") as outfile:
             self._write_epicsdb(outfile)
-        _LOGGER.info("VirtualAccelerator: Write EPICS database to %s", epicsdbpath)
-        #_LOGGER.debug("VirtualAccelerator: Write EPICS database to %s", epicsdbpath)
+        _LOGGER.info("VA: Write EPICS database to %s", epicsdbpath)
+        #_LOGGER.debug("VA: Write EPICS database to %s", epicsdbpath)
 
         self._ioc_logfile = open(epicslogpath, "w")
         self._ioc_process = Popen(["softIoc", "-d", "va.db"], cwd=self.work_dir,
                                   stdout=self._ioc_logfile, stderr=subprocess.STDOUT)
-        _LOGGER.debug("VirtualAccelerator: Start EPICS soft IOC with log %s", epicslogpath)
+        _LOGGER.debug("VA: Start EPICS soft IOC with log %s", epicslogpath)
 
-        _LOGGER.debug("VirtualAccelerator: Connecting to channels: {}".format(len(self._csetmap.keys())))
+        _LOGGER.debug("VA: Connecting to channels: {}".format(len(self._csetmap.keys())))
 
         self._subscriptions = []
-
+        self._subscriptions.append(catools.camonitor(chanrate, self._handle_rate_monitor))
         self._subscriptions.append(catools.camonitor(channoise, self._handle_noise_monitor))
-
         self._subscriptions.extend(catools.camonitor(self._csetmap.keys(), self._handle_cset_monitor))
-
-        _LOGGER.debug("VirtualAccelerator: Connecting to channels: Done")
+        _LOGGER.debug("VA: Connecting to channels: Done")
 
         machine = None
 
@@ -947,14 +976,14 @@ class VirtualAccelerator(object):
             start = time.time()
 
             if machine is None:
-                _LOGGER.debug("VirtualAccelerator: Create FLAME machine from configuration")
+                _LOGGER.debug("VA: Create FLAME machine from configuration")
                 machine = Machine(lattice.conf())
             else:
-                _LOGGER.debug("VirtualAccelerator: Reconfigure FLAME machine from configuration")
+                _LOGGER.debug("VA: Reconfigure FLAME machine from configuration")
                 for idx, elem in enumerate(lattice.elements):
                     machine.reconfigure(idx, elem[2])
 
-            _LOGGER.debug("VirtualAccelerator: Allocate FLAME state from configuration")
+            _LOGGER.debug("VA: Allocate FLAME state from configuration")
             S = machine.allocState({})
 
             output_map = []
@@ -973,44 +1002,44 @@ class VirtualAccelerator(object):
 
                     if isinstance(elem, BPMElement):
                         x_centroid = S.moment0_env[0]/1.0e3 # convert mm to m
-                        _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
+                        _LOGGER.debug("VA: Update read: %s to %s",
                                       self._readfieldmap[elem.name][elem.fields.x_phy], x_centroid)
                         batch[self._readfieldmap[elem.name][elem.fields.x_phy]] = x_centroid
                         y_centroid = S.moment0_env[2]/1.0e3 # convert mm to m
-                        _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
+                        _LOGGER.debug("VA: Update read: %s to %s",
                                       self._readfieldmap[elem.name][elem.fields.y_phy], y_centroid)
                         batch[self._readfieldmap[elem.name][elem.fields.y_phy]] = y_centroid
                          # convert rad to deg and adjust for 161MHz sampling frequency
                         phase = _normalize_phase(2.0 * S.ref_phis * (180.0 / math.pi))
-                        _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
+                        _LOGGER.debug("VA: Update read: %s to %s",
                                       self._readfieldmap[elem.name][elem.fields.phase_phy], phase)
                         batch[self._readfieldmap[elem.name][elem.fields.phase_phy]] = phase
                         energy = S.ref_IonEk/1.0e6 # convert eV to MeV
-                        _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
+                        _LOGGER.debug("VA: Update read: %s to %s",
                                       self._readfieldmap[elem.name][elem.fields.energy_phy], energy)
                         batch[self._readfieldmap[elem.name][elem.fields.energy_phy]] = energy
 
                     elif isinstance(elem, PMElement):
                         x_centroid = S.moment0_env[0]/1.0e3 # convert mm to m
-                        _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
+                        _LOGGER.debug("VA: Update read: %s to %s",
                                       self._readfieldmap[elem.name][elem.fields.x], x_centroid)
                         batch[self._readfieldmap[elem.name][elem.fields.x]] = x_centroid
                         y_centroid = S.moment0_env[2]/1.0e3 # convert mm to m
-                        _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
+                        _LOGGER.debug("VA: Update read: %s to %s",
                                       self._readfieldmap[elem.name][elem.fields.y], y_centroid)
                         batch[self._readfieldmap[elem.name][elem.fields.y]] = y_centroid
                         x_rms = S.moment0_rms[0]/1.0e3 # convert mm to m
-                        _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
+                        _LOGGER.debug("VA: Update read: %s to %s",
                                       self._readfieldmap[elem.name][elem.fields.xrms], x_rms)
                         batch[self._readfieldmap[elem.name][elem.fields.xrms]] = x_rms
                         y_rms = S.moment0_rms[2]/1.0e3
-                        _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
+                        _LOGGER.debug("VA: Update read: %s to %s",
                                       self._readfieldmap[elem.name][elem.fields.yrms], y_rms)
                         batch[self._readfieldmap[elem.name][elem.fields.yrms]] = y_rms
 
                         sign = elem.sign
                         xy_centroid = (sign*x_centroid + y_centroid)/math.sqrt(2.0) # convert mm to m
-                        _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
+                        _LOGGER.debug("VA: Update read: %s to %s",
                                       self._readfieldmap[elem.name][elem.fields.xy], xy_centroid)
                         batch[self._readfieldmap[elem.name][elem.fields.xy]] = xy_centroid
 
@@ -1018,36 +1047,36 @@ class VirtualAccelerator(object):
                                 (S.moment1_env[0, 0] + S.moment1_env[2, 2])*0.5
                                 + sign*S.moment1_env[0, 2]
                         )
-                        _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
+                        _LOGGER.debug("VA: Update read: %s to %s",
                                       self._readfieldmap[elem.name][elem.fields.xyrms], xy_rms)
                         batch[self._readfieldmap[elem.name][elem.fields.xyrms]] = xy_rms
 
                         cxy = sign * S.moment1_env[0, 2] * 1e-6 / x_rms / y_rms
-                        _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
+                        _LOGGER.debug("VA: Update read: %s to %s",
                                       self._readfieldmap[elem.name][elem.fields.cxy], cxy)
                         batch[self._readfieldmap[elem.name][elem.fields.cxy]] = cxy
 
                     elif isinstance(elem, (FCElement, VDElement,)):
                         x_centroid = S.moment0_env[0]/1.0e3 # convert mm to m
-                        _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
+                        _LOGGER.debug("VA: Update read: %s to %s",
                                       self._readfieldmap[elem.name][elem.fields.x], x_centroid)
                         batch[self._readfieldmap[elem.name][elem.fields.x]] = x_centroid
                         y_centroid = S.moment0_env[2]/1.0e3 # convert mm to m
-                        _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
+                        _LOGGER.debug("VA: Update read: %s to %s",
                                       self._readfieldmap[elem.name][elem.fields.y], y_centroid)
                         batch[self._readfieldmap[elem.name][elem.fields.y]] = y_centroid
                         x_rms = S.moment0_rms[0]/1.0e3 # convert mm to m
-                        _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
+                        _LOGGER.debug("VA: Update read: %s to %s",
                                       self._readfieldmap[elem.name][elem.fields.xrms], x_rms)
                         batch[self._readfieldmap[elem.name][elem.fields.xrms]] = x_rms
                         y_rms = S.moment0_rms[2]/1.0e3
-                        _LOGGER.debug("VirtualAccelerator: Update read: %s to %s",
+                        _LOGGER.debug("VA: Update read: %s to %s",
                                       self._readfieldmap[elem.name][elem.fields.yrms], y_rms)
                         batch[self._readfieldmap[elem.name][elem.fields.yrms]] = y_rms
 
             batch.caput()
 
-            _LOGGER.info("VirtualAccelerator: FLAME execution time: %f s", time.time()-start)
+            _LOGGER.info("VA: FLAME execution time: %f s", time.time()-start)
 
             # Allow the BPM, PM, etc. readbacks to update
             # before the device setting readbacks PVs.
@@ -1056,7 +1085,7 @@ class VirtualAccelerator(object):
             batch = catools.CABatch()
             for name, value in self._csetmap.items():
                 name, field = self._fieldmap[name]
-                _LOGGER.debug("VirtualAccelerator: Update read: %s to %s", value[1], settings[name][field])
+                _LOGGER.debug("VA: Update read: %s to %s", value[1], settings[name][field])
                 batch[value[1]] = settings[name][field]
             batch.caput()
 
@@ -1066,25 +1095,32 @@ class VirtualAccelerator(object):
             # If a scan is being done on this virtual accelerator,
             # then the scan server has a period of time to update
             # setpoints before the next run of IMPACT.
-            if (time.time()-start) > 0.50:
-                cothread.Sleep((time.time()-start)*0.1)
+            delt = time.time() - start
+            if delt > 0.50:
+                cothread.Sleep(delt * 0.1)
             else:
-                cothread.Sleep(1.0 - (time.time()-start))
+                cothread.Sleep(1.0 / self._rate - delt)
 
     def _handle_cset_monitor(self, value, idx):
         """Handle updates of CSET channels by updating
            the corresponding setting and RSET channel.
         """
         cset = list(self._csetmap.items())[idx]
-        _LOGGER.debug("VirtualAccelerator: Update cset: '%s' to %s", cset[0], value)
+        _LOGGER.debug("VA: Update cset: '%s' to %s", cset[0], value)
         name, field = self._fieldmap[cset[0]]
         self._settings[name][field] = float(value)
 
     def _handle_noise_monitor(self, value):
         """Handle updates of the NOISE channel.
         """
-        _LOGGER.debug("VirtualAccelerator: Update noise: %s", value)
+        _LOGGER.debug("VA: Update noise: %s", value)
         self._noise = float(value)
+
+    def _handle_rate_monitor(self, value):
+        """Handle updates of the REPRATE channel.
+        """
+        _LOGGER.info("VA: Update reprate: %s", value)
+        self._rate = float(value)
 
     def _copy_settings_with_noise(self):
         s = deepcopy(self._settings)
