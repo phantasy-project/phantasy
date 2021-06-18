@@ -65,6 +65,8 @@ from phantasy.library.layout import ApertureElement
 from phantasy.library.layout import HMRElement
 from phantasy.library.layout import CollimatorElement
 from phantasy.library.layout import RotElement
+from phantasy.library.layout import TargetElement
+from phantasy.library.layout import WedgeElement
 from phantasy.library.lattice import FlameLatticeFactory
 
 DEFAULT_NOISE_LEVEL = 0.001  # i.e. 0.1%
@@ -536,6 +538,9 @@ class VirtualAcceleratorFactory(object):
                 pass
 
             elif isinstance(elem, ElectrodeElement):
+                pass
+
+            elif isinstance(elem, (TargetElement, WedgeElement, )):
                 pass
 
             else:
