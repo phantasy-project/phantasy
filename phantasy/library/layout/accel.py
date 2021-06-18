@@ -634,6 +634,23 @@ class BCMElement(Element):
         self.fields.current_peak = fm_pkavg['ENG']   # peak avg
         self.fields.current_peak_phy = fm_pkavg['PHY']
 
+class WedgeElement(Element):
+    """WedgeElement represents wedge device.
+    """
+    ETYPE = "WED"
+
+    def __init__(self, z, length, aperture, name, desc="wedge",
+                 **meta):
+        super(WedgeElement, self).__init__(z, length, aperture, name, desc=desc,
+                                         **meta)
+
+        #fm_avg = get_field_map(self.ETYPE, 'AVERAGE_INTENSITY')
+        #fm_pkavg = get_field_map(self.ETYPE, 'AVERAGE_PEAK_INTENSITY')
+        #self.fields.current_avg = fm_avg['ENG']  # 1 Hz avg
+        #self.fields.current_avg_phy = fm_avg['PHY']
+        #self.fields.current_peak = fm_pkavg['ENG']   # peak avg
+        #self.fields.current_peak_phy = fm_pkavg['PHY']
+
 
 class BLElement(Element):
     """BLElement represents Bunch Length Monitor diagnostic device.
@@ -1080,7 +1097,7 @@ class QuadElement(Element):
 
 
 class SextElement(Element):
-    """SectElement represents a sextapole magnet.
+    """SextElement represents a sextapole magnet.
     """
 
     ETYPE = "SEXT"
@@ -1089,6 +1106,23 @@ class SextElement(Element):
                  **meta):
         super(SextElement, self).__init__(z, length, aperture, name, desc=desc,
                                           **meta)
+        fm = get_field_map(self.ETYPE, 'FIELD')
+        fm_pwr = get_field_map(self.ETYPE, 'POWER_STATUS')
+        self.fields.field = fm['ENG']
+        self.fields.field_phy = fm['PHY']
+        self.fields.power_status = fm_pwr['ENG']
+        self.fields.power_status_phy = fm_pwr['PHY']
+
+class OctElement(Element):
+    """OctElement represents a octopole magnet.
+    """
+
+    ETYPE = "OCT"
+
+    def __init__(self, z, length, aperture, name, desc="octopole magnet",
+                 **meta):
+        super(OctElement, self).__init__(z, length, aperture, name, desc=desc,
+                                         **meta)
         fm = get_field_map(self.ETYPE, 'FIELD')
         fm_pwr = get_field_map(self.ETYPE, 'POWER_STATUS')
         self.fields.field = fm['ENG']
@@ -1438,6 +1472,20 @@ class ChopperElement(Element):
         super(ChopperElement, self).__init__(z, length, aperture, name,
                                              desc=desc,
                                              **meta)
+
+
+# Taget
+
+class TargetElement(Element):
+    """TargetElement represents a target, where primary beam hit on.
+    """
+
+    ETYPE = "PTA"
+
+    def __init__(self, z, length, aperture, name, desc="target",
+                 **meta):
+        super(TargetElement, self).__init__(z, length, aperture, name, desc=desc,
+                                            **meta)
 
 
 # Attenuator Elements

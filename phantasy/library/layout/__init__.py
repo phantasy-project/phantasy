@@ -41,6 +41,9 @@ from .accel import NDElement
 from .accel import ICElement
 from .accel import RotElement
 from .accel import MarkerElement
+from .accel import OctElement
+from .accel import WedgeElement
+from .accel import TargetElement
 
 __all__ = [
     'build_layout', 'Layout',
@@ -54,7 +57,8 @@ __all__ = [
     'StripElement', 'VCorElement', 'VDElement', 'ValveElement',
     'SlitElement', 'ChopperElement', 'AttenuatorElement', 'DumpElement',
     'ApertureElement', "NDElement", "ICElement", "RotElement",
-    'SDElement', 'SourceElement', 'MarkerElement',
+    'SDElement', 'SourceElement', 'MarkerElement', "OctElement",
+    "WedgeElement", 'TargetElement',
     'Element', 'Fields',
 ]
 
