@@ -47,6 +47,8 @@ from phantasy.library.layout import CollimatorElement
 from phantasy.library.layout import RotElement
 from phantasy.library.layout import NDElement
 from phantasy.library.layout import ICElement
+from phantasy.library.layout import TargetElement
+from phantasy.library.layout import WedgeElement
 from phantasy.library.settings import Settings
 
 CONFIG_FLAME_SIM_TYPE = "flame_sim_type"
@@ -408,6 +410,14 @@ class FlameLatticeFactory(BaseLatticeFactory):
                 lattice.append(elem.name, "drift",
                                ('L', elem.length), ('aper', elem.aperture / 2.0),
                                name=elem.name, etype=elem.ETYPE)
+
+            elif isinstance(elem, TargetElement):
+                lattice.append(elem.name, "drift",
+                               ('L', elem.length), ('aper', elem.aperture / 2.0))
+
+            elif isinstance(elem, WedgeElement):
+                lattice.append(elem.name, "drift",
+                               ('L', elem.length), ('aper', elem.aperture / 2.0))
 
             elif isinstance(elem, BPMElement):
                 if elem.length != 0.0:
