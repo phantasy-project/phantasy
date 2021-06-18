@@ -164,6 +164,14 @@ __title__ = "Element field mapping from engineering unit to physics unit"
   ENG = 'PWRSTS'
   PHY = 'POWER_STATUS'
 
+[OCT]
+  [OCT.FIELD]
+  ENG = 'I'
+  PHY = 'B4'
+  [OCT.POWER_STATUS]
+  ENG = 'PWRSTS'
+  PHY = 'POWER_STATUS'
+
 [SOL]
   [SOL.FIELD]
   ENG = 'I'
