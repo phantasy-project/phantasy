@@ -27,6 +27,7 @@ from phantasy.library.layout import EQuadElement
 from phantasy.library.layout import ElectrodeElement
 from phantasy.library.layout import FCElement
 from phantasy.library.layout import HCorElement
+from phantasy.library.layout import MarkerElement
 from phantasy.library.layout import Layout
 from phantasy.library.layout import HMRElement
 from phantasy.library.layout import PMElement
@@ -34,6 +35,7 @@ from phantasy.library.layout import PortElement
 from phantasy.library.layout import QuadElement
 from phantasy.library.layout import SeqElement
 from phantasy.library.layout import SextElement
+from phantasy.library.layout import OctElement
 from phantasy.library.layout import SolCorElement
 from phantasy.library.layout import SolElement
 from phantasy.library.layout import StripElement
@@ -48,6 +50,7 @@ from phantasy.library.layout import DumpElement
 from phantasy.library.layout import ApertureElement
 from phantasy.library.layout import CollimatorElement
 from phantasy.library.layout import RotElement
+from phantasy.library.layout import WedgeElement
 from phantasy.library.parser import Configuration
 
 NON_DRIFT_ELEMENTS = (
@@ -59,7 +62,7 @@ NON_DRIFT_ELEMENTS = (
         StripElement, VCorElement, VDElement, ValveElement, SlitElement,
         ChopperElement, AttenuatorElement, DumpElement, ApertureElement,
         HMRElement, CollimatorElement, NDElement, ICElement, RotElement,
-        SDElement,
+        SDElement, MarkerElement, OctElement, WedgeElement,
 )
 
 # constants for parsing xlsx file
@@ -96,18 +99,54 @@ ELEMENT_NAME_STRING_AS_DRIFT = [
     "puller tube", "8 mm extraction hole",
     "artemis_b extraction conical wall",
     "RFQ end wall", "RFQ inn-wall (match point)", "RFQ inn-wall",
-    "BOB1", "BOB2", "BOB3", "BOB4", # ReA
-    "BOX1", "BOX2", "BOX3", "BOX4", # ReA
-    "BOX5", "BOX6", "BOX7", "BOX8", # ReA
-    "BOX9", "BOX10", "BOX11", "Box 13", # ReA
-    "Box 14", "Box 15", "Box 16", "Box 17", # ReA
-    "Box 18", "Box 19", "Box 20", "Box 21", "Box 22", # ReA
-    "RFQ entrance=100m by definition", # ReA
-    "ORIGIN POINT", # ReA
-    "6-Way Cross (temporary)", # ReA
     "motor shield", "mirror shield", "mirror", "target collimator",
-    "a cross will be added"
+    "a cross will be added",
+# ReA
+    "BOB1", "BOB2", "BOB3", "BOB4",
+    "BOX1", "BOX2", "BOX3", "BOX4",
+    "BOX5", "BOX6", "BOX7", "BOX8",
+    "BOX9", "BOX10", "BOX11", "Box 13",
+    "Box 14", "Box 15", "Box 16", "Box 17",
+    "Box 18", "Box 19", "Box 20", "Box 21", "Box 22",
+    "RFQ entrance=100m by definition",
+    "ORIGIN POINT",
+    "6-Way Cross (temporary)",
+# ES
+    "space for post-target shield",
+    "space for vacuum separation valve",
+    "front shield for WIQ2",
+    "Entrance Point of dipole at D1064",
+    "Exit Point of dipole at D1064",
+    "placeholder for anticipated complimentary diagnostics",
+    "fragment catchers (entrance plane)",
+    "fragment catchers (center plane of movable fragment catchers)",
+    "fragment catchers (exit plane of movable fragment catchers)",
+    "Entrance Point of dipole at D1108",
+    "Exit Point of dipole at D1108",
+    "space for WIQ6",
+    "space for vacuum separation (gate valve)",
+    "image plane",
+    "vessel wall (check exact dimensions)",
+    "Entrance Point of dipole at D1246",
+    "Exit Point of dipole at D1246",
+    "Entrance Point of dipole at D1402",
+    "Exit Point of dipole at D1402",
+    "Center of doublet at D1433",
+    "Center of doublet at D1449",
+    "upstream insulating flange",
+    "downstream insulating flange",
+    "was gate valve, moved away",
+    "Entrance Point of dipole at D1513",
+    "Exit Point of dipole at D1513",
+    "Entrance Point of dipole at D1608",
+    "Exit Point of dipole at D1608",
+    "wedge (and viewer) upstream part",
+
+
 ]
+
+# device alias for wedge: WedgeElement
+DEVICE_ALIAS_WEDGE = ( "WED", )
 
 # device alias for valve: ValveElement
 DEVICE_ALIAS_VALVE = ( "GV", "FVS", "FAV", "FV", "FAVS",
@@ -177,6 +216,8 @@ DEVICE_ALIAS_QUAD = ( "QH", "QV", "Q",
 DEVICE_ALIAS_ROT = ( "ROT", ) # ReA
 # device alias for sextupole
 DEVICE_ALIAS_SEXT = ( "S", )
+# device alias for octopole
+DEVICE_ALIAS_OCT = ( "OCT", )
 # device alias for electrode
 DEVICE_ALIAS_ELC = ( "ELC1", "ELC2", "ELC3", "ELC0", )
 # device alias for acc column
@@ -541,6 +582,10 @@ class AccelFactory(XlfConfig):
         for ridx in range(self._xlf_layout_sheet_start, layout.nrows):
             row = _LayoutRow(layout.row(ridx), self.config)
 
+            # debug
+            print(row)
+            #
+
             # skip rows without length
             if row.eff_length is None:
                 continue
@@ -755,6 +800,14 @@ class AccelFactory(XlfConfig):
                                          dtype=row.device_type, inst=inst)
                         subsequence.append(elem)
 
+                    elif row.device in DEVICE_ALIAS_WEDGE:
+                        inst = FMT_INST.format(int(row.position))
+                        elem = WedgeElement(row.center_position, row.eff_length, row.diameter, row.name,
+                                            desc=row.element_name,
+                                            system=row.system, subsystem=row.subsystem, device=row.device,
+                                            dtype=row.device_type, inst=inst)
+                        subsequence.append(elem)
+
                     elif row.device in DEVICE_ALIAS_PORT:
                         dtype = "" if row.device_type is None else row.device_type
                         subsystem = "" if row.subsystem is None else row.subsystem
@@ -839,6 +892,15 @@ class AccelFactory(XlfConfig):
                                            dtype=row.device_type, inst=inst)
                         subsequence.append(elem)
 
+                    elif row.device in DEVICE_ALIAS_OCT:
+                        row.device = self.d_map.get(row.device, row.device)
+                        inst = FMT_INST.format(int(row.position))
+                        elem = OctElement(row.center_position, row.eff_length, row.diameter, row.name,
+                                          desc=row.element_name,
+                                          system=row.system, subsystem=row.subsystem, device=row.device,
+                                          dtype=row.device_type, inst=inst)
+                        subsequence.append(elem)
+
                     elif row.device in DEVICE_ALIAS_ELC:
                         row.device = self.d_map.get(row.device, row.device)
                         inst = FMT_INST.format(int(row.position))
@@ -852,6 +914,15 @@ class AccelFactory(XlfConfig):
                         row.device = self.d_map.get(row.device, row.device)
                         inst = FMT_INST.format(int(row.position))
                         elem = ColumnElement(row.center_position, row.eff_length, row.diameter, row.name,
+                                             desc=row.element_name,
+                                             system=row.system, subsystem=row.subsystem, device=row.device,
+                                             dtype=row.device_type, inst=inst)
+                        subsequence.append(elem)
+
+                    elif row.device in ("PTA"): # taget
+                        row.device = self.d_map.get(row.device, row.device)
+                        inst = FMT_INST.format(int(row.position))
+                        elem = MarkerElement(row.center_position, row.eff_length, row.diameter, row.name,
                                              desc=row.element_name,
                                              system=row.system, subsystem=row.subsystem, device=row.device,
                                              dtype=row.device_type, inst=inst)
