@@ -46,6 +46,9 @@ from phantasy.library.layout import ChopperElement
 from phantasy.library.layout import HMRElement
 from phantasy.library.layout import CollimatorElement
 from phantasy.library.layout import RotElement
+from phantasy.library.layout import TargetElement
+from phantasy.library.layout import OctElement
+from phantasy.library.layout import WedgeElement
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -63,6 +66,10 @@ _PHYTYPE_PROPERTY = "physicsType"
 _PHYNAME_PROPERTY = "physicsName"
 _PVPOLICY_PROPERTY = 'pvPolicy'
 _MISC_PROPERTY = "misc"
+
+ETYPES_TO_SKIP = (
+    TargetElement, OctElement, WedgeElement,
+)  # Etypes to skip.
 
 
 def build_item(row):
@@ -810,6 +817,9 @@ def build_channels(layout, psfile, machine=None, **kws):
             data.append((channel + ":YRMS_RD", OrderedDict(props), list(tags)))
 
         elif isinstance(elem, ElectrodeElement):
+            pass
+
+        elif isinstance(elem, ETYPES_TO_SKIP):
             pass
 
         elif isinstance(elem, FCElement):
