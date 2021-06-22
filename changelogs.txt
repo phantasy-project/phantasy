@@ -1,12 +1,24 @@
+Version 2.0.2
+-------------
+2021-06-22
+
+ - Working in progress: support parsing ES lattice xlsx file.
+   - REF: Add new element types to support ES lattice file.
+   - REF: Update device definition generation rules for FLAME VA.
+   - REF: Update to support ES lattice file.
+   - WIP: To support ES lattice file.
+   - REF: Update channel generation rules to support ES lattice file.
+   - MNT: Add fields config for OctElement (octopole magnet).
+
 Version 2.0.1
---------------
+-------------
 2021-06-02
 
  - Fix broken tests
  - Clean up
 
 Version 2.0.0
---------------
+-------------
 2021-06-02
 
  - Support parsing FRIB xlsx lattice file version 20210318.
