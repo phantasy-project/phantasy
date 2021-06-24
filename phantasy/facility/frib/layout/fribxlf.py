@@ -51,6 +51,7 @@ from phantasy.library.layout import ApertureElement
 from phantasy.library.layout import CollimatorElement
 from phantasy.library.layout import RotElement
 from phantasy.library.layout import WedgeElement
+from phantasy.library.layout import ELDElement
 from phantasy.library.parser import Configuration
 
 NON_DRIFT_ELEMENTS = (
@@ -62,7 +63,7 @@ NON_DRIFT_ELEMENTS = (
         StripElement, VCorElement, VDElement, ValveElement, SlitElement,
         ChopperElement, AttenuatorElement, DumpElement, ApertureElement,
         HMRElement, CollimatorElement, NDElement, ICElement, RotElement,
-        SDElement, MarkerElement, OctElement, WedgeElement,
+        SDElement, MarkerElement, OctElement, WedgeElement, ELDElement,
 )
 
 # constants for parsing xlsx file
@@ -141,9 +142,10 @@ ELEMENT_NAME_STRING_AS_DRIFT = [
     "Entrance Point of dipole at D1608",
     "Exit Point of dipole at D1608",
     "wedge (and viewer) upstream part",
-
-
 ]
+
+# device alias for energy loss detector: ELDElement
+DEVICE_ALIAS_ELD = ( "ELD", )
 
 # device alias for wedge: WedgeElement
 DEVICE_ALIAS_WEDGE = ( "WED", )
@@ -582,10 +584,6 @@ class AccelFactory(XlfConfig):
         for ridx in range(self._xlf_layout_sheet_start, layout.nrows):
             row = _LayoutRow(layout.row(ridx), self.config)
 
-            # debug
-            print(row)
-            #
-
             # skip rows without length
             if row.eff_length is None:
                 continue
@@ -806,6 +804,14 @@ class AccelFactory(XlfConfig):
                                             desc=row.element_name,
                                             system=row.system, subsystem=row.subsystem, device=row.device,
                                             dtype=row.device_type, inst=inst)
+                        subsequence.append(elem)
+
+                    elif row.device in DEVICE_ALIAS_ELD:
+                        inst = FMT_INST.format(int(row.position))
+                        elem = ELDElement(row.center_position, row.eff_length, row.diameter, row.name,
+                                          desc=row.element_name,
+                                          system=row.system, subsystem=row.subsystem, device=row.device,
+                                          dtype=row.device_type, inst=inst)
                         subsequence.append(elem)
 
                     elif row.device in DEVICE_ALIAS_PORT:

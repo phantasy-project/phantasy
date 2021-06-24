@@ -1556,6 +1556,17 @@ class ElectrodeElement(Element):
                                                desc=desc, **meta)
 
 
+class ELDElement(Element):
+    """ELDElement represents an energy loss detector.
+    """
+
+    ETYPE = "ELD"
+
+    def __init__(self, z, length, aperture, name, desc="energy loss detector", **meta):
+        super(ELDElement, self).__init__(z, length, aperture, name,
+                                         desc=desc, **meta)
+
+
 # Accelerator Element
 
 class Accelerator(SeqElement):
