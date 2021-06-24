@@ -1,3 +1,13 @@
+Version 2.0.3
+-------------
+2021-06-24
+
+ - Working in progress: support parsing ES lattice xlsx file.
+   - REF: Add support to ELDElement.
+   - REF: Support ELDElement when read layout and build flame lattice.
+   - MNT: Add support to config length by name/type for QUAD.
+   - ENH: Add support to parse ELD (energy loss detector) device.
+
 Version 2.0.2
 -------------
 2021-06-22
