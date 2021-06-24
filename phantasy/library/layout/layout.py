@@ -71,6 +71,7 @@ from .accel import ValveElement
 from .accel import TargetElement
 from .accel import OctElement
 from .accel import WedgeElement
+from .accel import ELDElement
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -83,7 +84,7 @@ ELEMENT_CLASS_LIST = (
     SextElement, EBendElement, EQuadElement, StripElement,
     ElectrodeElement, SlitElement, ChopperElement, ApertureElement,
     DumpElement, AttenuatorElement, HMRElement, CollimatorElement,
-    TargetElement, OctElement, WedgeElement,
+    TargetElement, OctElement, WedgeElement, ELDElement,
 )
 
 ELEMENT_ETYPE_DICT = {getattr(cls, 'ETYPE'): cls for cls in ELEMENT_CLASS_LIST}

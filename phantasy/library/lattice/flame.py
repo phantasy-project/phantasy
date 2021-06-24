@@ -19,6 +19,7 @@ from phantasy.library.layout import BLMElement
 from phantasy.library.layout import BLElement
 from phantasy.library.layout import BCMElement
 from phantasy.library.layout import BPMElement
+from phantasy.library.layout import ELDElement
 from phantasy.library.layout import PMElement
 from phantasy.library.layout import SolCorElement
 from phantasy.library.layout import PortElement
@@ -29,6 +30,7 @@ from phantasy.library.layout import BendElement
 from phantasy.library.layout import QuadElement
 from phantasy.library.layout import StripElement
 from phantasy.library.layout import SextElement
+from phantasy.library.layout import OctElement
 from phantasy.library.layout import EBendElement
 from phantasy.library.layout import EQuadElement
 from phantasy.library.layout import FCElement
@@ -412,6 +414,10 @@ class FlameLatticeFactory(BaseLatticeFactory):
                                name=elem.name, etype=elem.ETYPE)
 
             elif isinstance(elem, TargetElement):
+                lattice.append(elem.name, "drift",
+                               ('L', elem.length), ('aper', elem.aperture / 2.0))
+
+            elif isinstance(elem, ELDElement):
                 lattice.append(elem.name, "drift",
                                ('L', elem.length), ('aper', elem.aperture / 2.0))
 
@@ -868,6 +874,11 @@ class FlameLatticeFactory(BaseLatticeFactory):
                 lattice.append(elem.name, "marker", name=elem.name, etype=elem.ETYPE)
                 #lattice.append(elem.name, "drift", ('L', elem.length), ('aper', elem.aperture / 2.0),
                 #               name=elem.name, etype=elem.ETYPE)
+
+            elif isinstance(elem, OctElement):
+                # treat Octopole as drift
+                lattice.append(elem.name, "drift", ('L', elem.length), ('aper', elem.aperture / 2.0),
+                               name=elem.name, etype=elem.ETYPE)
 
             elif isinstance(elem, EBendElement):
                 field = 0.0
