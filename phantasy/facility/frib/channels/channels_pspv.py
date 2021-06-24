@@ -49,6 +49,7 @@ from phantasy.library.layout import RotElement
 from phantasy.library.layout import TargetElement
 from phantasy.library.layout import OctElement
 from phantasy.library.layout import WedgeElement
+from phantasy.library.layout import ELDElement
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -68,7 +69,7 @@ _PVPOLICY_PROPERTY = 'pvPolicy'
 _MISC_PROPERTY = "misc"
 
 ETYPES_TO_SKIP = (
-    TargetElement, OctElement, WedgeElement,
+    TargetElement, OctElement, WedgeElement, ELDElement,
 )  # Etypes to skip.
 
 

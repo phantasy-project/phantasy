@@ -67,6 +67,7 @@ from phantasy.library.layout import CollimatorElement
 from phantasy.library.layout import RotElement
 from phantasy.library.layout import TargetElement
 from phantasy.library.layout import WedgeElement
+from phantasy.library.layout import ELDElement
 from phantasy.library.lattice import FlameLatticeFactory
 
 DEFAULT_NOISE_LEVEL = 0.001  # i.e. 0.1%
@@ -540,7 +541,7 @@ class VirtualAcceleratorFactory(object):
             elif isinstance(elem, ElectrodeElement):
                 pass
 
-            elif isinstance(elem, (TargetElement, WedgeElement, )):
+            elif isinstance(elem, (TargetElement, WedgeElement, ELDElement)):
                 pass
 
             else:
