@@ -52,6 +52,7 @@ from phantasy.library.layout import CollimatorElement
 from phantasy.library.layout import RotElement
 from phantasy.library.layout import WedgeElement
 from phantasy.library.layout import ELDElement
+from phantasy.library.layout import TargetElement
 from phantasy.library.parser import Configuration
 
 NON_DRIFT_ELEMENTS = (
@@ -64,6 +65,7 @@ NON_DRIFT_ELEMENTS = (
         ChopperElement, AttenuatorElement, DumpElement, ApertureElement,
         HMRElement, CollimatorElement, NDElement, ICElement, RotElement,
         SDElement, MarkerElement, OctElement, WedgeElement, ELDElement,
+        TargetElement,
 )
 
 # constants for parsing xlsx file
@@ -143,6 +145,9 @@ ELEMENT_NAME_STRING_AS_DRIFT = [
     "Exit Point of dipole at D1608",
     "wedge (and viewer) upstream part",
 ]
+
+# device alias for target: TargetElement
+DEVICE_ALIAS_PTA = ( "PTA", )
 
 # device alias for energy loss detector: ELDElement
 DEVICE_ALIAS_ELD = ( "ELD", )
@@ -439,10 +444,14 @@ class AccelFactory(XlfConfig):
         self._config = config
 
     def _get_config_length(self, elem):
-        return self.config.getfloat(elem.dtype, CONFIG_LENGTH, False)
+        if self.config.has_option(elem.name, CONFIG_LENGTH, False):
+            return self.config.getfloat(elem.name, CONFIG_LENGTH, False)
+        else:
+            return self.config.getfloat(elem.dtype, CONFIG_LENGTH, False)
 
     def _has_config_length(self, elem):
-        return self.config.has_option(elem.dtype, CONFIG_LENGTH, False)
+        return self.config.has_option(elem.name, CONFIG_LENGTH, False) \
+                or self.config.has_option(elem.dtype, CONFIG_LENGTH, False)
 
     def _get_config_aperture(self, elem):
         if self.config.has_option(elem.name, CONFIG_APERTURE, False):
@@ -887,24 +896,27 @@ class AccelFactory(XlfConfig):
                                            desc=row.element_name,
                                            system=row.system, subsystem=row.subsystem, device=row.device,
                                            dtype=dtype, inst=inst)
+                        drift_delta = self.apply_config(elem, sequence, drift_delta)
                         subsequence.append(elem)
 
                     elif row.device in DEVICE_ALIAS_SEXT:
                         row.device = self.d_map.get(row.device, row.device)
+                        dtype = "SEXT_{}".format(row.device_type)
                         inst = FMT_INST.format(int(row.position))
                         elem = SextElement(row.center_position, row.eff_length, row.diameter, row.name,
                                            desc=row.element_name,
                                            system=row.system, subsystem=row.subsystem, device=row.device,
-                                           dtype=row.device_type, inst=inst)
+                                           dtype=dtype, inst=inst)
                         subsequence.append(elem)
 
                     elif row.device in DEVICE_ALIAS_OCT:
                         row.device = self.d_map.get(row.device, row.device)
+                        dtype = "OCT_{}".format(row.device_type)
                         inst = FMT_INST.format(int(row.position))
                         elem = OctElement(row.center_position, row.eff_length, row.diameter, row.name,
                                           desc=row.element_name,
                                           system=row.system, subsystem=row.subsystem, device=row.device,
-                                          dtype=row.device_type, inst=inst)
+                                          dtype=dtype, inst=inst)
                         subsequence.append(elem)
 
                     elif row.device in DEVICE_ALIAS_ELC:
@@ -925,10 +937,10 @@ class AccelFactory(XlfConfig):
                                              dtype=row.device_type, inst=inst)
                         subsequence.append(elem)
 
-                    elif row.device in ("PTA"): # taget
+                    elif row.device in DEVICE_ALIAS_PTA:
                         row.device = self.d_map.get(row.device, row.device)
                         inst = FMT_INST.format(int(row.position))
-                        elem = MarkerElement(row.center_position, row.eff_length, row.diameter, row.name,
+                        elem = TargetElement(row.center_position, row.eff_length, row.diameter, row.name,
                                              desc=row.element_name,
                                              system=row.system, subsystem=row.subsystem, device=row.device,
                                              dtype=row.device_type, inst=inst)
