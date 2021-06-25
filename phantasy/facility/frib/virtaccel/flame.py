@@ -505,7 +505,7 @@ class VirtualAcceleratorFactory(object):
                 pass
 
             elif isinstance(elem, (AttenuatorElement, ApertureElement,
-                                   ChopperElement, DumpElement, SlitElement,
+                                   ChopperElement, SlitElement,
                                    HMRElement, CollimatorElement)):
                 # no channels for now
                 pass
@@ -1062,7 +1062,7 @@ class VirtualAccelerator(object):
                                       self._readfieldmap[elem.name][elem.fields.cxy], cxy)
                         batch[self._readfieldmap[elem.name][elem.fields.cxy]] = cxy
 
-                    elif isinstance(elem, (FCElement, VDElement,)):
+                    elif isinstance(elem, (FCElement, VDElement, TargetElement, DumpElement, WedgeElement)):
                         x_centroid = S.moment0_env[0]/1.0e3 # convert mm to m
                         _LOGGER.debug("VA: Update read: %s to %s",
                                       self._readfieldmap[elem.name][elem.fields.x], x_centroid)
