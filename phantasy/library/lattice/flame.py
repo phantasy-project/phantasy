@@ -418,12 +418,22 @@ class FlameLatticeFactory(BaseLatticeFactory):
                                ('L', elem.length), ('aper', elem.aperture / 2.0))
 
             elif isinstance(elem, ELDElement):
-                lattice.append(elem.name, "drift",
-                               ('L', elem.length), ('aper', elem.aperture / 2.0))
+                if elem.length != 0.0:
+                    lattice.append(_drift_name(elem.name, 1), "drift",
+                                   ('L', elem.length / 2.0), ('aper', elem.aperture / 2.0))
+                lattice.append(elem.name, "marker", name=elem.name, etype=elem.ETYPE)
+                if elem.length != 0.0:
+                    lattice.append(_drift_name(elem.name, 2), "drift",
+                                   ('L', elem.length / 2.0), ('aper', elem.aperture / 2.0))
 
             elif isinstance(elem, WedgeElement):
-                lattice.append(elem.name, "drift",
-                               ('L', elem.length), ('aper', elem.aperture / 2.0))
+                if elem.length != 0.0:
+                    lattice.append(_drift_name(elem.name, 1), "drift",
+                                   ('L', elem.length / 2.0), ('aper', elem.aperture / 2.0))
+                lattice.append(elem.name, "marker", name=elem.name, etype=elem.ETYPE)
+                if elem.length != 0.0:
+                    lattice.append(_drift_name(elem.name, 2), "drift",
+                                   ('L', elem.length / 2.0), ('aper', elem.aperture / 2.0))
 
             elif isinstance(elem, BPMElement):
                 if elem.length != 0.0:
@@ -835,9 +845,14 @@ class FlameLatticeFactory(BaseLatticeFactory):
                 #lattice.append(elem.name, "drift", ('L', elem.length), ('aper', elem.aperture / 2.0),
                 #               name=elem.name, etype=elem.ETYPE)
             elif isinstance(elem, VDElement):
+                if elem.length != 0.0:
+                    lattice.append(_drift_name(elem.name, 1), "drift",
+                                   ('L', elem.length / 2.0), ('aper', elem.aperture / 2.0))
                 lattice.append(elem.name, "marker", name=elem.name, etype=elem.ETYPE)
-                #lattice.append(elem.name, "drift", ('L', elem.length), ('aper', elem.aperture / 2.0),
-                #               name=elem.name, etype=elem.ETYPE)
+                if elem.length != 0.0:
+                    lattice.append(_drift_name(elem.name, 2), "drift",
+                                   ('L', elem.length / 2.0), ('aper', elem.aperture / 2.0))
+
             elif isinstance(elem, SDElement):
                 lattice.append(elem.name, "drift", ('L', elem.length), ('aper', elem.aperture / 2.0),
                                name=elem.name, etype=elem.ETYPE)
@@ -853,9 +868,16 @@ class FlameLatticeFactory(BaseLatticeFactory):
             elif isinstance(elem, SlitElement):
                 lattice.append(elem.name, "drift", ('L', elem.length), ('aper', elem.aperture / 2.0),
                                name=elem.name, etype=elem.ETYPE)
+
             elif isinstance(elem, DumpElement):
-                lattice.append(elem.name, "drift", ('L', elem.length), ('aper', elem.aperture / 2.0),
-                               name=elem.name, etype=elem.ETYPE)
+                if elem.length != 0.0:
+                    lattice.append(_drift_name(elem.name, 1), "drift",
+                                   ('L', elem.length / 2.0), ('aper', elem.aperture / 2.0))
+                lattice.append(elem.name, "marker", name=elem.name, etype=elem.ETYPE)
+                if elem.length != 0.0:
+                    lattice.append(_drift_name(elem.name, 2), "drift",
+                                   ('L', elem.length / 2.0), ('aper', elem.aperture / 2.0))
+
             elif isinstance(elem, ChopperElement):
                 lattice.append(elem.name, "drift", ('L', elem.length), ('aper', elem.aperture / 2.0),
                                name=elem.name, etype=elem.ETYPE)
