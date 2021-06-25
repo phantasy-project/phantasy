@@ -651,6 +651,11 @@ class WedgeElement(Element):
         #self.fields.current_peak = fm_pkavg['ENG']   # peak avg
         #self.fields.current_peak_phy = fm_pkavg['PHY']
 
+        self.fields.x = "XCEN"
+        self.fields.y = "YCEN"
+        self.fields.xrms = "XRMS"
+        self.fields.yrms = "YRMS"
+
 
 class BLElement(Element):
     """BLElement represents Bunch Length Monitor diagnostic device.
@@ -1487,6 +1492,11 @@ class TargetElement(Element):
         super(TargetElement, self).__init__(z, length, aperture, name, desc=desc,
                                             **meta)
 
+        self.fields.x = "XCEN"
+        self.fields.y = "YCEN"
+        self.fields.xrms = "XRMS"
+        self.fields.yrms = "YRMS"
+
 
 # Attenuator Elements
 
@@ -1515,6 +1525,11 @@ class DumpElement(Element):
                  **meta):
         super(DumpElement, self).__init__(z, length, aperture, name, desc=desc,
                                           **meta)
+
+        self.fields.x = "XCEN"
+        self.fields.y = "YCEN"
+        self.fields.xrms = "XRMS"
+        self.fields.yrms = "YRMS"
 
 
 # Aperture Elements

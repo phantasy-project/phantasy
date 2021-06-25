@@ -524,7 +524,7 @@ class VirtualAcceleratorFactory(object):
                              (elem.name, elem.fields.yrms), desc="Vertical Size", egu="m")
                 va.append_elem(elem)
 
-            elif isinstance(elem, VDElement):
+            elif isinstance(elem, (VDElement, TargetElement, DumpElement, WedgeElement)):
                 va.append_ro(self._findChannel(elem.name, elem.fields.x, "readback"),
                              (elem.name, elem.fields.x), desc="Horizontal Position", egu="m")
                 va.append_ro(self._findChannel(elem.name, elem.fields.y, "readback"),
@@ -541,7 +541,7 @@ class VirtualAcceleratorFactory(object):
             elif isinstance(elem, ElectrodeElement):
                 pass
 
-            elif isinstance(elem, (TargetElement, WedgeElement, ELDElement)):
+            elif isinstance(elem, (ELDElement, )):
                 pass
 
             else:

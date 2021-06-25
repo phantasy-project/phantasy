@@ -69,7 +69,7 @@ _PVPOLICY_PROPERTY = 'pvPolicy'
 _MISC_PROPERTY = "misc"
 
 ETYPES_TO_SKIP = (
-    TargetElement, OctElement, WedgeElement, ELDElement,
+    OctElement, ELDElement,
 )  # Etypes to skip.
 
 
@@ -757,7 +757,7 @@ def build_channels(layout, psfile, machine=None, **kws):
             pass
 
         elif isinstance(elem, (AttenuatorElement, ApertureElement,
-                               ChopperElement, DumpElement, SlitElement)):
+                               ChopperElement, SlitElement)):
             # for element identification only
             pass
 
@@ -796,6 +796,75 @@ def build_channels(layout, psfile, machine=None, **kws):
         elif isinstance(elem, VDElement):
             # viewer camera
             props[_TYPE_PROPERTY] = "VD"
+
+            props[_FIELD_ENG_PROPERTY] = elem.fields.x
+            props[_FIELD_PHY_PROPERTY] = elem.fields.x
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel + ":XCEN_RD", OrderedDict(props), list(tags)))
+
+            props[_FIELD_ENG_PROPERTY] = elem.fields.y
+            props[_FIELD_PHY_PROPERTY] = elem.fields.y
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel + ":YCEN_RD", OrderedDict(props), list(tags)))
+
+            props[_FIELD_ENG_PROPERTY] = elem.fields.xrms
+            props[_FIELD_PHY_PROPERTY] = elem.fields.xrms
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel + ":XRMS_RD", OrderedDict(props), list(tags)))
+
+            props[_FIELD_ENG_PROPERTY] = elem.fields.yrms
+            props[_FIELD_PHY_PROPERTY] = elem.fields.yrms
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel + ":YRMS_RD", OrderedDict(props), list(tags)))
+
+        elif isinstance(elem, DumpElement):
+            props[_TYPE_PROPERTY] = "DUMP"
+
+            props[_FIELD_ENG_PROPERTY] = elem.fields.x
+            props[_FIELD_PHY_PROPERTY] = elem.fields.x
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel + ":XCEN_RD", OrderedDict(props), list(tags)))
+
+            props[_FIELD_ENG_PROPERTY] = elem.fields.y
+            props[_FIELD_PHY_PROPERTY] = elem.fields.y
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel + ":YCEN_RD", OrderedDict(props), list(tags)))
+
+            props[_FIELD_ENG_PROPERTY] = elem.fields.xrms
+            props[_FIELD_PHY_PROPERTY] = elem.fields.xrms
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel + ":XRMS_RD", OrderedDict(props), list(tags)))
+
+            props[_FIELD_ENG_PROPERTY] = elem.fields.yrms
+            props[_FIELD_PHY_PROPERTY] = elem.fields.yrms
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel + ":YRMS_RD", OrderedDict(props), list(tags)))
+
+        elif isinstance(elem, TargetElement):
+            props[_TYPE_PROPERTY] = "PTA"
+
+            props[_FIELD_ENG_PROPERTY] = elem.fields.x
+            props[_FIELD_PHY_PROPERTY] = elem.fields.x
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel + ":XCEN_RD", OrderedDict(props), list(tags)))
+
+            props[_FIELD_ENG_PROPERTY] = elem.fields.y
+            props[_FIELD_PHY_PROPERTY] = elem.fields.y
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel + ":YCEN_RD", OrderedDict(props), list(tags)))
+
+            props[_FIELD_ENG_PROPERTY] = elem.fields.xrms
+            props[_FIELD_PHY_PROPERTY] = elem.fields.xrms
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel + ":XRMS_RD", OrderedDict(props), list(tags)))
+
+            props[_FIELD_ENG_PROPERTY] = elem.fields.yrms
+            props[_FIELD_PHY_PROPERTY] = elem.fields.yrms
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel + ":YRMS_RD", OrderedDict(props), list(tags)))
+
+        elif isinstance(elem, WedgeElement):
+            props[_TYPE_PROPERTY] = "WED"
 
             props[_FIELD_ENG_PROPERTY] = elem.fields.x
             props[_FIELD_PHY_PROPERTY] = elem.fields.x
