@@ -1,3 +1,10 @@
+Version 2.0.5
+-------------
+2021-06-25
+
+ - Quickfix version
+   - REF: Treat DumpElement, TargetElement, WedgeElement as VD in VA (data put)
+
 Version 2.0.4
 -------------
 2021-06-25
