@@ -2018,6 +2018,8 @@ class Lattice(object):
 
         for i in self._elements:
             i.layout = self.layout[i.name]
+            # pass alignment data
+            self.layout[i.name].alignment = i.alignment
 
     def get_layout_length(self):
         """Return the length of current lattice layout, as well as starting

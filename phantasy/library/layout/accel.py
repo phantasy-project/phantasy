@@ -71,8 +71,19 @@ class Element(object):
         self._length = length
         self.aperture = aperture
         self._name = name
+        self._alignment_data = None
         self.meta = SpecialDict(meta, self)
         self.fields = Fields()
+
+    @property
+    def alignment(self):
+        """Alignment Series.
+        """
+        return self._alignment_data
+
+    @alignment.setter
+    def alignment(self, o):
+        self._alignment_data = o
 
     @property
     def z(self):
