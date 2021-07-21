@@ -30,7 +30,8 @@ except ImportError:
 _LOGGER = logging.getLogger(__name__)
 
 VALID_STATIC_KEYS = ('name', 'family', 'index', 'se', 'length', 'sb',
-                     'phy_name', 'phy_type', 'machine')
+                     'phy_name', 'phy_type', 'machine',
+                     'alignment_data')
 VALID_CA_KEYS = ('field_eng', 'field_phy', 'handle', 'pv_policy')
 # diagnostic device types
 # DIAG_DTYPES = ('FC', 'EMS', 'PM', 'BPM', 'BCM', 'ND', 'HMR', 'IC', 'VD')
@@ -235,8 +236,13 @@ class BaseElement(object):
     def __hash__(self,):
         return hash((self.name, self.index, self.length, self.sb))
 
-    def _update_static_props(self, props):
+    def _update_static_props(self, props, **kws):
         """Non-CA"""
+        #kws: alignment, series of alignment data
+        alignment_data = props.pop('alignment', None)
+        if not hasattr(self, 'alignment'):
+            setattr(self, 'alignment', alignment_data)
+        #
         for k, v in props.items():
             if not hasattr(self, k) or getattr(self, k) != v:
                 setattr(self, k, v)
@@ -1259,6 +1265,7 @@ class CaElement(BaseElement):
         """
         prop_st = {k: v for k, v in props.items() if k in VALID_STATIC_KEYS}
         prop_ca = {k: v for k, v in props.items() if k in VALID_CA_KEYS}
+        prop_st.update({'alignment': kws.pop('alignment_series')})
         self._update_static_props(prop_st)
         self._update_ca_props(prop_ca, **kws)
 
@@ -1283,7 +1290,8 @@ class CaElement(BaseElement):
         else:
             self._tags[pv_name] = set(tags)
 
-    def process_pv(self, pv_name, pv_props, pv_tags=None, u_policy=None, polarity=None, **kws):
+    def process_pv(self, pv_name, pv_props, pv_tags=None, u_policy=None, polarity=None,
+                   alignment_series=None, **kws):
         """Process PV record to update element with properties and tags.
 
         Parameters
@@ -1298,6 +1306,8 @@ class CaElement(BaseElement):
             Dict of unit conversion policies.
         polarity : int
             Device polarity, -1 or 1.
+        alignment_series : Series
+            A series of alignment data, dx,dy,dz,pitch,roll,yaw.
 
         Keyword Arguments
         -----------------
@@ -1309,7 +1319,7 @@ class CaElement(BaseElement):
 
         # properties
         self.update_properties(pv_props, pv=pv_name, u_policy=u_policy,
-                               polarity=polarity, **kws)
+                               polarity=polarity, alignment_series=alignment_series, **kws)
         # tags
         self.update_tags(pv_tags, pv=pv_name)
         self.update_groups(pv_props, pv=pv_name)

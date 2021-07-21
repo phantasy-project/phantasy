@@ -24,6 +24,7 @@ from phantasy.library.misc import simplify_data
 from phantasy.library.misc import create_tempdir
 from phantasy.library.parser import find_machine_config
 from phantasy.library.parser import read_polarity
+from phantasy.library.parser import read_alignment_data
 from phantasy.library.pv import DataSource
 #from phantasy.library.layout import build_layout
 from phantasy.library.parser import Configuration
@@ -188,6 +189,7 @@ def load_lattice(machine, segment=None, **kws):
         # else:
         #     raise RuntimeError("Settings for '%s' not specified" % (msect,))
 
+        # unicorn_file
         udata_file = d_msect.get('unicorn_file', None)
         if udata_file is not None:
             if not os.path.isabs(udata_file):
@@ -202,6 +204,19 @@ def load_lattice(machine, segment=None, **kws):
             udata = None  # no unicorn data provided
             _LOGGER.warning("Default UNICORN policy will be applied.")
 
+        # misalignment_file
+        alignment_data_file = d_msect.get('alignment_file', None)
+        if alignment_data_file is not None:
+            if not os.path.isabs(alignment_data_file):
+                alignment_data_file = os.path.join(mdir, alignment_data_file)
+            alignment_data = read_alignment_data(alignment_data_file)
+            _LOGGER.info("Read alignment data from {}.".format(
+                os.path.abspath(alignment_data_file)))
+        else:
+            alignment_data = None
+            _LOGGER.warning("No aligment data is read.")
+
+        # polarity_file
         pdata_file = d_msect.get('polarity_file', None)
         if pdata_file is not None:
             if not os.path.isabs(pdata_file):
@@ -276,6 +291,7 @@ def load_lattice(machine, segment=None, **kws):
                              #settings=settings,
                              udata=udata,
                              pdata=pdata,
+                             alignment_data=alignment_data,
                              data_dir=data_dir,
                              sort=sort_flag,
                              prefix=pv_prefix,
@@ -348,6 +364,8 @@ def create_lattice(latname, pv_data, tag, **kws):
         keys, function object as the values, i.e. {ename: {(f1, f2): fn1, ...}, ...}
     pdata : dict
         Device polarity, key-value pairs of device polarity.
+    alignment_data : DataFrame
+        Dataframe for alignment info, indexed by element name.
     data_dir: str
         Path of directory to host data generated from model, including input
         lattice files, output files and other related files, if not defined,
@@ -391,6 +409,7 @@ def create_lattice(latname, pv_data, tag, **kws):
     """
     udata = kws.get('udata', None)
     pdata = kws.get('pdata', None)
+    alignment_data = kws.get('alignment_data', None)
     data_source = kws.get('source', None)
     prefix = kws.get('prefix', None)
     auto_monitor = kws.get('auto_monitor', False)
@@ -462,9 +481,15 @@ def create_lattice(latname, pv_data, tag, **kws):
                 u_policy = {}
             else:
                 u_policy = udata.get(elem.name, {})
+            # polarity info
             polarity = get_polarity(elem.name, pdata)
+
+            # alignment info
+            alignment_series = get_alignment_series(elem.name, alignment_data)
+
             elem.process_pv(pv_name_prefixed, pv_props, pv_tags,
                             u_policy=u_policy, polarity=polarity,
+                            alignment_series=alignment_series,
                             auto_monitor=auto_monitor)
 
     # update group
@@ -514,3 +539,17 @@ def get_polarity(ename, pdata=None):
         return 1
     else:
         return pdata.get(ename, 1)
+
+
+def get_alignment_series(ename, alignment_data=None):
+    """Get a Series of alignment data from *alignment_data*.
+    """
+    if alignment_data is None:
+        return None
+    else:
+        try:
+            r = alignment_data.loc[ename]
+        except KeyError:
+            r = None
+        finally:
+            return r
