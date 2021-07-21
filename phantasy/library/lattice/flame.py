@@ -81,6 +81,10 @@ CONFIG_FLAME_BEND_FOCUSING = 'focusing_component'
 # alignment error
 CONFIG_ALIGNMENT_DX = "align_dx"
 CONFIG_ALIGNMENT_DY = "align_dy"
+CONFIG_ALIGNMENT_DZ = "align_dz"
+CONFIG_ALIGNMENT_PITCH = "align_pitch"
+CONFIG_ALIGNMENT_ROLL = "align_roll"
+CONFIG_ALIGNMENT_YAW = "align_yaw"
 
 # Corrector:
 # flag to indicate if using kick ([T.m]) ("tm_kick") or theta ([rad]) ("rad_kick")
@@ -319,14 +323,37 @@ class FlameLatticeFactory(BaseLatticeFactory):
 
     def get_alignment_error(self, ename):
         align_error_conf = []
+
         dx = self._get_config(ename, CONFIG_ALIGNMENT_DX, None)
         if dx is not None:
             _LOGGER.info(f"Alignment error: dx of {ename} is {dx} m.")
             align_error_conf.append(('dx', float(dx)))
+
         dy = self._get_config(ename, CONFIG_ALIGNMENT_DY, None)
         if dy is not None:
-            _LOGGER.info(f"Alignment error: dx of {ename} is {dy} m.")
+            _LOGGER.info(f"Alignment error: dy of {ename} is {dy} m.")
             align_error_conf.append(('dy', float(dy)))
+
+        dz = self._get_config(ename, CONFIG_ALIGNMENT_DZ, None)
+        if dz is not None:
+            _LOGGER.info(f"Alignment error: dz of {ename} is {dz} m.")
+            align_error_conf.append(('dz', float(dz)))
+
+        pitch = self._get_config(ename, CONFIG_ALIGNMENT_PITCH, None)
+        if pitch is not None:
+            _LOGGER.info(f"Alignment error: pitch of {ename} is {pitch} deg.")
+            align_error_conf.append(('pitch', float(pitch)))
+
+        roll = self._get_config(ename, CONFIG_ALIGNMENT_ROLL, None)
+        if roll is not None:
+            _LOGGER.info(f"Alignment error: roll of {ename} is {roll} deg.")
+            align_error_conf.append(('roll', float(roll)))
+
+        yaw = self._get_config(ename, CONFIG_ALIGNMENT_YAW, None)
+        if roll is not None:
+            _LOGGER.info(f"Alignment error: yaw of {ename} is {yaw} deg.")
+            align_error_conf.append(('yaw', float(yaw)))
+
         return align_error_conf
 
     def build(self):
@@ -955,7 +982,7 @@ class FlameLatticeFactory(BaseLatticeFactory):
                 if radius is None:
                     raise RuntimeError(f"FlameLatticeFactory: EQuad 'radius' not found for {elem.dtype}")
 
-                # alignment error
+                # overwrite alignment error
                 align_error_conf = self.get_alignment_error(elem.name)
 
                 lattice.append(elem.name, "equad", ('L', elem.length),
