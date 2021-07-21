@@ -350,11 +350,11 @@ class FlameLatticeFactory(BaseLatticeFactory):
             align_error_conf.append(('roll', float(roll)))
 
         yaw = self._get_config(ename, CONFIG_ALIGNMENT_YAW, None)
-        if roll is not None:
+        if yaw is not None:
             _LOGGER.info(f"Alignment error: yaw of {ename} is {yaw} deg.")
             align_error_conf.append(('yaw', float(yaw)))
 
-        return align_error_conf
+        return dict(align_error_conf)
 
     def build(self):
         settings = None
@@ -430,6 +430,24 @@ class FlameLatticeFactory(BaseLatticeFactory):
             if drift_mask_dtype.lower() == 'true' or drift_mask_name.lower() == 'true':
                 elem = DriftElement(elem.z, dlength, elem.aperture, elem.name)
             #
+
+            # alignment data: xlsx
+            align_error_conf = {}
+            _alignment_data = elem.alignment
+            if _alignment_data is not None:
+                #_LOGGER.warning("Alignement data [{ename:^20s}]: {o.dx:<6f} {o.dy:<6f} {o.pitch:<6f} {o.roll:<6f} {o.yaw:<6f}".format(
+                #      o=_alignment_data, ename=elem.name))
+                for k in ('dx', 'dy', 'pitch', 'roll', 'yaw'):
+                    v = getattr(_alignment_data, k)
+                    if v != 0.0:
+                        align_error_conf[k] = v
+            #
+            # overwrite alignment error, element-wise defined in phantasy.cfg
+            align_error_conf_overwrite = self.get_alignment_error(elem.name)
+            align_error_conf.update(align_error_conf_overwrite)
+            #
+            if align_error_conf:
+                _LOGGER.info(f"Load alignment error [{elem.name:^20s}]: {align_error_conf}")
 
             if isinstance(elem, DriftElement):
                 lattice.append(elem.name, "drift",
@@ -550,12 +568,14 @@ class FlameLatticeFactory(BaseLatticeFactory):
                                    ('phi', phase), ('scl_fac', amplitude),
                                    ('L', float(l)), ('aper', elem.aperture / 2.0),
                                    ('datafile', cav_conf),
+                                   *align_error_conf.items(),
                                    name=elem.name, etype=elem.ETYPE)
                 else:
                     lattice.append(elem.name, "rfcavity",
                                    ('cavtype', cav_type), ('f', frequency),
                                    ('phi', phase), ('scl_fac', amplitude),
                                    ('L', float(l)), ('aper', elem.aperture / 2.0),
+                                   *align_error_conf.items(),
                                    name=elem.name, etype=elem.ETYPE)
 
             elif isinstance(elem, SolCorElement):
@@ -612,6 +632,7 @@ class FlameLatticeFactory(BaseLatticeFactory):
 
                 lattice.append(elem.name, "quadrupole", ('L', elem.length),
                                ('aper', elem.aperture / 2.0), ('B2', gradient),
+                               *align_error_conf.items(),
                                name=elem.name, etype=elem.ETYPE)
 
             elif isinstance(elem, SextElement):
@@ -631,6 +652,7 @@ class FlameLatticeFactory(BaseLatticeFactory):
                                ('L', elem.length), ('B3', field),
                                ('dstkick', int(dstkick)), ('step', int(step)),
                                ('aper', elem.aperture / 2.0),
+                               *align_error_conf.items(),
                                name=elem.name, etype=elem.ETYPE)
 
             elif isinstance(elem, HCorElement):
@@ -792,37 +814,40 @@ class FlameLatticeFactory(BaseLatticeFactory):
                     lattice.append(elem.name + "_1", "sbend", ('L', elem.length / split),
                                    ('aper', elem.aperture / 2.0), ('phi', angle / split),
                                    ('phi1', entr_angle), ('phi2', 0.0), ('bg', field),
-                                   ('K', k),
+                                   ('K', k), *align_error_conf.items(),
                                    name=elem.name, etype=elem.ETYPE)
 
                     for i in range(2, split):
                         lattice.append(elem.name + "_" + str(i), "sbend", ('L', elem.length / split),
                                        ('aper', elem.aperture / 2.0), ('phi', angle / split),
                                        ('phi1', 0.0), ('phi2', 0.0), ('bg', field),
-                                       ('K', k),
+                                       ('K', k), *align_error_conf.items(),
                                        name=elem.name, etype=elem.ETYPE)
 
                     lattice.append(elem.name + "_" + str(split), "sbend", ('L', elem.length / split),
                                    ('aper', elem.aperture / 2.0), ('phi', angle / split),
                                    ('phi1', 0.0), ('phi2', exit_angle), ('bg', field),
-                                   ('K', k),
+                                   ('K', k), *align_error_conf.items(),
                                    name=elem.name, etype=elem.ETYPE)
 
                 else:
                     lattice.append(elem.name + "_1", "sbend", ('L', elem.length / split),
                                    ('aper', elem.aperture / 2.0), ('phi', angle / split),
                                    ('phi1', entr_angle), ('phi2', 0.0), ('bg', field),
+                                   *align_error_conf.items(),
                                    name=elem.name, etype=elem.ETYPE)
 
                     for i in range(2, split):
                         lattice.append(elem.name + "_" + str(i), "sbend", ('L', elem.length / split),
                                        ('aper', elem.aperture / 2.0), ('phi', angle / split),
                                        ('phi1', 0.0), ('phi2', 0.0), ('bg', field),
+                                       *align_error_conf.items(),
                                        name=elem.name, etype=elem.ETYPE)
 
                     lattice.append(elem.name + "_" + str(split), "sbend", ('L', elem.length / split),
                                    ('aper', elem.aperture / 2.0), ('phi', angle / split),
                                    ('phi1', 0.0), ('phi2', exit_angle), ('bg', field),
+                                   *align_error_conf.items(),
                                    name=elem.name, etype=elem.ETYPE)
 
             elif isinstance(elem, StripElement):
@@ -862,6 +887,7 @@ class FlameLatticeFactory(BaseLatticeFactory):
 
                 lattice.append(elem.name, "solenoid", ('L', elem.length),
                                ('aper', elem.aperture / 2.0), ('B', field),
+                               *align_error_conf.items(),
                                name=elem.name, etype='SOL')
 
             elif isinstance(elem, ElectrodeElement):
@@ -967,6 +993,7 @@ class FlameLatticeFactory(BaseLatticeFactory):
                                ('fringe_x', float(fringe_x)), ('fringe_y', float(fringe_y)),
                                ('ver', int(ver)), ('spher', float(spher)),
                                ('asym_fac', float(asym_fac)), ('beta', field),
+                               *align_error_conf.items(),
                                name=elem.name, etype=elem.ETYPE)
 
             elif isinstance(elem, EQuadElement):
@@ -982,12 +1009,10 @@ class FlameLatticeFactory(BaseLatticeFactory):
                 if radius is None:
                     raise RuntimeError(f"FlameLatticeFactory: EQuad 'radius' not found for {elem.dtype}")
 
-                # overwrite alignment error
-                align_error_conf = self.get_alignment_error(elem.name)
-
                 lattice.append(elem.name, "equad", ('L', elem.length),
                                ('aper', elem.aperture / 2.0), ('V', gradient),
-                               ('radius', float(radius)), *align_error_conf,
+                               ('radius', float(radius)),
+                               *align_error_conf.items(),
                                name=elem.name, etype=elem.ETYPE)
 
             else:

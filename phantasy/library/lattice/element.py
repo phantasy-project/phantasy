@@ -29,9 +29,11 @@ except ImportError:
 
 _LOGGER = logging.getLogger(__name__)
 
-VALID_STATIC_KEYS = ('name', 'family', 'index', 'se', 'length', 'sb',
-                     'phy_name', 'phy_type', 'machine',
-                     'alignment_data')
+VALID_STATIC_KEYS = (
+    'name', 'family', 'index', 'se', 'length', 'sb',
+    'phy_name', 'phy_type', 'machine',
+    'alignment_data' # defined by a separated file.
+)
 VALID_CA_KEYS = ('field_eng', 'field_phy', 'handle', 'pv_policy')
 # diagnostic device types
 # DIAG_DTYPES = ('FC', 'EMS', 'PM', 'BPM', 'BCM', 'ND', 'HMR', 'IC', 'VD')
