@@ -686,6 +686,12 @@ class PMElement(Element):
     # 'sign' to indicate -45 or 45 position for 'XY' and 'XYRMS' field.
 
     ETYPE = "PM"
+    _ls = get_style(ETYPE, 'ls')
+    _lw = get_style(ETYPE, 'lw')
+    _alpha = get_style(ETYPE, 'alpha')
+    _fc = get_style(ETYPE, 'fc')
+    _ec = get_style(ETYPE, 'ec')
+    _h = get_style(ETYPE, 'h')
 
     def __init__(self, z, length, aperture, name, desc="beam profile monitor",
                  **meta):
@@ -704,6 +710,49 @@ class PMElement(Element):
         fm = get_field_map(self.ETYPE, 'BIAS_VOLTAGE')
         self.fields.bias_voltage = fm['ENG']
         self.fields.bias_voltage_phy = fm['PHY']
+
+    def set_drawing(self, p0=None, angle=0, mode='plain'):
+        l = self.length
+        s = self.z
+        w = l
+        h = self._h * 0.5
+
+        if p0 is None:
+            x0, y0 = s - l / 2.0, 0
+        else:
+            x0, y0 = p0
+
+        if mode == 'plain':
+            #
+            #    p1---p2
+            #    |    |
+            # ---p0---p3---
+            #    |    |
+            #    p4---p5
+            #
+            x1, y1 = x0, y0 + h * 0.5
+            x4, y4 = x0, y0 - h * 0.5
+
+            x2, y2 = x0 + w, y1
+            x3, y3 = x2, y0
+            x5, y5 = x3, y4
+
+            vs = [(x0, y0), (x1, y1), (x2, y2), (x3, y3), (x5, y5), (x4, y4), (x0, y0)]
+            cs = [Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO,
+                  Path.LINETO, Path.LINETO, Path.CLOSEPOLY]
+            pth = Path(vs, cs)
+            patch = patches.PathPatch(pth, fc=self._fc, ec=self._ec,
+                                      alpha=self._alpha, lw=self._lw,
+                                      ls=self._ls)
+
+            self._artist = patch
+            self._next_p0 = x3, y3
+            self._next_dtheta = 0
+        else:  # fancy mode
+            pass
+        pc = x0 + 0.5 * w, y0
+        self._anote = {'xypos': pc, 'textpos': pc,
+                       'name': self.name, 'type': self.ETYPE}
 
 
 class EMSElement(Element):
@@ -775,6 +824,12 @@ class VDElement(Element):
     """
 
     ETYPE = "VD"
+    _ls = get_style(ETYPE, 'ls')
+    _lw = get_style(ETYPE, 'lw')
+    _alpha = get_style(ETYPE, 'alpha')
+    _fc = get_style(ETYPE, 'fc')
+    _ec = get_style(ETYPE, 'ec')
+    _h = get_style(ETYPE, 'h')
 
     def __init__(self, z, length, aperture, name, desc="viewer detector",
                  **meta):
@@ -785,6 +840,49 @@ class VDElement(Element):
         self.fields.y = "YCEN"
         self.fields.xrms = "XRMS"
         self.fields.yrms = "YRMS"
+
+    def set_drawing(self, p0=None, angle=0, mode='plain'):
+        l = self.length
+        s = self.z
+        w = l
+        h = self._h * 0.5
+
+        if p0 is None:
+            x0, y0 = s - l / 2.0, 0
+        else:
+            x0, y0 = p0
+
+        if mode == 'plain':
+            #
+            #    p1---p2
+            #    |    |
+            # ---p0---p3---
+            #    |    |
+            #    p4---p5
+            #
+            x1, y1 = x0, y0 + h * 0.5
+            x4, y4 = x0, y0 - h * 0.5
+
+            x2, y2 = x0 + w, y1
+            x3, y3 = x2, y0
+            x5, y5 = x3, y4
+
+            vs = [(x0, y0), (x1, y1), (x2, y2), (x3, y3), (x5, y5), (x4, y4), (x0, y0)]
+            cs = [Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO,
+                  Path.LINETO, Path.LINETO, Path.CLOSEPOLY]
+            pth = Path(vs, cs)
+            patch = patches.PathPatch(pth, fc=self._fc, ec=self._ec,
+                                      alpha=self._alpha, lw=self._lw,
+                                      ls=self._ls)
+
+            self._artist = patch
+            self._next_p0 = x3, y3
+            self._next_dtheta = 0
+        else:  # fancy mode
+            pass
+        pc = x0 + 0.5 * w, y0
+        self._anote = {'xypos': pc, 'textpos': pc,
+                       'name': self.name, 'type': self.ETYPE}
 
 
 class SDElement(Element):
@@ -912,6 +1010,12 @@ class BendElement(Element):
     """
 
     ETYPE = "BEND"
+    _ls = get_style(ETYPE, 'ls')
+    _lw = get_style(ETYPE, 'lw')
+    _alpha = get_style(ETYPE, 'alpha')
+    _fc = get_style(ETYPE, 'fc')
+    _ec = get_style(ETYPE, 'ec')
+    _h = get_style(ETYPE, 'h')
 
     def __init__(self, z, length, aperture, name, desc="bend magnet", **meta):
         super(BendElement, self).__init__(z, length, aperture, name, desc=desc,
@@ -925,6 +1029,49 @@ class BendElement(Element):
         self.fields.angle = "ANG"
         self.fields.exitAngle = "EXTANG"
         self.fields.entrAngle = "ENTANG"
+
+    def set_drawing(self, p0=None, angle=0, mode='plain'):
+        l = self.length
+        s = self.z
+        w = l
+        h = self._h * 0.5
+
+        if p0 is None:
+            x0, y0 = s - l / 2.0, 0
+        else:
+            x0, y0 = p0
+
+        if mode == 'plain':
+            #
+            #    p1---p2
+            #    |    |
+            # ---p0---p3---
+            #    |    |
+            #    p4---p5
+            #
+            x1, y1 = x0, y0 + h * 0.5
+            x4, y4 = x0, y0 - h * 0.5
+
+            x2, y2 = x0 + w, y1
+            x3, y3 = x2, y0
+            x5, y5 = x3, y4
+
+            vs = [(x0, y0), (x1, y1), (x2, y2), (x3, y3), (x5, y5), (x4, y4), (x0, y0)]
+            cs = [Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO,
+                  Path.LINETO, Path.LINETO, Path.CLOSEPOLY]
+            pth = Path(vs, cs)
+            patch = patches.PathPatch(pth, fc=self._fc, ec=self._ec,
+                                      alpha=self._alpha, lw=self._lw,
+                                      ls=self._ls)
+
+            self._artist = patch
+            self._next_p0 = x3, y3
+            self._next_dtheta = 0
+        else:  # fancy mode
+            pass
+        pc = x0 + 0.5 * w, y0
+        self._anote = {'xypos': pc, 'textpos': pc,
+                       'name': self.name, 'type': self.ETYPE}
 
 
 class RotElement(Element):
@@ -1069,7 +1216,6 @@ class QuadElement(Element):
             #
             #    p1---p2
             #    |    |
-            #    |    |
             # ---p0---p3---
             #    |    |
             #    p4---p5
@@ -1080,15 +1226,83 @@ class QuadElement(Element):
             #    |    |
             # ---p0---p3---
             #    |    |
-            #    |    |
             #    p1---p2
 
             if self._hv == 'H':
-                x1, y1 = x0, y0 + h * 0.9
-                x4, y4 = x0, y0 - h * 0.1
+                x1, y1 = x0, y0 + h * 0.5 # 0.9
+                x4, y4 = x0, y0 - h * 0.5 # 0.1
             else:
-                x1, y1 = x0, y0 - h * 0.9
-                x4, y4 = x0, y0 + h * 0.1
+                x1, y1 = x0, y0 - h * 0.5 # 0.9
+                x4, y4 = x0, y0 + h * 0.5 # 0.1
+
+            x2, y2 = x0 + w, y1
+            x3, y3 = x2, y0
+            x5, y5 = x3, y4
+
+            vs = [(x0, y0), (x1, y1), (x2, y2), (x3, y3), (x5, y5), (x4, y4), (x0, y0)]
+            #cs = [Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO,
+            #      Path.LINETO, Path.LINETO, Path.CLOSEPOLY]
+            cs = [Path.MOVETO, Path.CURVE4, Path.CURVE4, Path.CURVE4,
+                  Path.CURVE4, Path.CURVE4, Path.CURVE4]
+            pth = Path(vs, cs)
+            patch = patches.PathPatch(pth, fc=self._fc, ec=self._ec,
+                                      alpha=self._alpha, lw=self._lw,
+                                      ls=self._ls)
+
+            self._artist = patch
+            self._next_p0 = x3, y3
+            self._next_dtheta = 0
+        else:  # fancy mode
+            pass
+        pc = x0 + 0.5 * w, y0
+        self._anote = {'xypos': pc, 'textpos': pc,
+                       'name': self.name, 'type': self.ETYPE}
+
+
+class SextElement(Element):
+    """SextElement represents a sextapole magnet.
+    """
+
+    ETYPE = "SEXT"
+    _ls = get_style(ETYPE, 'ls')
+    _lw = get_style(ETYPE, 'lw')
+    _alpha = get_style(ETYPE, 'alpha')
+    _fc = get_style(ETYPE, 'fc')
+    _ec = get_style(ETYPE, 'ec')
+    _h = get_style(ETYPE, 'h')
+
+    def __init__(self, z, length, aperture, name, desc="hexapole magnet",
+                 **meta):
+        super(SextElement, self).__init__(z, length, aperture, name, desc=desc,
+                                          **meta)
+        fm = get_field_map(self.ETYPE, 'FIELD')
+        fm_pwr = get_field_map(self.ETYPE, 'POWER_STATUS')
+        self.fields.field = fm['ENG']
+        self.fields.field_phy = fm['PHY']
+        self.fields.power_status = fm_pwr['ENG']
+        self.fields.power_status_phy = fm_pwr['PHY']
+
+    def set_drawing(self, p0=None, angle=0, mode='plain'):
+        l = self.length
+        s = self.z
+        w = l
+        h = self._h * 0.5
+
+        if p0 is None:
+            x0, y0 = s - l / 2.0, 0
+        else:
+            x0, y0 = p0
+
+        if mode == 'plain':
+            #
+            #    p1---p2
+            #    |    |
+            # ---p0---p3---
+            #    |    |
+            #    p4---p5
+            #
+            x1, y1 = x0, y0 + h * 0.5
+            x4, y4 = x0, y0 - h * 0.5
 
             x2, y2 = x0 + w, y1
             x3, y3 = x2, y0
@@ -1112,28 +1326,17 @@ class QuadElement(Element):
                        'name': self.name, 'type': self.ETYPE}
 
 
-class SextElement(Element):
-    """SextElement represents a sextapole magnet.
-    """
-
-    ETYPE = "SEXT"
-
-    def __init__(self, z, length, aperture, name, desc="hexapole magnet",
-                 **meta):
-        super(SextElement, self).__init__(z, length, aperture, name, desc=desc,
-                                          **meta)
-        fm = get_field_map(self.ETYPE, 'FIELD')
-        fm_pwr = get_field_map(self.ETYPE, 'POWER_STATUS')
-        self.fields.field = fm['ENG']
-        self.fields.field_phy = fm['PHY']
-        self.fields.power_status = fm_pwr['ENG']
-        self.fields.power_status_phy = fm_pwr['PHY']
-
 class OctElement(Element):
     """OctElement represents a octopole magnet.
     """
 
     ETYPE = "OCT"
+    _ls = get_style(ETYPE, 'ls')
+    _lw = get_style(ETYPE, 'lw')
+    _alpha = get_style(ETYPE, 'alpha')
+    _fc = get_style(ETYPE, 'fc')
+    _ec = get_style(ETYPE, 'ec')
+    _h = get_style(ETYPE, 'h')
 
     def __init__(self, z, length, aperture, name, desc="octopole magnet",
                  **meta):
@@ -1145,6 +1348,49 @@ class OctElement(Element):
         self.fields.field_phy = fm['PHY']
         self.fields.power_status = fm_pwr['ENG']
         self.fields.power_status_phy = fm_pwr['PHY']
+
+    def set_drawing(self, p0=None, angle=0, mode='plain'):
+        l = self.length
+        s = self.z
+        w = l
+        h = self._h * 0.5
+
+        if p0 is None:
+            x0, y0 = s - l / 2.0, 0
+        else:
+            x0, y0 = p0
+
+        if mode == 'plain':
+            #
+            #    p1---p2
+            #    |    |
+            # ---p0---p3---
+            #    |    |
+            #    p4---p5
+            #
+            x1, y1 = x0, y0 + h * 0.5
+            x4, y4 = x0, y0 - h * 0.5
+
+            x2, y2 = x0 + w, y1
+            x3, y3 = x2, y0
+            x5, y5 = x3, y4
+
+            vs = [(x0, y0), (x1, y1), (x2, y2), (x3, y3), (x5, y5), (x4, y4), (x0, y0)]
+            cs = [Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO,
+                  Path.LINETO, Path.LINETO, Path.CLOSEPOLY]
+            pth = Path(vs, cs)
+            patch = patches.PathPatch(pth, fc=self._fc, ec=self._ec,
+                                      alpha=self._alpha, lw=self._lw,
+                                      ls=self._ls)
+
+            self._artist = patch
+            self._next_p0 = x3, y3
+            self._next_dtheta = 0
+        else:  # fancy mode
+            pass
+        pc = x0 + 0.5 * w, y0
+        self._anote = {'xypos': pc, 'textpos': pc,
+                       'name': self.name, 'type': self.ETYPE}
 
 
 # Electrostatic Elements
@@ -1454,11 +1700,70 @@ class SlitElement(Element):
     """
 
     ETYPE = "SLT"
+    _ls = get_style(ETYPE, 'ls')
+    _lw = get_style(ETYPE, 'lw')
+    _alpha = get_style(ETYPE, 'alpha')
+    _fc = get_style(ETYPE, 'fc')
+    _ec = get_style(ETYPE, 'ec')
+    _h = get_style(ETYPE, 'h')
 
     def __init__(self, z, length, aperture, name, desc="slit",
                  **meta):
         super(SlitElement, self).__init__(z, length, aperture, name, desc=desc,
                                           **meta)
+
+    def set_drawing(self, p0=None, angle=0, mode='plain'):
+        l = self.length
+        s = self.z
+        w = l
+        h = self._h * 0.5
+        vgap = h * 0.2
+
+
+        if p0 is None:
+            x0, y0 = s - l / 2.0, vgap
+        else:
+            x0, y0 = p0
+
+        if mode == 'plain':
+            #
+            #    p1---p2
+            #    |    |
+            #    p0---p3
+            #    (vgap)
+            # -------------
+            #    (vgap)
+            #    p7---p4
+            #    |    |
+            #    p6---p5
+            #
+            x1, y1 = x0, y0 + h * 0.5
+            x2, y2 = x0 + w, y1
+            x3, y3 = x2, y0
+
+            x4, y4 = x3, y3 - 2 * vgap
+            x5, y5 = x4, y4 - h * 0.5
+            x6, y6 = x0, y5
+            x7, y7 = x6, y6 + h * 0.5
+
+            vs = [(x0, y0), (x1, y1), (x2, y2), (x3, y3), (x0, y0),
+                  (x4, y4), (x5, y5), (x6, y6), (x7, y7), (x4, y4)]
+            cs = [Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY,
+                  Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY]
+            pth = Path(vs, cs)
+            patch = patches.PathPatch(pth, fc=self._fc, ec=self._ec,
+                                      alpha=self._alpha, lw=self._lw,
+                                      ls=self._ls)
+
+            self._artist = patch
+            self._next_p0 = x3, 0.5 * (y3 + y4)
+            self._next_dtheta = 0
+        else:  # fancy mode
+            pass
+        pc = x0 + 0.5 * w, y0 - vgap
+        self._anote = {'xypos': pc, 'textpos': pc,
+                       'name': self.name, 'type': self.ETYPE}
+
 
 
 # Collimator Elements
@@ -1468,11 +1773,69 @@ class CollimatorElement(Element):
     """
 
     ETYPE = "CLLM"
+    _ls = get_style(ETYPE, 'ls')
+    _lw = get_style(ETYPE, 'lw')
+    _alpha = get_style(ETYPE, 'alpha')
+    _fc = get_style(ETYPE, 'fc')
+    _ec = get_style(ETYPE, 'ec')
+    _h = get_style(ETYPE, 'h')
 
     def __init__(self, z, length, aperture, name, desc="collimator",
                  **meta):
         super(CollimatorElement, self).__init__(z, length, aperture, name, desc=desc,
                                           **meta)
+
+    def set_drawing(self, p0=None, angle=0, mode='plain'):
+        l = self.length
+        s = self.z
+        w = l
+        h = self._h * 0.5
+        vgap = h * 0.1
+
+
+        if p0 is None:
+            x0, y0 = s - l / 2.0, vgap
+        else:
+            x0, y0 = p0
+
+        if mode == 'plain':
+            #
+            #    p1---p2
+            #    |    |
+            #    p0---p3
+            #    (vgap)
+            # -------------
+            #    (vgap)
+            #    p7---p4
+            #    |    |
+            #    p6---p5
+            #
+            x1, y1 = x0, y0 + h * 0.5
+            x2, y2 = x0 + w, y1
+            x3, y3 = x2, y0
+
+            x4, y4 = x3, y3 - 2 * vgap
+            x5, y5 = x4, y4 - h * 0.5
+            x6, y6 = x0, y5
+            x7, y7 = x6, y6 + h * 0.5
+
+            vs = [(x0, y0), (x1, y1), (x2, y2), (x3, y3), (x0, y0),
+                  (x4, y4), (x5, y5), (x6, y6), (x7, y7), (x4, y4)]
+            cs = [Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY,
+                  Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY]
+            pth = Path(vs, cs)
+            patch = patches.PathPatch(pth, fc=self._fc, ec=self._ec,
+                                      alpha=self._alpha, lw=self._lw,
+                                      ls=self._ls)
+
+            self._artist = patch
+            self._next_p0 = x3, 0.5 * (y3 + y4)
+            self._next_dtheta = 0
+        else:  # fancy mode
+            pass
+        pc = x0 + 0.5 * w, y0 - vgap
+        self._anote = {'xypos': pc, 'textpos': pc,
+                       'name': self.name, 'type': self.ETYPE}
 
 
 # Chopper Elements
@@ -1497,6 +1860,12 @@ class TargetElement(Element):
     """
 
     ETYPE = "PTA"
+    _ls = get_style(ETYPE, 'ls')
+    _lw = get_style(ETYPE, 'lw')
+    _alpha = get_style(ETYPE, 'alpha')
+    _fc = get_style(ETYPE, 'fc')
+    _ec = get_style(ETYPE, 'ec')
+    _h = get_style(ETYPE, 'h')
 
     def __init__(self, z, length, aperture, name, desc="target",
                  **meta):
@@ -1507,6 +1876,49 @@ class TargetElement(Element):
         self.fields.y = "YCEN"
         self.fields.xrms = "XRMS"
         self.fields.yrms = "YRMS"
+
+    def set_drawing(self, p0=None, angle=0, mode='plain'):
+        l = self.length
+        s = self.z
+        w = l
+        h = self._h * 0.5
+
+        if p0 is None:
+            x0, y0 = s - l / 2.0, 0
+        else:
+            x0, y0 = p0
+
+        if mode == 'plain':
+            #
+            #    p1---p2
+            #    |    |
+            # ---p0---p3---
+            #    |    |
+            #    p4---p5
+            #
+            x1, y1 = x0, y0 + h * 0.5
+            x4, y4 = x0, y0 - h * 0.5
+
+            x2, y2 = x0 + w, y1
+            x3, y3 = x2, y0
+            x5, y5 = x3, y4
+
+            vs = [(x0, y0), (x1, y1), (x2, y2), (x3, y3), (x5, y5), (x4, y4), (x0, y0)]
+            cs = [Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO,
+                  Path.LINETO, Path.LINETO, Path.CLOSEPOLY]
+            pth = Path(vs, cs)
+            patch = patches.PathPatch(pth, fc=self._fc, ec=self._ec,
+                                      alpha=self._alpha, lw=self._lw,
+                                      ls=self._ls)
+
+            self._artist = patch
+            self._next_p0 = x3, y3
+            self._next_dtheta = 0
+        else:  # fancy mode
+            pass
+        pc = x0 + 0.5 * w, y0
+        self._anote = {'xypos': pc, 'textpos': pc,
+                       'name': self.name, 'type': self.ETYPE}
 
 
 # Attenuator Elements
@@ -1531,6 +1943,12 @@ class DumpElement(Element):
     """
 
     ETYPE = "DUMP"
+    _ls = get_style(ETYPE, 'ls')
+    _lw = get_style(ETYPE, 'lw')
+    _alpha = get_style(ETYPE, 'alpha')
+    _fc = get_style(ETYPE, 'fc')
+    _ec = get_style(ETYPE, 'ec')
+    _h = get_style(ETYPE, 'h')
 
     def __init__(self, z, length, aperture, name, desc="dump",
                  **meta):
@@ -1541,6 +1959,61 @@ class DumpElement(Element):
         self.fields.y = "YCEN"
         self.fields.xrms = "XRMS"
         self.fields.yrms = "YRMS"
+
+    def set_drawing(self, p0=None, angle=0, mode='plain'):
+        l = self.length
+        s = self.z
+        w = l
+        h = self._h * 0.5
+        vgap = h * 0.2
+
+
+        if p0 is None:
+            x0, y0 = s - l / 2.0, vgap
+        else:
+            x0, y0 = p0
+
+        if mode == 'plain':
+            #
+            #    p1---p2
+            #    |    |
+            #    p0---p3
+            #   (vgap |
+            # --------p8-----
+            #   (vgap |
+            #    p7---p4
+            #    |    |
+            #    p6---p5
+            #
+            x1, y1 = x0, y0 + h * 0.5
+            x2, y2 = x0 + w, y1
+            x3, y3 = x2, y0
+
+            x4, y4 = x3, y3 - 2 * vgap
+            x5, y5 = x4, y4 - h * 0.5
+            x6, y6 = x0, y5
+            x7, y7 = x6, y6 + h * 0.5
+            x8, y8 = x3, 0.5 * (y3 + y4)
+
+            vs = [(x0, y0), (x1, y1), (x2, y2), (x3, y3), (x0, y0),
+                  (x3, y3), (x8, y8), (x4, y4), (x7, y7), (x6, y6), (x5, y5), (x4, y4)]
+            cs = [Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY,
+                  Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY]
+            pth = Path(vs, cs)
+            patch = patches.PathPatch(pth, fc=self._fc, ec=self._ec,
+                                      alpha=self._alpha, lw=self._lw,
+                                      ls=self._ls)
+
+            self._artist = patch
+            self._next_p0 = x3, 0.5 * (y3 + y4)
+            self._next_dtheta = 0
+        else:  # fancy mode
+            pass
+        pc = x0 + 0.5 * w, y0 - vgap
+        self._anote = {'xypos': pc, 'textpos': pc,
+                       'name': self.name, 'type': self.ETYPE}
+
+
 
 
 # Aperture Elements
