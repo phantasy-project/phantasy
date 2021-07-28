@@ -2019,7 +2019,10 @@ class Lattice(object):
         for i in self._elements:
             i.layout = self.layout[i.name]
             # pass alignment data
-            self.layout[i.name].alignment = i.alignment
+            try:
+                self.layout[i.name].alignment = i.alignment
+            except AttributeError:
+                _LOGGER.warning(f"{i.name} is not in layout.")
 
     def get_layout_length(self):
         """Return the length of current lattice layout, as well as starting
