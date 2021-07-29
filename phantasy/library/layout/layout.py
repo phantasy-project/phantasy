@@ -28,8 +28,8 @@ LS1_CA01:BPM_D1129,BPM,0.0,112.8833268,0.04,0.04,CA01,BPM6,LS1,D1129,BPM,"positi
 
 import csv
 import logging
-import os.path
 import matplotlib.pyplot as plt
+import os.path
 
 from .accel import ApertureElement
 from .accel import AttenuatorElement
@@ -254,6 +254,7 @@ class Layout(SeqElement):
             elem.set_drawing()
             if not hasattr(elem, '_artist'):
                 continue
+            elem._artist.set_picker(3)
             patch_list.append(elem._artist)
             if hasattr(elem, '_anote'):
                 anote_list.append(elem._anote)
@@ -271,7 +272,7 @@ class Layout(SeqElement):
         return patch_list, anote_list, (xmin0, xmax0, xc0, dx0), (ymin0, ymax0, yc0, dy0)
 
     def draw(self, ax=None, span=(1.05, 1.05), fig_opt={}, ax_opt={}):
-        """Draw layout onto canvas.
+        """Draw layout onto canvas, show selected device info when clicking on.
 
         Examples
         --------
@@ -288,6 +289,36 @@ class Layout(SeqElement):
         if ax is None:
             fig = plt.figure(**fig_opt)
             ax = fig.add_subplot(111, **ax_opt)
+
+        picked_ann = ax.annotate("", xy=(1.0, 1.05), ha='right', va='bottom',
+                                 xycoords=('axes fraction'), color='w',
+                                 bbox=dict(
+                                     boxstyle='round,pad=0.3',
+                                     fc='#FA4F00', ec='#FA4F00',
+                                     lw=1.0, alpha=0.8))
+
+        def hide_ann():
+            picked_ann.set_visible(False)
+            fig.canvas.draw_idle()
+
+        timer = fig.canvas.new_timer(5000)
+        timer.add_callback(hide_ann)
+
+        def show_ann(anote):
+            print(f"Selected {anote}!")
+            picked_ann.set_text(f"{anote['name']} [{anote['xypos'][0]:.3f}(m),{anote['type']}]")
+            picked_ann.set_visible(True)
+            fig.canvas.draw_idle()
+
+        def on_pick(patches, anotes):
+            def pick_event(evt):
+                for artist, anote in zip(patches, anotes):
+                    if evt.artist == artist:
+                        timer.stop()
+                        show_ann(anote)
+                        timer.start()
+            return pick_event
+
         p_list, a_list, (x0, x1, xc0, dx0), (y0, y1, yc0, dy0) = self.generate_drawing()
         [ax.add_patch(p) for p in p_list]
         span_x, span_y = span
@@ -295,4 +326,5 @@ class Layout(SeqElement):
         dy = span_y * dy0 * 0.5
         ax.set_xlim(xc0 - dx, xc0 + dx)
         ax.set_ylim(yc0 - dy, yc0 + dy)
+        fig.canvas.mpl_connect('pick_event', on_pick(p_list, a_list))
         return fig, ax
