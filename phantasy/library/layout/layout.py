@@ -271,7 +271,7 @@ class Layout(SeqElement):
         dy0 = ymax0 - ymin0
         return patch_list, anote_list, (xmin0, xmax0, xc0, dx0), (ymin0, ymax0, yc0, dy0)
 
-    def draw(self, ax=None, span=(1.05, 1.05), fig_opt={}, ax_opt={}):
+    def draw(self, ax=None, fig=None, span=(1.05, 1.05), fig_opt={}, ax_opt={}):
         """Draw layout onto canvas, show selected device info when clicking on.
 
         Examples
@@ -285,8 +285,7 @@ class Layout(SeqElement):
                         ax_opt={'aspect': 500})
         >>> plt.show() # import matplotlib.pyplot as plt
         """
-        fig = None
-        if ax is None:
+        if ax is None or fig is None:
             fig = plt.figure(**fig_opt)
             ax = fig.add_subplot(111, **ax_opt)
 
@@ -305,7 +304,6 @@ class Layout(SeqElement):
         timer.add_callback(hide_ann)
 
         def show_ann(anote):
-            print(f"Selected {anote}!")
             picked_ann.set_text(f"{anote['name']} [{anote['xypos'][0]:.3f}(m),{anote['type']}]")
             picked_ann.set_visible(True)
             fig.canvas.draw_idle()
@@ -328,3 +326,4 @@ class Layout(SeqElement):
         ax.set_ylim(yc0 - dy, yc0 + dy)
         fig.canvas.mpl_connect('pick_event', on_pick(p_list, a_list))
         return fig, ax
+
