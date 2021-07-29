@@ -289,7 +289,7 @@ class Layout(SeqElement):
             fig = plt.figure(**fig_opt)
             ax = fig.add_subplot(111, **ax_opt)
 
-        picked_ann = ax.annotate("", xy=(1.0, 1.05), ha='right', va='bottom',
+        picked_ann = ax.annotate("", xy=(1.0, -0.15), ha='right', va='bottom',
                                  xycoords=('axes fraction'), color='w',
                                  bbox=dict(
                                      boxstyle='round,pad=0.3',
