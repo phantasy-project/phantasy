@@ -654,6 +654,10 @@ class AccelFactory(XlfConfig):
             try:
                 if row.device is not None:
 
+                    # set dtype with device if not defined.
+                    if row.device_type is None:
+                        row.device_type = row.device
+
                     if (drift_delta != 0.0) and (row.eff_length != 0.0):
                         # these 'named' elements do not support non-zero drift delta
                         raise RuntimeError("Unsupported drift delta on element: {}".format(row.element_name))
