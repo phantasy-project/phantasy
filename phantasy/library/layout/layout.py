@@ -271,7 +271,8 @@ class Layout(SeqElement):
         dy0 = ymax0 - ymin0
         return patch_list, anote_list, (xmin0, xmax0, xc0, dx0), (ymin0, ymax0, yc0, dy0)
 
-    def draw(self, ax=None, fig=None, span=(1.05, 1.05), fig_opt={}, ax_opt={}):
+    def draw(self, ax=None, fig=None, span=(1.05, 1.05), fig_opt={}, ax_opt={},
+             annote_offset=(1.0, 0.9)):
         """Draw layout onto canvas, show selected device info when clicking on.
 
         Examples
@@ -289,7 +290,7 @@ class Layout(SeqElement):
             fig = plt.figure(**fig_opt)
             ax = fig.add_subplot(111, **ax_opt)
 
-        picked_ann = ax.annotate("", xy=(1.0, -0.15), ha='right', va='bottom',
+        picked_ann = ax.annotate("", xy=annote_offset, ha='right', va='bottom',
                                  xycoords=('axes fraction'), color='w',
                                  bbox=dict(
                                      boxstyle='round,pad=0.3',
