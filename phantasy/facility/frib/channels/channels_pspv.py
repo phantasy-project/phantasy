@@ -69,7 +69,7 @@ _PVPOLICY_PROPERTY = 'pvPolicy'
 _MISC_PROPERTY = "misc"
 
 ETYPES_TO_SKIP = (
-    OctElement, ELDElement,
+    ELDElement,
 )  # Etypes to skip.
 
 
@@ -201,6 +201,8 @@ def build_channels(layout, psfile, machine=None, **kws):
                 channel = "{}{elem.system}_{elem.subsystem}:PSOL_{elem.inst}".format(prefix, elem=element)
             elif isinstance(element, SextElement):
                 channel = "{}{elem.system}_{elem.subsystem}:PSS_{elem.inst}".format(prefix, elem=element)
+            elif isinstance(element, OctElement):
+                channel = "{}{elem.system}_{elem.subsystem}:PSO_{elem.inst}".format(prefix, elem=element)
             else:
                 channel = "{}{elem.system}_{elem.subsystem}:{elem.device}_{elem.inst}".format(prefix, elem=element)
 
@@ -531,6 +533,24 @@ def build_channels(layout, psfile, machine=None, **kws):
 
         elif isinstance(elem, SextElement):
             props[_TYPE_PROPERTY] = "SEXT"
+            props[_FIELD_ENG_PROPERTY] = elem.fields.field
+            props[_FIELD_PHY_PROPERTY] = elem.fields.field_phy
+            props[_HANDLE_PROPERTY] = "setpoint"
+            data.append((channel + ":I_CSET", OrderedDict(props), list(tags)))
+            props[_HANDLE_PROPERTY] = "readset"
+            data.append((channel + ":I_RSET", OrderedDict(props), list(tags)))
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel + ":I_RD", OrderedDict(props), list(tags)))
+
+            props[_FIELD_ENG_PROPERTY] = elem.fields.power_status
+            props[_FIELD_PHY_PROPERTY] = elem.fields.power_status_phy
+            props[_HANDLE_PROPERTY] = "setpoint"
+            data.append((channel + ":ON_CMD", OrderedDict(props), list(tags)))
+            props[_HANDLE_PROPERTY] = "readback"
+            data.append((channel + ":ON_RSTS", OrderedDict(props), list(tags)))
+
+        elif isinstance(elem, OctElement):
+            props[_TYPE_PROPERTY] = "OCT"
             props[_FIELD_ENG_PROPERTY] = elem.fields.field
             props[_FIELD_PHY_PROPERTY] = elem.fields.field_phy
             props[_HANDLE_PROPERTY] = "setpoint"
