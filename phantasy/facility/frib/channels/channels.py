@@ -18,6 +18,8 @@ from phantasy.library.layout import EBendElement
 from phantasy.library.layout import EMSElement
 from phantasy.library.layout import EQuadElement
 from phantasy.library.layout import FCElement
+from phantasy.library.layout import ICElement
+from phantasy.library.layout import NDElement
 from phantasy.library.layout import PMElement
 from phantasy.library.layout import PortElement
 from phantasy.library.layout import QuadElement
@@ -336,7 +338,8 @@ def build_channels(layout, machine=None, **kws):
             pass
 
         elif isinstance(elem, (AttenuatorElement, ApertureElement,
-                               ChopperElement, DumpElement, SlitElement)):
+                               ChopperElement, DumpElement, SlitElement,
+                               NDElement, ICElement)):
             # for element identification only
             pass
 
