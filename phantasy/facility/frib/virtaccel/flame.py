@@ -39,6 +39,7 @@ from phantasy.library.layout import HCorElement
 from phantasy.library.layout import VCorElement
 from phantasy.library.layout import QuadElement
 from phantasy.library.layout import BendElement
+from phantasy.library.layout import NDElement
 from phantasy.library.layout import SextElement
 from phantasy.library.layout import StripElement
 from phantasy.library.layout import BPMElement
@@ -524,7 +525,7 @@ class VirtualAcceleratorFactory(object):
                              (elem.name, elem.fields.yrms), desc="Vertical Size", egu="m")
                 va.append_elem(elem)
 
-            elif isinstance(elem, (VDElement, TargetElement, DumpElement, WedgeElement)):
+            elif isinstance(elem, (VDElement, TargetElement, WedgeElement)):
                 va.append_ro(self._findChannel(elem.name, elem.fields.x, "readback"),
                              (elem.name, elem.fields.x), desc="Horizontal Position", egu="m")
                 va.append_ro(self._findChannel(elem.name, elem.fields.y, "readback"),
@@ -535,13 +536,13 @@ class VirtualAcceleratorFactory(object):
                              (elem.name, elem.fields.yrms), desc="Vertical Size", egu="m")
                 va.append_elem(elem)
 
-            elif isinstance(elem, (EMSElement, SDElement, )):
+            elif isinstance(elem, (EMSElement, SDElement, DumpElement, )):
                 pass
 
             elif isinstance(elem, ElectrodeElement):
                 pass
 
-            elif isinstance(elem, (ELDElement, )):
+            elif isinstance(elem, (ELDElement, NDElement )):
                 pass
 
             else:
