@@ -937,9 +937,14 @@ class Lattice(object):
             if e.name == name:
                 return e.ETYPE in SKIP_TYPES
 
-    def run(self):
+    def run(self, init_beam_conf=None):
         """Run machine with defined model, e.g. 'FLAME' or 'IMPACT',
         update model settings, but not control settings.
+
+        Parameters
+        ----------
+        init_beam_conf : dict
+            Initial beam condition, only support FLAME now.
 
         Returns
         -------
@@ -962,6 +967,9 @@ class Lattice(object):
             with open(latpath, 'w') as f:
                 lat.write(f)
             fm = self._flame_model(latconf=lat.conf())
+            if init_beam_conf is not None:
+                fm.configure(init_beam_conf)
+                _LOGGER.info(f"Applied user-customized initial beam condition.")
             return latpath, fm
         else:
             raise RuntimeError(
