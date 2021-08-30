@@ -7,7 +7,9 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import json
 import logging
+import numpy
 import math
 import os.path
 import random
@@ -19,6 +21,7 @@ import time
 from collections import OrderedDict
 from copy import deepcopy
 from datetime import datetime
+from flame_utils import generate_latfile
 
 try:
     from StringIO import StringIO
@@ -582,6 +585,9 @@ class VirtualAccelerator(object):
         # rep-rate
         self._rate = kws.get('rate', DEFAULT_REP_RATE)
 
+        # init beam conf, dict
+        self._bsrc = None
+
         # suffix for noise/rate/cnt/status PVs
         self._pv_suffix = kws.get('pv_suffix', '')
 
@@ -921,19 +927,29 @@ class VirtualAccelerator(object):
                 ("PREC", 5)
             ])))
 
+        # initial beam condition
+        chanbsrc = f"{chanprefix}:SVR:BEAM{suffix_str}"
+        self._epicsdb.append(("waveform", chanbsrc, OrderedDict([
+                ("DESC", "Init beam of Virtual Accelerator"),
+                ("NELM", 4096),
+                ("FTVL", "UCHAR")
+            ])))
+        _LOGGER.info("VA: Init beam condition PV is " + chanbsrc)
+
         #
         if self.work_dir is not None:
             os.makedirs(self.work_dir)
             self._rm_work_dir = False
+            latticepath = os.path.join(self.work_dir, "test.lat")
         else:
             self.work_dir = tempfile.mkdtemp(_TEMP_DIRECTORY_SUFFIX)
             self._rm_work_dir = True
+            latticepath = None
 
         _LOGGER.info("VA: Working directory: %s", self._work_dir)
 
         # input file paths
         epicsdbpath = os.path.join(self.work_dir, "va.db")
-        latticepath = os.path.join(self.work_dir, "test.lat")
 
         #output file paths
         epicslogpath = os.path.join(self.work_dir, "softioc.log")
@@ -960,6 +976,7 @@ class VirtualAccelerator(object):
         self._subscriptions = []
         self._subscriptions.append(catools.camonitor(chanrate, self._handle_rate_monitor))
         self._subscriptions.append(catools.camonitor(channoise, self._handle_noise_monitor))
+        self._subscriptions.append(catools.camonitor(chanbsrc, self._handle_bsrc_monitor))
         self._subscriptions.extend(catools.camonitor(self._csetmap.keys(), self._handle_cset_monitor))
         _LOGGER.debug("VA: Connecting to channels: Done")
 
@@ -977,9 +994,6 @@ class VirtualAccelerator(object):
             self._latfactory.settings = settings
             lattice = self._latfactory.build()
 
-            with open(latticepath, "w") as outfile:
-                lattice.write(outfile)
-
             start = time.time()
 
             if machine is None:
@@ -989,6 +1003,14 @@ class VirtualAccelerator(object):
                 _LOGGER.debug("VA: Reconfigure FLAME machine from configuration")
                 for idx, elem in enumerate(lattice.elements):
                     machine.reconfigure(idx, elem[2])
+
+                if self._bsrc is not None:
+                    _LOGGER.info("VA: Reconfigure FLAME machine with init beam config")
+                    machine.reconfigure(self._bsrc['index'], self._bsrc['properties'])
+
+            if latticepath is not None:
+                _LOGGER.debug(f"VA: Write FLAME lattice file to {outfile}")
+                generate_latfile(machine, latfile=latticepath)
 
             _LOGGER.debug("VA: Allocate FLAME state from configuration")
             S = machine.allocState({})
@@ -1122,6 +1144,23 @@ class VirtualAccelerator(object):
         """
         _LOGGER.debug("VA: Update noise: %s", value)
         self._noise = float(value)
+
+    def _handle_bsrc_monitor(self, value):
+        """Handle updates of the bsrc channel.
+        """
+        if value.size == 0:
+            return
+        # value: array of int
+        _LOGGER.debug("VA: Update init beam condition: %s", value)
+        if len(value) > 4096:
+            _LOGGER.debug("VA: Init beam conf exceeds allowed length (4096).")
+        else:
+            s = ''.join(chr(i) for i in value[0:-1])
+            _bsrc = json.loads(s)
+            for k, v in _bsrc['properties'].items():
+                if isinstance(v, list):
+                    _bsrc['properties'][k] = numpy.array(v)
+            self._bsrc = _bsrc
 
     def _handle_rate_monitor(self, value):
         """Handle updates of the REPRATE channel.
