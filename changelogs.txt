@@ -1,3 +1,11 @@
+Version 2.1.1
+-------------
+2021-09-10
+
+  - Support change init beam condition of FLAME VA.
+  - Support configure ModelFlame thru init_beam_conf argument.
+  - Fix layout tests.
+
 Version 2.1.0
 -------------
 2021-08-11
