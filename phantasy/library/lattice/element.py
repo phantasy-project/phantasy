@@ -909,7 +909,10 @@ class CaField(object):
             _LOGGER.warning(
                 "{} [{}] is not connected".format(self.ename, self.name))
             return None
-        return self.read_policy(self.setpoint_pv)
+        r = self.read_policy(self.setpoint_pv)
+        if isinstance(r, np.ndarray):
+            return r.tolist()
+        return r
 
     def set_auto_monitor(self, auto_monitor=True, handle='readback'):
         """Set auto_monitor bit True or False for the given PV type.
@@ -1488,7 +1491,10 @@ class CaElement(BaseElement):
                 return
         if from_field == to_field:
             return value
-        return self.__unicorn[(from_field, to_field)](value)
+        r = self.__unicorn[(from_field, to_field)](value)
+        if isinstance(r, np.ndarray) and r.size == 1:
+            return r.tolist()
+        return r
 
     def current_setting(self, field):
         """Return the value of current setting (setpoint) for dynamic field
