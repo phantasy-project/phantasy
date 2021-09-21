@@ -283,7 +283,7 @@ class CaField(object):
     -----------------
     wait : bool
         Wait or not (True/False) when issuing set command, which is attached
-        to one of 'caput' keyword arguments, default: True.
+        to one of 'caput' keyword arguments, default: False.
     timeout : float
         Time out in second for put operation (see wait), default is 10 seconds.
     ensure_put : bool
@@ -319,7 +319,7 @@ class CaField(object):
     action to the field value will be ensured to reach the goal, since
     CA put wait action sometimes is not that working as the user expected. To
     make use of this feature, simply set `field.ensure_put = True`, then
-    do `field.value = x`, the program will be blocking until `field.value`
+    do `field.value = x`, the program will be blocked until `field.value`
     reaches `x`, here assumed `field` is the instance of `CaField` class.
     """
 
@@ -391,13 +391,13 @@ class CaField(object):
     @property
     def wait(self):
         """boolean: Wait or not (True/False) when issuing set command, which
-        is attached to one of 'caput' keyword arguments, default: True."""
+        is attached to one of 'caput' keyword arguments, default: False."""
         return self._wait
 
     @wait.setter
     def wait(self, b):
         if b is None:
-            self._wait = True
+            self._wait = False
         else:
             self._wait = bool(b)
 
