@@ -20,8 +20,8 @@ class PVElement(object):
     def __init__(self, put_pv_name, get_pv_name):
         self._put_pvname = put_pv_name
         self._get_pvname = get_pv_name
-        self._putPV = PV(put_pv_name, auto_monitor=False)
-        self._getPV = PV(get_pv_name, auto_monitor=False)
+        self._putPV = PV(put_pv_name, auto_monitor=True)
+        self._getPV = PV(get_pv_name, auto_monitor=True)
 
     @property
     def fname(self):
@@ -36,13 +36,14 @@ class PVElement(object):
         """generic attribute name to present this PV element's value.
         """
         if self._getPV.connected:
-            return self._getPV.get()
+            return self._getPV.value
         else:
+            print(f"{self._get_pvname} is not connected.")
             return None
 
     @value.setter
     def value(self, x):
-        self._putPV.put(x, wait=True)
+        self._putPV.put(x, wait=False)
 
     @property
     def connected(self):
@@ -108,7 +109,7 @@ class PVElementReadonly(object):
 
     def __init__(self, get_pv_name):
         self._get_pvname = get_pv_name
-        self._getPV = PV(get_pv_name, auto_monitor=False)
+        self._getPV = PV(get_pv_name, auto_monitor=True)
 
     @property
     def fname(self):
@@ -123,7 +124,7 @@ class PVElementReadonly(object):
         """generic attribute name to present this PV element's value.
         """
         if self._getPV.connected:
-            return self._getPV.get()
+            return self._getPV.value
         else:
             return None
 
