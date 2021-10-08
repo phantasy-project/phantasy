@@ -1520,8 +1520,9 @@ class CaElement(BaseElement):
         fld = self.get_field(field)
         return fld.current_setting()
 
-    def get_settings(self, field, settings):
-        """Get the *field* setpoint value from *settings*.
+    def get_settings(self, field, settings, **kws):
+        """Get the *field* value from *settings*, set / read defined by *handle*
+        keyword argument.
 
         Parameters
         ----------
@@ -1529,6 +1530,11 @@ class CaElement(BaseElement):
             Dynamic field name of element.
         settings : dict
             Key-value pairs of setpoint PV name and value.
+
+        Keyword Arguments
+        -----------------
+        handle : str
+            PV handle, 'readback', 'readset' or 'setpoint' (default).
 
         Returns
         -------
@@ -1539,13 +1545,14 @@ class CaElement(BaseElement):
         --------
         current_setting : Get current field setting.
         """
+        handle = kws.get('handle', 'setpoint')
         fld = self.get_field(field)
-        sp_vals = [settings.get(sp) for sp in fld.setpoint]
+        sp_vals = [settings.get(sp) for sp in getattr(fld, handle)]
         if None in sp_vals:
             _LOGGER.warning(
-                "Failed to get setpoint PV reading(s) of '{} [{}]'.".format(self.name, field))
+                "Failed to get {} PV reading(s) of '{} [{}]'.".format(handle, self.name, field))
             print(
-                "Failed to get setpoint PV reading(s) of '{} [{}]'.".format(self.name, field))
+                "Failed to get {} PV reading(s) of '{} [{}]'.".format(handle, self.name, field))
             return None
         return fld.read_policy([Number(float(x)) for x in sp_vals])
 
