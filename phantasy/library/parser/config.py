@@ -49,7 +49,7 @@ class Configuration(ConfigParser):
             else:
                 self.config_path = os.path.abspath(config_path)
             with open(self.config_path, "r") as fp:
-                self.readfp(fp)
+                self.read_file(fp)
         else:
             self.config_path = None
 
