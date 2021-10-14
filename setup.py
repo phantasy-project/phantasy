@@ -14,7 +14,7 @@ def read_license():
         return f.read()
 
 
-_version="2.1.1"
+_version="2.1.2"
 _name = "phantasy"
 _description = 'Physics high-level applications and toolkit for accelerator system'
 _long_description = readme() + '\n\n'
