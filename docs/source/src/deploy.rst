@@ -84,9 +84,8 @@ Or simply install by:
 Run Tests
 ---------
 
-After installation, commands ``test_phantasy`` (for Python 2.7) and
-``test_phantasy3`` (for Python 3.x) [#f2]_ can
-be invoked to run tests distributed with ``phantasy`` package.
+After installation, executing the command ``test_phantasy`` to run
+the tests distributed with ``phantasy`` package.
 
 Alternative way to do in Python terminal:
 
@@ -101,4 +100,3 @@ Alternative way to do in Python terminal:
   .. rubric:: Footnotes
 
 .. [#f1] Details see: http://ci.frib.msu.edu/
-.. [#f2] The name `test_phantasy3` is only valid when deployed by APT way.
