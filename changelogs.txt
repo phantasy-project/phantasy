@@ -1,3 +1,14 @@
+Version 2.1.2
+-------------
+2021-10-14
+
+  - FIX: test_phantasy command.
+  - FIX: Set False wait for put and turn on automonitor by default.
+  - FIX: Return a scalar from current_setting() and convert().
+    - ndarray cannot be pickled.
+  - REF: Support readback for get_settings().
+  - REF: Change default of CaField.wait value to False.
+
 Version 2.1.1
 -------------
 2021-09-10
