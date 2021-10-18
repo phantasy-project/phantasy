@@ -14,6 +14,7 @@ import re
 from phantasy.library.layout import BCMElement
 from phantasy.library.layout import BLElement
 from phantasy.library.layout import BLMElement
+from phantasy.library.layout import FoilElement
 from phantasy.library.layout import NDElement
 from phantasy.library.layout import ICElement
 from phantasy.library.layout import BPMElement
@@ -70,6 +71,7 @@ _MISC_PROPERTY = "misc"
 
 ETYPES_TO_SKIP = (
     ELDElement,
+    FoilElement,
 )  # Etypes to skip.
 
 
@@ -721,6 +723,7 @@ def build_channels(layout, psfile, machine=None, **kws):
             props[_FIELD_PHY_PROPERTY] = elem.fields.current_phy
             props[_HANDLE_PROPERTY] = "readback"
             data.append((channel + ":AVG_RD", OrderedDict(props), list(tags)))
+            data.append((channel + ":EVT_RD", OrderedDict(props), list(tags)))
 
             props[_FIELD_ENG_PROPERTY] = elem.fields.bias_voltage
             props[_FIELD_PHY_PROPERTY] = elem.fields.bias_voltage_phy
@@ -744,6 +747,7 @@ def build_channels(layout, psfile, machine=None, **kws):
             props[_FIELD_PHY_PROPERTY] = elem.fields.current_phy
             props[_HANDLE_PROPERTY] = "readback"
             data.append((channel + ":AVG_RD", OrderedDict(props), list(tags)))
+            data.append((channel + ":DOSE_RD", OrderedDict(props), list(tags)))
 
             props[_FIELD_ENG_PROPERTY] = elem.fields.bias_voltage
             props[_FIELD_PHY_PROPERTY] = elem.fields.bias_voltage_phy

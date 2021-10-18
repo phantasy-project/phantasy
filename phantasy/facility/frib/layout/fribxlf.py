@@ -13,6 +13,7 @@ from collections import OrderedDict
 from phantasy.library.layout import BCMElement
 from phantasy.library.layout import BLElement
 from phantasy.library.layout import BLMElement
+from phantasy.library.layout import FoilElement
 from phantasy.library.layout import NDElement
 from phantasy.library.layout import ICElement
 from phantasy.library.layout import BPMElement
@@ -65,7 +66,7 @@ NON_DRIFT_ELEMENTS = (
         ChopperElement, AttenuatorElement, DumpElement, ApertureElement,
         HMRElement, CollimatorElement, NDElement, ICElement, RotElement,
         SDElement, MarkerElement, OctElement, WedgeElement, ELDElement,
-        TargetElement,
+        TargetElement, FoilElement,
 )
 
 # constants for parsing xlsx file
@@ -104,6 +105,11 @@ ELEMENT_NAME_STRING_AS_DRIFT = [
     "RFQ end wall", "RFQ inn-wall (match point)", "RFQ inn-wall",
     "motor shield", "mirror shield", "mirror", "target collimator",
     "a cross will be added",
+    "4-way cross with bellow", "SEE D4 dipole-17.5deg",
+    "6-way cross #1 first half", "6-way cross #1 second half",
+    "6-way cross #2 first half", "6-way cross #2 second half",
+    "4-way cross first half", "4-way cross second half",
+
 # ReA
     "BOB1", "BOB2", "BOB3", "BOB4",
     "BOX1", "BOX2", "BOX3", "BOX4",
@@ -147,7 +153,9 @@ ELEMENT_NAME_STRING_AS_DRIFT = [
 ]
 
 # device alias for target: TargetElement
-DEVICE_ALIAS_PTA = ( "PTA", )
+DEVICE_ALIAS_PTA = ( "PTA",
+                     "CHIP", # FSEE beamline
+)
 
 # device alias for energy loss detector: ELDElement
 DEVICE_ALIAS_ELD = ( "ELD", )
@@ -174,6 +182,8 @@ DEVICE_ALIAS_PM = ( "PM", "PM1", )
 DEVICE_ALIAS_BL = ( "BL", "LPM", )
 # device alias for BLM (measure beam loss)
 DEVICE_ALIAS_BLM = ( "BLM", )
+# device alias for FOIL
+DEVICE_ALIAS_FOIL = ( "FOIL", )
 # device alias for ND
 DEVICE_ALIAS_ND = ( "ND", )
 # device alias for IC
@@ -195,6 +205,7 @@ DEVICE_ALIAS_SD = (
 # device alias for viewer
 DEVICE_ALIAS_VD = ( "VD",
                     "SiD",  # SiD is silicon detector, temporarily put it here
+                    "SiD1", "SiD2", # FSEE beamline
                     "CAM",  # ReA
 )
 # device alias for pump, port, etc.
@@ -224,7 +235,7 @@ DEVICE_ALIAS_ROT = ( "ROT", ) # ReA
 # device alias for sextupole
 DEVICE_ALIAS_SEXT = ( "S", )
 # device alias for octopole
-DEVICE_ALIAS_OCT = ( "OCT", )
+DEVICE_ALIAS_OCT = ( "OCT", "O" )
 # device alias for electrode
 DEVICE_ALIAS_ELC = ( "ELC1", "ELC2", "ELC3", "ELC0", )
 # device alias for acc column
@@ -745,6 +756,14 @@ class AccelFactory(XlfConfig):
                                           desc=row.element_name,
                                           system=row.system, subsystem=row.subsystem, device=row.device,
                                           dtype=row.device_type, inst=inst)
+                        subsequence.append(elem)
+
+                    elif row.device in DEVICE_ALIAS_FOIL:
+                        inst = FMT_INST.format(int(row.position))
+                        elem = FoilElement(row.center_position, row.eff_length, row.diameter, row.name,
+                                           desc=row.element_name,
+                                           system=row.system, subsystem=row.subsystem, device=row.device,
+                                           dtype=row.device_type, inst=inst)
                         subsequence.append(elem)
 
                     elif row.device in DEVICE_ALIAS_ND:
