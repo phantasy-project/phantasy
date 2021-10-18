@@ -1693,6 +1693,18 @@ class StripElement(Element):
                                            **meta)
 
 
+# Foil element
+class FoilElement(Element):
+    """FoilElement represents a foil, an emittance spoiler.
+    """
+
+    ETYPE = "FOIL"
+
+    def __init__(self, z, length, aperture, name, desc="foil",
+                 **meta):
+        super(FoilElement, self).__init__(z, length, aperture, name, desc=desc,
+                                           **meta)
+
 # Slit Elements
 
 class SlitElement(Element):

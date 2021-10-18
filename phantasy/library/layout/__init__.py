@@ -45,6 +45,7 @@ from .accel import OctElement
 from .accel import WedgeElement
 from .accel import TargetElement
 from .accel import ELDElement
+from .accel import FoilElement
 
 __all__ = [
     'build_layout', 'Layout',
@@ -59,7 +60,7 @@ __all__ = [
     'SlitElement', 'ChopperElement', 'AttenuatorElement', 'DumpElement',
     'ApertureElement', "NDElement", "ICElement", "RotElement",
     'SDElement', 'SourceElement', 'MarkerElement', "OctElement",
-    "WedgeElement", 'TargetElement', "ELDElement",
+    "WedgeElement", 'TargetElement', "ELDElement", "FoilElement",
     'Element', 'Fields',
 ]
 
