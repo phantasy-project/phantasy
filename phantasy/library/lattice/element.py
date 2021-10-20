@@ -976,6 +976,8 @@ class CaField(object):
     @property
     def write_access(self):
         """bool: If field writable."""
+        if not self.connected('setpoint'):
+            return None
         return {pv.write_access for pv in self.setpoint_pv} == {True}
 
     @property
