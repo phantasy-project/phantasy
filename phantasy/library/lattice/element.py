@@ -1482,6 +1482,8 @@ class CaElement(BaseElement):
         >>> quad.convert(value=15, from_field='B2')
         98.7534891752199
         """
+        if value is None:
+            return None
         if from_field not in self.fields:
             _LOGGER.warning("Invalid field name *from_field*.")
             return
