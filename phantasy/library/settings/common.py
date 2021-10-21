@@ -195,7 +195,8 @@ def generate_settings(snpfile, lattice, **kws):
 def get_settings_from_element_list(elem_list, data_source='control',
                                    settings=None,
                                    field_of_interest=None,
-                                   only_physics=True):
+                                   only_physics=True,
+                                   **kws):
     """Get settings from a list of CaElement, for both engineering and
     physics fields (based on *only_physics* parameter). If *data_source* is
     defined as 'model', will try to pull the element field settings from
@@ -224,6 +225,11 @@ def get_settings_from_element_list(elem_list, data_source='control',
         If True, only get physics settings, otherwise, get engineering
         settings as well.
 
+    Keyword Arguments
+    -----------------
+    skip_none : bool
+        If set, skip field that returns None (not reachable), default is True.
+
     Returns
     -------
     s : Settings
@@ -245,6 +251,8 @@ def get_settings_from_element_list(elem_list, data_source='control',
         if phy_val is None:
             _LOGGER.warning("{} [{}] is not reachable.".format(elem.name, phy_fld))
         return phy_val
+
+    _skip_none = kws.get('skip_none', True)
 
     if data_source == 'model' and settings is None:
         return None
@@ -287,14 +295,16 @@ def get_settings_from_element_list(elem_list, data_source='control',
                 phy_val = get_phy_field_setting(elem, phy_fld, settings, data_source)
                 if phy_val is None:
                     _LOGGER.warning("Skip unreachable {} [{}] for settings.".format(ename, phy_fld))
-                    continue
+                    if _skip_none:
+                        continue
                 elem_settings.update([(phy_fld, phy_val)])
         else:
             for phy_fld, eng_fld in zip(phy_flds, eng_flds):
                 phy_val = get_phy_field_setting(elem, phy_fld, settings, data_source)
                 if phy_val is None:
                     _LOGGER.warning("Skip unreachable {} [] for settings.".format(ename, phy_fld))
-                    continue
+                    if _skip_none:
+                        continue
                 eng_val = elem.convert(from_field=phy_fld, value=phy_val)
                 elem_settings.update([(phy_fld, phy_val), (eng_fld, eng_val)])
         if elem_settings:
