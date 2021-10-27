@@ -36,7 +36,7 @@ class ChannelStore(object):
 
         if isinstance(channel, (tuple,list)):
             channels = channel
-        elif isinstance(channel, basestring):
+        elif isinstance(channel, str):
             channels = [ channel ]
         else:
             raise TypeError("Channel name must a string or list of strings")
@@ -67,7 +67,7 @@ class ChannelStore(object):
 
         if isinstance(channel, (tuple,list)):
             channels = channel
-        elif isinstance(channel, basestring):
+        elif isinstance(channel, str):
             channels = [ channel ]
         else:
             raise TypeError("Channel name must a string or list of strings")
@@ -193,7 +193,7 @@ class ChannelStore(object):
         if isinstance(prop, CSProperty):
             return CSProperty(prop.name, prop.owner)
         
-        if isinstance(prop, basestring):
+        if isinstance(prop, str):
             return CSProperty(prop)
     
         if isinstance(prop, (tuple,list)) and (len(prop) > 0):
@@ -212,7 +212,7 @@ class ChannelStore(object):
         if isinstance(tag, CSTag):
             return CSTag(tag.name, tag.owner)
         
-        if isinstance(tag, basestring):
+        if isinstance(tag, str):
             return CSTag(tag)
     
         if isinstance(tag, (tuple,list)) and (len(tag) > 0):

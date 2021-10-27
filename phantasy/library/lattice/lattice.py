@@ -718,7 +718,7 @@ class Lattice(object):
         field_name = kws.get('field', '*')
         value = kws.get('value', None)
         if value is not None:
-            if isinstance(value, (int, float, long)):
+            if isinstance(value, (int, float)):
                 value = [value]
             elif not isinstance(value, (list, tuple)):
                 raise RuntimeError("Invalid value argument.")
@@ -2323,7 +2323,7 @@ def _is_viewer(elem):
 
 def _get_retroactive_trace_history(trace_history_data, retroaction):
     data = trace_history_data
-    if isinstance(retroaction, (float, int, long)):
+    if isinstance(retroaction, (float, int)):
         # absolute time
         retval = [_entry for _entry in data
                   if _entry['timestamp'] >= retroaction]

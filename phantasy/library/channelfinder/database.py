@@ -800,7 +800,7 @@ def write_db(data, db_name, overwrite=False, **kwargs):
 
     # elemName, elemType, elemIndex MUST not be None
     conn = sqlite3.connect(db_name)
-    conn.text_factory = str if not use_unicode else unicode
+    conn.text_factory = str if not use_unicode else use_unicode
     cur = conn.cursor()
 
     # insert entries into table 'elements' and table 'pvs',

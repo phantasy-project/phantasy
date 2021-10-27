@@ -23,15 +23,7 @@ from phantasy.library.layout import EQuadElement
 from phantasy.library.layout import EBendElement
 from phantasy.library.layout import SextElement
 
-try:
-    basestring
-except:
-    basestring = str
-
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from io import StringIO
+from io import StringIO
 
 
 def build_settings(latpath, start=None, end=None):
@@ -80,7 +72,7 @@ class SettingsFactory(object):
 
     @latpath.setter
     def latpath(self, latpath):
-        if not isinstance(latpath, basestring):
+        if not isinstance(latpath, str):
             raise TypeError("AccelFactory: 'latpath' property much be type string")
         self._latpath = latpath
 
@@ -90,7 +82,7 @@ class SettingsFactory(object):
 
     @start.setter
     def start(self, start):
-        if (start is not None) and not isinstance(start, basestring):
+        if (start is not None) and not isinstance(start, str):
             raise TypeError("AccelFactory: 'start' property much be type string or None")
         self._start = start
 
@@ -100,14 +92,14 @@ class SettingsFactory(object):
 
     @end.setter
     def end(self, end):
-        if (end is not None) and not isinstance(end, basestring):
+        if (end is not None) and not isinstance(end, str):
             raise TypeError("AccelFactory: 'end' property much be type string or None")
         self._end = end
 
     def build(self):
         """Generate the settings dictionary from the FLAME lattice file."""
         try:
-            if isinstance(self._latpath, basestring):
+            if isinstance(self._latpath, str):
                 # latpath content
                 fp = StringIO(self._latpath)
                 conf = OrderedDict(GLPSParser().parse(fp))

@@ -9,11 +9,6 @@ import numpy as np
 from copy import deepcopy
 from collections import OrderedDict
 
-try:
-    basestring
-except:
-    basestring = str
-
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -24,7 +19,7 @@ class Settings(OrderedDict):
     def __init__(self, settingsPath=None):
         super(Settings, self).__init__()
         # if settingsPath is not None:
-        if isinstance(settingsPath, basestring) and \
+        if isinstance(settingsPath, str) and \
                 os.path.isfile(settingsPath):
             with open(settingsPath, "r") as fp:
                 self.readfp(fp)

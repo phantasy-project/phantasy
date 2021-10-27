@@ -130,7 +130,7 @@ class BaseScanClient(scan.ScanClient):
     def n_sample(self, n):
         if n is None:
             self._n_sample = 1
-        elif isinstance(n, (int, float, long)):
+        elif isinstance(n, (int, float)):
             self._n_sample = int(n)
         else:
             raise TypeError("Input should be an integer.")

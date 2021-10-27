@@ -121,7 +121,7 @@ def main():
         # CFS
         try:
             if args.username == None:
-                args.username = raw_input("Enter username: ")
+                args.username = input("Enter username: ")
 
             if args.password == None:
                 args.password = getpass.getpass("Enter password: ")
@@ -144,3 +144,12 @@ def main():
 
 def _export_to_csv(channels, path):
     write_tb(channels, path, overwrite=True)
+
+def _export_to_sqlite(channels, path):
+    pass
+
+def _export_to_json(channels, path):
+    pass
+
+def _export_to_cfweb(channels, path):
+    pass

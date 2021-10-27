@@ -852,7 +852,7 @@ class VirtualAccelerator(object):
                 # need to convert to degrees for PV.
                 return _normalize_phase(2.0 * fort18[idx, 1] * (180.0 / math.pi))
 
-            for idx in xrange(min(fort18length, fort24length, fort25length)):
+            for idx in range(min(fort18length, fort24length, fort25length)):
 
                 elem = self._elemmap[output_map[idx]]
 
@@ -887,7 +887,7 @@ class VirtualAccelerator(object):
                                     type(elem).__name__)
 
             # Write the default error value to the remaing output PVs.
-            for idx in xrange(min(fort18length, fort24length, fort25length), output_length):
+            for idx in range(min(fort18length, fort24length, fort25length), output_length):
 
                 elem = self._elemmap[output_map[idx]]
 

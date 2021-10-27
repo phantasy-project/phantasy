@@ -154,7 +154,7 @@ def _write_channel_map(accel, lat, channels, stream):
         stream.write(","+p)
     stream.write("\r\n")
 
-    for idx in xrange(len(lat.elements)):
+    for idx in range(len(lat.elements)):
         elem = lat.elements[idx]
         for chan, data, _ in channels:
             if elem.name == data['elemName']:

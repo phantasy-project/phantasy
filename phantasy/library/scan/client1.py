@@ -138,7 +138,7 @@ class ScanClient1D(BaseScanClient):
     def delay(self, t):
         if t is None:
             self._delay = 5.0
-        elif isinstance(t, (int, float, long)):
+        elif isinstance(t, (int, float)):
             self._delay = float(t)
         else:
             raise TypeError("Input should be a float number.")
@@ -153,7 +153,7 @@ class ScanClient1D(BaseScanClient):
     def timeout(self, t):
         if t is None:
             self._timeout = 5.0
-        elif isinstance(t, (int, float, long)):
+        elif isinstance(t, (int, float)):
             self._timeout = float(t)
         else:
             raise TypeError("Input should be a float number.")
@@ -168,7 +168,7 @@ class ScanClient1D(BaseScanClient):
     def tolerance(self, t):
         if t is None:
             self._tolerance = 0.0
-        elif isinstance(t, (int, float, long)):
+        elif isinstance(t, (int, float)):
             self._tolerance = float(t)
         else:
             raise TypeError("Input should be a float number.")
@@ -182,7 +182,7 @@ class ScanClient1D(BaseScanClient):
     def scan_start(self, x):
         if x is None:
             self._scan_start = 0.0
-        elif isinstance(x, (int, float, long)):
+        elif isinstance(x, (int, float)):
             self._scan_start = float(x)
         else:
             raise TypeError("Input should be a float number.")
@@ -200,7 +200,7 @@ class ScanClient1D(BaseScanClient):
     def scan_stop(self, x):
         if x is None:
             self._scan_stop = 1.0
-        elif isinstance(x, (int, float, long)):
+        elif isinstance(x, (int, float)):
             self._scan_stop = float(x)
         else:
             raise TypeError("Input should be a float number.")
@@ -218,7 +218,7 @@ class ScanClient1D(BaseScanClient):
     def scan_step(self, x):
         if x is None:
             self._scan_step = 0.1
-        elif isinstance(x, (int, float, long)):
+        elif isinstance(x, (int, float)):
             self._scan_step = float(x)
         else:
             raise TypeError("Input should be a float number.")
@@ -237,7 +237,7 @@ class ScanClient1D(BaseScanClient):
     def scan_num(self, n):
         if n is None:
             self._scan_num = 10
-        elif isinstance(n, (int, float, long)):
+        elif isinstance(n, (int, float)):
             self._scan_num = int(n)
         else:
             raise TypeError("Input should be an integer.")

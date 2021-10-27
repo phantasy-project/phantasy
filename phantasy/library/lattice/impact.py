@@ -256,7 +256,7 @@ class LatticeFactory(object):
 
     @start.setter
     def start(self, start):
-        if (start != None) and not isinstance(start, basestring):
+        if (start != None) and not isinstance(start, str):
             raise TypeError("LatticeFactory: 'start' property must be type string or None")
         self._start = start
 
@@ -266,7 +266,7 @@ class LatticeFactory(object):
 
     @end.setter
     def end(self, end):
-        if (end != None) and not isinstance(end, basestring):
+        if (end != None) and not isinstance(end, str):
             raise TypeError("LatticeFactory: 'end' property must be type string or None")
         self._end = end
 
@@ -823,7 +823,7 @@ class LatticeFactory(object):
                                position=elem.z-(elem.length/2.0)+(elem.length/steps)-poffset, name=elem.name, etype=elem.ETYPE,
                                fields=[ (elem.fields.field, "T", 5) ])
 
-                for i in xrange(2, steps):
+                for i in range(2, steps):
                     lattice.append(elem.length/steps, 1, mapsteps, 4, angle/steps, field, 500, elem.apertureX/2.0, 0.0, 0.0, 0.0, 0.0, 0.0,
                                    position=elem.z-(elem.length/2.0)+i*(elem.length/steps)-poffset, name=elem.name, etype=elem.ETYPE,
                                    fields=[ (elem.fields.field, "T", 5) ])
@@ -1858,10 +1858,7 @@ class _LatticeRunner(object):
         """
         self.lattice = lattice
 
-        if kwargs.get("config", None) is not None:
-            self.config = kwargs.get("config")
-        else:
-            self.config = config.config
+        self.config = kwargs.get("config")
 
         self.data_dir = kwargs.get("data_dir", None)
         self.work_dir = kwargs.get("work_dir", None)
@@ -1882,7 +1879,7 @@ class _LatticeRunner(object):
 
     @data_dir.setter
     def data_dir(self, data_dir):
-        if (data_dir != None) and not isinstance(data_dir, basestring):
+        if (data_dir != None) and not isinstance(data_dir, str):
             raise TypeError("LatticeRunner: 'data_dir' property much be type string or None")
         self._data_dir = data_dir
 
@@ -1892,7 +1889,7 @@ class _LatticeRunner(object):
 
     @work_dir.setter
     def work_dir(self, work_dir):
-        if (work_dir != None) and not isinstance(work_dir, basestring):
+        if (work_dir != None) and not isinstance(work_dir, str):
             raise TypeError("LatticeRunner: 'work_dir' property much be type string or None")
         self._work_dir = work_dir
 

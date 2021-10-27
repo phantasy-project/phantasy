@@ -36,11 +36,6 @@ __author__ = "Dylan Maxwell"
 
 _LOGGER = logging.getLogger(__name__)
 
-try:
-	basestring
-except:
-	basestring = str
-
 
 def build_settings(accel, latpath, start=None, end=None):
 	"""Convenience method for initialize SettingsFactory and generate settings.
@@ -91,7 +86,7 @@ class SettingsFactory(object):
 
 	@latpath.setter
 	def latpath(self, latpath):
-		if not isinstance(latpath, basestring):
+		if not isinstance(latpath, str):
 			raise TypeError("AccelFactory: 'latpath' property much be type string")
 		self._latpath = latpath
 
@@ -101,7 +96,7 @@ class SettingsFactory(object):
 
 	@start.setter
 	def start(self, start):
-		if (start is not None) and not isinstance(start, basestring):
+		if (start is not None) and not isinstance(start, str):
 			raise TypeError("AccelFactory: 'start' property much be type string or None")
 		self._start = start
 
@@ -111,7 +106,7 @@ class SettingsFactory(object):
 
 	@end.setter
 	def end(self, end):
-		if (end is not None) and not isinstance(end, basestring):
+		if (end is not None) and not isinstance(end, str):
 			raise TypeError("AccelFactory: 'end' property much be type string or None")
 		self._end = end
 

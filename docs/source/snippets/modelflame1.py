@@ -28,7 +28,7 @@ bs = flame_utils.BeamState(machine=m)
 # create ModelFlame object
 fm = flame_utils.ModelFlame()
 # setup machine and state
-fm.mstates, fm.machine = ms, m
+fm.mstates, fm.machine = bs, m
 
 # setup observers and run flame model
 obs = fm.get_index_by_type(type='bpm')['bpm']

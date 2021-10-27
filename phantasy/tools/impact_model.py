@@ -198,7 +198,7 @@ def main():
             csvfile.write("#  i  name   s   energy   codx   cody  rmsx  rmsy  alphax alphay emittancex emittancey emittancez TM\r\n")
             csvfile.write("#           [m]   [eV]     [m]    [m]   [m]   [m]                                                   \r\n")
 
-            for idx in xrange(len(lattice.elements)):
+            for idx in range(len(lattice.elements)):
                 csvfile.write(str(idx))
                 csvfile.write("  ")
                 csvfile.write(lattice.elements[idx].name)
