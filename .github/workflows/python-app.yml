@@ -34,13 +34,16 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Initialize IOC
       run: |
-          python -c "import epics;print(epics.caget('fac'))"
+          sleep 2.0
+          python -c "import epics;print(epics.caput('fac', 0.0))"
+          sleep 2.0
     - name: Test with pytest
       run: |
         python setup.py bdist_wheel
         pip install dist/*.whl --upgrade
-#        cd main/tests
-#        pytest -vs
+        export PHANTASY_CONFIG_DIR=$(python -c 'import phantasy_machines;print(phantasy_machines.__path__[0])')
+        cd ${GITHUB_WORKSPACE}/phantasy/tests
+        make test
     - name: Build documentation
       run: |
         pip install -r requirements-doc.txt
