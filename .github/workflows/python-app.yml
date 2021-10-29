@@ -36,6 +36,7 @@ jobs:
     - name: Build documentation
       run: |
         pip install -r requirements-doc.txt
+        export PHANTASY_CONFIG_DIR=$(python -c 'import phantasy_machines;print(phantasy_machines.__path__[0])')
         cd docs
         make html
         ! [ -e build/html/.nojekyll ] && touch build/html/.nojekyll || [ $? -eq 1 ]
