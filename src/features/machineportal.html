@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Work with MachinePortal &mdash; phantasy 2.1.2 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+    <link rel="shortcut icon" href="../../_static/frib-favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Work with Device" href="device.html" />
+    <link rel="prev" title="Features" href="../features.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> phantasy
+          </a>
+              <div class="version">
+                2.1.2
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deploy.html">Deployment</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tut.html">User Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Features Highlight</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../features.html">Features</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Work with MachinePortal</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#set-up-testing-environment">Set Up Testing Environment</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#install-docker">Install Docker</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#start-ioc-container">Start IOC container</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#physics-high-level-controls">Physics High-level Controls</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="device.html">Work with Device</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../features.html#gui-applications">GUI Applications</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">References</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../apiref.html">API References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../terms.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">phantasy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../features.html">Features</a> &raquo;</li>
+      <li>Work with MachinePortal</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="work-with-machineportal">
+<span id="machine-portal"></span><h1>Work with MachinePortal<a class="headerlink" href="#work-with-machineportal" title="Permalink to this headline"></a></h1>
+<section id="set-up-testing-environment">
+<h2>Set Up Testing Environment<a class="headerlink" href="#set-up-testing-environment" title="Permalink to this headline"></a></h2>
+<section id="install-docker">
+<h3>Install Docker<a class="headerlink" href="#install-docker" title="Permalink to this headline"></a></h3>
+<p>Please ref to <a class="reference external" href="https://docs.docker.com/install/">https://docs.docker.com/install/</a> for all platforms.</p>
+</section>
+<section id="start-ioc-container">
+<h3>Start IOC container<a class="headerlink" href="#start-ioc-container" title="Permalink to this headline"></a></h3>
+<p>Start the test IOC by:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker run -d --name phantasy-ioc tonyzhang/phantasy-ioc:jessie
+</pre></div>
+</div>
+<p>After that, bunch of PVs are alive and ready to control, among which the
+PV named <code class="docutils literal notranslate"><span class="pre">fac</span></code> could be used to control the random noise level,
+set it with <code class="docutils literal notranslate"><span class="pre">0</span></code> (<code class="docutils literal notranslate"><span class="pre">caput</span> <span class="pre">fac</span> <span class="pre">0</span></code>) will totally disable noise, i.e. all
+PVs serve with the constant value (<code class="docutils literal notranslate"><span class="pre">0.1</span></code>).</p>
+</section>
+</section>
+<section id="physics-high-level-controls">
+<h2>Physics High-level Controls<a class="headerlink" href="#physics-high-level-controls" title="Permalink to this headline"></a></h2>
+<p>Instantiate <code class="docutils literal notranslate"><span class="pre">MachinePortal</span></code> class with the machine configuration named
+as <code class="docutils literal notranslate"><span class="pre">FRIB</span></code> and segment named as <code class="docutils literal notranslate"><span class="pre">LEBT</span></code>:</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="go"># import packages and modules</span>
+<span class="gp">In [1]: </span><span class="kn">from</span> <span class="nn">phantasy</span> <span class="kn">import</span> <span class="n">MachinePortal</span>
+
+<span class="go"># create MachinePortal instance</span>
+<span class="gp">In [2]: </span><span class="n">mp</span> <span class="o">=</span> <span class="n">MachinePortal</span><span class="p">(</span><span class="n">machine</span><span class="o">=</span><span class="s1">&#39;FRIB&#39;</span><span class="p">,</span> <span class="n">segment</span><span class="o">=</span><span class="s1">&#39;LEBT&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../features.html" class="btn btn-neutral float-left" title="Features" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="device.html" class="btn btn-neutral float-right" title="Work with Device" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2016, Facility for Rare Isotope Beams, Michigan State University.
+      <span class="lastupdated">Last updated on Oct 29, 2021.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

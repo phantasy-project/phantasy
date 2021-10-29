@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>API References (lattice) &mdash; phantasy 2.1.2 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+    <link rel="shortcut icon" href="../../_static/frib-favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="API References (flame_utils)" href="flame_utils.html" />
+    <link rel="prev" title="API References (operation)" href="operation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> phantasy
+          </a>
+              <div class="version">
+                2.1.2
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deploy.html">Deployment</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tut.html">User Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Features Highlight</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../features.html">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../features.html#gui-applications">GUI Applications</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">References</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../apiref.html">API References</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="operation.html">Operation</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Lattice</a></li>
+<li class="toctree-l2"><a class="reference internal" href="flame_utils.html">FLAME utils</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../terms.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">phantasy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../apiref.html">API References</a> &raquo;</li>
+      <li>API References (lattice)</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="api-references-lattice">
+<h1>API References (lattice)<a class="headerlink" href="#api-references-lattice" title="Permalink to this headline"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="phantasy.CaElement">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">CaElement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kws</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/phantasy/library/lattice/element.html#CaElement"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#phantasy.CaElement" title="Permalink to this definition"></a></dt>
+<dd><p>Element with Channel Access support.</p>
+<p>This class could be used to create an element with data from Channel Finder Service
+or input keyword parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>enable</strong> (<em>True</em><em> or </em><em>False</em>) – Element is enabled or not, <code class="docutils literal notranslate"><span class="pre">True</span></code> is controllable, default is True.</p>
+</dd>
+<dt class="field-even">Keyword Arguments</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Element name.</p></li>
+<li><p><strong>family</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Element type.</p></li>
+<li><p><strong>index</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – Element index, default sort key, otherwise, <code class="docutils literal notranslate"><span class="pre">sb</span></code> is used as sort key.</p></li>
+<li><p><strong>length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Effective element length.</p></li>
+<li><p><strong>sb</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Longitudinal position at the beginning point, unit: <em>m</em>.</p></li>
+<li><p><strong>se</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Longitudinal position at the end point, unit: <em>m</em>.</p></li>
+<li><p><strong>virtual</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – pass</p></li>
+<li><p><strong>tags</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a>) – Tags for each PV as key name and set of strings as tag names.</p></li>
+<li><p><strong>fields</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a>) – pass</p></li>
+<li><p><strong>enable</strong> (<a class="reference external" href="https://docs.python.org/3/library/constants.html#True" title="(in Python v3.10)"><em>True</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#False" title="(in Python v3.10)"><em>False</em></a>) – Element is enabled or not, <code class="docutils literal notranslate"><span class="pre">True</span></code> is controllable, default is True.</p></li>
+<li><p><strong>pv_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a>) – PV record data to build an element, should be of a list of:
+<code class="docutils literal notranslate"><span class="pre">string</span> <span class="pre">of</span> <span class="pre">PV</span> <span class="pre">name,</span> <span class="pre">dict</span> <span class="pre">of</span> <span class="pre">properties,</span> <span class="pre">list</span> <span class="pre">of</span> <span class="pre">tags</span></code>, or
+with dict of keys of: <code class="docutils literal notranslate"><span class="pre">pv_name</span></code>, <code class="docutils literal notranslate"><span class="pre">pv_props</span></code> and <code class="docutils literal notranslate"><span class="pre">pv_tags</span></code>.</p></li>
+<li><p><strong>auto_monitor</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – If set True, initialize all channels auto subscribe, default is False.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If <em>pv_data</em> is defined, element will be initialized with data from
+<em>pv_data</em>, if <em>pv_data</em> is CFS formatted, <code class="docutils literal notranslate"><span class="pre">simplify_data</span></code> should be used
+first to convert data structure.</p>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><code class="xref py py-func docutils literal notranslate"><span class="pre">simplify_data()</span></code></dt><dd><p>Convert CFS formatted data into simple tuple.</p>
+</dd>
+<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">phantasy.library.pv.datasource.DataSource</span></code></dt><dd><p>PV data source.</p>
+</dd>
+</dl>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="phantasy.CaElement.convert">
+<span class="sig-name descname"><span class="pre">convert</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">from_field</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/phantasy/library/lattice/element.html#CaElement.convert"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#phantasy.CaElement.convert" title="Permalink to this definition"></a></dt>
+<dd><p>Interpret the <em>value</em> of <em>from_field</em> of element to the value of <em>to_field</em>,
+if <em>to_field</em> is not defined, choose the first out of all candidators (sorted).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Value of field, no necessary be the current online reading.</p></li>
+<li><p><strong>from_field</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Field name of element, which the paramter <em>value</em> stands for.</p></li>
+<li><p><strong>to_field</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Field name of element.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>r</strong> – Value Interpreted in another unit, from physics engineering or
+from engineering to physics, depends on the field type.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)">float</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">mp</span> <span class="o">=</span> <span class="n">MachinePortal</span><span class="p">(</span><span class="s2">&quot;FRIB&quot;</span><span class="p">,</span> <span class="s2">&quot;MEBT&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">quad</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">get_elements</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;QUAD&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;*D1078*&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># convert I = 100 A, to gradient 15.177 T/m</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">quad</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">from_field</span><span class="o">=</span><span class="s1">&#39;I&#39;</span><span class="p">)</span>
+<span class="go">15.17734389601</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">quad</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">from_field</span><span class="o">=</span><span class="s1">&#39;B2&#39;</span><span class="p">)</span>
+<span class="go">98.7534891752199</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="phantasy.CaElement.current_setting">
+<span class="sig-name descname"><span class="pre">current_setting</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">field</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/phantasy/library/lattice/element.html#CaElement.current_setting"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#phantasy.CaElement.current_setting" title="Permalink to this definition"></a></dt>
+<dd><p>Return the value of current setting (setpoint) for dynamic field
+defined by <em>field</em>, if setpoint PV is not available, return None.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>field</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Name of valid dynamic field.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Field current setting or None.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>r</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#phantasy.CaElement.get_settings" title="phantasy.CaElement.get_settings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_settings</span></code></a></dt><dd><p>Get field setpoint value from given setpoint pv values.</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="phantasy.CaElement.design_settings">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">design_settings</span></span><a class="headerlink" href="#phantasy.CaElement.design_settings" title="Permalink to this definition"></a></dt>
+<dd><p>Physics design setting(s) for all dynamic field(s).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="phantasy.CaElement.ensure_put">
+<span class="sig-name descname"><span class="pre">ensure_put</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">field</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">goal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/phantasy/library/lattice/element.html#CaElement.ensure_put"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#phantasy.CaElement.ensure_put" title="Permalink to this definition"></a></dt>
+<dd><p>Ensure set the <em>field</em> of element to <em>goal</em> within the
+discrepancy tolerance of <em>tol</em>, within the max <em>timeout</em> secs.
+If field is invalid, return None.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>field</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Dynamic field name of element.</p></li>
+<li><p><strong>goal</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – The final value that the field of element would like to reach.</p></li>
+<li><p><strong>tol</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Tolerance for discrepancy between current readback
+value and the set goal, default is 0.01.</p></li>
+<li><p><strong>timeout</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Maximum wait time, default is 10.0 sec.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>r</strong> – Returns what <cite>ensure_put</cite> returns, or None.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)">str</a></p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><code class="xref py py-func docutils literal notranslate"><span class="pre">ensure_put()</span></code></p>
+</div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="phantasy.CaElement.fields">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">fields</span></span><a class="headerlink" href="#phantasy.CaElement.fields" title="Permalink to this definition"></a></dt>
+<dd><p>Valid Channel Access field names.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><em>fields</em> can only accept dict, with CA field name as key and <code class="docutils literal notranslate"><span class="pre">CaField</span></code> as value.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)">list</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="phantasy.CaElement.get_current_settings">
+<span class="sig-name descname"><span class="pre">get_current_settings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">field_of_interest</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_physics</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/phantasy/library/lattice/element.html#CaElement.get_current_settings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#phantasy.CaElement.get_current_settings" title="Permalink to this definition"></a></dt>
+<dd><p>Get current setpoint readings of interested dynamic fields.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>field_of_interest</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a>) – Interested physics field names, if not defined, use all valid ones.</p></li>
+<li><p><strong>only_physics</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – If <cite>True</cite>, only return physics settings otherwise return both
+physics and engineering field settings.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>s</strong> – Settings of interested physics fields.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Settings</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="phantasy.CaElement.get_eng_fields">
+<span class="sig-name descname"><span class="pre">get_eng_fields</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/phantasy/library/lattice/element.html#CaElement.get_eng_fields"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#phantasy.CaElement.get_eng_fields" title="Permalink to this definition"></a></dt>
+<dd><p>Return list of all engineering fields.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="phantasy.CaElement.get_field">
+<span class="sig-name descname"><span class="pre">get_field</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">field</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/phantasy/library/lattice/element.html#CaElement.get_field"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#phantasy.CaElement.get_field" title="Permalink to this definition"></a></dt>
+<dd><p>Get element field of CA support.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>field</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Field name.</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>All valid field names could be retrieved by <code class="docutils literal notranslate"><span class="pre">fields</span></code> attribute.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>CaField or None.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>ret</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="phantasy.CaElement.get_focusing_polarity">
+<span class="sig-name descname"><span class="pre">get_focusing_polarity</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/phantasy/library/lattice/element.html#CaElement.get_focusing_polarity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#phantasy.CaElement.get_focusing_polarity" title="Permalink to this definition"></a></dt>
+<dd><p>Only work with QUAD.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="phantasy.CaElement.get_phy_fields">
+<span class="sig-name descname"><span class="pre">get_phy_fields</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/phantasy/library/lattice/element.html#CaElement.get_phy_fields"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#phantasy.CaElement.get_phy_fields" title="Permalink to this definition"></a></dt>
+<dd><p>Return list of all physics fields.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If returned list is empty, but <cite>get_eng_fields</cite> is not, then physics
+fields should be the same as engineering fields, but only appeared as
+ENG field type.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="phantasy.CaElement.get_settings">
+<span class="sig-name descname"><span class="pre">get_settings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">field</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kws</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/phantasy/library/lattice/element.html#CaElement.get_settings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#phantasy.CaElement.get_settings" title="Permalink to this definition"></a></dt>
+<dd><p>Get the <em>field</em> value from <em>settings</em>, set / read defined by <em>handle</em>
+keyword argument.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>field</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Dynamic field name of element.</p></li>
+<li><p><strong>settings</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a>) – Key-value pairs of setpoint PV name and value.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Keyword Arguments</dt>
+<dd class="field-even"><p><strong>handle</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – PV handle, ‘readback’, ‘readset’ or ‘setpoint’ (default).</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>r</strong> – Setting value of defined dynamic field, or None.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)">float</a></p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#phantasy.CaElement.current_setting" title="phantasy.CaElement.current_setting"><code class="xref py py-obj docutils literal notranslate"><span class="pre">current_setting</span></code></a></dt><dd><p>Get current field setting.</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="phantasy.CaElement.last_settings">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">last_settings</span></span><a class="headerlink" href="#phantasy.CaElement.last_settings" title="Permalink to this definition"></a></dt>
+<dd><p>Last setting(s) for all dynamic field(s).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="phantasy.CaElement.process_pv">
+<span class="sig-name descname"><span class="pre">process_pv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pv_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pv_props</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pv_tags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u_policy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">polarity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alignment_series</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kws</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/phantasy/library/lattice/element.html#CaElement.process_pv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#phantasy.CaElement.process_pv" title="Permalink to this definition"></a></dt>
+<dd><p>Process PV record to update element with properties and tags.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pv_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – PV name.</p></li>
+<li><p><strong>pv_props</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a>) – PV properties, key-value pairs.</p></li>
+<li><p><strong>pv_tags</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a>) – PV tag list.</p></li>
+<li><p><strong>u_policy</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a>) – Dict of unit conversion policies.</p></li>
+<li><p><strong>polarity</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – Device polarity, -1 or 1.</p></li>
+<li><p><strong>alignment_series</strong> (<em>Series</em>) – A series of alignment data, dx,dy,dz,pitch,roll,yaw.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Keyword Arguments</dt>
+<dd class="field-even"><p><strong>auto_monitor</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – If set True, initialize all channels auto subscribe, default is False.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="phantasy.CaElement.pv">
+<span class="sig-name descname"><span class="pre">pv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">handle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kws</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/phantasy/library/lattice/element.html#CaElement.pv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#phantasy.CaElement.pv" title="Permalink to this definition"></a></dt>
+<dd><p>Get PV names with defined <em>field</em> and <em>handle</em>, if none of them is defined,
+return all PV names.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>field</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a>) – Channel access field name, all available fields will be used
+if not defined, ignore invalid field.</p></li>
+<li><p><strong>handle</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Channel access protocol type, could be one of <em>readback</em>, <em>readset</em>
+and <em>setpoint</em>.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ol class="arabic simple">
+<li><p>All Valid field names could be retrieved by <code class="docutils literal notranslate"><span class="pre">fields</span></code> attribute.</p></li>
+<li><p>If more than one field is defined with <em>field</em>, i.e. <em>field</em> is a list
+of string, return PV names binding with these fields, may apply <em>handle</em>
+as a filter, e.g. if <em>handle</em> is not defined, return all PVs.</p></li>
+</ol>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>ret</strong> – List of valid PVs as request.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)">list</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="phantasy.CaElement.set_field">
+<span class="sig-name descname"><span class="pre">set_field</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">field</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">handle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kws</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/phantasy/library/lattice/element.html#CaElement.set_field"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#phantasy.CaElement.set_field" title="Permalink to this definition"></a></dt>
+<dd><p>Set element field with CA support, i.e. dynamic field.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>field</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Field name.</p></li>
+<li><p><strong>pv</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Valid PV name.</p></li>
+<li><p><strong>handle</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – PV channel type, valid options: <code class="docutils literal notranslate"><span class="pre">readback</span></code>, <code class="docutils literal notranslate"><span class="pre">readset</span></code>,
+<code class="docutils literal notranslate"><span class="pre">setpoint</span></code>, default is <code class="docutils literal notranslate"><span class="pre">readback</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Keyword Arguments</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>pv_policy</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a>) – Name of PV read/write policy, keys: ‘read’ and ‘write’, values:
+scaling law function object.</p></li>
+<li><p><strong>ftype</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Field type, ‘ENG’ (default) or ‘PHY’.</p></li>
+<li><p><strong>auto_monitor</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – If set True, initialize all channels auto subscribe, default is False.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="phantasy.CaElement.tags">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">tags</span></span><a class="headerlink" href="#phantasy.CaElement.tags" title="Permalink to this definition"></a></dt>
+<dd><p>Tags that element PVs have been assigned.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="phantasy.CaElement.update_groups">
+<span class="sig-name descname"><span class="pre">update_groups</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">props</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kws</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/phantasy/library/lattice/element.html#CaElement.update_groups"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#phantasy.CaElement.update_groups" title="Permalink to this definition"></a></dt>
+<dd><p>Update new group with <em>family</em> name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>props</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a>) – Element properties.</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#phantasy.CaElement.update_properties" title="phantasy.CaElement.update_properties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_properties</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="phantasy.CaElement.update_properties">
+<span class="sig-name descname"><span class="pre">update_properties</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">props</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kws</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/phantasy/library/lattice/element.html#CaElement.update_properties"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#phantasy.CaElement.update_properties" title="Permalink to this definition"></a></dt>
+<dd><p>Update element properties.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>props</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a>) – <p>Dictionary of properties, two categories:</p>
+<ul class="simple">
+<li><p>static properties: without CA features:
+<em>name</em>, <em>family</em>, <em>index</em>, <em>se</em>, <em>sb</em> (optional), <em>length</em></p></li>
+<li><p>dynamic properties: with CA features:
+<em>handle</em>, <em>field</em></p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-even">Keyword Arguments</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>pv</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Valid PV name.</p></li>
+<li><p><strong>auto_monitor</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – If set True, initialize all channels auto subscribe, default is False.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="phantasy.CaElement.update_tags">
+<span class="sig-name descname"><span class="pre">update_tags</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tags</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kws</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/phantasy/library/lattice/element.html#CaElement.update_tags"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#phantasy.CaElement.update_tags" title="Permalink to this definition"></a></dt>
+<dd><p>Update element tags.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>tags</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a>) – List of tags.</p>
+</dd>
+<dt class="field-even">Keyword Arguments</dt>
+<dd class="field-even"><p><strong>pv</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Valid PV name.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="phantasy.CaElement.virtual">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">virtual</span></span><a class="headerlink" href="#phantasy.CaElement.virtual" title="Permalink to this definition"></a></dt>
+<dd><p>Virtual element or not.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="phantasy.CaField">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">CaField</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kws</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/phantasy/library/lattice/element.html#CaField"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#phantasy.CaField" title="Permalink to this definition"></a></dt>
+<dd><p>Channel Access support for element field.</p>
+<p>Usually, <code class="docutils literal notranslate"><span class="pre">CaField</span></code> instance has at most three types of PV names:
+<em>readback</em>, <em>readset</em> and <em>setpoint</em>, each PV should linked with valid
+PV connections.</p>
+<p>There are two approaches to retrieve the PV values, one is through
+<code class="docutils literal notranslate"><span class="pre">value</span></code> attribute, another one is by explicitly calling <code class="docutils literal notranslate"><span class="pre">get()</span></code>;</p>
+<p>The same rule applies to set values, i.e. by setting <code class="docutils literal notranslate"><span class="pre">value</span></code> attribute
+and by calling <code class="docutils literal notranslate"><span class="pre">put()</span></code> method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Name of CA field, usually represents the physics attribute linked with CA.</p>
+</dd>
+<dt class="field-even">Keyword Arguments</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>wait</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – Wait or not (True/False) when issuing set command, which is attached
+to one of ‘caput’ keyword arguments, default: False.</p></li>
+<li><p><strong>timeout</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Time out in second for put operation (see wait), default is 10 seconds.</p></li>
+<li><p><strong>ensure_put</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – Apply ensure set operation or not, default is False, see the notes.</p></li>
+<li><p><strong>tolerance</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Absolute discrepancy tolerance between current readback value
+and the set goal, default is 0.01.</p></li>
+<li><p><strong>ename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Name of element which the field attaches to.</p></li>
+<li><p><strong>readback</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a><em>(</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>)</em>) – Readback PV name(s), if a single string is defined, append operation
+will be issued, if list or tuple of strings is defined, <em>readback</em>
+attribute will be overwritten with the new list, the same rule applies
+to <em>readset</em> and <em>setpoint</em>, as well as <em>readback_pv</em>, <em>readset_pv</em> and
+<em>setpoint_pv</em>.</p></li>
+<li><p><strong>readset</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a><em>(</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>)</em>) – Readset PV name(s).</p></li>
+<li><p><strong>setpoint</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a><em>(</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>)</em>) – Setpoint PV name(s).</p></li>
+<li><p><strong>pv_policy</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a>) – Name of PV read/write policy, keys: ‘read’ and ‘write’, values:
+scaling law function object.</p></li>
+<li><p><strong>polarity</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – Device polarity, -1 or 1.</p></li>
+<li><p><strong>ftype</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Field type, ‘ENG’ (default) or ‘PHY’.</p></li>
+<li><p><strong>auto_monitor</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – If set True, initialize all channels auto subscribe, default is False.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>About <cite>ensure_put</cite> option: If this argument is set True, the set or put
+action to the field value will be ensured to reach the goal, since
+CA put wait action sometimes is not that working as the user expected. To
+make use of this feature, simply set <cite>field.ensure_put = True</cite>, then
+do <cite>field.value = x</cite>, the program will be blocked until <cite>field.value</cite>
+reaches <cite>x</cite>, here assumed <cite>field</cite> is the instance of <cite>CaField</cite> class.</p>
+</div>
+<dl class="py property">
+<dt class="sig sig-object py" id="phantasy.CaField.access">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">access</span></span><a class="headerlink" href="#phantasy.CaField.access" title="Permalink to this definition"></a></dt>
+<dd><p>(read_access, write_access), access permission of field.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.10)">tuple</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="phantasy.CaField.add_callback">
+<span class="sig-name descname"><span class="pre">add_callback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">callback</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/phantasy/library/lattice/element.html#CaField.add_callback"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#phantasy.CaField.add_callback" title="Permalink to this definition"></a></dt>
+<dd><p>Add callback to CaField.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="phantasy.CaField.connected">
+<span class="sig-name descname"><span class="pre">connected</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">handle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'readback'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/phantasy/library/lattice/element.html#CaField.connected"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#phantasy.CaField.connected" title="Permalink to this definition"></a></dt>
+<dd><p>Check if the <em>handle</em> is connected.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="phantasy.CaField.current_setting">
+<span class="sig-name descname"><span class="pre">current_setting</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/phantasy/library/lattice/element.html#CaField.current_setting"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#phantasy.CaField.current_setting" title="Permalink to this definition"></a></dt>
+<dd><p>Return current setpoint value.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#phantasy.CaField.value" title="phantasy.CaField.value"><code class="xref py py-obj docutils literal notranslate"><span class="pre">value</span></code></a></dt><dd><p>get current readback value.</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="phantasy.CaField.ename">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">ename</span></span><a class="headerlink" href="#phantasy.CaField.ename" title="Permalink to this definition"></a></dt>
+<dd><p>Name of element the field attaches to.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="phantasy.CaField.ensure_put">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">ensure_put</span></span><a class="headerlink" href="#phantasy.CaField.ensure_put" title="Permalink to this definition"></a></dt>
+<dd><p>Apply ensure set operation or not, default is False.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>boolean</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="phantasy.CaField.get">
+<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">handle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'readback'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_sample</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_timestamp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ts_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'raw'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_raw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kws</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/phantasy/library/lattice/element.html#CaField.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#phantasy.CaField.get" title="Permalink to this definition"></a></dt>
+<dd><p>Get value of PV with specified <em>handle</em>, if argument <em>n_sample</em> is
+larger than 1, statistical result with averaged value and standard
+deviation will be returned; the sample rate depends on the device
+scan rate. If <em>timeout</em> is defined, DAQ will be inactivated after
+<em>timeout</em> second. If PV is attached with a list pvs, the returned
+values are arrays, e.g. EQUAD usually has two power supply PVs to
+control one field.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>For the case of devices that generate constant readings, if <em>n_sample</em>
+is larger than 1, set <em>timeout</em> parameter with a reasonable value is
+required, or this method will hang up your program.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>handle</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – PV handle, ‘readback’, ‘readset’ or ‘setpoint’.</p></li>
+<li><p><strong>n_sample</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – Sample number, total DAQ count.</p></li>
+<li><p><strong>timeout</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Timeout in second for the whole DAQ process, set <cite>None</cite> to wait
+forever.</p></li>
+<li><p><strong>with_timestamp</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – If <cite>True</cite>, return timestamp, default value is <cite>False</cite>.</p></li>
+<li><p><strong>ts_format</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Format for timestamp, valid options: <cite>raw</cite>, <cite>epoch</cite> and <cite>human</cite>.</p></li>
+<li><p><strong>keep_raw</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – If <cite>True</cite>, return raw read data as well.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>r</strong> – Valid keys: ‘mean’, ‘std’, ‘timestamp’, ‘data’, the values are
+the average of all shots, the standard deviation of all shots,
+the timestamp of the first shot, and all the aquired data array.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)">dict</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Get CA field instance from element:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">phantasy</span> <span class="kn">import</span> <span class="n">MachinePortal</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mp</span> <span class="o">=</span> <span class="n">MachinePortal</span><span class="p">(</span><span class="n">machine</span><span class="o">=</span><span class="s1">&#39;&lt;mach_name&gt;&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lat</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">work_lattice_conf</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">elem</span> <span class="o">=</span> <span class="n">lat</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">elem</span><span class="o">.</span><span class="n">fields</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fld</span> <span class="o">=</span> <span class="n">elem</span><span class="o">.</span><span class="n">get_field</span><span class="p">(</span><span class="s1">&#39;&lt;field_name&gt;&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Get readings from PVs with ‘readback’ handle</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">fld</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;readback&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Get readings from PVs with ‘setpoint’ handle</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">fld</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;setpoint&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Get readings from PVs with ‘readset’ handle</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">fld</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;readset&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Get readings with timestamp</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fld</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;readback&#39;</span><span class="p">,</span> <span class="n">with_timestamp</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Define the style of timestamp</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fld</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;readback&#39;</span><span class="p">,</span> <span class="n">with_timestamp</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ts_format</span><span class="o">=</span><span class="s1">&#39;human&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Get statistical readings, and keep all the raw data</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fld</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;readback&#39;</span><span class="p">,</span> <span class="n">n_sample</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">with_timestamp</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="go">            ts_format=&quot;epoch&quot;, keep_raw=True)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="phantasy.CaField.get_auto_monitor">
+<span class="sig-name descname"><span class="pre">get_auto_monitor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">handle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'readback'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/phantasy/library/lattice/element.html#CaField.get_auto_monitor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#phantasy.CaField.get_auto_monitor" title="Permalink to this definition"></a></dt>
+<dd><p>Get auto_monitor bit for the given PV type.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="phantasy.CaField.init_pvs">
+<span class="sig-name descname"><span class="pre">init_pvs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kws</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/phantasy/library/lattice/element.html#CaField.init_pvs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#phantasy.CaField.init_pvs" title="Permalink to this definition"></a></dt>
+<dd><p>PV initialization.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="phantasy.CaField.is_engineering_field">
+<span class="sig-name descname"><span class="pre">is_engineering_field</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/phantasy/library/lattice/element.html#CaField.is_engineering_field"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#phantasy.CaField.is_engineering_field" title="Permalink to this definition"></a></dt>
+<dd><p>Test if <em>field</em> is engineering field.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="phantasy.CaField.is_physics_field">
+<span class="sig-name descname"><span class="pre">is_physics_field</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/phantasy/library/lattice/element.html#CaField.is_physics_field"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#phantasy.CaField.is_physics_field" title="Permalink to this definition"></a></dt>
+<dd><p>Test if <em>field</em> is physics field.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="phantasy.CaField.name">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#phantasy.CaField.name" title="Permalink to this definition"></a></dt>
+<dd><p>Field name, empty string if not given.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="phantasy.CaField.polarity">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">polarity</span></span><a class="headerlink" href="#phantasy.CaField.polarity" title="Permalink to this definition"></a></dt>
+<dd><p>Device polarity, trend response of the physics field (+/-1) w.r.t. input current (+).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="phantasy.CaField.pvs">
+<span class="sig-name descname"><span class="pre">pvs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/phantasy/library/lattice/element.html#CaField.pvs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#phantasy.CaField.pvs" title="Permalink to this definition"></a></dt>
+<dd><p>Return dict of valid pv type and names.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="phantasy.CaField.read_access">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">read_access</span></span><a class="headerlink" href="#phantasy.CaField.read_access" title="Permalink to this definition"></a></dt>
+<dd><p>If field readable.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="phantasy.CaField.read_policy">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">read_policy</span></span><a class="headerlink" href="#phantasy.CaField.read_policy" title="Permalink to this definition"></a></dt>
+<dd><p>Defined read policy, i.e. how to read value from field.</p>
+<p>The defined policy is a function, with <em>readback_pv</em> attribute as the
+argument, return a value.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="phantasy.CaField.readback">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">readback</span></span><a class="headerlink" href="#phantasy.CaField.readback" title="Permalink to this definition"></a></dt>
+<dd><p>Readback PV name, usually ends with <em>_RD</em>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)">str</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="phantasy.CaField.readback_pv">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">readback_pv</span></span><a class="headerlink" href="#phantasy.CaField.readback_pv" title="Permalink to this definition"></a></dt>
+<dd><p>Readback PV object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>PV</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="phantasy.CaField.readset">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">readset</span></span><a class="headerlink" href="#phantasy.CaField.readset" title="Permalink to this definition"></a></dt>
+<dd><p>Readset PV name, usually ends with <em>_RSET</em>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)">str</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="phantasy.CaField.readset_pv">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">readset_pv</span></span><a class="headerlink" href="#phantasy.CaField.readset_pv" title="Permalink to this definition"></a></dt>
+<dd><p>Readset PV object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>PV</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="phantasy.CaField.reset_policy">
+<span class="sig-name descname"><span class="pre">reset_policy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">policy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/phantasy/library/lattice/element.html#CaField.reset_policy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#phantasy.CaField.reset_policy" title="Permalink to this definition"></a></dt>
+<dd><p>Reset policy, by policy name (‘read’ or ‘write’), if not defined,
+reset both.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="phantasy.CaField.set">
+<span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">handle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'setpoint'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kws</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/phantasy/library/lattice/element.html#CaField.set"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#phantasy.CaField.set" title="Permalink to this definition"></a></dt>
+<dd><p>Set value(s) of PV(s) with specified <em>handle</em>, accept all <em>caput</em>
+keyword arguments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a><em>(</em><em>val</em><em>)</em>) – New value(s) to be set.</p></li>
+<li><p><strong>handle</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – PV handle, ‘readback’, ‘readset’ or ‘setpoint’.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Get CA field instance, see <cite>get()</cite>, set one field of an element
+which has two ‘setpoint’ PVs, e.g. quad:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fld</span><span class="o">.</span><span class="n">set</span><span class="p">([</span><span class="n">val1</span><span class="p">,</span> <span class="n">val2</span><span class="p">],</span> <span class="s1">&#39;setpoint&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Check with get:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fld</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;setpoint&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># should return [val1, val2]</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">get()</span></code> and <code class="docutils literal notranslate"><span class="pre">set()</span></code> are a pair of methods that can read/write PV(s)
+bypass field defined read/write policies.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="phantasy.CaField.set_am">
+<span class="sig-name descname"><span class="pre">set_am</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/phantasy/library/lattice/element.html#CaField.set_am"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#phantasy.CaField.set_am" title="Permalink to this definition"></a></dt>
+<dd><p>Set am to all pvs.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="phantasy.CaField.set_auto_monitor">
+<span class="sig-name descname"><span class="pre">set_auto_monitor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">auto_monitor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">handle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'readback'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/phantasy/library/lattice/element.html#CaField.set_auto_monitor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#phantasy.CaField.set_auto_monitor" title="Permalink to this definition"></a></dt>
+<dd><p>Set auto_monitor bit True or False for the given PV type.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="phantasy.CaField.setpoint">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">setpoint</span></span><a class="headerlink" href="#phantasy.CaField.setpoint" title="Permalink to this definition"></a></dt>
+<dd><p>Setpoint PV name, usually ends with <em>_CSET</em>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)">str</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="phantasy.CaField.setpoint_pv">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">setpoint_pv</span></span><a class="headerlink" href="#phantasy.CaField.setpoint_pv" title="Permalink to this definition"></a></dt>
+<dd><p>Setpoint PV object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>PV</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="phantasy.CaField.timeout">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">timeout</span></span><a class="headerlink" href="#phantasy.CaField.timeout" title="Permalink to this definition"></a></dt>
+<dd><p>10 [sec].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)">float</a></p>
+</dd>
+<dt class="field-even">Type</dt>
+<dd class="field-even"><p>Time out in second for put operation, default</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="phantasy.CaField.tolerance">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">tolerance</span></span><a class="headerlink" href="#phantasy.CaField.tolerance" title="Permalink to this definition"></a></dt>
+<dd><p>Absolute discrepancy tolerance between current readback value
+and the set goal, default is 0.01.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="phantasy.CaField.unset_am">
+<span class="sig-name descname"><span class="pre">unset_am</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/phantasy/library/lattice/element.html#CaField.unset_am"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#phantasy.CaField.unset_am" title="Permalink to this definition"></a></dt>
+<dd><p>Unset am to all pvs.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="phantasy.CaField.update_pv">
+<span class="sig-name descname"><span class="pre">update_pv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kws</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/phantasy/library/lattice/element.html#CaField.update_pv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#phantasy.CaField.update_pv" title="Permalink to this definition"></a></dt>
+<dd><p>Update PV with defined handle.</p>
+<p>readback : str
+setpoint : str
+readset : str</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="phantasy.CaField.value">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">value</span></span><a class="headerlink" href="#phantasy.CaField.value" title="Permalink to this definition"></a></dt>
+<dd><p>Get the current readback value from readback PVs, intepret with
+read policy as the final field value as a return.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="phantasy.CaField.wait">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">wait</span></span><a class="headerlink" href="#phantasy.CaField.wait" title="Permalink to this definition"></a></dt>
+<dd><p>Wait or not (True/False) when issuing set command, which
+is attached to one of ‘caput’ keyword arguments, default: False.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>boolean</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="phantasy.CaField.write_access">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">write_access</span></span><a class="headerlink" href="#phantasy.CaField.write_access" title="Permalink to this definition"></a></dt>
+<dd><p>If field writable.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="phantasy.CaField.write_policy">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">write_policy</span></span><a class="headerlink" href="#phantasy.CaField.write_policy" title="Permalink to this definition"></a></dt>
+<dd><p>Defined write policy, i.e. how to set value to field.</p>
+<p>The defined policy is a function, with <em>setpoint_pv</em> attribute and new
+value as arguments.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="operation.html" class="btn btn-neutral float-left" title="API References (operation)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="flame_utils.html" class="btn btn-neutral float-right" title="API References (flame_utils)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2016, Facility for Rare Isotope Beams, Michigan State University.
+      <span class="lastupdated">Last updated on Oct 29, 2021.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Work with Device &mdash; phantasy 2.1.2 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+    <link rel="shortcut icon" href="../../_static/frib-favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="API References" href="../apiref.html" />
+    <link rel="prev" title="Work with MachinePortal" href="machineportal.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> phantasy
+          </a>
+              <div class="version">
+                2.1.2
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deploy.html">Deployment</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tut.html">User Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Features Highlight</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../features.html">Features</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="machineportal.html">Work with MachinePortal</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Work with Device</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#locate-device">Locate Device</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#inspect-device">Inspect Device</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../features.html#gui-applications">GUI Applications</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">References</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../apiref.html">API References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../terms.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">phantasy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../features.html">Features</a> &raquo;</li>
+      <li>Work with Device</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="work-with-device">
+<h1>Work with Device<a class="headerlink" href="#work-with-device" title="Permalink to this headline"></a></h1>
+<p>This note demonstrates how to get work with the device, the device
+usually can be reached by accessing the abstracted Python object,
+specifically, the instance of <a class="reference internal" href="../apidocs/lattice.html#phantasy.CaElement" title="phantasy.CaElement"><code class="xref py py-class docutils literal notranslate"><span class="pre">CaElement</span></code></a>, in which
+fundamental APIs are created to make the device operation easy and
+functional.</p>
+<p>Assuming the following <a class="reference internal" href="../apidocs/operation.html#phantasy.MachinePortal" title="phantasy.MachinePortal"><code class="xref py py-class docutils literal notranslate"><span class="pre">MachinePortal</span></code></a> instance <cite>mp</cite>
+has already been created, otherwise please see <a class="reference internal" href="machineportal.html#machine-portal"><span class="std std-ref">Work with MachinePortal</span></a>.</p>
+<p>The generic device operation procedure is:</p>
+<ol class="arabic simple">
+<li><p>Locate the interested device(s) or element(s);</p></li>
+<li><p>Control the device(s) by calling methods or accessing attributes;</p></li>
+<li><p>Post-processing the for other consumers.</p></li>
+</ol>
+<section id="locate-device">
+<h2>Locate Device<a class="headerlink" href="#locate-device" title="Permalink to this headline"></a></h2>
+<p>Just as the name implies, <cite>mp</cite> is the entry to all the configurations of
+the loaded machine, the following snippet shows how can we locate the
+interested device(s). All valid device types can be known by
+<a class="reference internal" href="../apidocs/operation.html#phantasy.MachinePortal.get_all_types" title="phantasy.MachinePortal.get_all_types"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_all_types()</span></code></a>:</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [1]: </span><span class="kn">from</span> <span class="nn">phantasy</span> <span class="kn">import</span> <span class="n">MachinePortal</span>
+
+<span class="gp">In [2]: </span><span class="n">mp</span> <span class="o">=</span> <span class="n">MachinePortal</span><span class="p">(</span><span class="n">machine</span><span class="o">=</span><span class="s2">&quot;FRIB&quot;</span><span class="p">,</span> <span class="n">segment</span><span class="o">=</span><span class="s2">&quot;LEBT&quot;</span><span class="p">)</span>
+
+<span class="gp">In [3]: </span><span class="n">mp</span><span class="o">.</span><span class="n">get_all_types</span><span class="p">()</span>
+<span class="gh">Out[3]: </span><span class="go"></span>
+<span class="go">[&#39;SOL&#39;,</span>
+<span class="go"> &#39;VCOR&#39;,</span>
+<span class="go"> &#39;HCOR&#39;,</span>
+<span class="go"> &#39;BEND&#39;,</span>
+<span class="go"> &#39;EQUAD&#39;,</span>
+<span class="go"> &#39;SLT&#39;,</span>
+<span class="go"> &#39;FC&#39;,</span>
+<span class="go"> &#39;EMS&#39;,</span>
+<span class="go"> &#39;PM&#39;,</span>
+<span class="go"> &#39;EBEND&#39;,</span>
+<span class="go"> &#39;CAV&#39;,</span>
+<span class="go"> &#39;BCM&#39;]</span>
+</pre></div>
+</div>
+<p>The method <a class="reference internal" href="../apidocs/operation.html#phantasy.MachinePortal.get_elements" title="phantasy.MachinePortal.get_elements"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_elements()</span></code></a> is created for
+the general purpose of element searching, e.g. all the solenoid could be
+located by passing the <code class="docutils literal notranslate"><span class="pre">type</span></code> parameter with the value of <code class="docutils literal notranslate"><span class="pre">SOL</span></code> (
+which is one member of the list returned from <cite>get_all_types()</cite> method),
+the returned result is a list, so if the first one is wanted, simply
+referring by <code class="docutils literal notranslate"><span class="pre">[0]</span></code>.</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [4]: </span><span class="n">all_sols</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">get_elements</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;SOL&#39;</span><span class="p">)</span>
+
+<span class="gp">In [5]: </span><span class="n">all_sols</span>
+<span class="gh">Out[5]: </span><span class="go"></span>
+<span class="go">[FE_SCS1:SOLR_D0704 [SOL] @ sb=70.206995,</span>
+<span class="go"> FE_LEBT:SOLR_D0787 [SOL] @ sb=78.481995,</span>
+<span class="go"> FE_LEBT:SOLR_D0802 [SOL] @ sb=79.957145,</span>
+<span class="go"> FE_LEBT:SOLR_D0818 [SOL] @ sb=81.597295,</span>
+<span class="go"> FE_LEBT:SOLR_D0951 [SOL] @ sb=94.894800,</span>
+<span class="go"> FE_LEBT:SOLR_D0967 [SOL] @ sb=96.534950,</span>
+<span class="go"> FE_LEBT:SOLR_D0982 [SOL] @ sb=98.010100,</span>
+<span class="go"> FE_LEBT:SOLR_D0995 [SOL] @ sb=99.320100]</span>
+
+<span class="gp">In [6]: </span><span class="n">first_sol</span> <span class="o">=</span> <span class="n">all_sols</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="gp">In [7]: </span><span class="n">first_sol</span>
+<span class="gh">Out[7]: </span><span class="go">FE_SCS1:SOLR_D0704 [SOL] @ sb=70.206995</span>
+</pre></div>
+</div>
+</section>
+<section id="inspect-device">
+<h2>Inspect Device<a class="headerlink" href="#inspect-device" title="Permalink to this headline"></a></h2>
+<p>Each one within the list returned from
+<a class="reference internal" href="../apidocs/operation.html#phantasy.MachinePortal.get_elements" title="phantasy.MachinePortal.get_elements"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_elements()</span></code></a> is the instance of
+<a class="reference internal" href="../apidocs/lattice.html#phantasy.CaElement" title="phantasy.CaElement"><code class="xref py py-class docutils literal notranslate"><span class="pre">CaElement</span></code></a>, which is bundled of various information,
+represented as attributes of the Python object <a class="footnote-reference brackets" href="#f1" id="id1">1</a>, simply by
+hitting <code class="docutils literal notranslate"><span class="pre">&lt;TAB&gt;</span></code> button after dot (<cite>.</cite>), list of possible methods,
+attributes will be pop out, select any of them to get the execution
+results.</p>
+<p class="rubric">Footnotes</p>
+<dl class="footnote brackets">
+<dt class="label" id="f1"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd><p>The valid common attributes and element specific ones, as well as the valid methods attched to element is detailed in <a class="reference internal" href="../intro.html#arch-element"><span class="std std-ref">this page</span></a>.</p>
+</dd>
+</dl>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="machineportal.html" class="btn btn-neutral float-left" title="Work with MachinePortal" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../apiref.html" class="btn btn-neutral float-right" title="API References" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2016, Facility for Rare Isotope Beams, Michigan State University.
+      <span class="lastupdated">Last updated on Oct 29, 2021.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>phantasy.library.operation.core &mdash; phantasy 2.1.2 documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+    <link rel="shortcut icon" href="../../../../_static/frib-favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../../index.html" class="icon icon-home"> phantasy
+          </a>
+              <div class="version">
+                2.1.2
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../src/intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../src/deploy.html">Deployment</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../src/tut.html">User Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Features Highlight</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../src/features.html">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../src/features.html#gui-applications">GUI Applications</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">References</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../src/apiref.html">API References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../src/terms.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">phantasy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+      <li>phantasy.library.operation.core</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for phantasy.library.operation.core</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;This module is created for the CLI operations, could be treated like</span>
+<span class="sd">the bridge interface between middle layer and high-level physics</span>
+<span class="sd">applications.</span>
+
+<span class="sd">The workflow of the high-level physics operations are mainly defined in</span>
+<span class="sd">this module, each physics application should be initiated from here,</span>
+<span class="sd">other potential usages should also be defined here.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">reduce</span>
+
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">intersect1d</span>
+<span class="kn">from</span> <span class="nn">phantasy.library.lattice</span> <span class="kn">import</span> <span class="n">CaElement</span>
+<span class="kn">from</span> <span class="nn">phantasy.library.parser</span> <span class="kn">import</span> <span class="n">Configuration</span>
+<span class="kn">from</span> <span class="nn">phantasy.library.pv</span> <span class="kn">import</span> <span class="n">get_readback</span>
+<span class="kn">from</span> <span class="nn">phantasy.facility.frib</span> <span class="kn">import</span> <span class="n">INI_DICT</span>
+
+<span class="kn">from</span> <span class="nn">.lattice</span> <span class="kn">import</span> <span class="n">load_lattice</span>
+
+<span class="n">__authors__</span> <span class="o">=</span> <span class="s2">&quot;Tong Zhang&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;(c) 2016-2017, Facility for Rare Isotope beams, </span><span class="se">\</span>
+<span class="s2">        Michigan State University&quot;</span>
+<span class="n">__contact__</span> <span class="o">=</span> <span class="s2">&quot;Tong Zhang &lt;zhangt@frib.msu.edu&gt;&quot;</span>
+
+<span class="n">_LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="MachinePortal"><a class="viewcode-back" href="../../../../src/apidocs/operation.html#phantasy.MachinePortal">[docs]</a><span class="k">class</span> <span class="nc">MachinePortal</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The very first step to control the machine (accelerator system) on</span>
+<span class="sd">    physics high-level view, create high-level lattice object from segment</span>
+<span class="sd">    of machine, upon which various operations could be proceeded.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    machine : str</span>
+<span class="sd">        Name of the accelerator machine, typically, is the name of the data</span>
+<span class="sd">        directory, within which all the related configuration files are</span>
+<span class="sd">        hosted, could be the path of the configuration folder. The default</span>
+<span class="sd">        value is ``FRIB``.</span>
+<span class="sd">    segment : str</span>
+<span class="sd">        All machine segments are defined in *segments* field in the</span>
+<span class="sd">        configuration file &quot;phantasy.ini&quot;, separated by space, e.g.</span>
+<span class="sd">        ``segments: LINAC LS1`` defines two segments ``LINAC`` and ``LS1``,</span>
+<span class="sd">        the ``default_segment`` field in that file is used to define the</span>
+<span class="sd">        default segment to use. If *segment* parameter is not defined, use</span>
+<span class="sd">        the one defined by ``default_segment``.</span>
+
+<span class="sd">    Keyword Arguments</span>
+<span class="sd">    -----------------</span>
+<span class="sd">    prefix : str</span>
+<span class="sd">        String prefix to all channels, this parameter is crucial to the</span>
+<span class="sd">        virtual accelerator (VA) modeling, when &#39;--pv-prefix&#39; argument is</span>
+<span class="sd">        used when starting up the VA rather than the one defined in the</span>
+<span class="sd">        configuration file (e.g. phantasy.cfg). If this parameter is not</span>
+<span class="sd">        defined, will use the one defined by &#39;machine&#39; in &#39;DEFAULT&#39; section</span>
+<span class="sd">        of configuration file.</span>
+<span class="sd">    verbose : int</span>
+<span class="sd">        If set nonzero, print out verbose message.</span>
+<span class="sd">    auto_monitor : bool</span>
+<span class="sd">        If set True, initialize all channels auto subscribe, default is False.</span>
+
+<span class="sd">    Note</span>
+<span class="sd">    ----</span>
+<span class="sd">    1. Lattice if created from segment of machine.</span>
+<span class="sd">    2. Directory searching rule for the machine configuration files:</span>
+<span class="sd">       (list by searching priority)</span>
+
+<span class="sd">       - User-defined directory;</span>
+<span class="sd">       - Current working directory;</span>
+<span class="sd">       - Environmental variable: ``PHANTASY_CONFIG_DIR``;</span>
+<span class="sd">       - Current user&#39;s home folder: ``~/.phantasy``;</span>
+
+<span class="sd">       If the found directory is ``MPATH``, then the naming rule of *machine*:</span>
+<span class="sd">       ``MPATH`` + machine name, e.g. ``MPATH=/home/user/develop``,</span>
+<span class="sd">       machine name is ``FRIB``, then *machine* could be defined as:</span>
+<span class="sd">       ``/home/user/develop/FRIB``, all configuration files of ``FRIB`` should</span>
+<span class="sd">       be in that directory.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; # Use default configuration</span>
+<span class="sd">    &gt;&gt;&gt; mp = MachinePortal()</span>
+<span class="sd">    &gt;&gt;&gt; mp.last_machine_path # where I put FRIB machine</span>
+<span class="sd">    /home/tong1/work/FRIB/projects/machines/FRIB</span>
+<span class="sd">    &gt;&gt;&gt; # with machine name, just the same as above</span>
+<span class="sd">    &gt;&gt;&gt; mp = MachinePortal(machine=&quot;FRIB&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; # another machine name</span>
+<span class="sd">    &gt;&gt;&gt; mp = MachinePortal(machine=&quot;FRIB1&quot;)</span>
+<span class="sd">    # FRIB1 is in the current working directory</span>
+<span class="sd">    &gt;&gt;&gt; os.path.relpath(mp.last_machine_path)</span>
+<span class="sd">    &#39;FRIB1&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">machine</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">segment</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_machine</span> <span class="o">=</span> <span class="s2">&quot;FRIB&quot;</span> <span class="k">if</span> <span class="n">machine</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">machine</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_machine</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_machine</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_machine</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lattice_names</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_machine_names</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lattices</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_machines</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_last_mach_name</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_last_mach_conf</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_last_mach_path</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_last_lattice_name</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_last_lattice_conf</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_work_lattice_name</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_work_lattice_conf</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># check last_load_success attr</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_lattice</span><span class="p">(</span><span class="n">segment</span><span class="o">=</span><span class="n">segment</span><span class="p">,</span> <span class="n">machine</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_machine</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">last_load_success</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return True if lattice loaded without error, or False.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_load_success</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">last_machine_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;str: Name of last loaded machine.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_mach_name</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">last_machine_conf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Configuration: Last loaded configuration object.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        :class:`~phantasy.library.parser.config.Configuration`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_mach_conf</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">last_machine_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;str: Full path of the last loaded *phantasys.ini* file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_mach_path</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">machine_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;list: Names of all loaded machines or facilities.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_machine_names</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">lattice_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;list: Names of all loaded lattices.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lattice_names</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">last_lattice_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;str: Name of last loaded lattice.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_lattice_name</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">last_lattice_conf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;list: Configuration of last loaded lattice, composed of caElements.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        :class:`~phantasy.library.lattice.element.CaElement`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_lattice_conf</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">work_lattice_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;str: Name of working lattice.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_work_lattice_name</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">work_lattice_conf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;list: Configuration of working lattice, composed of CaElements.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        :class:`~phantasy.library.lattice.CaElement`</span>
+<span class="sd">            Element object for channel access.</span>
+<span class="sd">        :func:`use_lattice`</span>
+<span class="sd">            Choose working lattice from loaded lattices.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_work_lattice_conf</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">lattices</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;dict: All loaded lattices.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lattices</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">machines</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;dict: All loaded machines.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_machines</span>
+
+<div class="viewcode-block" id="MachinePortal.load_lattice"><a class="viewcode-back" href="../../../../src/apidocs/operation.html#phantasy.MachinePortal.load_lattice">[docs]</a>    <span class="k">def</span> <span class="nf">load_lattice</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">segment</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">machine</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Load machine segment from *phantasy.ini* file.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        segment : str</span>
+<span class="sd">            Segment name.</span>
+<span class="sd">        machine : str</span>
+<span class="sd">            Machine name, or path of configuration files.</span>
+
+<span class="sd">        Keyword Arguments</span>
+<span class="sd">        -----------------</span>
+<span class="sd">        verbose : int</span>
+<span class="sd">            If set nonzero, print out verbose message.</span>
+<span class="sd">        re_load : True or False</span>
+<span class="sd">            If set True, reload segment, ``False`` by default.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ret : dict</span>
+<span class="sd">            Configuration of loaded segment of machine, with the keys of</span>
+<span class="sd">            ``lat_name``, ``lat_conf``, ``mach_name``, ``mach_path`` and</span>
+<span class="sd">            ``mach_conf``.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; mp.load_lattice(&#39;LS1&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; mp.work_lattice_name # &#39;LS1&#39;</span>
+<span class="sd">        &gt;&gt;&gt; mp.load_lattice(&#39;LINAC&#39;) # does not actually load, use cached</span>
+<span class="sd">        &gt;&gt;&gt; mp.work_lattice_name # &#39;LINAC&#39;</span>
+<span class="sd">        # Note working lattice is changed from &#39;LS1&#39; to &#39;LINAC&#39;, although</span>
+<span class="sd">        # not actually loaded the lattice, see use_lattice().</span>
+
+<span class="sd">        The cached tricky could improve performance, e.g. in ipython:</span>
+
+<span class="sd">        &gt;&gt;&gt; %%timeit</span>
+<span class="sd">        &gt;&gt;&gt; mp.load_lattice(&#39;LS1&#39;, re_load=True)</span>
+<span class="sd">        10 loops, best of 3: 180 ms per loop</span>
+<span class="sd">        &gt;&gt;&gt; %%timeit</span>
+<span class="sd">        &gt;&gt;&gt; mp.load_lattice(&#39;LS1&#39;)</span>
+<span class="sd">        10000 loops, best of 3: 190 µs per loop</span>
+
+<span class="sd">        Note</span>
+<span class="sd">        ----</span>
+<span class="sd">        1. If *segment* of *machine* has already been loaded, will not load</span>
+<span class="sd">           again, just switch working lattice to be the *segment*; keyword</span>
+<span class="sd">           parameter *re_load* could be set to force reload;</span>
+<span class="sd">        2. *re_load* could be used if necessary, e.g. the configuration</span>
+<span class="sd">           file for some segment is changed, etc.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        use_lattice : Choose working lattice from loaded lattices.</span>
+<span class="sd">        reload_lattice : Reload machine/lattice.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">machine</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">machine</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_machine</span>
+
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">machine</span><span class="p">):</span>
+            <span class="n">machine</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">machine</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_use_cached</span><span class="p">(</span><span class="n">segment</span><span class="p">,</span> <span class="n">machine</span><span class="p">,</span> <span class="n">re_load</span><span class="o">=</span><span class="n">kws</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;re_load&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)):</span>
+            <span class="n">mach_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">machine</span><span class="p">)</span>
+            <span class="n">mach_conf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_machines</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">mach_name</span><span class="p">)[</span><span class="s1">&#39;conf&#39;</span><span class="p">]</span>
+            <span class="n">mach_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_machines</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">mach_name</span><span class="p">)[</span><span class="s1">&#39;path&#39;</span><span class="p">]</span>
+            <span class="n">lat_name</span> <span class="o">=</span> <span class="n">segment</span>
+            <span class="n">lat_conf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lattices</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">lat_name</span><span class="p">)</span>
+            <span class="n">retval</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;lat0name&#39;</span><span class="p">:</span> <span class="n">lat_name</span><span class="p">,</span>
+                      <span class="s1">&#39;lattices&#39;</span><span class="p">:</span> <span class="p">{</span><span class="n">lat_name</span><span class="p">:</span> <span class="n">lat_conf</span><span class="p">},</span>
+                      <span class="s1">&#39;machname&#39;</span><span class="p">:</span> <span class="n">mach_name</span><span class="p">,</span>
+                      <span class="s1">&#39;machpath&#39;</span><span class="p">:</span> <span class="n">mach_path</span><span class="p">,</span>
+                      <span class="s1">&#39;machconf&#39;</span><span class="p">:</span> <span class="n">mach_conf</span><span class="p">}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_last_mach_name</span> <span class="o">=</span> <span class="n">mach_name</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_last_mach_conf</span> <span class="o">=</span> <span class="n">mach_conf</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_last_mach_path</span> <span class="o">=</span> <span class="n">mach_path</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_last_lattice_name</span> <span class="o">=</span> <span class="n">lat_name</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_last_lattice_conf</span> <span class="o">=</span> <span class="n">lat_conf</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_work_lattice_name</span> <span class="o">=</span> <span class="n">lat_name</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_work_lattice_conf</span> <span class="o">=</span> <span class="n">lat_conf</span>
+            <span class="k">return</span> <span class="n">retval</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">retval</span> <span class="o">=</span> <span class="n">load_lattice</span><span class="p">(</span><span class="n">machine</span><span class="o">=</span><span class="n">machine</span><span class="p">,</span> <span class="n">segment</span><span class="o">=</span><span class="n">segment</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">)</span>
+
+            <span class="n">lat_all</span> <span class="o">=</span> <span class="n">retval</span><span class="p">[</span><span class="s1">&#39;lattices&#39;</span><span class="p">]</span>
+            <span class="n">lat_name</span> <span class="o">=</span> <span class="n">retval</span><span class="p">[</span><span class="s1">&#39;lat0name&#39;</span><span class="p">]</span>
+            <span class="n">lat_conf</span> <span class="o">=</span> <span class="n">lat_all</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">lat_name</span><span class="p">)</span>
+            <span class="n">mach_name</span> <span class="o">=</span> <span class="n">retval</span><span class="p">[</span><span class="s1">&#39;machname&#39;</span><span class="p">]</span>
+            <span class="n">mach_conf</span> <span class="o">=</span> <span class="n">retval</span><span class="p">[</span><span class="s1">&#39;machconf&#39;</span><span class="p">]</span>
+            <span class="n">mach_path</span> <span class="o">=</span> <span class="n">retval</span><span class="p">[</span><span class="s1">&#39;machpath&#39;</span><span class="p">]</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_lattices</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">lat_all</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_machines</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">mach_name</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;conf&#39;</span><span class="p">:</span> <span class="n">mach_conf</span><span class="p">,</span> <span class="s1">&#39;path&#39;</span><span class="p">:</span> <span class="n">mach_path</span><span class="p">}})</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_last_mach_conf</span> <span class="o">=</span> <span class="n">mach_conf</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_last_mach_path</span> <span class="o">=</span> <span class="n">mach_path</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_last_mach_name</span> <span class="o">=</span> <span class="n">mach_name</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_last_lattice_name</span> <span class="o">=</span> <span class="n">lat_name</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_last_lattice_conf</span> <span class="o">=</span> <span class="n">lat_conf</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_work_lattice_name</span> <span class="o">=</span> <span class="n">lat_name</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_work_lattice_conf</span> <span class="o">=</span> <span class="n">lat_conf</span>
+
+            <span class="k">if</span> <span class="n">lat_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">lat_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lattice_names</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_lattice_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lat_name</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">mach_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">mach_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_machine_names</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_machine_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mach_name</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">_LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot load machine: </span><span class="si">{</span><span class="n">machine</span><span class="si">}</span><span class="s2"> segment: </span><span class="si">{</span><span class="n">segment</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">retval</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_last_load_success</span> <span class="o">=</span> <span class="n">retval</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">retval</span></div>
+
+<div class="viewcode-block" id="MachinePortal.combined_lattice"><a class="viewcode-back" href="../../../../src/apidocs/operation.html#phantasy.MachinePortal.combined_lattice">[docs]</a>    <span class="k">def</span> <span class="nf">combined_lattice</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Combine all loaded lattice(s) into one Lattice to return.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lattice_names</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">work_lattice_conf</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">:</span><span class="n">x</span><span class="o">+</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattices</span><span class="o">.</span><span class="n">values</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="MachinePortal.print_all_properties"><a class="viewcode-back" href="../../../../src/apidocs/operation.html#phantasy.MachinePortal.print_all_properties">[docs]</a>    <span class="k">def</span> <span class="nf">print_all_properties</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Print all properties, for debug only.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;lattice_names&#39;</span><span class="p">,</span> <span class="s1">&#39;machine_names&#39;</span><span class="p">,</span>
+                     <span class="s1">&#39;last_machine_name&#39;</span><span class="p">,</span>
+                     <span class="s1">&#39;last_machine_path&#39;</span><span class="p">,</span> <span class="s1">&#39;last_lattice_name&#39;</span><span class="p">,</span>
+                     <span class="c1"># &#39;last_lattice_conf&#39;,</span>
+                     <span class="s1">&#39;last_machine_conf&#39;</span><span class="p">]:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">attr</span><span class="si">:</span><span class="s2">&lt;17s</span><span class="si">}</span><span class="s2"> : </span><span class="si">{</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_use_cached</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">segment</span><span class="p">,</span> <span class="n">machine</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Test if continue parsing procedure is needed, if machine/segment</span>
+<span class="sd">        is already parsed, just return value, or do parsing; if *re_load*</span>
+<span class="sd">        keyword is True, always return False.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">machine</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">machine</span><span class="p">)</span>
+        <span class="n">_f_reload</span> <span class="o">=</span> <span class="n">kws</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;re_load&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">machine</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_machine_names</span> <span class="ow">and</span> <span class="n">segment</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lattice_names</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">_f_reload</span><span class="p">:</span>
+                <span class="n">_LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Force reload machine: &#39;</span><span class="si">{</span><span class="n">machine</span><span class="si">}</span><span class="s2">&#39;, segment: &#39;</span><span class="si">{</span><span class="n">segment</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+                <span class="n">retval</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">_LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Use cached results for machine: &#39;</span><span class="si">{</span><span class="n">machine</span><span class="si">}</span><span class="s2">&#39;, segment: &#39;</span><span class="si">{</span><span class="n">segment</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+                <span class="n">retval</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">segment</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">_LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Load new machine: &#39;</span><span class="si">{</span><span class="n">machine</span><span class="si">}</span><span class="s2">&#39;, with default segment&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">_LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Load new machine: &#39;</span><span class="si">{</span><span class="n">machine</span><span class="si">}</span><span class="s2">&#39;, segment: &#39;</span><span class="si">{</span><span class="n">segment</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+            <span class="n">retval</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="n">retval</span>
+
+<div class="viewcode-block" id="MachinePortal.reload_lattice"><a class="viewcode-back" href="../../../../src/apidocs/operation.html#phantasy.MachinePortal.reload_lattice">[docs]</a>    <span class="k">def</span> <span class="nf">reload_lattice</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">segment</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">machine</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Reload machine lattice, if parameters *machine* and *segment* are</span>
+<span class="sd">        not defined, reload last loaded one.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        segment : str</span>
+<span class="sd">            Name of segment of machine.</span>
+<span class="sd">        machine : str</span>
+<span class="sd">            Name of machine, or path of configuration files.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        load_lattice : Load machine/lattice from configuration files.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">segment</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_lattice_name</span> <span class="k">if</span> <span class="n">segment</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">segment</span>
+        <span class="n">machine</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_mach_path</span> <span class="k">if</span> <span class="n">machine</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">machine</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_lattice</span><span class="p">(</span><span class="n">machine</span><span class="o">=</span><span class="n">machine</span><span class="p">,</span>
+                                 <span class="n">segment</span><span class="o">=</span><span class="n">segment</span><span class="p">,</span>
+                                 <span class="n">re_load</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MachinePortal.use_lattice"><a class="viewcode-back" href="../../../../src/apidocs/operation.html#phantasy.MachinePortal.use_lattice">[docs]</a>    <span class="k">def</span> <span class="nf">use_lattice</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lattice_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Choose name of one of the loaded lattices as the working lattice,</span>
+<span class="sd">        if this method is not evoked, the working lattice is the last loaded</span>
+<span class="sd">        lattice.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        lattice_name : str</span>
+<span class="sd">            Lattice name.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ret : str</span>
+<span class="sd">            Selected working lattice name.</span>
+
+<span class="sd">        Note</span>
+<span class="sd">        ----</span>
+<span class="sd">        If ``load_lattice()`` or ``reload_lattice()`` is called, the working</span>
+<span class="sd">        lattice name would be changed to the just loaded one, since,</span>
+<span class="sd">        usually as the user loading a lattice, most likely he/she would like</span>
+<span class="sd">        to switch onto that lattice, or explicitly invoking ``use_lattice()``</span>
+<span class="sd">        again to switch to another one.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        load_lattice : Load machine/lattice from configuration files.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">lattice_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lattice_names</span><span class="p">:</span>
+            <span class="n">_LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Switch working lattice to: </span><span class="si">{</span><span class="n">lattice_name</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_work_lattice_name</span> <span class="o">=</span> <span class="n">lattice_name</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_work_lattice_conf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lattices</span><span class="p">[</span><span class="n">lattice_name</span><span class="p">]</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_work_lattice_name</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Invalid lattice name, working lattice name unchanged.&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_work_lattice_name</span></div>
+
+<div class="viewcode-block" id="MachinePortal.get_elements"><a class="viewcode-back" href="../../../../src/apidocs/operation.html#phantasy.MachinePortal.get_elements">[docs]</a>    <span class="k">def</span> <span class="nf">get_elements</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">latname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">srange</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">search_all</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                     <span class="o">**</span><span class="n">kws</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get element(s) from working lattice.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        latname : str</span>
+<span class="sd">            Use the (valid) defined lattice name instead of current working</span>
+<span class="sd">            lattice name, maybe useful to inspect non-working lattices.</span>
+<span class="sd">        name : str or list[str]</span>
+<span class="sd">            (List of) Element names or Unix shell style patterns.</span>
+<span class="sd">        type : str or list[str]</span>
+<span class="sd">            (List of) Element type/group/family, or Unix shell style patterns.</span>
+<span class="sd">        srange : tuple</span>
+<span class="sd">            Start and end points (tuple of float) of elements&#39; longitudinal</span>
+<span class="sd">            position.</span>
+<span class="sd">        search_all : bool</span>
+<span class="sd">            If True, search from all the loaded segments.</span>
+
+<span class="sd">        Keyword Arguments</span>
+<span class="sd">        -----------------</span>
+<span class="sd">        sort_key : str</span>
+<span class="sd">            Ascendingly sort key of the returned list, ``name`` or ``pos``,</span>
+<span class="sd">            ``pos`` by default, or other attributes valid for ``CaElement``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ret : List</span>
+<span class="sd">            List of elements (``CaElement``), excluding virtual elements.</span>
+
+<span class="sd">        Note</span>
+<span class="sd">        ----</span>
+<span class="sd">        1. The pattern here used is Unix shell style, slightly different</span>
+<span class="sd">           from regex, e.g. pattern &#39;BP&#39; matches &#39;BPM&#39; in regex, but matches</span>
+<span class="sd">           nothing in Unix shell style, &#39;BP*&#39; works;</span>
+<span class="sd">        2. If more than one positional parameters (*name*, *type*, *srange*)</span>
+<span class="sd">           are defined, return elements that meet all definitions;</span>
+<span class="sd">        3. By default, the returned elements are ascendingly sorted according</span>
+<span class="sd">           to element position values.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        Create MachinePortal instance, e.g. mp</span>
+<span class="sd">        1. Define *name* with an invalid name:</span>
+
+<span class="sd">        &gt;&gt;&gt; mp.get_elements(name=&#39;NOEXISTS&#39;)</span>
+<span class="sd">        []</span>
+
+<span class="sd">        2. Define *name* with name or name patterns:</span>
+
+<span class="sd">        &gt;&gt;&gt; mp.get_elements(name=&#39;FS1_BMS:DCV_D2662&#39;)</span>
+<span class="sd">        [FS1_BMS:DCV_D2662 [VCOR] @ sb=153.794690]</span>
+<span class="sd">        &gt;&gt;&gt; mp.get_elements(name=[&#39;FS1_B?*D266?&#39;, &#39;LS1_B*DCV*&#39;], latname=&#39;LINAC&#39;)</span>
+<span class="sd">        [LS1_BTS:DCV_D1937 [VCOR] @ sb=81.365954,</span>
+<span class="sd">         LS1_BTS:DCV_D1964 [VCOR] @ sb=84.013954,</span>
+<span class="sd">         LS1_BTS:DCV_D1997 [VCOR] @ sb=87.348954,</span>
+<span class="sd">         LS1_BTS:DCV_D2024 [VCOR] @ sb=90.055166,</span>
+<span class="sd">         LS1_BTS:DCV_D2061 [VCOR] @ sb=93.710487,</span>
+<span class="sd">         LS1_BTS:DCV_D2114 [VCOR] @ sb=98.985556,</span>
+<span class="sd">         FS1_BMS:DCV_D2662 [VCOR] @ sb=153.794690,</span>
+<span class="sd">         FS1_BMS:DCH_D2662 [HCOR] @ sb=153.794690,</span>
+<span class="sd">         FS1_BMS:BPM_D2664 [BPM] @ sb=153.963690,</span>
+<span class="sd">         FS1_BMS:QH_D2666 [QUAD] @ sb=154.144690]</span>
+
+<span class="sd">        3. Filter BPMs from the above result:</span>
+
+<span class="sd">        &gt;&gt;&gt; mp.get_elements(name=[&#39;FS1_B?*D266?&#39;, &#39;LS1_B*DCV*&#39;], type=&#39;BPM&#39;,</span>
+<span class="sd">        &gt;&gt;&gt;                 latname=&#39;LINAC&#39;)</span>
+<span class="sd">        [FS1_BMS:BPM_D2664 [BPM] @ sb=153.963690]</span>
+<span class="sd">        &gt;&gt;&gt; # type=&#39;BPM&#39; also could be be pattern</span>
+
+<span class="sd">        4. Filter hybrid types:</span>
+
+<span class="sd">        &gt;&gt;&gt; mp.get_elements(name=[&#39;FS1_B?*D266?&#39;, &#39;LS1_B*DCV*&#39;],</span>
+<span class="sd">        &gt;&gt;&gt;                 type=[&#39;BPM&#39;, &#39;QUAD&#39;], latname=&#39;LINAC&#39;)</span>
+<span class="sd">        [FS1_BMS:BPM_D2664 [BPM] @ sb=153.963690,</span>
+<span class="sd">         FS1_BMS:QH_D2666 [QUAD] @ sb=154.144690]</span>
+
+<span class="sd">        5. Get subsection from lattice according to s-position range:</span>
+
+<span class="sd">        &gt;&gt;&gt; mp.get_elements(srange=(10, 11))</span>
+<span class="sd">        [LS1_CB01:CAV1_D1229 [CAV] @ sb=10.366596,</span>
+<span class="sd">         LS1_CB01:BPM_D1231 [BPM] @ sb=10.762191,</span>
+<span class="sd">         LS1_CB01:SOL1_D1235 [SOL] @ sb=10.894207]</span>
+
+<span class="sd">        6. Continue filter with *srange* parameter</span>
+
+<span class="sd">        &gt;&gt;&gt; mp.get_elements(name=[&#39;FS1_B?*D266?&#39;, &#39;LS1_B*DCV*&#39;],</span>
+<span class="sd">        &gt;&gt;&gt;                 type=[&#39;BPM&#39;, &#39;QUAD&#39;], srange=(154, 155),</span>
+<span class="sd">        &gt;&gt;&gt;                 latname=&#39;LINAC&#39;)</span>
+<span class="sd">        [FS1_BMS:QH_D2666 [QUAD] @ sb=154.144690]</span>
+
+<span class="sd">        Note</span>
+<span class="sd">        ----</span>
+<span class="sd">        Select subsection by ``srange`` parameter is realized by new approach,</span>
+<span class="sd">        other than ``~phantasy.library.Lattice.getLine()``, e.g. the result of</span>
+<span class="sd">        ``getLine((10,11))`` contains element before the start range: i.e.</span>
+<span class="sd">        ``LS1_WA03:PM_D1223:PM @ sb=9.929284``, which is beyond the range.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        :func:`get_virtual_elements`</span>
+<span class="sd">            Get virtual elements.</span>
+<span class="sd">        :func:`next_elements`</span>
+<span class="sd">            Get neighborhood of reference element.</span>
+<span class="sd">        :class:`~phantasy.library.lattice.element.CaElement`</span>
+<span class="sd">            Element class.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">latname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lattice_names</span><span class="p">:</span>
+            <span class="n">lat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lattices</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">latname</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">search_all</span><span class="p">:</span>
+            <span class="n">elems</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">lat</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lattices</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">elems</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                    <span class="n">lat</span><span class="o">.</span><span class="n">get_elements</span><span class="p">(</span>
+                        <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">type</span><span class="p">,</span> <span class="n">srange</span><span class="o">=</span><span class="n">srange</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">elems</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">lat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_work_lattice_conf</span>
+        <span class="k">return</span> <span class="n">lat</span><span class="o">.</span><span class="n">get_elements</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">type</span><span class="p">,</span> <span class="n">srange</span><span class="o">=</span><span class="n">srange</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MachinePortal.next_elements"><a class="viewcode-back" href="../../../../src/apidocs/operation.html#phantasy.MachinePortal.next_elements">[docs]</a>    <span class="k">def</span> <span class="nf">next_elements</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref_elem</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get elements w.r.t reference element, according to the defined</span>
+<span class="sd">        confinement, from given lattice name, if not given *latname*, use</span>
+<span class="sd">        the current working lattice.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ref_elem :</span>
+<span class="sd">            ``CaElement`` object, reference element.</span>
+<span class="sd">        count : int</span>
+<span class="sd">            Skip element number after *ref_elem*, negative input means before,</span>
+<span class="sd">            e.g. ``count=1`` will locate the next one of *ref_elem* in the</span>
+<span class="sd">            investigated lattice, if keyword parameter *type* is given, will</span>
+<span class="sd">            locate the next one element of the defined type; ``count=-1`` will</span>
+<span class="sd">            locate in the opposite direction.</span>
+
+<span class="sd">        Keyword Arguments</span>
+<span class="sd">        -----------------</span>
+<span class="sd">        type : str or list(str)</span>
+<span class="sd">            (List of) Element type/group/family, if *type* is a list of more</span>
+<span class="sd">            than one element types, the *next* parameter will apply on each</span>
+<span class="sd">            type.</span>
+<span class="sd">        range : str</span>
+<span class="sd">            String of format ``start:stop:step``, to slicing the output list,</span>
+<span class="sd">            e.g. return 50 BPMs after *ref_elem* (``count=50``), but only get</span>
+<span class="sd">            every two elements, simply by setting ``range=0::2``.</span>
+<span class="sd">        latname : str</span>
+<span class="sd">            Name of lattice to be investigated.</span>
+<span class="sd">        ref_include : True or False</span>
+<span class="sd">            Include *ref_elem* in the returned list or not, False by default.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ret : List</span>
+<span class="sd">            List of next located elements, ascendingly sorted by position, by</span>
+<span class="sd">            default, only return one element (for eath *type*) that meets the</span>
+<span class="sd">            confinement, return more by assgining *range* keyword parameter.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        Create MachinePortal instance, e.g. mp</span>
+
+<span class="sd">        1. Select an element as reference element:</span>
+
+<span class="sd">        &gt;&gt;&gt; print(all_e)</span>
+<span class="sd">        [LS1_CA01:CAV1_D1127 [CAV] @ sb=0.207064,</span>
+<span class="sd">         LS1_CA01:BPM_D1129 [BPM] @ sb=0.511327,</span>
+<span class="sd">         LS1_CA01:SOL1_D1131 [SOL] @ sb=0.643330,</span>
+<span class="sd">         LS1_CA01:DCV_D1131 [VCOR] @ sb=0.743330,</span>
+<span class="sd">         LS1_CA01:DCH_D1131 [HCOR] @ sb=0.743330,</span>
+<span class="sd">         LS1_CA01:CAV2_D1135 [CAV] @ sb=0.986724,</span>
+<span class="sd">         LS1_CA01:CAV3_D1143 [CAV] @ sb=1.766370,</span>
+<span class="sd">         LS1_CA01:BPM_D1144 [BPM] @ sb=2.070634,</span>
+<span class="sd">         LS1_CA01:SOL2_D1147 [SOL] @ sb=2.202637,</span>
+<span class="sd">         LS1_CA01:DCV_D1147 [VCOR] @ sb=2.302637,</span>
+<span class="sd">         LS1_CA01:DCH_D1147 [HCOR] @ sb=2.302637,</span>
+<span class="sd">         LS1_CA01:CAV4_D1150 [CAV] @ sb=2.546031,</span>
+<span class="sd">         LS1_WA01:BPM_D1155 [BPM] @ sb=3.109095,</span>
+<span class="sd">         LS1_CA02:CAV1_D1161 [CAV] @ sb=3.580158,</span>
+<span class="sd">         LS1_CA02:BPM_D1163 [BPM] @ sb=3.884422,</span>
+<span class="sd">         LS1_CA02:SOL1_D1165 [SOL] @ sb=4.016425,</span>
+<span class="sd">         LS1_CA02:DCV_D1165 [VCOR] @ sb=4.116425,</span>
+<span class="sd">         LS1_CA02:DCH_D1165 [HCOR] @ sb=4.116425,</span>
+<span class="sd">         LS1_CA02:CAV2_D1169 [CAV] @ sb=4.359819,</span>
+<span class="sd">         LS1_CA02:CAV3_D1176 [CAV] @ sb=5.139465,</span>
+<span class="sd">         LS1_CA02:BPM_D1178 [BPM] @ sb=5.443728]</span>
+<span class="sd">        &gt;&gt;&gt; ref_elem = all_e[5]</span>
+
+<span class="sd">        2. Get next element of *ref_elem*:</span>
+
+<span class="sd">        &gt;&gt;&gt; mp.next_elements(ref_elem)</span>
+<span class="sd">        [LS1_CA01:CAV3_D1143 [CAV] @ sb=1.766370]</span>
+
+<span class="sd">        3. Get last of the next two element:</span>
+
+<span class="sd">        &gt;&gt;&gt; mp.next_elements(ref_elem, count=2)</span>
+<span class="sd">        [LS1_CA01:BPM_D1144 [BPM] @ sb=2.070634]</span>
+
+<span class="sd">        4. Get all of the next two elements:</span>
+
+<span class="sd">        &gt;&gt;&gt; mp.next_elements(ref_elem, count=2, range=&#39;0::1&#39;)</span>
+<span class="sd">        [LS1_CA01:CAV3_D1143 [CAV] @ sb=1.766370,</span>
+<span class="sd">         LS1_CA01:BPM_D1144 [BPM] @ sb=2.070634]</span>
+
+<span class="sd">        5. Get all of the two elements before *ref_elem*:</span>
+
+<span class="sd">        &gt;&gt;&gt; mp.next_elements(ref_elem, count=-2, range=&#39;0::1&#39;)</span>
+<span class="sd">        [LS1_CA01:DCV_D1131 [VCOR] @ sb=0.743330,</span>
+<span class="sd">         LS1_CA01:DCH_D1131 [HCOR] @ sb=0.743330]</span>
+
+<span class="sd">        6. Get next two BPM elements after *ref_elem*, including itself:</span>
+
+<span class="sd">        &gt;&gt;&gt; mp.next_elements(ref_elem, count=2, type=[&#39;BPM&#39;],</span>
+<span class="sd">        &gt;&gt;&gt;                  ref_include=True, range=&#39;0::1&#39;)</span>
+<span class="sd">        [LS1_CA01:CAV2_D1135 [CAV] @ sb=0.986724,</span>
+<span class="sd">         LS1_CA01:BPM_D1144 [BPM] @ sb=2.070634,</span>
+<span class="sd">         LS1_WA01:BPM_D1155 [BPM] @ sb=3.109095]</span>
+
+<span class="sd">        7. Get with hybrid types:</span>
+
+<span class="sd">        &gt;&gt;&gt; mp.next_elements(ref_elem, count=2, type=[&#39;BPM&#39;, &#39;CAV&#39;],</span>
+<span class="sd">        &gt;&gt;&gt;                  range=&#39;0::1&#39;)</span>
+<span class="sd">        [LS1_CA01:CAV3_D1143 [CAV] @ sb=1.766370,</span>
+<span class="sd">         LS1_CA01:BPM_D1144 [BPM] @ sb=2.070634,</span>
+<span class="sd">         LS1_CA01:CAV4_D1150 [CAV] @ sb=2.546031,</span>
+<span class="sd">         LS1_WA01:BPM_D1155 [BPM] @ sb=3.109095]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">latname</span> <span class="o">=</span> <span class="n">kws</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;latname&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">latname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lattice_names</span><span class="p">:</span>
+            <span class="n">lat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lattices</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">latname</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">lat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_work_lattice_conf</span>
+        <span class="k">return</span> <span class="n">lat</span><span class="o">.</span><span class="n">next_elements</span><span class="p">(</span><span class="n">ref_elem</span><span class="p">,</span> <span class="n">count</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MachinePortal.is_virtual"><a class="viewcode-back" href="../../../../src/apidocs/operation.html#phantasy.MachinePortal.is_virtual">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">is_virtual</span><span class="p">(</span><span class="n">elem</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Test if input element is virtual element.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        elem :</span>
+<span class="sd">            ``CaElement`` object.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ret : True or False</span>
+<span class="sd">            True for virtual element, else False.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="n">CaElement</span><span class="p">):</span>
+            <span class="n">t_vir</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">elem</span><span class="o">.</span><span class="n">virtual</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">t_vir</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="n">t_vir</span></div>
+
+<div class="viewcode-block" id="MachinePortal.get_virtual_elements"><a class="viewcode-back" href="../../../../src/apidocs/operation.html#phantasy.MachinePortal.get_virtual_elements">[docs]</a>    <span class="k">def</span> <span class="nf">get_virtual_elements</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get all virtual elements from given lattice.</span>
+
+<span class="sd">        Keyword Arguments</span>
+<span class="sd">        -----------------</span>
+<span class="sd">        latname : str</span>
+<span class="sd">            Name of lattice to be investigated.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ret : List</span>
+<span class="sd">            List of virtual ``CaElement`` objects.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">latname</span> <span class="o">=</span> <span class="n">kws</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;latname&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">latname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lattice_names</span><span class="p">:</span>
+            <span class="n">lat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lattices</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">latname</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">lat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_work_lattice_conf</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">lat</span><span class="o">.</span><span class="n">getElementList</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">virtual</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="MachinePortal.get_all_types"><a class="viewcode-back" href="../../../../src/apidocs/operation.html#phantasy.MachinePortal.get_all_types">[docs]</a>    <span class="k">def</span> <span class="nf">get_all_types</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">latname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">virtual</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get names of element types (groups/families) from given lattice.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        latname : str</span>
+<span class="sd">            Name of lattice to be investigated.</span>
+<span class="sd">        virtual : True or False</span>
+<span class="sd">            Return virtual group or not, ``False`` by default.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ret : List(str)</span>
+<span class="sd">            List of type names.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        lattice_names : Names of all loaded lattices.</span>
+<span class="sd">        get_all_names : Get all element names from given lattice.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">latname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lattice_names</span><span class="p">:</span>
+            <span class="n">lat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lattices</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">latname</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">lat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_work_lattice_conf</span>
+        <span class="k">return</span> <span class="n">lat</span><span class="o">.</span><span class="n">get_all_types</span><span class="p">(</span><span class="n">virtual</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MachinePortal.get_all_names"><a class="viewcode-back" href="../../../../src/apidocs/operation.html#phantasy.MachinePortal.get_all_names">[docs]</a>    <span class="k">def</span> <span class="nf">get_all_names</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">latname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">virtual</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get names of all elements from  given lattice.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        latname : str</span>
+<span class="sd">            Name of lattice to be investigated.</span>
+<span class="sd">        virtual : True or False</span>
+<span class="sd">            Return virtual elements or not, ``False`` by default.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ret : List(str)</span>
+<span class="sd">            List of element names.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        lattice_names : Names of all loaded lattices.</span>
+<span class="sd">        get_all_types : Get all element types from given lattice.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">latname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lattice_names</span><span class="p">:</span>
+            <span class="n">lat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lattices</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">latname</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">lat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_work_lattice_conf</span>
+        <span class="k">return</span> <span class="n">lat</span><span class="o">.</span><span class="n">get_all_names</span><span class="p">(</span><span class="n">virtual</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MachinePortal.inspect_mconf"><a class="viewcode-back" href="../../../../src/apidocs/operation.html#phantasy.MachinePortal.inspect_mconf">[docs]</a>    <span class="k">def</span> <span class="nf">inspect_mconf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mconf</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Inspect given machine configuration.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        mconf :</span>
+<span class="sd">            Machine configuration object, if not given, inspect the last</span>
+<span class="sd">            loaded machine.</span>
+<span class="sd">        out :</span>
+<span class="sd">            Output stream, if not given, only return results, or besides</span>
+<span class="sd">            returning results, also print into defined stream,</span>
+<span class="sd">            could be ``stdout``, ``file``(valid file object), or``StringIO``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ret : dict or StringIO or None</span>
+<span class="sd">            Inspection results, retur a dict when *out* is None,</span>
+<span class="sd">            or StringIO object when *out* is ``sio``, or None;</span>
+<span class="sd">            keys of dict:</span>
+
+<span class="sd">            - ``path`` : (str), phantasy.ini fullpath</span>
+<span class="sd">            - ``lattices`` : (list), all defined lattices</span>
+<span class="sd">            - ``machine`` : (str), defined machine name</span>
+<span class="sd">            - ``config`` : (dict), all configurations</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; mconf = mp.inspect_mconf()</span>
+<span class="sd">        &gt;&gt;&gt; # write inspection results into file</span>
+<span class="sd">        &gt;&gt;&gt; with open(&#39;fileout.dat&#39;, &#39;w&#39;) as f:</span>
+<span class="sd">        &gt;&gt;&gt;     mconf = mp.inspect_mconf(out=f)</span>
+<span class="sd">        &gt;&gt;&gt; # out could be StringIO or sys.stdout or &#39;stdout&#39;.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        :class:`~phantasy.library.parser.config.Configuration`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">mconf</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">mconf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_mach_conf</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mconf</span><span class="p">,</span> <span class="n">Configuration</span><span class="p">):</span>
+            <span class="n">retval</span> <span class="o">=</span> <span class="n">MachinePortal</span><span class="o">.</span><span class="n">get_inspect_mconf</span><span class="p">(</span><span class="n">mconf</span><span class="p">)</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">out</span> <span class="o">==</span> <span class="s1">&#39;stdout&#39;</span><span class="p">:</span>
+                    <span class="n">out</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span>
+
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{0:&lt;20s}</span><span class="s1"> : </span><span class="si">{1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;machine config path&#39;</span><span class="p">,</span> <span class="n">retval</span><span class="p">[</span><span class="s1">&#39;path&#39;</span><span class="p">]),</span>
+                      <span class="n">file</span><span class="o">=</span><span class="n">out</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-&#39;</span> <span class="o">*</span> <span class="mi">22</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">out</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{0:&lt;20s}</span><span class="s1"> : </span><span class="si">{1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;machine name&#39;</span><span class="p">,</span> <span class="n">retval</span><span class="p">[</span><span class="s1">&#39;machine&#39;</span><span class="p">]),</span>
+                      <span class="n">file</span><span class="o">=</span><span class="n">out</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-&#39;</span> <span class="o">*</span> <span class="mi">22</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">out</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{0:&lt;20s}</span><span class="s1"> : </span><span class="si">{1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;All valid lattices&#39;</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">retval</span><span class="p">[</span><span class="s1">&#39;lattices&#39;</span><span class="p">])),</span>
+                      <span class="n">file</span><span class="o">=</span><span class="n">out</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">d</span> <span class="o">=</span> <span class="n">retval</span><span class="p">[</span><span class="s1">&#39;config&#39;</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">sn</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-&#39;</span> <span class="o">*</span> <span class="mi">22</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">out</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Section - &quot;</span> <span class="o">+</span> <span class="n">sn</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">out</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-&#39;</span> <span class="o">*</span> <span class="mi">22</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">out</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="n">sn</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{0:&lt;20s}</span><span class="s2"> : </span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">),</span> <span class="n">file</span><span class="o">=</span><span class="n">out</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">_LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Cannot output into stream defined by out.&quot;</span><span class="p">)</span>
+            <span class="k">finally</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">retval</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Cannot inspect invalid machine configuration object.&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_inspect_mconf</span><span class="p">(</span><span class="n">mconf</span><span class="p">):</span>
+        <span class="n">m_path</span> <span class="o">=</span> <span class="n">mconf</span><span class="o">.</span><span class="n">config_path</span>
+        <span class="n">m_name</span> <span class="o">=</span> <span class="n">m_path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">)[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">m_lats</span> <span class="o">=</span> <span class="n">mconf</span><span class="o">.</span><span class="n">getarray</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;segments&#39;</span><span class="p">)</span>
+        <span class="n">m_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">sn</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">mconf</span><span class="o">.</span><span class="n">items</span><span class="p">(</span><span class="n">sn</span><span class="p">))</span> <span class="k">for</span> <span class="n">sn</span> <span class="ow">in</span> <span class="n">mconf</span><span class="o">.</span><span class="n">sections</span><span class="p">()}</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;path&#39;</span><span class="p">:</span> <span class="n">m_path</span><span class="p">,</span> <span class="s1">&#39;lattices&#39;</span><span class="p">:</span> <span class="n">m_lats</span><span class="p">,</span>
+                <span class="s1">&#39;machine&#39;</span><span class="p">:</span> <span class="n">m_name</span><span class="p">,</span> <span class="s1">&#39;config&#39;</span><span class="p">:</span> <span class="n">m_dict</span><span class="p">}</span>
+
+<div class="viewcode-block" id="MachinePortal.get_pv_names"><a class="viewcode-back" href="../../../../src/apidocs/operation.html#phantasy.MachinePortal.get_pv_names">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_pv_names</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get PV names by given fields for defined elements.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        elem :</span>
+<span class="sd">            (List of) CaElement objects.</span>
+<span class="sd">        field : str or List(str)</span>
+<span class="sd">            (List of) Field name of PV, if list of names is defined, only</span>
+<span class="sd">            names shared by all elements are valid; if not defined, all</span>
+<span class="sd">            shared fields will be used.</span>
+
+<span class="sd">        Keyword Arguments</span>
+<span class="sd">        -----------------</span>
+<span class="sd">        handle : str</span>
+<span class="sd">            Handle of pv, &#39;readback&#39; (default), &#39;setpoint&#39; or &#39;readset&#39;.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ret : dict</span>
+<span class="sd">            dict of PV names, with keys of field names.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        1. Get all BPM and PM elements:</span>
+
+<span class="sd">        &gt;&gt;&gt; elem = mp.get_elements(type=&#39;*PM&#39;)</span>
+
+<span class="sd">        2. Get all pv names with same field:</span>
+
+<span class="sd">        &gt;&gt;&gt; pv1 = mp.get_pv_names(elem) # {&#39;X&#39;:[...], &#39;Y&#39;:[...]}</span>
+
+<span class="sd">        3. Get define field(s):</span>
+
+<span class="sd">        &gt;&gt;&gt; pv2 = mp.get_pv_names(elem, &#39;X&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; pv2 = mp.get_pv_names(elem, [&#39;X&#39;])</span>
+
+<span class="sd">        4. Get all PV names from one elements:</span>
+
+<span class="sd">        &gt;&gt;&gt; pv3 = mp.get_pv_names(elem[0])</span>
+<span class="sd">        &gt;&gt;&gt; # return value example:</span>
+<span class="sd">        {u&#39;ENG&#39;: [u&#39;V_1:LS1_CA01:BPM_D1129:ENG_RD&#39;],</span>
+<span class="sd">         u&#39;PHA&#39;: [u&#39;V_1:LS1_CA01:BPM_D1129:PHA_RD&#39;],</span>
+<span class="sd">         u&#39;X&#39;: [u&#39;V_1:LS1_CA01:BPM_D1129:X_RD&#39;],</span>
+<span class="sd">         u&#39;Y&#39;: [u&#39;V_1:LS1_CA01:BPM_D1129:Y_RD&#39;]}</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        :func:`get_pv_values`</span>
+<span class="sd">            Get PV values.</span>
+<span class="sd">        :func:`~phantasy.library.pv.readback.get_readback`</span>
+<span class="sd">            Get PV readbacks.</span>
+<span class="sd">        :class:`~phantasy.library.lattice.element.CaElement`</span>
+<span class="sd">            Element class.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="n">CaElement</span><span class="p">):</span>
+                <span class="n">_LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Invalid CaElement.&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">None</span>
+            <span class="n">elem</span> <span class="o">=</span> <span class="n">elem</span><span class="p">,</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">elem</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">CaElement</span><span class="p">):</span>
+                <span class="n">_LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Invalid CaElements.&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="n">all_fields</span> <span class="o">=</span> <span class="n">reduce</span><span class="p">(</span><span class="n">intersect1d</span><span class="p">,</span> <span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">fields</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">elem</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">field</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">field</span> <span class="o">=</span> <span class="n">all_fields</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+                <span class="n">field</span> <span class="o">=</span> <span class="n">field</span><span class="p">,</span>
+            <span class="n">field</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">field</span> <span class="k">if</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">all_fields</span><span class="p">]</span>
+
+        <span class="n">handle</span> <span class="o">=</span> <span class="n">kws</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;handle&#39;</span><span class="p">,</span> <span class="s1">&#39;readback&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">f</span><span class="p">:</span> <span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">pv</span><span class="p">(</span><span class="n">field</span><span class="o">=</span><span class="n">f</span><span class="p">,</span> <span class="n">handle</span><span class="o">=</span><span class="n">handle</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">elem</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">field</span><span class="p">}</span></div>
+
+<div class="viewcode-block" id="MachinePortal.get_pv_values"><a class="viewcode-back" href="../../../../src/apidocs/operation.html#phantasy.MachinePortal.get_pv_values">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_pv_values</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get PV readback values by given fields for defined elements.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        elem :</span>
+<span class="sd">            (List of) CaElement objects.</span>
+<span class="sd">        field : str or List(str)</span>
+<span class="sd">            (List of) Field name of PV, if list of names is defined, only</span>
+<span class="sd">            names shared by all elements are valid; if not defined, all</span>
+<span class="sd">            shared fields will be used.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ret : dict</span>
+<span class="sd">            dict of PV readback values, with keys of field names.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; # get all BPM and PM elements</span>
+<span class="sd">        &gt;&gt;&gt; elem = mp.get_elements(type=&#39;*PM&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; # get &#39;X&#39; and &#39;Y&#39; pv readback values</span>
+<span class="sd">        &gt;&gt;&gt; data = mp.get_pv_values(elem, [&#39;X&#39;,&#39;Y&#39;])</span>
+<span class="sd">        &gt;&gt;&gt; data.keys()</span>
+<span class="sd">        [&#39;Y&#39;, &#39;X&#39;]</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        :func:`get_pv_names`</span>
+<span class="sd">            Get PV names.</span>
+<span class="sd">        :func:`~phantasy.library.pv.readback.get_readback`</span>
+<span class="sd">            Get PV readbacks.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pv_names</span> <span class="o">=</span> <span class="n">MachinePortal</span><span class="o">.</span><span class="n">get_pv_names</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">handle</span><span class="o">=</span><span class="s1">&#39;readback&#39;</span><span class="p">)</span>
+        <span class="n">pv_values</span> <span class="o">=</span> <span class="n">get_readback</span><span class="p">(</span><span class="n">pv_names</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">pv_values</span></div>
+
+    <span class="k">def</span> <span class="nf">sync_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">roll_back</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">update_model_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="p">):</span>
+        <span class="k">pass</span>
+
+<div class="viewcode-block" id="MachinePortal.get_all_segment_names"><a class="viewcode-back" href="../../../../src/apidocs/operation.html#phantasy.MachinePortal.get_all_segment_names">[docs]</a>    <span class="k">def</span> <span class="nf">get_all_segment_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return all available segment names.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">machines</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">last_machine_name</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;conf&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">INI_DICT</span><span class="p">[</span><span class="s1">&#39;COMMON_SECTION_NAME&#39;</span><span class="p">],</span>
+                          <span class="n">INI_DICT</span><span class="p">[</span><span class="s1">&#39;KEYNAME_SEGMENTS&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">split</span><span class="p">()</span></div>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;MachinePortal(</span><span class="si">{!r}</span><span class="s1">, </span><span class="si">{!r}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">last_machine_name</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">last_lattice_name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_repr_pretty_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">cycle</span><span class="p">):</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_load_success</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;[</span><span class="si">{}</span><span class="s2">] MachinePortal cannot be initialized.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_machine</span><span class="p">)</span>
+        <span class="n">all_segments</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_all_segment_names</span><span class="p">()</span>
+        <span class="n">wl_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">work_lattice_name</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">all_segments</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">wl_name</span><span class="p">)</span>
+        <span class="n">all_segments</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">wl_name</span><span class="p">)</span>
+        <span class="n">all_segments</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="s1">&#39;*</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">wl_name</span><span class="p">))</span>
+        <span class="k">return</span> <span class="s2">&quot;[</span><span class="si">{mname}</span><span class="s2">] MachinePortal | Valid segment: </span><span class="si">{msects}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">mname</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">last_machine_name</span><span class="p">,</span>
+                    <span class="n">msects</span><span class="o">=</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">all_segments</span><span class="p">))</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2016, Facility for Rare Isotope Beams, Michigan State University.
+      <span class="lastupdated">Last updated on Oct 29, 2021.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

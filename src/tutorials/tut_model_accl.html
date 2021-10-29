@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Modeling Accelerator Facility &mdash; phantasy 2.1.2 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+    <link rel="shortcut icon" href="../../_static/frib-favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Features" href="../features.html" />
+    <link rel="prev" title="Modeling Accelerator with Lattice File" href="tut_modelflame.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> phantasy
+          </a>
+              <div class="version">
+                2.1.2
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deploy.html">Deployment</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../tut.html">User Guide</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="tut_modelflame.html">Modeling Accelerator With Lattice File</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Modeling Accelerator Facility</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#configuration-files">Configuration Files</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#machine-configuration">Machine configuration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#channels-configuration">Channels configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#simple-example">Simple Example</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Features Highlight</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../features.html">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../features.html#gui-applications">GUI Applications</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">References</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../apiref.html">API References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../terms.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">phantasy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../tut.html">User Guide</a> &raquo;</li>
+      <li>Modeling Accelerator Facility</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="modeling-accelerator-facility">
+<h1>Modeling Accelerator Facility<a class="headerlink" href="#modeling-accelerator-facility" title="Permalink to this headline"></a></h1>
+<p>One of the key features of <code class="docutils literal notranslate"><span class="pre">phantasy</span></code> is to abstract the accelerator
+devices into hierarchical structure, which opens the portal for the
+high-level object-oriented controls way, and based on which, modularized
+high-level controls software could be developed.</p>
+<section id="configuration-files">
+<h2>Configuration Files<a class="headerlink" href="#configuration-files" title="Permalink to this headline"></a></h2>
+<p>Currently, <code class="docutils literal notranslate"><span class="pre">phantasy</span></code> uses (at most) seven (7) types of configuration
+files to describe the entire accelerator, including device abstraction,
+online-modeling, controls PV management, etc., among which, the
+file to integrate the EPICS channels or PV names with accelerator layout
+is very important. The full list of configuration file types are:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 28%" />
+<col style="width: 18%" />
+<col style="width: 54%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Type Name</p></th>
+<th class="head"><p>File name <a class="footnote-reference brackets" href="#f1" id="id1">1</a></p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Machine configuration</p></td>
+<td><p>phantasy.ini</p></td>
+<td><p>Global configuration for loading specific machine</p></td>
+</tr>
+<tr class="row-odd"><td><p>Device/Model configuration</p></td>
+<td><p>phantasy.cfg</p></td>
+<td><p>Configuration for physics models and devices</p></td>
+</tr>
+<tr class="row-even"><td><p>Channels configuration</p></td>
+<td><p>channels.csv</p></td>
+<td><p>Includes EPICS PV names and device properties</p></td>
+</tr>
+<tr class="row-odd"><td><p>Layout configuration</p></td>
+<td><p>layout.csv</p></td>
+<td><p>Devices geometrical layout configuration</p></td>
+</tr>
+<tr class="row-even"><td><p>Settings configuration</p></td>
+<td><p>settings.csv</p></td>
+<td><p>Initial settings for physics models</p></td>
+</tr>
+<tr class="row-odd"><td><p>Unit scaling configuration</p></td>
+<td><p>unicorn.xlsx</p></td>
+<td><p>Scaling laws for physics/engineering units conversion</p></td>
+</tr>
+</tbody>
+</table>
+<section id="machine-configuration">
+<h3>Machine configuration<a class="headerlink" href="#machine-configuration" title="Permalink to this headline"></a></h3>
+<p>Machine configuration file (typical name: <em>phantasy.ini</em>) is the main file that
+used by <code class="docutils literal notranslate"><span class="pre">phantasy</span></code> <code class="docutils literal notranslate"><span class="pre">MachinePortal</span></code> class to instantiate the seleted accelerator
+and specific segment, which is <code class="docutils literal notranslate"><span class="pre">machine</span></code> and <code class="docutils literal notranslate"><span class="pre">segment</span></code> parameter of
+<code class="docutils literal notranslate"><span class="pre">MachinePortal</span></code> initialization method, respectively.</p>
+</section>
+<section id="channels-configuration">
+<h3>Channels configuration<a class="headerlink" href="#channels-configuration" title="Permalink to this headline"></a></h3>
+<p>Generally, each device can have one or more than one PV names, which depends on
+the number of fields to be controlled, please note for this high-level physics
+controls framework, the only interested fields are physics related, e.g.
+one solenoid usually only has one field to control (read and write), that is
+the current applied on the device, while the RF cavity should have both phase
+and amplitude of electric field to control. In this configuration file, all
+these information should be included, togther with other general meta-information
+as device position, length, type, etc.</p>
+</section>
+</section>
+<section id="simple-example">
+<h2>Simple Example<a class="headerlink" href="#simple-example" title="Permalink to this headline"></a></h2>
+<p>Here is a simple example of <em>channels.csv</em> (<a class="reference download internal" download="" href="../../_downloads/e9571859dacba6614e5e1abcc5a14abd/channels.csv"><code class="xref download docutils literal notranslate"><span class="pre">HERE</span></code></a>)
+to describe the PV names in a
+machine named <em>simple_machine</em>, of segment name <em>TEST</em>:</p>
+<table class="docutils align-default" id="id2">
+<caption><span class="caption-text">Table Title</span><a class="headerlink" href="#id2" title="Permalink to this table"></a></caption>
+<colgroup>
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>PV</p></th>
+<th class="head"><p>elemField_eng</p></th>
+<th class="head"><p>elemField_phy</p></th>
+<th class="head"><p>elemHandle</p></th>
+<th class="head"><p>elemIndex</p></th>
+<th class="head"><p>elemLength</p></th>
+<th class="head"><p>elemName</p></th>
+<th class="head"><p>elemPosition</p></th>
+<th class="head"><p>elemType</p></th>
+<th class="head"><p>machine</p></th>
+<th class="head"><p>physicsName</p></th>
+<th class="head"><p>physicsType</p></th>
+<th class="head"><p>pvPolicy</p></th>
+<th class="head"></th>
+<th class="head"></th>
+<th class="head"></th>
+<th class="head"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>FE_SCS1:PSOL_D0704:I_CSET</p></td>
+<td><p>I</p></td>
+<td><p>B</p></td>
+<td><p>setpoint</p></td>
+<td><p>1</p></td>
+<td><p>0.3998</p></td>
+<td><p>FE_SCS1:SOLR_D0704</p></td>
+<td><p>0.3998</p></td>
+<td><p>SOL</p></td>
+<td><p>LIVE</p></td>
+<td><p>solenoid</p></td>
+<td><p>SOL_S4b</p></td>
+<td><p>DEFAULT</p></td>
+<td><p>phantasy.sys.FE</p></td>
+<td><p>phantasy.sub.SCS1</p></td>
+<td><p>LEBT</p></td>
+<td><p>LINAC</p></td>
+</tr>
+<tr class="row-odd"><td><p>FE_SCS1:PSOL_D0704:I_RSET</p></td>
+<td><p>I</p></td>
+<td><p>B</p></td>
+<td><p>readset</p></td>
+<td><p>1</p></td>
+<td><p>0.3998</p></td>
+<td><p>FE_SCS1:SOLR_D0704</p></td>
+<td><p>0.3998</p></td>
+<td><p>SOL</p></td>
+<td><p>LIVE</p></td>
+<td><p>solenoid</p></td>
+<td><p>SOL_S4b</p></td>
+<td><p>DEFAULT</p></td>
+<td><p>phantasy.sys.FE</p></td>
+<td><p>phantasy.sub.SCS1</p></td>
+<td><p>LEBT</p></td>
+<td><p>LINAC</p></td>
+</tr>
+<tr class="row-even"><td><p>FE_SCS1:PSOL_D0704:I_RD</p></td>
+<td><p>I</p></td>
+<td><p>B</p></td>
+<td><p>readback</p></td>
+<td><p>1</p></td>
+<td><p>0.3998</p></td>
+<td><p>FE_SCS1:SOLR_D0704</p></td>
+<td><p>0.3998</p></td>
+<td><p>SOL</p></td>
+<td><p>LIVE</p></td>
+<td><p>solenoid</p></td>
+<td><p>SOL_S4b</p></td>
+<td><p>DEFAULT</p></td>
+<td><p>phantasy.sys.FE</p></td>
+<td><p>phantasy.sub.SCS1</p></td>
+<td><p>LEBT</p></td>
+<td><p>LINAC</p></td>
+</tr>
+<tr class="row-odd"><td><p>FE_SCS1:PSQ1_D0726:V_CSET</p></td>
+<td><p>V</p></td>
+<td><p>V</p></td>
+<td><p>setpoint</p></td>
+<td><p>2</p></td>
+<td><p>0.2052</p></td>
+<td><p>FE_SCS1:QHE_D0726</p></td>
+<td><p>2.5275</p></td>
+<td><p>EQUAD</p></td>
+<td><p>LIVE</p></td>
+<td><p>ES_quad_X</p></td>
+<td><p>QUAD_Q7</p></td>
+<td><p>EQUAD</p></td>
+<td><p>phantasy.sys.FE</p></td>
+<td><p>phantasy.sub.SCS1</p></td>
+<td><p>LEBT</p></td>
+<td><p>LINAC</p></td>
+</tr>
+<tr class="row-even"><td><p>FE_SCS1:PSQ1_D0726:V_RSET</p></td>
+<td><p>V</p></td>
+<td><p>V</p></td>
+<td><p>readset</p></td>
+<td><p>2</p></td>
+<td><p>0.2052</p></td>
+<td><p>FE_SCS1:QHE_D0726</p></td>
+<td><p>2.5275</p></td>
+<td><p>EQUAD</p></td>
+<td><p>LIVE</p></td>
+<td><p>ES_quad_X</p></td>
+<td><p>QUAD_Q7</p></td>
+<td><p>EQUAD</p></td>
+<td><p>phantasy.sys.FE</p></td>
+<td><p>phantasy.sub.SCS1</p></td>
+<td><p>LEBT</p></td>
+<td><p>LINAC</p></td>
+</tr>
+<tr class="row-odd"><td><p>FE_SCS1:PSQ1_D0726:V_RD</p></td>
+<td><p>V</p></td>
+<td><p>V</p></td>
+<td><p>readback</p></td>
+<td><p>2</p></td>
+<td><p>0.2052</p></td>
+<td><p>FE_SCS1:QHE_D0726</p></td>
+<td><p>2.5275</p></td>
+<td><p>EQUAD</p></td>
+<td><p>LIVE</p></td>
+<td><p>ES_quad_X</p></td>
+<td><p>QUAD_Q7</p></td>
+<td><p>EQUAD</p></td>
+<td><p>phantasy.sys.FE</p></td>
+<td><p>phantasy.sub.SCS1</p></td>
+<td><p>LEBT</p></td>
+<td><p>LINAC</p></td>
+</tr>
+<tr class="row-even"><td><p>FE_SCS1:PSQ2_D0726:V_CSET</p></td>
+<td><p>V</p></td>
+<td><p>V</p></td>
+<td><p>setpoint</p></td>
+<td><p>2</p></td>
+<td><p>0.2052</p></td>
+<td><p>FE_SCS1:QHE_D0726</p></td>
+<td><p>2.5275</p></td>
+<td><p>EQUAD</p></td>
+<td><p>LIVE</p></td>
+<td><p>ES_quad_X</p></td>
+<td><p>QUAD_Q7</p></td>
+<td><p>EQUAD</p></td>
+<td><p>phantasy.sys.FE</p></td>
+<td><p>phantasy.sub.SCS1</p></td>
+<td><p>LEBT</p></td>
+<td><p>LINAC</p></td>
+</tr>
+<tr class="row-odd"><td><p>FE_SCS1:PSQ2_D0726:V_RSET</p></td>
+<td><p>V</p></td>
+<td><p>V</p></td>
+<td><p>readset</p></td>
+<td><p>2</p></td>
+<td><p>0.2052</p></td>
+<td><p>FE_SCS1:QHE_D0726</p></td>
+<td><p>2.5275</p></td>
+<td><p>EQUAD</p></td>
+<td><p>LIVE</p></td>
+<td><p>ES_quad_X</p></td>
+<td><p>QUAD_Q7</p></td>
+<td><p>EQUAD</p></td>
+<td><p>phantasy.sys.FE</p></td>
+<td><p>phantasy.sub.SCS1</p></td>
+<td><p>LEBT</p></td>
+<td><p>LINAC</p></td>
+</tr>
+<tr class="row-even"><td><p>FE_SCS1:PSQ2_D0726:V_RD</p></td>
+<td><p>V</p></td>
+<td><p>V</p></td>
+<td><p>readback</p></td>
+<td><p>2</p></td>
+<td><p>0.2052</p></td>
+<td><p>FE_SCS1:QHE_D0726</p></td>
+<td><p>2.5275</p></td>
+<td><p>EQUAD</p></td>
+<td><p>LIVE</p></td>
+<td><p>ES_quad_X</p></td>
+<td><p>QUAD_Q7</p></td>
+<td><p>EQUAD</p></td>
+<td><p>phantasy.sys.FE</p></td>
+<td><p>phantasy.sub.SCS1</p></td>
+<td><p>LEBT</p></td>
+<td><p>LINAC</p></td>
+</tr>
+</tbody>
+</table>
+<p>While the machine configuration for this example is:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">COMMON</span><span class="p">]</span>
+<span class="n">segments</span><span class="p">:</span> <span class="n">TEST</span>
+<span class="n">default_segment</span><span class="p">:</span> <span class="n">TEST</span>
+<span class="n">root_data_dir</span><span class="p">:</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">phantasy_data</span>
+
+<span class="p">[</span><span class="n">TEST</span><span class="p">]</span>
+<span class="n">cfs_url</span><span class="p">:</span> <span class="n">channels</span><span class="o">.</span><span class="n">csv</span>
+<span class="n">cfs_tag</span><span class="p">:</span> <span class="n">LINAC</span>
+<span class="n">cfs_property_names</span><span class="p">:</span> <span class="n">elem</span><span class="o">*</span><span class="p">,</span> <span class="n">pvPolicy</span>
+<span class="c1">#settings_file: settings.json</span>
+<span class="c1">#layout_file: layout.csv</span>
+<span class="c1">#config_file: phantasy.cfg</span>
+</pre></div>
+</div>
+<p>The typical snippet to abstract the whole segment could be:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">phantasy</span> <span class="kn">import</span> <span class="n">MachinePortal</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mp</span> <span class="o">=</span> <span class="n">MachinePortal</span><span class="p">(</span><span class="n">machine</span><span class="o">=</span><span class="s1">&#39;simple_machine&#39;</span><span class="p">,</span> <span class="n">segment</span><span class="o">=</span><span class="s1">&#39;TEST&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lat</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">work_lattice_conf</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">lat</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+<span class="go">0001 | FE_SCS1:SOLR_D0704   SOL       0.00  [m] 0.399800 [m]</span>
+<span class="go">0002 | FE_SCS1:QHE_D0726    EQUAD     2.32  [m] 0.205200 [m]</span>
+</pre></div>
+</div>
+<p>All the devices could be reached via <cite>mp.work_lattice_conf</cite>.</p>
+<p class="rubric">Footnotes</p>
+<dl class="footnote brackets">
+<dt class="label" id="f1"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd><p>Typical file names used by <em>phantasy-machines</em> package, see <a class="reference external" href="https://stash.frib.msu.edu/projects/PHYAPP/repos/phantasy-machines/browse">here</a> for the details of each file.</p>
+</dd>
+</dl>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tut_modelflame.html" class="btn btn-neutral float-left" title="Modeling Accelerator with Lattice File" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../features.html" class="btn btn-neutral float-right" title="Features" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2016, Facility for Rare Isotope Beams, Michigan State University.
+      <span class="lastupdated">Last updated on Oct 29, 2021.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
