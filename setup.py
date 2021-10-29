@@ -13,7 +13,6 @@ def read_license():
     with open('LICENSE') as f:
         return f.read()
 
-
 _version="2.1.2"
 _name = "phantasy"
 _description = 'Physics high-level applications and toolkit for accelerator system'
@@ -22,16 +21,24 @@ _platform = ["Linux"]
 _author = "Tong Zhang"
 _author_email = "zhangt@frib.msu.edu"
 _license = read_license()
-_url = "https://archman.github.io/phantasy/"
-_keywords = "phantasy FRIB HLA high-level python FLAME IMPACT"
+_url = "https://phantasy-project.github.io/phantasy/"
+_keywords = "PHANTASY FRIB HLA high-level Python FLAME Virtual Model"
 _install_requires = [
-    'numpy',
-    'matplotlib',
-    'xlrd',
-    'lmfit',
-    'scipy',
-    'cothread',
-    'pyepics',
+    'epicscorelibs',
+    'importlib_metadata',
+    'phantasy-machines',
+    'xlrd>=1.1,<2.0',
+    'matplotlib>=3.1.2,<4.0',
+    'lmfit>=1.0.0,<2.0',
+    'cothread>=2.16,<3.0',
+    'pyepics>=3.4.2,<4.0',
+    'flame-code>=1.8.6,<2.0',
+    'flame-utils>=0.4.1,<1.0',
+    'requests>=2.24.0,<3.0',
+    'pandas>=1.1.4,<2.0',
+    'toml>=0.10.1,<1.0',
+    'python-unicorn>=0.4.4,<1.0',
+    'flame-data',
 ]
 _extras_require = {
     'test': ['pytest', 'pytest-cov'],
