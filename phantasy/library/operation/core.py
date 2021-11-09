@@ -66,14 +66,15 @@ class MachinePortal(object):
 
     Note
     ----
-    1. Lattice if created from segment of machine.
+    1. Lattice is created from segment of machine.
     2. Directory searching rule for the machine configuration files:
-       (list by searching priority)
+       (searching priority from high to low)
 
-       - User-defined directory;
-       - Current working directory;
-       - Environmental variable: ``PHANTASY_CONFIG_DIR``;
+       - Path of user-defined directory;
+       - Path of current working directory;
+       - Path defined by env: ``PHANTASY_CONFIG_DIR``;
        - Current user's home folder: ``~/.phantasy``;
+       - Path of phantasy-machines if installed via pip.
 
        If the found directory is ``MPATH``, then the naming rule of *machine*:
        ``MPATH`` + machine name, e.g. ``MPATH=/home/user/develop``,
