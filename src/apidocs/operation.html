@@ -129,14 +129,15 @@ of configuration file.</p></li>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <ol class="arabic">
-<li><p>Lattice if created from segment of machine.</p></li>
+<li><p>Lattice is created from segment of machine.</p></li>
 <li><p>Directory searching rule for the machine configuration files:
-(list by searching priority)</p>
+(searching priority from high to low)</p>
 <ul class="simple">
-<li><p>User-defined directory;</p></li>
-<li><p>Current working directory;</p></li>
-<li><p>Environmental variable: <code class="docutils literal notranslate"><span class="pre">PHANTASY_CONFIG_DIR</span></code>;</p></li>
+<li><p>Path of user-defined directory;</p></li>
+<li><p>Path of current working directory;</p></li>
+<li><p>Path defined by env: <code class="docutils literal notranslate"><span class="pre">PHANTASY_CONFIG_DIR</span></code>;</p></li>
 <li><p>Current user’s home folder: <code class="docutils literal notranslate"><span class="pre">~/.phantasy</span></code>;</p></li>
+<li><p>Path of phantasy-machines if installed via pip.</p></li>
 </ul>
 <p>If the found directory is <code class="docutils literal notranslate"><span class="pre">MPATH</span></code>, then the naming rule of <em>machine</em>:
 <code class="docutils literal notranslate"><span class="pre">MPATH</span></code> + machine name, e.g. <code class="docutils literal notranslate"><span class="pre">MPATH=/home/user/develop</span></code>,

@@ -151,14 +151,15 @@
 
 <span class="sd">    Note</span>
 <span class="sd">    ----</span>
-<span class="sd">    1. Lattice if created from segment of machine.</span>
+<span class="sd">    1. Lattice is created from segment of machine.</span>
 <span class="sd">    2. Directory searching rule for the machine configuration files:</span>
-<span class="sd">       (list by searching priority)</span>
+<span class="sd">       (searching priority from high to low)</span>
 
-<span class="sd">       - User-defined directory;</span>
-<span class="sd">       - Current working directory;</span>
-<span class="sd">       - Environmental variable: ``PHANTASY_CONFIG_DIR``;</span>
+<span class="sd">       - Path of user-defined directory;</span>
+<span class="sd">       - Path of current working directory;</span>
+<span class="sd">       - Path defined by env: ``PHANTASY_CONFIG_DIR``;</span>
 <span class="sd">       - Current user&#39;s home folder: ``~/.phantasy``;</span>
+<span class="sd">       - Path of phantasy-machines if installed via pip.</span>
 
 <span class="sd">       If the found directory is ``MPATH``, then the naming rule of *machine*:</span>
 <span class="sd">       ``MPATH`` + machine name, e.g. ``MPATH=/home/user/develop``,</span>
