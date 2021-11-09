@@ -42,6 +42,7 @@ _install_requires = [
 ]
 _extras_require = {
     'test': ['pytest', 'pytest-cov'],
+    'doc': ['sphinx_rtd_theme', 'nbsphinx', 'dateutils', 'ipython'],
 }
 
 def get_all_dirs(des_root, src_root):
