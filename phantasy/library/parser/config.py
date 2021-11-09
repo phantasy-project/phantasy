@@ -216,10 +216,12 @@ def _find_machine_path(machine):
     If *machine* comes with a full path, it assume the configuration file is
     under the same path.
 
-    It searches 3 different ways:
-      - a absolute path from parameter
-      - environment variable: PHANTASY_CONFIG_DIR,
-      - the package directory
+    Searching priority from high to low:
+    - Path of user-defined directory;
+    - Path of current working directory;
+    - Path defined by env: ``PHANTASY_CONFIG_DIR``;
+    - Current user's home folder: ``~/.phantasy``;
+    - Path of phantasy-machines if installed via pip.
 
     Parameters
     ----------
@@ -240,7 +242,7 @@ def _find_machine_path(machine):
         mname = os.path.basename(machine)
         return machine, mname
 
-    # try "machine" in PHANTASY_CONFIG_DIR and ~/.phantasy/ (default)
+    # search in PHANTASY_CONFIG_DIR and ~/.phantasy/ (default)
     phantasy_config_dir = os.environ.get("PHANTASY_CONFIG_DIR", _HOME_DEFAULT)
     _LOGGER.debug("Searching configuration in: '%s' for '%s'" % (phantasy_config_dir, machine))
     home_machine = os.path.join(phantasy_config_dir, machine)
@@ -248,17 +250,16 @@ def _find_machine_path(machine):
         mname = os.path.basename(os.path.realpath(machine))
         return home_machine, mname
 
-    # try the package
-    # pkg_machine = resource_filename(__name__, machine)
-    # _LOGGER.info("trying system dir '%s'" % pkg_machine)
-    # if os.path.isdir(pkg_machine):
-    #     mname = os.path.basename(os.path.realpath(pkg_machine))
-    #     return pkg_machine, mname
-    #sys_mach = DEFAULT_PHANTASY_CONFIG_MACHINE
-    #_LOGGER.info("Searching system dir '%s'" % sys_mach)
-    #if os.path.isdir(sys_mach):
-    #    mname = os.path.basename(os.path.realpath(sys_mach))
-    #    return sys_mach, mname
+    # search if phantasy-machines pacakge is installed
+    _LOGGER.debug("Searching configuration in phantasy-machines package.")
+    try:
+        import phantasy_machines
+    except ImportError:
+        print("'phantasy-machines' is not installed.")
+    else:
+        phantasy_config_dir = phantasy_machines.__path__[0]
+        mpath = os.path.join(phantasy_config_dir, machine)
+        return mpath, machine
 
     _LOGGER.critical("Can not find machine dir")
     return None, ""
