@@ -1,11 +1,4 @@
-numpy
 sphinx_rtd_theme
 nbsphinx
 dateutils
-flame-code
-flame-utils
-pandas
 ipython
-toml
-python-unicorn
-phantasy-machines
