@@ -1,6 +1,4 @@
-## PHANTASY
-
-![Build Status](https://travis-ci.org/phantasy-project/phantasy.svg?branch=master) ![py2.7](https://img.shields.io/badge/Python-2.7-green.svg) ![py3.x](https://img.shields.io/badge/Python-3.x-green.svg)
+# PHANTASY
 
 **P**hysics **H**igh-level **A**pplications a**N**d **T**oolkit for **A**ccelerator **SY**stem.
 
