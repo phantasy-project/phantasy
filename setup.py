@@ -68,6 +68,7 @@ setup(
     version=_version,
     description=_description,
     long_description=_long_description,
+    long_description_content_type='text/markdown',
     author=_author,
     author_email=_author_email,
     url=_url,
