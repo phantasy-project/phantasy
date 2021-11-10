@@ -10,11 +10,6 @@ def readme():
         return f.read()
 
 
-def read_license():
-    with open('LICENSE') as f:
-        return f.read()
-
-
 _version = "2.1.3"
 _name = "phantasy"
 _description = 'Physics high-level applications and toolkit for accelerator system'
@@ -22,7 +17,7 @@ _long_description = readme() + '\n\n'
 _platform = ["Linux"]
 _author = "Tong Zhang"
 _author_email = "zhangt@frib.msu.edu"
-_license = read_license()
+_license = "BSD"
 _url = "https://phantasy-project.github.io/phantasy/"
 _keywords = "PHANTASY FRIB HLA high-level Python FLAME Virtual Model"
 _install_requires = [
