@@ -13,7 +13,7 @@ def read_license():
     with open('LICENSE') as f:
         return f.read()
 
-_version="2.1.2"
+_version="2.1.3"
 _name = "phantasy"
 _description = 'Physics high-level applications and toolkit for accelerator system'
 _long_description = readme() + '\n\n'
