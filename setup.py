@@ -2,18 +2,20 @@
 # -*- coding: utf-8 -*-
 
 import os
-from setuptools import setup, find_packages
+import setuptools
 
 
 def readme():
     with open('README.md', 'r') as f:
         return f.read()
 
+
 def read_license():
     with open('LICENSE') as f:
         return f.read()
 
-_version="2.1.3"
+
+_version = "2.1.3"
 _name = "phantasy"
 _description = 'Physics high-level applications and toolkit for accelerator system'
 _long_description = readme() + '\n\n'
@@ -45,13 +47,14 @@ _extras_require = {
     'doc': ['sphinx_rtd_theme', 'nbsphinx', 'dateutils', 'ipython'],
 }
 
+
 def get_all_dirs(des_root, src_root):
     ret = []
-    for r,d,f in os.walk(src_root):
-        ret.append(
-                (os.path.join(des_root, r), [os.path.join(r, fi) for fi in f])
-        )
+    for r, d, f in os.walk(src_root):
+        ret.append((os.path.join(des_root,
+                                 r), [os.path.join(r, fi) for fi in f]))
     return ret
+
 
 def set_entry_points():
     r = {}
@@ -63,7 +66,8 @@ def set_entry_points():
     ]
     return r
 
-setup(
+
+setuptools.setup(
     name=_name,
     version=_version,
     description=_description,
@@ -75,16 +79,15 @@ setup(
     platforms=_platform,
     license=_license,
     keywords=_keywords,
-    packages=find_packages(),
+    packages=setuptools.find_packages(),
     include_package_data=True,
     data_files=get_all_dirs('/etc/phantasy/config', 'demo_mconfig'),
     entry_points=set_entry_points(),
     classifiers=[
         'Programming Language :: Python :: 3',
         'Topic :: Software Development :: Libraries :: Python Modules',
-        'Topic :: Scientific/Engineering :: Physics'],
-    # tests_require=['nose'],
-    # test_suite='nose.collector',
+        'Topic :: Scientific/Engineering :: Physics'
+    ],
     install_requires=_install_requires,
     extras_require=_extras_require,
 )
