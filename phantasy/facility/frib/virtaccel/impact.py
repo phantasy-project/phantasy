@@ -2,8 +2,6 @@
 
 """Library for running an EPICS-based virtual accelertor using IMPACT particle tracker."""
 
-from __future__ import print_function
-
 import cothread
 import logging
 import math
@@ -38,11 +36,6 @@ from phantasy.library.layout import SolCorElement
 from phantasy.library.layout import StripElement
 from phantasy.library.layout import ValveElement
 from phantasy.library.parser import Configuration
-
-try:
-    basestring  # Python 2.X
-except NameError:
-    basestring = str  # Python 3.X
 
 __copyright__ = "Copyright (c) 2015, Facility for Rare Isotope Beams"
 
@@ -182,7 +175,7 @@ class VirtualAcceleratorFactory(object):
 
     @start.setter
     def start(self, start):
-        if (start is not None) and not isinstance(start, basestring):
+        if (start is not None) and not isinstance(start, str):
             raise TypeError("VirtAccelFactory: 'start' property much be type string or None")
         self._start = start
 
@@ -192,7 +185,7 @@ class VirtualAcceleratorFactory(object):
 
     @end.setter
     def end(self, end):
-        if (end is not None) and not isinstance(end, basestring):
+        if (end is not None) and not isinstance(end, str):
             raise TypeError("VirtAccelFactory: 'end' property much be type string or None")
         self._end = end
 
@@ -232,7 +225,7 @@ class VirtualAcceleratorFactory(object):
 
     @machine.setter
     def machine(self, machine):
-        if (machine is not None) and not isinstance(machine, basestring):
+        if (machine is not None) and not isinstance(machine, str):
             raise TypeError("VirtAccelFactory: 'machine' property much be type string or None")
         self._machine = machine
 
@@ -242,7 +235,7 @@ class VirtualAcceleratorFactory(object):
 
     @data_dir.setter
     def data_dir(self, data_dir):
-        if (data_dir is not None) and not isinstance(data_dir, basestring):
+        if (data_dir is not None) and not isinstance(data_dir, str):
             raise TypeError("VirtAccelFactory: 'data_dir' property much be type string or None")
         self._data_dir = data_dir
 
@@ -252,7 +245,7 @@ class VirtualAcceleratorFactory(object):
 
     @work_dir.setter
     def work_dir(self, work_dir):
-        if (work_dir is not None) and not isinstance(work_dir, basestring):
+        if (work_dir is not None) and not isinstance(work_dir, str):
             raise TypeError("VirtAccelFactory: 'work_dir' property much be type string or None")
         self._work_dir = work_dir
 
@@ -462,7 +455,7 @@ class VirtualAccelerator(object):
 
     @impact_exe.setter
     def impact_exe(self, impact_exe):
-        if not isinstance(impact_exe, basestring):
+        if not isinstance(impact_exe, str):
             raise TypeError("VirtualAccelerator: 'impact_exe' property much be type string")
         self._impact_exe = impact_exe
 
@@ -472,7 +465,7 @@ class VirtualAccelerator(object):
 
     @data_dir.setter
     def data_dir(self, data_dir):
-        if not isinstance(data_dir, basestring):
+        if not isinstance(data_dir, str):
             raise TypeError("VirtualAccelerator: 'data_dir' property much be type string")
         self._data_dir = data_dir
 
@@ -482,7 +475,7 @@ class VirtualAccelerator(object):
 
     @work_dir.setter
     def work_dir(self, work_dir):
-        if (work_dir is not None) and not isinstance(work_dir, basestring):
+        if (work_dir is not None) and not isinstance(work_dir, str):
             raise TypeError("VirtualAccelerator: 'work_dir' property much be type string or None")
         self._work_dir = work_dir
 

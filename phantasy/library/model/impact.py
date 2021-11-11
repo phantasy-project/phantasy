@@ -2,8 +2,6 @@
 
 """Library for IMPACT related lattice/model function."""
 
-from __future__ import print_function
-
 __copyright__ = "Copyright (c) 2015, Facility for Rare Isotope Beams"
 
 __author__ = "Dylan Maxwell"

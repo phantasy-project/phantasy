@@ -4,11 +4,6 @@
 """Define FRIB standard machine configuration file.
 """
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
-
 import os
 import sys
 import logging
@@ -191,10 +186,7 @@ def generate_inifile(dconf=None, out=None):
     >>> with open('phantasy.ini', 'w') as f:
     >>>     generate_inifile(out=f)
     """
-    try:
-        from ConfigParser import SafeConfigParser as ConfigParser
-    except ImportError:
-        from configparser import ConfigParser
+    from configparser import ConfigParser
 
     if dconf is None:
         dconf = INI_DCONF

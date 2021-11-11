@@ -4,9 +4,6 @@
 """Input and output functions regarding to generic directory service.
 """
 
-from __future__ import print_function
-from __future__ import unicode_literals
-
 import json
 import logging
 import os
@@ -21,16 +18,6 @@ from .database import CFCDatabase
 from .table import CFCTable
 
 _LOGGER = logging.getLogger(__name__)
-
-try:
-    r_input = raw_input
-except NameError:
-    r_input = input
-
-try:
-    basestring
-except NameError:
-    basestring = str
 
 
 def get_data_from_db(db_name, db_type='sqlite', **kws):
@@ -188,14 +175,14 @@ def _get_data(raw_data, prop_list, tag_list, **kws):
     name_filter = kws.get('name_filter', None)
 
     if name_filter is not None:
-        if isinstance(name_filter, basestring):
+        if isinstance(name_filter, str):
             name_filter = name_filter,
     else:
         name_filter = ('*',)
 
     prop_default = dict(zip(prop_list, ['*'] * len(prop_list)))
     if prop_filter is not None:
-        if isinstance(prop_filter, basestring):
+        if isinstance(prop_filter, str):
             prop_filter = prop_filter,
         prop_tmp = expand_list_to_dict(prop_filter, prop_list)  # dict
         if prop_tmp == {}:
@@ -207,7 +194,7 @@ def _get_data(raw_data, prop_list, tag_list, **kws):
 
     tag_selected = []
     if tag_filter is not None:
-        if isinstance(tag_filter, basestring):
+        if isinstance(tag_filter, str):
             tag_filter = tag_filter,
         tag_selected = flatten(
             [pattern_filter(tag_list, tn_i)
@@ -325,7 +312,7 @@ def _get_cf_data(cfc, prop_list, tag_list, **kws):
 
     tag_selected = []
     if tag_filter is not None:
-        if isinstance(tag_filter, basestring):
+        if isinstance(tag_filter, str):
             tag_filter = tag_filter,
         tag_selected = flatten([pattern_filter(tag_list, tn_i)
             for tn_i in tag_filter])
@@ -335,7 +322,7 @@ def _get_cf_data(cfc, prop_list, tag_list, **kws):
         kargs['tagName'] = ','.join(tag_selected)
 
     if prop_filter is not None:
-        if isinstance(prop_filter, basestring):
+        if isinstance(prop_filter, str):
             prop_filter = prop_filter,
         prop_tmp = expand_list_to_dict(prop_filter, prop_list)  # dict
         if prop_tmp == {}:

@@ -3,20 +3,13 @@
 
 """Implement phytool command 'cfutil-export'.
 """
-
-from __future__ import print_function
-
 import getpass
 import logging
 import os.path
 import sys
 import traceback
 from argparse import ArgumentParser
-
-try:
-    from urlparse import urlparse
-except ImportError:
-    from urllib.parse import urlparse
+from urllib.parse import urlparse
 
 from phantasy.library.channelfinder import write_cfs
 from phantasy.library.channelfinder import write_db
@@ -25,11 +18,6 @@ from phantasy.library.channelfinder import write_tb
 from phantasy.library.pv import DataSource
 
 _LOGGER = logging.getLogger(__name__)
-
-try:
-    r_input = raw_input
-except NameError:
-    r_input = input
 
 parser = ArgumentParser(prog=os.path.basename(sys.argv[0]) + " cfutil-export",
                         description="Export channel data (.csv, .sqlite, CFS) to \
@@ -67,7 +55,7 @@ def main():
     elif channel_source.scheme in ["http", "https"]:
         sourcepath = args.from_path
         if args.username is None:
-            args.username = r_input("Enter username: ")
+            args.username = input("Enter username: ")
         if args.password is None:
             args.password = getpass.getpass("Enter password: ")
     else:
@@ -127,7 +115,7 @@ def main():
         # CFS
         try:
             if args.username is None:
-                args.username = r_input("Enter username: ")
+                args.username = input("Enter username: ")
 
             if args.password is None:
                 args.password = getpass.getpass("Enter password: ")

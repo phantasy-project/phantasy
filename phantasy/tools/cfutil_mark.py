@@ -5,8 +5,6 @@
 Implement phytool command 'cfutil-mark'.
 """
 
-from __future__ import print_function
-
 import sys
 import os.path
 import logging

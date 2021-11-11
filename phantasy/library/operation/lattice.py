@@ -6,11 +6,6 @@
     2. creating lattice
 """
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
-
 import logging
 import os
 import re
@@ -31,10 +26,6 @@ from phantasy.library.parser import Configuration
 #from phantasy.library.settings import Settings
 from unicorn.utils import UnicornData
 
-try:
-    basestring
-except NameError:
-    basestring = str
 
 __authors__ = "Tong Zhang"
 __copyright__ = "(c) 2016-2017, Facility for Rare Isotope beams, "\
@@ -426,7 +417,7 @@ def create_lattice(latname, pv_data, tag, **kws):
     _LOGGER.debug("Creating lattice '{0}' from '{1}'.".format(latname, data_source))
     _LOGGER.info("Found {0:d} PVs in '{1}'.".format(len(pv_data), latname))
 
-    if isinstance(tag, basestring):
+    if isinstance(tag, str):
         tag = tag,
 
     # create a new lattice

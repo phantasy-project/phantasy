@@ -7,9 +7,6 @@ Tong Zhang <zhangt@frib.msu.edu>
 2017-03-27 11:22:25 AM EDT
 """
 
-from __future__ import division
-from __future__ import print_function
-
 from phantasy.library.physics import Point
 
 import numpy as np

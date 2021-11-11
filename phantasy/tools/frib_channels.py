@@ -8,9 +8,6 @@ Prepare FRIB channel names from accelerator layout.
 :author: Dylan Maxwell <maxwelld@frib.msu.edu>
 :date: 2015-06-15
 """
-
-from __future__ import print_function
-
 import sys
 import os.path
 import logging

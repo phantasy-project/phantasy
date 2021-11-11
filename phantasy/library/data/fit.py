@@ -7,9 +7,6 @@
 .. 2017-04-03 15:25:36 PM EDT
 """
 
-from __future__ import division
-from __future__ import print_function
-
 import lmfit
 import numpy as np
 

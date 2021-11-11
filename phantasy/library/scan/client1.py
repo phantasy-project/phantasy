@@ -4,11 +4,6 @@
 '''One-dimensional scan client.
 '''
 
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import absolute_import
-from __future__ import division
-
 import logging
 import numpy as np
 import scan
@@ -26,7 +21,7 @@ class ScanClient1D(BaseScanClient):
     ----------
     url : str
         URL of scan server, e.g. http://127.0.0.1:4810.
-    
+
     Keyword Arguments
     -----------------
     name
@@ -385,7 +380,7 @@ class ScanClient1D(BaseScanClient):
 
     def get_data(self, scan_id=None, n=None):
         """Get scan result data.
-        
+
         Parameters
         ----------
         scan_id : int
@@ -393,8 +388,7 @@ class ScanClient1D(BaseScanClient):
         n : int
             Counter of DAQ for every *device_set* updating, if not defined,
             try to get from current instance.
-            
-    
+
         Returns
         -------
         ret :

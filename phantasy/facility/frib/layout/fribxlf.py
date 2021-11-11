@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
 """Library for reading FRIB Expanded Lattice File (*.xlsx) and generating Accelerator Design Description."""
 
-from __future__ import print_function
-from __future__ import division
-
 import logging
 import os.path
 import re
@@ -308,11 +305,6 @@ _XLF_LAYOUT_CENTER_POSITION_IDX_DEFAULT = 14
 
 _LOGGER = logging.getLogger(__name__)
 
-try:
-    basestring
-except NameError:
-    basestring = str
-
 # format D.* to D####
 FMT_INST = "D{:04d}"
 
@@ -420,7 +412,7 @@ class AccelFactory(XlfConfig):
 
     @xlfpath.setter
     def xlfpath(self, xlfpath):
-        if (xlfpath is not None) and not isinstance(xlfpath, basestring):
+        if (xlfpath is not None) and not isinstance(xlfpath, str):
             raise TypeError("AccelFactory: 'xlfpath' property must be type a string or None")
         self._xlfpath = xlfpath
 
@@ -430,7 +422,7 @@ class AccelFactory(XlfConfig):
 
     @machine.setter
     def machine(self, machine):
-        if (machine is not None) and not isinstance(machine, basestring):
+        if (machine is not None) and not isinstance(machine, str):
             raise TypeError("AccelFactory: 'machine' property must be type string or None")
         self._machine = machine
 

@@ -3,9 +3,6 @@
 """
 command line application.
 """
-
-from __future__ import print_function
-
 import sys
 
 __USAGE__ = """Usage: phytool <command> [<args>]

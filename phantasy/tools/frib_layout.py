@@ -8,9 +8,6 @@ Convert [FRIB] Expanded Lattice File (XLF) to general layout data file.
 :author: Dylan Maxwell <maxwelld@frib.msu.edu>
 :date: 2015-06-09
 """
-
-from __future__ import print_function
-
 import logging
 import os.path
 import sys

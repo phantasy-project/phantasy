@@ -10,10 +10,6 @@ Library for generating IMPACT lattice file (test.in) from Accelerator Design Des
 .. moduleauthor:: Dylan Maxwell <maxwelld@frib.msu.edu>
 """
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 import sys, os.path, logging, subprocess, shutil, tempfile, json, random
 
 from datetime import datetime

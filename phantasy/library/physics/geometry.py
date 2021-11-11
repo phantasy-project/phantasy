@@ -7,9 +7,6 @@ Tong Zhang <zhangt@frib.msu.edu>
 2017-03-27 11:29:39 AM EDT
 """
 
-from __future__ import division
-from __future__ import print_function
-
 import numpy as np
 
 EPS = np.finfo(float).eps

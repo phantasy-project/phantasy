@@ -3,13 +3,6 @@
 
 """Generate template maching configuration file.
 """
-
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
-
-
 import os
 import sys
 import logging
@@ -42,5 +35,5 @@ def main():
 
     with open(mpath, 'w') as f:
         generate_inifile(out=f)
-    
+
     return 0

@@ -3,12 +3,6 @@
 
 """Other support utils.
 """
-
-from __future__ import absolute_import
-from __future__ import unicode_literals
-from __future__ import division
-from __future__ import print_function
-
 import logging
 from bisect import bisect
 from fnmatch import fnmatch
@@ -17,10 +11,7 @@ from datetime import datetime
 import os
 import tempfile
 
-try:
-    from UserDict import DictMixin
-except ImportError:
-    from collections import MutableMapping as DictMixin
+from collections import MutableMapping as DictMixin
 
 import dateutil.relativedelta as relativedelta
 

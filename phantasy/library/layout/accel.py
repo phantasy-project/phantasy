@@ -5,8 +5,6 @@ The accelerator layout is composed of elements. These elements
 represent the various types of accelerator devices or components.
 """
 
-from __future__ import print_function
-
 import sys
 import matplotlib.patches as patches
 from matplotlib.path import Path
@@ -15,11 +13,6 @@ import numpy as np
 from phantasy.library.misc import SpecialDict
 from .style import get_style
 from .field_map import get_field_map
-
-try:
-    basestring
-except NameError:
-    basestring = str
 
 
 class Fields(object):
@@ -157,7 +150,7 @@ class Element(object):
 
     @name.setter
     def name(self, name):
-        if not isinstance(name, basestring):
+        if not isinstance(name, str):
             raise TypeError("Element: 'name' property must be a string")
         if len(name) == 0:
             raise ValueError("Element: 'name' property must not be empty")
@@ -349,7 +342,7 @@ class SeqElement(Element):
                                               nelements=len(self.elements))
 
     def __getitem__(self, i):
-        if isinstance(i, basestring):
+        if isinstance(i, str):
             return self._elements_dict.get(i, None)
         else:
             return self._elements[i]

@@ -26,9 +26,6 @@ It supports 2 different CSV file formats.
     xxx, xxx,    xxx,       xxx,          xxx,      xxx,        xxx,       xxx,      tag1,tag2
 """
 
-from __future__ import print_function
-from __future__ import unicode_literals
-
 import csv
 import getpass
 import logging

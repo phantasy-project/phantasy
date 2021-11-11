@@ -15,17 +15,8 @@ The PyScanClient source code is managed at github:
 https://github.com/PythonScanClient/PyScanClient
 '''
 
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import absolute_import
-from __future__ import division
-
 import re
-
-try:
-        from urlparse import urlparse
-except ImportError:
-        from urllib.parse import urlparse
+from urllib.parse import urlparse
 
 import scan
 
@@ -37,13 +28,6 @@ from scan.client.logdata import createTable
 import logging
 
 _LOGGER = logging.getLogger(__name__)
-
-try:
-    # Python 2.X
-    basestring
-except NameError:
-    # Python 3.X
-    basestring = str
 
 
 class BaseScanClient(scan.ScanClient):
@@ -194,14 +178,14 @@ class BaseScanClient(scan.ScanClient):
                 not isinstance(device2, (list, tuple)) or len(device2) != 4:
             raise RuntimeError("Scan parameters are not sufficient.")
 
-        if not isinstance(device1[0], basestring):
+        if not isinstance(device1[0], str):
             raise Exception("Expecting device1 name, got '%s'" % str(device1[0]))
         else:
             # Ensure device is NOT unicode object until 
             # it is supported by PyScanClient library.
             device1[0] = str(device1[0])
 
-        if not isinstance(device2[0], basestring):
+        if not isinstance(device2[0], str):
             raise Exception("Expecting device2 name, got '%s'" % str(device2[0]))
         else:
             # Ensure device is NOT unicode object until 

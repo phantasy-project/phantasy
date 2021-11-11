@@ -2,11 +2,6 @@
 
 """Library for running an EPICS-based virtual accelertor using FLAME evelope tracker."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
-
 import json
 import logging
 import numpy
@@ -23,10 +18,7 @@ from copy import deepcopy
 from datetime import datetime
 from flame_utils import generate_latfile
 
-try:
-    from StringIO import StringIO
-except ImportError:
-    from io import StringIO
+from io import StringIO
 
 import cothread
 from flame import Machine
@@ -76,12 +68,6 @@ from phantasy.library.lattice import FlameLatticeFactory
 
 DEFAULT_NOISE_LEVEL = 0.001  # i.e. 0.1%
 DEFAULT_REP_RATE = 1         # Hz
-
-try:
-    basestring  # Python 2.X
-except NameError:
-    basestring = str  # Python 3.X
-
 
 # configuration options
 
@@ -232,7 +218,7 @@ class VirtualAcceleratorFactory(object):
 
     @start.setter
     def start(self, start):
-        if (start is not None) and not isinstance(start, basestring):
+        if (start is not None) and not isinstance(start, str):
             raise TypeError("VirtAccelFactory: 'start' property much be type string or None")
         self._start = start
 
@@ -242,7 +228,7 @@ class VirtualAcceleratorFactory(object):
 
     @end.setter
     def end(self, end):
-        if (end is not None) and not isinstance(end, basestring):
+        if (end is not None) and not isinstance(end, str):
             raise TypeError("VirtAccelFactory: 'end' property much be type string or None")
         self._end = end
 
@@ -283,7 +269,7 @@ class VirtualAcceleratorFactory(object):
     @machine.setter
     def machine(self, machine):
         # pv prefix, machine in config
-        if (machine is not None) and not isinstance(machine, basestring):
+        if (machine is not None) and not isinstance(machine, str):
             raise TypeError("VirtAccelFactory: 'machine' property much be type string or None")
         self._machine = machine.upper()
 
@@ -293,7 +279,7 @@ class VirtualAcceleratorFactory(object):
 
     @data_dir.setter
     def data_dir(self, data_dir):
-        if (data_dir is not None) and not isinstance(data_dir, basestring):
+        if (data_dir is not None) and not isinstance(data_dir, str):
             raise TypeError("VirtAccelFactory: 'data_dir' property much be type string or None")
         self._data_dir = data_dir
 
@@ -303,7 +289,7 @@ class VirtualAcceleratorFactory(object):
 
     @work_dir.setter
     def work_dir(self, work_dir):
-        if (work_dir is not None) and not isinstance(work_dir, basestring):
+        if (work_dir is not None) and not isinstance(work_dir, str):
             raise TypeError("VirtAccelFactory: 'work_dir' property much be type string or None")
         self._work_dir = work_dir
 
@@ -609,7 +595,7 @@ class VirtualAccelerator(object):
 
     @data_dir.setter
     def data_dir(self, data_dir):
-        if not isinstance(data_dir, basestring):
+        if not isinstance(data_dir, str):
             raise TypeError("VA: 'data_dir' property much be type string")
         self._data_dir = data_dir
 
@@ -619,7 +605,7 @@ class VirtualAccelerator(object):
 
     @work_dir.setter
     def work_dir(self, work_dir):
-        if (work_dir is not None) and not isinstance(work_dir, basestring):
+        if (work_dir is not None) and not isinstance(work_dir, str):
             raise TypeError("VA: 'work_dir' property much be type string or None")
         self._work_dir = work_dir
 
@@ -1142,7 +1128,7 @@ class VirtualAccelerator(object):
     def _handle_noise_monitor(self, value):
         """Handle updates of the NOISE channel.
         """
-        _LOGGER.debug("VA: Update noise: %s", value)
+        _LOGGER.info(f"VA: Updated noise level: {value * 100}%")
         self._noise = float(value)
 
     def _handle_bsrc_monitor(self, value):

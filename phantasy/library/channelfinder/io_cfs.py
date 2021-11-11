@@ -4,9 +4,6 @@
 """Input and output functions regarding to generic directory service (CFS).
 """
 
-from __future__ import print_function
-from __future__ import unicode_literals
-
 import logging
 import requests
 import getpass
@@ -18,16 +15,6 @@ from .io import _get_data
 from .io import _get_cf_data
 
 _LOGGER = logging.getLogger(__name__)
-
-try:
-    r_input = raw_input
-except NameError:
-    r_input = input
-
-try:
-    basestring
-except NameError:
-    basestring = str
 
 
 def get_data_from_cf(url, **kws):
@@ -130,7 +117,7 @@ def write_cfs(data, cfs_url, **kws):
         password = kws.get('password', None)
 
         if username is None:
-            username = r_input("Enter username: ")
+            username = input("Enter username: ")
 
         if password is None:
             password = getpass.getpass("Enter password: ")

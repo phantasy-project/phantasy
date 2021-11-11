@@ -3,9 +3,6 @@
 """
 Implement phytool command 'impact-lattice'.
 """
-
-from __future__ import print_function
-
 import sys
 import os.path
 import logging

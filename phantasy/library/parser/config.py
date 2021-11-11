@@ -4,23 +4,13 @@
 """Utilities for handling configuration file.
 """
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
-
 import logging
 import os.path
 from collections import OrderedDict
 
-try:
-    from ConfigParser import SafeConfigParser as ConfigParser
-    from ConfigParser import NoSectionError
-    from ConfigParser import NoOptionError
-except ImportError:
-    from configparser import ConfigParser
-    from configparser import NoSectionError
-    from configparser import NoOptionError
+from configparser import ConfigParser
+from configparser import NoSectionError
+from configparser import NoOptionError
 
 
 _LOGGER = logging.getLogger(__name__)
