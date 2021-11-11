@@ -323,6 +323,8 @@ class VirtualAcceleratorFactory(object):
         data_dir = self.data_dir
         if (data_dir is None) and self.config.has_default(CONFIG_FLAME_DATA_DIR):
             data_dir = self.config.getabspath_default(CONFIG_FLAME_DATA_DIR)
+            if not os.path.exists(data_dir):
+                data_dir = get_data_dir()
 
         if data_dir is None:
             raise RuntimeError("VirtAccelFactory: No data directory provided, check the configuration")
@@ -751,6 +753,8 @@ class VirtualAccelerator(object):
 
         if not os.path.isdir(self.data_dir):
             raise RuntimeError("VA: Data directory not found: {}".format(self.data_dir))
+        else:
+            _LOGGER.info(f"VA: Loading FLAME data at: {self.data_dir}")
 
         if self.work_dir is not None and os.path.exists(self.work_dir):
             raise RuntimeError("VA: Working directory already exists: {}".format(self.work_dir))
@@ -1181,3 +1185,17 @@ def _normalize_phase(phase):
     while phase < 0.0:
         phase += 360.0
     return phase
+
+
+def get_data_dir():
+    """Return FLAME data dir if flame-data package is installed.
+
+    flame-data is installed via pip install, not Debian package.
+    """
+    try:
+        from flame_data import get_data_path
+    except ImportError:
+        _LOGGER.debug("flame-data is not install (via pip)")
+        return None
+    else:
+        return get_data_path().as_posix()
