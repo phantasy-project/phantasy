@@ -1165,7 +1165,7 @@ class VirtualAccelerator(object):
     def _handle_rate_monitor(self, value):
         """Handle updates of the REPRATE channel.
         """
-        _LOGGER.info("VA: Update reprate: %s", value)
+        _LOGGER.info(f"VA: Updated rep-rate: {value} Hz")
         self._rate = float(value)
 
     def _copy_settings_with_noise(self):
