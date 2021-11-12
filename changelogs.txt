@@ -1,3 +1,26 @@
+Version 2.1.4
+-------------
+2021-11-12
+
+  - Fix Setup.py syntax.
+  - Drop Python 2 compatibility: continue refactoring.
+  - Handle FLAME data dir if flame-data is installed via pip.
+    - Wheel packages for 'flame-data' are created and hosted on PyPI.
+  - Now phantasy could be deployed via 'pip install phantasy'.
+
+Version 2.1.3
+-------------
+2021-11-10
+
+  - Support search PHANTASY_CONFIG_DIR in phantasy-machines Python package.
+    - Wheel packages for 'phantasy-machines' are created and hosted on PyPI.
+  - Sorted out the dependencies.
+  - Set up Github CI for build and test package, build and publish Sphinx
+    documentation, build and publish wheel packages to PyPI.
+  - Fix CaElement.convert().
+  - Fix CaField.write_access.
+  - Updated DIAG_TYPES for CaElement.is_diag().
+
 Version 2.1.2
 -------------
 2021-10-14
