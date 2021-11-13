@@ -10,7 +10,7 @@ def readme():
         return f.read()
 
 
-_version = "2.1.4"
+_version = "2.1.4-1"
 _name = "phantasy"
 _description = 'Physics high-level applications and toolkit for accelerator system'
 _long_description = readme() + '\n\n'
@@ -36,6 +36,7 @@ _install_requires = [
     'toml>=0.10.1,<1.0',
     'python-unicorn>=0.4.4,<1.0',
     'flame-data',
+    'epics-appimage',
 ]
 _extras_require = {
     'test': ['pytest', 'pytest-cov'],
