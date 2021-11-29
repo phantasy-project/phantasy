@@ -484,6 +484,10 @@ class NDElement(Element):
         self.fields.current = fm_avg['ENG']
         self.fields.current_phy = fm_avg['PHY']
 
+        fm_evt = get_field_map(self.ETYPE, 'EVENT')
+        self.fields.event = fm_evt['ENG']
+        self.fields.event_phy = fm_evt['PHY']
+
         fm_pwr = get_field_map(self.ETYPE, 'POWER_STATUS')
         self.fields.power_status = fm_pwr['ENG']
         self.fields.power_status_phy = fm_pwr['PHY']
@@ -504,6 +508,10 @@ class ICElement(Element):
         fm_avg = get_field_map(self.ETYPE, 'AVERAGE_INTENSITY')
         self.fields.current = fm_avg['ENG']
         self.fields.current_phy = fm_avg['PHY']
+
+        fm_dose = get_field_map(self.ETYPE, 'DOSE_INTENSITY')
+        self.fields.dose = fm_dose['ENG']
+        self.fields.dose_phy = fm_dose['PHY']
 
         fm_pwr = get_field_map(self.ETYPE, 'POWER_STATUS')
         self.fields.power_status = fm_pwr['ENG']

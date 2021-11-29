@@ -122,6 +122,9 @@ __title__ = "Element field mapping from engineering unit to physics unit"
   [IC.AVERAGE_INTENSITY]
   ENG = 'I_AVG'
   PHY = 'AVERAGE_INTENSITY'
+  [IC.DOSE_INTENSITY]
+  ENG = 'DOSE'
+  PHY = 'DOSE_INTENSITY'
   [IC.POWER_STATUS] # bias voltage
   ENG = 'PWRSTS'
   PHY = 'POWER_STATUS'
@@ -133,6 +136,9 @@ __title__ = "Element field mapping from engineering unit to physics unit"
   [ND.AVERAGE_INTENSITY]
   ENG = 'I_AVG'
   PHY = 'AVERAGE_INTENSITY'
+  [ND.EVENT]
+  ENG = 'EVT'
+  PHY = 'EVENT'
   [ND.POWER_STATUS] # bias voltage
   ENG = 'PWRSTS'
   PHY = 'POWER_STATUS'

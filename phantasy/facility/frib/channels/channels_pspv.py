@@ -723,6 +723,10 @@ def build_channels(layout, psfile, machine=None, **kws):
             props[_FIELD_PHY_PROPERTY] = elem.fields.current_phy
             props[_HANDLE_PROPERTY] = "readback"
             data.append((channel + ":AVG_RD", OrderedDict(props), list(tags)))
+
+            props[_FIELD_ENG_PROPERTY] = elem.fields.event
+            props[_FIELD_PHY_PROPERTY] = elem.fields.event_phy
+            props[_HANDLE_PROPERTY] = "readback"
             data.append((channel + ":EVT_RD", OrderedDict(props), list(tags)))
 
             props[_FIELD_ENG_PROPERTY] = elem.fields.bias_voltage
@@ -747,6 +751,10 @@ def build_channels(layout, psfile, machine=None, **kws):
             props[_FIELD_PHY_PROPERTY] = elem.fields.current_phy
             props[_HANDLE_PROPERTY] = "readback"
             data.append((channel + ":AVG_RD", OrderedDict(props), list(tags)))
+
+            props[_FIELD_ENG_PROPERTY] = elem.fields.dose
+            props[_FIELD_PHY_PROPERTY] = elem.fields.dose_phy
+            props[_HANDLE_PROPERTY] = "readback"
             data.append((channel + ":DOSE_RD", OrderedDict(props), list(tags)))
 
             props[_FIELD_ENG_PROPERTY] = elem.fields.bias_voltage
