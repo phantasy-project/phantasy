@@ -147,6 +147,18 @@ ELEMENT_NAME_STRING_AS_DRIFT = [
     "Entrance Point of dipole at D1608",
     "Exit Point of dipole at D1608",
     "wedge (and viewer) upstream part",
+    "Diagnostics Box DB0",
+    "Diagnostics Box DB1",
+    "Diagnostics Box DB2",
+    "Diagnostics Box DB3",
+    "Diagnostics Box DB4",
+    "Diagnostics Box DB5",
+    "wedge (and viewer) downstream part",
+    "Entrance Point of dipole at D1712",
+    "Exit Point of dipole at D1712",
+    "Entrance Point of dipole at D1807",
+    "Exit Point of dipole at D1807",
+    "diagnostics box entrance wall",
 ]
 
 # device alias for target: TargetElement
