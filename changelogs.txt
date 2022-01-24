@@ -1,3 +1,10 @@
+Version 2.1.5
+-------------
+2022-01-21
+  
+  - Add epics-appimage as a new dependency.
+  - Support ES lattice 'Lattice_ARR07' sheet.
+
 Version 2.1.4
 -------------
 2021-11-12
