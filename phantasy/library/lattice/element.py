@@ -627,7 +627,10 @@ class CaField(object):
         read policy as the final field value as a return."""
         if not self.connected():
             return None
-        return self.read_policy(self.readback_pv)
+        r = self.read_policy(self.readback_pv)
+        if isinstance(r, np.ndarray):
+            return r.tolist()
+        return r
 
     @value.setter
     def value(self, v):
