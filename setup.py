@@ -10,7 +10,7 @@ def readme():
         return f.read()
 
 
-_version = "2.1.6"
+_version = "2.1.6-1"
 _name = "phantasy"
 _description = 'Physics high-level applications and toolkit for accelerator system'
 _long_description = readme() + '\n\n'
@@ -37,6 +37,7 @@ _install_requires = [
     'python-unicorn>=0.4.4,<1.0',
     'flame-data',
     'epics-appimage',
+    'openpyxl',
 ]
 _extras_require = {
     'test': ['pytest', 'pytest-cov'],
