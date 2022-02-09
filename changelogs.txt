@@ -1,7 +1,14 @@
+Version 2.1.6
+-------------
+2022-02-09
+
+  - REF: Always return a scalar whether the value is an array or not.
+  - REF: Update DIAG_DTYPES, accommodate to Settings Manager for diag device management.
+
 Version 2.1.5
 -------------
 2022-01-21
-  
+
   - Add epics-appimage as a new dependency.
   - Support ES lattice 'Lattice_ARR07' sheet.
 
