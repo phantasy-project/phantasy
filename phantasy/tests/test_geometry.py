@@ -146,13 +146,13 @@ class TestPoint(unittest.TestCase):
         direction3 = (60, 1)
         p_moveto3 = p.move(direction=direction3)
         
-        self.assertEqual(p.distance_to_point(p_moveto1), 1.0)
-        self.assertEqual(p.distance_to_point(p_moveto2), 1.0)
-        self.assertEqual(p.distance_to_point(p_moveto3), 1.0)
+        self.assertAlmostEqual(p.distance_to_point(p_moveto1), 1.0)
+        self.assertAlmostEqual(p.distance_to_point(p_moveto2), 1.0)
+        self.assertAlmostEqual(p.distance_to_point(p_moveto3), 1.0)
 
-        self.assertEqual(abs(p_moveto1), 1.0)
-        self.assertEqual(abs(p_moveto2), 1.0)
-        self.assertEqual(abs(p_moveto3), 1.0)
+        self.assertAlmostEqual(abs(p_moveto1), 1.0)
+        self.assertAlmostEqual(abs(p_moveto2), 1.0)
+        self.assertAlmostEqual(abs(p_moveto3), 1.0)
 
         x = Point(1, 0)
         o = Point(0, 0)
