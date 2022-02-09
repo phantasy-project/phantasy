@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>phantasy.library.lattice.element &mdash; phantasy 2.1.4 documentation</title>
+  <title>phantasy.library.lattice.element &mdash; phantasy 2.1.6 documentation</title>
       <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
     <link rel="shortcut icon" href="../../../../_static/frib-favicon.ico"/>
@@ -28,7 +28,7 @@
             <a href="../../../../index.html" class="icon icon-home"> phantasy
           </a>
               <div class="version">
-                2.1.4
+                2.1.6
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
@@ -121,8 +121,8 @@
 <span class="p">)</span>
 <span class="n">VALID_CA_KEYS</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;field_eng&#39;</span><span class="p">,</span> <span class="s1">&#39;field_phy&#39;</span><span class="p">,</span> <span class="s1">&#39;handle&#39;</span><span class="p">,</span> <span class="s1">&#39;pv_policy&#39;</span><span class="p">)</span>
 <span class="c1"># diagnostic device types</span>
-<span class="n">DIAG_DTYPES</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;FC&#39;</span><span class="p">,</span> <span class="s1">&#39;EMS&#39;</span><span class="p">,</span> <span class="s1">&#39;PM&#39;</span><span class="p">,</span> <span class="s1">&#39;BPM&#39;</span><span class="p">,</span> <span class="s1">&#39;BCM&#39;</span><span class="p">,</span> <span class="s1">&#39;ND&#39;</span><span class="p">,</span> <span class="s1">&#39;HMR&#39;</span><span class="p">,</span> <span class="s1">&#39;IC&#39;</span><span class="p">,</span> <span class="s1">&#39;VD&#39;</span><span class="p">)</span>
-<span class="c1"># DIAG_DTYPES = (&#39;BPM&#39;, &#39;BCM&#39;, &#39;VD&#39;)</span>
+<span class="c1"># DIAG_DTYPES = (&#39;FC&#39;, &#39;EMS&#39;, &#39;PM&#39;, &#39;BPM&#39;, &#39;BCM&#39;, &#39;ND&#39;, &#39;HMR&#39;, &#39;IC&#39;, &#39;VD&#39;)</span>
+<span class="n">DIAG_DTYPES</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;BPM&#39;</span><span class="p">,</span> <span class="s1">&#39;BCM&#39;</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">BaseElement</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -712,7 +712,10 @@
 <span class="sd">        read policy as the final field value as a return.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">connected</span><span class="p">():</span>
             <span class="k">return</span> <span class="kc">None</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_policy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">readback_pv</span><span class="p">)</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_policy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">readback_pv</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">r</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">r</span>
 
     <span class="nd">@value</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
@@ -1882,7 +1885,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2016, Facility for Rare Isotope Beams, Michigan State University.
-      <span class="lastupdated">Last updated on Nov 13, 2021.
+      <span class="lastupdated">Last updated on Feb 09, 2022.
       </span></p>
   </div>
 
