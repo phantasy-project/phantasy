@@ -3,23 +3,25 @@ Deployment
 ==========
 
 Deploy ``phantasy`` to different operating systems is quite simple, both
-online and offline approaches are provided. Before installation, there
-may be packages/libraries dependency issues to be resolved first.
+online and offline approaches are provided.
 
-Prerequisites
--------------
+Install via PIP
+---------------
 
-Required Python packages: ``numpy``, ``scipy``, ``matplotlib``,
-``cothread``, ``xlrd``,
-Optional Python packages: ``tornado``, ``motor``, ``jinja2``,
-``humanize``, ``jsonschema``,
-Optional Python packages: ``pyCFClient``, ``scanclient``,
-Suggested packages: ``phantasy-machines``,
-``python-unicorn``, ``unicorn-webapp``,
+The wheel packages for ``phantasy`` are published on PyPI, to install it: ``pip install phantasy``,
+which will also install all of the dependencies. Please note, you may need to install python-dev
+package, e.g. `libpython3-dev` for Debian and its derivatives, or `python3-devel` for RPM based
+distributions.
 
-Other home-made packages:
-- Python: ``flame``, ``genopt``
-- C++: ``flame``, ``impact`` (FRIB-version), ``dakota-drivers``
+.. code-block:: bash
+
+    pip install phantasy
+
+Or upgrade from earlier version by:
+
+.. code-block:: bash
+
+    pip install phantasy --upgrade [--no-deps]
 
 
 Install via APT
@@ -28,14 +30,14 @@ Install via APT
 This is the recommended way to deploy ``phantasy``, however, the **APT**
 way is **FRIB intranet only**.
 
-The target workstation is running Debian 8, add the
+The target workstation is running Debian 11, add the
 following lines to ``/etc/apt/sources.list`` or save as a separated file
 to the directory ``/etc/apt/sources.list.d``:
 
 .. code-block:: bash
 
-    deb http://ci.frib.msu.edu/debian/ jessie unstable
-    deb-src http://ci.frib.msu.edu/debian/ jessie unstable
+    deb http://ci.frib.msu.edu/debian/ uc4 unstable
+    deb-src http://ci.frib.msu.edu/debian/ uc4 unstable
 
 The public key can be imported by [#f1]_:
 
@@ -44,7 +46,7 @@ The public key can be imported by [#f1]_:
     wget http://ci.frib.msu.edu/debian/repo_key.gpg -O - | sudo apt-key add -
 
 After that, in the terminal, issue ``sudo apt-get update`` and
-``sudo apt-get install python-phantasy`` to install ``phantasy``, ``apt`` will
+``sudo apt-get install python3-phantasy`` to install ``phantasy``, ``apt`` will
 handle all the dependencies automatically.
 
 .. For those cannot reach FRIB intranet, the ready-to-install Debian packages
@@ -56,30 +58,6 @@ FRIB controls network case
 .. image:: ../images/packages.png
     :align: center
     :width: 600px
-
-
-Install via PIP
----------------
-
-Download ``.whl`` package of ``phantasy`` from `HERE <https://stash.frib.msu.edu/projects/PHYAPP/repos/phantasy/browse/dist>`_,
-select the newest version, and install it by:
-
-.. code-block:: bash
-
-    pip install <phantasy.VERSION.whl>
-
-Or upgrade from earlier version by:
-
-.. code-block:: bash
-
-    pip install <phantasy.VERSION.whl> --upgrade --no-deps
-
-Or simply install by:
-
-.. code-block:: bash
-
-    pip install phantasy
-
 
 Run Tests
 ---------
