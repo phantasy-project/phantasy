@@ -10,8 +10,12 @@ import getpass
 from datetime import datetime
 import os
 import tempfile
+import sys
 
-from collections import MutableMapping as DictMixin
+if sys.version_info[:2] >= (3, 8):
+    from collections.abc import MutableMapping as DictMixin
+else:
+    from collections import MutableMapping as DictMixin
 
 import dateutil.relativedelta as relativedelta
 
