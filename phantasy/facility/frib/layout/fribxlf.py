@@ -76,6 +76,7 @@ SYSTEM_SKIP_WORDS = ( "dump", "SEGMENT", "LINAC", "Target",
                       'Third beam dump line starts in "V" column',
                       'Fourth beam dump line starts in "V" column',
                       "location of temporary carbon foil without Li module: PM2225 to foil is 1.356008 m",
+                      "END", "LEBT",
                       )
 # skip line whose device field in one of the tuple defined by DEVICE_SKIP_WORDS
 DEVICE_SKIP_WORDS = ( "end", "start", "END", )
@@ -85,6 +86,17 @@ NAME_SKIP_WORDS = ("FE_MEBT:PM_D1053",
                    "DANS:TL_D1439", # ReA
                    "DATP:TL_D1460", # ReA
                    "DJNS:TL_D1465", # ReA
+                   "REA_ISRC2:FIL_D0849", # ReA
+                   "REA_ISRC2:AND_D0849", # ReA
+                   "REA_ISRC2:EXT_D0849", # ReA
+                   "REA_BTS02:EIN_D0850", # ReA
+                   "REA_ISRC1:FIL_D0946", # ReA
+                   "REA_ISRC1:AND_D0946", # ReA
+                   "REA_ISRC1:EXT_D0946", # ReA
+                   "REA_ISRC1:DCV1_D0947", # ReA
+                   "REA_ISRC1:DCV2_D0947", # ReA
+                   "REA_ISRC1:WF_D0948", # ReA
+                   "REA_ISRC1:HVP_D0951", # ReA
 )
 
 # element name as drift
@@ -246,7 +258,7 @@ DEVICE_ALIAS_SEXT = ( "S", )
 # device alias for octopole
 DEVICE_ALIAS_OCT = ( "OCT", "O" )
 # device alias for electrode
-DEVICE_ALIAS_ELC = ( "ELC1", "ELC2", "ELC3", "ELC0", )
+DEVICE_ALIAS_ELC = ( "ELC1", "ELC2", "ELC3", "ELC0", "ELCT",)
 # device alias for acc column
 DEVICE_ALIAS_ACC = ( "ACC", )
 # device alias for ES bend
