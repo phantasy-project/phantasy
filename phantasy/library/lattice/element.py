@@ -26,6 +26,10 @@ try:
 except ImportError:
     from queue import Queue, Empty
 
+# not valid controllable fields
+INVALID_CTRL_FIELDS = (
+    "L", # effective length, support I[A] -> L[m], but not L[m] -> I[A].
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -1387,6 +1391,9 @@ class CaElement(BaseElement):
             )
 
     def __setattr__(self, key, value):
+        if key in INVALID_CTRL_FIELDS:
+            print(f"{key} is not a valid controllable field.")
+            return
         if key in self._fields:
             fld = self._fields[key]
             if fld.ensure_put:
