@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>phantasy.library.lattice.element &mdash; phantasy 2.1.6 documentation</title>
+  <title>phantasy.library.lattice.element &mdash; phantasy 2.1.7 documentation</title>
       <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
     <link rel="shortcut icon" href="../../../../_static/frib-favicon.ico"/>
@@ -28,7 +28,7 @@
             <a href="../../../../index.html" class="icon icon-home"> phantasy
           </a>
               <div class="version">
-                2.1.6
+                2.1.7
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
@@ -111,6 +111,10 @@
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">queue</span> <span class="kn">import</span> <span class="n">Queue</span><span class="p">,</span> <span class="n">Empty</span>
 
+<span class="c1"># not valid controllable fields</span>
+<span class="n">INVALID_CTRL_FIELDS</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;L&quot;</span><span class="p">,</span> <span class="c1"># effective length, support I[A] -&gt; L[m], but not L[m] -&gt; I[A].</span>
+<span class="p">)</span>
 
 <span class="n">_LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -1472,6 +1476,9 @@
             <span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">INVALID_CTRL_FIELDS</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> is not a valid controllable field.&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
         <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fields</span><span class="p">:</span>
             <span class="n">fld</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fields</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">fld</span><span class="o">.</span><span class="n">ensure_put</span><span class="p">:</span>
@@ -1885,7 +1892,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2016, Facility for Rare Isotope Beams, Michigan State University.
-      <span class="lastupdated">Last updated on Feb 11, 2022.
+      <span class="lastupdated">Last updated on Apr 04, 2022.
       </span></p>
   </div>
 
