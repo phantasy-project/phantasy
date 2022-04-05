@@ -11,6 +11,7 @@ from .epics_tools import caget
 from .epics_tools import cainfo
 from .epics_tools import camonitor
 from .epics_tools import ensure_put
+from .epics_tools import ensure_get
 
 from .readback import get_readback
 
@@ -28,6 +29,6 @@ __all__ = [
     'DataSource', 'dump_data',
     'PV_POLICIES',
     'unicorn_read', 'unicorn_write',
-    'ensure_put', 'ensure_set',
+    'ensure_put', 'ensure_set', 'ensure_get',
     'PVElement', 'PVElementReadonly',
 ]

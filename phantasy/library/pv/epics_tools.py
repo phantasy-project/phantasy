@@ -7,12 +7,14 @@ from epics import caput as epics_caput
 from epics import cainfo as epics_cainfo
 from epics import camonitor as epics_camonitor
 
+import epics
 import logging
 import time
 from functools import partial
 from queue import Queue, Empty
 
 from phantasy.library.exception import TimeoutError
+from phantasy.library.exception import GetFinishedException
 from phantasy.library.exception import PutFinishedException
 
 _LOGGER = logging.getLogger(__name__)
@@ -39,6 +41,50 @@ def cainfo(pvname, **kws):
 
 def camonitor(pvname, callback=None, **kws):
     return epics_camonitor(pvname, kws.get('writer', None), callback)
+
+
+def ensure_get(pvname, timeout=None):
+    """Get the not-None value from *field* object within the max *timeout* time period in
+    seconds.
+
+    Parameters
+    ----------
+    pvname : str
+        PV name string.
+    timeout : float
+        Maximum wait time for this action, default is 5.0 seconds.
+
+    Return
+    ------
+    r :
+        Value from caget(pvname) or None
+    """
+    def _on_val_changed(q_val, **kws):
+        q_val.put((kws.get('value'), time.time()))
+
+    timeout = 5 if timeout is None else timeout
+    q_val = Queue()
+    chid = epics.ca.create_channel(pvname)
+    try:
+        _, _, evtid = epics.ca.create_subscription(chid, callback=partial(_on_val_changed, q_val))
+    except epics.ca.ChannelAccessException:
+        print("Error: ChannelAccessException")
+        return None
+    t0 = time.time()
+    while True:
+        try:
+            v, ts = q_val.get(timeout=timeout)
+            if ts - t0 > timeout: raise TimeoutError
+            if v is not None:
+                raise GetFinishedException
+        except Empty:
+            r = None
+            break
+        except GetFinishedException:
+            r = v
+            break
+    epics.ca.clear_subscription(evtid)
+    return r
 
 
 def ensure_put(field, goal, tol=None, timeout=None):
