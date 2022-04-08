@@ -2030,7 +2030,7 @@ class Lattice(object):
             try:
                 self.layout[i.name].alignment = i.alignment
             except AttributeError:
-                _LOGGER.warning(f"{i.name} is not in layout.")
+                _LOGGER.debug(f"{i.name} is not in layout.")
 
     def get_layout_length(self):
         """Return the length of current lattice layout, as well as starting
