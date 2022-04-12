@@ -1396,6 +1396,8 @@ class CaElement(BaseElement):
             return
         if key in self._fields:
             fld = self._fields[key]
+            if key in ('PHA', 'PHA1', 'PHA2', 'PHA3', 'PHASE', 'PHASE1', 'PHASE2', 'PHASE3'):
+                value = wrap_phase(value)
             if fld.ensure_put:
                 ensure_put(fld, value, fld.tolerance, fld.timeout)
             else:
@@ -1782,6 +1784,17 @@ def _parse_pv_name(pvname):
     element_name = '{}:{}'.format(ename, fname)
     field_name = fname
     return element_name, field_name
+
+
+def wrap_phase(value):
+    """Wrap phase input (*value*) into -180 to 180.
+    """
+    r = value - ( value // 360 ) * 360 - 360
+    if r < -180:
+        r += 360
+    elif r > 180:
+        r -= 360
+    return r
 
 
 def main():
