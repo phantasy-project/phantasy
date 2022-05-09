@@ -643,6 +643,10 @@ class CaField(object):
         if not self.write_access:
             _LOGGER.warning("{} [{}] is read only.".format(self.ename, self.name))
             return
+        # wrap phase value to -180, 180.
+        if self.name in ('PHA', 'PHA1', 'PHA2', 'PHA3', 'PHASE', 'PHASE1', 'PHASE2', 'PHASE3'):
+            v = wrap_phase(v)
+        #
         self.write_policy(self.setpoint_pv, v, timeout=self.timeout,
                           wait=self.wait)
 
