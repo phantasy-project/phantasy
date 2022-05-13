@@ -1144,6 +1144,27 @@ class CaElement(BaseElement):
         else:
             _LOGGER.warning("'fields' should be a valid dict.")
 
+    def get_mapped_field(self, fname: str):
+        """Get the corresponded field name per the input *fname*, from engineering to physics,
+        or vice verse.
+
+        Returns
+        -------
+        r : tuple
+            The mapped field name, if it is an engineering field.
+        """
+        if fname not in self.fields:
+            return None
+        is_phy = self.get_field(fname).is_physics_field()
+        if is_phy:
+            for eng, phy in zip(self.get_eng_fields(), self.get_phy_fields()):
+                if fname == phy:
+                    return eng, True
+        else:
+            for eng, phy in zip(self.get_eng_fields(), self.get_phy_fields()):
+                if fname == eng:
+                    return phy, False
+
     def get_phy_fields(self):
         """Return list of all physics fields.
 
