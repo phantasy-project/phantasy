@@ -362,12 +362,12 @@ class VirtualAcceleratorFactory(object):
             #
 
             if isinstance(elem, CavityElement):
-                # Need to normalize cavity phase settings to 0~360
+                # Need to normalize cavity phase settings to -180~180
                 settings[elem.name][elem.fields.phase_phy] = _normalize_phase(settings[elem.name][elem.fields.phase_phy])
                 va.append_rw(self._findChannel(elem.name, elem.fields.phase, "setpoint"),
                              self._findChannel(elem.name, elem.fields.phase, "readset"),
                              self._findChannel(elem.name, elem.fields.phase, "readback"),
-                             (elem.name, elem.fields.phase_phy), desc="Cavity Phase", egu="degree", drvh=360, drvl=0)
+                             (elem.name, elem.fields.phase_phy), desc="Cavity Phase", egu="degree", drvh=180, drvl=-180)
                 va.append_rw(self._findChannel(elem.name, elem.fields.amplitude, "setpoint"),
                              self._findChannel(elem.name, elem.fields.amplitude, "readset"),
                              self._findChannel(elem.name, elem.fields.amplitude, "readback"),
@@ -1180,9 +1180,9 @@ class VirtualAccelerator(object):
 
 
 def _normalize_phase(phase):
-    while phase >= 360.0:
+    while phase >= 180.0:
         phase -= 360.0
-    while phase < 0.0:
+    while phase < -180:
         phase += 360.0
     return phase
 
