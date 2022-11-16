@@ -6,6 +6,7 @@ from epics import caget as epics_caget
 from epics import caput as epics_caput
 from epics import cainfo as epics_cainfo
 from epics import camonitor as epics_camonitor
+from epics import ca
 
 import epics
 import logging
@@ -179,3 +180,44 @@ def ensure_put(field, goal, tol=None, timeout=None):
             ret = "PutFinished"
             break
     return ret
+
+
+def caget_many(pvlist, as_string=False, count=None, as_numpy=True, timeout=1.0, raises=False):
+    """get values for a list of PVs
+    This does not maintain PV objects, and works as fast
+    as possible to fetch many values.
+
+    Original author: Bruno Martins.
+    """
+
+    chids = [
+        ca.create_channel(name, auto_cb=False, connect=False)
+        for name in pvlist
+    ]
+
+    t = time.time()
+    for chid in chids:
+        ca.connect_channel(chid, timeout=0.001)
+
+    pvstatus = [ca.isConnected(chid) for chid in chids]
+
+    t = time.time()
+
+    while not all (pvstatus) and time.time() - t < timeout:
+        ca.poll()
+        pvstatus=[ca.isConnected(chid) for chid in chids]
+
+    for chid, connected in zip(chids, pvstatus):
+        if connected:
+            ca.get(chid, count=count, as_string=as_string, as_numpy=as_numpy, wait=False)
+
+    out = [
+        ca.get_complete(chid, count=count, as_string=as_string, as_numpy=as_numpy, timeout=timeout)
+        if connected else None
+        for chid, connected in zip(chids, pvstatus)
+    ]
+
+    if raises and None in out:
+        raise RuntimeError('Not all PVs were found')
+
+    return out

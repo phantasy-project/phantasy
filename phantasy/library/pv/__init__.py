@@ -12,6 +12,7 @@ from .epics_tools import cainfo
 from .epics_tools import camonitor
 from .epics_tools import ensure_put
 from .epics_tools import ensure_get
+from .epics_tools import caget_many
 
 from .readback import get_readback
 
@@ -25,6 +26,7 @@ from .unicorn import unicorn_write
 
 __all__ = [
     'Popen', 'caget', 'caput', 'camonitor', 'cainfo',
+    'caget_many',
     'get_readback',
     'DataSource', 'dump_data',
     'PV_POLICIES',
