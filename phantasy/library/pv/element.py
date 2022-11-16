@@ -4,6 +4,14 @@
 """
 from epics import PV
 from .epics_tools import ensure_put
+from typing import Union, List
+from phantasy.library.exception import TimeoutError
+from phantasy.library.exception import PutFinishedException
+from functools import partial
+from queue import Queue, Empty
+import epics
+import time
+import numpy as np
 
 
 class PVElement(object):
@@ -165,7 +173,28 @@ class PVElementReadonly(object):
         return pv
 
 
-def ensure_set(setpoint_pv, readback_pv, goal, tol=0.01, timeout=10):
+def ensure_set(setpoint_pv: Union[str, List[str]],
+               readback_pv: Union[str, List[str]],
+               goal: Union[float, List[float]],
+               tol: Union[float, List[float]] = 0.01,
+               timeout: float = 10):
+    """Perform ensure CA device set operation against the given setpoint PV(s) and monitor
+    the readback PV(s) reaching the goal(s) when the value discrepancy between read and set
+    within the range defined by the given tolerance(s), all these actions should be finished
+    or terminated in the max allowed seconds defined by timeout.
+
+    Please note: when passing a list of PVs, the size of *setpoint_pv*, *readback_pv*, *goal*
+    and *tol* parameters must be the same, while if goal and tol is defined as a single float
+    number, they will be expanded to a list of that value for convenience.
+    """
+    if isinstance(setpoint_pv, str):
+        return _ensure_set_single(setpoint_pv, readback_pv, goal, tol, timeout)
+    else:
+        assert len(setpoint_pv) == len(readback_pv)
+        return _ensure_set_array(setpoint_pv, readback_pv, goal, tol, timeout)
+
+
+def _ensure_set_single(setpoint_pv, readback_pv, goal, tol=0.01, timeout=10):
     """Set *setpoint_pv*, such that the *readback_pv* value reaches the
     *goal* within the value discrepancy of *tol*, in the max time period of
     *timeout* second.
@@ -196,3 +225,63 @@ def ensure_set(setpoint_pv, readback_pv, goal, tol=0.01, timeout=10):
         readback_pv = setpoint_pv
     elem = PVElement(setpoint_pv, readback_pv)
     return ensure_put(elem, goal, tol, timeout)
+
+
+def _ensure_set_array(setpoint_pvs, readback_pvs, goals, tols=0.01, timeout=10):
+    """Set a list of PVs (setpoint_pv), such that the readback values (readback_pv) all reach the
+    goals (goal) within the value discrepancy of tolerance (tol), in the max time period in
+    seconds (timeout).
+    """
+    nsize = len(setpoint_pvs)
+    if isinstance(goals, (float, int)):
+        goals = [goals] * nsize
+    if isinstance(tols, (float, int)):
+        tols = [tols] * nsize
+    _dval = np.array([False] * nsize)
+
+    def is_equal(v, goal, tol):
+        return abs(v - goal) < tol
+
+    def cb(q, idx, **kws):
+        val = kws.get('value')
+        ts = kws.get('timestamp')
+        print(f"{kws.get('pvname')}: {val}, goal: {goals[idx]}, {ts}")
+        _dval[idx] = is_equal(val, goals[idx], tols[idx])
+        q.put((_dval.all(), ts))
+
+    _read_PVs = []
+    q = Queue()
+    for idx, pv in enumerate(readback_pvs):
+        o = epics.PV(pv, partial(cb, q, idx))
+        _read_PVs.append(o)
+
+    def _clear():
+        for i in _read_PVs:
+            i.clear_callbacks()
+            del i
+
+    t0 = time.time()
+    [epics.caput(ipv, iv) for ipv, iv in zip(setpoint_pvs, goals)]
+    _dval = np.array([
+        is_equal(ipv.value, igoal, itol)
+        for ipv, igoal, itol in zip(_read_PVs, goals, tols)
+    ])
+    all_done = _dval.all()
+    while True:
+        try:
+            if all_done: raise PutFinishedException
+            all_done, ts = q.get(timeout=timeout)
+            if ts - t0 > timeout: raise TimeoutError
+        except Empty:
+            ret = "Empty"
+            _clear()
+            break
+        except TimeoutError:
+            ret = "Timeout"
+            _clear()
+            break
+        except PutFinishedException:
+            ret = 'PutFinished'
+            _clear()
+            break
+    return ret
