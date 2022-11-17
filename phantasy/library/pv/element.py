@@ -183,7 +183,7 @@ def ensure_set(setpoint_pv: Union[str, List[str]],
                readback_pv: Union[str, List[str]],
                goal: Union[float, List[float]],
                tol: Union[float, List[float]] = 0.01,
-               timeout: float = 10,
+               timeout: float = 10.0,
                verbose: bool = False):
     """Perform ensure CA device set operation against the given setpoint PV(s) and monitor
     the readback PV(s) reaching the goal(s) when the value discrepancy between read and set
@@ -193,6 +193,34 @@ def ensure_set(setpoint_pv: Union[str, List[str]],
     Please note: when passing a list of PVs, the size of *setpoint_pv*, *readback_pv*, *goal*
     and *tol* parameters must be the same, while if goal and tol is defined as a single float
     number, they will be expanded to a list of that value for convenience.
+
+    Parameters
+    ----------
+    setpoint_pv : str, List[str]
+        [A list of] setpoint PV(s).
+    readback_pv : str, List[str]
+        [A list of] readback PV(s), should match the order of setpoint PVs accordingly.
+    goal : float, List[float]
+        [A list of] set value(s) applied to setpoint PV(s), expand to a list if single number is
+        given.
+    tol : float, List[float]
+        [A list of] tolerance value(s) of the discrepancy between set and read, expand to a list
+        if single number is given. Default is 0.01.
+    timeout : float
+        Max waited time in seconds of the entire set procedure, if reached, 'Timeout' should be
+        returned. Default is 10.0.
+    verbose : bool
+        If set, show verbose log messages. Default is False.
+
+    Examples
+    --------
+    >>> from phantasy import ensure_set
+    >>> sp = ['FE_SCS1:PSQ1_D0726:V_CSET', 'FE_SCS1:PSQ2_D0726:V_CSET']
+    >>> rp = ['FE_SCS1:PSQ1_D0726:V_RD', 'FE_SCS1:PSQ2_D0726:V_RD']
+    >>> val = [10, 5]
+    >>> tol = 0.8
+    >>> timeout = 20
+    >>> ensure_set(sp, rp, val, tol, timeout, True)
     """
     if isinstance(setpoint_pv, str):
         setpoint_pv = [setpoint_pv,]
