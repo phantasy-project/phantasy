@@ -263,7 +263,7 @@ def _ensure_set_array(setpoint_pvs, readback_pvs, goals, tols=0.01, timeout=10, 
             else:
                 is_reached = ""
             click.secho(
-                f"[{epoch2human(ts)[:-3]}]{kws.get('pvname')} now is {val} (goal: {goals[idx]}){is_reached}",
+                f"[{epoch2human(ts)[:-3]}]{kws.get('pvname')} now is {val:<6g} (goal: {goals[idx]}){is_reached}",
                 fg=fgcolors[idx])
         q.put((_dval.all(), ts))
 
@@ -294,18 +294,18 @@ def _ensure_set_array(setpoint_pvs, readback_pvs, goals, tols=0.01, timeout=10, 
             ret = "Empty"
             _clear()
             if verbose:
-                click.secho(f"Return '{ret}'", fg='green')
+                click.secho(f"[{epoch2human(time.time())[:-3]}]Return '{ret}'", fg='red')
             break
         except TimeoutError:
             ret = "Timeout"
             _clear()
             if verbose:
-                click.secho(f"Return '{ret}'", fg='green')
+                click.secho(f"[{epoch2human(time.time())[:-3]}]Return '{ret}'", fg='yellow')
             break
         except PutFinishedException:
             ret = 'PutFinished'
             _clear()
             if verbose:
-                click.secho(f"Return '{ret}'", fg='green')
+                click.secho(f"[{epoch2human(time.time())[:-3]}]Return '{ret}'", fg='green')
             break
     return ret
