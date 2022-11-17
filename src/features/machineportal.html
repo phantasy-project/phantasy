@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Work with MachinePortal &mdash; phantasy 2.1.7 documentation</title>
+  <title>Work with MachinePortal &mdash; phantasy 2.1.11 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
     <link rel="shortcut icon" href="../../_static/frib-favicon.ico"/>
@@ -15,7 +15,9 @@
         <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
         <script src="../../_static/jquery.js"></script>
         <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -31,7 +33,7 @@
             <a href="../../index.html" class="icon icon-home"> phantasy
           </a>
               <div class="version">
-                2.1.7
+                2.1.11
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -86,9 +88,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../features.html">Features</a> &raquo;</li>
-      <li>Work with MachinePortal</li>
+      <li><a href="../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../features.html">Features</a></li>
+      <li class="breadcrumb-item active">Work with MachinePortal</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -98,15 +100,15 @@
            <div itemprop="articleBody">
              
   <section id="work-with-machineportal">
-<span id="machine-portal"></span><h1>Work with MachinePortal<a class="headerlink" href="#work-with-machineportal" title="Permalink to this headline"></a></h1>
+<span id="machine-portal"></span><h1>Work with MachinePortal<a class="headerlink" href="#work-with-machineportal" title="Permalink to this heading"></a></h1>
 <section id="set-up-testing-environment">
-<h2>Set Up Testing Environment<a class="headerlink" href="#set-up-testing-environment" title="Permalink to this headline"></a></h2>
+<h2>Set Up Testing Environment<a class="headerlink" href="#set-up-testing-environment" title="Permalink to this heading"></a></h2>
 <section id="install-docker">
-<h3>Install Docker<a class="headerlink" href="#install-docker" title="Permalink to this headline"></a></h3>
+<h3>Install Docker<a class="headerlink" href="#install-docker" title="Permalink to this heading"></a></h3>
 <p>Please ref to <a class="reference external" href="https://docs.docker.com/install/">https://docs.docker.com/install/</a> for all platforms.</p>
 </section>
 <section id="start-ioc-container">
-<h3>Start IOC container<a class="headerlink" href="#start-ioc-container" title="Permalink to this headline"></a></h3>
+<h3>Start IOC container<a class="headerlink" href="#start-ioc-container" title="Permalink to this heading"></a></h3>
 <p>Start the test IOC by:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker run -d --name phantasy-ioc tonyzhang/phantasy-ioc:jessie
 </pre></div>
@@ -118,7 +120,7 @@ PVs serve with the constant value (<code class="docutils literal notranslate"><s
 </section>
 </section>
 <section id="physics-high-level-controls">
-<h2>Physics High-level Controls<a class="headerlink" href="#physics-high-level-controls" title="Permalink to this headline"></a></h2>
+<h2>Physics High-level Controls<a class="headerlink" href="#physics-high-level-controls" title="Permalink to this heading"></a></h2>
 <p>Instantiate <code class="docutils literal notranslate"><span class="pre">MachinePortal</span></code> class with the machine configuration named
 as <code class="docutils literal notranslate"><span class="pre">FRIB</span></code> and segment named as <code class="docutils literal notranslate"><span class="pre">LEBT</span></code>:</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="go"># import packages and modules</span>
@@ -143,7 +145,7 @@ as <code class="docutils literal notranslate"><span class="pre">FRIB</span></cod
 
   <div role="contentinfo">
     <p>&#169; Copyright 2016, Facility for Rare Isotope Beams, Michigan State University.
-      <span class="lastupdated">Last updated on Apr 04, 2022.
+      <span class="lastupdated">Last updated on Nov 17, 2022.
       </span></p>
   </div>
 

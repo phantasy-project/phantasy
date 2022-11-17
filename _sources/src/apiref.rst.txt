@@ -9,4 +9,5 @@ API References
 
     Operation <apidocs/operation>
     Lattice <apidocs/lattice>
+    Tools <apidocs/tools>
     FLAME utils <apidocs/flame_utils>

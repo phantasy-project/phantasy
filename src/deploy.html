@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Deployment &mdash; phantasy 2.1.7 documentation</title>
+  <title>Deployment &mdash; phantasy 2.1.11 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
     <link rel="shortcut icon" href="../_static/frib-favicon.ico"/>
@@ -15,7 +15,9 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -31,7 +33,7 @@
             <a href="../index.html" class="icon icon-home"> phantasy
           </a>
               <div class="version">
-                2.1.7
+                2.1.11
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -82,8 +84,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Deployment</li>
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">Deployment</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -93,11 +95,11 @@
            <div itemprop="articleBody">
              
   <section id="deployment">
-<h1>Deployment<a class="headerlink" href="#deployment" title="Permalink to this headline"></a></h1>
+<h1>Deployment<a class="headerlink" href="#deployment" title="Permalink to this heading"></a></h1>
 <p>Deploy <code class="docutils literal notranslate"><span class="pre">phantasy</span></code> to different operating systems is quite simple, both
 online and offline approaches are provided.</p>
 <section id="install-via-pip">
-<h2>Install via PIP<a class="headerlink" href="#install-via-pip" title="Permalink to this headline"></a></h2>
+<h2>Install via PIP<a class="headerlink" href="#install-via-pip" title="Permalink to this heading"></a></h2>
 <p>The wheel packages for <code class="docutils literal notranslate"><span class="pre">phantasy</span></code> are published on PyPI, to install it: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">phantasy</span></code>,
 which will also install all of the dependencies. Please note, you may need to install python-dev
 package, e.g. <cite>libpython3-dev</cite> for Debian and its derivatives, or <cite>python3-devel</cite> for RPM based
@@ -111,7 +113,7 @@ distributions.</p>
 </div>
 </section>
 <section id="install-via-apt">
-<h2>Install via APT<a class="headerlink" href="#install-via-apt" title="Permalink to this headline"></a></h2>
+<h2>Install via APT<a class="headerlink" href="#install-via-apt" title="Permalink to this heading"></a></h2>
 <p>This is the recommended way to deploy <code class="docutils literal notranslate"><span class="pre">phantasy</span></code>, however, the <strong>APT</strong>
 way is <strong>FRIB intranet only</strong>.</p>
 <p>The target workstation is running Debian 11, add the
@@ -129,12 +131,12 @@ deb-src http://ci.frib.msu.edu/debian/ uc4 unstable
 <code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">python3-phantasy</span></code> to install <code class="docutils literal notranslate"><span class="pre">phantasy</span></code>, <code class="docutils literal notranslate"><span class="pre">apt</span></code> will
 handle all the dependencies automatically.</p>
 <section id="frib-controls-network-case">
-<h3>FRIB controls network case<a class="headerlink" href="#frib-controls-network-case" title="Permalink to this headline"></a></h3>
+<h3>FRIB controls network case<a class="headerlink" href="#frib-controls-network-case" title="Permalink to this heading"></a></h3>
 <a class="reference internal image-reference" href="../_images/packages.png"><img alt="../_images/packages.png" class="align-center" src="../_images/packages.png" style="width: 600px;" /></a>
 </section>
 </section>
 <section id="run-tests">
-<h2>Run Tests<a class="headerlink" href="#run-tests" title="Permalink to this headline"></a></h2>
+<h2>Run Tests<a class="headerlink" href="#run-tests" title="Permalink to this heading"></a></h2>
 <p>After installation, executing the command <code class="docutils literal notranslate"><span class="pre">test_phantasy</span></code> to run
 the tests distributed with <code class="docutils literal notranslate"><span class="pre">phantasy</span></code> package.</p>
 <p>Alternative way to do in Python terminal:</p>
@@ -163,7 +165,7 @@ the tests distributed with <code class="docutils literal notranslate"><span clas
 
   <div role="contentinfo">
     <p>&#169; Copyright 2016, Facility for Rare Isotope Beams, Michigan State University.
-      <span class="lastupdated">Last updated on Apr 04, 2022.
+      <span class="lastupdated">Last updated on Nov 17, 2022.
       </span></p>
   </div>
 

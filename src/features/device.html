@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Work with Device &mdash; phantasy 2.1.7 documentation</title>
+  <title>Work with Device &mdash; phantasy 2.1.11 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
     <link rel="shortcut icon" href="../../_static/frib-favicon.ico"/>
@@ -15,7 +15,9 @@
         <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
         <script src="../../_static/jquery.js"></script>
         <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -31,7 +33,7 @@
             <a href="../../index.html" class="icon icon-home"> phantasy
           </a>
               <div class="version">
-                2.1.7
+                2.1.11
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -82,9 +84,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../features.html">Features</a> &raquo;</li>
-      <li>Work with Device</li>
+      <li><a href="../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../features.html">Features</a></li>
+      <li class="breadcrumb-item active">Work with Device</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -94,7 +96,7 @@
            <div itemprop="articleBody">
              
   <section id="work-with-device">
-<h1>Work with Device<a class="headerlink" href="#work-with-device" title="Permalink to this headline"></a></h1>
+<h1>Work with Device<a class="headerlink" href="#work-with-device" title="Permalink to this heading"></a></h1>
 <p>This note demonstrates how to get work with the device, the device
 usually can be reached by accessing the abstracted Python object,
 specifically, the instance of <a class="reference internal" href="../apidocs/lattice.html#phantasy.CaElement" title="phantasy.CaElement"><code class="xref py py-class docutils literal notranslate"><span class="pre">CaElement</span></code></a>, in which
@@ -109,7 +111,7 @@ has already been created, otherwise please see <a class="reference internal" hre
 <li><p>Post-processing the for other consumers.</p></li>
 </ol>
 <section id="locate-device">
-<h2>Locate Device<a class="headerlink" href="#locate-device" title="Permalink to this headline"></a></h2>
+<h2>Locate Device<a class="headerlink" href="#locate-device" title="Permalink to this heading"></a></h2>
 <p>Just as the name implies, <cite>mp</cite> is the entry to all the configurations of
 the loaded machine, the following snippet shows how can we locate the
 interested device(s). All valid device types can be known by
@@ -161,7 +163,7 @@ referring by <code class="docutils literal notranslate"><span class="pre">[0]</s
 </div>
 </section>
 <section id="inspect-device">
-<h2>Inspect Device<a class="headerlink" href="#inspect-device" title="Permalink to this headline"></a></h2>
+<h2>Inspect Device<a class="headerlink" href="#inspect-device" title="Permalink to this heading"></a></h2>
 <p>Each one within the list returned from
 <a class="reference internal" href="../apidocs/operation.html#phantasy.MachinePortal.get_elements" title="phantasy.MachinePortal.get_elements"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_elements()</span></code></a> is the instance of
 <a class="reference internal" href="../apidocs/lattice.html#phantasy.CaElement" title="phantasy.CaElement"><code class="xref py py-class docutils literal notranslate"><span class="pre">CaElement</span></code></a>, which is bundled of various information,
@@ -190,7 +192,7 @@ results.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2016, Facility for Rare Isotope Beams, Michigan State University.
-      <span class="lastupdated">Last updated on Apr 04, 2022.
+      <span class="lastupdated">Last updated on Nov 17, 2022.
       </span></p>
   </div>
 

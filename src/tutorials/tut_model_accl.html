@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Modeling Accelerator Facility &mdash; phantasy 2.1.7 documentation</title>
+  <title>Modeling Accelerator Facility &mdash; phantasy 2.1.11 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
     <link rel="shortcut icon" href="../../_static/frib-favicon.ico"/>
@@ -15,11 +15,13 @@
         <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
         <script src="../../_static/jquery.js"></script>
         <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Features" href="../features.html" />
+    <link rel="next" title="Control Device Setting with Ensure Set Function" href="ensure_set.html" />
     <link rel="prev" title="Modeling Accelerator with Lattice File" href="tut_modelflame.html" /> 
 </head>
 
@@ -31,7 +33,7 @@
             <a href="../../index.html" class="icon icon-home"> phantasy
           </a>
               <div class="version">
-                2.1.7
+                2.1.11
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -59,6 +61,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#simple-example">Simple Example</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="ensure_set.html">Control Device with ensure_set function</a></li>
 </ul>
 </li>
 </ul>
@@ -86,9 +89,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../tut.html">User Guide</a> &raquo;</li>
-      <li>Modeling Accelerator Facility</li>
+      <li><a href="../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../tut.html">User Guide</a></li>
+      <li class="breadcrumb-item active">Modeling Accelerator Facility</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -98,13 +101,13 @@
            <div itemprop="articleBody">
              
   <section id="modeling-accelerator-facility">
-<h1>Modeling Accelerator Facility<a class="headerlink" href="#modeling-accelerator-facility" title="Permalink to this headline"></a></h1>
+<h1>Modeling Accelerator Facility<a class="headerlink" href="#modeling-accelerator-facility" title="Permalink to this heading"></a></h1>
 <p>One of the key features of <code class="docutils literal notranslate"><span class="pre">phantasy</span></code> is to abstract the accelerator
 devices into hierarchical structure, which opens the portal for the
 high-level object-oriented controls way, and based on which, modularized
 high-level controls software could be developed.</p>
 <section id="configuration-files">
-<h2>Configuration Files<a class="headerlink" href="#configuration-files" title="Permalink to this headline"></a></h2>
+<h2>Configuration Files<a class="headerlink" href="#configuration-files" title="Permalink to this heading"></a></h2>
 <p>Currently, <code class="docutils literal notranslate"><span class="pre">phantasy</span></code> uses (at most) seven (7) types of configuration
 files to describe the entire accelerator, including device abstraction,
 online-modeling, controls PV management, etc., among which, the
@@ -150,14 +153,14 @@ is very important. The full list of configuration file types are:</p>
 </tbody>
 </table>
 <section id="machine-configuration">
-<h3>Machine configuration<a class="headerlink" href="#machine-configuration" title="Permalink to this headline"></a></h3>
+<h3>Machine configuration<a class="headerlink" href="#machine-configuration" title="Permalink to this heading"></a></h3>
 <p>Machine configuration file (typical name: <em>phantasy.ini</em>) is the main file that
 used by <code class="docutils literal notranslate"><span class="pre">phantasy</span></code> <code class="docutils literal notranslate"><span class="pre">MachinePortal</span></code> class to instantiate the seleted accelerator
 and specific segment, which is <code class="docutils literal notranslate"><span class="pre">machine</span></code> and <code class="docutils literal notranslate"><span class="pre">segment</span></code> parameter of
 <code class="docutils literal notranslate"><span class="pre">MachinePortal</span></code> initialization method, respectively.</p>
 </section>
 <section id="channels-configuration">
-<h3>Channels configuration<a class="headerlink" href="#channels-configuration" title="Permalink to this headline"></a></h3>
+<h3>Channels configuration<a class="headerlink" href="#channels-configuration" title="Permalink to this heading"></a></h3>
 <p>Generally, each device can have one or more than one PV names, which depends on
 the number of fields to be controlled, please note for this high-level physics
 controls framework, the only interested fields are physics related, e.g.
@@ -169,7 +172,7 @@ as device position, length, type, etc.</p>
 </section>
 </section>
 <section id="simple-example">
-<h2>Simple Example<a class="headerlink" href="#simple-example" title="Permalink to this headline"></a></h2>
+<h2>Simple Example<a class="headerlink" href="#simple-example" title="Permalink to this heading"></a></h2>
 <p>Here is a simple example of <em>channels.csv</em> (<a class="reference download internal" download="" href="../../_downloads/e9571859dacba6614e5e1abcc5a14abd/channels.csv"><code class="xref download docutils literal notranslate"><span class="pre">HERE</span></code></a>)
 to describe the PV names in a
 machine named <em>simple_machine</em>, of segment name <em>TEST</em>:</p>
@@ -419,14 +422,14 @@ machine named <em>simple_machine</em>, of segment name <em>TEST</em>:</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="tut_modelflame.html" class="btn btn-neutral float-left" title="Modeling Accelerator with Lattice File" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../features.html" class="btn btn-neutral float-right" title="Features" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="ensure_set.html" class="btn btn-neutral float-right" title="Control Device Setting with Ensure Set Function" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2016, Facility for Rare Isotope Beams, Michigan State University.
-      <span class="lastupdated">Last updated on Apr 04, 2022.
+      <span class="lastupdated">Last updated on Nov 17, 2022.
       </span></p>
   </div>
 

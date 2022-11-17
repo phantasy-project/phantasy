@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Modeling Accelerator with Lattice File &mdash; phantasy 2.1.7 documentation</title>
+  <title>Modeling Accelerator with Lattice File &mdash; phantasy 2.1.11 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
     <link rel="shortcut icon" href="../../_static/frib-favicon.ico"/>
@@ -15,7 +15,9 @@
         <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
         <script src="../../_static/jquery.js"></script>
         <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -31,7 +33,7 @@
             <a href="../../index.html" class="icon icon-home"> phantasy
           </a>
               <div class="version">
-                2.1.7
+                2.1.11
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -60,6 +62,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="tut_model_accl.html">Modeling Accelerator Facility</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ensure_set.html">Control Device with ensure_set function</a></li>
 </ul>
 </li>
 </ul>
@@ -87,9 +90,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../tut.html">User Guide</a> &raquo;</li>
-      <li>Modeling Accelerator with Lattice File</li>
+      <li><a href="../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../tut.html">User Guide</a></li>
+      <li class="breadcrumb-item active">Modeling Accelerator with Lattice File</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -99,7 +102,7 @@
            <div itemprop="articleBody">
              
   <section id="modeling-accelerator-with-lattice-file">
-<h1>Modeling Accelerator with Lattice File<a class="headerlink" href="#modeling-accelerator-with-lattice-file" title="Permalink to this headline"></a></h1>
+<h1>Modeling Accelerator with Lattice File<a class="headerlink" href="#modeling-accelerator-with-lattice-file" title="Permalink to this heading"></a></h1>
 <p><code class="docutils literal notranslate"><span class="pre">FLAME</span></code> <a class="footnote-reference brackets" href="#f1" id="id1">1</a> is a new envelope tracking code developed by FRIB for the
 purpose of modeling (ion) accelerator efficiently, especially cases
 of multi-charge states could be right handled, now it is still under
@@ -112,7 +115,7 @@ the modules of <code class="docutils literal notranslate"><span class="pre">phan
 better support the entire high-level physics applications,
 which is a part of high-level control system.</p>
 <section id="getting-started">
-<h2>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline"></a></h2>
+<h2>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this heading"></a></h2>
 <p>Here is the simplest way to model an accelerator from FLAME lattice file.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="kn">from</span> <span class="nn">flame</span> <span class="kn">import</span> <span class="n">Machine</span>
 <span class="linenos"> 2</span><span class="kn">import</span> <span class="nn">flame_utils</span>
@@ -168,7 +171,7 @@ second element of the returned tuple, see 18<sup>th</sup> line.</p>
 </div>
 </section>
 <section id="general-flame-beam-state">
-<span id="bmstate"></span><h2>General FLAME beam state<a class="headerlink" href="#general-flame-beam-state" title="Permalink to this headline"></a></h2>
+<span id="bmstate"></span><h2>General FLAME beam state<a class="headerlink" href="#general-flame-beam-state" title="Permalink to this heading"></a></h2>
 <p>FLAME beam state is the most essential object in modeling an
 accelerator. The Python interface of <code class="docutils literal notranslate"><span class="pre">FLAME</span></code> represents the state
 as <code class="docutils literal notranslate"><span class="pre">_internal.State</span></code>, could be created by <code class="docutils literal notranslate"><span class="pre">allocState()</span></code> method,
@@ -199,7 +202,7 @@ be reached at the moment:</p>
 could be added to <code class="docutils literal notranslate"><span class="pre">BeamState</span></code> class.</p>
 </div>
 <section id="create-beamstate-object">
-<h3>Create BeamState object<a class="headerlink" href="#create-beamstate-object" title="Permalink to this headline"></a></h3>
+<h3>Create BeamState object<a class="headerlink" href="#create-beamstate-object" title="Permalink to this heading"></a></h3>
 <p>Basically, there are several ways to initialize the <code class="docutils literal notranslate"><span class="pre">BeamState</span></code>, slight
 differences should be aware of.</p>
 <div class="admonition note">
@@ -209,7 +212,7 @@ or <code class="docutils literal notranslate"><span class="pre">latfile</span></
 especially, for the case of the beam state is composed of pure zeros.</p>
 </div>
 <section id="approach-1-initialize-with-pre-defined-flame-internal-state-object">
-<h4>Approach 1: Initialize with pre-defined <code class="docutils literal notranslate"><span class="pre">flame._internal.State</span></code> object<a class="headerlink" href="#approach-1-initialize-with-pre-defined-flame-internal-state-object" title="Permalink to this headline"></a></h4>
+<h4>Approach 1: Initialize with pre-defined <code class="docutils literal notranslate"><span class="pre">flame._internal.State</span></code> object<a class="headerlink" href="#approach-1-initialize-with-pre-defined-flame-internal-state-object" title="Permalink to this heading"></a></h4>
 <p>Fist create machine and state object by FLAME Python package:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">flame_utils</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">flame</span> <span class="kn">import</span> <span class="n">Machine</span>
@@ -236,7 +239,7 @@ and even the represetation of <code class="docutils literal notranslate"><span c
 <code class="docutils literal notranslate"><span class="pre">print(bs)</span></code> would gives <code class="docutils literal notranslate"><span class="pre">BeamState:</span> <span class="pre">moment0</span> <span class="pre">mean=[7](-0.0007886,1.08371e-05,0.0133734,6.67853e-06,-0.000184773,0.000309995,1)</span></code></p>
 </section>
 <section id="approach-2-initialize-with-pre-defined-flame-machine-object">
-<h4>Approach 2: Initialize with pre-defined FLAME machine object<a class="headerlink" href="#approach-2-initialize-with-pre-defined-flame-machine-object" title="Permalink to this headline"></a></h4>
+<h4>Approach 2: Initialize with pre-defined FLAME machine object<a class="headerlink" href="#approach-2-initialize-with-pre-defined-flame-machine-object" title="Permalink to this heading"></a></h4>
 <p>This approach will initialize a <code class="docutils literal notranslate"><span class="pre">BeamState</span></code> object with the initial
 attributes’ values from the pre-defined FLAME machine object, e.g.:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bs</span> <span class="o">=</span> <span class="n">flame_utils</span><span class="o">.</span><span class="n">BeamState</span><span class="p">(</span><span class="n">machine</span><span class="o">=</span><span class="n">m</span><span class="p">)</span>
@@ -250,7 +253,7 @@ attributes’ values from the pre-defined FLAME machine object, e.g.:</p>
 </div>
 </section>
 <section id="approach-3-initialize-with-another-beamstate-object">
-<h4>Approach 3: Initialize with another <code class="docutils literal notranslate"><span class="pre">BeamState</span></code> object<a class="headerlink" href="#approach-3-initialize-with-another-beamstate-object" title="Permalink to this headline"></a></h4>
+<h4>Approach 3: Initialize with another <code class="docutils literal notranslate"><span class="pre">BeamState</span></code> object<a class="headerlink" href="#approach-3-initialize-with-another-beamstate-object" title="Permalink to this heading"></a></h4>
 <p>For example:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bs1</span> <span class="o">=</span> <span class="n">flame_utils</span><span class="o">.</span><span class="n">BeamState</span><span class="p">(</span><span class="n">latfile</span><span class="o">=</span><span class="n">latfile</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">bs2</span> <span class="o">=</span> <span class="n">flame_utils</span><span class="o">.</span><span class="n">BeamState</span><span class="p">(</span><span class="n">bmstate</span><span class="o">=</span><span class="n">bs1</span><span class="p">)</span>
@@ -263,7 +266,7 @@ attributes’ values from the pre-defined FLAME machine object, e.g.:</p>
 </section>
 </section>
 <section id="configure-beamstate-object">
-<h3>Configure BeamState object<a class="headerlink" href="#configure-beamstate-object" title="Permalink to this headline"></a></h3>
+<h3>Configure BeamState object<a class="headerlink" href="#configure-beamstate-object" title="Permalink to this heading"></a></h3>
 <p>To confiugre <code class="docutils literal notranslate"><span class="pre">BeamState</span></code> is to set new values to attributes,
 which could be done through properties setter methods, e.g. the initial
 kinetic energy of reference charge state can be adjusted by:</p>
@@ -300,11 +303,11 @@ rather than updating inplace, here is the example:</p>
 </div>
 </section>
 <section id="use-beamstate-object">
-<h3>Use BeamState object<a class="headerlink" href="#use-beamstate-object" title="Permalink to this headline"></a></h3>
+<h3>Use BeamState object<a class="headerlink" href="#use-beamstate-object" title="Permalink to this heading"></a></h3>
 <p>Different <code class="docutils literal notranslate"><span class="pre">BeamState</span></code> represent different initial conditions for
 modeling processes, here are the possible cases:</p>
 <section id="scan-initial-kinetic-energy">
-<h4>Scan initial kinetic energy<a class="headerlink" href="#scan-initial-kinetic-energy" title="Permalink to this headline"></a></h4>
+<h4>Scan initial kinetic energy<a class="headerlink" href="#scan-initial-kinetic-energy" title="Permalink to this heading"></a></h4>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
@@ -375,7 +378,7 @@ shown as the following figure:</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2016, Facility for Rare Isotope Beams, Michigan State University.
-      <span class="lastupdated">Last updated on Apr 04, 2022.
+      <span class="lastupdated">Last updated on Nov 17, 2022.
       </span></p>
   </div>
 
