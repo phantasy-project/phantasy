@@ -13,3 +13,4 @@ flame-data
 epicscorelibs
 importlib_metadata
 phantasy-machines
+click
