@@ -46,7 +46,7 @@ extensions = [
     #'nbsphinx',
     'IPython.sphinxext.ipython_console_highlighting',
     'IPython.sphinxext.ipython_directive',
-    'sphinx.ext.viewcode',
+    # 'sphinx.ext.viewcode',
     # 'numpydoc', # auto summary attr, also generate all api docs
 ]
 
