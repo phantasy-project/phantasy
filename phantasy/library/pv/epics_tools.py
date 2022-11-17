@@ -17,6 +17,7 @@ from queue import Queue, Empty
 from phantasy.library.exception import TimeoutError
 from phantasy.library.exception import GetFinishedException
 from phantasy.library.exception import PutFinishedException
+from phantasy.library.misc import epoch2human
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -88,7 +89,7 @@ def ensure_get(pvname, timeout=None):
     return r
 
 
-def ensure_put(field, goal, tol=None, timeout=None):
+def ensure_put(field, goal, tol=None, timeout=None, verbose=False):
     """Put operation to *field* object, ensure to reach the value
     of *goal* within the discrepancy tolerance defined by *tol*, within the
     time period defined by *timeout*.
@@ -155,6 +156,8 @@ def ensure_put(field, goal, tol=None, timeout=None):
         try:
             if is_equal(v, goal, tol): raise PutFinishedException
             v, ts = q.get(timeout=timeout)
+            if verbose:
+                print(f"[{epoch2human(ts)[:-3]}]{ename}[{fname}] now is {v} (goal: {goal})")
             if ts - t0 > timeout: raise TimeoutError
             _LOGGER.debug(
                 f"Field '{fname}' of '{ename}' reached: {v}[{goal}].")
@@ -164,6 +167,9 @@ def ensure_put(field, goal, tol=None, timeout=None):
             pv.remove_callback(cid)
             field.set_auto_monitor(am0)
             ret = "Empty"
+            if verbose:
+                print(f"[{epoch2human(ts)[:-3]}]{ename}[{fname}] now is {fld.value} (goal: {goal})")
+                print(f"Return '{ret}'")
             break
         except TimeoutError:
             _LOGGER.info(
@@ -171,6 +177,9 @@ def ensure_put(field, goal, tol=None, timeout=None):
             pv.remove_callback(cid)
             field.set_auto_monitor(am0)
             ret = "Timeout"
+            if verbose:
+                print(f"[{epoch2human(ts)[:-3]}]{ename}[{fname}] now is {fld.value} (goal: {goal})")
+                print(f"Return '{ret}'")
             break
         except PutFinishedException:
             _LOGGER.info(
@@ -178,6 +187,9 @@ def ensure_put(field, goal, tol=None, timeout=None):
             pv.remove_callback(cid)
             field.set_auto_monitor(am0)
             ret = "PutFinished"
+            if verbose:
+                print(f"[{epoch2human(ts)[:-3]}]{ename}[{fname}] now is {fld.value} (goal: {goal})")
+                print(f"Return '{ret}'")
             break
     return ret
 

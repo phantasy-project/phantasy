@@ -7,11 +7,17 @@ from .epics_tools import ensure_put
 from typing import Union, List
 from phantasy.library.exception import TimeoutError
 from phantasy.library.exception import PutFinishedException
+from phantasy.library.misc import epoch2human
 from functools import partial
 from queue import Queue, Empty
 import epics
 import time
 import numpy as np
+import click
+import random
+
+COLORS = ('red', 'green', 'yellow', 'blue', 'magenta', 'cyan',
+          'bright_red', 'bright_green', 'bright_yellow', 'bright_blue', 'bright_magenta', 'bright_cyan')
 
 
 class PVElement(object):
@@ -177,7 +183,8 @@ def ensure_set(setpoint_pv: Union[str, List[str]],
                readback_pv: Union[str, List[str]],
                goal: Union[float, List[float]],
                tol: Union[float, List[float]] = 0.01,
-               timeout: float = 10):
+               timeout: float = 10,
+               verbose: bool = False):
     """Perform ensure CA device set operation against the given setpoint PV(s) and monitor
     the readback PV(s) reaching the goal(s) when the value discrepancy between read and set
     within the range defined by the given tolerance(s), all these actions should be finished
@@ -188,13 +195,16 @@ def ensure_set(setpoint_pv: Union[str, List[str]],
     number, they will be expanded to a list of that value for convenience.
     """
     if isinstance(setpoint_pv, str):
-        return _ensure_set_single(setpoint_pv, readback_pv, goal, tol, timeout)
-    else:
-        assert len(setpoint_pv) == len(readback_pv)
-        return _ensure_set_array(setpoint_pv, readback_pv, goal, tol, timeout)
+        setpoint_pv = [setpoint_pv,]
+    if isinstance(readback_pv, str):
+        readback_pv = [readback_pv,]
+        #return _ensure_set_single(setpoint_pv, readback_pv, goal, tol, timeout, verbose)
+    #else:
+    assert len(setpoint_pv) == len(readback_pv)
+    return _ensure_set_array(setpoint_pv, readback_pv, goal, tol, timeout, verbose)
 
 
-def _ensure_set_single(setpoint_pv, readback_pv, goal, tol=0.01, timeout=10):
+def _ensure_set_single(setpoint_pv, readback_pv, goal, tol=0.01, timeout=10, verbose=False):
     """Set *setpoint_pv*, such that the *readback_pv* value reaches the
     *goal* within the value discrepancy of *tol*, in the max time period of
     *timeout* second.
@@ -224,15 +234,16 @@ def _ensure_set_single(setpoint_pv, readback_pv, goal, tol=0.01, timeout=10):
     if readback_pv is None:
         readback_pv = setpoint_pv
     elem = PVElement(setpoint_pv, readback_pv)
-    return ensure_put(elem, goal, tol, timeout)
+    return ensure_put(elem, goal, tol, timeout, verbose)
 
 
-def _ensure_set_array(setpoint_pvs, readback_pvs, goals, tols=0.01, timeout=10):
+def _ensure_set_array(setpoint_pvs, readback_pvs, goals, tols=0.01, timeout=10, verbose=False):
     """Set a list of PVs (setpoint_pv), such that the readback values (readback_pv) all reach the
     goals (goal) within the value discrepancy of tolerance (tol), in the max time period in
     seconds (timeout).
     """
     nsize = len(setpoint_pvs)
+    fgcolors = random.choices(COLORS, k=nsize)
     if isinstance(goals, (float, int)):
         goals = [goals] * nsize
     if isinstance(tols, (float, int)):
@@ -245,8 +256,15 @@ def _ensure_set_array(setpoint_pvs, readback_pvs, goals, tols=0.01, timeout=10):
     def cb(q, idx, **kws):
         val = kws.get('value')
         ts = kws.get('timestamp')
-        print(f"{kws.get('pvname')}: {val}, goal: {goals[idx]}, {ts}")
         _dval[idx] = is_equal(val, goals[idx], tols[idx])
+        if verbose:
+            if _dval[idx]:
+                is_reached = "[OK]"
+            else:
+                is_reached = ""
+            click.secho(
+                f"[{epoch2human(ts)[:-3]}]{kws.get('pvname')} now is {val} (goal: {goals[idx]}){is_reached}",
+                fg=fgcolors[idx])
         q.put((_dval.all(), ts))
 
     _read_PVs = []
@@ -275,13 +293,19 @@ def _ensure_set_array(setpoint_pvs, readback_pvs, goals, tols=0.01, timeout=10):
         except Empty:
             ret = "Empty"
             _clear()
+            if verbose:
+                click.secho(f"Return '{ret}'", fg='green')
             break
         except TimeoutError:
             ret = "Timeout"
             _clear()
+            if verbose:
+                click.secho(f"Return '{ret}'", fg='green')
             break
         except PutFinishedException:
             ret = 'PutFinished'
             _clear()
+            if verbose:
+                click.secho(f"Return '{ret}'", fg='green')
             break
     return ret
