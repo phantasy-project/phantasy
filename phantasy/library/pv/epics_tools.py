@@ -168,7 +168,7 @@ def ensure_put(field, goal, tol=None, timeout=None, verbose=False):
             field.set_auto_monitor(am0)
             ret = "Empty"
             if verbose:
-                print(f"[{epoch2human(ts)[:-3]}]{ename}[{fname}] now is {fld.value} (goal: {goal})")
+                print(f"[{epoch2human(ts)[:-3]}]{ename}[{fname}] now is {field.value} (goal: {goal})")
                 print(f"Return '{ret}'")
             break
         except TimeoutError:
@@ -178,7 +178,7 @@ def ensure_put(field, goal, tol=None, timeout=None, verbose=False):
             field.set_auto_monitor(am0)
             ret = "Timeout"
             if verbose:
-                print(f"[{epoch2human(ts)[:-3]}]{ename}[{fname}] now is {fld.value} (goal: {goal})")
+                print(f"[{epoch2human(ts)[:-3]}]{ename}[{fname}] now is {field.value} (goal: {goal})")
                 print(f"Return '{ret}'")
             break
         except PutFinishedException:
@@ -188,7 +188,7 @@ def ensure_put(field, goal, tol=None, timeout=None, verbose=False):
             field.set_auto_monitor(am0)
             ret = "PutFinished"
             if verbose:
-                print(f"[{epoch2human(ts)[:-3]}]{ename}[{fname}] now is {fld.value} (goal: {goal})")
+                print(f"[{epoch2human(ts)[:-3]}]{ename}[{fname}] now is {field.value} (goal: {goal})")
                 print(f"Return '{ret}'")
             break
     return ret
