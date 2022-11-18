@@ -31,3 +31,8 @@ Two approaches are developed to support such operation:
     :align: center
     :width: 600px
 
+And an example with the real EPICS network:
+
+.. image:: ../../images/tools/fetch_data_06.png
+    :align: center
+    :width: 600px
