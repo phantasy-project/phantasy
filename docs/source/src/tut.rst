@@ -10,4 +10,5 @@ various objectives, the development guide should see :ref:`api`.
 
     Modeling Accelerator With Lattice File <tutorials/tut_modelflame.rst>
     Modeling Accelerator Facility <tutorials/tut_model_accl.rst>
-    Control Device with ensure_set function <tutorials/ensure_set.rst>
+    Control Device with Ensure_Set Function <tutorials/ensure_set.rst>
+    General Function for Fetch PV Readings <tutorials/fetch_data.rst>
