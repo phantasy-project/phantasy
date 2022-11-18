@@ -61,6 +61,7 @@ def set_entry_points():
         'correct_orbit=phantasy.tools.correct_orbit:main',
         'test_phantasy=phantasy.tests:main',
         'ensure_set=phantasy.tools.ensure_set:run',
+        'fetch_data=phantasy.tools.fetch_data:run',
     ]
     return r
 
