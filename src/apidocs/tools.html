@@ -64,6 +64,7 @@
 <li class="toctree-l2"><a class="reference internal" href="lattice.html">Lattice</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Tools</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#phantasy.library.pv.element.ensure_set"><code class="docutils literal notranslate"><span class="pre">ensure_set()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#phantasy.library.pv.epics_tools.fetch_data"><code class="docutils literal notranslate"><span class="pre">fetch_data()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="flame_utils.html">FLAME utils</a></li>
@@ -131,6 +132,47 @@ returned. Default is 10.0.</p></li>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">tol</span> <span class="o">=</span> <span class="mf">0.8</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">timeout</span> <span class="o">=</span> <span class="mi">20</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ensure_set</span><span class="p">(</span><span class="n">sp</span><span class="p">,</span> <span class="n">rp</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="n">tol</span><span class="p">,</span> <span class="n">timeout</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="phantasy.library.pv.epics_tools.fetch_data">
+<span class="sig-name descname"><span class="pre">fetch_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pvlist</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_span</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">abs_z</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#phantasy.library.pv.epics_tools.fetch_data" title="Permalink to this definition"></a></dt>
+<dd><p>Fetch the readback data from a list of given PVs in the given time period in seconds,
+trim the data beyond the given z-score (absolute value), and return the data of interest.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pvlist</strong> (<em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>]</em>) – A list of PVs.</p></li>
+<li><p><strong>time_span</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – The total time period for fetching data, [second], defaults to 5.0.</p></li>
+<li><p><strong>abs_z</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – The absolute value of z-score, drop the data beyond, if not set, keep all the data.</p></li>
+<li><p><strong>with_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a>) – If set, return data array as the second element of the returned tuple.</p></li>
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a>) – If set, print out log messages.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>r</strong> – Tuple of averaged value of array [and the full data array if ‘with_data’ is True].</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.11)">tuple</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">phantasy</span> <span class="kn">import</span> <span class="n">fetch_data</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pvs</span> <span class="o">=</span> <span class="p">[</span>
+<span class="gp">&gt;&gt;&gt; </span> <span class="s1">&#39;VA:LS1_CA01:CAV1_D1127:PHA_RD&#39;</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span> <span class="s1">&#39;VA:LS1_CA01:CAV2_D1136:PHA_RD&#39;</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span> <span class="s1">&#39;VA:LS1_CA01:CAV3_D1142:PHA_RD&#39;</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span> <span class="s1">&#39;VA:SVR:NOISE&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Fetch the average readings of the given list of PVs, for 5 seconds, and drop the data</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># which |z-score| &gt; 3, show the verbose messages.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">avg</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">fetch_data</span><span class="p">(</span><span class="n">pvs</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># return the data table after filtering together with the average readings</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">avg</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">fetch_data</span><span class="p">(</span><span class="n">pvs</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">with_data</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># return the average without data filtering.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">avg</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">fetch_data</span><span class="p">(</span><span class="n">pvs</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>

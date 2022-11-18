@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Control Device Setting with Ensure Set Function &mdash; phantasy 2.1.12 documentation</title>
+  <title>General Function for Fetch PV Readings &mdash; phantasy 2.1.12 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
     <link rel="shortcut icon" href="../../_static/frib-favicon.ico"/>
@@ -21,8 +21,8 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="General Function for Fetch PV Readings" href="fetch_data.html" />
-    <link rel="prev" title="Modeling Accelerator Facility" href="tut_model_accl.html" /> 
+    <link rel="next" title="Features" href="../features.html" />
+    <link rel="prev" title="Control Device Setting with Ensure Set Function" href="ensure_set.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -53,8 +53,8 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../tut.html">User Guide</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="tut_modelflame.html">Modeling Accelerator With Lattice File</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tut_model_accl.html">Modeling Accelerator Facility</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Control Device with Ensure_Set Function</a></li>
-<li class="toctree-l2"><a class="reference internal" href="fetch_data.html">General Function for Fetch PV Readings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ensure_set.html">Control Device with Ensure_Set Function</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">General Function for Fetch PV Readings</a></li>
 </ul>
 </li>
 </ul>
@@ -84,7 +84,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home"></a></li>
           <li class="breadcrumb-item"><a href="../tut.html">User Guide</a></li>
-      <li class="breadcrumb-item active">Control Device Setting with Ensure Set Function</li>
+      <li class="breadcrumb-item active">General Function for Fetch PV Readings</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -93,30 +93,30 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="control-device-setting-with-ensure-set-function">
-<h1>Control Device Setting with Ensure Set Function<a class="headerlink" href="#control-device-setting-with-ensure-set-function" title="Permalink to this heading"></a></h1>
-<p><code class="docutils literal notranslate"><span class="pre">ensure_set</span></code> is developed with the goal of ensure the device readback
-value reaches the set value, in the given amount of time. The discrepancy
-between the readback and setpoint values is being monitored, and will be
-marked “reached” when it falls into the range defined by the tolerance.</p>
+  <section id="general-function-for-fetch-pv-readings">
+<h1>General Function for Fetch PV Readings<a class="headerlink" href="#general-function-for-fetch-pv-readings" title="Permalink to this heading"></a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">fetch_data</span></code> is a general function/tool for fetching PV readings during
+a given period of time, and return the averaged readings, with other options.</p>
 <p>Two approaches are developed to support such operation:</p>
 <ul class="simple">
-<li><p>By using the Python function called <code class="docutils literal notranslate"><span class="pre">ensure_set</span></code>, i.e. <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">phantasy</span> <span class="pre">import</span> <span class="pre">ensure_set</span></code></p></li>
+<li><p>By using the Python function called <code class="docutils literal notranslate"><span class="pre">fetch_data</span></code>, i.e. <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">phantasy</span> <span class="pre">import</span> <span class="pre">fetch_data</span></code></p></li>
 </ul>
-<a class="reference internal image-reference" href="../../_images/ensure_set_01.png"><img alt="../../_images/ensure_set_01.png" class="align-center" src="../../_images/ensure_set_01.png" style="width: 600px;" /></a>
-<a class="reference internal image-reference" href="../../_images/ensure_set_02.png"><img alt="../../_images/ensure_set_02.png" class="align-center" src="../../_images/ensure_set_02.png" style="width: 600px;" /></a>
+<a class="reference internal image-reference" href="images/tools/fetch_data_01.png"><img alt="images/tools/fetch_data_01.png" class="align-center" src="images/tools/fetch_data_01.png" style="width: 600px;" /></a>
+<a class="reference internal image-reference" href="images/tools/fetch_data_02.png"><img alt="images/tools/fetch_data_02.png" class="align-center" src="images/tools/fetch_data_02.png" style="width: 600px;" /></a>
+<a class="reference internal image-reference" href="images/tools/fetch_data_03.png"><img alt="images/tools/fetch_data_03.png" class="align-center" src="images/tools/fetch_data_03.png" style="width: 600px;" /></a>
 <ul class="simple">
-<li><p>By using the CLI tool called <code class="docutils literal notranslate"><span class="pre">ensure_set</span></code>, just type in the Terminal.</p></li>
+<li><p>By using the CLI tool called <code class="docutils literal notranslate"><span class="pre">fetch_data</span></code>, just type in the Terminal.</p></li>
 </ul>
-<a class="reference internal image-reference" href="../../_images/ensure_set_03.png"><img alt="../../_images/ensure_set_03.png" class="align-center" src="../../_images/ensure_set_03.png" style="width: 600px;" /></a>
+<a class="reference internal image-reference" href="images/tools/fetch_data_04.png"><img alt="images/tools/fetch_data_04.png" class="align-center" src="images/tools/fetch_data_04.png" style="width: 600px;" /></a>
+<a class="reference internal image-reference" href="images/tools/fetch_data_05.png"><img alt="images/tools/fetch_data_05.png" class="align-center" src="images/tools/fetch_data_05.png" style="width: 600px;" /></a>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="tut_model_accl.html" class="btn btn-neutral float-left" title="Modeling Accelerator Facility" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="fetch_data.html" class="btn btn-neutral float-right" title="General Function for Fetch PV Readings" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="ensure_set.html" class="btn btn-neutral float-left" title="Control Device Setting with Ensure Set Function" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../features.html" class="btn btn-neutral float-right" title="Features" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
