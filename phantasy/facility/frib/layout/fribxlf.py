@@ -118,6 +118,8 @@ ELEMENT_NAME_STRING_AS_DRIFT = [
     "6-way cross #1 first half", "6-way cross #1 second half",
     "6-way cross #2 first half", "6-way cross #2 second half",
     "4-way cross first half", "4-way cross second half",
+# HP-ECR
+    "Suppression electrode", "reducer / tie-in to LEBT",
 
 # ReA
     "BOB1", "BOB2", "BOB3", "BOB4",
