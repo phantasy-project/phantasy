@@ -21,6 +21,7 @@ from phantasy.library.layout import BPMElement
 from phantasy.library.layout import BendElement
 from phantasy.library.layout import CavityElement
 from phantasy.library.layout import CorElement
+from phantasy.library.layout import ColumnElement
 from phantasy.library.layout import HCorElement
 from phantasy.library.layout import VCorElement
 from phantasy.library.layout import DriftElement
@@ -232,6 +233,7 @@ def build_channels(layout, psfile, machine=None, **kws):
             _LOGGER.info("Building channels for {}".format(element.name))
             #
             pv_rules = elem_pv_rules.get(element.name, None)
+
             if pv_rules is None:
                 if isinstance(element, EQuadElement):
                     raise PSPVRulesNotFoundForEQUAD
@@ -922,6 +924,9 @@ def build_channels(layout, psfile, machine=None, **kws):
             pass
 
         elif isinstance(elem, ETYPES_TO_SKIP):
+            pass
+
+        elif isinstance(elem, ColumnElement):
             pass
 
         elif isinstance(elem, FCElement):
