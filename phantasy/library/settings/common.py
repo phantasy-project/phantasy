@@ -243,6 +243,8 @@ def get_settings_from_element_list(elem_list, data_source='control',
             m_settings = settings.get(ename, {})
             if phy_fld in m_settings:
                 phy_val = m_settings[phy_fld]
+            else:
+                phy_val = np.nan
         if phy_val is None:
             _LOGGER.warning("{} [{}] is not reachable.".format(elem.name, phy_fld))
         return phy_val
