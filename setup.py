@@ -23,7 +23,7 @@ _keywords = "PHANTASY FRIB HLA high-level Python FLAME Virtual Model"
 _install_requires = [
     'epicscorelibs',
     'importlib_metadata',
-    'phantasy-machines',
+    # 'phantasy-machines',
     'xlrd>=1.1,<2.0',
     'matplotlib>=3.1.2,<4.0',
     'lmfit>=1.0.0,<2.0',
