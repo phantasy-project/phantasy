@@ -7,6 +7,7 @@ from epics import caput as epics_caput
 from epics import cainfo as epics_cainfo
 from epics import camonitor as epics_camonitor
 from epics import ca
+from epics import get_pv
 
 import epics
 import logging
@@ -319,15 +320,11 @@ def fetch_data(pvlist: List[str],
                 fg="blue")
         _data_list[idx].append(val)
 
-    _pvs = []
     for idx, pv in enumerate(pvlist):
-        o = epics.PV(pv, partial(_cb, idx))
-        _pvs.append(o)
-
-    def _clear():
-        for i in _pvs:
-            i.clear_callbacks()
-            del i
+        o = get_pv(pv)
+        o.clear_callbacks()
+        o.add_callback(partial(_cb, idx))
+        time.sleep(0.05)
 
     t0 = time.time()
     _evt = Event()
@@ -348,7 +345,6 @@ def fetch_data(pvlist: List[str],
         except FetchDataFinishedException:
             _evt.set()
             ret = "FetchDataFinished"
-            _clear()
             break
 
     def _pack_data(_df: pd.DataFrame):
