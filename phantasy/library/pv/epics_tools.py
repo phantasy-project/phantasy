@@ -324,7 +324,8 @@ def fetch_data(pvlist: List[str],
         o = get_pv(pv)
         o.clear_callbacks()
         o.add_callback(partial(_cb, idx))
-        time.sleep(0.05)
+        # time.sleep(0.05)
+        _data_list[idx].append(o.value)
 
     t0 = time.time()
     _evt = Event()
