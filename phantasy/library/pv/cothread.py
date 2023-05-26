@@ -11,7 +11,10 @@ Utilities and extensions for the `cothread`_ library.
 import subprocess
 import threading
 
-import cothread
+try:
+    import cothread
+except ModuleNotFoundError:
+    print("cothread is not available.")
 
 
 class Popen(object):

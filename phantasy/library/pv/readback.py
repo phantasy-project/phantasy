@@ -6,7 +6,10 @@
 
 import logging
 
-from cothread.catools import caget
+try:
+    from cothread.catools import caget
+except ModuleNotFoundError:
+    from epics import caget
 
 __authors__ = "Tong Zhang"
 __copyright__ = "(c) 2016-2017, Facility for Rare Isotope beams," \
@@ -23,7 +26,7 @@ def get_readback(pv):
     ----------
     pv : str or List(str) or dict
         pv names.
-    
+
     Returns
     -------
     ret : str or list or dict
