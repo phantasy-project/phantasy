@@ -268,7 +268,8 @@ def fetch_data(pvlist: List[str],
                time_span: float = 5.0,
                abs_z: float = None,
                with_data=False,
-               verbose=False):
+               verbose=False,
+               **kws):
     """Fetch the readback data from a list of given PVs in the given time period in seconds,
     trim the data beyond the given z-score (absolute value), and return the data of interest.
 
@@ -284,6 +285,11 @@ def fetch_data(pvlist: List[str],
         If set, return data array as the second element of the returned tuple.
     verbose : bool
         If set, print out log messages.
+
+    Keyword Arguments
+    -----------------
+    timeout : float
+        Connection timeout for all PVs, defaults 5.0 seconds.
 
     Returns
     -------
@@ -307,25 +313,35 @@ def fetch_data(pvlist: List[str],
     >>> # return the average without data filtering.
     >>> avg, _ = fetch_data(pvs, 5)
     """
+    not_connected_pvs = establish_pvs(pvlist, timeout=kws.get('timeout', 5.0))
+    if not_connected_pvs is not None:
+        click.secho(f"Not-reachable PVs: {','.join(not_connected_pvs)}", fg="red")
+        raise RuntimeError("PVs are not all reachable, exit.")
+
     _tq = Queue()
     nsize = len(pvlist)
     _data_list = [[] for _ in range(nsize)]
 
-    def _cb(idx, **kws):
-        val = kws.get('value')
-        ts = kws.get('timestamp')
-        if verbose:
+    if verbose:
+        def _cb(idx, **kws):
+            val = kws.get('value')
+            ts = kws.get('timestamp')
             click.secho(
-                f"[{epoch2human(ts)[:-3]}]Get {kws.get('pvname')}: {val:<6g}",
-                fg="blue")
-        _data_list[idx].append(val)
+                f"[{epoch2human(ts)[:-3]}]Get {kws.get('pvname')}: {val:<6g}", fg="blue")
+            _data_list[idx].append(val)
+    else:
+        def _cb(idx, **kws):
+            val = kws.get('value')
+            _data_list[idx].append(val)
 
     for idx, pv in enumerate(pvlist):
         o = get_pv(pv)
         o.clear_callbacks()
-        o.add_callback(partial(_cb, idx))
-        # time.sleep(0.05)
         _data_list[idx].append(o.value)
+        o.add_callback(partial(_cb, idx))
+
+    def _close():
+        [get_pv(i).clear_callbacks() for i in pvlist]
 
     t0 = time.time()
     _evt = Event()
@@ -335,7 +351,7 @@ def fetch_data(pvlist: List[str],
             if _evt.is_set():
                 break
             q.put(time.time())
-            time.sleep(0.05)
+            time.sleep(0.001)
 
     th = Thread(target=_tick_down, args=(_tq, ))
     th.start()
@@ -345,7 +361,7 @@ def fetch_data(pvlist: List[str],
             if t - t0 >= time_span: raise FetchDataFinishedException
         except FetchDataFinishedException:
             _evt.set()
-            ret = "FetchDataFinished"
+            _close()
             break
 
     def _pack_data(_df: pd.DataFrame):
