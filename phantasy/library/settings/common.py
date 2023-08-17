@@ -242,10 +242,10 @@ def get_settings_from_element_list(elem_list, data_source='control',
         if data_source == 'model':
             m_settings = settings.get(ename, {})
             if phy_fld in m_settings:
-                phy_val = m_settings[phy_fld]
-            else:
-                phy_val = np.nan
+                phy_val = m_settings.get(phy_fld, None)
         if phy_val is None:
+            phy_val = np.nan
+        if np.isnan(phy_val):
             _LOGGER.warning("{} [{}] is not reachable.".format(elem.name, phy_fld))
         return phy_val
 
@@ -290,21 +290,18 @@ def get_settings_from_element_list(elem_list, data_source='control',
                 # if phy_fld can find 'model' settings, get 'model' settings
                 # otherwise use live settings.
                 phy_val = get_phy_field_setting(elem, phy_fld, settings, data_source)
-                if phy_val is None:
+                if np.isnan(phy_val) and _skip_none:
                     _LOGGER.warning("Skip unreachable {} [{}] for settings.".format(ename, phy_fld))
-                    if _skip_none:
-                        continue
+                    continue
                 elem_settings.update([(phy_fld, phy_val)])
         else:
             for phy_fld, eng_fld in zip(phy_flds, eng_flds):
                 phy_val = get_phy_field_setting(elem, phy_fld, settings, data_source)
-                if phy_val is None:
+                if np.isnan(phy_val) and _skip_none:
                     _LOGGER.warning("Skip unreachable {} [] for settings.".format(ename, phy_fld))
-                    if _skip_none:
-                        continue
+                    continue
                 eng_val = elem.convert(from_field=phy_fld, value=phy_val)
                 elem_settings.update([(phy_fld, phy_val), (eng_fld, eng_val)])
         if elem_settings:
             s.update([(ename, elem_settings)])
-
     return s
