@@ -68,6 +68,7 @@ def ensure_get(pvname, timeout=None):
     r :
         Value from caget(pvname) or None
     """
+
     def _on_val_changed(q_val, **kws):
         q_val.put((kws.get('value'), time.time()))
 
@@ -264,6 +265,222 @@ def caget_many(pvlist,
     return out
 
 
+class DataFetcher:
+    """ DataFetcher provides a more robust, flexible and efficient way for fetching data through CA.
+    It's wrapping the `fetch_data` function but offers less overhead in terms of managing the
+    working objects.
+
+    Parameters
+    ----------
+    pvlist : list[str]
+        A list of PVs with unique names.
+
+    Keyword Arguments
+    -----------------
+    timeout : float
+        The overall connection timeout for all PVs, defaults 5 seconds, meaning if in 5 seconds
+        not all the PVs can be reached, raise an error; increase the timeout by set timeout value
+        via <DataFetcher instance>.timeout = <new timeout>.
+    verbose : bool
+        If set, show more print out messages, defaults False.
+
+    See Also
+    --------
+    fetch_data
+
+    Examples
+    --------
+    >>> from phantasy import DataFetcher
+    >>> pvs = [
+    >>>  'VA:LS1_CA01:CAV1_D1127:PHA_RD',
+    >>>  'VA:LS1_CA01:CAV2_D1136:PHA_RD',
+    >>>  'VA:LS1_CA01:CAV3_D1142:PHA_RD',
+    >>>  'VA:SVR:NOISE'
+    >>> ]
+    >>> # instantiation
+    >>> data_fetcher = DataFetcher(pvs, timeout=10)
+    >>> # fetch the data
+    >>> avg, df = data_fetcher(timespan=2.0, verbose=True)
+    >>> # another fetch
+    >>> avg, df = data_fetcher(timespan=1.0)
+    >>> # clean up (optional)
+    >>> data_fetcher.reset()
+    """
+
+    def __init__(self, pvlist: list[str], **kws):
+        self._pvlist = pvlist
+        self._npv = len(pvlist)
+        self._pvs = [None] * self._npv
+        #
+        self.timeout = kws.get('timeout', 5)
+        self.verbose = kws.get('verbose', False)
+        self.run = False
+
+        #
+        self.pre_setup()
+
+    def __check_all_pvs(self):
+        # return a boolean if all PVs are ready to work or not.
+        return all((i is not None and i.connected for i in self._pvs))
+
+    @property
+    def run(self):
+        """bool: start data accumulating if set.
+        """
+        return self._run
+
+    @run.setter
+    def run(self, i: bool):
+        self._run = i
+
+    @property
+    def timeout(self):
+        """float: Maximum allowed waiting time in seconds before all PVs are ready to work.
+        """
+        return self._timeout
+
+    @timeout.setter
+    def timeout(self, t: float):
+        self._timeout = t
+
+    def is_pvs_ready(self):
+        """Return if all PVs are ready to work or not.
+        """
+        return self._all_pvs_ready
+
+    def reset(self):
+        """Cleaning up work.
+        """
+        [i.clear_callbacks() for i in self._pvs]
+
+    def pre_setup(self):
+        """Preparation for the data fetch procedure.
+        """
+        # clear the data container
+        self._data_list = [[] for _ in range(self._npv)]
+        # if all PVs are ready, just return
+        self._all_pvs_ready = self.__check_all_pvs()
+        if self._all_pvs_ready:
+            return
+        #
+        t0 = time.perf_counter()
+
+        def _cb(idx: int, **kws):
+            if self._run:
+                val = kws.get('value')
+                self._data_list[idx].append(val)
+                if self.verbose:
+                    ts = kws.get('timestamp')
+                    click.secho(
+                        f"[{epoch2human(ts)[:-3]}] Get {kws.get('pvname')}: {val:<6g}",
+                        fg="blue")
+
+        #
+        q = Queue()
+        conn_sts = [False] * self._npv
+
+        def _f(i: int, pvname: str, conn: bool, **kws):
+            if conn:
+                conn_sts[i] = True
+                if all(conn_sts):
+                    q.put(True)
+
+        for i, pvname in enumerate(self._pvlist):
+            self._pvs[i] = get_pv(pvname,
+                                  connection_callback=partial(_f, i),
+                                  callback=partial(_cb, i))
+
+        while True:
+            try:
+                v = q.get(timeout=self._timeout)
+                if v: raise PVsAreReady
+            except Empty:
+                print(f"Failed connecting to all PVs in {self._timeout:.1f}s.")
+                if self.verbose:
+                    not_conn_pvs = [
+                        i.pvname for i in self._pvs if not i.connected
+                    ]
+                    click.secho(
+                        f"{len(not_conn_pvs)} PVs are not established in {self._timeout:.1f}s.",
+                        fg="red")
+                    click.secho("{}".format('\n'.join(not_conn_pvs)), fg="red")
+                break
+            except PVsAreReady:
+                if self.verbose:
+                    click.secho(
+                        f"Established {self._npv} PVs in {(time.perf_counter() - t0) * 1e3:.1f}ms.",
+                        fg="green")
+                self._all_pvs_ready = True
+                break
+
+    def __call__(self,
+                 time_span: float = 5.0,
+                 abs_z: float = None,
+                 with_data: bool = False,
+                 **kws):
+        verbose = kws.get('verbose', self.verbose)
+        self.verbose = verbose
+        # initial data list
+        self._data_list = [[self._pvs[i].value] for i in range(self._npv)]
+        _tq = Queue()
+        _evt = Event()
+        t0 = time.perf_counter()
+
+        def _tick_down(q):
+            self.run = True
+            while True:
+                if _evt.is_set():
+                    self.run = False
+                    break
+                q.put(time.perf_counter())
+                time.sleep(0.001)
+
+        th = Thread(target=_tick_down, args=(_tq, ))
+        th.start()
+        while True:
+            try:
+                t = _tq.get(timeout=5)
+                if t - t0 >= time_span: raise FetchDataFinishedException
+            except FetchDataFinishedException:
+                _evt.set()
+                if verbose:
+                    click.secho(f"Finished fetching data in {t - t0:.1f}s")
+                # _close()
+                break
+        #
+        def _pack_data(_df: pd.DataFrame):
+            # pack the data for return
+            if with_data:
+                n_col = _df.shape[1]
+                _col_mean = _df.mean(axis=1)
+                _col_std = _df.std(ddof=0, axis=1)
+                _df['#'] = _df.apply(lambda i: n_col - i.isna().sum(), axis=1)
+                _df['mean'] = _col_mean
+                _df['std'] = _col_std
+                return _df
+            else:
+                return None
+
+        # raw data
+        df0 = pd.DataFrame(self._data_list, index=self._pvlist)
+        # mean, std
+        _avg, _std = df0.mean(axis=1), df0.std(ddof=0, axis=1)
+        if abs_z is None:
+            return _avg.to_numpy(), _pack_data(df0)
+        # - mean
+        df_sub = df0.sub(_avg, axis=0)
+        # idx1: df_sub == 0
+        idx1 = df_sub == 0.0
+        # ((- mean) / std) ** 2
+        df1 = df_sub.div(_std, axis=0)**2
+        idx2 = df1 <= abs_z**2
+        # data of interest
+        df = df0[idx1 | idx2]
+        # mean array
+        avg_arr = df.mean(axis=1).to_numpy()
+        return avg_arr, _pack_data(df)
+
+
 def fetch_data(pvlist: List[str],
                time_span: float = 5.0,
                abs_z: float = None,
@@ -315,7 +532,8 @@ def fetch_data(pvlist: List[str],
     """
     not_connected_pvs = establish_pvs(pvlist, timeout=kws.get('timeout', 5.0))
     if not_connected_pvs is not None:
-        click.secho(f"Not-reachable PVs: {','.join(not_connected_pvs)}", fg="red")
+        click.secho(f"Not-reachable PVs: {','.join(not_connected_pvs)}",
+                    fg="red")
         raise RuntimeError("PVs are not all reachable, exit.")
 
     _tq = Queue()
@@ -323,13 +541,16 @@ def fetch_data(pvlist: List[str],
     _data_list = [[] for _ in range(nsize)]
 
     if verbose:
+
         def _cb(idx, **kws):
             val = kws.get('value')
             ts = kws.get('timestamp')
             click.secho(
-                f"[{epoch2human(ts)[:-3]}]Get {kws.get('pvname')}: {val:<6g}", fg="blue")
+                f"[{epoch2human(ts)[:-3]}]Get {kws.get('pvname')}: {val:<6g}",
+                fg="blue")
             _data_list[idx].append(val)
     else:
+
         def _cb(idx, **kws):
             val = kws.get('value')
             _data_list[idx].append(val)
@@ -397,8 +618,8 @@ def fetch_data(pvlist: List[str],
     return avg_arr, _pack_data(df)
 
 
-
 class PVsAreReady(Exception):
+
     def __init__(self, *args, **kws):
         super().__init__(*args, **kws)
 
@@ -430,6 +651,7 @@ def establish_pvs(pvs: list, timeout: float = 3.0, **kws):
     q = Queue()
     n_pv = len(pvs)
     con_sts = [False] * n_pv
+
     def _f(i, pvname, conn, **kws):
         if conn:
             con_sts[i] = True
@@ -444,31 +666,37 @@ def establish_pvs(pvs: list, timeout: float = 3.0, **kws):
             v = q.get(timeout=timeout)
             if v: raise PVsAreReady
         except Empty:
-            not_connected_pvs = [i for i in pvs if not epics.get_pv(i).connected]
+            not_connected_pvs = [
+                i for i in pvs if not epics.get_pv(i).connected
+            ]
             if enable_log:
-                print(f"{len(not_connected_pvs)} PVs are not established in {(time.perf_counter() - t0) * 1e3:.1f} ms.")
+                print(
+                    f"{len(not_connected_pvs)} PVs are not established in {(time.perf_counter() - t0) * 1e3:.1f} ms."
+                )
             return not_connected_pvs
         except PVsAreReady:
             if enable_log:
-                print(f"Established {n_pv} PVs in {(time.perf_counter() - t0) * 1e3:.1f} ms.")
+                print(
+                    f"Established {n_pv} PVs in {(time.perf_counter() - t0) * 1e3:.1f} ms."
+                )
             return None
 
 
 if __name__ == '__main__':
     pvs = [
-     'FE_ISRC1:BEAM:ELMT_BOOK',
-     'FE_ISRC1:BEAM:A_BOOK',
-     'FE_ISRC1:BEAM:Z_BOOK',
-     'FE_ISRC1:BEAM:Q_BOOK',
-     'ACC_OPS:BEAM:Q_STRIP',
-     'FE_ISRC2:BEAM:ELMT_BOOK',
-     'FE_ISRC2:BEAM:A_BOOK',
-     'FE_ISRC2:BEAM:Z_BOOK',
-     'FE_ISRC2:BEAM:Q_BOOK',
-     #'MYPV',
-     'ACS_DIAG:DEST:ACTIVE_ION_SOURCE',
-     'ACS_DIAG:DEST:FSEE_LINE_RD',
-     'ACS_DIAG:DEST:BEAMDEST_RD',
+        'FE_ISRC1:BEAM:ELMT_BOOK',
+        'FE_ISRC1:BEAM:A_BOOK',
+        'FE_ISRC1:BEAM:Z_BOOK',
+        'FE_ISRC1:BEAM:Q_BOOK',
+        'ACC_OPS:BEAM:Q_STRIP',
+        'FE_ISRC2:BEAM:ELMT_BOOK',
+        'FE_ISRC2:BEAM:A_BOOK',
+        'FE_ISRC2:BEAM:Z_BOOK',
+        'FE_ISRC2:BEAM:Q_BOOK',
+        #'MYPV',
+        'ACS_DIAG:DEST:ACTIVE_ION_SOURCE',
+        'ACS_DIAG:DEST:FSEE_LINE_RD',
+        'ACS_DIAG:DEST:BEAMDEST_RD',
     ]
     # with open("pvlist.txt", "r") as fp:
     #     pvs = fp.read().split()
