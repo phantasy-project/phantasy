@@ -421,7 +421,8 @@ class DataFetcher:
         verbose = kws.get('verbose', self.verbose)
         self.verbose = verbose
         # initial data list
-        self._data_list = [[self._pvs[i].value] for i in range(self._npv)]
+        self._data_first_shot = [i.value for i in self._pvs]
+        self._data_list = [[] for i in range(self._npv)]
         _tq = Queue()
         _evt = Event()
         t0 = time.perf_counter()
@@ -445,8 +446,11 @@ class DataFetcher:
                 _evt.set()
                 if verbose:
                     click.secho(f"Finished fetching data in {t - t0:.1f}s")
-                # _close()
                 break
+        # amend the first element of the list container with initial shot
+        for i in range(self._npv):
+            if not self._data_list[i]:
+                self._data_list[i] = [self._data_first_shot[i]]
         #
         def _pack_data(_df: pd.DataFrame):
             # pack the data for return
