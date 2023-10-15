@@ -314,7 +314,8 @@ class DataFetcher:
         #
         self.timeout = kws.get('timeout', 5)
         self.verbose = kws.get('verbose', False)
-        self.run = False
+        # start data accumulating if set.
+        self._run = False
 
         #
         self.pre_setup()
@@ -322,16 +323,6 @@ class DataFetcher:
     def __check_all_pvs(self):
         # return a boolean if all PVs are ready to work or not.
         return all((i is not None and i.connected for i in self._pvs))
-
-    @property
-    def run(self):
-        """bool: start data accumulating if set.
-        """
-        return self._run
-
-    @run.setter
-    def run(self, i: bool):
-        self._run = i
 
     @property
     def timeout(self):
@@ -388,7 +379,7 @@ class DataFetcher:
         for i, pvname in enumerate(self._pvlist):
             self._pvs[i] = get_pv(pvname,
                                   connection_callback=partial(_f, i),
-                                  callback=partial(_cb, i))
+                                  callback=partial(_cb, i), auto_monitor=True)
 
         while True:
             try:
