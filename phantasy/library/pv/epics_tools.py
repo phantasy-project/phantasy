@@ -525,92 +525,9 @@ def fetch_data(pvlist: List[str],
     >>> # return the average without data filtering.
     >>> avg, _ = fetch_data(pvs, 5)
     """
-    not_connected_pvs = establish_pvs(pvlist, timeout=kws.get('timeout', 5.0))
-    if not_connected_pvs is not None:
-        click.secho(f"Not-reachable PVs: {','.join(not_connected_pvs)}",
-                    fg="red")
-        raise RuntimeError("PVs are not all reachable, exit.")
-
-    _tq = Queue()
-    nsize = len(pvlist)
-    _data_list = [[] for _ in range(nsize)]
-
-    if verbose:
-
-        def _cb(idx, **kws):
-            val = kws.get('value')
-            ts = kws.get('timestamp')
-            click.secho(
-                f"[{epoch2human(ts)[:-3]}]Get {kws.get('pvname')}: {val:<6g}",
-                fg="blue")
-            _data_list[idx].append(val)
-    else:
-
-        def _cb(idx, **kws):
-            val = kws.get('value')
-            _data_list[idx].append(val)
-
-    for idx, pv in enumerate(pvlist):
-        o = get_pv(pv)
-        o.clear_callbacks()
-        _data_list[idx].append(o.value)
-        o.add_callback(partial(_cb, idx))
-
-    def _close():
-        [get_pv(i).clear_callbacks() for i in pvlist]
-
-    t0 = time.time()
-    _evt = Event()
-
-    def _tick_down(q):
-        while True:
-            if _evt.is_set():
-                break
-            q.put(time.time())
-            time.sleep(0.001)
-
-    th = Thread(target=_tick_down, args=(_tq, ))
-    th.start()
-    while True:
-        try:
-            t = _tq.get(timeout=5)
-            if t - t0 >= time_span: raise FetchDataFinishedException
-        except FetchDataFinishedException:
-            _evt.set()
-            _close()
-            break
-
-    def _pack_data(_df: pd.DataFrame):
-        # pack the data for return
-        if with_data:
-            n_col = _df.shape[1]
-            _col_mean = _df.mean(axis=1)
-            _col_std = _df.std(ddof=0, axis=1)
-            _df['#'] = _df.apply(lambda i: n_col - i.isna().sum(), axis=1)
-            _df['mean'] = _col_mean
-            _df['std'] = _col_std
-            return _df
-        else:
-            return None
-
-    # raw data
-    df0 = pd.DataFrame(_data_list, index=pvlist)
-    # mean, std
-    _avg, _std = df0.mean(axis=1), df0.std(ddof=0, axis=1)
-    if abs_z is None:
-        return _avg.to_numpy(), _pack_data(df0)
-    # - mean
-    df_sub = df0.sub(_avg, axis=0)
-    # idx1: df_sub == 0
-    idx1 = df_sub == 0.0
-    # ((- mean) / std) ** 2
-    df1 = df_sub.div(_std, axis=0)**2
-    idx2 = df1 <= abs_z**2
-    # data of interest
-    df = df0[idx1 | idx2]
-    # mean array
-    avg_arr = df.mean(axis=1).to_numpy()
-    return avg_arr, _pack_data(df)
+    data_fetcher = DataFetcher(pvlist, timeout=kws.get('timeout', 5), verbose=verbose)
+    avg, df = data_fetcher(time_span, abs_z, with_data, verbose=verbose)
+    return avg, df
 
 
 class PVsAreReady(Exception):
