@@ -378,7 +378,9 @@ class DataFetcher:
                     q.put(True)
 
         for i, pvname in enumerate(self._pvlist):
-            o = get_pv(pvname, connection_callback=partial(_f, i), auto_monitor=True)
+            o = get_pv(pvname,
+                       connection_callback=partial(_f, i),
+                       auto_monitor=True)
             o.clear_callbacks()
             o.add_callback(partial(_cb, i), with_ctrlvars=False)
             self._pvs[i] = o
@@ -418,6 +420,7 @@ class DataFetcher:
         self._data_list = [[] for i in range(self._npv)]
         _tq = Queue()
         _evt = Event()
+
         def _tick_down(q):
             self._run = True
             while True:
@@ -527,7 +530,9 @@ def fetch_data(pvlist: list[str],
     >>> # return the average without data filtering.
     >>> avg, _ = fetch_data(pvs, 5)
     """
-    data_fetcher = DataFetcher(pvlist, timeout=kws.get('timeout', 5), verbose=verbose)
+    data_fetcher = DataFetcher(pvlist,
+                               timeout=kws.get('timeout', 5),
+                               verbose=verbose)
     avg, df = data_fetcher(time_span, abs_z, with_data, verbose=verbose)
     return avg, df
 
