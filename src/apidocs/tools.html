@@ -217,10 +217,10 @@ via &lt;DataFetcher instance&gt;.timeout = &lt;new timeout&gt;.</p></li>
 <span class="gp">&gt;&gt;&gt; </span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># instantiation</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">data_fetcher</span> <span class="o">=</span> <span class="n">DataFetcher</span><span class="p">(</span><span class="n">pvs</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c1"># fetch the data</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">avg</span><span class="p">,</span> <span class="n">df</span> <span class="o">=</span> <span class="n">data_fetcher</span><span class="p">(</span><span class="n">timespan</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># fetch the data, see fetch_data() for the parameters definition.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">avg</span><span class="p">,</span> <span class="n">df</span> <span class="o">=</span> <span class="n">data_fetcher</span><span class="p">(</span><span class="n">time_span</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># another fetch</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">avg</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">data_fetcher</span><span class="p">(</span><span class="n">timespan</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">avg</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">data_fetcher</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># clean up (optional)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">data_fetcher</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
 </pre></div>
