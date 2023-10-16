@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Work with Device &mdash; phantasy 2.1.12 documentation</title>
+  <title>Work with Device &mdash; phantasy 2.1.15 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
     <link rel="shortcut icon" href="../../_static/frib-favicon.ico"/>
@@ -12,12 +12,11 @@
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=7f22dc8f"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -30,14 +29,18 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../index.html" class="icon icon-home"> phantasy
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            phantasy
           </a>
               <div class="version">
-                2.1.12
+                2.1.15
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -84,7 +87,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../index.html" class="icon icon-home"></a></li>
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../features.html">Features</a></li>
       <li class="breadcrumb-item active">Work with Device</li>
       <li class="wy-breadcrumbs-aside">
@@ -121,7 +124,7 @@ interested device(s). All valid device types can be known by
 <span class="gp">In [2]: </span><span class="n">mp</span> <span class="o">=</span> <span class="n">MachinePortal</span><span class="p">(</span><span class="n">machine</span><span class="o">=</span><span class="s2">&quot;FRIB&quot;</span><span class="p">,</span> <span class="n">segment</span><span class="o">=</span><span class="s2">&quot;LEBT&quot;</span><span class="p">)</span>
 
 <span class="gp">In [3]: </span><span class="n">mp</span><span class="o">.</span><span class="n">get_all_types</span><span class="p">()</span>
-<span class="gh">Out[3]: </span><span class="go"></span>
+<span class="gh">Out[3]: </span>
 <span class="go">[&#39;SOL&#39;,</span>
 <span class="go"> &#39;VCOR&#39;,</span>
 <span class="go"> &#39;HCOR&#39;,</span>
@@ -145,7 +148,7 @@ referring by <code class="docutils literal notranslate"><span class="pre">[0]</s
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [4]: </span><span class="n">all_sols</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">get_elements</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;SOL&#39;</span><span class="p">)</span>
 
 <span class="gp">In [5]: </span><span class="n">all_sols</span>
-<span class="gh">Out[5]: </span><span class="go"></span>
+<span class="gh">Out[5]: </span>
 <span class="go">[FE_SCS1:SOLR_D0704 [SOL] @ sb=70.206995,</span>
 <span class="go"> FE_LEBT:SOLR_D0787 [SOL] @ sb=78.481995,</span>
 <span class="go"> FE_LEBT:SOLR_D0802 [SOL] @ sb=79.957145,</span>
@@ -167,16 +170,17 @@ referring by <code class="docutils literal notranslate"><span class="pre">[0]</s
 <p>Each one within the list returned from
 <a class="reference internal" href="../apidocs/operation.html#phantasy.MachinePortal.get_elements" title="phantasy.MachinePortal.get_elements"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_elements()</span></code></a> is the instance of
 <a class="reference internal" href="../apidocs/lattice.html#phantasy.CaElement" title="phantasy.CaElement"><code class="xref py py-class docutils literal notranslate"><span class="pre">CaElement</span></code></a>, which is bundled of various information,
-represented as attributes of the Python object <a class="footnote-reference brackets" href="#f1" id="id1">1</a>, simply by
+represented as attributes of the Python object <a class="footnote-reference brackets" href="#f1" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>, simply by
 hitting <code class="docutils literal notranslate"><span class="pre">&lt;TAB&gt;</span></code> button after dot (<cite>.</cite>), list of possible methods,
 attributes will be pop out, select any of them to get the execution
 results.</p>
 <p class="rubric">Footnotes</p>
-<dl class="footnote brackets">
-<dt class="label" id="f1"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
-<dd><p>The valid common attributes and element specific ones, as well as the valid methods attched to element is detailed in <a class="reference internal" href="../intro.html#arch-element"><span class="std std-ref">this page</span></a>.</p>
-</dd>
-</dl>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="f1" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>The valid common attributes and element specific ones, as well as the valid methods attched to element is detailed in <a class="reference internal" href="../intro.html#arch-element"><span class="std std-ref">this page</span></a>.</p>
+</aside>
+</aside>
 </section>
 </section>
 
@@ -192,7 +196,7 @@ results.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2016, Facility for Rare Isotope Beams, Michigan State University.
-      <span class="lastupdated">Last updated on Nov 18, 2022.
+      <span class="lastupdated">Last updated on Oct 16, 2023.
       </span></p>
   </div>
 
