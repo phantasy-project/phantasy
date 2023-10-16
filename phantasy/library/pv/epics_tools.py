@@ -378,9 +378,10 @@ class DataFetcher:
                     q.put(True)
 
         for i, pvname in enumerate(self._pvlist):
-            self._pvs[i] = get_pv(pvname,
-                                  connection_callback=partial(_f, i),
-                                  callback=partial(_cb, i), auto_monitor=True)
+            o = get_pv(pvname, connection_callback=partial(_f, i), auto_monitor=True)
+            o.clear_callbacks()
+            o.add_callback(partial(_cb, i), with_ctrlvars=False)
+            self._pvs[i] = o
 
         while True:
             try:
@@ -477,7 +478,7 @@ class DataFetcher:
         return avg_arr, _pack_data(df)
 
 
-def fetch_data(pvlist: List[str],
+def fetch_data(pvlist: list[str],
                time_span: float = 5.0,
                abs_z: float = None,
                with_data=False,
@@ -488,7 +489,7 @@ def fetch_data(pvlist: List[str],
 
     Parameters
     ----------
-    pvlist : List[str]
+    pvlist : list[str]
         A list of PVs.
     time_span : float
         The total time period for fetching data, [second], defaults to 5.0.
