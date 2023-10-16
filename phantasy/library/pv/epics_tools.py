@@ -302,12 +302,13 @@ class DataFetcher:
     >>> # fetch the data
     >>> avg, df = data_fetcher(timespan=2.0, verbose=True)
     >>> # another fetch
-    >>> avg, df = data_fetcher(timespan=1.0)
+    >>> avg, _ = data_fetcher(timespan=1.0)
     >>> # clean up (optional)
     >>> data_fetcher.reset()
     """
 
     def __init__(self, pvlist: list[str], **kws):
+        self.__check_unique_list(pvlist)
         self._pvlist = pvlist
         self._npv = len(pvlist)
         self._pvs = [None] * self._npv
@@ -319,6 +320,10 @@ class DataFetcher:
 
         #
         self.pre_setup()
+
+    def __check_unique_list(self, pvlist: list[str]):
+        if len(set(pvlist)) != len(pvlist):
+            raise RuntimeError("Duplicated PV names!")
 
     def __check_all_pvs(self):
         # return a boolean if all PVs are ready to work or not.
