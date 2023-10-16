@@ -272,7 +272,7 @@ class DataFetcher:
 
     Parameters
     ----------
-    pvlist : list[str]
+    pvlist : List[str]
         A list of PVs with unique names.
 
     Keyword Arguments
@@ -307,7 +307,7 @@ class DataFetcher:
     >>> data_fetcher.reset()
     """
 
-    def __init__(self, pvlist: list[str], **kws):
+    def __init__(self, pvlist: List[str], **kws):
         self.__check_unique_list(pvlist)
         self._pvlist = pvlist
         self._npv = len(pvlist)
@@ -321,7 +321,7 @@ class DataFetcher:
         #
         self.pre_setup()
 
-    def __check_unique_list(self, pvlist: list[str]):
+    def __check_unique_list(self, pvlist: List[str]):
         if len(set(pvlist)) != len(pvlist):
             raise RuntimeError("Duplicated PV names!")
 
@@ -486,7 +486,7 @@ class DataFetcher:
         return avg_arr, _pack_data(df)
 
 
-def fetch_data(pvlist: list[str],
+def fetch_data(pvlist: List[str],
                time_span: float = 5.0,
                abs_z: float = None,
                with_data=False,
@@ -497,7 +497,7 @@ def fetch_data(pvlist: list[str],
 
     Parameters
     ----------
-    pvlist : list[str]
+    pvlist : List[str]
         A list of PVs.
     time_span : float
         The total time period for fetching data, [second], defaults to 5.0.
