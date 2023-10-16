@@ -327,7 +327,8 @@ class DataFetcher:
         self.pre_setup()
 
     @staticmethod
-    def pack_data(df: pd.DataFrame, abs_z: float = None, with_data: bool = False):
+    def pack_data(df: pd.DataFrame, abs_z: float = None, with_data: bool = False,
+                  expanded: bool = True):
         """Pack the original retrieved dataframe with three more columns of data, row-wised, if
         *with_data* if True.
 
@@ -346,6 +347,8 @@ class DataFetcher:
             The absolute value of z-score, drop the data beyond, if not set, keep all the data.
         with_data : bool
             If set, return data array as the second element of the returned tuple.
+        expanded : bool
+        If set along with *with_data*, return an expanded dataset, defaults to True.
 
         Returns
         -------
@@ -355,12 +358,13 @@ class DataFetcher:
         """
         def _pack_df(_df: pd.DataFrame):
             if with_data:
-                n_col = _df.shape[1]
-                col_mean = _df.mean(axis=1)
-                col_std = _df.std(ddof=0, axis=1)
-                _df['#'] = _df.apply(lambda i: n_col - i.isna().sum(), axis=1)
-                _df['mean'] = col_mean
-                _df['std'] = col_std
+                if expanded:
+                    n_col = _df.shape[1]
+                    col_mean = _df.mean(axis=1)
+                    col_std = _df.std(ddof=0, axis=1)
+                    _df['#'] = _df.apply(lambda i: n_col - i.isna().sum(), axis=1)
+                    _df['mean'] = col_mean
+                    _df['std'] = col_std
                 return _df
             else:
                 return None
@@ -520,7 +524,7 @@ class DataFetcher:
                 self._data_list[i] = [self._data_first_shot[i]]
         # raw data
         df0 = pd.DataFrame(self._data_list, index=self._pvlist)
-        return DataFetcher.pack_data(df0, abs_z, with_data)
+        return DataFetcher.pack_data(df0, abs_z, with_data, expanded=kws.get('expanded', True))
 
 
 def fetch_data(pvlist: List[str],
@@ -541,12 +545,16 @@ def fetch_data(pvlist: List[str],
     abs_z : float
         The absolute value of z-score, drop the data beyond, if not set, keep all the data.
     with_data : bool
-        If set, return data array as the second element of the returned tuple.
+        If set, return data array as the second element of the returned tuple, if
+        *expanded* argument is True, three more columns of data for '#', 'mean' and 'std'
+        are appended to the dataset.
     verbose : bool
         If set, print out log messages.
 
     Keyword Arguments
     -----------------
+    expanded : bool
+        If set along with *with_data*, return an expanded dataset, defaults to True.
     timeout : float
         Connection timeout for all PVs, defaults 5.0 seconds.
 
@@ -575,7 +583,8 @@ def fetch_data(pvlist: List[str],
     data_fetcher = DataFetcher(pvlist,
                                timeout=kws.get('timeout', 5),
                                verbose=verbose)
-    avg, df = data_fetcher(time_span, abs_z, with_data, verbose=verbose)
+    avg, df = data_fetcher(time_span, abs_z, with_data, verbose,
+                           expanded=kws.get('expanded', True))
     return avg, df
 
 
