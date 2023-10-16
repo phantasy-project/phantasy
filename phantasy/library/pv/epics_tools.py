@@ -312,6 +312,7 @@ class DataFetcher:
         self._pvlist = pvlist
         self._npv = len(pvlist)
         self._pvs = [None] * self._npv
+        self._cb_sts = [False] * self._npv
         #
         self.timeout = kws.get('timeout', 5)
         self.verbose = kws.get('verbose', False)
@@ -327,7 +328,8 @@ class DataFetcher:
 
     def __check_all_pvs(self):
         # return a boolean if all PVs are ready to work or not.
-        return all((i is not None and i.connected for i in self._pvs))
+        return all(self._cb_sts) and \
+                all((i is not None and i.connected for i in self._pvs))
 
     @property
     def timeout(self):
@@ -357,7 +359,6 @@ class DataFetcher:
         # if all PVs are ready, just return
         self._all_pvs_ready = self.__check_all_pvs()
         if self._all_pvs_ready:
-            print("Skip pre setup")
             return
         #
         t0 = time.perf_counter()
@@ -386,8 +387,9 @@ class DataFetcher:
             o = get_pv(pvname,
                        connection_callback=partial(_f, i),
                        auto_monitor=True)
-            o.clear_callbacks()
-            o.add_callback(partial(_cb, i), with_ctrlvars=False)
+            if not self._cb_sts[i]:
+                o.add_callback(partial(_cb, i), with_ctrlvars=False)
+                self._cb_sts[i] = True
             self._pvs[i] = o
 
         while True:
