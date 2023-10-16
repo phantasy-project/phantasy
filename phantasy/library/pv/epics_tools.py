@@ -299,10 +299,10 @@ class DataFetcher:
     >>> ]
     >>> # instantiation
     >>> data_fetcher = DataFetcher(pvs, timeout=10)
-    >>> # fetch the data
-    >>> avg, df = data_fetcher(timespan=2.0, verbose=True)
+    >>> # fetch the data, see fetch_data() for the parameters definition.
+    >>> avg, df = data_fetcher(time_span=2.0, verbose=True)
     >>> # another fetch
-    >>> avg, _ = data_fetcher(timespan=1.0)
+    >>> avg, _ = data_fetcher(1.0)
     >>> # clean up (optional)
     >>> data_fetcher.reset()
     """
