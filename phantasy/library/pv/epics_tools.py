@@ -587,7 +587,7 @@ def fetch_data(pvlist: List[str],
     data_fetcher = DataFetcher(pvlist,
                                timeout=kws.get('timeout', 5),
                                verbose=verbose)
-    avg, df = data_fetcher(time_span, abs_z, with_data, verbose,
+    avg, df = data_fetcher(time_span, abs_z, with_data, verbose=verbose,
                            expanded=kws.get('expanded', True))
     return avg, df
 
