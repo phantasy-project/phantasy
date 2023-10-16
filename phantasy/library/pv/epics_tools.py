@@ -352,6 +352,7 @@ class DataFetcher:
         # if all PVs are ready, just return
         self._all_pvs_ready = self.__check_all_pvs()
         if self._all_pvs_ready:
+            print("Skip pre setup")
             return
         #
         t0 = time.perf_counter()
@@ -416,23 +417,23 @@ class DataFetcher:
         self._data_list = [[] for i in range(self._npv)]
         _tq = Queue()
         _evt = Event()
-        t0 = time.perf_counter()
-
         def _tick_down(q):
-            self.run = True
+            self._run = True
             while True:
                 if _evt.is_set():
-                    self.run = False
+                    self._run = False
                     break
-                q.put(time.perf_counter())
+                q.put(time.time())
                 time.sleep(0.001)
 
         th = Thread(target=_tick_down, args=(_tq, ))
         th.start()
+        t0 = time.time()
+        t1 = t0 + time_span
         while True:
             try:
                 t = _tq.get(timeout=5)
-                if t - t0 >= time_span: raise FetchDataFinishedException
+                if t >= t1: raise FetchDataFinishedException
             except FetchDataFinishedException:
                 _evt.set()
                 if verbose:
