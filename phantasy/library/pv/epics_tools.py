@@ -300,10 +300,12 @@ class DataFetcher:
     >>> ]
     >>> # instantiation
     >>> data_fetcher = DataFetcher(pvs, timeout=10)
-    >>> # fetch the data, see fetch_data() for the parameters definition.
-    >>> avg, df = data_fetcher(time_span=2.0, verbose=True)
-    >>> # another fetch
+    >>> # fetch the data, see fetch_data() for the parameters definition
+    >>> avg, df = data_fetcher(time_span=2.0, with_data=True, verbose=True)
+    >>> # another fetch for just mean values.
     >>> avg, _ = data_fetcher(1.0)
+    >>> # return raw fetch data, save post-processing
+    >>> avg, df_raw = data_fetcher(1.0, with_data=True, expanded=False)
     >>> # clean up (optional)
     >>> data_fetcher.clean_up()
     >>> # Re-instantiation is required after clean_up if working with the DataFetcher with
@@ -577,6 +579,8 @@ def fetch_data(pvlist: List[str],
     >>> avg, _ = fetch_data(pvs, 5, 3, verbose=True)
     >>> # return the data table after filtering together with the average readings
     >>> avg, data = fetch_data(pvs, 5, 3, verbose=True, with_data=True)
+    >>> # set expanded False to get the original dataset before expanding (no last 3 columns)
+    >>> avg, data = fetch_data(pvs, 5, 3, verbose=True, with_data=True, expanded=False)
     >>> # return the average without data filtering.
     >>> avg, _ = fetch_data(pvs, 5)
     """
