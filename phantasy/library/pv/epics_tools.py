@@ -9,6 +9,7 @@ from epics import camonitor as epics_camonitor
 from epics import ca
 from epics import get_pv
 
+import weakref
 import epics
 import logging
 import time
@@ -304,21 +305,24 @@ class DataFetcher:
     >>> # another fetch
     >>> avg, _ = data_fetcher(1.0)
     >>> # clean up (optional)
-    >>> data_fetcher.reset()
+    >>> data_fetcher.clean_up()
+    >>> # Re-instantiation is required after clean_up if working with the DataFetcher with
+    >>> # the same variable name, e.g. data_fetcher = DataFetcher(pvs), ...
+    >>> # If working with a large list of PVs for multiple DataFetcher instances,
+    >>> # cleaning up the not-needed DataFetcher instances is useful to save computing resources.
     """
 
     def __init__(self, pvlist: List[str], **kws):
         self.__check_unique_list(pvlist)
         self._pvlist = pvlist
         self._npv = len(pvlist)
-        self._pvs = [None] * self._npv
-        self._cb_sts = [False] * self._npv
+        self._pvs = [None] * self._npv  # weakrefs
+        self._cb_idx = [None] * self._npv  # cb indices
         #
         self.timeout = kws.get('timeout', 5)
         self.verbose = kws.get('verbose', False)
         # start data accumulating if set.
         self._run = False
-
         #
         self.pre_setup()
 
@@ -328,8 +332,8 @@ class DataFetcher:
 
     def __check_all_pvs(self):
         # return a boolean if all PVs are ready to work or not.
-        return all(self._cb_sts) and \
-                all((i is not None and i.connected for i in self._pvs))
+        return all(self._cb_idx) and \
+                all((o() is not None and o().connected for o in self._pvs))
 
     @property
     def timeout(self):
@@ -346,10 +350,14 @@ class DataFetcher:
         """
         return self._all_pvs_ready
 
-    def reset(self):
+    def __del__(self):
         """Cleaning up work.
         """
-        [i.clear_callbacks() for i in self._pvs]
+        print("Clean up callbacks")
+        self.clean_up()
+
+    def clean_up(self):
+        [o().remove_callback(idx) for o, idx in zip(self._pvs, self._cb_idx)]
 
     def pre_setup(self):
         """Preparation for the data fetch procedure.
@@ -387,10 +395,10 @@ class DataFetcher:
             o = get_pv(pvname,
                        connection_callback=partial(_f, i),
                        auto_monitor=True)
-            if not self._cb_sts[i]:
-                o.add_callback(partial(_cb, i), with_ctrlvars=False)
-                self._cb_sts[i] = True
-            self._pvs[i] = o
+            if self._cb_idx[i] is None:
+                self._cb_idx[i] = o.add_callback(partial(_cb, i),
+                                                 with_ctrlvars=False)
+            self._pvs[i] = weakref.ref(o)
 
         while True:
             try:
@@ -400,7 +408,7 @@ class DataFetcher:
                 print(f"Failed connecting to all PVs in {self._timeout:.1f}s.")
                 if self.verbose:
                     not_conn_pvs = [
-                        i.pvname for i in self._pvs if not i.connected
+                        o().pvname for o in self._pvs if not o().connected
                     ]
                     click.secho(
                         f"{len(not_conn_pvs)} PVs are not established in {self._timeout:.1f}s.",
@@ -423,7 +431,7 @@ class DataFetcher:
         verbose = kws.get('verbose', self.verbose)
         self.verbose = verbose
         # initial data list
-        self._data_first_shot = [i.value for i in self._pvs]
+        self._data_first_shot = [o().value for o in self._pvs]
         self._data_list = [[] for i in range(self._npv)]
         _tq = Queue()
         _evt = Event()
