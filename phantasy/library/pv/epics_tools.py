@@ -326,6 +326,62 @@ class DataFetcher:
         #
         self.pre_setup()
 
+    @staticmethod
+    def pack_data(df: pd.DataFrame, abs_z: float = None, with_data: bool = False):
+        """Pack the original retrieved dataframe with three more columns of data, row-wised, if
+        *with_data* if True.
+
+        - '#': The total count of valid fetched data points.
+        - 'mean': The averaged value from all valid data points.
+        - 'std': The standard deviation value from all valid data points.
+
+        Only use the data of interest if *abs_z* is set.
+
+        Parameters
+        ----------
+        df : pd.DataFrame
+            The original retrieved dataset with varied length of valid data points for each row.
+            The PV name list as the row index.
+        abs_z : float
+            The absolute value of z-score, drop the data beyond, if not set, keep all the data.
+        with_data : bool
+            If set, return data array as the second element of the returned tuple.
+
+        Returns
+        -------
+        r : Tuple
+            A tuple of average array and processed dataframe, with more columns and/or
+            data-of-interested defined with *abs_z*.
+        """
+        def _pack_df(_df: pd.DataFrame):
+            if with_data:
+                n_col = _df.shape[1]
+                col_mean = _df.mean(axis=1)
+                col_std = _df.std(ddof=0, axis=1)
+                _df['#'] = _df.apply(lambda i: n_col - i.isna().sum(), axis=1)
+                _df['mean'] = col_mean
+                _df['std'] = col_std
+                return _df
+            else:
+                return None
+        # mean, std
+        _avg, _std = df.mean(axis=1), df.std(ddof=0, axis=1)
+        if abs_z is None:
+            return _avg.to_numpy(), _pack_df(df)
+        else:
+            # - mean
+            df_sub = df.sub(_avg, axis=0)
+            # idx1: df_sub == 0
+            idx1 = df_sub == 0.0
+            # ((- mean) / std) ** 2
+            df1 = df_sub.div(_std, axis=0)**2
+            idx2 = df1 <= abs_z**2
+            # data of interest
+            df_final = df[idx1 | idx2]
+            # mean array
+            avg_arr = df_final.mean(axis=1).to_numpy()
+            return avg_arr, _pack_df(df_final)
+
     def __check_unique_list(self, pvlist: List[str]):
         if len(set(pvlist)) != len(pvlist):
             raise RuntimeError("Duplicated PV names!")
@@ -462,38 +518,9 @@ class DataFetcher:
         for i in range(self._npv):
             if not self._data_list[i]:
                 self._data_list[i] = [self._data_first_shot[i]]
-        #
-        def _pack_data(_df: pd.DataFrame):
-            # pack the data for return
-            if with_data:
-                n_col = _df.shape[1]
-                _col_mean = _df.mean(axis=1)
-                _col_std = _df.std(ddof=0, axis=1)
-                _df['#'] = _df.apply(lambda i: n_col - i.isna().sum(), axis=1)
-                _df['mean'] = _col_mean
-                _df['std'] = _col_std
-                return _df
-            else:
-                return None
-
         # raw data
         df0 = pd.DataFrame(self._data_list, index=self._pvlist)
-        # mean, std
-        _avg, _std = df0.mean(axis=1), df0.std(ddof=0, axis=1)
-        if abs_z is None:
-            return _avg.to_numpy(), _pack_data(df0)
-        # - mean
-        df_sub = df0.sub(_avg, axis=0)
-        # idx1: df_sub == 0
-        idx1 = df_sub == 0.0
-        # ((- mean) / std) ** 2
-        df1 = df_sub.div(_std, axis=0)**2
-        idx2 = df1 <= abs_z**2
-        # data of interest
-        df = df0[idx1 | idx2]
-        # mean array
-        avg_arr = df.mean(axis=1).to_numpy()
-        return avg_arr, _pack_data(df)
+        return DataFetcher.pack_data(df0, abs_z, with_data)
 
 
 def fetch_data(pvlist: List[str],
@@ -614,6 +641,8 @@ def establish_pvs(pvs: list, timeout: float = 3.0, **kws):
                     f"Established {n_pv} PVs in {(time.perf_counter() - t0) * 1e3:.1f} ms."
                 )
             return None
+
+
 
 
 if __name__ == '__main__':
