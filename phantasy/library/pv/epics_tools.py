@@ -415,7 +415,6 @@ class DataFetcher:
     def __del__(self):
         """Cleaning up work.
         """
-        print("Clean up callbacks")
         self.clean_up()
 
     def clean_up(self):
@@ -589,6 +588,7 @@ def fetch_data(pvlist: List[str],
                                verbose=verbose)
     avg, df = data_fetcher(time_span, abs_z, with_data, verbose=verbose,
                            expanded=kws.get('expanded', True))
+    data_fetcher.clean_up()
     return avg, df
 
 
