@@ -7,7 +7,7 @@ After=network.target
 ExecStart=/usr/lib/phantasy-plugins/fileServer/fileServerApp -port 5000 /files/shared/ap/HLA
 StandardOutput=file:/tmp/fileServer.access.log
 StandardError=file:/tmp/fileServer.error.log
-Type=forking
+Type=simple
 Restart=always
 
 [Install]
