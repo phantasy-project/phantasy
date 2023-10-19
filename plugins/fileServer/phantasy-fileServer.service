@@ -1,0 +1,12 @@
+[Unit]
+Description=PhysicsApps File Service
+Requires=network.target
+After=network.target
+
+[Service]
+ExecStart=/usr/lib/fileServerApp 
+Type=forking
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
