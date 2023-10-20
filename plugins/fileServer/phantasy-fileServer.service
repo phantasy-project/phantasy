@@ -4,6 +4,7 @@ Requires=network.target
 After=network.target
 
 [Service]
+WorkingDirectory=/usr/lib/phantasy-plugins/fileServer
 ExecStart=/usr/lib/phantasy-plugins/fileServer/fileServerApp -port 5000 /mnt/iocdata/save
 StandardOutput=file:/tmp/fileServer.access.log
 StandardError=file:/tmp/fileServer.error.log
