@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Get File</title>
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <link rel="stylesheet" href="/static/css/hljs-default.min.css">
+</head>
+
+<body>
+    <div class="container mt-3">
+        <div class="row mt-3">
+            <div class="col-3">
+                <a href="{{ .ParentDirLink }}" class="btn btn-outline-info">Parent</a>
+            </div>
+            <div class="col-9">
+                <button class="btn btn-outline-dark float-end" disabled>{{ .FileName }}</button>
+            </div>
+        </div>
+        <div class="row mt-3">
+        <pre><code>{{ .FileContent }}</code></pre>
+        </div>
+    </div>
+
+    <script src="/static/js/bootstrap.min.js"></script>
+    <script src="/static/js/highlight.min.js"></script>
+    <script src="/static/js/highlightjs-line-numbers.min.js"></script>
+    <script>
+        hljs.highlightAll();
+        hljs.initLineNumbersOnLoad();
+    </script>
+</body>
+
+</html>
