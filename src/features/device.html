@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Work with Device &mdash; phantasy 2.1.16 documentation</title>
+  <title>Work with Device &mdash; phantasy 2.2.8 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
     <link rel="shortcut icon" href="../../_static/frib-favicon.ico"/>
@@ -14,7 +14,7 @@
   
         <script src="../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=48da56e5"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=b3f40146"></script>
         <script src="../../_static/doctools.js?v=888ff710"></script>
         <script src="../../_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -36,7 +36,7 @@
             phantasy
           </a>
               <div class="version">
-                2.1.16
+                2.2.8
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -125,15 +125,20 @@ interested device(s). All valid device types can be known by
 
 <span class="gp">In [3]: </span><span class="n">mp</span><span class="o">.</span><span class="n">get_all_types</span><span class="p">()</span>
 <span class="gh">Out[3]: </span>
-<span class="go">[&#39;SOL&#39;,</span>
+<span class="go">[&#39;ATT&#39;,</span>
+<span class="go"> &#39;SOL&#39;,</span>
+<span class="go"> &#39;SEXT&#39;,</span>
 <span class="go"> &#39;VCOR&#39;,</span>
 <span class="go"> &#39;HCOR&#39;,</span>
 <span class="go"> &#39;BEND&#39;,</span>
 <span class="go"> &#39;EQUAD&#39;,</span>
-<span class="go"> &#39;SLT&#39;,</span>
 <span class="go"> &#39;FC&#39;,</span>
 <span class="go"> &#39;EMS&#39;,</span>
+<span class="go"> &#39;VD&#39;,</span>
+<span class="go"> &#39;SLT&#39;,</span>
 <span class="go"> &#39;PM&#39;,</span>
+<span class="go"> &#39;CHP&#39;,</span>
+<span class="go"> &#39;AP&#39;,</span>
 <span class="go"> &#39;EBEND&#39;,</span>
 <span class="go"> &#39;CAV&#39;,</span>
 <span class="go"> &#39;BCM&#39;]</span>
@@ -149,7 +154,12 @@ referring by <code class="docutils literal notranslate"><span class="pre">[0]</s
 
 <span class="gp">In [5]: </span><span class="n">all_sols</span>
 <span class="gh">Out[5]: </span>
-<span class="go">[FE_SCS1:SOLR_D0704 [SOL] @ sb=70.206995,</span>
+<span class="go">[FE_SRC2:SOLS_D0659 [SOL] @ sb=65.939153,</span>
+<span class="go"> FE_SRC2:SOLS_D0662 [SOL] @ sb=66.189153,</span>
+<span class="go"> FE_SRC2:SOLS_D0664 [SOL] @ sb=66.439153,</span>
+<span class="go"> FE_SRC2:SOLR_D0669 [SOL] @ sb=66.784745,</span>
+<span class="go"> FE_SCS2:SOLR_D0683 [SOL] @ sb=68.106995,</span>
+<span class="go"> FE_SCS1:SOLR_D0704 [SOL] @ sb=70.206995,</span>
 <span class="go"> FE_LEBT:SOLR_D0787 [SOL] @ sb=78.481995,</span>
 <span class="go"> FE_LEBT:SOLR_D0802 [SOL] @ sb=79.957145,</span>
 <span class="go"> FE_LEBT:SOLR_D0818 [SOL] @ sb=81.597295,</span>
@@ -161,7 +171,7 @@ referring by <code class="docutils literal notranslate"><span class="pre">[0]</s
 <span class="gp">In [6]: </span><span class="n">first_sol</span> <span class="o">=</span> <span class="n">all_sols</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
 <span class="gp">In [7]: </span><span class="n">first_sol</span>
-<span class="gh">Out[7]: </span><span class="go">FE_SCS1:SOLR_D0704 [SOL] @ sb=70.206995</span>
+<span class="gh">Out[7]: </span><span class="go">FE_SRC2:SOLS_D0659 [SOL] @ sb=65.939153</span>
 </pre></div>
 </div>
 </section>
@@ -196,7 +206,7 @@ results.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2016, Facility for Rare Isotope Beams, Michigan State University.
-      <span class="lastupdated">Last updated on Oct 19, 2023.
+      <span class="lastupdated">Last updated on Oct 27, 2023.
       </span></p>
   </div>
 
