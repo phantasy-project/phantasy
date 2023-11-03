@@ -723,7 +723,7 @@ def establish_elems(elems: list, timeout: float = 3.0, fields: list = None, **kw
             break
         except AllFieldsConnectedException:
             _evt.set()
-            print(f"Connected all fields in {(t - t0) * 1000:.1f} msec.")
+            print(f"Connected all fields in {(time.time() - t0) * 1000:.1f} msec.")
             break
 
 
