@@ -682,6 +682,22 @@ def establish_elems(elems: list, timeout: float = 3.0, fields: list = None, **kw
                         return False
             return True
 
+    def _get_all_fields_not_connected():
+        # get all not connected fields.
+        # element_name [field_name], ...
+        not_connected_fld_list = []
+        if fields is None:
+            for elem in elems:
+                for f in elem.fields:
+                    if not elem.get_field(f).connected():
+                        not_connected_fld_list.append(f"{elem.name} [{f}]")
+        else:
+            for elem in elems:
+                for f in (valid_field for valid_field in fields if valid_field in elem.fields):
+                    if not elem.get_field(f).connected():
+                        not_connected_fld_list.append(f"{elem.name} [{f}]")
+        return not_connected_fld_list
+
     def _tick_down(q):
         _run = True
         while True:
@@ -702,7 +718,8 @@ def establish_elems(elems: list, timeout: float = 3.0, fields: list = None, **kw
             if t >= t1: raise TimeoutError
         except TimeoutError:
             _evt.set()
-            print(f"Timeout in connecting all fields in {timeout} s.")
+            print(f"Failed to connect below fields in {timeout} s:")
+            print("\n".join(_get_all_fields_not_connected()))
             break
         except AllFieldsConnectedException:
             _evt.set()
