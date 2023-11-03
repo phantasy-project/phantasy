@@ -3,4 +3,4 @@ from .exceptions import TimeoutError
 from .exceptions import PutFinishedException
 from .exceptions import GetFinishedException
 from .exceptions import FetchDataFinishedException
-
+from .exceptions import AllFieldsConnectedException
