@@ -24,6 +24,7 @@ from phantasy.library.exception import TimeoutError
 from phantasy.library.exception import GetFinishedException
 from phantasy.library.exception import PutFinishedException
 from phantasy.library.exception import FetchDataFinishedException
+from phantasy.library.exception import AllFieldsConnectedException
 from phantasy.library.misc import epoch2human
 
 _LOGGER = logging.getLogger(__name__)
@@ -656,6 +657,57 @@ def establish_pvs(pvs: list, timeout: float = 3.0, **kws):
             return None
 
 
+def establish_elems(elems: list, timeout: float = 3.0, fields: list = None, **kws):
+    """Wait until all the defined *fields* of each element in *elems* are connected within the
+    maximum allowed seconds defined by *timeout*.
+    """
+    _tq = Queue()
+    _evt = Event()
+
+    def _is_all_connected():
+        """Check if all fields are connected.
+        """
+        if fields is None:
+            # check all fields for each element
+            for elem in elems:
+                for f in elem.fields:
+                    if not elem.get_field(f).connected():
+                        return False
+            return True
+        else:
+            # check defined fields for each element, skip invalid one.
+            for elem in elems:
+                for f in (valid_field for valid_field in fields if valid_field in elem.fields):
+                    if not elem.get_field(f).connected():
+                        return False
+            return True
+
+    def _tick_down(q):
+        _run = True
+        while True:
+            if _evt.is_set():
+                _run = False
+                break
+            q.put(time.time())
+            time.sleep(0.001)
+
+    th = Thread(target=_tick_down, args=(_tq, ))
+    th.start()
+    t0 = time.time()
+    t1 = t0 + timeout
+    while True:
+        try:
+            t = _tq.get(timeout=1)
+            if _is_all_connected(): raise AllFieldsConnectedException
+            if t >= t1: raise TimeoutError
+        except TimeoutError:
+            _evt.set()
+            print(f"Timeout in connecting all fields in {timeout} s.")
+            break
+        except AllFieldsConnectedException:
+            _evt.set()
+            print(f"Connected all fields in {(t - t0) * 1000:.1f} msec.")
+            break
 
 
 if __name__ == '__main__':
