@@ -15,6 +15,7 @@ from .epics_tools import ensure_get
 from .epics_tools import caget_many
 from .epics_tools import fetch_data
 from .epics_tools import establish_pvs
+from .epics_tools import establish_elems
 from .epics_tools import DataFetcher
 
 from .readback import get_readback
@@ -36,6 +37,6 @@ __all__ = [
     'unicorn_read', 'unicorn_write',
     'ensure_put', 'ensure_set', 'ensure_get',
     'PVElement', 'PVElementReadonly',
-    'fetch_data', 'establish_pvs',
+    'fetch_data', 'establish_pvs', 'establish_elems',
     'DataFetcher'
 ]
