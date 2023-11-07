@@ -1,6 +1,7 @@
 from .element import BaseElement, CaElement
 from .element import CaField
 from .element import build_element
+from .element import pass_arg
 from .lattice import Lattice
 from .lattice import limit_input
 
@@ -23,5 +24,5 @@ __all__ = [
     "ImpactLattice", "ImpactLatticeElement",
     "build_impact_lattice", "read_impact_lattice",
     "run_impact_lattice", "limit_input",
-    "build_element",
+    "build_element", "pass_arg",
 ]

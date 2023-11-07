@@ -19,6 +19,8 @@ from phantasy.library.pv import unicorn_write
 from phantasy.library.pv import ensure_put
 from phantasy.library.settings import get_settings_from_element_list
 
+from functools import wraps
+from functools import partial
 import numpy as np
 
 try:
@@ -357,6 +359,8 @@ class CaField(object):
         # callbacks
         self._callbacks = {}
         self._args = {}
+        # monitor cid dict: {name: cid_list, ...}
+        self._monitor_cid_map = {}
 
     def validate_polarity(self, mode='read'):
         if mode == 'read':
@@ -815,7 +819,7 @@ class CaField(object):
         self._args['current_setting'] = self.current_setting()
         self._args['writable'] = self.write_access
         # print(f"Update {self.ename}[{self.name}]: ", self._args)
-        self.run_callbacks()
+        # self.run_callbacks()
 
     def unset_am(self):
         """Unset am to all pvs.
@@ -1657,6 +1661,53 @@ class CaElement(BaseElement):
             return 'X-focusing' if self.get_field('B2')._polarity == 1 else "Y-focusing"
         return None
 
+    def monitor(self, field: str, callback, handle: str = "readback",
+                name: str = None):
+        """Monitor a field value change, hook to *callback*, given a *name*
+        is useful to remove the callback with ''unmonitor'' method.
+
+        The first argument of callback is field object. An example of callback
+        could be like:
+        >>> @pass_arg('fld')
+        >>> def callback(fld, **kws):
+        >>>     print(fld.value, kws.get('pvname'))
+        """
+        fld = self.get_field(field)
+        if fld is None:
+            return None
+        if handle == "readback":
+            # a list of pv objects
+            pvobjs = fld.readback_pv
+        else:
+            pvobjs = fld.setpoint_pv
+        cid_list = []
+        for pvobj in pvobjs:
+            pvobj.auto_monitor = True
+            _cid = pvobj.add_callback(partial(callback, fld))
+            cid_list.append(_cid)
+        if name is not None:
+            fld._monitor_cid_map[name] = cid_list
+
+    def unmonitor(self, field: str, name: str = None, handle: str = "readback"):
+        """Unmonitor a field value change, if *name* is not None, just remove
+        the callbacks under *name* key, otherwise, remove all.
+        """
+        fld = self.get_field(field)
+        if fld is None:
+            return None
+        if handle == "readback":
+            # a list of pv objects
+            pvobjs = fld.readback_pv
+        else:
+            pvobjs = fld.setpoint_pv
+        for pvobj in pvobjs:
+            if name in fld._monitor_cid_map:
+                [pvobj.remove_callback(i) for i in fld._monitor_cid_map[name]]
+                if not pvobj.callbacks:
+                    pvobj.auto_monitor = False
+            else:
+                pvobj.clear_callbacks()
+                pvobj.auto_monitor = False
 
 class Number(float):
     def __init__(self, v):
@@ -1820,6 +1871,16 @@ def wrap_phase(value):
     elif r > 180:
         r -= 360
     return r
+
+
+def pass_arg(arg):
+    # pass *arg* as the first argument to a function
+    def decorator(fn):
+        @wraps(fn)
+        def wrapper(*args, **kws):
+            return fn(*args, **kws)
+        return wrapper
+    return decorator
 
 
 def main():
