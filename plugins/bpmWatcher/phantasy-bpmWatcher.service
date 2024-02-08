@@ -1,4 +1,5 @@
 [Unit]
+# obsoleted
 Description=Support service for bpmWatcher IOC
 Requires=network.target
 After=softioc-bpmWatcher.service
@@ -8,7 +9,7 @@ ConditionHost=phyapps-ioc
 WorkingDirectory=/usr/lib/phantasy-plugins/bpmWatcher
 ExecStart=/usr/lib/phantasy-plugins/bpmWatcher/update_data_timer.py
 Type=simple
-Restart=always
+Restart=no
 
 [Install]
-WantedBy=multi-user.target
+# WantedBy=multi-user.target

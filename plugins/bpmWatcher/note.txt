@@ -11,3 +11,5 @@ Support service for updating BPM array records, PHY:BPM_ALL:<FIELD>
   - PHASE_LMT, PHASE_HIGH_RD, PHASE_LOW_RD
   - MAG_LMT, MAG_HIGH_RD, MAG_LOW_RD
 
+
+Unfortunately, it shows mem leak running as a systemd service! I'm not sure why!
