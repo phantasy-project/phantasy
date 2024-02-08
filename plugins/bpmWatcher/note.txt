@@ -1,0 +1,13 @@
+Support service for updating BPM array records, PHY:BPM_ALL:<FIELD>
+<FIELD>:
+- Signle once update:
+  - SPOS_RD, SPOS1_RD, NAME_RD
+- 5 Hz update:
+  - XPOS_RD, YPOS_RD, PHASE_RD, MAG_RD
+  - XPOS_DRDREF, YPOS_DRDREF, PHASE_DRDREF, MAG_RATIO
+- Passive:
+  - XPOS_LMT, XPOS_HIGH_RD, XPOS_LOW_RD
+  - YPOS_LMT, YPOS_HIGH_RD, YPOS_LOW_RD
+  - PHASE_LMT, PHASE_HIGH_RD, PHASE_LOW_RD
+  - MAG_LMT, MAG_HIGH_RD, MAG_LOW_RD
+
