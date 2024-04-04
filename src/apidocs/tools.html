@@ -114,7 +114,10 @@ fall within the range defined by the given tolerance(s). All these actions shoul
 or terminated in the maximum allowed seconds defined by <em>timeout</em>.</p>
 <p>Please note: when passing a list of PVs, the size of <em>setpoint_pv</em>, <em>readback_pv</em>, <em>goal</em>
 and <em>tol</em> parameters must be the same, however, if <em>goal</em> and <em>tol</em> is defined as a single
-float number, they will be expanded to a list of that value for convenience.</p>
+float number, they will be expanded to a list of that value for convenience to match the
+dimension.</p>
+<p><em>keep_data</em>, <em>extra_monitors</em> and <em>fillna_method</em> arguments could be used to return the
+retrieved data during the ensure set procedure as a DataFrame.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -135,6 +138,14 @@ acquisition, additional ones can be passed via <em>extra_monitors</em> option.</
 which applies linear interpolation, other options ‘nearest’, ‘ffill’, ‘bfill’, and ‘none’
 meaning return the raw dataset.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>r</strong> – A tuple of (ret_string, dataset), <em>ret_string</em>: indicates the result of ensure_set,
+<em>dataset</em>: the retrieved data events for the setpoint and readback PVs, plus the
+defined extra monitors.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.12)">tuple</a></p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
