@@ -201,7 +201,11 @@ def ensure_set(setpoint_pv: Union[str, List[str]],
 
     Please note: when passing a list of PVs, the size of *setpoint_pv*, *readback_pv*, *goal*
     and *tol* parameters must be the same, however, if *goal* and *tol* is defined as a single
-    float number, they will be expanded to a list of that value for convenience.
+    float number, they will be expanded to a list of that value for convenience to match the
+    dimension.
+
+    *keep_data*, *extra_monitors* and *fillna_method* arguments could be used to return the
+    retrieved data during the ensure set procedure as a DataFrame.
 
     Parameters
     ----------
@@ -230,6 +234,13 @@ def ensure_set(setpoint_pv: Union[str, List[str]],
         The algorithm to fill out the NaN values of the retrieved dataset, defaults to 'linear',
         which applies linear interpolation, other options 'nearest', 'ffill', 'bfill', and 'none'
         meaning return the raw dataset.
+
+    Returns
+    -------
+    r : tuple
+        A tuple of (ret_string, dataset), *ret_string*: indicates the result of ensure_set,
+        *dataset*: the retrieved data events for the setpoint and readback PVs, plus the
+        defined extra monitors.
 
     Examples
     --------
