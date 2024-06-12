@@ -14,6 +14,7 @@ from epics import PV, get_pv
 import click
 import random
 import epics
+import re
 import time
 import numpy as np
 import pandas as pd
@@ -88,11 +89,15 @@ class PVElement(object):
         """just guess element name.
         """
         a, b = self.get_pv_name('readback'), self.get_pv_name('setpoint')
-        n = set(a.rsplit(':', 1)).intersection(b.rsplit(':', 1))
-        if n:
-            return n.pop()
+        s = ''
+        for i, j in zip(a, b):
+            if i != j: break
+            s += i
+        r = re.findall(r'[a-zA-Z0-9:_]*[a-zA-Z0-9]', s)
+        if r:
+            return r[0]
         else:
-            return 'undefined'
+            return b
 
     @property
     def readback(self):
