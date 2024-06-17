@@ -595,6 +595,7 @@ def fetch_data(pvlist: List[str],
     data_opt : dict
         - with_timestamp : bool
         If set, return data array with aligned timestamp info, *with_data* must be set.
+
         - fillna_method : str
         The algorithm to fill out the NaN values of the retrieved dataset, defaults to 'linear',
         which applies linear interpolation, other options 'nearest', 'ffill', 'bfill', and 'none'
