@@ -307,6 +307,10 @@ class DataFetcher:
     >>> avg, _ = data_fetcher(1.0)
     >>> # return raw fetch data, save post-processing
     >>> avg, df_raw = data_fetcher(1.0, with_data=True, expanded=False)
+    >>> # fetch timestamp per event
+    >>> avg, df = data_fetcher(1.0, with_data=True, data_opt={'with_timestamp': True})
+    >>> # returned df with timestamp as the index, PV names as columns, timestamps are
+    >>> # aligned with fillna_method of 'linear'.
     >>> # clean up (optional)
     >>> data_fetcher.clean_up()
     >>> # Re-instantiation is required after clean_up if working with the DataFetcher with
@@ -351,7 +355,7 @@ class DataFetcher:
         with_data : bool
             If set, return data array as the second element of the returned tuple.
         expanded : bool
-        If set along with *with_data*, return an expanded dataset, defaults to True.
+            If set along with *with_data*, return an expanded dataset, defaults to True.
 
         Returns
         -------
@@ -426,6 +430,7 @@ class DataFetcher:
         """
         # clear the data container
         self._data_list = [[] for _ in range(self._npv)]
+        self._data_ts_list = [[] for _ in range(self._npv)]
         # if all PVs are ready, just return
         self._all_pvs_ready = self.__check_all_pvs()
         if self._all_pvs_ready:
@@ -436,9 +441,10 @@ class DataFetcher:
         def _cb(idx: int, **kws):
             if self._run:
                 val = kws.get('value')
+                ts = kws.get('timestamp')
                 self._data_list[idx].append(val)
+                self._data_ts_list[idx].append(ts)
                 if self.verbose:
-                    ts = kws.get('timestamp')
                     click.secho(
                         f"[{epoch2human(ts)[:-3]}] Get {kws.get('pvname')}: {val:<6g}",
                         fg="blue")
@@ -492,9 +498,16 @@ class DataFetcher:
                  **kws):
         verbose = kws.get('verbose', self.verbose)
         self.verbose = verbose
+        #
+        data_opt = {'with_timestamp': False, 'fillna_method': 'linear'}
+        if kws.get('data_opt') is not None:
+            data_opt.update(kws.get('data_opt'))
         # initial data list
+        ts0 = time.time()
         self._data_first_shot = [o().value for o in self._pvs]
         self._data_list = [[] for i in range(self._npv)]
+        self._data_ts_first_shot = [ts0 for o in self._pvs]
+        self._data_ts_list = [[] for i in range(self._npv)]
         _tq = Queue()
         _evt = Event()
 
@@ -524,15 +537,35 @@ class DataFetcher:
         for i in range(self._npv):
             if not self._data_list[i]:
                 self._data_list[i] = [self._data_first_shot[i]]
+                self._data_ts_list[i] = [self._data_ts_first_shot[i]]
         # raw data
-        df0 = pd.DataFrame(self._data_list, index=self._pvlist)
-        return DataFetcher.pack_data(df0, abs_z, with_data, expanded=kws.get('expanded', True))
+        if not data_opt['with_timestamp']:
+            df0 = pd.DataFrame(self._data_list, index=self._pvlist)
+            return DataFetcher.pack_data(df0, abs_z, with_data, expanded=kws.get('expanded', True))
+        else:
+            dfs = []
+            for i, (_ts, _data) in enumerate(zip(self._data_ts_list, self._data_list)):
+                df = pd.DataFrame(zip(_ts, _data), columns=['timestamp', self._pvlist[i]])
+                df['timestamp'] = pd.to_datetime(df['timestamp'], unit='s')
+                df.set_index('timestamp', inplace=True)
+                dfs.append(df)
+            df = pd.concat(dfs, axis=1)
+            fillna_method = data_opt['fillna_method']
+            if fillna_method == "linear":
+                df = df.interpolate('linear').dropna()
+            elif fillna_method == "nearest":
+                df = df.nearest().dropna()
+            elif fillna_method == "ffill":
+                df = df.ffill().dropna()
+            elif fillna_method == "bfill":
+                df = df.bfill().dropna()
+            return df.mean(axis=0).to_numpy(), df
 
 
 def fetch_data(pvlist: List[str],
                time_span: float = 5.0,
                abs_z: float = None,
-               with_data=False,
+               with_data: bool = False,
                verbose=False,
                **kws):
     """Fetch the readback data from a list of given PVs in the given time period in seconds,
@@ -559,6 +592,13 @@ def fetch_data(pvlist: List[str],
         If set along with *with_data*, return an expanded dataset, defaults to True.
     timeout : float
         Connection timeout for all PVs, defaults 5.0 seconds.
+    data_opt : dict
+        - with_timestamp : bool
+        If set, return data array with aligned timestamp info, *with_data* must be set.
+        - fillna_method : str
+        The algorithm to fill out the NaN values of the retrieved dataset, defaults to 'linear',
+        which applies linear interpolation, other options 'nearest', 'ffill', 'bfill', and 'none'
+        meaning return the raw dataset.
 
     Returns
     -------
@@ -583,12 +623,17 @@ def fetch_data(pvlist: List[str],
     >>> avg, data = fetch_data(pvs, 5, 3, verbose=True, with_data=True, expanded=False)
     >>> # return the average without data filtering.
     >>> avg, _ = fetch_data(pvs, 5)
+    >>> # fetch timestamp per event
+    >>> avg, df = fetch_data(pvs, 5.0, with_data=True, data_opt={'with_timestamp': True})
+    >>> # returned df with timestamp as the index, PV names as columns, timestamps are
+    >>> # aligned with fillna_method of 'linear'.
     """
     data_fetcher = DataFetcher(pvlist,
                                timeout=kws.get('timeout', 5),
                                verbose=verbose)
     avg, df = data_fetcher(time_span, abs_z, with_data, verbose=verbose,
-                           expanded=kws.get('expanded', True))
+                           expanded=kws.get('expanded', True),
+                           data_opt=kws.get('data_opt', None))
     data_fetcher.clean_up()
     return avg, df
 
