@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>API References (Tools) &mdash; phantasy 2.2.11 documentation</title>
+  <title>API References (Tools) &mdash; phantasy 2.2.15 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
 
@@ -16,7 +16,7 @@
   
         <script src="../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=b4198206"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=486898a1"></script>
         <script src="../../_static/doctools.js?v=888ff710"></script>
         <script src="../../_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -38,7 +38,7 @@
             phantasy
           </a>
               <div class="version">
-                2.2.11
+                2.2.15
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -169,7 +169,7 @@ defined extra monitors.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="phantasy.library.pv.epics_tools.fetch_data">
-<span class="sig-name descname"><span class="pre">fetch_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pvlist</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_span</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">abs_z</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><span class="pre">float</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kws</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#phantasy.library.pv.epics_tools.fetch_data" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">fetch_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pvlist</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_span</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">abs_z</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><span class="pre">float</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kws</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#phantasy.library.pv.epics_tools.fetch_data" title="Permalink to this definition"></a></dt>
 <dd><p>Fetch the readback data from a list of given PVs in the given time period in seconds,
 trim the data beyond the given z-score (absolute value), and return the data of interest.</p>
 <dl class="field-list simple">
@@ -188,6 +188,15 @@ are appended to the dataset.</p></li>
 <dd class="field-even"><ul class="simple">
 <li><p><strong>expanded</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a>) – If set along with <em>with_data</em>, return an expanded dataset, defaults to True.</p></li>
 <li><p><strong>timeout</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – Connection timeout for all PVs, defaults 5.0 seconds.</p></li>
+<li><p><strong>data_opt</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><em>dict</em></a>) – <ul>
+<li><p>with_timestamp : bool</p></li>
+</ul>
+<p>If set, return data array with aligned timestamp info, <em>with_data</em> must be set.
+- fillna_method : str
+The algorithm to fill out the NaN values of the retrieved dataset, defaults to ‘linear’,
+which applies linear interpolation, other options ‘nearest’, ‘ffill’, ‘bfill’, and ‘none’
+meaning return the raw dataset.</p>
+</p></li>
 </ul>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -214,6 +223,10 @@ are appended to the dataset.</p></li>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">avg</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">fetch_data</span><span class="p">(</span><span class="n">pvs</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">with_data</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">expanded</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># return the average without data filtering.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">avg</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">fetch_data</span><span class="p">(</span><span class="n">pvs</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># fetch timestamp per event</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">avg</span><span class="p">,</span> <span class="n">df</span> <span class="o">=</span> <span class="n">fetch_data</span><span class="p">(</span><span class="n">pvs</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="n">with_data</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">data_opt</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;with_timestamp&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># returned df with timestamp as the index, PV names as columns, timestamps are</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># aligned with fillna_method of &#39;linear&#39;.</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -257,6 +270,10 @@ via &lt;DataFetcher instance&gt;.timeout = &lt;new timeout&gt;.</p></li>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">avg</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">data_fetcher</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># return raw fetch data, save post-processing</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">avg</span><span class="p">,</span> <span class="n">df_raw</span> <span class="o">=</span> <span class="n">data_fetcher</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">with_data</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">expanded</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># fetch timestamp per event</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">avg</span><span class="p">,</span> <span class="n">df</span> <span class="o">=</span> <span class="n">data_fetcher</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">with_data</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">data_opt</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;with_timestamp&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># returned df with timestamp as the index, PV names as columns, timestamps are</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># aligned with fillna_method of &#39;linear&#39;.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># clean up (optional)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">data_fetcher</span><span class="o">.</span><span class="n">clean_up</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Re-instantiation is required after clean_up if working with the DataFetcher with</span>
@@ -281,7 +298,7 @@ via &lt;DataFetcher instance&gt;.timeout = &lt;new timeout&gt;.</p></li>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2016, Facility for Rare Isotope Beams, Michigan State University.
-      <span class="lastupdated">Last updated on Apr 04, 2024.
+      <span class="lastupdated">Last updated on Jun 17, 2024.
       </span></p>
   </div>
 
