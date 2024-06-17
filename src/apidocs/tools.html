@@ -191,9 +191,11 @@ are appended to the dataset.</p></li>
 <li><p><strong>data_opt</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><em>dict</em></a>) – <ul>
 <li><p>with_timestamp : bool</p></li>
 </ul>
-<p>If set, return data array with aligned timestamp info, <em>with_data</em> must be set.
-- fillna_method : str
-The algorithm to fill out the NaN values of the retrieved dataset, defaults to ‘linear’,
+<p>If set, return data array with aligned timestamp info, <em>with_data</em> must be set.</p>
+<ul>
+<li><p>fillna_method : str</p></li>
+</ul>
+<p>The algorithm to fill out the NaN values of the retrieved dataset, defaults to ‘linear’,
 which applies linear interpolation, other options ‘nearest’, ‘ffill’, ‘bfill’, and ‘none’
 meaning return the raw dataset.</p>
 </p></li>
